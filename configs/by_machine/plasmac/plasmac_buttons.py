@@ -59,13 +59,17 @@ class HandlerClass:
         if 'change-consumables' in commands.lower():
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
                 hal.set_p('plasmac.consumable-change', '0')
+                hal.set_p('plasmac.x-offset', '0')
+                hal.set_p('plasmac.y-offset', '0')
+                hal.set_p('plasmac.xy-feed-rate', '0')
             else:
+                hal.set_p('plasmac.xy-feed-rate', str(int(self.ccF)))
                 if self.ccX or self.ccX == 0:
-                    hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccX - self.s.position[0]) / self.ccScale, 0))
+                    hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccX - self.s.position[0]) / hal.get_value('plasmac.offset-scale')))
                 else:
                     hal.set_p('plasmac.x-offset', '0')
                 if self.ccY or self.ccY == 0:
-                    hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccY - self.s.position[1]) / self.ccScale, 0))
+                    hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccY - self.s.position[1]) / hal.get_value('plasmac.offset-scale')))
                 else:
                     hal.set_p('plasmac.y-offset', '0')
                 hal.set_p('plasmac.consumable-change', '1')
@@ -96,7 +100,7 @@ class HandlerClass:
                 self.outFile = '{}/PlaSmaC0_{}'.format(self.inPath,self.inBase)
             import subprocess
             outBuf = open(self.outFile, 'w')
-            filter = subprocess.Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac_gcode.py', self.inFile)],
+            filter = subprocess.Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac/plasmac_gcode.py', self.inFile)],
                                   stdin=subprocess.PIPE,
                                   stdout=outBuf,
                                   stderr=subprocess.PIPE)
@@ -230,10 +234,13 @@ class HandlerClass:
                 self.cutType = 1
         if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
             hal.set_p('plasmac.consumable-change', '0')
+            hal.set_p('plasmac.x-offset', '0')
+            hal.set_p('plasmac.y-offset', '0')
+            hal.set_p('plasmac.xy-feed-rate', '0')
         return True
 
     def consumable_change_setup(self, ccParm):
-        self.ccX = self.ccY = ccF = ''
+        self.ccX = self.ccY = self.ccF = ''
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -258,7 +265,7 @@ class HandlerClass:
                 elif ccName[loop] == 'y' and ccAxis[loop]:
                     self.ccY = float(ccAxis[loop])
                 elif ccName[loop] == 'f' and ccAxis[loop]:
-                    ccF = float(ccAxis[loop])
+                    self.ccF = float(ccAxis[loop])
         if self.ccX and \
            (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
            self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
@@ -271,17 +278,10 @@ class HandlerClass:
             self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n')
             print('y out of bounds for consumable change\n')
             raise SystemExit()
-        if not ccF:
+        if not self.ccF:
             self.dialog_error('invalid feed rate for consumable change\n\nCheck .ini file settings\n')
             print('invalid consumable change feed rate\n')
             raise SystemExit()
-        self.ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
-        ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
-        hal.set_p('axis.x.eoffset-scale', str(self.ccScale))
-        hal.set_p('axis.y.eoffset-scale', str(self.ccScale))   
-        hal.set_p('plasmac.x-y-velocity', str(ccVel))
-        hal.set_p('axis.x.eoffset-enable', '1')
-        hal.set_p('axis.y.eoffset-enable', '1')
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 

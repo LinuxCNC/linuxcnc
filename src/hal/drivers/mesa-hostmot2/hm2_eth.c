@@ -522,7 +522,7 @@ static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) 
     // eeprom order is backwards from arp AF_LOCAL order
     for(i=0; i<6; i++) buf[i] = response[5-i];
 
-    LL_PRINT("%s: Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    LL_PRINT("%s: INFO: Hardware address (MAC): %02x:%02x:%02x:%02x:%02x:%02x\n",
         board_ip, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 
     return 0;
@@ -594,13 +594,13 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
     board->req.arp_flags = ATF_PERM | ATF_COM;
     ret = fetch_hwaddr( board_ip, board->sockfd, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
-        LL_PRINT("ERROR: %s: Could not retrieve mac address\n", board_ip);
+        LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
         return ret;
     }
 
     ret = ioctl_siocsarp(board);
     if(ret < 0) {
-        perror("ioctl SIOCSARP");
+        LL_PRINT("ERROR: ioctl SIOCSARP failed: %s\n", strerror(errno));
         board->req.arp_flags &= ~ATF_PERM;
         return -errno;
     }
@@ -618,6 +618,9 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 }
 
 static int close_board(hm2_eth_t *board) {
+
+    board->llio.reset(&board->llio);
+
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
@@ -824,6 +827,19 @@ do_recv_packet:
         decrement_soft_error(board);
     }
     return result;
+}
+
+static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
+    LL_PRINT("in hm2_eth_reset\n");
+
+    hm2_eth_t *board = this->private;
+
+    // Make the watchdog timer bite in 1ns from now
+    lbp16_cmd_addr_data32 bite_packet;
+    LBP16_INIT_PACKET8(bite_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(1), HM2_ADDR_WATCHDOG, 0x0001);
+    int ret = eth_socket_send(board->sockfd, (void*) &bite_packet, sizeof(bite_packet), 0);
+    if(ret < 0) perror("eth_socket_send(bite_packet)");
+    return ret < 0 ? -errno : 0;
 }
 
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
@@ -1173,6 +1189,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
     board->llio.send_queued_writes = hm2_eth_send_queued_writes;
+    board->llio.reset = hm2_eth_reset;
 
     ret = hm2_register(&board->llio, config[boards_count]);
     if (ret != 0) {

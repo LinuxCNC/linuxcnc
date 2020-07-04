@@ -73,6 +73,8 @@ using namespace boost::python;
 
 AS_IF([test "x$ac_cv_boost_python" = xyes],
 [
+  PYTHON_MAJOR=`$PYTHON -c 'import sys; print(sys.version_info.major)'`
+  PYTHON_MINOR=`$PYTHON -c 'import sys; print(sys.version_info.minor)'`
   BOOST_PYTHON_LIBS=
   ax_python_lib=boost_python
   AC_ARG_WITH([boost-python],
@@ -88,7 +90,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     ax_boost_python_lib=boost_python-$with_boost_python
   fi])
   AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python${PYTHON_MAJOR}${PYTHON_MINOR} boost_python${PYTHON_MAJOR} boost_python
   do
     # Note that this requires LIBPYTHON from configure.ac
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
@@ -701,6 +703,7 @@ else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    DEFAULT_TOOLTABLE=${prefix}/share/doc/linuxcnc/examples/sample-configs/common/tool.tbl
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -902,22 +905,25 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
-then
-    AC_MSG_ERROR([insmod not found])
-fi
+if test "$RTS" != uspace; then
+    # Module utilities not needed for uspace
+    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+    if test $INSMOD = "none"
+    then
+        AC_MSG_ERROR([insmod not found])
+    fi
 
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
+    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+    if test $RMMOD = "none"
+    then
+        AC_MSG_ERROR([rmmod not found])
+    fi
 
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+        AC_MSG_ERROR([lsmod not found])
+    fi
 fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
@@ -1242,25 +1248,6 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
-
-AC_MSG_CHECKING([for sincos function])
-sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
-        1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
-AC_MSG_RESULT([$sincos_ok])
-
-AC_CHECK_FUNCS(__sincos)
-LIBS=$LIBS_hold
 
 AC_MSG_CHECKING([for optreset])
 AC_TRY_LINK(
@@ -1751,6 +1738,7 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
 AC_CONFIG_FILES(Makefile.inc)

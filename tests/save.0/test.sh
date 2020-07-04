@@ -1,6 +1,6 @@
 #!/bin/sh
-realtime start
+$REALTIME start
 halcmd -f expected
 halcmd save
 halcmd unload all
-realtime stop
+$REALTIME stop

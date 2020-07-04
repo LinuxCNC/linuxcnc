@@ -269,7 +269,7 @@ class HandlerClass:
         try:
             with open(self.configFile, 'w') as f_out:
                 f_out.write('# plasmac config tab configuration file\n# format is: name = value\n\n')
-                f_out.write('version=0.1\n\n')
+                f_out.write('version={}\n\n'.format(self.plasmacVersion))
                 for key in sorted(self.configDict.iterkeys()):
                     if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                         self.builder.get_object(key).update()
@@ -287,7 +287,7 @@ class HandlerClass:
     def upgrade_check(self):
         with open(self.configFile, 'r') as f_in:
             for line in f_in:
-                if line.startswith('version=0.1'):
+                if line.startswith('version='):
                     return
                 elif line.startswith('arc-fail-delay'):
                     break
@@ -321,7 +321,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.134'
+        self.plasmacVersion = 'PlasmaC v0.140'
 
         self.halcomp = halcomp
         self.builder = builder

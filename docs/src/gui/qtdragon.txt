@@ -1,4 +1,8 @@
-[[cha:qtdragon-gui]]
+[[cha:qtdragon-gui]](((SilverDragon)))
+
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
 
 = SilverDragon GUI
 
@@ -56,7 +60,7 @@ SUBROUTINE_PATH = ../../../../nc_files/probe/basic_probe/macros
 It also requires extra analog I/O pins for probing. +
 Make sure this line in the HAL file has the 'num_aio=13' entry: +
 The rest of the line depends on your setup and could be different and should not be changed. +
-[source,{ini}]
+[source,{hal}]
 ----
 loadrt motmod servo_period_nsec = [EMCMOT] SERVO_PERIOD num_joints = 4 num_aio = 13
 ----
@@ -106,6 +110,100 @@ unless the machine is in AUTO mode. To hide the keyboard, do one of the followin
   - go into AUTO mode +
 
 It should be noted that keyboard jogging is disabled when using the virtual keyboard. +
+
+== HAL Pins
+These pins are specific to the qtDragon screen, There are of course are many more HAL pins +
+that must be connected for linuxcnc to function. +
+
+If you need a manual tool change prompt, add these lines in your postgui file.
+[source,{hal}]
+----
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+----
+
+These pins must be connected in the postgui file for probing to work:
+[source,{hal}]
+----
+net xwidth           motion.analog-out-00 => qtdragon.x_width
+net ywidth           motion.analog-out-01 => qtdragon.y_width
+net avg_dia          motion.analog-out-02 => qtdragon.avg_diameter
+net edge_angle       motion.analog-out-03 => qtdragon.edge_angle
+net edge_delta       motion.analog-out-04 => qtdragon.edge_delta
+net xminus           motion.analog-out-05 => qtdragon.x_minus
+net yminus           motion.analog-out-06 => qtdragon.y_minus
+net zminus           motion.analog-out-07 => qtdragon.z_minus
+net xplus            motion.analog-out-08 => qtdragon.x_plus
+net yplus            motion.analog-out-09 => qtdragon.y_plus
+net xcenter          motion.analog-out-10 => qtdragon.x_center
+net ycenter          motion.analog-out-11 => qtdragon.y_center
+net cal_offset       motion.analog-out-12 => qtdragon.cal_offset
+----
+
+This input pin should be connected to indicate probe state: 
+[source,{hal}]
+----
+qtdragon.hal_led_probe
+----
+
+These pins can be connected to indicate home switch states:
+[source,{hal}]
+----
+qtdragon.hal_led_home_x
+qtdragon.hal_led_home_y
+qtdragon.hal_led_home_z
+----
+
+These pins are inputs related to spindle VFD indicating:
+[source,{hal}]
+----
+qtdragon.modbus-errors
+qtdragon.spindle_amps
+qtdragon.spindle_fault
+qtdragon.spindle_volts
+----
+
+This pin is an output to the spindle control to pause it:
+[source,{hal}]
+----
+qtdragon.spindle_pause
+----
+
+This output pins can be connected to turn on a laser:
+[source,{hal}]
+----
+qtdragon.btn_laser_on
+----
+
+These output pins indicate buttons that were pushed, 
+they are probably of limited use:
+[source,{hal}]
+----
+qtdragon.btn_dimensions
+qtdragon.btn_gcode_edit
+qtdragon.btn_home_x
+qtdragon.btn_home_y
+qtdragon.btn_home_z
+qtdragon.btn_jog_a_slow
+qtdragon.btn_jog_l_slow
+qtdragon.btn_keyboard
+qtdragon.btn_probe_help
+qtdragon.btn_probe_mode
+qtdragon.btn_select_log
+qtdragon.btn_tool_add
+qtdragon.btn_tool_delete
+----
+
+These pins are related to external offsets if they are used:
+[source,{hal}]
+----
+qtdragon.eoffset_clear
+qtdragon.eoffset_count
+qtdragon.eoffset_enable
+qtdragon.eoffset_value
+qtdragon.led_eoffset_limit
+----
 
 == HAL files
 

@@ -10,6 +10,9 @@ Build-Depends: debhelper (>= 6),
     @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev,
     tk@TCLTK_VERSION@-dev,
+    libtk-img,
+    bwidget (>= 1.7),
+    tclx,
     @LIBREADLINE_DEV@,
     @DOC_DEPENDS@,
     python,
@@ -43,6 +46,7 @@ Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
     @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+    udev,
     @YAPPS_RUNTIME@
 Section: libs
 Description: PC based motion controller for real-time Linux

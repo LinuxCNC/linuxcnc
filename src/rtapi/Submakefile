@@ -23,14 +23,6 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += -DSIM \
 TARGETS += ../bin/rtapi_app
 endif
 
-TEST_RTAPI_VSNPRINTF_SRCS := rtapi/test_rtapi_vsnprintf.c
-USERSRCS += $(TEST_RTAPI_VSNPRINTF_SRCS)
-$(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
-../bin/test_rtapi_vsnprintf: $(call TOOBJS, $(TEST_RTAPI_VSNPRINTF_SRCS))
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/test_rtapi_vsnprintf
-
 ifeq ($(CONFIG_USPACE_RTAI),y)
 USPACE_RTAI_SRCS := rtapi/uspace_rtai.cc
 USERSRCS += $(USPACE_RTAI_SRCS)

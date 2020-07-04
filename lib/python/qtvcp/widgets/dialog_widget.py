@@ -506,6 +506,9 @@ class FileDialog(QFileDialog, GeometryMixin):
                     message['RETURN'] = self.save_dialog(ext, pre, dir)
                     STATUS.emit('general', message)
 
+    def showdialog(self):
+        self.load_dialog()
+
     def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
@@ -1105,6 +1108,9 @@ class VersaProbeDialog(QDialog, GeometryMixin):
             self.read_preference_geometry(geo)
             self.load_dialog()
 
+    def showdialog(self):
+        self.load_dialog()
+
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'VersaProbe Dialog', self._color)
         self.set_geometry()
@@ -1529,7 +1535,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
             message['RETURN'] = num
             STATUS.emit('general', message)
 
-    def showdialog(self, line = None, message=None, nonblock=None):
+    def showdialog(self, line = 1, message=None, nonblock=None):
         self.start_line = int(line)
         if message is not None:
             self.label_line.setText(message)
@@ -1576,7 +1582,22 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = CalculatorDialog()
+    #widget = CalculatorDialog()
+    widget = RunFromLineDialog()
+    #widget = MachineLogDialog()
+    #widget = EntryDialog()
+    #widget = CamViewDialog()
+    #widget = VersaProbeDialog()
+    #widget = MacroTabDialog()
+    #widget = CamViewDialog()
+    #widget = ToolOffsetDialog()
+    #widget = OriginOffsetDialog()
+    #widget = FileDialog()
+    #widget = ToolDialog()
+
+    widget.HAL_NAME_ = 'test'
+    widget.PREFS_ = None
+    widget._hal_init()
     widget.showdialog()
     sys.exit(app.exec_())
 if __name__ == '__main__':

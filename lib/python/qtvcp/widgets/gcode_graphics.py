@@ -305,5 +305,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget =  GCodeGraphics()
+    widget.use_gradient_background = True
+    widget.enable_dro = True
     widget.show()
     sys.exit(app.exec_())

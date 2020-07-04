@@ -119,24 +119,6 @@ RTAPI_BEGIN_DECLS
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
-/** HAL "data union" structure
- ** This structure may hold any type of hal data
-*/
-typedef union {
-    hal_bit_t b;
-    hal_s32_t s;
-    hal_u32_t u;
-    hal_float_t f;
-    hal_port_t p;
-} hal_data_u;
-
-typedef struct {
-    volatile unsigned int read;  //offset into buff that outgoing data gets read from
-    volatile unsigned int write; //offset into buff that incoming data gets written to
-    unsigned int size;           //size of allocated buffer
-    char buff[];                 
-} hal_port_shm_t;
-
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
     lists.  Such lists have the following characteristics:

@@ -747,6 +747,8 @@ class StepconfApp:
         # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
+        # Try find parport
+        self.d.lparport = self.find_parport()
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.set_translation_domain(domain)
@@ -928,6 +930,51 @@ class StepconfApp:
             self.w.dirhold.set_sensitive(1)
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
+        
+    # parport io preset
+    def find_parport(self):
+        # Try to find parallel port
+        lparport=[]
+        # Try /proc/sys/dev/parport/parport#/base-addr
+        parport_path="/proc/sys/dev/parport"
+        if(os.path.isdir(parport_path)):
+            parport_list=os.listdir(parport_path)
+            for current_parport in parport_list:
+                if(current_parport == "default"):
+                    continue
+                # find port number
+                find_string="parport"
+                if(current_parport.find(find_string) == 0):
+                    try:
+                        port_number=current_parport.split(find_string)[1]
+                        lparport.append(port_number)
+                    except:
+                        continue
+                # find base-addr file
+                # Not used, but I want to be sure there is a real parport
+                baseaddr=os.path.join(parport_path, current_parport, "base-addr")
+                if(os.path.exists(baseaddr) == True):
+                    try:
+                        in_file = open(baseaddr,"r")
+                    except:
+                        print ("Unable to open %s" % baseaddr )
+                        continue
+                    # read base-addr file
+                    try:
+                        for line in in_file:
+                            # get init_address (Not used)
+                            lline=line.split()
+                            dec_address=lline[0].strip()
+                            init_address=hex(int(dec_address))
+                    except:
+                        print ("Error read %s" % baseaddr)
+                        in_file.close()
+                        continue
+                    in_file.close()
+        if lparport == []:
+            print ("No parport found")
+            return([])
+        return(lparport)
 
     # preset out pins
     def preset_sherline_outputs(self):

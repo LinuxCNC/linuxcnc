@@ -5,6 +5,6 @@ usr/share/applications/linuxcnc-latency.desktop
 usr/share/applications/linuxcnc-stepconf.desktop
 usr/share/applications/linuxcnc-pncconf.desktop
 usr/share/desktop-directories/cnc.directory
-usr/share/pixmaps/linuxcncicon.png
+usr/share/icons/hicolor/scalable/apps/linuxcncicon.svg
 etc/xdg/menus/applications-merged/cnc.menu
 lib/udev/rules.d/*.rules

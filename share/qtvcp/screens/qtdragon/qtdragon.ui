@@ -5206,6 +5206,9 @@ ERRORS</string>
                           <property name="text">
                            <string>CALIBRATION</string>
                           </property>
+                          <property name="launch_calibration_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
                          </widget>
                         </item>
                         <item>
@@ -13269,7 +13272,7 @@ ALL</string>
                    </widget>
                   </item>
                   <item alignment="Qt::AlignHCenter">
-                   <widget class="LED" name="hal_led_home_p">
+                   <widget class="LED" name="hal_led_probe">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -13465,7 +13468,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>01:00:47 PM</string>
+                  <string>07:02:58 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -14101,8 +14104,8 @@ ALL</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>678</x>
+     <y>478</y>
     </hint>
     <hint type="destinationlabel">
      <x>500</x>
@@ -14117,8 +14120,8 @@ ALL</string>
    <slot>chk_alpha_mode_clicked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>678</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -14133,8 +14136,8 @@ ALL</string>
    <slot>chk_inhibit_display_selection_clicked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>678</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>558</x>
@@ -14149,8 +14152,8 @@ ALL</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>857</x>
-     <y>221</y>
+     <x>396</x>
+     <y>-235</y>
     </hint>
     <hint type="destinationlabel">
      <x>877</x>

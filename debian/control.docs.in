@@ -1,0 +1,36 @@
+
+Package: linuxcnc-doc-en
+Provides: linuxcnc-doc
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: motion controller for CNC machines and robots (English documentation)
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in English.
+
+Package: linuxcnc-doc-fr
+Provides: linuxcnc-doc
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: motion controller for CNC machines and robots (French documentation)
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in French.
+
+Package: linuxcnc-doc-es
+Provides: linuxcnc-doc
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: motion controller for CNC machines and robots (Spanish documentation)
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in Spanish.

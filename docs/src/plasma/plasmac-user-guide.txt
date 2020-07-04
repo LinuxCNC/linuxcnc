@@ -959,12 +959,12 @@ Mandatory parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|o=|option
-|nu=|material number (not required for option 0)
-|na=|material name (not required for option 0)
-|ph=|pierce height
-|pd=|pierce delay
-|ch=|cut height
+|o|option
+|nu|material number (not required for option 0)
+|na|material name (not required for option 0)
+|ph|pierce height
+|pd|pierce delay
+|ch|cut height
 |fr|feed rate
 |===
 
@@ -973,15 +973,15 @@ Optional parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|kw=|kerf width
-|th=|thc enable (0=disable, 1=enable)
-|ca=|cut amps
-|cv=|cut voltage
-|pe=|pause at end delay
-|gp=|gas pressure (Powermax)
-|cm=|cut mode (Powermax)
-|jh=|puddle jump height
-|jd=|puddle jump delay
+|kw|kerf width
+|th|thc enable (0=disable, 1=enable)
+|ca|cut amps
+|cv|cut voltage
+|pe|pause at end delay
+|gp|gas pressure (Powermax)
+|cm|cut mode (Powermax)
+|jh|puddle jump height
+|jd|puddle jump delay
 |===
 
 Formatting rules are:
@@ -1283,11 +1283,9 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-[NOTE]
-----
-* It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file.
-* It is OK to have multiple and mixed #<holes> commands in a G-Code file.
-----
+NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file. +
+It is OK to have multiple and mixed #<holes> commands in a G-Code file.
+
 
 === Single Cut
 
@@ -2370,9 +2368,8 @@ To install pyserial, type the following in a terminal:
 sudo apt-get install python-serial
 ----
 
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
-It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 
 == Support
 
@@ -2450,6 +2447,15 @@ continue hole path for overcut
     #<i_diameter> = nn (imperial)
 |Specify <<overcut, overcut>> length
    |#<oclength> = n
+|Create or edit materials. +
+options: +
+1 - Create temporary default +
+2 - Add if not existing +
+3 - Overwrite if existing else add new +
+   |mandatory parameters: +
+    (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
+    optional parameters: +
+    kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>
 |===
 
 === Plasmac Gcode Examples
@@ -2569,13 +2575,27 @@ continue hole path for overcut
     G0 X0 Y0 +
     G90 +
     M2 +
+|Create temporay default material
+   |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
+|Edit material, if not existing create a new one
+   |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
 |===
 
 [[rs485_connections]]
 
 === RS485 Connections
 
-image::images/plasmac_rs485_connections.png[width=75%]
+Hypertherm Powermax 125:
+
+image::images/plasmac_rs485_pmx.png[]
+
+Sunnix SER5037A PCI Card with breakout board:
+
+image::images/plasmac_rs485_sunnix.png[]
+
+Dtech DT-5019 USB to RS485 converter adapter:
+
+image::images/plasmac_rs485_dtech.png[]
 
 [[reed-arc-ok]]
 
@@ -2587,5 +2607,5 @@ This assembly will now act as a relay that will switch on when current is flowin
 
 This will require that PlasmaC be operated in Mode 1 rather than Mode 0. See the <<ini-mode, INI File>> and <<plasmac-mode, PlasmaC Modes>> sections for more information.
 
-image::images/plasmac_reed_arc_ok.png[width=75%]
+image::images/plasmac_reed_arc_ok.png[]
 

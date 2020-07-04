@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.134 - 2020 Jun 09
+0.140 - 2020 Jul 2
 
 .I SUMMARY:
 .br
@@ -105,7 +105,7 @@ pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
-pin in  s32     x_y_velocity                "velocity for consumable change";
+pin in  s32     xy_feed_rate                "feed-rate for consumable change";
 pin in  float   x_offset                    "offest to apply to axis x for consumable change";
 pin in  float   y_offset                    "offest to apply to axis y for consumable change";
 
@@ -120,9 +120,8 @@ pin out bit     feed_hold                   "feed hold, connect to motion.feed_h
 pin out bit     kerfcross_is_locked         "kerf crossing locked indicator [mode 0 & mode 1]";
 pin out bit     led_down                    "thc move down indicator";
 pin out bit     led_up                      "thc move up indicator";
-pin out s32     offset_counts               "number of counts to offset, connect to axis.z.eoffset-counts";
-pin out bit     offset_enable               "enable offsets, connect to axis.z.eoffset-enable";
-pin out float   offset_scale                "offset scale, connect to axis.z.eoffset-scale";
+pin out bit     offset_enable               "enable offsets, connect to axis.<x y z>.eoffset-enable";
+pin out float   offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
 pin out s32     pierce_count                "number of pierce attempts";
 pin out bit     probe_test_error            "minimum limit reached while pobe testing";
@@ -138,6 +137,7 @@ pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 pin out s32     x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
 pin out s32     y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
+pin out s32     z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
 pin out float   z_relative                  "distance of Z from last probed height";
 
 /* VARIABLES */
@@ -589,9 +589,9 @@ FUNCTION(_) {
                         }else if (!program_is_paused){
                             if(!first_cut_finished){
                                 if(probe_start_height){
-                                    probe_start_target = offset_counts - ((axis_z_position - axis_z_min_limit - probe_start_height) / offset_scale);
+                                    probe_start_target = z_offset_counts - ((axis_z_position - axis_z_min_limit - probe_start_height) / offset_scale);
                                 }else{
-                                    probe_start_target = offset_counts;
+                                    probe_start_target = z_offset_counts;
                                 }
                             }
                             cut_offset = 0;
@@ -633,12 +633,12 @@ FUNCTION(_) {
             if((float_switch && !float_detected) || ohmic_detected){
                 probe_retry = TRUE;
                 state = PROBE_UP;
-            }else if(offset_counts - setup_velocity > probe_start_target){
-                offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < probe_start_target){
-                offset_counts += setup_velocity;
-            }else if(offset_counts > probe_start_target || offset_counts < probe_start_target){
-                offset_counts = probe_start_target;
+            }else if(z_offset_counts - setup_velocity > probe_start_target){
+                z_offset_counts -= setup_velocity;
+            }else if(z_offset_counts + setup_velocity < probe_start_target){
+                z_offset_counts += setup_velocity;
+            }else if(z_offset_counts > probe_start_target || z_offset_counts < probe_start_target){
+                z_offset_counts = probe_start_target;
             }else{
                 if(float_detected){
                     if(!float_switch){
@@ -659,7 +659,7 @@ FUNCTION(_) {
             if(target_sensed){
                 if(probe_force > 0){
                     probe_force -= 1;
-                    offset_counts -= 1;
+                    z_offset_counts -= 1;
                 }else{
                     target_sensed = FALSE;
                     if(float_switch || ohmic_detected){
@@ -705,7 +705,7 @@ FUNCTION(_) {
                         probe_at_bottom = offset_current;
                     }
                 }else{
-                    offset_counts -= probe_velocity;
+                    z_offset_counts -= probe_velocity;
                 }
             }
             break;
@@ -717,9 +717,9 @@ FUNCTION(_) {
             }
             if(float_switch || ohmic_detected){
                 if(probe_retry){
-                    offset_counts += 10;
+                    z_offset_counts += 10;
                 }else{
-                    offset_counts += 1;
+                    z_offset_counts += 1;
                 }
             }else{
                 if(probe_retry){
@@ -732,33 +732,33 @@ FUNCTION(_) {
                 }else{
                     probe_offset = float_switch_travel / offset_scale;
                 }
-                zero_target = offset_counts + probe_offset;
-                cut_target = cut_height_first = offset_datum = offset_counts + probe_offset + (cut_height / offset_scale);
-                pierce_target = offset_counts + probe_offset + (pierce_height / offset_scale);
-                puddle_jump_target = offset_counts + probe_offset + (pierce_height * (puddle_jump_percent / 100) / offset_scale);
+                zero_target = z_offset_counts + probe_offset;
+                cut_target = cut_height_first = offset_datum = z_offset_counts + probe_offset + (cut_height / offset_scale);
+                pierce_target = z_offset_counts + probe_offset + (pierce_height / offset_scale);
+                puddle_jump_target = z_offset_counts + probe_offset + (pierce_height * (puddle_jump_percent / 100) / offset_scale);
                 safe_min = (pierce_height + (1 * units_per_mm)) / offset_scale;
                 safe_preferred = safe_height / offset_scale;
-                offset_min = offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
-                offset_max = offset_counts + (axis_z_max_limit - axis_z_position - (1 * units_per_mm)) / offset_scale;
+                offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
+                offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (1 * units_per_mm)) / offset_scale;
                 if(safe_height == 0){
                     safe_target = offset_max;
                     ohmic_enable = FALSE;
                     state = ZERO_HEIGHT;
-                }else if(offset_counts + safe_min >= offset_max){
+                }else if(z_offset_counts + safe_min >= offset_max){
                     safe_target = offset_max;
                     rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
                                                    "program is paused.\n");
                     stop_type = PAUSE;
                     program_pause = TRUE;
                     state = MAX_HEIGHT;
-                }else if(offset_counts + safe_preferred >= offset_max && !safe_height_is_limited){
+                }else if(z_offset_counts + safe_preferred >= offset_max && !safe_height_is_limited){
                     rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
                     safe_target = offset_max;
                     safe_height_is_limited = TRUE;
                     ohmic_enable = FALSE;
                     state = ZERO_HEIGHT;
                 }else{
-                    safe_target = offset_counts + safe_preferred;
+                    safe_target = z_offset_counts + safe_preferred;
                     ohmic_enable = FALSE;
                     state = ZERO_HEIGHT;
                 }
@@ -770,12 +770,12 @@ FUNCTION(_) {
                 state = PROBE_TEST;
                 break;
             }
-            if(offset_counts - setup_velocity > zero_target){
-                offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < zero_target){
-                offset_counts += setup_velocity;
+            if(z_offset_counts - setup_velocity > zero_target){
+                z_offset_counts -= setup_velocity;
+            }else if(z_offset_counts + setup_velocity < zero_target){
+                z_offset_counts += setup_velocity;
             }else{
-                offset_counts = zero_target;
+                z_offset_counts = zero_target;
                 axis_x_start = axis_x_position;
                 axis_y_start = axis_y_position;
                 state = PIERCE_HEIGHT;
@@ -789,12 +789,12 @@ FUNCTION(_) {
             }
             if(pierce_height && cut_height && (use_auto_volts || (!use_auto_volts && cut_volts))){
                 feed_hold = TRUE;
-                if(offset_counts - setup_velocity > pierce_target){
-                    offset_counts -= setup_velocity;
-                }else if(offset_counts + setup_velocity < pierce_target){
-                    offset_counts += setup_velocity;
+                if(z_offset_counts - setup_velocity > pierce_target){
+                    z_offset_counts -= setup_velocity;
+                }else if(z_offset_counts + setup_velocity < pierce_target){
+                    z_offset_counts += setup_velocity;
                 }else{
-                    offset_counts = pierce_target;
+                    z_offset_counts = pierce_target;
                     arc_starts = 0;
                     if(probe_testing){
                         state = PROBE_TEST;
@@ -885,12 +885,12 @@ FUNCTION(_) {
         case PUDDLE_JUMP:
             /* move to puddle_jump height */
             feed_hold = TRUE;
-            if(offset_counts - setup_velocity > puddle_jump_target){
-                offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < puddle_jump_target){
-                offset_counts += setup_velocity;
+            if(z_offset_counts - setup_velocity > puddle_jump_target){
+                z_offset_counts -= setup_velocity;
+            }else if(z_offset_counts + setup_velocity < puddle_jump_target){
+                z_offset_counts += setup_velocity;
             }else{
-                offset_counts = puddle_jump_target;
+                z_offset_counts = puddle_jump_target;
                 count = 0;
                 if(puddle_jump_timer > 0){
                     feed_hold = FALSE;
@@ -905,12 +905,12 @@ FUNCTION(_) {
         case CUT_HEIGHT:
             /* move to cut height */
             feed_hold = TRUE;
-            if(offset_counts - setup_velocity > cut_target){
-                offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < cut_target){
-                offset_counts += setup_velocity;
+            if(z_offset_counts - setup_velocity > cut_target){
+                z_offset_counts -= setup_velocity;
+            }else if(z_offset_counts + setup_velocity < cut_target){
+                z_offset_counts += setup_velocity;
             }else{
-                offset_counts = cut_target;
+                z_offset_counts = cut_target;
                 if((int)floor(offset_current / offset_scale) <= cut_target + 1 && 
                    (int)floor(offset_current / offset_scale) >= cut_target - 1){
                     count = 0;
@@ -918,7 +918,7 @@ FUNCTION(_) {
                     if(cut_feed_rate > 0){
                         requested_feed_rate = cut_feed_rate;
                     }else{
-                        requested_feed_rate = requested_velocity;
+                        requested_feed_rate = requested_velocity * 60;
                     }
                     feed_hold = FALSE;
                     thc_delay_timer = thc_delay;
@@ -927,13 +927,16 @@ FUNCTION(_) {
             }
             break;
         case CUT:
+            /* if program is idle then we shouldn't be here */
+            if(program_is_idle){
+                state = IDLE;
+            }
             /* while cutting and it is not a dry run:
              * if thc is enabled then vary the torch height to keep the arc voltage constant
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
              * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
              * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
             if(torch_on){
-//            if(torch_enable){
                 /* thc control by arc voltage */
                 if(mode < 2){
                     thc_delay_timer -= fperiod;
@@ -967,10 +970,10 @@ FUNCTION(_) {
                         /* height override z motion */
                         }else if(height_ovr_counts != 0){
                             if((setup_velocity) < height_ovr_counts){
-                                offset_counts -= setup_velocity;
+                                z_offset_counts -= setup_velocity;
                                 height_ovr_counts -= setup_velocity;
                             }else{
-                                offset_counts -= height_ovr_counts;
+                                z_offset_counts -= height_ovr_counts;
                                 height_ovr_counts = 0;
                             }
                         /* torch height control */
@@ -1031,11 +1034,11 @@ FUNCTION(_) {
                                     pid_output = -thc_velocity;
                                 }
                                 /* if we hit a soft limit during thc*/
-                                if(offset_counts + pid_output <= offset_min || offset_counts + pid_output >= offset_max){
+                                if(z_offset_counts + pid_output <= offset_min || z_offset_counts + pid_output >= offset_max){
                                     torch_on = FALSE;
                                     stop_type = PAUSE;
                                     program_pause = TRUE;
-                                    if(offset_counts + pid_output <= offset_min){
+                                    if(z_offset_counts + pid_output <= offset_min){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while THC moving down.\n"
                                                                       "program is paused.\n");
                                     }else{
@@ -1046,7 +1049,7 @@ FUNCTION(_) {
                                     state = MAX_HEIGHT;
 
                                 }
-                                offset_counts += pid_output;
+                                z_offset_counts += pid_output;
                             }
                         }
                         if(pid_output > 0){
@@ -1072,7 +1075,7 @@ FUNCTION(_) {
                             cornerlock_is_locked = FALSE;
                         }
                         if(move_down && !cornerlock_is_locked){
-                            if(offset_counts - thc_velocity <= offset_min){
+                            if(z_offset_counts - thc_velocity <= offset_min){
                                 torch_on = FALSE;
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
@@ -1080,11 +1083,11 @@ FUNCTION(_) {
                                                               "program is paused.\n");
                                 state = MAX_HEIGHT;
                             }else{ /* move down at requested velocity */
-                                offset_counts -= thc_velocity;
+                                z_offset_counts -= thc_velocity;
                                 led_down = TRUE;
                             }
                         }else if(move_up && !cornerlock_is_locked){
-                            if(offset_counts + thc_velocity + safe_min >= offset_max){
+                            if(z_offset_counts + thc_velocity + safe_min >= offset_max){
                                 torch_on = FALSE;
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
@@ -1092,7 +1095,7 @@ FUNCTION(_) {
                                                               "program is paused.\n");
                                 state = MAX_HEIGHT;
                             }else{ /* move up at requested velocity */
-                                offset_counts += thc_velocity;
+                                z_offset_counts += thc_velocity;
                                 led_up = TRUE;
                             }
                         }else{
@@ -1102,9 +1105,9 @@ FUNCTION(_) {
                     }
                 }
                 /* check if safe height is below maximium offset */
-                if(offset_counts > offset_datum){
-                    safe_target += offset_counts - offset_datum;
-                    offset_datum = offset_counts;
+                if(z_offset_counts > offset_datum){
+                    safe_target += z_offset_counts - offset_datum;
+                    offset_datum = z_offset_counts;
                     if(safe_target > offset_max){
                         safe_target = offset_max;
                         if(!safe_height_is_limited){
@@ -1114,7 +1117,7 @@ FUNCTION(_) {
                     }
                 }
             }
-            cut_height_last = offset_counts;
+            cut_height_last = z_offset_counts;
             cut_length = cut_length + current_velocity * fperiod;
             cut_time = cut_time + fperiod;
             break;
@@ -1137,12 +1140,12 @@ FUNCTION(_) {
             if(!torch_off_timer || !torch_on){
                 cornerlock_is_locked = FALSE;
                 if(!probe_test || probe_test_error){
-                    if(offset_counts - setup_velocity > safe_target){
-                        offset_counts -= setup_velocity;
-                    }else if(offset_counts + setup_velocity < safe_target){
-                        offset_counts += setup_velocity;
+                    if(z_offset_counts - setup_velocity > safe_target){
+                        z_offset_counts -= setup_velocity;
+                    }else if(z_offset_counts + setup_velocity < safe_target){
+                        z_offset_counts += setup_velocity;
                     }else{
-                        offset_counts = safe_target;
+                        z_offset_counts = safe_target;
                         if(stop_type == WAIT){
                             feed_hold = FALSE;
                         }
@@ -1159,12 +1162,12 @@ FUNCTION(_) {
             feed_hold = TRUE;
             cornerlock_is_locked = FALSE;
             if(!probe_test || probe_test_error){
-                if(offset_counts - setup_velocity > offset_max){
-                    offset_counts -= setup_velocity;
-                }else if(offset_counts + setup_velocity < offset_max){
-                    offset_counts += setup_velocity;
+                if(z_offset_counts - setup_velocity > offset_max){
+                    z_offset_counts -= setup_velocity;
+                }else if(z_offset_counts + setup_velocity < offset_max){
+                    z_offset_counts += setup_velocity;
                 }else{
-                    offset_counts = offset_max;
+                    z_offset_counts = offset_max;
                     if(stop_type == WAIT){
                         feed_hold = FALSE;
                     }
@@ -1193,12 +1196,12 @@ FUNCTION(_) {
                 adaptive_feed = 1;
                 if(program_is_idle){
                     first_cut_finished = FALSE;
-                    if(offset_counts - setup_velocity > 0){
-                        offset_counts -= setup_velocity;
-                    }else if(offset_counts + setup_velocity < 0){
-                        offset_counts += setup_velocity;
+                    if(z_offset_counts - setup_velocity > 0){
+                        z_offset_counts -= setup_velocity;
+                    }else if(z_offset_counts + setup_velocity < 0){
+                        z_offset_counts += setup_velocity;
                     }else{
-                        offset_counts = 0;
+                        z_offset_counts = 0;
                         stop_type = NONE;
                         safe_height_is_limited = FALSE;
                         cut_started = FALSE;
@@ -1268,12 +1271,12 @@ FUNCTION(_) {
             /* wait here until probe_test input released */
             if(!probe_test){
                 probe_testing = FALSE;
-                if(offset_counts - setup_velocity > 0){
-                    offset_counts -= setup_velocity;
-                }else if(offset_counts + setup_velocity < 0){
-                    offset_counts += setup_velocity;
+                if(z_offset_counts - setup_velocity > 0){
+                    z_offset_counts -= setup_velocity;
+                }else if(z_offset_counts + setup_velocity < 0){
+                    z_offset_counts += setup_velocity;
                 }else{
-                    offset_counts = 0;
+                    z_offset_counts = 0;
                     probe_inhibit = FALSE;
                     state = FINISH;
                 }
@@ -1325,20 +1328,20 @@ FUNCTION(_) {
                 }else if(x_offset == 0){
                     x_velocity = 0;
                     if(y_offset > 0){
-                        y_velocity = x_y_velocity;
+                        y_velocity = xy_feed_rate * velocity_scale;
                     }else{
-                        y_velocity = x_y_velocity * -1;
+                        y_velocity = xy_feed_rate * velocity_scale * -1;
                     }
                 }else if(y_offset == 0){
                     if(x_offset > 0){
-                        x_velocity = x_y_velocity;
+                        x_velocity = xy_feed_rate * velocity_scale;
                     }else{
-                        x_velocity = x_y_velocity * -1;
+                        x_velocity = xy_feed_rate * velocity_scale * -1;
                     }
                 }else{
                     angle_x_y = atan2(y_offset, x_offset);
-                    x_velocity = x_y_velocity * cos(angle_x_y);
-                    y_velocity = x_y_velocity * sin(angle_x_y);
+                    x_velocity = xy_feed_rate * velocity_scale * cos(angle_x_y);
+                    y_velocity = xy_feed_rate * velocity_scale * sin(angle_x_y);
                 }
                 consumable_changing = TRUE;
             }else{
