@@ -156,7 +156,8 @@ public:
 
 /* Function prototypes for all  functions */
 
- int arc_data_comp_ijk(int move,
+ int arc_data_comp_ijk(setup_pointer settings,
+ int move,
          int plane,
          int side,
          double tool_radius,
@@ -175,7 +176,8 @@ public:
          double spiral_abs_tolerance,
          double spiral_rel_tolerance);
 
- int arc_data_comp_r(int move,
+ int arc_data_comp_r(setup_pointer settings,
+         int move,
          int plane,
          int side,
          double tool_radius,
@@ -190,7 +192,8 @@ public:
          int *turn,
          double radius_tolerance);
 
- int arc_data_ijk(int move,
+ int arc_data_ijk(setup_pointer settings,
+		 int move,
          int plane,
          double current_x,
          double current_y,

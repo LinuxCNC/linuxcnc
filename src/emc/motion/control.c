@@ -43,7 +43,6 @@ double servo_freq;
    JOINT_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
 
-
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
@@ -1856,15 +1855,32 @@ static void output_to_hal(void)
         case EMC_MOTION_TYPE_FEED: //fall thru
         case EMC_MOTION_TYPE_ARC:
             *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
-                                         * emcmotStatus->net_feed_scale;
+                                         * emcmotStatus->net_feed_scale;  
+            *(emcmot_hal_data->tag_feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED];
+            *(emcmot_hal_data->tag_feed_ups) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED] / 60.0;                                       
             *(emcmot_hal_data->arc_radius) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_RADIUS];
-
-
+            *(emcmot_hal_data->arc_radius_center_x) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X];
+            *(emcmot_hal_data->arc_radius_center_y) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y];
+            *emcmot_hal_data->tag_arc_plane = emcmotStatus->tag.fields[GM_FIELD_PLANE];          
             break;
         default:
             *(emcmot_hal_data->feed_upm) = 0;
+            *(emcmot_hal_data->tag_feed_upm) = 0;
+            *(emcmot_hal_data->tag_feed_ups) = 0;   
     }
-
+    *(emcmot_hal_data->tag_speed) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_SPEED];
+    *(emcmot_hal_data->tag_path_tolerance)= emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_PATH_TOLERANCE];
+    *(emcmot_hal_data->tag_naive_cam_tolerance) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE];        
+    
+	*emcmot_hal_data->tag_line_number = emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER];
+	*emcmot_hal_data->tag_gmode_0 = emcmotStatus->tag.fields[GM_FIELD_G_MODE_0];
+	*emcmot_hal_data->tag_cutter_comp = emcmotStatus->tag.fields[GM_FIELD_CUTTER_COMP];
+	*emcmot_hal_data->tag_motion_mode = emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE];
+	*emcmot_hal_data->tag_m_modes_4 = emcmotStatus->tag.fields[GM_FIELD_M_MODES_4]; 
+	*emcmot_hal_data->tag_origin = emcmotStatus->tag.fields[GM_FIELD_ORIGIN];                        
+	*emcmot_hal_data->tag_toolchange = emcmotStatus->tag.fields[GM_FIELD_TOOLCHANGE];
+	*emcmot_hal_data->tag_packed_flags = emcmotStatus->tag.packed_flags;
+	
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
@@ -1947,11 +1963,11 @@ static void output_to_hal(void)
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp.active;
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
-    emcmot_hal_data->debug_float_0 = emcmotStatus->spindle_status[0].speed;
+    emcmot_hal_data->debug_float_0 = emcmotStatus->spindleSync;
     emcmot_hal_data->debug_float_1 = emcmotStatus->spindleSync;
     emcmot_hal_data->debug_float_2 = emcmotStatus->vel;
     emcmot_hal_data->debug_float_3 = emcmotStatus->spindle_status[0].net_scale;
-    emcmot_hal_data->debug_s32_0 = emcmotStatus->overrideLimitMask;
+    emcmot_hal_data->debug_s32_0 = emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE];
     emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */
@@ -2058,6 +2074,60 @@ static void output_to_hal(void)
         *(axis_data->pos_cmd) = *pcmd_p[axis_num]
                               - axis->ext_offset_tp.curr_pos;
      }
+     /*
+         Select the plane the arc is drawn on from interp code
+         Refer interp-internal.hh for values and
+         interp_write.cc for the CANON PLANE definitions
+         axes in order from 0-8 are: x,y,z,a,b,c,u,v,w
+         
+         Do we need to adjust for external offsets here???
+     */
+     hal_float_t x0 = 0;
+	 hal_float_t y0 = 0;
+     switch(emcmotStatus->tag.fields[GM_FIELD_PLANE]){
+		 case 170:	 //XY plane
+			x0 = *(emcmot_hal_data->axis[0].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[1].pos_cmd);
+			break;
+		 case 180:  //XZ plane
+			x0 = *(emcmot_hal_data->axis[0].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[2].pos_cmd);
+			break;
+	  	 case 190:  //YZ plane
+			x0 = *(emcmot_hal_data->axis[1].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[2].pos_cmd);
+			break;
+	  	 case 171:  //UV plane
+			x0 = *(emcmot_hal_data->axis[6].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[7].pos_cmd);
+			break;
+	  	 case 181:  //UW plane
+			x0 = *(emcmot_hal_data->axis[6].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[8].pos_cmd);
+	  	 case 191:  //VW plane
+			x0 = *(emcmot_hal_data->axis[7].pos_cmd);
+			y0 = *(emcmot_hal_data->axis[8].pos_cmd);
+	 }
+     if(emcmotStatus->motionType == EMC_MOTION_TYPE_ARC){ 
+        /* Calculate heading */            
+       double radius_angle;              /* used to calculate heading */
+       double tangent_angle;     
+       *emcmot_hal_data->tag_tool_radius = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_TOOL_RADIUS];
+       unsigned long int mask = 1 << GM_FLAG_ARC_IS_CIRCLE;
+       mask &= emcmotStatus->tag.packed_flags;
+       *emcmot_hal_data->tag_arc_is_circle = (bool) mask;
+       radius_angle = atan2((*(emcmot_hal_data->arc_radius_center_x) - x0), *(emcmot_hal_data->arc_radius_center_y)- y0);
+	   tangent_angle =  radius_angle + M_PI/2;	   
+	   if(tangent_angle > M_PI)
+	       tangent_angle = (0.0 - M_PI) + (tangent_angle - M_PI);
+	   else if(tangent_angle < (1.0 - M_PI))
+			tangent_angle = (1.0 - M_PI) + (tangent_angle + M_PI);
+       *(emcmot_hal_data->arc_heading) = tangent_angle * 180 / M_PI;    
+     } else {
+	     *(emcmot_hal_data->arc_heading) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING];
+         *emcmot_hal_data->tag_tool_radius = 0.0;
+         *emcmot_hal_data->tag_arc_is_circle = false;  	     
+	 }
 }
 
 static void update_status(void)

@@ -667,7 +667,8 @@ struct setup
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
   StateTag state_tag;
 
-  bool arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
+  bool arc_not_allowed;         // we just exited cutter compensation, so we error if the next move isn't straight
+  bool arc_is_circle;           // TRUE if arc is a circle
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
@@ -706,6 +707,11 @@ struct setup
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
   bool feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
+  double arc_radius;			// arc radius
+  double arc_center_x;          // X ordinate of arc centre (first ordinate on current plane) 
+  double arc_center_y;          // Y ordinate of arc centre (second ordinate on current plane) 
+  double tool_radius;           // Tool radius for tool offsets
+  double straight_heading;      // Calculated Heading on straight moves (G0, G1)
   char filename[PATH_MAX];      // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on

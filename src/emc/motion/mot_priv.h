@@ -209,8 +209,33 @@ typedef struct {
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
 
-    hal_float_t *feed_upm; /* feed units per minute*/
-    hal_float_t *arc_radius; /* arc radius*/
+    /* 
+     * Pins from State tags. refer state_tag.h 
+     * These pins rxpose the state tags structure as motion pins updated in real time 
+     * some values are derived in real time eg. Arc heading requires axis.(n).pos-cmd 
+    */
+    hal_float_t *feed_upm; /* feed units per minute - adjusted for overrides */
+    hal_float_t *tag_feed_upm; /* feed units per minute - no overrides */
+    hal_float_t *tag_feed_ups; /* feed units per second - no overrides */
+    hal_float_t *tag_speed; /* speed from interpreter*/
+    hal_float_t *tag_path_tolerance; /* path tolerance from interpreter */
+    hal_float_t *tag_naive_cam_tolerance; /* naive cam tolerance from interpreter */   
+    hal_float_t *arc_radius; /* arc radius */
+    hal_float_t *arc_radius_center_x; /* arc radius center X - first ordinate position  */
+    hal_float_t *arc_radius_center_y; /* arc radius center Y - second ordinate position */
+    hal_float_t *arc_heading;         /* arc radius heading or slope of the tangent line at a current point on the circumference */
+    hal_float_t *tag_tool_radius;        /* The tool diameter tool offset is active for this state tag */      
+    hal_s32_t   *tag_cutter_comp;     /* Cutter Compensation for this state tag */     
+    hal_s32_t   *tag_gmode_0;         /* G code mode for this state tag */ 
+    hal_s32_t   *tag_motion_mode;     /* The motion mode  for this state tag */   
+    hal_s32_t   *tag_arc_plane;       /* The plane the arc is on */ 
+    hal_s32_t   *tag_line_number;     /* The line number for this state tag */
+    hal_s32_t   *tag_m_modes_4;       /* The M mode for this state tag */
+    hal_s32_t   *tag_origin;          /* The Origin for this state tag */
+    hal_s32_t   *tag_toolchange;      /* The toolchange for this state tag */    
+    hal_s32_t   *tag_arc_is_circle;   /* True if this arc is a circle for this state tag */  
+    hal_u32_t   *tag_packed_flags;    /* The packed flags for this state tag */   
+        
 } emcmot_hal_data_t;
 
 /***********************************************************************

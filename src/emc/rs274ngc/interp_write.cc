@@ -261,7 +261,7 @@ int Interp::write_state_tag(block_pointer block,
 	(settings->feed_mode == INVERSE_TIME);
     state.flags[GM_FLAG_FEED_UPM] =
 	(settings->feed_mode == UNITS_PER_MINUTE);
-
+    state.fields_float[GM_FIELD_FLOAT_TOOL_RADIUS] = settings->tool_radius;
 
     state.fields[GM_FIELD_ORIGIN] =
         ((settings->origin_index < 7) ?
@@ -298,8 +298,6 @@ int Interp::write_state_tag(block_pointer block,
 	(settings->ijk_distance_mode == MODE_ABSOLUTE);
     state.flags[GM_FLAG_DIAMETER_MODE] =
 	(settings->lathe_diameter_mode);
-
-
     state.fields[GM_FIELD_M_MODES_4] =
 	(block == NULL) ? -1 : block->m_modes[4];
 
@@ -313,7 +311,7 @@ int Interp::write_state_tag(block_pointer block,
 
     state.flags[GM_FLAG_MIST] = (settings->mist) ;
     state.flags[GM_FLAG_FLOOD] = (settings->flood);
-
+    state.flags[GM_FLAG_ARC_IS_CIRCLE] = (settings->arc_is_circle);
     state.flags[GM_FLAG_FEED_OVERRIDE] = settings->feed_override;
     state.flags[GM_FLAG_SPEED_OVERRIDE] = settings->speed_override;
 
@@ -323,7 +321,17 @@ int Interp::write_state_tag(block_pointer block,
 
     state.fields_float[GM_FIELD_FLOAT_FEED] = settings->feed_rate;
     state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed[0];
-
+    if(settings->motion_mode == G_2 || settings->motion_mode == G_3){
+	    state.fields_float[GM_FIELD_FLOAT_ARC_RADIUS] = settings->arc_radius;
+	    state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X] = settings->arc_center_x;
+	    state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y] = settings->arc_center_y;
+	    state.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING] = 0;
+    } else{
+	    state.fields_float[GM_FIELD_FLOAT_ARC_RADIUS] = 0;
+	    state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X] = 0;
+	    state.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y] = 0;
+	     state.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING] = settings->straight_heading;
+	}
     return 0;
 }
 

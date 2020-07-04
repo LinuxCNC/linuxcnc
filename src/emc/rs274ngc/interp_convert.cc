@@ -469,8 +469,9 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   settings->motion_mode = move;
 
+
   // Should be done with changes to settings here, so we can pack the state
-  write_canon_state_tag(block, settings);
+  //write_canon_state_tag(block, settings);
 
   if (settings->plane == CANON_PLANE_XY) {
     if ((!settings->cutter_comp_side) ||
@@ -532,6 +533,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHP(status);
   } else
     ERS(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
+  write_canon_state_tag(block, settings);
   return INTERP_OK;
 }
 
@@ -570,8 +572,8 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         double offset1, //!< center, either abs or offset from current
                         double offset2)
 {
-  double center1;
-  double center2;
+  double center1 = 0;
+  double center2 = 0;
   int turn;                     /* number of full or partial turns CCW in arc */
   int plane = settings->plane;
 
@@ -584,15 +586,19 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
     RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
   if (block->r_flag) {
+	  settings->arc_center_x = center1;
+	  settings->arc_center_y = center2;
+	  settings->arc_radius = block->r_number;  
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
                      block->r_number, block->p_flag? round_to_int(block->p_number) : 1,
                      &center1, &center2, &turn, radius_tolerance));
   } else {
-      CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
+      CHP(arc_data_ijk(settings, move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
                        offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
                        &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
   }
+  write_canon_state_tag(block, settings);
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                         turn, end1, end2, end3, block, settings);
 
@@ -650,7 +656,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               double CC_end,     //!< c-value at end of arc
                               double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
-    double center_x, center_y;
+    double center_x = 0, center_y = 0;
     double gamma;                 /* direction of perpendicular to arc at end */
     int side;                     /* offset side - right or left              */
     double tool_radius;
@@ -670,16 +676,19 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
          _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
-        CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
+        CHP(arc_data_comp_r(settings, move, plane, side, tool_radius, cx, cy, end_x, end_y, 
                             block->r_number, block->p_flag? round_to_int(block->p_number): 1,
                             &center_x, &center_y, &turn, radius_tolerance));
+        settings->arc_center_x = center_x;
+	    settings->arc_center_y = center_y;
+	    settings->arc_radius = block->r_number;                             
     } else {
-        CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
+        CHP(arc_data_comp_ijk(settings, move, plane, side, tool_radius, cx, cy, end_x, end_y,
                               (settings->ijk_distance_mode == MODE_ABSOLUTE),
                               offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                               &center_x, &center_y, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
-
+	write_canon_state_tag(block, settings);
     inverse_time_rate_arc(cx, cy, cz, center_x, center_y,
                           turn, end_x, end_y, end_z, block, settings);
 
@@ -830,20 +839,24 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         CHP(arc_data_r(move, plane, opx, opy, end_x, end_y,
                        block->r_number, block->p_flag? round_to_int(block->p_number): 1,
                        &centerx, &centery, &turn, radius_tolerance));
+	    settings->arc_center_x = centerx;
+	    settings->arc_center_y = centery;                       
+        settings->arc_radius =  block->r_number;
     } else {
-        CHP(arc_data_ijk(move, plane,
+        CHP(arc_data_ijk(settings, move, plane,
                          opx, opy, end_x, end_y,
                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
                          offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                          &centerx, &centery, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
-
+    write_canon_state_tag(block, settings);
     inverse_time_rate_arc(opx, opy, opz, centerx, centery,
                           turn, end_x, end_y, end_z, block, settings);
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
     arc_radius = hypot((centerx - end_x), (centery - end_y));
+    
     theta = atan2(cy - opy, cx - opx);
     theta = (side == LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
     delta = atan2(centery - opy, centerx - opx);
@@ -1972,6 +1985,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
   settings->cutter_comp_radius = radius;
   settings->cutter_comp_orientation = orientation;
   settings->cutter_comp_side = side;
+  settings->tool_radius = radius;
   return INTERP_OK;
 }
 
@@ -4706,7 +4720,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  u_end, v_end, w_end,
                                  block, settings);
   }
-
+  settings->straight_heading =  0.0 - (atan2(settings->current_y - end_y, settings->current_x - end_x) * 180.0 / M_PI) - 90;
+  if(settings->straight_heading < -180.0)
+	   settings->straight_heading = abs(settings->straight_heading) -180; 
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
 

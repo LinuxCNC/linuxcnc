@@ -358,8 +358,28 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != 0) goto error;
 
     /* state tags pins */
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->tag_arc_is_circle), mot_comp_id, "interp.is-circle")) != 0) goto error;   
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_upm), mot_comp_id, "motion.feed-upm")) < 0) goto error;
-    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_radius), mot_comp_id, "motion.arc-radius")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_feed_upm), mot_comp_id, "interp.feed-rate-upm")) < 0) goto error; 
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_feed_ups), mot_comp_id, "interp.feed-rate-ups")) < 0) goto error;    
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_radius), mot_comp_id, "interp.arc-radius")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_radius_center_x), mot_comp_id, "interp.arc-center-x")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_radius_center_y), mot_comp_id, "interp.arc-center-y")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_heading), mot_comp_id, "interp.heading")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_speed), mot_comp_id, "interp.speed")) < 0) goto error;    
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_path_tolerance), mot_comp_id, "interp.path-tolerance")) < 0) goto error;    
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_tool_radius), mot_comp_id, "interp.tool-radius")) < 0) goto error;  
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_naive_cam_tolerance), mot_comp_id, "interp.naieve-cam-tolerance")) < 0) goto error;            
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_arc_plane), mot_comp_id, "interp.arc_plane")) != 0) goto error;
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_line_number), mot_comp_id, "interp.program-line")) != 0) goto error;  
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_cutter_comp), mot_comp_id, "interp.cutter-comp")) != 0) goto error;  
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_gmode_0), mot_comp_id, "interp.gmode-0")) != 0) goto error;  
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_motion_mode), mot_comp_id, "interp.motion-mode")) != 0) goto error;  
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_m_modes_4), mot_comp_id, "interp.m-modes-4")) != 0) goto error;  
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_origin), mot_comp_id, "interp.origin")) != 0) goto error; 
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_toolchange), mot_comp_id, "interp.toolchange")) != 0) goto error;
+    if ((retval = hal_pin_u32_newf(HAL_OUT, &(emcmot_hal_data->tag_packed_flags), mot_comp_id, "interp.packed-flags")) != 0) goto error;
+           
     /* export motion-synched digital output pins */
     /* export motion digital input pins */
     for (n = 0; n < num_dio; n++) {

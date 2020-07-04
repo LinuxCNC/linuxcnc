@@ -75,7 +75,7 @@ tool radius from the arc.
 
 */
 
-int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc)
+int Interp::arc_data_comp_ijk(setup_pointer settings, int move,  //!<either G_2 (cw arc) or G_3 (ccw arc)
                               int plane, //!<active plane
                              int side,  //!<either RIGHT or LEFT
                              double tool_radius,        //!<radius of the tool
@@ -198,7 +198,7 @@ the pin is inside or outside the hoop.
 
 */
 
-int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw arc)
+int Interp::arc_data_comp_r(setup_pointer settings, int move,    //!< either G_2 (cw arc) or G_3 (ccw arc)
                             int plane,
                            int side,    //!< either RIGHT or LEFT
                            double tool_radius,  //!< radius of the tool
@@ -237,7 +237,8 @@ Returned Value: int
    2. The move code is not G_2 or G_3: NCE_BUG_CODE_NOT_G2_OR_G3
    3. Either of the two calculable values of the radius is zero:
       NCE_ZERO_RADIUS_ARC
-
+interp_arc
+* 
 Side effects:
    This finds and sets the values of center_x, center_y, and turn.
 
@@ -254,8 +255,9 @@ are handled similarly.
 
 */
 
-int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
-                         int plane,
+int Interp::arc_data_ijk(setup_pointer settings, // settings to store arc_radius
+						int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
+                        int plane,
                         double current_x,       //!< first coordinate of current point
                         double current_y,       //!< second coordinate of current point
                         double end_x,   //!< first coordinate of arc end point
@@ -284,6 +286,13 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   }
   radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
+  settings->arc_radius = radius;
+  settings->arc_center_x = *center_x;
+  settings->arc_center_y = *center_y;  
+  double x_diff = fabs(end_x - current_x);
+  double y_diff = fabs(end_y - current_y);    
+  settings->arc_is_circle = ((x_diff > radius_tolerance) || (y_diff > radius_tolerance)) ? false : true;
+  
   CHKS(((radius < radius_tolerance) || (radius2 < radius_tolerance)),_("Zero-radius arc: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
        a, current_x, b, current_y,
@@ -347,7 +356,7 @@ of the arc lies on a line through M perpendicular to L.
 */
 
 int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
-                       int plane,
+                      int plane,
                       double current_x, //!< first coordinate of current point
                       double current_y, //!< second coordinate of current point
                       double end_x,     //!< first coordinate of arc end point
