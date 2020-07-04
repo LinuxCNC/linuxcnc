@@ -1283,11 +1283,9 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-[NOTE]
-----
-* It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file.
-* It is OK to have multiple and mixed #<holes> commands in a G-Code file.
-----
+NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file. +
+It is OK to have multiple and mixed #<holes> commands in a G-Code file.
+
 
 === Single Cut
 
@@ -2370,9 +2368,8 @@ To install pyserial, type the following in a terminal:
 sudo apt-get install python-serial
 ----
 
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
-It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 
 == Support
 
@@ -2588,7 +2585,17 @@ options: +
 
 === RS485 Connections
 
-image::images/plasmac_rs485_connections.png[width=75%]
+Hypertherm Powermax 125:
+
+image::images/plasmac_rs485_pmx.png[]
+
+Sunnix SER5037A PCI Card with breakout board:
+
+image::images/plasmac_rs485_sunnix.png[]
+
+Dtech DT-5019 USB to RS485 converter adapter:
+
+image::images/plasmac_rs485_dtech.png[]
 
 [[reed-arc-ok]]
 
@@ -2600,5 +2607,5 @@ This assembly will now act as a relay that will switch on when current is flowin
 
 This will require that PlasmaC be operated in Mode 1 rather than Mode 0. See the <<ini-mode, INI File>> and <<plasmac-mode, PlasmaC Modes>> sections for more information.
 
-image::images/plasmac_reed_arc_ok.png[width=75%]
+image::images/plasmac_reed_arc_ok.png[]
 
