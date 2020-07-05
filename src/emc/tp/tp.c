@@ -216,7 +216,6 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
     }
     // Start with the scaled target velocity based on the current feed scale
     double v_target = tc->synchronized ? tc->target_vel : tc->reqvel;
-    /*tc_debug_print("Initial v_target = %f\n",v_target);*/
 
     // Get the maximum allowed target velocity, and make sure we're below it
     return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
@@ -245,8 +244,7 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
         //KLUDGE: Don't allow feed override to keep blending from overruning max velocity
         max_scale = fmin(max_scale, 1.0);
     }
-    // Get maximum reachable velocity from max feed override
-    double v_max_target = tc->target_vel * max_scale;
+    double v_max_target = tcGetMaxTargetVel(tc, max_scale);
 
     /* Check if the cartesian velocity limit applies and clip the maximum
      * velocity. The vLimit is from the max velocity slider, and should
@@ -257,11 +255,10 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
      */
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
         /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target,tp->vLimit);
+        v_max_target = fmin(v_max_target, tp->vLimit);
     }
 
-    // Apply maximum segment velocity limit (must always be respected)
-    return fmin(v_max_target, tc->maxvel);
+    return v_max_target;
 }
 
 
@@ -1412,14 +1409,21 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     return TP_ERR_OK;
 }
 
-STATIC int tpCheckCanonType(TC_STRUCT * prev_tc, TC_STRUCT * tc)
+STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT * const tc)
 {
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
     }
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
             (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
-        tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
+        tp_debug_print("Blending disabled: can't blend between rapid and feed motions\n");
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
+    }
+    if (prev_tc->synchronized != TC_SYNC_POSITION &&
+            tc->synchronized == TC_SYNC_POSITION) {
+        tp_debug_print("Blending disabled: changing spindle sync mode from %d to %d\n",
+                prev_tc->synchronized,
+                tc->synchronized);
         tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
@@ -1944,7 +1948,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             vel,
             ini_maxvel,
             acc);
-
     // Setup line geometry
     pmLine9Init(&tc.coords.line,
             &tp->goalPos,
@@ -1963,7 +1966,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     //TODO refactor this into its own function
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
-    tpCheckCanonType(prev_tc, &tc);
+    handleModeChange(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
     }
@@ -2051,7 +2054,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
-    tpCheckCanonType(prev_tc, &tc);
+    handleModeChange(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
         findSpiralArcLengthFit(&tc.coords.circle.xyz, &tc.coords.circle.fit);
@@ -2390,6 +2393,10 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
     	new_spindlepos = -new_spindlepos;
 
     switch (tc->coords.rigidtap.state) {
+        case RIGIDTAP_START:
+            old_spindlepos = new_spindlepos;
+            tc->coords.rigidtap.state = TAPPING;
+            // Deliberate fallthrough
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
