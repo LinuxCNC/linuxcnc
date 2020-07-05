@@ -938,7 +938,7 @@ Materials can be selected manually with the either the Cut Parameters combobox o
 
 If a G-Code program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
 
-==== Adding/Editing Materials From G-Code
+=== Materials Adding And Editing From G-Code
 
 It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
 
