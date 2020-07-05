@@ -1152,7 +1152,7 @@ image::images/qtvcp_machineLog.png["QTvcp MachineLog Dialog",scale="25%"]
 This is a dialog to display the user machine log and qtvcp's debugging log. +
 It is based on pyQT's QDialog
 
-= Other
+== Other
 Other available widgets
 
 === Nurbs Editor
