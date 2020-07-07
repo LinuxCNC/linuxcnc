@@ -1,4 +1,4 @@
-.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi
+.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_cn
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 DOC_DIR=../docs
@@ -235,13 +235,25 @@ DOC_SRCS_ES := \
 	config/stepper-quickstart-es.txt \
 	getting-started/system-requirements-es.txt \
 
-DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES)
+DOC_SRCS_CN := \
+	common/overleaf-cn.txt \
+	common/glossary-cn.txt \
+	common/gpld-copyright-cn.txt \
+	getting-started/getting-linuxcnc-cn.txt \
+	getting-started/system-requirements-cn.txt \
+	getting-started/running-linuxcnc-cn.txt \
+	getting-started/about-linuxcnc-cn.txt \
+	getting-started/updating-linuxcnc-cn.txt \
+	Master_Getting_Started_cn.txt \
+
+DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_CN)
 
 DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
 
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
+DOC_SRCS_CN_SMALL := $(filter-out Master_%,$(DOC_SRCS_CN))
 
 DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
@@ -249,11 +261,13 @@ DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGE
 
 DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
 DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML)) )
-DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_VI := $(filter %_vi.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_VI), $(DOC_TARGETS_HTML))) )
+DOC_TARGETS_XML_CN := $(filter %_cn.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_CN), $(filter-out$(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML))))
+DOC_TARGETS_HTML_ES := $(filter %-es.html, $(DOC_TARGETS_HTML)) $(filter %_es.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_CN := $(filter %-cn.html, $(DOC_TARGETS_HTML)) $(filter %_cn.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_FR := $(filter %-fr.html, $(DOC_TARGETS_HTML)) $(filter %_fr.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_VI := $(filter %_vi.html, $(DOC_TARGETS_HTML)) $(filter %-vi.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_CN), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_VI), $(DOC_TARGETS_HTML)))))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
@@ -277,6 +291,12 @@ PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Documentation_es.pdf \
 	)
 
+PDF_TARGETS_CN := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_cn.pdf \
+	)
+
+# FIXME - Chinese docs not building PDF, HTML OK \
+#PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
 PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
@@ -287,6 +307,8 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index.html \
 	$(DOC_DIR)/html/index_es.html \
 	$(DOC_DIR)/html/index_fr.html \
+	$(DOC_DIR)/html/index_cn.html \
+
 
 A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.section.depth 3 \
@@ -331,7 +353,15 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_fr checkref_es checkref_vi
+checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_cn
+
+$(info  DOC_TARGETS_HTML_EN is $(DOC_TARGETS_HTML_EN))
+$(info )
+$(info  DOC_TARGETS_HTML_FR is $(DOC_TARGETS_HTML_FR))
+$(info )
+$(info  DOC_TARGETS_HTML_ES is $(DOC_TARGETS_HTML_ES))
+$(info )
+$(info  DOC_TARGETS_HTML_CN is $(DOC_TARGETS_HTML_CN))
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
@@ -341,6 +371,9 @@ checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
+
+checkref_cn: $(DOC_TARGETS_HTML_CN) .htmldoc-stamp
+	@$(DOC_SRCDIR)/checkref Chinese $^
 
 checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Vietnamese $^
@@ -361,6 +394,8 @@ $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf: $(DOC_SRCDIR)/Master_Getting_Started_cn.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
@@ -473,6 +508,9 @@ objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
 objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
+objects/xref_cn.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_CN_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
 	mkdir -p $(shell dirname $@)
@@ -539,6 +577,17 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_cn.links $(LOC_LANG_MAP)
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -a linkcss \
+		 $(STYLES_SCRIPTS) \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_cn.links" \
+		 -a stylesheet=linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
@@ -547,6 +596,10 @@ $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_S
 $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+
+$(DOC_DIR)/html/xref_cb.html: objects/xref_cn.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_cn" --stringparam language cjinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 default: docs
 
@@ -563,6 +616,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf

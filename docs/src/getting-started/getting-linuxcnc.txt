@@ -23,13 +23,12 @@ The outline of the process looks like this:
 . Boot the Live system to test out LinuxCNC.
 . Boot the Installer to install LinuxCNC.
 
-
 == Download the image
 
 This section describes some methods for downloading the Live/Install
 Image.
 
-
+[[_normal_download]]
 === Normal Download
 
 Download the Live/Install CD by clicking here:
@@ -169,6 +168,7 @@ In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive 
 during the boot up.
 
+[[_alternate_install_methods]]
 == Alternate Install Methods
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install

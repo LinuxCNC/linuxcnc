@@ -21,6 +21,7 @@
 
 本节介绍了一些下载Live/安装镜像的方法。
 
+[[_normal_download]]
 === 普通下载
 
 通过单击此处下载Live/安装CD：
@@ -37,7 +38,7 @@ zsync是一个下载应用程序，它可以有效支持断点续传，
 
 .Linux中的zsync
 
-. 使用Synaptic或在<<faq:terminal,终端>>中运行以下命令来安装zsync
+. 使用Synaptic或在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]中运行以下命令来安装zsync
 +
 ----
 sudo apt-get install zsync
@@ -120,7 +121,7 @@ dd if=linuxcnc-2.7.14-wheezy.iso of=/dev/sde
 
 从应用程序/CNC菜单中选择试用LinuxCNC，请选择LinuxCNC。然后选择一个模拟配置进行试用。
 
-要查看您的计算机是否适合软件步进脉冲生成，请运行“延迟测试”，<<latency-test,如下>>所示。
+要查看您的计算机是否适合软件步进脉冲生成，请运行“延迟测试”， http://linuxcnc.org/docs/2.8/html/install/latency-test.html[如下>>所示。]
 
 == 安装LinuxCNC
 
@@ -130,7 +131,7 @@ dd if=linuxcnc-2.7.14-wheezy.iso of=/dev/sde
 
 通过常规安装，更新管理器将在您上线时通知您有关LinuxCNC的更新，并允许您轻松升级而无需Linux知识。可以要求升级除操作系统以外的所有内容。
 
-[注意]
+[WARNING]
 如果出现提示，也请不要升级操作系统。
 
 == 安装问题
@@ -139,6 +140,7 @@ dd if=linuxcnc-2.7.14-wheezy.iso of=/dev/sde
 无法在启动过程中识别出硬盘驱动器，
 则可能必须将BIOS重置为默认设置。
 
+[[_alternate_install_methods]]
 == 备用安装方法
 
 安装LinuxCNC的最简单的首选方法是使用Live/Install镜像，如上所述。该方法既简单又可靠，非常适合新手用户和有经验的用户。
@@ -180,7 +182,7 @@ Preempt-RT内核可用于Debian Wheezy，在常规的debian.org归档文件中�
 +
 注意: 不要输入root密码，如果您禁用sudo，则将无法完成以下步骤。
 
-. 在<<faq:terminal,终端>>中运行以下命令，更新系统到最新软件包版本。
+. 在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]中运行以下命令，更新系统到最新软件包版本。
 +
 ----
 sudo apt-get update

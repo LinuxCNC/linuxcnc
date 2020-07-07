@@ -1030,7 +1030,7 @@ AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     AS_HELP_STRING(
         [--enable-build-documentation[=FORMAT]],
-        [Build documentation.  FORMAT may be "pdf" or "html" if only one format is desired.]
+        [Build documentation.  FORMAT may be "Y" for both or "pdf" or "html" if only one format is desired.]
     ),
     [
         case "$enableval" in
