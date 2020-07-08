@@ -12,6 +12,7 @@ from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 from qtvcp.core import Status, Action, Info
 
@@ -30,6 +31,9 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+STYLEEDITOR = SSE()
+TOOLBAR = ToolBarActions()
+
 
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
@@ -60,6 +64,15 @@ class HandlerClass:
                             'workoffsetsPage':False,'setupPage':False}
         self.current_mode = (None,None)
         self._last_count = 0
+       
+        STATUS.connect('periodic', lambda w: self.update_runtimer())
+        STATUS.connect('command-running', lambda w: self.start_timer())
+        STATUS.connect('command-stopped', lambda w: self.stop_timer())
+
+        # some global variables
+        self.run_time = 0
+        self.time_tenths = 0
+        self.timerOn = False
 
     ##########################################
     # Special Functions called from QTVCP
@@ -81,32 +94,24 @@ class HandlerClass:
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
+        KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
-
-        self.pin_mpg_in = self.hal.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
-        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
-
-        self.pin_cycle_start_in = self.hal.newpin('cycle-start-in',hal.HAL_BIT, hal.HAL_IN)
-        self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
-
-        self.pin_abort = self.hal.newpin('abort',hal.HAL_BIT, hal.HAL_IN)
-        self.pin_abort.value_changed.connect(lambda s: self.abort(s))
-
-        self.pin_select_scroll = self.hal.newpin('select-scroll',hal.HAL_BIT, hal.HAL_IN)
-        self.pin_select_fo = self.hal.newpin('select-feedoverride',hal.HAL_BIT, hal.HAL_IN)
-        self.pin_pin_select_ro = self.hal.newpin('select-rapidoverride',hal.HAL_BIT, hal.HAL_IN)
-        self.pin_select_so = self.hal.newpin('select-spindleoverride',hal.HAL_BIT, hal.HAL_IN)
-
+        TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
+        TOOLBAR.configure_submenu(self.w.menuGridSize, 'grid_size_submenu')
+        TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
+        TOOLBAR.configure_action(self.w.actionReload, 'Reload')
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
+              
     def before_loop__(self):
         STATUS.connect('state-estop',lambda q:self.w.close())
-        self.w.close()
+
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5,
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5,
                     QtCore.Qt.Key_F6,QtCore.Qt.Key_F7,QtCore.Qt.Key_F12):
             raise
 
@@ -118,15 +123,67 @@ class HandlerClass:
         except Exception as e:
             LOG.debug('Exception in KEYBINDING:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+            return False        
+
+    
 
     ########################
     # callbacks from STATUS #
     ########################
+    def runtime_sec_changed(self, data):
+        text = "{:02d}:{:02d}:{:02d}".format(self.h['runtime_hrs'], self.h['runtime_min'], self.h['runtime_sec'])
+        self.w.lbl_runtime.setText(text)
+
+    def file_loaded(self, obj, filename):
+        if filename is not None:
+            self.w.progressBar.setValue(0)
+            self.last_loaded_program = filename
+        else:
+            self.add_alarm("Filename not valid")
+
+    def all_homed(self, obj):
+        self.set_dro_homed(True)
+        if self.first_turnon is True:
+            self.first_turnon = False
+            if self.w.chk_reload_tool.isChecked():
+                STATUS.emit('update-machine-log', 'PreLoad Tool #{}: '.format(self.reload_tool), 'TIME')
+                command = "M61 Q{}".format(self.reload_tool)
+                ACTION.CALL_MDI(command)
+            if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
+                STATUS.emit('update-machine-log', 'PreLoading NGC: ' + self.last_loaded_program, 'TIME')
+                ACTION.OPEN_PROGRAM(self.last_loaded_program)
+                self.w.filemanager.updateDirectoryView(self.last_loaded_program)
+
+    def not_all_homed(self, obj, list):
+        self.home_all = False
+        self.w.lbl_home_all.setText("HOME\nALL")
+        for i in INFO.AVAILABLE_JOINTS:
+            if str(i) in list:
+                axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
+                try:
+                    self.w["dro_axis_{}".format(axis)].setProperty('homed', False)
+                    self.w["dro_axis_{}".format(axis)].setStyle(self.w["dro_axis_{}".format(axis)].style())
+                except:
+                    pass
 
     #######################
     # callbacks from form #
     #######################
+    def percentLoaded(self, fraction):
+        if fraction <1:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('')
+        else:
+            self.w.progressBar.setValue(fraction)
+            self.w.progressBar.setFormat('Loading: {}%'.format(fraction))
+
+    def percentCompleted(self, fraction):
+        self.w.progressBar.setValue(fraction)
+        if fraction <1:
+            self.w.progressBar.setFormat('')
+        else:
+            self.w.progressBar.setFormat('Completed: {}%'.format(fraction))
+
     def toggle_prog(self):
         cur = self.w.mainPaneStack.currentIndex()
         if self.current_mode == ('program', 'run'):
@@ -155,13 +212,12 @@ class HandlerClass:
         self.set_active_mode('setup',None)
 
     def toggle_dro(self):
-        cur = self.w.droPaneStack.currentIndex()
-        if cur == 0:
-            self.w.droPaneStack.setCurrentIndex(cur+1)
+        next = self.w.droPaneStack.currentIndex() +1
+        if next == self.w.droPaneStack.count():
+			self.w.droPaneStack.setCurrentIndex(0)
         else:
-            self.w.droPaneStack.setCurrentIndex(0)
-
-
+			self.w.droPaneStack.setCurrentIndex(next)
+        
     def toggle_offsets(self):
         self.w.mainPaneStack.setCurrentIndex(0)
         cur = self.w.widgetswitcher.currentIndex()
@@ -190,6 +246,33 @@ class HandlerClass:
         elif cur == 1:
             self.w.mainLeftStack.setCurrentIndex(0)
             self.w.widgetswitcher.show_id_widget(1)
+
+    # tool tab
+    def btn_m61_clicked(self):
+        checked = self.w.tooloffsetview.get_checked_list()
+        if len(checked) > 1:
+            self.add_alarm("Select only 1 tool to load")
+        elif checked:
+            ACTION.CALL_MDI("M61 Q{}".format(checked[0]))
+        else:
+            self.add_alarm("No tool selected")
+
+     # alarm tab
+    def btn_clear_alarms_clicked(self):
+        ACTION.UPDATE_MACHINE_LOG('', 'DELETE')
+
+    def btn_save_alarms_clicked(self):
+        text = self.w.machinelog.toPlainText()
+        filename = self.w.lbl_clock.text().encode('utf-8')
+        filename = 'alarms_' + filename.replace(' ','_') + '.txt'
+        with open(filename, 'w') as f:
+            f.write(text)
+
+    def btn_reload_file_clicked(self):
+        if self.last_loaded_program:
+            self.w.progressBar.setValue(0)
+            ACTION.OPEN_PROGRAM(self.last_loaded_program)
+
 
     #####################
     # general functions #
@@ -252,6 +335,11 @@ class HandlerClass:
             return
         self.current_mode = (mode,index)
 
+    def btn_start_macro_clicked(self):
+            self.w.label_mode.setText('Operation- MDI Control')
+            self.w.mditouchy.run_command()
+            return
+
     def abort(self, state):
         if not state:
             return
@@ -260,64 +348,42 @@ class HandlerClass:
         else:
             ACTION.ABORT()
 
-    def cycleStart(self, state):
-        print state, self.current_mode
-        if state:
-            if self.current_mode[0] == 'program':
-                if self.current_mode[1] == 'run':
-                    print 'start cycle!', self.w.gcode_editor.get_line()
-                    ACTION.RUN(line=0)
-                elif self.current_mode[1] == 'load':
-                    print 'load program'
-                    self.w.filemanager.load()
-            elif self.current_mode[0] == 'mdi':
-                self.w.mdihistory.run_command()
+    def make_progressbar(self):
+        self.w.progressbBar = QtWidgets.QProgressBar()
+        self.w.progressBar.setRange(0,100)
+        self.w.statusBar.addWidget(self.w.progressBar)
 
-    # MPG scolling of program or MDI history
-    def external_mpg(self, count):
-        diff = count - self._last_count
-        if self.pin_select_scroll.get():
-            if self.current_mode[0] == 'program':
-                if self.current_mode[1] == 'run':
-                    self.w.gcode_editor.jump_line(diff)
-                elif self.current_mode[1] == 'load':
-                    if diff <0:
-                        self.w.filemanager.down()
-                    else:
-                        self.w.filemanager.up()
-            elif self.current_mode[0] == 'mdi':
-                if diff <0:
-                    self.w.mdihistory.line_down()
-                else:
-                    self.w.mdihistory.line_up()
-        elif self.pin_select_fo.get():
-            scaled = (STATUS.stat.feedrate * 100 + diff)
-            if scaled <0 :scaled = 0
-            elif scaled > INFO.MAX_FEED_OVERRIDE:scaled = INFO.MAX_FEED_OVERRIDE
-            ACTION.SET_FEED_RATE(scaled)
-        elif self.pin_pin_select_ro.get():
-            scaled = (STATUS.stat.rapidrate * 100 + diff)
-            if scaled <0 :scaled = 0
-            elif scaled > 100:scaled = 100
-            ACTION.SET_RAPID_RATE(scaled)
-        elif self.pin_select_so.get():
-            scaled = (STATUS.stat.spindle[0]['override'] * 100 + diff)
-            if scaled < INFO.MIN_SPINDLE_OVERRIDE:scaled = INFO.MIN_SPINDLE_OVERRIDE
-            elif scaled > INFO.MAX_SPINDLE_OVERRIDE:scaled = INFO.MAX_SPINDLE_OVERRIDE
-            ACTION.SET_SPINDLE_RATE(scaled)
-        self._last_count = count
+
+    def update_runtimer(self):
+        if self.timerOn is False or STATUS.is_auto_paused(): return
+        self.time_tenths += 1
+        if self.time_tenths == 10:
+            self.time_tenths = 0
+            self.run_time += 1
+            hours, remainder = divmod(self.run_time, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))    
+
+    def start_timer(self):
+        self.run_time = 0
+        self.timerOn = True
+
+    def stop_timer(self):
+        self.timerOn = False
 
     #####################
     # KEY BINDING CALLS #
     #####################
 
     # Machine control
+
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
             ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
+    
     def on_keycall_HOME(self,event,state,shift,cntrl):
         if state:
             if STATUS.is_all_homed():
@@ -328,6 +394,10 @@ class HandlerClass:
         if state:
             self.abort(state)
 
+    def on_keycall_pause(self,event,state,shift,cntrl):
+        if state and STATUS.is_auto_mode() and self.use_keyboard():
+            ACTION.PAUSE()
+
     # dialogs
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
@@ -335,19 +405,18 @@ class HandlerClass:
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'CAMVIEW'})
-    def on_keycall_F5(self,event,state,shift,cntrl):
-        if state:
-            STATUS.emit('dialog-request',{'NAME':'MACROTAB'})
     def on_keycall_F6(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
+    def on_keycall_F9(self,event,state,shift,cntrl):
+        if state:
+            STATUS.emit('dialog-request',{'NAME':'Calculator'})
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
-
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
