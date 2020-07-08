@@ -369,7 +369,7 @@ static int init_hal_io(void)
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_speed), mot_comp_id, "interp.speed")) < 0) goto error;    
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_path_tolerance), mot_comp_id, "interp.path-tolerance")) < 0) goto error;    
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_tool_radius), mot_comp_id, "interp.tool-radius")) < 0) goto error;  
-    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_naive_cam_tolerance), mot_comp_id, "interp.naieve-cam-tolerance")) < 0) goto error;            
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tag_naive_cam_tolerance), mot_comp_id, "interp.naive-cam-tolerance")) < 0) goto error;            
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_arc_plane), mot_comp_id, "interp.arc_plane")) != 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_line_number), mot_comp_id, "interp.program-line")) != 0) goto error;  
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->tag_cutter_comp), mot_comp_id, "interp.cutter-comp")) != 0) goto error;  

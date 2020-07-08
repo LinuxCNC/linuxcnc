@@ -233,7 +233,7 @@ typedef struct {
     hal_s32_t   *tag_m_modes_4;       /* The M mode for this state tag */
     hal_s32_t   *tag_origin;          /* The Origin for this state tag */
     hal_s32_t   *tag_toolchange;      /* The toolchange for this state tag */    
-    hal_s32_t   *tag_arc_is_circle;   /* True if this arc is a circle for this state tag */  
+    hal_bit_t   *tag_arc_is_circle;   /* True if this arc is a circle for this state tag */  
     hal_u32_t   *tag_packed_flags;    /* The packed flags for this state tag */   
         
 } emcmot_hal_data_t;
