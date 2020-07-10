@@ -14177,6 +14177,38 @@ ALL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_clear_status</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_clear_status_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1092</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1762</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_save_status</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_save_status_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1102</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1677</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
