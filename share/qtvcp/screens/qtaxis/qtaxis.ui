@@ -44,6 +44,9 @@
       <property name="fileDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="versaProbeDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="toolOffsetDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -1787,6 +1790,8 @@
     <addaction name="menuHoming"/>
     <addaction name="menuUnhome"/>
     <addaction name="separator"/>
+    <addaction name="actionVersaProbe"/>
+    <addaction name="separator"/>
     <addaction name="actionEstop"/>
     <addaction name="actionMachineOn"/>
     <addaction name="separator"/>
@@ -2242,6 +2247,18 @@
    </property>
    <property name="text">
     <string>Show G53 in DRO</string>
+   </property>
+  </action>
+  <action name="actionVersaProbe">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../images/probe_icons/down.png</normaloff>../../images/probe_icons/down.png</iconset>
+   </property>
+   <property name="text">
+    <string>Versa Probe</string>
+   </property>
+   <property name="toolTip">
+    <string>Versa Probe Dialog</string>
    </property>
   </action>
  </widget>
