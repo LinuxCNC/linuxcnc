@@ -1067,6 +1067,12 @@ ZERO</string>
             <property name="indicator_option" stdset="0">
              <bool>true</bool>
             </property>
+            <property name="indicator_HAL_pin_option" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_status_option" stdset="0">
+             <bool>false</bool>
+            </property>
             <property name="on_color" stdset="0">
              <color>
               <red>255</red>
@@ -1642,6 +1648,9 @@ ANGLE</string>
             </item>
             <item>
              <widget class="PushButton" name="pbtn_use_tool_measurement">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -2080,6 +2089,9 @@ TOOL</string>
               <pointsize>10</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Measured X Length</string>
+            </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(240, 240, 240);</string>
             </property>
@@ -2399,6 +2411,9 @@ TOOL</string>
               <family>DejaVu Sans</family>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Measured Y Length</string>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(240, 240, 240);</string>
@@ -2929,7 +2944,7 @@ TOOL</string>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_inside_length_x">
             <property name="toolTip">
-             <string>Inside length X</string>
+             <string>Measure Inside Length of X, Finish in Center</string>
             </property>
             <property name="text">
              <string/>
@@ -2964,7 +2979,7 @@ TOOL</string>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_outside_length_x">
             <property name="toolTip">
-             <string>Outside length X</string>
+             <string>Measure Outside Length of X, Finish in Center</string>
             </property>
             <property name="text">
              <string/>
@@ -2999,7 +3014,7 @@ TOOL</string>
           <item row="3" column="0">
            <widget class="PushButton" name="pbtn_inside_length_y">
             <property name="toolTip">
-             <string>Inside length Y</string>
+             <string>Measure Inside Length of Y, Finish in Center</string>
             </property>
             <property name="text">
              <string/>
@@ -3034,7 +3049,7 @@ TOOL</string>
           <item row="3" column="1">
            <widget class="PushButton" name="pbtn_outside_length_y">
             <property name="toolTip">
-             <string>Outside length Y</string>
+             <string>Measure Outside Length of Y, Finish in Center</string>
             </property>
             <property name="text">
              <string/>
@@ -3103,6 +3118,9 @@ TOOL</string>
           </item>
           <item row="4" column="1">
            <widget class="PushButton" name="pbtn_measure_diam">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>This button not implemented</string>
             </property>
@@ -3223,6 +3241,9 @@ TOOL</string>
           </property>
           <item row="0" column="0">
            <widget class="PushButton" name="pbtn_inside_xmyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3255,6 +3276,9 @@ TOOL</string>
           </item>
           <item row="0" column="1">
            <widget class="PushButton" name="pbtn_inside_yp">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3287,6 +3311,9 @@ TOOL</string>
           </item>
           <item row="0" column="2">
            <widget class="PushButton" name="pbtn_inside_xpyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3319,6 +3346,9 @@ TOOL</string>
           </item>
           <item row="1" column="0">
            <widget class="PushButton" name="pbtn_inside_xm">
+            <property name="toolTip">
+             <string>Probe Inside X Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3356,6 +3386,9 @@ TOOL</string>
               <pointsize>8</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Probe All Inside Edges, Finish In Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3388,6 +3421,9 @@ TOOL</string>
           </item>
           <item row="1" column="2">
            <widget class="PushButton" name="pbtn_inside_xp">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3420,6 +3456,9 @@ TOOL</string>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_inside_xmym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3452,6 +3491,9 @@ TOOL</string>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_inside_ym">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3484,6 +3526,9 @@ TOOL</string>
           </item>
           <item row="2" column="2">
            <widget class="PushButton" name="pbtn_inside_xpym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3604,6 +3649,9 @@ TOOL</string>
           </property>
           <item row="0" column="0">
            <widget class="PushButton" name="pbtn_outside_xpym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3636,6 +3684,9 @@ TOOL</string>
           </item>
           <item row="0" column="1">
            <widget class="PushButton" name="pbtn_outside_ym">
+            <property name="toolTip">
+             <string>Probe Outside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3668,6 +3719,9 @@ TOOL</string>
           </item>
           <item row="0" column="2">
            <widget class="PushButton" name="pbtn_outside_xmym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3700,6 +3754,9 @@ TOOL</string>
           </item>
           <item row="1" column="0">
            <widget class="PushButton" name="pbtn_outside_xp">
+            <property name="toolTip">
+             <string>Probe Outside X Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3737,6 +3794,9 @@ TOOL</string>
               <pointsize>8</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Probe All Outside Edges, Finish In Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3769,6 +3829,9 @@ TOOL</string>
           </item>
           <item row="1" column="2">
            <widget class="PushButton" name="pbtn_outside_xm">
+            <property name="toolTip">
+             <string>Probe Outside X Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3801,6 +3864,9 @@ TOOL</string>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_outside_xpyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3833,6 +3899,9 @@ TOOL</string>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_outside_yp">
+            <property name="toolTip">
+             <string>Probe Outside Y Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3865,6 +3934,9 @@ TOOL</string>
           </item>
           <item row="2" column="2">
            <widget class="PushButton" name="pbtn_outside_xmyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -4068,7 +4140,7 @@ TOOL</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="outside_buttonGroup">
+  <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -4078,7 +4150,7 @@ TOOL</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="inside_buttonGroup">
+  <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
