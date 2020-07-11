@@ -1189,7 +1189,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
 
     def discover_mesacards(self):
         name, interface, address = self.get_discovery_meta()
-        if name is None: return
+        if name is None: return None
 
         if not name:
             name = '5i25'
@@ -1208,10 +1208,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         try:
             if 'ERROR' in lines[0]:
                 raise ValueError('Mesaflash Error')
+            elif 'root' in info:
+                raise ValueError('Mesaflash Error')
         except ValueError as err:
             text = err.args
             self.warning_dialog(text[0],True)
-            return
+            return None
         except:
             self.warning_dialog('Unspecified Error with Mesaflash',True)
             return
@@ -1452,6 +1454,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        print driver, boardname, firmname, path 
         boardname = 'Discovered:%s'% boardname
         firmdata = self.parse_xml( driver,boardname,firmname,path)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
