@@ -906,20 +906,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         y4 = +0.22 * factor
 
         # cross
-        self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
+        self.quad(x1, y1, x2, y2, y2, x2, y1, x1, z= .05, color = self.Green)
         # vertical line
-        self.quad(x3, y3, x4, y4, y4, x4, y3, x3)
+        self.quad(x3, y3, x4, y4, y4, x4, y3, x3, z= .05, color = self.Green)
 
         # cross depth
-        self.extrude(x1, y1, x2, y2)
-        self.extrude(x2, y2, y2, x2)
-        self.extrude(y2, x2, y1, x1)
-        self.extrude(y1, x1, x1, y1)
+        self.extrude(x1, y1, x2, y2, z= .05, color = self.Green)
+        self.extrude(x2, y2, y2, x2, z= .05, color = self.Green)
+        self.extrude(y2, x2, y1, x1, z= .05, color = self.Green)
+        self.extrude(y1, x1, x1, y1, z= .05, color = self.Green)
 
         # vertical depth
-        self.extrude(x3, y3, x4, y4)
-        self.extrude(x4, y4, y4, x4)
-        self.extrude(y4, x4, y3, x3)
+        self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
+        self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
+        self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
   
         NumSectors = 200
   
@@ -937,36 +937,36 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             x8 = 0.30 * math.sin(angle2) * factor
             y8 = 0.30 * math.cos(angle2) * factor
   
-            self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
+            self.quad(x5, y5, x6, y6, x7, y7, x8, y8, z= .05, color = self.Green)
   
-            self.extrude(x6, y6, x7, y7)
-            self.extrude(x8, y8, x5, y5)
+            self.extrude(x6, y6, x7, y7, z= .05, color = self.Green)
+            self.extrude(x8, y8, x5, y5, z= .05, color = self.Green)
   
         GL.glEnd()
         GL.glEndList()
   
         return genList
   
-    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        self.qglColor(self.Green)
+    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, -0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x3, y3, -0.05)
-        GL.glVertex3d(x4, y4, -0.05)
+        GL.glVertex3d(x1, y1, -z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x3, y3, -z)
+        GL.glVertex3d(x4, y4, -z)
   
-        GL.glVertex3d(x4, y4, +0.05)
-        GL.glVertex3d(x3, y3, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x1, y1, +0.05)
+        GL.glVertex3d(x4, y4, +z)
+        GL.glVertex3d(x3, y3, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x1, y1, +z)
   
-    def extrude(self, x1, y1, x2, y2):
-        self.qglColor(self.Green.darker(250 + int(100 * x1)))
+    def extrude(self, x1, y1, x2, y2, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x1, y1, -0.05)
+        GL.glVertex3d(x1, y1, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x1, y1, -z)
 
 ###########
 # Testing
