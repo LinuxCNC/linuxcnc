@@ -40,3 +40,4 @@ position.txt
 *.glade.h
 # Ignore test results
 *.result
+.DS_Store
