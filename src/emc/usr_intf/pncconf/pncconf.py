@@ -1214,13 +1214,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             text = err.args
             self.warning_dialog(text[0],True)
             return None
-        except:
-            self.warning_dialog('Unspecified Error with Mesaflash',True)
+        except Exception as e:
+            print e
+            self.warning_dialog('Unspecified Error with Discovery option',True)
             return
         if 'No' in lines[0] and 'board found' in lines[0] :
             text = _("No board was found\n")
             self.warning_dialog(text,True)
-            print 'OOPS no board found!'
             return None
         return info
 
@@ -1248,11 +1248,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         else:
             board_command = '--device %s' %(devicename)
 
-        #cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
-        cmd =""" mesaflash -%s;mesaflash %s --sserial;mesaflash %s --readhmid  """%(board_command, board_command, board_command)
+        # PCI boards require sudo
+        cmd ="""pkexec sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
+        print 'cmd=',cmd
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
+        if error:
+            print 'mesaflash error',error
         if output == '':
             text = _("Discovery is  got an error\n\n Is mesaflash installed?\n\n %s"%error)
             self.warning_dialog(text,True)
@@ -1270,8 +1273,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         except:
             text = _("Discovery is  unavailable\n")
             self.warning_dialog(text,True)
-
-        print 'cmd=',cmd
         return output
 
     def parse_discovery(self,info,boardnum=0):
