@@ -277,7 +277,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def pop_help(self):
-        d = QtWidgets.QDialog()
+        d = QtWidgets.QDialog(self)
         d.setMinimumWidth(600)
         l = QtWidgets.QVBoxLayout()
         t = QtWidgets.QTextEdit()
