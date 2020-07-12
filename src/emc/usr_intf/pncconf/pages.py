@@ -58,6 +58,8 @@ class Pages:
         self.a.print_image('map_7i76')
     def on_print_7i77_button_clicked(self,widget):
         self.a.print_image('map_7i77')
+    def on_button_save_clicked(self, widget):
+        self.a.save()
 
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):
@@ -195,6 +197,7 @@ class Pages:
         self.w.xencoderscale.realize()
         self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
         self.w.window1.set_geometry_hints(min_width=750)
+        self.w.button_save.set_visible(False)
 
 #************
 # INTRO PAGE
@@ -210,6 +213,7 @@ class Pages:
     def start_prepare(self):
         self.d.help = "help-load.txt"
         # search for firmware packages
+        self.w.button_save.set_visible(False)
 
     def start_finish(self):
 
@@ -269,6 +273,7 @@ class Pages:
         self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
         self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
         self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
+        self.w.button_save.set_visible(True)
 
     def base_finish(self):
         machinename = self.w.machinename.get_text()

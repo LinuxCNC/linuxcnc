@@ -317,6 +317,10 @@ class App:
         if self.warning_dialog(self._p.MESS_QUIT,False):
             gtk.main_quit()
 
+    def save(self):
+        base = self.build_base()
+        self.d.save(base)
+
 # helper functions
 
     def get_discovery_meta(self):
