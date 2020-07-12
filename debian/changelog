@@ -1,3 +1,122 @@
+linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
+
+  * Finally merge "Joints Axes". Joints and cartesian axes are no longer
+    treated as the same thing, making cotrol of robots and non-trivial
+    kinematics significantly tidier.
+  * Add a script to automatically update to the new INI file layout and
+    HAL pins names of Joints Axes
+  * Multispindle: LinuxCNC now supports up to 9 spindles
+  * Tandem axes handled properly, including auto-squaring
+  * Reverse-Run: Negative feed-override will now run the G-code path in
+    reverse.
+  * External Offsets, axes may now be moved from HAL as well as G-code.
+  * increase max tools from 55 to 1000
+  * Many Trajector Planner improvements.
+  * trivkins now allows arbitrary mapping of axes to joints
+
+  * M98/M99 subprograms: - Support Fanuc-style subroutines
+  * Add G74/G84 floating tap cycles
+  * Enable remap of M62-M68
+  * Implement G52 offsets
+  * G33.1 Rigid Tapping speedup, with optional faster return move
+
+  * pentakins kinematics #673
+  * dh-parameters.txt doc (with graphics for rv-6sl)
+  * corexy sims: demonstrate two methods
+  * kins: add scorbot-kins
+  * rotarydelta config with simulation
+  * Rotary delta kinematics
+
+  * qtvcp: New QT-based VCP framework
+  * qtdragon: New QT pased user interface
+  * plasmac: New full-featured Plasma cutter cotroller
+  * qtscreen -new sample QT GUI
+  * Back tool lathe support in axis and gmoccapy
+  * Many Axis improvements
+  * Many Gmoccapy improvements
+  * stepconf -various improvements
+  * pncconf - many improvements
+
+  * it.po: New Italian translation file.
+  * Improve German translation
+  * Add international support for classicladder
+  * added Chinese translations for some docs
+
+  * Mesa 7i96 support added
+  * RPi4 fixes and Mesa 7C80/7C81 board additions
+  * hal_pi_gpio: Add a HAL driver for Raspberry Pi GPIO
+  * hal_bb_gpio: new hardware driver for BeagleBone Black GPIO
+  * add ohmic.comp plus supporting documentation
+  * demux: A new HAL component
+  * Create Spindle_monitor.comp
+  * thermistor comp:
+  * limit3.comp add enable pin
+  * pmx485: New component, Modbus comms to PowerMax Plasma cutter
+  * add a driver for the Huanyang GT series VFD
+  * mitsub_vfd -add a driver for Mitsubishi VFDs
+  * xhc_whb04b-6: New HAL driver for the xhc-whb04b-6 pendant
+
+  * rtapi: add a halcmd command to set the messaging level
+  * Touchy: Allow re-homing and unhoming in JA systems.
+  * G33.1 Fix for #639 & #703
+  * bldc_hall3: Remove bldc_hall3 as it is more than replaced by bldc.
+  * homing - support absolute encoders for homing
+  * remove limit of bits from weighted sum component
+  * FEATURES: Convert the [RS274NGC] FEATURES bitmask to INI entries
+  * Contour Shuttle: Add vendor ID etc for ShuttleProV2
+  * halcompile: Allow userspace component compile with RTAI
+  * iocontrols tool_number and interps current_tool now return the same
+      value, as expected and documented
+  * halcompile: Document extra_compile_args
+  * Make amp-enable go false when kinematics fails.
+      https://github.com/LinuxCNC/linuxcnc/issues/655
+  * Axis preview improved with wrapped rotary axis.
+  * Many other Axis UI improvements
+  * glcanon -Make the cone size adjustable via INI
+  * docs -Add modbus message info for Classicladder
+  * Add FF3 term to PID
+  * carousel.comp: Many updates including fwd-rev duty cycles, parity
+  * mesa_uart.comp: Fix a long-standing names bug.
+  * python-interface.txt: expand jog parameters defs
+  * BUGFIX: hostmot2 encoder quadrature error reporting bug. Previous to
+      this patch the quadrature errors were not reported correctly and
+      could be lost.
+  * sserial,c: Don't report "remote error" as the error when there is a
+      remote error https://github.com/LinuxCNC/linuxcnc/issues/439
+  * halcompile: MAX_PERSONALITIES=64, docs update
+  * Module to send notifications over DBus to the system notification server
+  * mux_generic: Fix some long-standing bugs
+  * Add spindle.N.amp-fault-in pins to motion, to report spindle amplifer
+      faults
+  * pid: use command-deriv when supplied
+  * Hostmot2 / resolver.c Add the option to fake absolute encoders with
+      resolvers
+  * gremlin_view.py: improve standalone focus behavior
+  * puma_cube.ini new introductory sim config
+  * lcd.c - fix a read out of bounds bug
+  * docs: add missing num_sserials info to hm2 manpage
+  * docs: add G20/G21 unit info to G-code Quick Ref
+  * Vismach / Puma: Make the Puma simulator geometry match the kinematics.
+  * limit3: add .in-limit pin
+  * homing:describe home_sequence startnum restriction
+  * hm2_eth: add support for Mesa 7i93 AnyIO ethernet board
+  * add support for float values in the sserial driver.
+  * GladeVCP - CombiDRO - bugfixes
+  * siggen.c: add reset pin
+  * Tooledit fixes
+  * Hostmot2 Absolute Encoders: Add a flag to inhibit encoder wrapping.
+  * latency-histogram: new option (--nox) for no X gui
+  * update_ini: Script to auto-convert configs to the Joints-Axes format
+  * rtapi: Add rtapi_open_as_root API
+  * uspace: add uspace+xenomai realtime
+  * uspace: add uspace+rtai realtime
+  * add a sample config for the scorbot-er-3 robot arm
+  * docs: document AXIS's foam mode
+  * configs: foam: this has no locking indexer
+
+
+ -- andypugh <andy@bidgesoc.org>  Sun, 12 Jul 2020 20:29:54 +0100
+
 linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * New external axis offsets
   * New support for Mesa 7i96 ethernet card
