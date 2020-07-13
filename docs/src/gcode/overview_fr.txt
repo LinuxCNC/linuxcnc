@@ -104,7 +104,7 @@ commençant par '/' sont sautées.
 
 Dans Axis il est également possible de basculer l'activation d'effacement de
 bloc avec l'icône: 
-image:../gui/images/tool_blockdelete.gif[]
+image:../gui/images/tool_blockdelete.png[]
 
 == Numéro de ligne
 (((Numéro de ligne)))
