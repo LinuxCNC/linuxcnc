@@ -1,4 +1,4 @@
-[[cha:updating-linuxcnc]]
+﻿[[cha:updating-linuxcnc]]
 
 = 更新LinuxCNC
 
@@ -20,7 +20,7 @@ http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[升级�
 
 要在计算机具有网络连接时将2.6的主要版本升级到2.7，您需要禁用旧的linuxcnc.org APT源，并为2.7添加新的linuxcnc.org APT源，再然后升级LinuxCNC。
 
-具体操作取决于您在哪个系统上运行。打开一个<<faq:terminal,终端>>，然后键入 `lsb_release -ic` 获取系统信息：
+具体操作取决于您在哪个系统上运行。打开一个终端然后键入 `lsb_release -ic` 获取系统信息：
 
 ----
 lsb_release -ic
@@ -29,7 +29,7 @@ Codename:       wheezy
 ----
 
 您应该在Debian Wheezy（如上例），Ubuntu Precise或Ubuntu Lucid上运行此命令。
-
+[[_setting_apt_sources]]
 === 设置APT源
 
 打开 `软件源（Software Sources）` 窗口。在上述三个受支持的平台上，操作此过程的流程略有不同：
@@ -111,7 +111,7 @@ Debian Wheezy和Ubuntu Lucid都使用Synaptic软件包管理器。
 并将其存放在http://buildbot.linuxcnc.org/dists/
 
 您必须从上面的链接中从上至下翻找，以找到适合您的安装的deb。
-打开<<faq:terminal,终端>>，
+打开 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]，
 然后输入'lsb_release -ic'查找操作系统的名称。
 
 ----
@@ -346,7 +346,7 @@ COORDINATES = XZ
 *负值* 可用于名为[JOINT_n]HOME_SEQUENCE的ini文件选项。
 在joints_axes合并之前，值为-1或省略该项目表示没有适用的序列。
 现在，仅省略该选项用于此目的。
-有关更多信息，请参见章节：<<cha:homing-configuration, '归位配置'>> 。
+有关更多信息，请参见章节： http://linuxcnc.org/docs/2.8/html/config/ini-homing.html['归位配置'] 。
 
 === 锁定旋转分度器（joints_axes的更新）
 
@@ -603,7 +603,7 @@ jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance
 在许多常见情况下，由于使用归位交换机和/或LinuxCNC提供的各种归位方法完成了归位，
 因此不再需要联合点动。只需打开机器，发出Home-All命令，
 机器就自动归位并更改为世界模式。
-请参阅<<cha:homing-configuration,归位配置>>
+请参阅 http://linuxcnc.org/docs/2.8/html/config/ini-homing.html[归位配置]
 
 不使用归位开关的机器可能需要在联合模式下手动进行点动，然后再建立每个接头。
 对于不需要归位到固定位置的接头，也可以使用立即归位（请参阅归位文档）。
@@ -738,7 +738,7 @@ fashion.  For 3-axis machines, XYZA machines, and lathes the default is
 the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
 assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
-<<sec:display-section,[DISPLAY] section of the inifile>>
+http://linuxcnc.org/docs/2.8/html/config/ini-config.html#sec:display-section[[DISPLAY] section of the inifile]
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
@@ -1078,4 +1078,3 @@ sim_home_switch：为index-enable添加了I/O引脚
 sim/configs/axis/axis_9axis：演示模拟编码器索引
 
 // vim: set syntax=asciidoc:
-                                                                               
