@@ -44,6 +44,8 @@ class Pages:
         debug = self.a.debugstate
         global dbg
         dbg = self.a.dbg
+        # can only save data after selecting a config name
+        self.savable_flag = False
 
 #********************
 # Notebook Controls
@@ -62,7 +64,13 @@ class Pages:
         self.a.save()
 
     def on_window1_destroy(self, *args):
-        if self.a.warning_dialog (self._p.MESS_ABORT,False):
+        if self.savable_flag:
+            if self.a.quit_dialog():
+                gtk.main_quit()
+                return True
+            else:
+                return True
+        elif self.a.warning_dialog(self._p.MESS_QUIT,False):
             gtk.main_quit()
             return True
         else:
@@ -273,7 +281,8 @@ class Pages:
         self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
         self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
         self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
-        self.w.button_save.set_visible(True)
+        #self.w.button_save.set_visible(True)
+        self.savable_flag = True
 
     def base_finish(self):
         machinename = self.w.machinename.get_text()
@@ -1205,6 +1214,7 @@ class Pages:
 #************
     def z_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def z_axis_finish(self):
         self.a.axis_done('z')
 #************
@@ -1229,6 +1239,7 @@ class Pages:
 #************
     def a_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def a_axis_finish(self):
         self.a.axis_done('a')
 #************
@@ -1359,6 +1370,7 @@ different program to copy to your configuration file.\nThe edited program will b
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
             self.d._components_is_prepared = True
+        self.savable_flag = True
 
     def realtime_finish(self):
         self.d.userneededpid = int(self.w.userneededpid.get_value())
@@ -1399,6 +1411,8 @@ different program to copy to your configuration file.\nThe edited program will b
     def finished_finish(self):
         self.a.clean_unused_ports()
         self.a.buid_config()
+        self.savable_flag = False
+
 #**************
 # tune test
 #**************

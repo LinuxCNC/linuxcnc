@@ -314,7 +314,7 @@ class App:
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
         self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
+        if self.warning_dialog(self._p.MESS_FINISH_QUIT,False):
             gtk.main_quit()
 
     def save(self):
@@ -451,6 +451,21 @@ class App:
                 return True
             else:
                 return False
+
+    def quit_dialog(self):
+        dialog = self.widgets.quitdialog
+        dialog.show_all()
+        result = dialog.run()
+        dialog.hide()
+        if result == gtk.RESPONSE_YES:
+            return True
+        elif result == gtk.RESPONSE_CANCEL:
+            return False
+        # save data then quit
+        else:
+            self.p.on_button_fwd_clicked(None)
+            self.save()
+            return True
 
     def show_help(self):
         helpfilename = os.path.join(self._p.HELPDIR, "%s"% self.d.help)
