@@ -572,14 +572,14 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
-        LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
+        LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
         return -errno;
     }
 
     timeout.tv_usec = SEND_TIMEOUT_US;
-    setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
+    ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
-        LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
+        LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
         return -errno;
     }
 
