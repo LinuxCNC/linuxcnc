@@ -1,18 +1,17 @@
 linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
 
   * Finally merge "Joints Axes". Joints and cartesian axes are no longer
-    treated as the same thing, making cotrol of robots and non-trivial
+    treated as the same thing, making control of robots and non-trivial
     kinematics significantly tidier.
   * Add a script to automatically update to the new INI file layout and
-    HAL pins names of Joints Axes
-  * Multispindle: LinuxCNC now supports up to 9 spindles
-  * Tandem axes handled properly, including auto-squaring
+    new HAL pin names.
+  * Multispindle: LinuxCNC now supports up to 9 spindles.
+  * Tandem axes handled properly, including auto-squaring.
   * Reverse-Run: Negative feed-override will now run the G-code path in
     reverse.
   * External Offsets, axes may now be moved from HAL as well as G-code.
-  * increase max tools from 55 to 1000
+  * increase max tools from 55 to 1000.
   * Many Trajector Planner improvements.
-  * trivkins now allows arbitrary mapping of axes to joints
 
   * M98/M99 subprograms: - Support Fanuc-style subroutines
   * Add G74/G84 floating tap cycles
@@ -20,7 +19,8 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * Implement G52 offsets
   * G33.1 Rigid Tapping speedup, with optional faster return move
 
-  * pentakins kinematics #673
+  * pentakins kinematics.
+  * trivkins now allows arbitrary mapping of axes to joints.
   * dh-parameters.txt doc (with graphics for rv-6sl)
   * corexy sims: demonstrate two methods
   * kins: add scorbot-kins
@@ -28,7 +28,7 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * Rotary delta kinematics
 
   * qtvcp: New QT-based VCP framework
-  * qtdragon: New QT pased user interface
+  * Silverdragon: New QT based user interface.
   * plasmac: New full-featured Plasma cutter cotroller
   * qtscreen -new sample QT GUI
   * Back tool lathe support in axis and gmoccapy
@@ -115,7 +115,7 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * configs: foam: this has no locking indexer
 
 
- -- andypugh <andy@bidgesoc.org>  Sun, 12 Jul 2020 20:29:54 +0100
+ -- andypugh <andy@bodgesoc.org>  Sun, 12 Jul 2020 20:29:54 +0100
 
 linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * New external axis offsets
