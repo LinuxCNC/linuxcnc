@@ -310,43 +310,43 @@ So be familiar with your machine's design and interpret the display as needed.
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
-* image:images/tool_estop.gif[alt="Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
+* image:images/tool_estop.png[alt="Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
 
-* image:images/tool_power.gif[alt="Toggle Machine Power"] Toggle Machine Power [F2]
+* image:images/tool_power.png[alt="Toggle Machine Power"] Toggle Machine Power [F2]
 
-* image:images/tool_open.gif[alt="Open G Code file"] Open G Code file [O]
+* image:images/tool_open.png[alt="Open G Code file"] Open G Code file [O]
 
-* image:images/tool_reload.gif[alt="Reload current file"] Reload current file [Ctrl-R]
+* image:images/tool_reload.png[alt="Reload current file"] Reload current file [Ctrl-R]
 
-* image:images/tool_run.gif[alt="Begin executing the current file"] Begin executing the current file [R]
+* image:images/tool_run.png[alt="Begin executing the current file"] Begin executing the current file [R]
 
-* image:images/tool_step.gif[alt="Execute next line"] Execute next line [T]
+* image:images/tool_step.png[alt="Execute next line"] Execute next line [T]
 
-* image:images/tool_pause.gif[alt="Pause Execution - Resume Execution"] Pause Execution [P] Resume Execution [S]
+* image:images/tool_pause.png[alt="Pause Execution - Resume Execution"] Pause Execution [P] Resume Execution [S]
 
-* image:images/tool_stop.gif[alt="Stop Program Execution"] Stop Program Execution [ESC]
+* image:images/tool_stop.png[alt="Stop Program Execution"] Stop Program Execution [ESC]
 
-* image:images/tool_blockdelete.gif[alt="Toggle Skip lines"] Toggle Skip lines with "/" [Alt-M-/]
+* image:images/tool_blockdelete.png[alt="Toggle Skip lines"] Toggle Skip lines with "/" [Alt-M-/]
 
-* image:images/tool_optpause.gif[alt="Toggle Optional Pause"] Toggle Optional Pause [Alt-M-1]
+* image:images/tool_optpause.png[alt="Toggle Optional Pause"] Toggle Optional Pause [Alt-M-1]
 
-* image:images/tool_zoomin.gif[alt="Zoom In"] Zoom In
+* image:images/tool_zoomin.png[alt="Zoom In"] Zoom In
 
-* image:images/tool_zoomout.gif[alt="Zoom Out"] Zoom Out
+* image:images/tool_zoomout.png[alt="Zoom Out"] Zoom Out
 
-* image:images/tool_axis_z.gif[alt="Top view"] Top view
+* image:images/tool_axis_z.png[alt="Top view"] Top view
 
-* image:images/tool_axis_z2.gif[alt="Rotated Top view"] Rotated Top view
+* image:images/tool_axis_z2.png[alt="Rotated Top view"] Rotated Top view
 
-* image:images/tool_axis_x.gif[alt="Side view"] Side view
+* image:images/tool_axis_x.png[alt="Side view"] Side view
 
-* image:images/tool_axis_y.gif[alt="Front view"] Front view
+* image:images/tool_axis_y.png[alt="Front view"] Front view
 
-* image:images/tool_axis_p.gif[alt="Perspective view"] Perspective view
+* image:images/tool_axis_p.png[alt="Perspective view"] Perspective view
 
-* image:images/tool_rotate.gif[alt="Toggle between Drag and Rotate Mode"] Toggle between Drag and Rotate Mode [D]
+* image:images/tool_rotate.png[alt="Toggle between Drag and Rotate Mode"] Toggle between Drag and Rotate Mode [D]
 
-* image:images/tool_clear.gif[alt="Clear live backplot"] Clear live backplot [Ctrl-K]
+* image:images/tool_clear.png[alt="Clear live backplot"] Clear live backplot [Ctrl-K]
 
 
 === Graphical Display Area
