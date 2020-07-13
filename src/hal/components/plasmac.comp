@@ -606,7 +606,7 @@ FUNCTION(_) {
                     feed_hold = TRUE;
                     stop_type = NONE;
                 /* if torch pulse requested */
-                }else if(torch_pulse_start){
+            }else if(torch_pulse_start && !breakaway && !float_switch && !ohmic_probe){
                     feed_hold = TRUE;
                     state = TORCHPULSE;
                 /* if ohmic probe shorted test requested */
