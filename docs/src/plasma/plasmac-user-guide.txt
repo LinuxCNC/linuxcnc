@@ -1639,7 +1639,7 @@ PlasmaC requires some specific .ini file variables as follows:
 
 [[ini-mode]]
 
-[underline]*[PLASMAC]* Section
+*[PLASMAC]* Section
 
 ----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
@@ -1657,27 +1657,29 @@ BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 ----
 
-[underline]*[FILTER]* Section
+*[FILTER]* Section
 
 ----
-PROGRAM_EXTENSION = .ngc (filter *.ngc files)
-ngc               = ./plasmac_G-Code.py (this parses the G-Code file and comments out any Z axis motion)
+PROGRAM_EXTENSION       = .ngc (filter gcode files)
+ngc                     = ./plasmac/plasmac_gcode.py
+nc                      = ./plasmac/plasmac_gcode.py
+tap                     = ./plasmac/plasmac_gcode.py
 ----
 
 [[rs274]]
 
-[underline]*[RS274NGC]* Section
+*[RS274NGC]* Section
 
 ----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
-SUBROUTINE_PATH       = ./:../../nc_files/subroutines (./ must be in this path)
+SUBROUTINE_PATH       = ./:./plasmac:../../nc_files/subroutines (./ must be in this path)
 FEATURES              = 12 (for reading .ini and HAL variables)
-USER_M_PATH           = ./ (for M190 material change)
+USER_M_PATH           = ./:./plasmac (for M190 material change)
 ----
 
 IMPORTANT: SEE <<path-tolerance, PATH TOLERANCE>>
 
-[underline]*[HAL]* Section
+*[HAL]* Section
 
 ----
 TWOPASS = on (needed for multiple .hal files)
@@ -1691,13 +1693,13 @@ The <MACHINE_NAME>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the en
 
 NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
 
-[underline]*[TRAJ]* Section
+*[TRAJ]* Section
 
 ----
 SPINDLES = 3
 ----
 
-[underline]*[AXIS_X]* Section
+*[AXIS_X]* Section
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1705,7 +1707,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 ----
 
-[underline]*[AXIS_Y]* Section
+*[AXIS_Y]* Section
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1713,7 +1715,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 ----
 
-[underline]*[AXIS_Z]* Section
+*[AXIS_Z]* Section
 
 ----
 MIN_LIMIT        = the top of your slats or just below
@@ -1728,7 +1730,7 @@ NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for m
 
 === Axis GUI Specific
 
-[underline]*[PLASMAC]* Section
+*[PLASMAC]* Section
 
 ----
 FONT        = sans 10 (valid font sizes are from 9 to 15 inclusive)
@@ -1754,29 +1756,29 @@ NOTE: WINDOW_SIZE has replaced MAXIMISED. For backwards compatibility these name
 
 [[axis-display-section]]
 
-[underline]*[DISPLAY]* Section
+*[DISPLAY]* Section
 
 ----
 TOOL_EDITOR       = tooledit x y
 USER_COMMAND_FILE = plasmac_axis.py.py
 
 EMBED_TAB_NAME    = Statistics
-EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
 
 #use one of the next two
 
 #run frame in tab behind preview
 EMBED_TAB_NAME    = Plasma Run
-EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
 
 #run frame in panel on left side
-#GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#GLADEVCP = -c plasmac_run -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
 
 EMBED_TAB_NAME    = Plasma Config
-EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
 
 EMBED_TAB_NAME    = Extras
-EMBED_TAB_COMMAND = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
 
 ----
 
@@ -1789,40 +1791,40 @@ The Run Window can be displayed as one of:
 
 [[gmoccapy-display-section]]
 
-[underline]*[DISPLAY]* section
+*[DISPLAY]* section
 
 ----
 EMBED_TAB_NAME     = plasmac_buttons
 EMBED_TAB_LOCATION = box_cooling
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x <XID> -u ./plasmac_buttons.py -H ./plasmac_buttons.hal plasmac_buttons.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x <XID> -u ./plasmac/plasmac_buttons.py -H ./plasmac/plasmac_buttons.hal ./plasmac/plasmac_buttons.glade
 EMBED_TAB_NAME     = plasmac_control
 EMBED_TAB_LOCATION = box_spindle
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x <XID> -u ./plasmac_control.py -H ./plasmac_control.hal plasmac_control.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x <XID> -u ./plasmac/plasmac_control.py -H ./plasmac/plasmac_control.hal ./plasmac/plasmac_control.glade
 EMBED_TAB_NAME     = Statistics
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
 EMBED_TAB_NAME     = Plasma Run
 
 #use one of the next two
 
 #run panel in tab behind preview
 EMBED_TAB_LOCATION  = ntb_preview
-EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
 
 #run panel in panel on left side
 #EMBED_TAB_LOCATION = box_left
-#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
 
 EMBED_TAB_NAME     = Plasma Config
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x <XID> -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
 EMBED_TAB_NAME     = plasmac_monitor
 EMBED_TAB_LOCATION = box_tool_and_code_info
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u plasmac_monitor.py -H plasmac_monitor.hal plasmac_monitor.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u ./plasmac/plasmac_monitor.py -H ./plasmac/plasmac_monitor.hal ./plasmac/plasmac_monitor.glade
 
 EMBED_TAB_NAME     = Extras
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
 
 ----
 

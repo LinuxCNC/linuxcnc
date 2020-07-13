@@ -1052,6 +1052,8 @@ class configurator:
                     line = line.replace('./plasmac_gcode', './plasmac/plasmac_gcode')
                 elif 'SUBROUTINE_PATH' in line:
                     line = line.replace('./:', './:./plasmac:')
+                elif 'USER_M_PATH' in line:
+                    line = line.replace(' ./', ' ./:./plasmac')
                 elif 'plasmac.tcl' in line:
                     line = line.replace('plasmac.tcl', './plasmac/plasmac.tcl')
                 elif 'plasmac_axis.py' in line:
