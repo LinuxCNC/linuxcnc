@@ -51,11 +51,11 @@ trouve quand à lui dans le menu _Applications → CNC → LinuxCNC_.
 ** _xyz_ - Crée une boîte basée sur deux coins opposés.
 
 Pour visualiser les sous-programmes presser l'_**A**rrêt d'**U**rgence_ 
-image:images/tool_estop.gif[] puis, activer la _Marche Machine_ 
-image:images/tool_power.gif[] et réaliser la _Prise d'origine générale_.
+image:images/tool_estop.png[] puis, activer la _Marche Machine_ 
+image:images/tool_power.png[] et réaliser la _Prise d'origine générale_.
 Cliquer sur un onglet de ngcgui et presser _Créer la fonction_ 
 puis _Finaliser_. Enfin, presser sur le bouton 
-image:images/tool_run.gif[] _Départ cycle_ pour exécuter le G-code.
+image:images/tool_run.png[] _Départ cycle_ pour exécuter le G-code.
 
 [NOTE]
 Les sous-programmes d'exemples fournis avec la distribution doivent tous
