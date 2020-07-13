@@ -1071,10 +1071,17 @@ class HandlerClass:
         if lastMajorUpgrade < latestMajorUpgrade and manualUpgrade != 1:
             iniFile = os.environ['INI_FILE_NAME']
             iniPath = os.path.dirname(iniFile)
-            basePath = os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(iniPath, 'M190'))))
+            try:
+                basePath = os.path.realpath(os.path.dirname(os.readlink('{}/plasmac'.format(iniPath))))
+            except:
+                try:
+                    basePath = os.path.realpath(os.path.dirname(os.readlink('{}/M190'.format(iniPath))))
+                except:
+                    print('\nlink to plasmac source files cannot be found\n')
+                    sys.exit(0)
             cmd = '{}/configurator.py'.format(basePath)
             os.execv(cmd,[cmd, 'upgrade', iniFile])
-            sys.exit()
+            sys.exit(0)
 
     def __init__(self, halcomp,builder,useropts):
         self.W = gtk.Window()
