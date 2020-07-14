@@ -33,14 +33,14 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * rotarydelta config with simulation
   * Rotary delta kinematics
 
-  * qtvcp: New QT-based VCP framework
-  * Silverdragon: New QT based user interface.
+  * QTvcp: New QT-based VCP framework
+  * QTdragon, QTlathe, QTtouchy, QTscreen - new GUIs based on QTVP
+  * Silverdragon: New gscreen based GUI
   * plasmac: New full-featured Plasma cutter cotroller
-  * qtscreen -new sample QT GUI
   * Back tool lathe support in axis and gmoccapy
   * Many Axis improvements
   * Many Gmoccapy improvements
-  * stepconf -various improvements
+  * stepconf - various improvements
   * pncconf - many improvements
 
   * it.po: New Italian translation file.
