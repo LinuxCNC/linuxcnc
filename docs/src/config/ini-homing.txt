@@ -40,6 +40,9 @@ You can avoid this by making the home switch toggle it's state when the trip dog
 Said another way, the home switch state must represent the position of the dog relative to the switch (ie _before_ or _after_ the switch), +
 and must stay that way even if the dog coasts past the switch in the same direction.
 
+[NOTE]
+While it is possible to use linuxcnc with the G53 machine origin outside the soft machine limits, if you use G28 or G30 without setting +
+the parameters it goes to the origin by default. This would trip the limit switches before getting to position.
 
 == Separate Home Switch Example Layout
 
@@ -198,7 +201,7 @@ This defines the location of the origin zero point of the G53 machine coordinate
 It is the distance (offset), in joint units, from the machine origin to the home switch 
 trip point or index pulse. +
 After detecting the switch trip point/index pulse, LinuxCNC sets the joint coordinate position
-to HOME_OFFSET, thus defining the origin, which the soft limits references from.+
+to HOME_OFFSET, thus defining the origin, which the soft limits references from. +
 The default value is zero.
 
 NOTE: The home switch location, as indicated by the HOME_OFFSET variable,
