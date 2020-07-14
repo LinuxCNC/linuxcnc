@@ -27,11 +27,13 @@ then the actual machine movement. ie on a mill typically the table moves rather 
 * Everything is referenced from the G53 machine zero origin, the origin can be anywhere (even outside where you can move) +
 * The G53 machine zero origin is typically inside the soft limits area but not necessarily. +
 * The homing switch offset sets where the origin is, but even it is referenced from the origin. +
+* When using encoder index homing, the home switch offset is calculated from the encoder reference position, after the home switch has been tripped. +
 * The negative soft(ware) limits are the most you can move in the negative direction after homing. +
 (but they might not be negative in the absolute sense) +
 * The positive soft(ware) limits are the most you can move in the positive direction after homing. +
 (but they might not be positive in the absolute sense, though it is usual to set it as a positive number) +
 * Soft(ware) limits are inside the limit switch area. +
+* (Final) Homed Position is inside the soft limit area +
 * (If using switch based homing) the homing switch(es) either utilize the limit switches (shared home / limit switch), +
 or when using a separate home switch, are inside the limit switch area. 
 * If using a separate homing switch, it's possible to start homing on the wrong side of the home switch, +
