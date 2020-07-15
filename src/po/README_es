@@ -13,8 +13,6 @@ Para actualizar el archivo .po de un idioma desde su archivo .pot, use el
 comando "msgmerge". Debido a que hacer esto crea innecesariamente muchas 
 revisiones de archivos .po en el historial, esto no se hace automáticamente 
 por "make". En su lugar, se hace ejecutando explícitamente "make pofiles". 
-Esto debe ser hecho de vez en cuando para que los nuevos mensajes estén 
-disponibles para su traducción en la interfaz experimental "weblate".
 
 Si está trabajando a mano, también puede actualizar un solo archivo .po:
 
