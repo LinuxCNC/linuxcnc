@@ -1,5 +1,5 @@
 pyngcgui_axis
 
-Demonstrates pyngcgui as gladevcp app in axis gui
+Demuestra pyngcgui como aplicación gladevcp en gui Axis
 
-The orignal ngcgui may be better integrated in the axis gui
+El ngcgui original puede integrarse mejor en la interfaz Axis
