@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.142 - 2020 Jul 13
+0.143 - 2020 Jul 15
 
 .I SUMMARY:
 .br
@@ -62,6 +62,7 @@ pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  s32     mode                        "operating mode";
+pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  bit     multi_tool                  "allows the use of multiple tools";
@@ -598,14 +599,19 @@ FUNCTION(_) {
                             state = PROBE_HEIGHT;
                         }
                     }
-                /* if we get a resume request and we are paused */
-                }else if(!program_is_paused && stop_type == PAUSE){
-                    if(consumable_changing){
-                        state = CONSUMABLE_CHANGE_OFF;
-                    }
+            /* if we get a resume request and we are paused */
+            }else if(!program_is_paused && stop_type == PAUSE){
+                if(consumable_changing){
+                    state = CONSUMABLE_CHANGE_OFF;
+                }
+                if(motion_type == 1){
+                    feed_hold = FALSE;
+                }else{
                     feed_hold = TRUE;
-                    stop_type = NONE;
-                /* if torch pulse requested */
+                }
+                stop_type = NONE;
+
+            /* if torch pulse requested */
             }else if(torch_pulse_start && !breakaway && !float_switch && !ohmic_probe){
                     feed_hold = TRUE;
                     state = TORCHPULSE;
