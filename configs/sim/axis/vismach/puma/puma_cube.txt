@@ -1,13 +1,13 @@
-puma_cube.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins.  This configuration provides a startup gcode file ([DISPLAY]OPEN)FILE) that sets usable coordinate offsets to trace a cube outline.  Velocity, acceleration and positional limits are set large for convenience and are not representative of a real machine.
+puma_cube.ini - Archivo de configuración para un robot tipo PUMA usando el módulo de cinemática específica pumakins. Esta configuración proporciona un archivo gcode de inicio ([DISPLAY]OPEN)FILE) que establece los desplazamientos de coordenadas utilizables para trazar un contorno de un cubo. La velocidad, la aceleración y los límites posicionales se establecen grandes para mayor comodidad y no son representativos de una máquina real.
 
-Usage:
-  # Select and Run puma_cube
+Uso:
+  # Seleccionar y ejecutar puma_cube
 
-  F1 --------- Estop Off
-  F2 --------- Machine On
-  Ctrl-Home -- Home All
-  R ---------- Run
+  F1 ----------- Estop Off
+  F2 ----------- Máquina encendida
+  Ctrl-Inicio -- Home Todo
+  R ------------ Ejecutar
 
-Example gocde (.ngc) files are:
+Los archivos de ejemplo de gocde (.ngc) son:
 ./puma_cube.ngc
 ./puma_seam_weld.ngc

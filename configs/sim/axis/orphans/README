@@ -1,22 +1,20 @@
-orphans
+Huérfanos
 
-Obsolete or broken configs
+Configuraciones obsoletas o rotas
 
+axis_noio.ini io noespecificado:
+  [EMCIO] EMCIO =
 
-axis_noio.ini no io specified:
-  [EMCIO]EMCIO =
-
-py.ini.notworking  -- needs work
-pyiocontrol.ini.notworking  -- needs work
-
+py.ini.notworking - necesita trabajo
+pyiocontrol.ini.notworking - necesita trabajo
 
 
-directory: configs/sim/axis/orphans/pysubs
+directorio: configs/sim/axis/orphans/pysubs
 
-originally was: configs/sim/axis/pysubs
+originalmente era: configs/sim/axis/ pysubs
 
-The examples here seem to similar to or redundant to
-files in configs/sim/axis/remap/
+Los ejemplos aquí parecen ser similares o redundantes a
+archivos en configs /sim/axis/remap/
 
 -------------------------------------------------------
 
@@ -46,4 +44,5 @@ configs/sim/axis/orphans/pysubs/userfuncs.py
 configs/sim/axis/remap/iocontrol-removed/python/userfuncs.py
 
 configs/sim/axis/orphans/pysubs/remap.py
-many
+
+muchos mas
