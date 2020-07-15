@@ -962,7 +962,21 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glVertex3d(x3, y3, +z)
         GL.glVertex3d(x2, y2, +z)
         GL.glVertex3d(x1, y1, +z)
+
+    def lathe_quad(self, x1, x2, x3, x4, z1, z2, z3, z4, color):
+        self.qglColor(color)
   
+        GL.glVertex3d(x1, 0, z1)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x4, 0, z4)
+
+        # defeat back face cull
+        GL.glVertex3d(x4, 0, z4)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x1, 0, z1)
+
     def extrude(self, x1, y1, x2, y2, z, color):
         self.qglColor(color)
   
