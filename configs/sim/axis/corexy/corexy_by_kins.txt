@@ -1,22 +1,21 @@
 corexy_by_kins.ini
 
-CoreXY simulation using the
-corexykins kinematics module
+Simulación CoreXY utilizando 
+el módulo cinemático corexykins
 
-$ man kins for more info
+$ man kins para más información
 
-Notes:
+Notas:
 
-1) Using corexykins requires home
-switches operating on motor
-postions for joints 0 and 1
+1) El uso de corexykins requiere
+interruptores home que funcionen en 
+posiciones articulares de motor 0 y 1
 
-2) An alternative method for coreXY
-kinematics uses trivkins kinematics
-with a hal component:
-     (corexy_by_hal.comp)
-This method allows use of home
-switches aligned to x,y coordinate
-motion.
+2) Un método alternativo para la 
+cinemática coreXY utiliza la 
+cinemática trivkins con un componente hal:
+      (corexy_by_hal.comp)
+Este método permite el uso de interruptores
+home alineados con el movimiento coordinado x,y.
 
-See the demo: corexy_by_hal.ini
+Ver la demo: corexy_by_hal.ini

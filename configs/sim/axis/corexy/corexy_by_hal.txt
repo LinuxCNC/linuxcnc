@@ -1,11 +1,10 @@
 corexy_by_hal.ini 
 
-CoreXY simulation using the
-trivkins kinematics module
-with the corexy_by_hal
-hal component
+Simulación CoreXY utilizando el módulo
+cinemático trivkins con el componente
+corexy_by_hal hal
 
-This hal method supports home switches
-that are aligned with the X and Y
-coordinates instead of the joint 0,1
-motor positions.
+Este método hal admite interruptores
+home que estén alineados con las 
+coordenadas X e Y en lugar de las 
+posiciones articulares de motor 0,1.
