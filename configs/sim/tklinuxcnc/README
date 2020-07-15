@@ -1,13 +1,13 @@
-Sim files using tklinuxcnc gui:
+Archivos Sim usando gui tklinuxcnc:
 
 ldelta.ini
-  -delta robot with linear joints
+  -robot delta con articulaciones lineales
 
 servo_sim.ini
-  -simulation for a servo machine
+  -simulación para una máquina servos
 
 tklinuxcnc.ini
-  -tcl/tk interface
+  -interfaz tcl/tk 
 
 tripod.ini
-  -non-trivial kinematics machine
+  - maquina de cinemática no trivial
