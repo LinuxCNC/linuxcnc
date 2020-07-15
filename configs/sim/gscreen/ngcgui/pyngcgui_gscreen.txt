@@ -1,5 +1,5 @@
-Demonstrates gladevcp apps in gscreen tabs:
+Demuestra aplicaciones gladevcp en pestañas de gscreen:
    
- pyngcgui ------ subroutine utility 
- gremlin_view -- gremlin with some buttons
+ pyngcgui ------ utilidad de subrutina
+ gremlin_view -- gremlin con algunos botones
 
