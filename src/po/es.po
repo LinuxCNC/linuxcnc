@@ -1,15 +1,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# J.M. Garcia <bits.y.viruta@gmail.com>, 2020.
+# J.M. Garcia <jmgardeto@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-10 03:54+0200\n"
-"PO-Revision-Date: 2020-07-10 05:10+0100\n"
-"Last-Translator: j.m. Garcia <bits.y.viruta@gmail.com>\n"
-"Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
+"POT-Creation-Date: 2020-07-15 09:02+0200\n"
+"PO-Revision-Date: 2020-07-15 05:10+0100\n"
+"Last-Translator: J.M. Garcia <jmgardeto@gmail.com>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,8 +22,8 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"el comando (%s) no se puede ejecutar hasta que la máquina salga de Estop "
-"y esté encendida"
+"el comando (%s) no se puede ejecutar hasta que la máquina salga de Estop y "
+"esté encendida"
 
 #: src/emc/task/emctaskmain.cc:997
 #, c-format
@@ -2140,6 +2139,7 @@ msgstr "Aceptar"
 #: src/hal/utils/scope_horiz.c:714 src/hal/utils/scope_horiz.c:755
 #: src/hal/classicladder/classicladder_gtk.c:899 tcl/bin/emccalib.tcl:104
 #: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
+#: src/emc/usr_intf/pncconf/dialogs.glade:574
 msgid "Quit"
 msgstr "Salir"
 
@@ -2320,6 +2320,7 @@ msgstr "AC Coupled"
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:98
+#: src/emc/usr_intf/pncconf/dialogs.glade:548
 #: src/emc/usr_intf/gscreen/gscreen.glade:4030
 msgid "Cancel"
 msgstr "Cancelar"
@@ -2950,7 +2951,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
-#: src/emc/usr_intf/pncconf/dialogs.glade:3546
+#: src/emc/usr_intf/pncconf/dialogs.glade:3683
 #: src/emc/usr_intf/gscreen/gscreen.glade:2660
 msgid "Run"
 msgstr "Ejecutar"
@@ -5015,7 +5016,8 @@ msgstr ""
 "con sudo apt-get install bwidget."
 
 #: tcl/bin/pickconfig.tcl:158
-msgid "LinuxCNC Configuration Selector - CURRENT: "
+#, fuzzy
+msgid "LinuxCNC Configuration Selector"
 msgstr "Selector de Configuraciones de LinuxCNC - ACTUAL: "
 
 #: tcl/bin/pickconfig.tcl:308
@@ -5110,7 +5112,7 @@ msgstr "RESET"
 msgid "CANCEL"
 msgstr "CANCELAR"
 
-#: tcl/bin/tkbackplot.tcl:250 src/emc/usr_intf/pncconf/screen.glade:105
+#: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
 msgstr "EJE"
 
@@ -5315,7 +5317,7 @@ msgstr "pulgadas"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1660
 #: src/emc/usr_intf/pncconf/a_motor.glade:1591
 #: src/emc/usr_intf/pncconf/a_motor.glade:1660
-#: src/emc/usr_intf/pncconf/dialogs.glade:3384
+#: src/emc/usr_intf/pncconf/dialogs.glade:3521
 msgid "mm"
 msgstr "mm"
 
@@ -5520,7 +5522,7 @@ msgstr "Programa:"
 msgid "  -  Status: "
 msgstr "  - Estado: "
 
-#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3464
+#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3601
 #: src/emc/usr_intf/gscreen/gscreen.glade:2673
 msgid "Pause"
 msgstr "Pausa"
@@ -6213,9 +6215,9 @@ msgstr "eliminar"
 msgid "move"
 msgstr "mover"
 
-#: tcl/ngcgui.tcl:3716 src/emc/usr_intf/pncconf/pncconf.py:3823
-#: src/emc/usr_intf/pncconf/pncconf.py:3929
-#: src/emc/usr_intf/pncconf/pncconf.py:4089
+#: tcl/ngcgui.tcl:3716 src/emc/usr_intf/pncconf/pncconf.py:3846
+#: src/emc/usr_intf/pncconf/pncconf.py:3952
+#: src/emc/usr_intf/pncconf/pncconf.py:4112
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -7575,9 +7577,9 @@ msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
 msgstr ""
-"Esta ventana es parte del cambiador de herramientas manual de AXIS. "
-"Es seguro cerrar o iconificar esta ventana, o se cerrará "
-"automáticamente después de unos segundos."
+"Esta ventana es parte del cambiador de herramientas manual de AXIS. Es "
+"seguro cerrar o iconificar esta ventana, o se cerrará automáticamente "
+"después de unos segundos."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:512
 #, python-format
@@ -8247,14 +8249,14 @@ msgstr "Husillo:"
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:946
 #: src/emc/usr_intf/stepconf/main_page.glade:29
 #: src/emc/usr_intf/pncconf/main_page.glade:41
-#: src/emc/usr_intf/pncconf/dialogs.glade:3099
+#: src/emc/usr_intf/pncconf/dialogs.glade:3236
 #: src/emc/usr_intf/gscreen/gscreen.glade:4111
 msgid "-"
 msgstr "-"
 
 #: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/stepconf/main_page.glade:26
 #: src/emc/usr_intf/pncconf/main_page.glade:38
-#: src/emc/usr_intf/pncconf/dialogs.glade:3096
+#: src/emc/usr_intf/pncconf/dialogs.glade:3233
 #: src/emc/usr_intf/gscreen/gscreen.glade:4100
 msgid "+"
 msgstr "+"
@@ -8507,8 +8509,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permitir temporalmente correr fuera de los límites de la máquina [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:142
-#: src/emc/usr_intf/pncconf/pncconf.py:1650
-#: src/emc/usr_intf/pncconf/pncconf.py:1653
+#: src/emc/usr_intf/pncconf/pncconf.py:1673
+#: src/emc/usr_intf/pncconf/pncconf.py:1676
 #: src/emc/usr_intf/gscreen/gscreen.py:1321
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1821
 msgid "Follow System Theme"
@@ -8861,15 +8863,15 @@ msgid "."
 msgstr "."
 
 #: src/emc/usr_intf/touchy/touchy.glade:963
-#: src/emc/usr_intf/pncconf/dialogs.glade:2705
-#: src/emc/usr_intf/pncconf/dialogs.glade:3844
-#: src/emc/usr_intf/pncconf/dialogs.glade:3857
-#: src/emc/usr_intf/pncconf/dialogs.glade:3870
-#: src/emc/usr_intf/pncconf/dialogs.glade:3883
-#: src/emc/usr_intf/pncconf/dialogs.glade:3896
-#: src/emc/usr_intf/pncconf/dialogs.glade:3909
-#: src/emc/usr_intf/pncconf/dialogs.glade:4064
-#: src/emc/usr_intf/pncconf/dialogs.glade:4077
+#: src/emc/usr_intf/pncconf/dialogs.glade:2830
+#: src/emc/usr_intf/pncconf/dialogs.glade:3981
+#: src/emc/usr_intf/pncconf/dialogs.glade:3994
+#: src/emc/usr_intf/pncconf/dialogs.glade:4007
+#: src/emc/usr_intf/pncconf/dialogs.glade:4020
+#: src/emc/usr_intf/pncconf/dialogs.glade:4033
+#: src/emc/usr_intf/pncconf/dialogs.glade:4046
+#: src/emc/usr_intf/pncconf/dialogs.glade:4201
+#: src/emc/usr_intf/pncconf/dialogs.glade:4214
 msgid "0"
 msgstr "0"
 
@@ -8890,7 +8892,7 @@ msgid "6"
 msgstr "6"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1048
-#: src/emc/usr_intf/pncconf/dialogs.glade:1307
+#: src/emc/usr_intf/pncconf/dialogs.glade:1432
 msgid "5"
 msgstr "5"
 
@@ -9009,7 +9011,7 @@ msgstr "Distancia:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2526
 #: src/emc/usr_intf/stepconf/main_page.glade:324
-#: src/emc/usr_intf/pncconf/dialogs.glade:3569
+#: src/emc/usr_intf/pncconf/dialogs.glade:3706
 msgid "Velocity:"
 msgstr "Velocidad:"
 
@@ -9323,7 +9325,7 @@ msgstr "Stepconf"
 #: src/emc/usr_intf/stepconf/main_page.glade:581
 #: src/emc/usr_intf/pncconf/private_data.py:39
 #: src/emc/usr_intf/pncconf/private_data.py:989
-#: src/emc/usr_intf/pncconf/main_page.glade:202
+#: src/emc/usr_intf/pncconf/main_page.glade:226
 #: src/emc/usr_intf/gscreen/gscreen.py:4453
 #: src/emc/usr_intf/gscreen/gscreen.py:4454
 #: src/emc/usr_intf/gscreen/gscreen.glade:4087
@@ -9827,7 +9829,7 @@ msgstr ""
 "existente llamado -custom_backup.clp- se perderá\"."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#: src/emc/usr_intf/pncconf/pages.py:1324
+#: src/emc/usr_intf/pncconf/pages.py:1340
 #: src/emc/usr_intf/pncconf/private_data.py:993
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
@@ -9864,14 +9866,14 @@ msgid "Quit Stepconf and discard changes?"
 msgstr "¿Salir de Stepconf y descartar los cambios?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:248
-#: src/emc/usr_intf/pncconf/private_data.py:997
+#: src/emc/usr_intf/pncconf/private_data.py:998
 msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr "La configuración se ha creado y guardado.¿Quieres renunciar?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:249
-#: src/emc/usr_intf/pncconf/private_data.py:998
+#: src/emc/usr_intf/pncconf/private_data.py:999
 msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of hardware is unavailable."
@@ -9880,7 +9882,7 @@ msgstr ""
 "está probando / ajustandode hardware no está disponible\"."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:250
-#: src/emc/usr_intf/pncconf/private_data.py:999
+#: src/emc/usr_intf/pncconf/private_data.py:1000
 #, python-format
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
@@ -10008,7 +10010,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'stepconf'"
 
 #: src/emc/usr_intf/stepconf/pages.py:215
-#: src/emc/usr_intf/pncconf/pncconf.py:837
+#: src/emc/usr_intf/pncconf/pncconf.py:856
 msgid "Modify Existing Configuration"
 msgstr "Modificar la configuración existente"
 
@@ -10027,8 +10029,8 @@ msgstr "Pasos / grados"
 #: src/emc/usr_intf/stepconf/axisu.glade:292
 #: src/emc/usr_intf/stepconf/axisv.glade:291
 #: src/emc/usr_intf/stepconf/axisa.glade:289
-#: src/emc/usr_intf/pncconf/dialogs.glade:2090
-#: src/emc/usr_intf/pncconf/dialogs.glade:2482
+#: src/emc/usr_intf/pncconf/dialogs.glade:2215
+#: src/emc/usr_intf/pncconf/dialogs.glade:2607
 msgid "mm / rev"
 msgstr "mm / rev"
 
@@ -10039,7 +10041,7 @@ msgstr "mm / rev"
 #: src/emc/usr_intf/stepconf/axisu.glade:29
 #: src/emc/usr_intf/stepconf/axisv.glade:28
 #: src/emc/usr_intf/stepconf/axisa.glade:28
-#: src/emc/usr_intf/pncconf/dialogs.glade:2915
+#: src/emc/usr_intf/pncconf/dialogs.glade:3040
 msgid "Steps / mm"
 msgstr "Pasos / mm"
 
@@ -10191,7 +10193,7 @@ msgstr "Archivos de configuración de Mach"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
-#: src/emc/usr_intf/pncconf/dialogs.glade:3093
+#: src/emc/usr_intf/pncconf/dialogs.glade:3230
 msgid "±"
 msgstr "±"
 
@@ -10200,13 +10202,13 @@ msgid "mm/s"
 msgstr "mm / s"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:337
-#: src/emc/usr_intf/pncconf/dialogs.glade:713
-#: src/emc/usr_intf/pncconf/dialogs.glade:3313
+#: src/emc/usr_intf/pncconf/dialogs.glade:838
+#: src/emc/usr_intf/pncconf/dialogs.glade:3450
 msgid "Jog:"
 msgstr "Jog:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
-#: src/emc/usr_intf/pncconf/dialogs.glade:3328
+#: src/emc/usr_intf/pncconf/dialogs.glade:3465
 msgid "Test Area:"
 msgstr "Área de prueba:"
 
@@ -10215,7 +10217,7 @@ msgid "mm/s^2"
 msgstr "mm / s ^ 2"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:400
-#: src/emc/usr_intf/pncconf/dialogs.glade:3582
+#: src/emc/usr_intf/pncconf/dialogs.glade:3719
 msgid "Acceleration:"
 msgstr "Aceleración:"
 
@@ -10245,10 +10247,10 @@ msgstr "Asistente de configuración Stepconf -Stepper"
 #: src/emc/usr_intf/pncconf/y_motor.glade:384
 #: src/emc/usr_intf/pncconf/z_motor.glade:384
 #: src/emc/usr_intf/pncconf/a_motor.glade:384
-#: src/emc/usr_intf/pncconf/dialogs.glade:4453
-#: src/emc/usr_intf/pncconf/dialogs.glade:4466
-#: src/emc/usr_intf/pncconf/dialogs.glade:4479
-#: src/emc/usr_intf/pncconf/dialogs.glade:4492
+#: src/emc/usr_intf/pncconf/dialogs.glade:4638
+#: src/emc/usr_intf/pncconf/dialogs.glade:4651
+#: src/emc/usr_intf/pncconf/dialogs.glade:4664
+#: src/emc/usr_intf/pncconf/dialogs.glade:4677
 #: src/emc/usr_intf/gscreen/gscreen.glade:1342
 #: src/emc/usr_intf/gscreen/gscreen.glade:1360
 #: src/emc/usr_intf/gscreen/gscreen.glade:1378
@@ -10256,7 +10258,7 @@ msgid "label"
 msgstr "etiqueta"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
-#: src/emc/usr_intf/pncconf/main_page.glade:174
+#: src/emc/usr_intf/pncconf/main_page.glade:198
 msgid "Back"
 msgstr "Volver"
 
@@ -10267,9 +10269,8 @@ msgid ""
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
 msgstr ""
-"Este programa crea archivos de configuración (.ini y .hal) para " 
-"fresadoras y tornos \" paso y dirección \" conectados al puerto "
-"paralelo de la PC. \n"
+"Este programa crea archivos de configuración (.ini y .hal) para fresadoras y "
+"tornos \" paso y dirección \" conectados al puerto paralelo de la PC. \n"
 "\n"
 "Stepconf requiere una resolución mínima de pantalla de 800 X 600."
 
@@ -10417,12 +10418,14 @@ msgstr "Importar un archivo Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Crear un _atajo en escritorio (enlace simbólico) a los archivos de configuración."
+msgstr ""
+"Crear un _atajo en escritorio (enlace simbólico) a los archivos de "
+"configuración."
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
-msgstr "Crear un _Lanzador en escritorio para iniciar LinuxCNC con esta configuración"
-
+msgstr ""
+"Crear un _Lanzador en escritorio para iniciar LinuxCNC con esta configuración"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -10434,8 +10437,8 @@ msgid ""
 "If you have made modifications to this configuration outside this program, "
 "they will be lost when you select \"Modify a configuration\""
 msgstr ""
-"Si ha realizado modificaciones a una configuración fuera de este programa, se "
-"perderán cuando seleccione \"Modificar una configuración\""
+"Si ha realizado modificaciones a una configuración fuera de este programa, "
+"se perderán cuando seleccione \"Modificar una configuración\""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:35
 msgid "Xylotex"
@@ -10894,13 +10897,13 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/stepconf/axisu.glade:167
 #: src/emc/usr_intf/stepconf/axisv.glade:166
 #: src/emc/usr_intf/stepconf/axisa.glade:166
-#: src/emc/usr_intf/pncconf/dialogs.glade:1118
-#: src/emc/usr_intf/pncconf/dialogs.glade:1182
-#: src/emc/usr_intf/pncconf/dialogs.glade:1392
-#: src/emc/usr_intf/pncconf/dialogs.glade:1907
-#: src/emc/usr_intf/pncconf/dialogs.glade:1973
-#: src/emc/usr_intf/pncconf/dialogs.glade:2287
-#: src/emc/usr_intf/pncconf/dialogs.glade:2378
+#: src/emc/usr_intf/pncconf/dialogs.glade:1243
+#: src/emc/usr_intf/pncconf/dialogs.glade:1307
+#: src/emc/usr_intf/pncconf/dialogs.glade:1517
+#: src/emc/usr_intf/pncconf/dialogs.glade:2032
+#: src/emc/usr_intf/pncconf/dialogs.glade:2098
+#: src/emc/usr_intf/pncconf/dialogs.glade:2412
+#: src/emc/usr_intf/pncconf/dialogs.glade:2503
 msgid "_:"
 msgstr "_:"
 
@@ -11046,7 +11049,7 @@ msgstr "Dirección La_tch Home:"
 #: src/emc/usr_intf/stepconf/axisu.glade:620
 #: src/emc/usr_intf/stepconf/axisv.glade:629
 #: src/emc/usr_intf/stepconf/axisa.glade:609
-#: src/emc/usr_intf/pncconf/dialogs.glade:2734
+#: src/emc/usr_intf/pncconf/dialogs.glade:2859
 msgid "Time to accelerate to max speed:"
 msgstr "Tiempo para acelerar hasta velocidad máxima:"
 
@@ -11065,7 +11068,7 @@ msgstr "Distancia para acelerar hasta velocidad máxima:"
 #: src/emc/usr_intf/stepconf/axisu.glade:648
 #: src/emc/usr_intf/stepconf/axisv.glade:657
 #: src/emc/usr_intf/stepconf/axisa.glade:635
-#: src/emc/usr_intf/pncconf/dialogs.glade:2764
+#: src/emc/usr_intf/pncconf/dialogs.glade:2889
 msgid "Pulse rate at max speed:"
 msgstr "Frecuencia de pulsos a velocidad máxima:"
 
@@ -11128,8 +11131,8 @@ msgid ""
 "troubleshooting:\n"
 "\n"
 msgstr ""
-"PNCconf encontró un error. La siguiente información puede ser útil "
-"en solución de problemas:\n"
+"PNCconf encontró un error. La siguiente información puede ser útil en "
+"solución de problemas:\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:260
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
@@ -11139,24 +11142,24 @@ msgstr "**** ERROR PNCCONF: error de carga de firmware personalizado"
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** INFORMACIÓN PNCCONF: Se encontró firmware adicional en el archivo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:323
+#: src/emc/usr_intf/pncconf/pncconf.py:327
 msgid "Discovery metadata update"
 msgstr "Actualización de metadatos de descubrimiento"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:357
+#: src/emc/usr_intf/pncconf/pncconf.py:361
 #, python-format
 msgid "%s metadata update"
 msgstr "%s actualización de metadatos"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:377
+#: src/emc/usr_intf/pncconf/pncconf.py:381
 msgid "Pncconf setup"
 msgstr "Configuración de Pncconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:389
+#: src/emc/usr_intf/pncconf/pncconf.py:393
 msgid "Pncconf is setting up"
 msgstr "Se está configurando Pncconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:403
+#: src/emc/usr_intf/pncconf/pncconf.py:407
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -11164,15 +11167,15 @@ msgstr ""
 "\n"
 "**** Pausa de depuración! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:461
+#: src/emc/usr_intf/pncconf/pncconf.py:480
 msgid "Specific Help page is unavailable\n"
 msgstr "La página de ayuda específica no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:463
+#: src/emc/usr_intf/pncconf/pncconf.py:482
 msgid "Help Pages"
 msgstr "Páginas de ayuda"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:519
+#: src/emc/usr_intf/pncconf/pncconf.py:538
 #, python-format
 msgid ""
 "You have no hostmot2 firmware downloaded in folder:\n"
@@ -11183,11 +11186,11 @@ msgstr ""
 "%s\n"
 "PNCconf usará datos internos del firmware"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:836
+#: src/emc/usr_intf/pncconf/pncconf.py:855
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'PNCconf'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:866
+#: src/emc/usr_intf/pncconf/pncconf.py:885
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue.\n"
@@ -11196,11 +11199,11 @@ msgstr ""
 "Parece que los datos en este archivo son demasiado antiguos de una versión "
 "de PNCConf paracontinuar.."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1219
+#: src/emc/usr_intf/pncconf/pncconf.py:1241
 msgid "No board was found\n"
 msgstr "No se encontró ninguna placa\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1255
+#: src/emc/usr_intf/pncconf/pncconf.py:1279
 #, python-format
 msgid ""
 "Discovery is  got an error\n"
@@ -11215,32 +11218,32 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1269
+#: src/emc/usr_intf/pncconf/pncconf.py:1293
 msgid "Discovery is  unavailable\n"
 msgstr "El descubrimiento no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1522
+#: src/emc/usr_intf/pncconf/pncconf.py:1545
 msgid "USB device Info Search"
 msgstr "Búsqueda de información del dispositivo USB"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1536
+#: src/emc/usr_intf/pncconf/pncconf.py:1559
 msgid "USB device  page is unavailable\n"
 msgstr "La página del dispositivo USB no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1601
+#: src/emc/usr_intf/pncconf/pncconf.py:1624
 #: src/emc/usr_intf/pncconf/tests.py:86
 msgid "Pin names are unavailable\n"
 msgstr "Los nombres de los pines no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1624
+#: src/emc/usr_intf/pncconf/pncconf.py:1647
 msgid "Device names are unavailable\n"
 msgstr "Los nombres de los dispositivos no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1627
+#: src/emc/usr_intf/pncconf/pncconf.py:1650
 msgid "No Pncconf made device rules were found\n"
 msgstr "No se encontraron reglas de dispositivo hechas por Pncconf\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1672
+#: src/emc/usr_intf/pncconf/pncconf.py:1695
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -11254,7 +11257,7 @@ msgstr ""
 "opciones relacionadas más tarde, como la retroalimentación del husillo, la "
 "conexión HALno se actualizará"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1679
+#: src/emc/usr_intf/pncconf/pncconf.py:1702
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -11265,37 +11268,37 @@ msgstr ""
 "seguridad'Al hacer clic en 'programa personalizado existente' se anulará "
 "esta advertencia\"."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3452
+#: src/emc/usr_intf/pncconf/pncconf.py:3475
 #: src/emc/usr_intf/pncconf/private_data.py:534
 msgid "Unused Channel"
 msgstr "Canal no utilizado"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3723
+#: src/emc/usr_intf/pncconf/pncconf.py:3746
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "No puede tener señales paso a paso y pwm para el control del cabezal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3727
+#: src/emc/usr_intf/pncconf/pncconf.py:3750
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Olvidó designar una señal paso a paso o pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3730
+#: src/emc/usr_intf/pncconf/pncconf.py:3753
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Olvidó designar una señal de codificador / resolutor para el eje %s servo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3733
+#: src/emc/usr_intf/pncconf/pncconf.py:3756
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "Olvidó designar una señal pwm o una señal paso a paso para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3736
+#: src/emc/usr_intf/pncconf/pncconf.py:3759
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "No puede tener señales paso a paso y pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3739
+#: src/emc/usr_intf/pncconf/pncconf.py:3762
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
@@ -11304,19 +11307,19 @@ msgstr ""
 "Si utiliza un stepper de eje en tándem, debe seleccionar un stepgen maestro "
 "para el eje%s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3747
+#: src/emc/usr_intf/pncconf/pncconf.py:3770
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiere una señal de inicio de ciclo externo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3750
+#: src/emc/usr_intf/pncconf/pncconf.py:3773
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiere una señal de cancelación externa\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3753
+#: src/emc/usr_intf/pncconf/pncconf.py:3776
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiere una señal externa de un solo paso\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3756
+#: src/emc/usr_intf/pncconf/pncconf.py:3779
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -11324,7 +11327,7 @@ msgstr ""
 "Touchy requiere una señal externa de codificador MPG con volante manual "
 "múltiple en la mesapágina\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3759
+#: src/emc/usr_intf/pncconf/pncconf.py:3782
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -11332,7 +11335,7 @@ msgstr ""
 "Touchy requiere 'jogging externo mpg' para ser seleccionado en el control "
 "externopágina\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3762
+#: src/emc/usr_intf/pncconf/pncconf.py:3785
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -11340,7 +11343,7 @@ msgstr ""
 "Touchy requiere que el mpg externo esté en modo 'mpg compartido' en el "
 "externocontrola la página\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3765
+#: src/emc/usr_intf/pncconf/pncconf.py:3788
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -11348,7 +11351,7 @@ msgstr ""
 "Touchy requiere que los incrementos seleccionables no estén marcados en el "
 "externocontrola la página\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3778
+#: src/emc/usr_intf/pncconf/pncconf.py:3801
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -11356,7 +11359,7 @@ msgstr ""
 "La placa secundaria 7i29 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3781
+#: src/emc/usr_intf/pncconf/pncconf.py:3804
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -11364,7 +11367,7 @@ msgstr ""
 "La placa secundaria 7i30 requiere generadores tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3784
+#: src/emc/usr_intf/pncconf/pncconf.py:3807
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -11372,7 +11375,7 @@ msgstr ""
 "La placa secundaria 7i33 requiere generadores de tipo PDM y una base "
 "PDMfrecuencia de 6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3787
+#: src/emc/usr_intf/pncconf/pncconf.py:3810
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -11380,7 +11383,7 @@ msgstr ""
 "La placa secundaria 7i40 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3790
+#: src/emc/usr_intf/pncconf/pncconf.py:3813
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -11388,96 +11391,96 @@ msgstr ""
 "La placa secundaria 7i48 requiere generadores de tipo UDM y una base "
 "PWMfrecuencia de 24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3938
+#: src/emc/usr_intf/pncconf/pncconf.py:3961
 msgid "Gearbox Reduction Ratio"
 msgstr "Relación de reducción de la caja de cambios"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3941
+#: src/emc/usr_intf/pncconf/pncconf.py:3964
 msgid "Reduction Ratio"
 msgstr "Relación de reducción"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3944
+#: src/emc/usr_intf/pncconf/pncconf.py:3967
 msgid "Leadscrew Pitch"
 msgstr "Paso de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3947
-#: src/emc/usr_intf/pncconf/dialogs.glade:1853
-#: src/emc/usr_intf/pncconf/dialogs.glade:2234
+#: src/emc/usr_intf/pncconf/pncconf.py:3970
+#: src/emc/usr_intf/pncconf/dialogs.glade:1978
+#: src/emc/usr_intf/pncconf/dialogs.glade:2359
 msgid "Leadscrew TPI"
 msgstr "Leadscrew TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3951
-#: src/emc/usr_intf/pncconf/pncconf.py:3952
+#: src/emc/usr_intf/pncconf/pncconf.py:3974
+#: src/emc/usr_intf/pncconf/pncconf.py:3975
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3953
-#: src/emc/usr_intf/pncconf/pncconf.py:3963
-#: src/emc/usr_intf/pncconf/pncconf.py:3964
-#: src/emc/usr_intf/pncconf/pncconf.py:3965
+#: src/emc/usr_intf/pncconf/pncconf.py:3976
+#: src/emc/usr_intf/pncconf/pncconf.py:3986
+#: src/emc/usr_intf/pncconf/pncconf.py:3987
+#: src/emc/usr_intf/pncconf/pncconf.py:3988
 msgid " / min"
 msgstr "/ min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3954
+#: src/emc/usr_intf/pncconf/pncconf.py:3977
 msgid " / sec²"
 msgstr "/ sec²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3957
+#: src/emc/usr_intf/pncconf/pncconf.py:3980
 msgid " / Step"
 msgstr "/ Paso"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3958
+#: src/emc/usr_intf/pncconf/pncconf.py:3981
 msgid "Steps / "
 msgstr "Pasos /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3960
+#: src/emc/usr_intf/pncconf/pncconf.py:3983
 msgid " / encoder pulse"
 msgstr "/ pulso codificador"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3961
+#: src/emc/usr_intf/pncconf/pncconf.py:3984
 msgid "Encoder pulses / "
 msgstr "Pulsos de codificador /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3969
+#: src/emc/usr_intf/pncconf/pncconf.py:3992
 msgid "Resolver Scale:"
 msgstr "Escala de resolución:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4302
+#: src/emc/usr_intf/pncconf/pncconf.py:4325
 msgid "Spindle Scale Calculation"
 msgstr "Cálculo de escala de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4414
+#: src/emc/usr_intf/pncconf/pncconf.py:4437
 msgid "Axis Scale Calculation"
 msgstr "Cálculo de escala de eje"
 
-#: src/emc/usr_intf/pncconf/pages.py:227 src/emc/usr_intf/pncconf/pages.py:276
+#: src/emc/usr_intf/pncconf/pages.py:239 src/emc/usr_intf/pncconf/pages.py:290
 #, python-format
 msgid "Point and click configuration - %s.pncconf "
 msgstr "Configuración de apuntar y hacer clic - %s.pncconf"
 
-#: src/emc/usr_intf/pncconf/pages.py:308
+#: src/emc/usr_intf/pncconf/pages.py:322
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr ""
 "Debe designar un parport y / o dispositivo de E / S de mesa antes de "
 "continuar."
 
-#: src/emc/usr_intf/pncconf/pages.py:371
+#: src/emc/usr_intf/pncconf/pages.py:385
 msgid "PCI search page is unavailable\n"
 msgstr "La página de búsqueda de PCI no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pages.py:419
+#: src/emc/usr_intf/pncconf/pages.py:433
 msgid "in / min"
 msgstr "en / min"
 
-#: src/emc/usr_intf/pncconf/pages.py:422
+#: src/emc/usr_intf/pncconf/pages.py:436
 #: src/emc/usr_intf/pncconf/screen.glade:784
 #: src/emc/usr_intf/pncconf/screen.glade:1001
 #: src/emc/usr_intf/pncconf/screen.glade:1014
 msgid "mm / min"
 msgstr "mm / min"
 
-#: src/emc/usr_intf/pncconf/pages.py:876
+#: src/emc/usr_intf/pncconf/pages.py:890
 msgid ""
 "You need to configure the mesa0 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -11487,7 +11490,7 @@ msgstr ""
 " Elija el tipo de placa, firmware, cantidades de componentes y presione el "
 "boton' 'Aceptar cambios de componentes"
 
-#: src/emc/usr_intf/pncconf/pages.py:879
+#: src/emc/usr_intf/pncconf/pages.py:893
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -11495,7 +11498,7 @@ msgstr ""
 "El tablero Mesa0 elegido es diferente del actual que se muestra.presione el "
 "botón 'Aceptar cambios de componentes' '"
 
-#: src/emc/usr_intf/pncconf/pages.py:928
+#: src/emc/usr_intf/pncconf/pages.py:942
 msgid ""
 "You need to configure the mesa1 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -11505,7 +11508,7 @@ msgstr ""
 "cantidades de componentes y presione el boton 'Aceptar cambios de "
 "componentes'"
 
-#: src/emc/usr_intf/pncconf/pages.py:931
+#: src/emc/usr_intf/pncconf/pages.py:945
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -11513,18 +11516,18 @@ msgstr ""
 "La placa Mesa1 elegida es diferente de la actual que se muestra.presione el "
 "botón 'Aceptar cambios de componentes' '"
 
-#: src/emc/usr_intf/pncconf/pages.py:1297
+#: src/emc/usr_intf/pncconf/pages.py:1313
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Debe designar un pin de entrada de parada de emergencia para este programa "
 "de escalera\"."
 
-#: src/emc/usr_intf/pncconf/pages.py:1308
+#: src/emc/usr_intf/pncconf/pages.py:1324
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 "Debe designar un pin de entrada de sonda para este programa de escalera."
 
-#: src/emc/usr_intf/pncconf/pages.py:1318
+#: src/emc/usr_intf/pncconf/pages.py:1334
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -13263,7 +13266,12 @@ msgstr ""
 msgid "Quit PNCconf and discard changes?"
 msgstr "¿Salir de PNCconf y descartar cambios?"
 
-#: src/emc/usr_intf/pncconf/private_data.py:1002
+#: src/emc/usr_intf/pncconf/private_data.py:997
+#, fuzzy
+msgid "Do you want to quit?"
+msgstr "¿Realmente quiere salir?\n"
+
+#: src/emc/usr_intf/pncconf/private_data.py:1003
 msgid ""
 "Ok to replace AXIS's .axisrc file?\n"
 " If you haven't added custom commands to this hidden file, outside of "
@@ -13417,7 +13425,14 @@ msgstr ""
 msgid "PNCconf - Mesa Card Configuration Wizard"
 msgstr "PNCconf - Asistente de configuración de la tarjeta Mesa"
 
-#: src/emc/usr_intf/pncconf/main_page.glade:259
+#: src/emc/usr_intf/pncconf/main_page.glade:174
+#, fuzzy
+msgid ""
+"Save\n"
+"Data"
+msgstr "Guardar"
+
+#: src/emc/usr_intf/pncconf/main_page.glade:283
 msgid ""
 "This program creates configuration files (.ini and .hal) for  milling "
 "machines and lathes connected to a Mesa Card.\n"
@@ -13432,7 +13447,7 @@ msgstr ""
 "consíguelosfuncional, luego regrese y agregue otras opciones como control de "
 "husillo VFDo límite avanzado / control del hogar, etc."
 
-#: src/emc/usr_intf/pncconf/main_page.glade:288
+#: src/emc/usr_intf/pncconf/main_page.glade:312
 #: src/emc/usr_intf/pncconf/mesa0.glade:22146
 #: src/emc/usr_intf/pncconf/mesa0.glade:27796
 #: src/emc/usr_intf/pncconf/mesa0.glade:33446
@@ -15519,18 +15534,6 @@ msgstr "Restaurar la posición articulacion después del apagado"
 msgid "<b>Defaults and Options</b>"
 msgstr "<b> Valores predeterminados y opciones </b>"
 
-#: src/emc/usr_intf/pncconf/screen.glade:109
-msgid "TKLinux"
-msgstr "TKLinux"
-
-#: src/emc/usr_intf/pncconf/screen.glade:113
-msgid "Gmoccapy"
-msgstr "Gmoccapy"
-
-#: src/emc/usr_intf/pncconf/screen.glade:117
-msgid "Touchy"
-msgstr "Touchy"
-
 #: src/emc/usr_intf/pncconf/screen.glade:201
 msgid "<b>GUI Screen list</b>"
 msgstr "<b> Lista de pantallas GUI </b>"
@@ -15936,7 +15939,7 @@ msgstr "Salida máxima"
 #: src/emc/usr_intf/pncconf/z_motor.glade:116
 #: src/emc/usr_intf/pncconf/a_motor.glade:116
 #: src/emc/usr_intf/pncconf/s_motor.glade:297
-#: src/emc/usr_intf/pncconf/dialogs.glade:3812
+#: src/emc/usr_intf/pncconf/dialogs.glade:3949
 msgid "FF2"
 msgstr "FF2"
 
@@ -15945,7 +15948,7 @@ msgstr "FF2"
 #: src/emc/usr_intf/pncconf/z_motor.glade:129
 #: src/emc/usr_intf/pncconf/a_motor.glade:129
 #: src/emc/usr_intf/pncconf/s_motor.glade:311
-#: src/emc/usr_intf/pncconf/dialogs.glade:3801
+#: src/emc/usr_intf/pncconf/dialogs.glade:3938
 msgid "FF1"
 msgstr "FF1"
 
@@ -15954,7 +15957,7 @@ msgstr "FF1"
 #: src/emc/usr_intf/pncconf/z_motor.glade:142
 #: src/emc/usr_intf/pncconf/a_motor.glade:142
 #: src/emc/usr_intf/pncconf/s_motor.glade:325
-#: src/emc/usr_intf/pncconf/dialogs.glade:3790
+#: src/emc/usr_intf/pncconf/dialogs.glade:3927
 msgid "FF0"
 msgstr "FF0"
 
@@ -15971,7 +15974,7 @@ msgstr "Banda muerta"
 #: src/emc/usr_intf/pncconf/z_motor.glade:204
 #: src/emc/usr_intf/pncconf/a_motor.glade:204
 #: src/emc/usr_intf/pncconf/s_motor.glade:397
-#: src/emc/usr_intf/pncconf/dialogs.glade:4042
+#: src/emc/usr_intf/pncconf/dialogs.glade:4179
 msgid "Bias"
 msgstr "Sesgo"
 
@@ -16354,9 +16357,9 @@ msgstr "Rango:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1478
 #: src/emc/usr_intf/pncconf/a_motor.glade:1478
 #: src/emc/usr_intf/pncconf/s_motor.glade:2449
-#: src/emc/usr_intf/pncconf/dialogs.glade:1640
-#: src/emc/usr_intf/pncconf/dialogs.glade:1651
-#: src/emc/usr_intf/pncconf/dialogs.glade:2946
+#: src/emc/usr_intf/pncconf/dialogs.glade:1765
+#: src/emc/usr_intf/pncconf/dialogs.glade:1776
+#: src/emc/usr_intf/pncconf/dialogs.glade:3071
 msgid "RPM"
 msgstr "RPM"
 
@@ -16773,7 +16776,18 @@ msgstr ""
 msgid "<b>frame2</b>"
 msgstr "<b> marco2 </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:593
+#: src/emc/usr_intf/pncconf/dialogs.glade:561
+#, fuzzy
+msgid "Save & Quit"
+msgstr "Guardar y salir"
+
+#: src/emc/usr_intf/pncconf/dialogs.glade:629
+msgid ""
+"Save entered data and quit\n"
+"or discard changes and quit?"
+msgstr ""
+
+#: src/emc/usr_intf/pncconf/dialogs.glade:718
 msgid ""
 "<b>  Motor Encoder Openloop Test\n"
 "      Warning limits switches \n"
@@ -16782,257 +16796,257 @@ msgstr ""
 "<b> Prueba de bucle abierto del codificador del motorLímites de advertencia "
 "de interruptoresNo será obedecido </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:681
+#: src/emc/usr_intf/pncconf/dialogs.glade:806
 msgid "Slow Dac Speed"
 msgstr "Velocidad lenta de dac"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:695
+#: src/emc/usr_intf/pncconf/dialogs.glade:820
 msgid "Fast Dac Speed"
 msgstr "Velocidad rápida de dac"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:805
+#: src/emc/usr_intf/pncconf/dialogs.glade:930
 msgid "Dac Offset:"
 msgstr "Compensación de Dac:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:816
+#: src/emc/usr_intf/pncconf/dialogs.glade:941
 msgid "Encoder Scale:"
 msgstr "Escala de codificador:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:845
+#: src/emc/usr_intf/pncconf/dialogs.glade:970
 msgid "Reset Encoder"
 msgstr "Restablecer codificador"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:859
+#: src/emc/usr_intf/pncconf/dialogs.glade:984
 msgid "Enable Amp"
 msgstr "Habilitar amplificador"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:872
+#: src/emc/usr_intf/pncconf/dialogs.glade:997
 msgid "Invert Encoder"
 msgstr "Invertir codificador"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:888
+#: src/emc/usr_intf/pncconf/dialogs.glade:1013
 msgid "Invert Motor"
 msgstr "Invertir motor"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1220
+#: src/emc/usr_intf/pncconf/dialogs.glade:1345
 msgid "Pulley teeth (motor:gearbox):"
 msgstr "Dientes de polea (motor: caja de cambios):"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1229
+#: src/emc/usr_intf/pncconf/dialogs.glade:1354
 msgid "Gear ratio 1 (Input:Output)"
 msgstr "Relación de engranaje 1 (Entrada: Salida)"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1242
-#: src/emc/usr_intf/pncconf/dialogs.glade:2034
+#: src/emc/usr_intf/pncconf/dialogs.glade:1367
+#: src/emc/usr_intf/pncconf/dialogs.glade:2159
 msgid "Microstep Multiplication Factor:"
 msgstr "Factor de multiplicación Microstep:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1258
-#: src/emc/usr_intf/pncconf/dialogs.glade:2109
+#: src/emc/usr_intf/pncconf/dialogs.glade:1383
+#: src/emc/usr_intf/pncconf/dialogs.glade:2234
 msgid "Motor steps per revolution:"
 msgstr "Pasos del motor por revolución:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1292
+#: src/emc/usr_intf/pncconf/dialogs.glade:1417
 msgid "10"
 msgstr "10"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1334
+#: src/emc/usr_intf/pncconf/dialogs.glade:1459
 msgid "      Voltage for Max RPM:"
 msgstr "Voltaje para RPM máx .:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1343
+#: src/emc/usr_intf/pncconf/dialogs.glade:1468
 msgid "Use Negative voltage for reverse:"
 msgstr "Usar voltaje negativo para reversa:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1356
+#: src/emc/usr_intf/pncconf/dialogs.glade:1481
 msgid "Gear ratio 2 (Input:Output)"
 msgstr "Relación de engranaje 2 (Entrada: Salida)"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1435
+#: src/emc/usr_intf/pncconf/dialogs.glade:1560
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr "<b> MOTOR </b> RPM a voltaje máximo"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1467
+#: src/emc/usr_intf/pncconf/dialogs.glade:1592
 msgid "<b>Spindle Drive Motor</b>"
 msgstr "<b> Motor de accionamiento del husillo </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1509
-#: src/emc/usr_intf/pncconf/dialogs.glade:2330
+#: src/emc/usr_intf/pncconf/dialogs.glade:1634
+#: src/emc/usr_intf/pncconf/dialogs.glade:2455
 msgid "X 4 = Pulses/Rev"
 msgstr "X 4 = Pulsos / Rev"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1521
-#: src/emc/usr_intf/pncconf/dialogs.glade:2344
+#: src/emc/usr_intf/pncconf/dialogs.glade:1646
+#: src/emc/usr_intf/pncconf/dialogs.glade:2469
 msgid "Encoder lines per revolution:"
 msgstr "Líneas de codificador por revolución:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1530
-#: src/emc/usr_intf/pncconf/dialogs.glade:2502
+#: src/emc/usr_intf/pncconf/dialogs.glade:1655
+#: src/emc/usr_intf/pncconf/dialogs.glade:2627
 msgid "<b>Encoder Scale</b>"
 msgstr "<b> Escala de codificador </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1598
+#: src/emc/usr_intf/pncconf/dialogs.glade:1723
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
 msgstr "RPM del husillo a la velocidad máxima del motor - engranaje 1:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1605
+#: src/emc/usr_intf/pncconf/dialogs.glade:1730
 msgid "Spindle RPM at Max Motor Speed -gear 2:"
 msgstr "RPM del husillo a la velocidad máxima del motor - engranaje 2:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1616
+#: src/emc/usr_intf/pncconf/dialogs.glade:1741
 msgid "500"
 msgstr "500"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1627
+#: src/emc/usr_intf/pncconf/dialogs.glade:1752
 msgid "1000"
 msgstr "1000"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1668
-#: src/emc/usr_intf/pncconf/dialogs.glade:3061
+#: src/emc/usr_intf/pncconf/dialogs.glade:1793
+#: src/emc/usr_intf/pncconf/dialogs.glade:3198
 msgid "<b>Motion Data</b>"
 msgstr "<b> Datos de movimiento </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:1812
+#: src/emc/usr_intf/pncconf/dialogs.glade:1937
 msgid "TPI "
 msgstr "TPI"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2012
+#: src/emc/usr_intf/pncconf/dialogs.glade:2137
 msgid "Pulley teeth (motor:Leadscrew):"
 msgstr "Dientes de polea (motor: tornillo):"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2021
-#: src/emc/usr_intf/pncconf/dialogs.glade:2417
+#: src/emc/usr_intf/pncconf/dialogs.glade:2146
+#: src/emc/usr_intf/pncconf/dialogs.glade:2542
 msgid "Worm turn ratio (Input:Outputl)"
 msgstr "Relación de giro del gusano (Entrada: Salidal)"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2055
-#: src/emc/usr_intf/pncconf/dialogs.glade:2447
+#: src/emc/usr_intf/pncconf/dialogs.glade:2180
+#: src/emc/usr_intf/pncconf/dialogs.glade:2572
 msgid "Leadscrew Metric Pitch"
 msgstr "Paso métrico del tornillo prisionero"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2143
+#: src/emc/usr_intf/pncconf/dialogs.glade:2268
 msgid "<b>Step Motor Scale</b>"
 msgstr "<b> Escala de motor paso a paso </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2193
+#: src/emc/usr_intf/pncconf/dialogs.glade:2318
 msgid "TPI"
 msgstr "TPI"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2430
+#: src/emc/usr_intf/pncconf/dialogs.glade:2555
 msgid "Pulley teeth (encoder:Leadscrew):"
 msgstr "Dientes de polea (codificador: tornillo prisionero):"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2546
+#: src/emc/usr_intf/pncconf/dialogs.glade:2671
 msgid "                    "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2592
+#: src/emc/usr_intf/pncconf/dialogs.glade:2717
 msgid "encoder pulses per unit:"
 msgstr "pulsos del codificador por unidad:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2605
+#: src/emc/usr_intf/pncconf/dialogs.glade:2730
 msgid "motor steps per unit:"
 msgstr "pasos del motor por unidad:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2619
+#: src/emc/usr_intf/pncconf/dialogs.glade:2744
 msgid "<b>Calculated Scale</b>"
 msgstr "<b> Escala calculada </b>"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2688
+#: src/emc/usr_intf/pncconf/dialogs.glade:2813
 msgid "mm / encoder pulse"
 msgstr "mm / pulso codificador"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2720
+#: src/emc/usr_intf/pncconf/dialogs.glade:2845
 msgid "Resolution:"
 msgstr "Resolución:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2749
+#: src/emc/usr_intf/pncconf/dialogs.glade:2874
 msgid "Distance to acheave max speed:"
 msgstr "Distancia para alcanzar la velocidad máxima:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2851
+#: src/emc/usr_intf/pncconf/dialogs.glade:2976
 msgid "sec"
 msgstr "sec"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2867
+#: src/emc/usr_intf/pncconf/dialogs.glade:2992
 msgid "Khz"
 msgstr "Khz"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2883
+#: src/emc/usr_intf/pncconf/dialogs.glade:3008
 msgid "Calculated Axis SCALE:"
 msgstr "ESCALA calculada del eje:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2934
+#: src/emc/usr_intf/pncconf/dialogs.glade:3059
 msgid "Motor RPM at max speed:"
 msgstr "RPM del motor a la velocidad máxima:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:2975
+#: src/emc/usr_intf/pncconf/dialogs.glade:3106
 msgid "xmaxrpm"
 msgstr "xmaxrpm"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3443
+#: src/emc/usr_intf/pncconf/dialogs.glade:3580
 msgid "Seconds"
 msgstr "Segundos"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3498
+#: src/emc/usr_intf/pncconf/dialogs.glade:3635
 msgid "Enable"
 msgstr "Habilitar"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3620
+#: src/emc/usr_intf/pncconf/dialogs.glade:3757
 msgid "mm/minute^2"
 msgstr "mm / minuto ^ 2"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3667
+#: src/emc/usr_intf/pncconf/dialogs.glade:3804
 msgid "mm/minute"
 msgstr "mm / minuto"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3746
-#: src/emc/usr_intf/pncconf/dialogs.glade:4340
+#: src/emc/usr_intf/pncconf/dialogs.glade:3883
+#: src/emc/usr_intf/pncconf/dialogs.glade:4525
 msgid "Current"
 msgstr "Actual"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3757
+#: src/emc/usr_intf/pncconf/dialogs.glade:3894
 msgid "P:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3768
+#: src/emc/usr_intf/pncconf/dialogs.glade:3905
 msgid "I:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3779
+#: src/emc/usr_intf/pncconf/dialogs.glade:3916
 msgid "D:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3833
-#: src/emc/usr_intf/pncconf/dialogs.glade:4353
+#: src/emc/usr_intf/pncconf/dialogs.glade:3970
+#: src/emc/usr_intf/pncconf/dialogs.glade:4538
 msgid "Original"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4053
+#: src/emc/usr_intf/pncconf/dialogs.glade:4190
 msgid "DeadBand"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4132
+#: src/emc/usr_intf/pncconf/dialogs.glade:4269
 msgid "PID Tuning"
 msgstr "Ajuste de PID"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4307
+#: src/emc/usr_intf/pncconf/dialogs.glade:4492
 msgid "Step Time:"
 msgstr "Tiempo de paso:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4318
+#: src/emc/usr_intf/pncconf/dialogs.glade:4503
 msgid "Step Space:"
 msgstr "Espacio de paso:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4329
+#: src/emc/usr_intf/pncconf/dialogs.glade:4514
 msgid "Direction Hold:"
 msgstr "Retención de dirección:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4366
+#: src/emc/usr_intf/pncconf/dialogs.glade:4551
 msgid "Direction Setup:"
 msgstr "Configuración de dirección:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4579
+#: src/emc/usr_intf/pncconf/dialogs.glade:4764
 msgid "Step Timing"
 msgstr "Tiempo de paso"
 
@@ -18023,7 +18037,7 @@ msgid ""
 "coordinate\n"
 "  System"
 msgstr ""
-"Sistema\n" 
+"Sistema\n"
 "Coordenadas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3095
@@ -19889,4 +19903,11 @@ msgstr "Cargar archivo"
 msgid "home joints"
 msgstr "articulaciones caseras"
 
+#~ msgid "TKLinux"
+#~ msgstr "TKLinux"
 
+#~ msgid "Gmoccapy"
+#~ msgstr "Gmoccapy"
+
+#~ msgid "Touchy"
+#~ msgstr "Touchy"
