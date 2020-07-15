@@ -2,11 +2,11 @@
 Version=1.0
 Type=Application
 Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode_vi.html
-Icon=linuxcncicon
+Icon=/usr/share/icons/mate/scalable/animations/vi.svg
 X-GNOME-DocPath=
 Terminal=false
-Name=Vietnamese G-Code Quick Reference
+Name=G-Code Quick Reference - VI
 Comment=Quick reference for G, M and O codes in LinuxCNC
 StartupNotify=false
-Categories=X-CNC;
+Categories=X-CNC-REF;
 Keywords=cnc;linuxcnc;
