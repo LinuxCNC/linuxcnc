@@ -34,7 +34,6 @@ INFO = Info()
 STYLEEDITOR = SSE()
 TOOLBAR = ToolBarActions()
 
-
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -68,11 +67,18 @@ class HandlerClass:
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('command-running', lambda w: self.start_timer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
-
+        STATUS.connect("metric-mode-changed", lambda w, d: self.mode_changed(d))
+        STATUS.connect('state-off', lambda w: self.w.pushbutton_metric.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.w.pushbutton_metric.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.w.pushbutton_metric.setEnabled(self.homed_on_test()))
+        STATUS.connect('interp-run', lambda w: self.w.pushbutton_metric.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: self.w.pushbutton_metric.setEnabled(True))
+        STATUS.connect('not-all-homed', lambda w, data: self.w.pushbutton_metric.setEnabled(False))
         # some global variables
         self.run_time = 0
         self.time_tenths = 0
         self.timerOn = False
+        self.slow_jog_factor = 10
 
     ##########################################
     # Special Functions called from QTVCP
@@ -95,13 +101,15 @@ class HandlerClass:
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
         TOOLBAR.configure_submenu(self.w.menuGridSize, 'grid_size_submenu')
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
-              
+        self.w.pushbutton_metric.clicked[bool].connect(self.change_mode)
+
     def before_loop__(self):
         STATUS.connect('state-estop',lambda q:self.w.close())
 
@@ -112,7 +120,7 @@ class HandlerClass:
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5,
-                    QtCore.Qt.Key_F6,QtCore.Qt.Key_F7,QtCore.Qt.Key_F12):
+                    QtCore.Qt.Key_F6,QtCore.Qt.Key_F7,QtCore.Qt.Key_F11,QtCore.Qt.Key_F12):
             raise
 
         # ok if we got here then try keybindings
@@ -273,6 +281,20 @@ class HandlerClass:
             self.w.progressBar.setValue(0)
             ACTION.OPEN_PROGRAM(self.last_loaded_program)
 
+    def slow_jog_clicked(self, state):
+        slider = self.w.sender().property('slider')
+        current = self.w[slider].value()
+        max = self.w[slider].maximum()
+        if state:
+            self.w.sender().setText("SLOW")
+            self.w[slider].setMaximum(max / self.slow_jog_factor)
+            self.w[slider].setValue(current / self.slow_jog_factor)
+            self.w[slider].setPageStep(1)
+        else:
+            self.w.sender().setText("FAST")
+            self.w[slider].setMaximum(max * self.slow_jog_factor)
+            self.w[slider].setValue(current * self.slow_jog_factor)
+            self.w[slider].setPageStep(1)
 
     #####################
     # general functions #
@@ -371,6 +393,25 @@ class HandlerClass:
     def stop_timer(self):
         self.timerOn = False
 
+    def mode_changed(self,data):
+        self._block_signal = True
+        self.w.pushbutton_metric.setChecked(data)
+        # if using state labels option update the labels
+        if self.w.pushbutton_metric._state_text:
+           self.w.pushbutton_metric.setText(None)
+        self._block_signal = False
+
+    def change_mode(self, data):
+        if self._block_signal: return
+        if data:
+            ACTION.CALL_MDI('G21')
+        else:
+            ACTION.CALL_MDI('G20')
+
+    def homed_on_test(self):
+        return (STATUS.machine_is_on()
+            and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
     #####################
     # KEY BINDING CALLS #
     #####################
@@ -414,6 +455,9 @@ class HandlerClass:
     def on_keycall_F9(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'Calculator'})
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if state:
+            pass
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
