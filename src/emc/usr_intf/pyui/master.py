@@ -2,8 +2,8 @@
 import hal,time,os,sys
 import traceback
 from configobj import ConfigObj
-from .pyui import widgets as WIDGETS
-from .pyui import commands
+from pyui import widgets as WIDGETS
+from pyui import commands
 
 # path to the configuration the user requested
 try:
@@ -32,7 +32,7 @@ class keyboard():
         self.filename = filename
 
     def validate(self):
-        from .pyui import panelui_validate
+        from pyui import panelui_validate
         sys.exit(0)
 
     def build(self,dbg_state=0):
