@@ -22,61 +22,63 @@
 .\"
 .\"
 .\"
-.TH halcompile "1" "2007-10-17" "LinuxCNC Documentation" "The Enhanced Machine Controller"
-.SH NAME
-halcompile \- Build, compile and install LinuxCNC HAL components
-.SH SYNOPSIS
+.TH halcompile "1" "2007-10-17" "Documentación de LinuxCNC" "The Enhanced Machine Controller"
+.SH NOMBRE
+halcompile \- Construye, compila e instala componentes HAL de LinuxCNC
+.SH SINOPSIS
 .PD 0
 .RS 5
 .PP
-\fBhalcompile\fR [\fB\-\-compile\fR|\fB\-\-preprocess\fR|\fB\-\-document\fR|\fB\-\-view\-doc\fR] compfile...
+\fBhalcompile\fR [\fB\-\-compile\fR | \fB\-\-preprocess\fR | \fB\-\-document\fR | \fB\-\-view\-doc\fR] archivo.comp...
 .RE
 .PP
-\fIsudo\fR \fBhalcompile\fR [\fB\-\-install\fR|\fB\-\-install\-doc\fR] compfile...
+\fIsudo\fR \fBhalcompile\fR [\fB\-\-install\fR|\fB\-\-install\-doc\fR] archivo.comp...
 .RS 5
 .PP
-\fBhalcompile\fR \fB\-\-compile\fR \fB\-\-userspace\fR cfile...
+\fBhalcompile\fR \fB\-\-compile\fR \fB\-\-userspace\fR archivo.c...
 .RE
 .PP
-\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR cfile...
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR archivo.c...
 .PP
-\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR pyfile...
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR archivo.py...
 
 .PP
 
-When personalities are used in a comp file, hal instances are exported
-sequentially (typically by the mutually exclusive count= or names= parameters).
-If the number of exports excedes the maximum number of personalities,
-subsequent personalities are assigned modulo the maximum number of
-personalities allowed.
+Cuando se utilizan personalidades en un archivo de compilación, las instancias de hal se exportan
+secuencialmente (por lo general, por los parámetros count= o names= mutuamente excluyentes).
+Si el número de exportaciones excede el número máximo de personalidades, a las personalidades posteriores se
+les asigna módulo al número máximo de personalidades permitido.
 
-By default, the maximum number of personalities is 64.  To alter this
-limit, use the \fB--personalities=\fR option with halcompile.  For example,
-to set the maximum of  personality items to 4:
+De forma predeterminada, el número máximo de personalidades es 64. Para modificar este límite,
+use la opción \fB--personalities=\fR con halcompile. Por ejemplo, para establecer el máximo de elementos
+de personalidad en 4:
    [sudo] \fBhalcompile --personalities=4\fR --install ...
 
-.PD
-.SH DESCRIPTION
-\fBhalcompile\fR performs many different functions:
+.SH DESCRIPCION
+\fBhalcompile\fR realiza muchas funciones diferentes:
 .IP \(bu 4
-Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB\-\-compile\fR flag)
+Compila los archivos \fB.comp\fR y \fB.c\fR en \fB.so\fR o \fB.ko\fR como componentes HAL en tiempo real (la bandera \fB\-\-compile\fR)
 .IP \(bu 4
-Compile \fB.comp\fR and \fB.c\fR files into HAL userspace components (the \fB\-\-compile \-\-userspace\fR flag)
+Compila los archivos \fB.comp\fR y \fB.c\fR en componentes de espacio de usuario HAL (bandera \fB\-\-compile \-\-userspace\fR)
 .IP \(bu 4
-Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
+Preprocesa archivos \fB.comp\fR en archivos \fB.c\fR  (bandera \fB \-\-preprocess\fR)
 .IP \(bu 4
-Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files (the \fB\-\-document\fR flag)
+Extrae la documentacion de los archivos \fB.comp\fR en archivos de paginas de manual de \fB.9\fR (bandera \fB \-\-document\fR)
 .IP \(bu 4
-Display documentation from \fB.comp\fR files onscreen (the \fB\-\-view\-doc\fR flag)
+Muestra la documentacion de los archivos \fB.comp\fR en pantalla (bandera \fB\-\-view\-doc\fR)
 .IP \(bu 4
-Compile and install \fB.comp\fR and \fB.c\fR files into the proper directory for HAL realtime components (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
+Compila e instala los archivos \fB.comp\fR y \fB.c\fR en el directorio adecuado para los componentes HAL en tiempo real 
+(bandera \fB\-\-install\fR), lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
 .IP \(bu 4
-Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL userspace components (the \fB\-\-install \-\-userspace\fR flag), which may require \fIsudo\fR to write to system directories.
+Instala los archivos \fB.c\fR y \fB.py\fR en el directorio adecuado para los componentes HAL de espacio de usuario
+(bandera \fB\-\-install \-\-userspace\fR),lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
 .IP \(bu 4
-Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
-.IP \(bu 4
-Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
-.SH "SEE ALSO"
-\fIHalcompile HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
+Extrae documentacion de los archivos \fB.comp\fR en los archivos de paginas de manual de \fB.9\fR en el directorio del sistema adecuado
+(bandera \fB\-\-install \fR), lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
+.SH "VER TAMBIEN"
+\fIHalcompile Generador de Componentes HAL\fR en la documentacion de LinuxCNC para obtener una descripcion completa de la sintaxis de
+archivos \fB.comp\fR, junto con ejemplos.
+\fBpydoc hal\fR y \fICreando Componentes Python de Espacio de Usuario\fR en la documentacion de LinuxCNC para obtener documentacion 
+sobre la interfaz de Python para los componentes HAL
 
-\fBpydoc hal\fR and \fICreating Userspace Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components
+
