@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pyvcp>
-    <labelframe text="Spinboxes linked to scales/number displays, shows initval and param_pin usage">
+    <labelframe text="Spinboxes enlazadas a displays escalas/numeros, muestran initval y uso de param_pin">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>SUNKEN</relief>
@@ -116,7 +116,7 @@
     </labelframe>
 
     <!-- new hbox with 3 dials -->
-    <labelframe text="Dials linked to scales, showing initval and param_pin usage">
+    <labelframe text="Diales enlazados a escalas, muestran initval y uso de param_pin">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>RAISED</relief>
@@ -126,7 +126,7 @@
             <cpr>100</cpr>
             <min_>0</min_>
             <max_>100</max_>
-            <text>"Dial0"</text>
+            <text>"Dial-0"</text>
             <initval>10</initval>
             <resolution>0.01</resolution>
             <halpin>"dial0"</halpin>
@@ -141,7 +141,7 @@
             <cpr>100</cpr>
             <min_>0</min_>
             <max_>100</max_>
-            <text>"Dial1"</text>
+            <text>"Dial-1"</text>
             <initval>12</initval>
             <resolution>0.1</resolution>
             <halpin>"dial1"</halpin>
@@ -156,7 +156,7 @@
                <cpr>100</cpr>
             <min_>0</min_>
             <max_>100</max_>
-            <text>"Dial2"</text>
+            <text>"Dial-2"</text>
             <initval>5</initval>
             <resolution>1</resolution>
             <halpin>"dial2"</halpin>
@@ -217,7 +217,7 @@
     </labelframe>
 
     <!-- new hbox with 3 dials -->
-    <labelframe text="Radio buttons linked to multi_labels showing legend selection">
+    <labelframe text="Botones Radio enlazados a multi_labels mostrando leyenda de selección">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>FLAT</relief>
@@ -225,14 +225,14 @@
         <hbox>
             <vbox>
                 <radiobutton>
-                    <choices>["one","two","three"]</choices>
+                    <choices>["uno","dos","tres"]</choices>
                     <halpin>"radio0"</halpin>
                     <initval>0</initval>
                 </radiobutton>
             </vbox>
             <vbox>
                 <radiobutton>
-                    <choices>["four","five","six"]</choices>
+                    <choices>["cuatro","cinco","seis"]</choices>
                     <halpin>"radio1"</halpin>
                     <initval>1</initval>
                 </radiobutton>
@@ -241,14 +241,14 @@
         <hbox>
             <vbox>
                 <multilabel>
-                    <legends>["Radio1-Selected","Now Radio2-Selected","And Now Radio3-Selected"]</legends>
+                    <legends>["Radio1-Seleccionado","Ahora Radio2-Seleccionado","Y ahora Radio3-Seleccionado"]</legends>
                     <font>("Helvetica", 10)</font>
                     <disable_pin>True</disable_pin>
                     <initval>0</initval>
                 </multilabel>
 
                 <multilabel>
-                    <legends>["Radio4-Selected","Now Radio5-Selected","And Now Radio6-Selected"]</legends>
+                    <legends>["Radio4-Seleccionado","Ahora Radio5-Seleccionado","Y ahora Radio6-Seleccionado"]</legends>
                     <font>("Helvetica", 10)</font>
                     <disable_pin>True</disable_pin>
                     <initval>1</initval>
@@ -258,7 +258,7 @@
     </hbox>
     </labelframe>
 
-    <labelframe text="Checkbuttons showing initval setting / led operation and remote toggling of value">
+    <labelframe text="Checkbuttons mostrando configuración initval / leds de operación y cambio de valor remoto">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>GROOVE</relief>
@@ -267,17 +267,17 @@
             <vbox>
                 <checkbutton>
                     <halpin>"checkbutton0"</halpin>
-                    <text>"Button 0"</text>
+                    <text>"Boton 0"</text>
                     <initval>1</initval>
                 </checkbutton>
                 <checkbutton>
                     <halpin>"checkbutton1"</halpin>
-                    <text>"Button 1"</text>
+                    <text>"Boton 1"</text>
                     <initval>0</initval>
                     </checkbutton>
                 <checkbutton>
                     <halpin>"checkbutton2"</halpin>
-                    <text>"Button 2"</text>
+                    <text>"Boton 2"</text>
                     <initval>0</initval>
                 </checkbutton>
             </vbox>
@@ -286,17 +286,17 @@
             <vbox>
                 <checkbutton>
                     <halpin>"checkbutton3"</halpin>
-                    <text>"Button 3"</text>
+                    <text>"Boton 3"</text>
                     <initval>0</initval>
                 </checkbutton>
                 <checkbutton>
                     <halpin>"checkbutton4"</halpin>
-                    <text>"Button 4"</text>
+                    <text>"Boton 4"</text>
                     <initval>1</initval>
                 </checkbutton>
                 <checkbutton>
                     <halpin>"checkbutton5"</halpin>
-                    <text>"Button 5"</text>
+                    <text>"Boton 5"</text>
                     <initval>0</initval>
                 </checkbutton>
             </vbox>
@@ -319,7 +319,7 @@
             <vbox>
                 <button>
                     <halpin>"toggle-button0"</halpin>
-                    <text>"Toggle Checkbox 0"</text>
+                    <text>"Cambiar Checkbox 0"</text>
                 </button>
                 <!-- label used as a spacer -->
                 <label>
@@ -327,7 +327,7 @@
                 </label>
                 <button>
                     <halpin>"toggle-button1"</halpin>
-                    <text>"Toggle Checkbox 5"</text>
+                    <text>"Cambiar Checkbox 5"</text>
                 </button>
             </vbox>
         </hbox>
@@ -397,7 +397,7 @@
      </hbox>
      </labelframe>
 
-    <labelframe text="Bar with ranges of different colours activated by scale / labels">
+    <labelframe text="Barra con rangos de colores diferentes, activados por escala / etiquetas">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>RIDGE</relief>
@@ -447,17 +447,17 @@
             <vbox>
                 <label>
                     <relief>FLAT</relief>
-                    <text>"I am a borderless label"</text>
+                    <text>"Soy una etiqueta sin borde"</text>
                 </label>
                 <label>
                     <bd>3</bd>
                     <relief>RAISED</relief>
-                    <text>"I am a raised label"</text>
+                    <text>"Soy una etiqueta resaltada"</text>
                 </label>
                 <label>
                     <bd>3</bd>
                     <relief>SUNKEN</relief>
-                    <text>"I am a sunken label"</text>
+                    <text>"Soy una etiqueta en bajorelieve"</text>
                 </label>
             </vbox>
         </hbox>

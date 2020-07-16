@@ -1,7 +1,7 @@
 <!-- Test panel for the parallel port cfg for out -->
 <pyvcp>
 <hbox>
-    <labelframe text="Outputs">
+    <labelframe text="Salidas">
     <font>("Helvetica",16)</font>
         <hbox>
             <relief>RIDGE</relief>
@@ -161,7 +161,7 @@
 
     </labelframe>
 
-    <labelframe text="Inputs">
+    <labelframe text="Entradas">
     <font>("Helvetica",16)</font>
 
         <hbox>

@@ -1,9 +1,9 @@
-Demo of some of the pyvcp_widgets
+﻿Demostración de algunos pyvcp_widgets
 
-Notes:
+Notas:
 
-The bar widget changes color at certain value ranges.
+El widget de barra cambia de color en ciertos rangos de valores.
 
-The value of spinboxs and dials can be changed using HAL signals.
+El valor de las casillas de selección y los diales se puede cambiar utilizando señales HAL.
 
-The multilabel will change text depending on the HAL signal.
+multilabel cambiará el texto dependiendo de la señal HAL.
