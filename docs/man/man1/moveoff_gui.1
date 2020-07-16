@@ -22,162 +22,160 @@
 .\"
 .\"
 .\"
-.TH moveoff_gui "1"  "2014-12-18" "LinuxCNC Documentation" "LinuxCNC"
-.SH NAME
-moveoff_gui \- a gui for the moveoff component
+.TH moveoff_gui "1" "2014-12-18" "Documentacion de LinuxCNC" "LinuxCNC"
+.SH NOMBRE
+moveoff_gui \- GUI para el componente moveoff
 
-.SH SYNOPSIS
+.SH SINOPSIS
 .B moveoff_gui \fB[\-\-help | \-\- \-h | \-?]\fR
 
 .PP
-.B moveoff_gui [\fBoptions\fR]
+.B moveoff_gui [\fBopciones\fR]
 .PP
 
-.SH DESCRIPTION
-Moveoff_gui is a sample graphical user interface (GUI) for
-controlling a Hal moveoff component to implement Hal-only 
-offsets.  See the manpage (man moveoff) for \fBIMPORTANT
-limitations and warnings\fR.
+.SH DESCRIPCION
+Moveoff_gui es una interfaz grafica de usuario (GUI) para
+controlar un componente moveoff de Hal para implementar offsets.
+Ver la pagina de manual (man moveoff) para \fBIMPORTANTES Limitaciones y Advertencias\fR .
 
-Supported configurations must use a known kinematics module with
-\fBKINEMATICS_TYPE = KINEMATICS_IDENTITY\fR.  The modules currently
-supported are:
-   \fBtrivkins\fR
+Las configuraciones compatibles deben usar un modulo de cinematica conocido como
+\fBKINEMATICS_TYPE=KINEMATICS_IDENTITY\fR . Los modulos actualmente
+soportados son:
+   \fBtrivkins\fR 
 
-.SH OPTIONS
+.SH OPCIONES
 
 .TP
-\fB\-\-help | \-? | \-\- \-h\fR
-Show options and exit
+\fB\-\-help | \-? |\-\- \-h\fR 
+Mostrar opciones y salir
 
 .TP
 \fB\-mode\fR \fBonpause\fR | always
 .br
-onpause: popup gui to control offsets when program paused
+Onpause: gui emergente para controlar los offsets cuando el programa esta en pausa
 .br
-always:  show gui to control offsets always
+always: mostrar siempre la gui para controlar los offsets.
 .br
-Default: \fBonpause\fR
+Predeterminado: \fBonpause\fR 
 
 .TP
 \fB\-axes\fR axisnames
 .br
-Letters from set of {x y z a b c u v w}
+Letras del conjunto {x y z a b c u v w}
 .br
-Examples: \-axes x, \-axes xyz, \-axes xz (no spaces)
+Ejemplos:\-axes x,\-axes xyz,\-axes xz (sin espacios)
 .br
-Default: \fBxyz\fR
+Predeterminado: \fBxyz\fR 
 
 .TP
 \fB\-inc\fR incrementvalue
 .br
-Specify one increment value per \-inc (up to 4)
+Especifica un valor de incremento por \-inc (hasta 4)
 .br
-Defaults: \fB 0.001 0.01 0.10 1.0\fR
+Valores predeterminados: \fB0.001 0.01 0.10 1.0\fR 
 
 .TP
-\fB\-size\fR integer
+\fB\-size\fR  integer
 .br
-Overall gui size is based on font size, typically 8 - 20
+El tama\[~n]o total de la interfaz grafica de usuario se basa en el tama\[~n]o de la fuente, normalmente entre 8 y 20
 .br
-Default: \fB14\fR
+Predeterminado: \fB14\fR 
 
 .TP
 \fB\-loc\fR center | +x+y
 .br
-Initial location on screen
+Ubicacion inicial en pantalla
 .br
-Examples: \-loc center, \-loc +20+100
+Ejemplos:\-loc center, \-loc +20+100
 .br
-Default: \fBcenter\fR
+Predeterminado: \fBcenter\fR 
 
 .TP
-\fB\-autoresume\fR
+\fB\-autoresume\fR 
 .br
-Resume program when move-enable deasserted
+Reanudar el programa cuando se desactiva move-enable
 .br
-Default: notused
+Predeterminado: no utilizado
 
 .TP
-\fB\-delay\fR delay secs
+\fB\-delay\fR delay_secs
 .br
-Delay for autoresume (allow time to restore spindle speed etc)
-Default: \fB5\fR
+Retraso para autoresume (dar tiempo para restaurar la velocidad del husillo, etc.)
+Predeterminado: \fB5\fR 
 
-.SH OTHER OPTIONS
-These options are available for special cases:
-
-.TP
-\fB\-noentry\fR
-.br
-Disables creation of entry widgets
-.br
-Default: notused
+.SH OTRAS OPCIONES
+Estas opciones estan disponibles para casos especiales:
 
 .TP
-\fB\-no_resume_inhibit\fR
+\fB\-noentry\fR 
 .br
-Disable use of resume\-inhibit to controlling gui
+Desactiva la creacion de widgets de entrada.
 .br
-Default: notused
+Predeterminado: no utilizado
+
+.TP
+\fB\-no_resume_inhibit\fR 
+.br
+Deshabilitar el uso de reanudar\-inhibir para controlar gui
+.br
+Predeterminado: no utilizado
 
 .TP
 \fB\-no_pause_requirement
 .br
-Disable check for halui.program.is\-paused
+Desactivar la comprobacion de halui.program.is\-paused
 .br
-Default: notused
+Predeterminado: no utilizado
 
 .TP
 \fB\-no_cancel_autoresume
 .br
-Useful for retracting offsets with simple external controls
+util para retraer compensaciones con controles externos simples
 .br
-Default: notused
+Predeterminado: no utilizado
 
 .TP
 \fB\-no_display
 .br
-Use when both external controls and and external displays are in use
+Se usa cuando los controles externos y las pantallas externas estan en uso
 .br
-Default: notused
+Predeterminado: no utilizado
 
-.SH NOTES
-LinuxCNC must be running.
+.SH NOTAS
+LinuxCNC debe estar ejecutandose.
 .P
-Halui must be loaded, typical ini file setting:
-    \fB[HAL]HALUI = halui\fR.
+Halui debe estar cargado; configuracion tipica de archivo ini
+    \fB [HAL]HALUI = halui\fR .
 .P
-The moveoff component must be loaded with the name 'mv' as:
+El componente moveoff debe cargarse con el nombre 'mv':
 .br
-    \fBloadrt moveoff names=mv personality=number_of_axes\fR
+    \fBloadrt moveoff names=mv personality=number_of_axes\fR 
 .P
-If the pin mv.motion\-enable is \fBnot\fR connected when moveoff_gui is
-started, \fBcontrols will be provided\fR to enable offsets and set
-offset values.  If the pin \fBis\fR connected, \fBonly a display\fR
-of offsets is shown and control must be made by \fBexternal\fR
-Hal connections.
+Si el pin mv.motion\-enable \fBno\fR esta conectado cuando se inicia moveoff_gui,
+\fBcontrols se proporcionara controles\fR para habilitar las compensaciones y establecer
+valores de desplazamiento. Si el pin \fBesta\fR conectado, se muestra \fBsolo una pantalla\fR 
+de compensaciones y el control debe hacerse por conexiones HAL \fBexternas\fR.
 .P
-If a pin named *.resume\-inhibit exists and is not connected, it will
-be set while offsets are applied.  This pin may be provided by the
-controlling linuxcnc gui in use.  Use of the pin may be disabled
-with the option \-no_resume_inhibit.
+Si un pin llamado *.resume\-inhibit existe y no esta conectado, lo hara
+Se establece mientras se aplican las compensaciones. Este pin puede ser proporcionado por el
+controlando linuxcnc gui en uso. El uso del pin puede estar deshabilitado.
+con la opcion\-no_resume_inhibit.
 .P
-The \-autoresume option uses halui.program.resume to automatically
-resume program execution when the move\-enable pin is deactivated
-and all offsets are removed.  The resume pin is not activated
-until an additional interval (\-delay delay_secs) elapses.  This
-delay interval may be useful for restarting related equipment
-(a spindle motor for example)  While timing the delay, a popup is
-offered to cancel the automatic program resumption.
+La opcion\-autoresume usa halui.program.resume para reanudar automaticamente
+la ejecucion del programa cuando el pin de move\-enable esta desactivado
+y todas las compensaciones se eliminan. El pin de reanudacion no esta activado
+hasta que transcurra un intervalo adicional (\-delay delay_secs).
+El intervalo de demora puede ser util para reiniciar equipos relacionados
+(un motor de husillo, por ejemplo). Mientras se sincroniza el retraso, se muestra una ventana emergente
+que ofrece cancelar la reanudacion automatica del programa.
 
-.SH USAGE
-The ini file in the configuration directory must provide HALFILEs
-to loadrt the moveoff component, connect its pins, and addf its
-read and write functions in the proper order.  These steps can be
-done at runtime using an existing configuration ini file and
-specifying a system library HALFILE \fBhookup_moveoff.tcl\fR as
-illustrated below:
+.SH USO
+El archivo ini en el directorio de configuracion debe proporcionar HALFILEs
+para cargar el componente de movimiento, conectar sus pines y agregar sus funciones
+de lectura y escritura en el orden correcto. Estos pasos pueden ser
+hecho en tiempo de ejecucion utilizando un archivo ini de configuracion existente y
+especificando una biblioteca del sistema HALFILE \fBhookup_moveoff.tcl\fR como se
+ilustra:
 .P
 \fB[HAL]\fR
 .br
@@ -191,8 +189,8 @@ HALFILE = user_halfile_n
 .br
 \fBHALFILE = LIB:hookup_moveoff.tcl\fR
 .P
-The \fBhookup_moveoff.tcl\fR halfile will use ini file settings for
-the moveoff component control pins:
+El halfile \fBhookup_moveoff.tcl\fR  usara la configuracion del archivo ini para
+los pines de control del componente moveoff:
 .P
 \fB[OFFSET]\fR
 .br
@@ -204,10 +202,10 @@ WAYPOINT_THRESHOLD =
 .br
 BACKTRACK_ENABLE =
 .P
-The \fBhookup_moveoff.tcl\fR will use ini file settings for the moveoff
-per-axis limits:
+\fBhookup_moveoff.tcl\fR  utilizara la configuracion del archivo ini para los
+limites por eje de moveoff:
 .P
-\fB[AXIS_m]\fR
+\fB[AXIS_m]\fR 
 .br
 OFFSET_MAX_VELOCITY =
 .br
@@ -217,22 +215,24 @@ OFFSET_MAX_LIMIT =
 .br
 OFFSET_MIN_LIMIT =
 .P
-The moveoff_gui program should be specified in the APPLICATIONS
-stanza of the ini file, for example:
+El programa moveoff_gui debe especificarse en las APPLICATIONS
+del archivo ini, por ejemplo:
 .P
-\fB[APPLICATIONS]\fR
+\fB[APLICACIONES]\fR 
 .br
 DELAY = delay_in_secs_to_allow_hal_connections
 .br
-\fBAPP = moveoff_gui \-option1 \-option2 ...\fR
+\fBAPP = moveoff_gui\-option1\-option2 ...\fR 
 .P
 
-.SH "SEE ALSO"
-Simulation configurations that demonstrate the moveoff_gui and the
-moveoff component are located in:
+.SH "VER TAMBIEN"
+Las configuraciones de simulacion que demuestran moveoff_gui y el
+componente moveoff se encuentran en:
 .P
-   configs/sim/axis/moveoff     (axis-ui)
+   configs/sim/axis/moveoff (axis-ui)
 .br
-   configs/sim/touchy/ngcgui    (touchy-ui)
+   configs/sim/touchy/ngcgui (touchy-ui)
 
-man page for the moveoff component:\fBmoveoff\fR(9)
+Pagina del manual para el componente moveoff:\fBmoveoff\fR(9)
+
+

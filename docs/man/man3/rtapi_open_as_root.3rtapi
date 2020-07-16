@@ -1,41 +1,37 @@
-.TH rtapi_open_as_root "3rtapi" "" "LinuxCNC Documentation" "RTAPI"
-.SH NAME
+q.TH rtapi_open_as_root "3rtapi" "" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
 
-rtapi_open_as_root \- Open a file with "root" privilege
+rtapi_open_as_root \- Abre un archivo con privilegio "root"
 
-.SH SYNTAX
+.SH SINTAXIS
 .nf
 .B #include <rtapi.h>
 .HP
 .BI "int rtapi_open_as_root(const char " *filename ", int " "flags)"
 .fi
-.SH ARGUMENTS
+.SH ARGUMENTOS
 .IP \fIfilename\fR
-The filename to open, as in \fBopen(2)\fR.  Note that rtapi has no well-defined
-"current directory", so this should be an absolute path, but this is not
-enforced.
+El nombre del archivo a abrir, como en \fBopen(2)\fR. Tenga en cuenta que rtapi no tiene un "directorio actual" bien 
+definido, por lo que esta debería ser una ruta absoluta, pero esto no es obligatorio.
 .IP \fIflags\fR
-The open flags, as in \fBopen(2)\fR.  Should never include bits that open or
-create files (e.g., O_CREAT, O_APPEND, etc) as this API is not intended for
-creating or writing files, but this is not enforced.
+Las banderas open, como en \fBopen(2)\fR. Nunca debe incluir bits que abren o crean archivos (por ejemplo, O_CREAT, O_APPEND, etc.) 
+ya que esta API no está destinada a crear o escribir archivos, aunque esto no se fuerza.
 
-.SH DESCRIPTION
-In "uspace" realtime, root privileges are dropped whenever possible.  This API
-temporarily switches on root priveleges to open a file, and switches them
-off before returning.  This can be useful for example when accessing device
-nodes or memory-mapped I/O.
+.SH DESCRIPCIÓN
+En tiempo real "uspace", los privilegios de root se eliminan siempre que sea posible. Esta API activa temporalmente los privilegios 
+de root para abrir un archivo y los desactiva antes de regresar. Esto puede ser útil, por ejemplo, al acceder a nodos de 
+dispositivo o E/S mapeadas en memoria.
 
-In the case of PCI devices on x86 and x86-64 systems, prefer the linux-style
-PCI interfaces provided in \fB<rtapi_pci.h>\fR.
+En el caso de dispositivos PCI en sistemas x86 y x86-64, es preferible el estilo Linux de Interfaces PCI proporcionadas en \fB<rtapi_pci.h>\fR.
 
-.SH RETURN VALUE
-In case of success, the nonnegative file descriptor opened.  If the caller does
-not close it, it remains open until rtapi_app exits.
+.SH VALOR DEVUELTO
+En caso de éxito, se abre el descriptor de archivo no negativo. Si el llamador no lo cierra, permanece abierto hasta que se sale de rtapi_app.
 
-In case of failure, a negative errno value.
+En caso de fallo, un valor errno negativo.
 
-.SH REALTIME CONSIDERATIONS
-Call only from realtime initcode in "uspace" realtime.
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde codigo de inicio del tiempo real en tiempo real "uspace".
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 \fBopen(2)\fR, \fBrtapi_pci(3)\fR
+

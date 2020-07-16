@@ -1,9 +1,9 @@
-.TH hal_pin_new "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
-.SH NAME
+.TH hal_pin_new "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
 
-hal_pin_new \- Create a HAL pin
+hal_pin_new \- Crea un pin HAL
 
-.SH SYNTAX
+.SH SINTAXIS
 
 .HP
  int hal_pin_bit_new(const char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_bit_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
@@ -32,43 +32,43 @@ hal_pin_new \- Create a HAL pin
 .HP
  int hal_pin_new(const char *\fIname\fR, hal_type_t \fItype\fR, hal_pin_dir_t \fIdir\fR, void **\fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
-.SH  ARGUMENTS
+.SH ARGUMENTOS
 .IP \fIname\fR
-The name of the pin
+El nombre del pin
 .IP \fIdir\fR
 
-The direction of the pin, from the viewpoint of the component.  It may be one
-of \fBHAL_IN\fR, \fBHAL_OUT\fR, or \fBHAL_IO\fR.  Any number of \fBHAL_IN\fR or
-\fBHAL_IO\fR pins may be connected to the same signal, but at most one
-\fBHAL_OUT\fR pin is permitted.  A component may assign a value to a pin that
-is \fBHAL_OUT\fR or \fBHAL_IO\fR, but may not assign a value to a pin that is
+La dirección del pin, desde el punto de vista del componente. Puede ser \fBHAL_IN\fR, \fBHAL_OUT\fR o \fBHAL_IO\fR. 
+Cualquier número de pines \fBHAL_IN\fR o \fBHAL_IO\fR pueden estar conectados a la misma señal, pero no está permitido
+mas de un pin \fBHAL_OUT\fR . Un componente puede asignar un valor a un pin que
+sea \fBHAL_OUT\fR o \fBHAL_IO\fR, pero no puede asignar un valor a un pin que sea
 \fBHAL_IN\fR.
 
 .IP \fIdata_ptr_addr\fR
-The address of the pointer-to-data, which must lie within memory allocated by
+La dirección del puntero a datos, que debe estar dentro de la memoria asignada por
 \fBhal_malloc\fR.
 
 .IP \fIcomp_id\fR
-A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
 
 .IP \fIfmt, ...\fR
-A printf-style format string and arguments
+Una cadena de formato de estilo printf y sus argumentos
 
 .IP \fItype\fR
-The type of the param, as specified in \fBhal_type_t(3hal)\fR.
+El tipo del parámetro, como se especifica en \fBhal_type_t(3hal)\fR.
 
-.SH DESCRIPTION
-The \fBhal_pin_new\fR family of functions create a new \fIpin\fR object.  Once
-a pin has been created, it can be linked to a signal object using
-\fBhal_link\fR.  A pin contains a pointer, and the component that owns the pin
-can dereference the pointer to access whatever signal is linked to the pin.
-(If no signal is linked, it points to a dummy signal.)
+.SH DESCRIPCIÓN
+La familia de funciones \fBhal_pin_new\fR crea un nuevo objeto \fIpin\fR. Una vez
+se ha creado un pin, se puede vincular a un objeto de señal utilizando
+\fBhal_link\fR. Un pin contiene un puntero y el componente que posee el pin
+puede desreferenciar el puntero para acceder a cualquier señal vinculada al pin.
+(Si no hay ninguna señal vinculada, apunta a una señal ficticia).
 
-There are functions for each of the data types that the HAL supports.  Pins may
-only be linked to signals of the same type.
+Hay funciones para cada uno de los tipos de datos que admite HAL. Los pines pueden
+estar vinculados solo a señales del mismo tipo.
 
-.SH RETURN VALUE
-Returns 0 on success, or a negative errno value on failure.
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito o un valor errno negativo en caso de error.
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 \fBhal_type_t(3hal)\fR, \fBhal_link(3hal)\fR
+

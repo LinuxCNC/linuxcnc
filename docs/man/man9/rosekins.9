@@ -1,47 +1,40 @@
-.TH Rose Engine Kinematics "9" "LinuxCNC Documentation" "Kinematics Component"
+.TH ROSEKINS "9" "Documentación LinuxCNC" "Componente cinemático"
 .de TQ
 .br
 .ns
-.TP \\$1
+.TP \\ $ 1
 ..
 
-.SH NAME
+.SH NOMBRE
 
-rosekins \- Kinematics for a rose engine
+rosekins \- Cinemática para un motor Rose
 
-.SH SYNOPSIS
+.SH SINOPSIS
 .HP
 .B loadrt rosekins
 
-.SH KINEMATICS
-   joint_0 linear, transverse   (perpendicular to spindle)
-   joint_1 linear, longitudinal (parallel to spindle identity to z)
-   joint_2 rotary, spindle      (workholding, not tool holding, e.g.
-                                 not a highspeed spindle)
+.SH CINEMÁTICA
+   joint_0 linear, transverse   (perpendicular al husillo)
+   joint_1 linear, longitudinal (paralela a la identidad del husillo a z)
+   joint_2 rotary, spindle      (sujeción del trabajo, no sujeción de herramienta, p. ej.
+                                 no un husillo de alta velocidad)
 
-.SH PINS
+
+.SH PINES
 .TP
 .B rosekins.revolutions\fR float out
-Count of crossings of the negative X axis.  Clockwise crossings
-increment revolutions by 1, Counterclockwise crossings decrement by 1
+Recuento de cruces del eje X negativo. Los cruces en sentido horario aumentan las revoluciones en 1, los cruces en sentido antihorario las disminuyen en 1
 
 .TP
 .B rosekins.theta_degrees\fR float out
-Principal value for arctan(Y/X)
+Valor principal para arctan(Y/X)
 
 .TP
 .B rosekins.bigtheta_degrees\fR float out
-Accumulated angle (theta + revolutions * 360)
+Ángulo acumulado (theta + revoluciones * 360)
 
-.SH NOTES
+.SH NOTAS
 
-Theta is the principal value of arctan(Y/X).  Joint_2 angle values are
-not limited to principal values of arctan(Y/X) but accumulate
-continuously as the spindle is rotated.  Hal pins are provided for
-the principal value and a count of the number of revolutions.
+Theta es el valor principal de arctan(Y/X). Los valores del ángulo Joint_2 no se limitan a los valores principales de arctan(Y / X) sino que se acumulan continuamente a medida que se gira el husillo. Se proporcionan pines Hal para el valor principal y un recuento del número de revoluciones.
 
-The transverse motion is exactly perpendicular to the spindle.  In a
-traditional rose engine, the transverse motion is created by \'rocking\'
-the headstock about a pivot.  A typical pivot length combined with the
-limited amount of X travel in a real machine make the perpendicular
-approximation a reasonable model.
+El movimiento transversal es exactamente perpendicular al husillo. En un motor rose tradicional, el movimiento transversal se crea \'balanceando\' el cabezal sobre un pivote. Una longitud de pivote típica combinada con la cantidad limitada de recorrido X en una máquina real hacen que la aproximación perpendicular sea un modelo razonable.

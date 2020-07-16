@@ -1,236 +1,143 @@
-.TH PID "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.TH PID "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
 .de TQ
 .br
 .ns
-.TP \\$1
+.TP \\ $ 1
 ..
 
-.SH NAME
-pid \- proportional/integral/derivative controller
-.SH SYNOPSIS
-\fBloadrt pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]] [\fBdebug=\fIdbg\fR]
+.SH NOMBRE
+pid\- controlador proporcional/integral/derivativo
+.SH SINOPSIS
+\fBloadrt pid [num_chan =\fInum\fB | names=\fIname1\fB[,\fIname2 ...\fB]][\fBdebug =\fIdbg\fR]
 
-.SH DESCRIPTION
-\fBpid\fR is a classic Proportional/Integral/Derivative controller,
-used to control position or speed feedback loops for servo motors and
-other closed-loop applications.
+.SH DESCRIPCIÓN
+\fBpid\fR es un controlador clásico proporcional/integral/derivativo, utilizado para controlar la retroalimentación de posición o velocidad para servomotores y otras aplicaciones de lazo cerrado.
 .P
-\fBpid\fR supports a maximum of sixteen controllers.  The number that
-are actually loaded is set by the \fBnum_chan\fR argument when
-the module is loaded.  Alternatively, specify names= and unique names
-separated by commas.
+\fBpid\fR admite un máximo de dieciséis controladores. El número que realmente se carga se establece mediante el argumento \fBnum_chan\fR cuando se carga el módulo. Alternativamente, especifique names= y nombres únicos separados por comas.
 .P
-The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
-If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
-value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
-additional HAL parameters will be exported, which might be useful
-for tuning, but are otherwise unnecessary.
+Los especificadores \fBnum_chan=\fR y \fBnames=\fR son mutuamente excluyentes.
+Si no se especifica \fBnum_chan=\fR ni \fBnames=\fR, el valor predeterminado es tres. Si\fBdebug\fR se establece en 1 (el valor predeterminado es 0), se exportarán algunos parámetros HAL adicionales, que pueden ser útiles para el ajuste, pero de lo contrario son innecesarios.
 
-.SH NAMING
-The names for pins, parameters, and functions are prefixed as:
-  \fBpid.N.\fR for N=0,1,...,num\-1 when using \fBnum_chan=num\fR
-  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+.SH NOMBRADO
+Los nombres de los pines, parámetros y funciones tienen el prefijo:
+  \fBpid.N.\fR para N=0,1, ..., num\-1 cuando se usa \fBnum_chan=num\fR
+  \fBnameN.\fR para nameN=name1, name2, ... cuando se usa\fBnames=name1,name2, ...\fR
 
-The \fBpid.N.\fR format is shown in the following descriptions.
+El formato de \fBpid.N.\fR se muestra en las siguientes descripciones.
 
-.SH FUNCTIONS
+.SH FUNCIONES
 
-\fBpid.\fIN\fB.do\-pid\-calcs\fR (uses floating-point)
-Does the PID calculations for control loop \fIN\fR.
+\fBpid.\fIN\fB.do\-pid\-calcs\fR (usa punto flotante)
+¿Los cálculos PID para el bucle de control\fIN\fR.
 
-.SH PINS
+.SH PINES
 
 .TP
 \fBpid.\fIN\fB.command\fR float in
-The desired (commanded) value for the control loop.
+El valor deseado (ordenado) para el bucle de control.
 .TP
 \fBpid.\fIN\fB.Pgain\fR float in
-Proportional gain.  Results in a contribution to the output that is the error
-multiplied by \fBPgain\fR.
+Ganancia proporcional. Resulta en una contribución a la salida que es el error multiplicado por \fBPgain\fR.
 .TP
 \fBpid.\fIN\fB.Igain\fR float in
-Integral gain.  Results in a contribution to the output that is the integral
-of the error multiplied by \fBIgain\fR.  For example an error of 0.02 that
-lasted 10 seconds would result in an integrated error (\fBerrorI\fR) of 0.2,
-and if \fBIgain\fR is 20, the integral term would add 4.0 to the output.
+Ganancia integral. Resulta en una contribución a la salida que es la integral del error multiplicado por \fBIgain\fR. Por ejemplo, un error de 0.02 que duró 10 segundos resultaría en un error integrado (\fBerrorI\fR) de 0.2, y si \fBIgain\fR es 20, el término integral agregaría 4.0 a la salida.
 .TP
 \fBpid.\fIN\fB.Dgain\fR float in
-Derivative gain.  Results in a contribution to the output that is the rate of
-change (derivative) of the error multiplied by \fBDgain\fR.  For example an
-error that changed from 0.02 to 0.03 over 0.2 seconds would result in an error
-derivative (\fBerrorD\fR) of of 0.05, and if \fBDgain\fR is 5, the derivative
-term would add 0.25 to the output.
+Ganancia derivada. Resulta en una contribución a la salida que es la tasa de cambio (derivada) del error multiplicado por \fBDgain\fR. Por ejemplo, un error que cambió de 0.02 a 0.03 durante 0.2 segundos resultaría en una derivada de error (\fBerrorD\fR) de 0.05, y si \fBDgain\fR es 5, el término derivativo agregaría 0.25 a la salida.
 .TP
 \fBpid.\fIN\fB.feedback\fR float in
-The actual (feedback) value, from some sensor such as an encoder.
+El valor real (retroalimentación) de algún sensor, como un codificador.
 .TP
 \fBpid.\fIN\fB.output\fR float out
-The output of the PID loop, which goes to some actuator such as a motor.
+La salida del bucle PID, que va a algún actuador, como un motor.
 .TP
 \fBpid.\fIN\fB.command\-deriv\fR float in
-The derivative of the desired (commanded) value for the control loop.  If no
-signal is connected then the derivative will be estimated numerically.
+La derivada del valor deseado (ordenado) para el bucle de control. Si no hay ninguna señal conectada, la derivada se estimará numéricamente.
 .TP
 \fBpid.\fIN\fB.feedback\-deriv\fR float in
-The derivative of the actual (feedback) value for the control loop.  If no
-signal is connected then the derivative will be estimated numerically.  When
-the feedback is from a quantized position source (e.g., encoder feedback
-position), behavior of the D term can be improved by using a better velocity
-estimate here, such as the velocity output of encoder(9) or hostmot2(9).
+La derivada del valor real (realimentación) para el bucle de control. Si no hay ninguna señal conectada, la derivada se estimará numéricamente. Cuando la retroalimentación proviene de una fuente de posición cuantificada (p. Ej., posición de retroalimentación del codificador), el comportamiento del término D puede mejorarse al usaro una mejor estimación de velocidad aquí, como la salida de velocidad del codificador(9) o hostmot2(9).
 .TP
 \fBpid.\fIN\fB.error\-previous\-target\fR bit in
-Use previous invocation's target vs. current position for error calculation,
-like the motion controller expects.  This may make torque-mode position loops
-and loops requiring a large I gain easier to tune, by eliminating
-velocity\-dependent following error.
+Utiliza-mode el objetivo de la invocación anterior frente a la posición actual para el cálculo de errores, como lo espera el controlador de movimiento. Esto puede hacer que los bucles de posición torque-mode y los que requieren una ganancia I grande sean más fáciles de sintonizar, al eliminar el error de seguimiento velocity\-dependent.
 .TP
-\fBpid.\fIN\fB.error\fR float out
-The difference between command and feedback.
+\fBpid.\fIN\fB.error\fR float
+Diferencia entre comando y retroalimentación.
 .TP
 \fBpid.\fIN\fB.enable\fR bit in
-When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
-and all internal integrators, etc, are reset.
+Cuando es TRUE, habilita los cálculos PID. Cuando es FALSE, \fBoutput\fR es cero, y todos los integradores internos, etc., se reinician.
 .TP
 \fBpid.\fIN\fB.index\-enable\fR bit in
-On the falling edge of \fBindex\-enable\fR, pid does not update the
-internal command derivative estimate.  On systems which use the encoder
-index pulse, this pin should be connected to the index\-enable signal.
-When this is not done, and FF1 is nonzero, a step change in the input
-command causes a single-cycle spike in the PID output.  On systems which use
-exactly one of the \fB\-deriv\fR inputs, this affects the D term as well.
+En el límite descendente de \fBindex\-enable\fR, pid no actualiza la estimación derivada del comando interno. En los sistemas que usan el pulso de índice del codificador, este pin debe estar conectado a la señal index\-enable.
+Cuando esto no se hace, y FF1 no es cero, un cambio de paso en el comando de entrada provoca un pico de ciclo único en la salida PID. En los sistemas que utilizan exactamente una de las entradas \fB\-deriv\fR, esto también afecta el término D.
 .TP
 \fBpid.\fIN\fB.bias\fR float in
-\fBbias\fR is a constant amount that is added to the output.  In most cases
-it should be left at zero.  However, it can sometimes be useful to compensate
-for offsets in servo amplifiers, or to balance the weight of an object that
-moves vertically. \fBbias\fR is turned off when the PID loop is disabled,
-just like all other components of the output.  If a non-zero output is needed
-even when the PID loop is disabled, it should be added with an external HAL
-sum2 block.
+\fBbias\fR es una cantidad constante que se agrega a la salida. En la mayoría de los casos, debe dejarse en cero. Sin embargo, a veces puede ser útil para compensar offsets en los servoamplificadores, o para equilibrar el peso de un objeto que se mueve verticalmente. \fBbias\fR se desactiva cuando el bucle PID está desactivado, al igual que todos los demás componentes de la salida. Si se necesita una salida distinta de cero incluso cuando el bucle PID está deshabilitado, debe agregarse con un bloque HAL externo sum2.
 .TP
 \fBpid.\fIN\fB.FF0\fR float in
-Zero order feed-forward term.  Produces a contribution to the output that is
-\fBFF0\fR multiplied by the commanded value.  For position loops, it should
-usually be left at zero.  For velocity loops, \fBFF0\fR can compensate for
-friction or motor counter-EMF and may permit better tuning if used properly.
+Término de retroalimentación de orden cero. Produce una contribución a la salida que es \fBFF0\fR multiplicada por el valor ordenado. Para los bucles de posición, generalmente debe dejarse en cero. Para los bucles de velocidad, \fBFF0\fR puede compensar la fricción o la contra-EMF del motor y puede permitir un mejor ajuste si se usa correctamente.
 .TP
 \fBpid.\fIN\fB.FF1\fR float in
-First order feed-forward term.  Produces a contribution to the output that
-\fBFF1\fR multiplied by the derivative of the commanded value.  For
-position loops, the contribution is proportional to speed, and can be used
-to compensate for friction or motor CEMF.  For velocity loops, it is
-proportional to acceleration and can compensate for inertia.  In both
-cases, it can result in better tuning if used properly.
+Término de retroalimentación de primer orden. Produce una contribución a la salida que \fBFF1\fR multiplica por la derivada del valor ordenado. Para los bucles de posición, la contribución es proporcional a la velocidad y se puede utilizar para compensar la fricción o la CEMF del motor. Para los bucles de velocidad, es proporcional a la aceleración y puede compensar la inercia. En ambos casos, si se usa correctamente puede resultar en un mejor ajuste.
 .TP
 \fBpid.\fIN\fB.FF2\fR float in
-Second order feed-forward term.  Produces a contribution to the output that is
-\fBFF2\fR multiplied by the second derivative of the commanded value.  For
-position loops, the contribution is proportional to acceleration, and can be
-used to compensate for inertia.  For velocity loops, the contribution is
-proportional to jerk, and should usually be left at zero.
+Término de retroalimentación de segundo orden. Produce una contribución a la salida que es \fBFF2\fR multiplicada por la segunda derivada del valor ordenado. Para los bucles de posición, la contribución es proporcional a la aceleración y puede usarse para compensar la inercia. Para los bucles de velocidad, la contribución es proporcional al jerk (aceleracion de la aceleracion), y generalmente debe dejarse en cero.
 .TP
 \fBpid.\fIN\fB.FF3\fR float in
-Third order feed-forward term.  Produces a contribution to the output that is
-\fBFF3\fR multiplied by the third derivative of the commanded value.  For
-position loops, the contribution is proportional to jerk, and can be
-used to compensate for residual errors during acceleration.  For velocity
-loops, the contribution is proportional to snap(jounce), and should usually
-be left at zero.
+Término de retroalimentación de tercer orden. Produce una contribución a la salida que es\fBFF3\fR multiplicada por la tercera derivada del valor ordenado. Para los bucles de posición, la contribución es proporcional al jerk, y se puede utilizar para compensar errores residuales durante la aceleración. Para los bucles de velocidad, la contribución es proporcional al snap ( o jounce), y generalmente debe dejarse en cero. Ver https://en.wikipedia.org/wiki/Fourth,_fifth,_and_sixth_derivatives_of_position
 .TP
 \fBpid.\fIN\fB.deadband\fR float in
-Defines a range of "acceptable" error.  If the absolute value of \fBerror\fR
-is less than \fBdeadband\fR, it will be treated as if the error is zero.
-When using feedback devices such as encoders that are inherently quantized,
-the deadband should be set slightly more than one-half count, to prevent
-the control loop from hunting back and forth if the command is between two
-adjacent encoder values.  When the absolute value of the error is greater
-than the deadband, the deadband value is subtracted from the error before
-performing the loop calculations, to prevent a step in the transfer function
-at the edge of the deadband.  (See \fBBUGS\fR.)
+Define un rango de error "aceptable". Si el valor absoluto de \fBerror\fR es menor que \fBdeadband\fR, se tratará como si el error fuera cero.
+Cuando se utilizan dispositivos de retroalimentación, como codificadores que están inherentemente cuantificados, la banda muerta debe establecerse un poco más de la mitad del conteo, para evitar que el bucle de control busque de un lado a otro si el comando está entre dos valores de codificador adyacentes (hunting). Cuando el valor absoluto del error es mayor que la banda muerta, el valor de la banda muerta se resta del error antes de realizar los cálculos de bucle, para evitar un paso en la función de transferencia en el limite de la banda muerta. (Ver\fBBUGS\fR.)
 .TP
 \fBpid.\fIN\fB.maxoutput\fR float in
-Output limit.  The absolute value of the output will not be permitted
-to exceed \fBmaxoutput\fR, unless \fBmaxoutput\fR is zero.  When the output
-is limited, the error integrator will hold instead of integrating, to prevent
-windup and overshoot.
+Límite de salida. No se permitirá que el valor absoluto de la salida exceda \fBmaxoutput\fR, a menos que \fBmaxoutput\fR sea cero. Cuando la salida es limitada, el integrador de errores se mantendrá en lugar de integrarse, para evitar windup y sobredisparo.
 .TP
 \fBpid.\fIN\fB.maxerror\fR float in
-Limit on the internal error variable used for P, I, and D.  Can be used to
-prevent high \fBPgain\fR values from generating large outputs under conditions
-when the error is large (for example, when the command makes a step change).
-Not normally needed, but can be useful when tuning non-linear systems.
+Límite de la variable de error interno utilizada para P, I y D. Se puede utilizar para evitar que los valores altos de \fBPgain\fR generen salidas grandes en condiciones en las que el error es grande (por ejemplo, cuando el comando realiza un cambio de paso). Normalmente no es necesario, pero puede ser útil al ajustar sistemas no lineales.
 .TP
 \fBpid.\fIN\fB.maxerrorD\fR float in
-Limit on the error derivative.  The rate of change of error used by the
-\fBDgain\fR term will be limited to this value, unless the value is
-zero.  Can be used to limit the effect of \fBDgain\fR and prevent large
-output spikes due to steps on the command and/or feedback.  Not normally
-needed.
+Límite en la derivada de error. La tasa de cambio de error utilizada por el término \fBDgain\fR se limitará a este valor, a menos que el valor sea cero. Se puede usar para limitar el efecto de\ fBDgain\fR y evitar picos de salida grandes debido a pasos en el comando y/o retroalimentacion. Normalmente no es necesario.
 .TP
 \fBpid.\fIN\fB.maxerrorI\fR float in
-Limit on error integrator.  The error integrator used by the \fBIgain\fR
-term will be limited to this value, unless it is zero.  Can be used to prevent
-integrator windup and the resulting overshoot during/after sustained errors.
-Not normally needed.
+Límite de integrador de errores. El integrador de errores utilizado por el término \fBIgain\fR estará limitado a este valor, a menos que sea cero. Se puede utilizar para evitar windup del integrador y el sobredisparo resultante durante/después de errores sostenidos. Normalmente no es necesario.
 .TP
 \fBpid.\fIN\fB.maxcmdD\fR float in
-Limit on command derivative.  The command derivative used by \fBFF1\fR will
-be limited to this value, unless the value is zero.  Can be used to prevent
-\fBFF1\fR from producing large output spikes if there is a step change on the
-command.  Not normally needed.
+Límite en derivada del comando. La derivada de comando utilizada por \fBFF1\fR estará limitada a este valor, a menos que el valor sea cero. Se puede usar para evitar que \fBFF1\fR produzca picos de salida grandes si hay un cambio de paso en el comando. Normalmente no es necesario.
 .TP
 \fBpid.\fIN\fB.maxcmdDD\fR float in
-Limit on command second derivative.  The command second derivative used by
-\fBFF2\fR will be limited to this value, unless the value is zero.  Can be
-used to prevent \fBFF2\fR from producing large output spikes if there is a
-step change on the command.  Not normally needed.
+Límite en la segunda derivada del comando. La segunda derivada de comando utilizada por \fBFF2\fR estará limitada a este valor, a menos que el valor sea cero. Se puede usar para evitar que \fBFF2\fR produzca picos de salida grandes si hay un cambio de paso en el comando. Normalmente no es necesario.
 .TP
 \fBpid.\fIN\fB.maxcmdDDD\fR float in
-Limit on command third derivative.  The command third derivative used by
-\fBFF3\fR will be limited to this value, unless the value is zero.  Can be
-used to prevent \fBFF3\fR from producing large output spikes if there is a
-step change on the command.  Not normally needed.
+Límite en la tercera derivada del comando. La tercera derivada de comando utilizada por \fBFF3\fR estará limitada a este valor, a menos que el valor sea cero. Se puede usar para evitar que\ fBFF3\fR produzca picos de salida grandes si hay un cambio de paso en el comando. Normalmente no es necesario.
 .TP
 \fBpid.\fIN\fB.saturated\fR bit out
-When true, the current PID output is saturated.  That is,
+Cuando es TRUE, la salida PID actual está saturada. Es decir,
 .RS 12
-\fBoutput\fR = \(+- \fBmaxoutput\fR.
+\fBoutput\fR = \(+ -\fBmaxoutput\fR.
 .RE
 .TP
 \fBpid.\fIN\fB.saturated\-s\fR float out
 .TQ
 \fBpid.\fIN\fB.saturated\-count\fR s32 out
-When true, the output of PID was continually saturated for this many seconds
-(\fBsaturated\-s\fR) or periods (\fBsaturated\-count\fR).
-.SH PARAMETERS
+Cuando es TRUE, la salida del PID se saturó continuamente durante estos (\fBsaturated\-s\fR) segundos o (\fBsaturated\-count\fR) períodos.
+.SH PARÁMETROS
 .TP
-\fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)
-Integral of error.  This is the value that is multiplied by \fBIgain\fR to produce the Integral term of the output.
+\fBpid.\fIN\fB.errorI\fR float ro (solo si debug=1)
+Integral de error. Este es el valor que se multiplica por \fBIgain\fR para producir el término integral de la salida.
 .TP
-\fBpid.\fIN\fB.errorD\fR float ro (only if debug=1)
-Derivative of error.  This is the value that is multiplied by \fBDgain\fR to produce the Derivative term of the output.
+\fBpid.\fIN\fB.errorD\fR float ro (solo si debug=1)
+Derivada del error. Este es el valor que se multiplica por \fBDgain\fR para producir el término derivativo de la salida.
 .TP
-\fBpid.\fIN\fB.commandD\fR float ro (only if debug=1)
-Derivative of command.  This is the value that is multiplied by \fBFF1\fR to produce the first order feed-forward term of the output.
+\fBpid.\fIN\fB.commandD\fR float ro (solo si debug=1)
+Derivada del comando. Este es el valor que se multiplica por \fBFF1\fR para producir el término de avance de primer orden de la salida.
 .TP
-\fBpid.\fIN\fB.commandDD\fR float ro (only if debug=1)
-Second derivative of command.  This is the value that is multiplied by
-\fBFF2\fR to produce the second order feed-forward term of the output.
+\fBpid.\fIN\fB.commandDD\fR float ro (solo si debug=1)
+Segunda derivada del comando. Este es el valor que se multiplica por \fBFF2\fR para producir el término de avance de segundo orden de la salida.
 .TP
-\fBpid.\fIN\fB.commandDDD\fR float ro (only if debug=1)
-Third derivative of command.  This is the value that is multiplied by
-\fBFF3\fR to produce the third order feed-forward term of the output.
+\fBpid.\fIN\fB.commandDDD\fR float ro (solo si debug=1)
+Tercera derivada del comando. Este es el valor que se multiplica por \fBFF3\fR para producir el término de avance de tercer orden de la salida.
 
-.SH BUGS
-Some people would argue that deadband should be implemented such that error is
-treated as zero if it is within the deadband, and be unmodified if it is outside
-the deadband.  This was not done because it would cause a step in the transfer
-function equal to the size of the deadband.  People who prefer that behavior are
-welcome to add a parameter that will change the behavior, or to write their own
-version of \fBpid\fR. However, the default behavior should not be changed.
+.SH ERRORES
+Algunas personas argumentan que la banda muerta debe implementarse de manera que el error se trate como cero si está dentro de la banda muerta, y no se modifique si está fuera de la banda muerta. Esto no se hizo porque causaría un paso en la función de transferencia igual al tamaño de la banda muerta. Las personas que prefieren ese comportamiento pueden agregar un parámetro que cambie el comportamiento o escribir su propia versión de \fBpid\fR. Sin embargo, el comportamiento predeterminado no debe cambiarse.
 
-Negative gains may lead to unwanted behavior.  It is possible in some
-situations that negative FF gains make sense, but in general all gains
-should be positive.  If some output is in the wrong direction, negating
-gains to fix it is a mistake; set the scaling correctly elsewhere
-instead.
+Las ganancias negativas pueden conducir a un comportamiento no deseado. En algunas situaciones es posible que las ganancias negativas de FF tengan sentido, pero en general todas las ganancias deberían ser positivas. Si alguna salida está en la dirección equivocada, negar las ganancias para arreglarlo es un error; establecer la escala correctamente en su lugar.

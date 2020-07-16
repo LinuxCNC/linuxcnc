@@ -1,60 +1,60 @@
-.TH hal_type_t "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
-.SH NAME
-hal_type_t \- typedefs for HAL datatypes
-.SH DESRCIPTION
+.TH hal_type_t "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+hal_type_t \- typedefs para tipos de datos HAL
+.SH DESCRIPCION
 .TP
 typedef ... \fBhal_bool;
-A type which may have a value of 0 or nonzero.
+Un tipo que puede tener un valor 0 o distinto de cero.
 .TP
 typedef ... \fBhal_bit_t;
-A volatile type which may have a value of 0 or nonzero.
+Un tipo volátil que puede tener un valor 0 o distinto de cero.
 .TP
 typedef ... \fBhal_s32_t\fR;
-A volatile type which may have a value from \-2147483648 to 2147483647.
+Un tipo volátil que puede tener un valor de \-2147483648 a 2147483647.
 .TP
 typedef ... \fBhal_u32_t\fR;
-A volatile type which may have a value from 0 to 4294967295.
+Un tipo volátil que puede tener un valor de 0 a 4294967295.
+.TP
+typedef ... \fBhal_port_t\fR;
+Un identificador volátil para un objeto puerto. Usado con las funciones hal_port*.
 .TP
 typedef ... \fBhal_float_t\fR;
-A volatile floating-point type, which typically has the same precision and range
-as the C type \fBdouble\fR.
+Un tipo de punto flotante volátil, que generalmente tiene la misma precisión y rango como el tipo C \fBdouble\fR.
 .TP
 typedef ... \fBreal_t\fR;
-A nonvolatile floating-point type with at least as much precision as
+Un tipo de punto flotante no volátil con al menos tanta precisión como
 \fBhal_float_t\fR.
 .TP
 typedef ... \fBireal_t\fR;
-A nonvolatile unsigned integral type the same size as \fBhal_float_t\fR.
+Un tipo entero sin signo no volátil del mismo tamaño que \fBhal_float_t\fR.
 .TP
 typedef enum \fBhal_type_t\fR;
 .RS
 .TP
 \fBHAL_BIT\fR
-Corresponds to the type \fBhal_bit_t\fR.
+Corresponde al tipo \fBhal_bit_t\fR.
 .TP
 \fBHAL_FLOAT\fR
-Corresponds to the type \fBhal_float_t\fR.
+Corresponde al tipo \fBhal_float_t\fR.
 .TP
 \fBHAL_S32\fR
-Corresponds to the type \fBhal_s32_t\fR.
+Corresponde al tipo \fBhal_s32_t\fR.
 .TP
 \fBHAL_U32\fR
-Corresponds to the type \fBhal_u32_t\fR.
+Corresponde al tipo \fBhal_u32_t\fR.
 .RE
-.SH NOTES
-\fBhal_bit_t\fR is typically a typedef to an integer type whose range is larger
-than just 0 and 1.  When testing the value of a \fBhal_bit_t\fR, never compare
-it to 1.  Prefer one of the following:
+.SH NOTAS
+\fBhal_bit_t\fR es típicamente un typedef a un tipo entero cuyo rango es mayor
+que solo 0 y 1. Al probar el valor de a \fBhal_bit_t\fR, nunca lo compare con 1. Prefiera uno de los siguientes:
 .RS
 .IP \(bu 4
-if(b)
+if (b)
 .IP \(bu 4
-if(b != 0)
+if (b != 0)
 .RE
 
-It is often useful to refer to a type that can represent all the values as a
-hal type, but without the volatile qualifier.  The following types correspond
-with the hal types:
+A menudo es útil referirse a un tipo que puede representar todos los valores como un tipo hal, pero sin el calificador volátil. Los siguientes tipos se corresponden
+con los tipos hal:
 .RS
 .IP hal_bit_t 16
 int
@@ -67,11 +67,16 @@ __u32
 
 .IP hal_float_t 16
 hal_real_t
+
+.IP hal_port_t 16
+int
 .RE
 
-Take care not to use the types \fBs32\fR and \fBu32\fR.  These will compile in
-kernel modules but not in userspace, and not for "realtime components" when
-using simulated (userspace) realtime.
+Tenga cuidado de no usar los tipos \fBs32\fR y \fBu32\fR. Estos se compilarán en
+módulos de kernel pero no en el espacio de usuario, y no para "componentes en tiempo real" cuando utilize tiempo real simulado (espacio de usuario).
 
-.SH SEE ALSO
-\fBhal_pin_new(3hal)\fR, \fBhal_param_new(3hal)\fR
+.SH VER TAMBIÉN
+\fBhal_pin_new (3hal)\fR, \fBhal_param_new (3hal)\fR
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+

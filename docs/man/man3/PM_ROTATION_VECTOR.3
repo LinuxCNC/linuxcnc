@@ -1,4 +1,4 @@
-.TH funct "3" "2006-10-12" "LinuxCNC Documentation" "libposemath"
+.TH funct "3" "2006-10-12" "Documentación LinuxCNC" "libposemath"
 .de TQ
 .br
 .ns
@@ -6,51 +6,51 @@
 ..
 .SH NAME
 
-PM_CARTESIAN \- Three-axis cartesian position
+PM_CARTESIAN \- Posición cartesiana de tres ejes
 
-.SH SYNTAX
+.SH SINTAXIS
 .HP
 .B #include "posemath.h"
 .HP
 .B struct PM_CARTESIAN;
 
-.SH CONSTRUCTORS
+.SH CONSTRUCTORES
 .TP
 .B PM_CARTESIAN()
-Construct the point <0,0,0>
+Construir el punto <0,0,0>
 .TP
 .B PMCARTESIAN(double \fIx\fB, double \fIy\fB, double \fIz\fB)
-Construct the point <\fIx\fB,\fIy\fB,\fIz\fB>
+Construir el punto <\fIx\fB,\fIy\fB,\fIz\fB>
 .TP
 .B PMCARTESIAN(const PM_CARTESIAN &v)
-Construct a copy of the point \fIv\fR
+Construir una copia del punto \fIv\fR
 
-.SH DATA
+.SH DATOS
 .B double \fIx\fB, \fIy\fB, \fIz
 
-.SH OPERATORS
+.SH OPERADORES
 .TP
 .B operator[](int n);
-Return the \fIn\fRth component of the vector (x=0, y=1, z=2)
+Devuelve el componente \fIn\fRsimo del vector (x=0, y=1, z=2)
 .TP
 .B int operator==(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
 .TQ
 .B int operator!=(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
-Elementwise equality and inequality operator
+Operador de igualdad y desigualdad de elementos
 .TP
 .B PM_CARTESIAN operator+(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
 .TQ
 .B PM_CARTESIAN operator\-(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
-Addition and subtraction of vectors
+Suma y resta de vectores
 .TP
 .B PM_CARTESIAN operator*(double \fIs\fB, PM_CARTESIAN \fIv\fB)
 .TQ
 .B PM_CARTESIAN operator*(PM_CARTESIAN \fIv\fB, double \fIs\fB)
-Scalar multiplication
+Multiplicación escalar
 .TP
 .B PM_CARTESIAN operator/(PM_CARTESIAN \fIv\fB, double \fIs\fB)
-Scalar multiplication by \fI1/s\fR
-.SH OTHER FUNCTIONS ON PM_CARTESIAN OBJECTS
+Multiplicación escalar por \fI1/s\fR
+.SH OTRAS FUNCIONES EN OBJETOS PM_CARTESIAN
 .TP
 .B double dot(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
 .TQ
@@ -58,4 +58,4 @@ Scalar multiplication by \fI1/s\fR
 .TQ
 .B PM_CARTESIAN norm(PM_CARTESIAN \fIv\fB)
 
-.SH SEE ALSO
+.SH VER TAMBIÉN

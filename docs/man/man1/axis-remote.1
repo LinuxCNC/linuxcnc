@@ -1,5 +1,6 @@
 .\" Copyright (c) 2007 Alex Joni
 .\"                (alex_joni AT users DOT sourceforge DOT net)
+.\" Spanish translation by: J.M. Garcia (2018)
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -23,53 +24,56 @@
 .\"
 .\"
 .\"
-.TH axis-remote "1"  "2007-04-01" "LinuxCNC Documentation" "The Enhanced Machine Controller"
-.SH NAME
-axis\-remote \- AXIS Remote Interface
-.SH SYNOPSIS
-.B axis\-remote \fIOPTIONS\fR|\fIFILENAME\fR
-.SH DESCRIPTION
-\fBaxis\-remote\fR is a small script that triggers commands in a running AXIS GUI.
-Use \fBaxis\-remote \-\-help\fR for further information.
-.SH OPTIONS
+.TH axis-remote "1"  "2007-04-01" "Documentacion de LinuxCNC" "The Enhanced Machine Controller"
+.SH NOMBRE
+axis\-remote \- Interface remota AXIS
+.SH SINOPSIS
+.B axis\-remote \fIOPCIONES\fR|\fINOMBREFICHERO\fR
+.SH DESCRIPCION
+\fBaxis\-remote\fR es un peque\[~n]o script que activa comandos en una GUI AXIS en ejecucion.
+.TP
+Use \fBaxis\-remote \-\-help\fR para mas informacion.
+.SH OPCIONES
 .TP
 \fB\-\-ping\fR, \fB\-p\fR
-Check whether AXIS is running.
+Chequea si se esta ejecutando AXIS.
 .TP
 \fB\-\-reload\fR, \fB\-r\fR
-Make AXIS reload the currently loaded file.
+Hace que AXIS recargue el archivo actual.
 .TP
 \fB\-\-clear\fR, \fB\-c\fR
-Make AXIS clear the backplot.
+Hace que AXIS limpie el area grafica.
 .TP
 \fB\-\-quit\fR, \fB\-q\fR
-Make AXIS quit.
+Salida de AXIS.
 .TP
 \fB\-\-help\fR, \fB\-h\fR, \fB\-?\fR
-Display a list of valid parameters for \fBaxis\-remote\fR.
+Muestra la lista de parametros validos para \fBaxis\-remote\fR.
 .TP
-\fB\-\-mdi COMMAND\fR, \fB\-m COMMAND\fR
-Run the MDI command \fBCOMMAND\fR.
+\fB\-\-mdi COMANDO\fR, \fB\-m COMANDO\fR
+Ejecuta el \fBCOMANDO\fR en MDI.
 .TP
-\fBFILENAME\fR
-Load the G-code file \fBFILENAME\fR.
-.SH "SEE ALSO"
+\fBNOMBREFICHERO\fR
+Carga el fichero de codigo G \fBNOMBREFICHERO\fR.
+.SH "VEA TAMBIEN"
 \fBaxis(1)\fR
 
-Much more information about LinuxCNC and HAL is available in the LinuxCNC
-and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+Los manuales de LinuxCNC y HAL tienen mucha mas informacion disponible.
+.TP
+Puede encontrarlos en /usr/share/doc/linuxcnc/.
 
-.SH HISTORY
+.SH HISTORIA
 
 .SH BUGS
-None known at this time. 
+En este momento, ninguno conocido. 
 .PP
-.SH AUTHOR
-This man page written by Alex Joni, as part of the LinuxCNC project.
-.SH REPORTING BUGS
-Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH AUTOR
+Esta pagina man fue escrita por Alex Joni, como parte del proyecto LinuxCNC.
+.SH COMUNICACION DE BUGS
+Comunicar errores a alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT
 Copyright \(co 2007 Alex Joni.
 .br
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Este software es libre; vea las fuentes para las condiciones de copia. NO hay garantia;
+ni para COMERCIABILIDAD, ni para APTITUD PARA UN USO PARTICULAR
+

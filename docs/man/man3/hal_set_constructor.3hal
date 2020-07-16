@@ -1,35 +1,33 @@
-.TH hal_set_constructor "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
-.SH NAME
+.TH hal_set_constructor "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
 
-hal_set_constructor \- Set the constructor function for this component
+hal_set_constructor \- Establece la función constructora para un componente
 
-.SH SYNTAX
+.SH SINTAXIS
 .HP
-typedef int (*hal_constructor_t)(const char *prefix, const char *arg);
+typedef int (* hal_constructor_t) (const char * prefix, const char * arg);
 int hal_set_constructor(int \fIcomp_id\fR, hal_constructor_t \fIconstructor\fR)
 
-.SH  ARGUMENTS
+.SH ARGUMENTOS
 .HP
 \fIcomp_id\fR
-A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
 
 .HP
 \fIprefix\fR
-The prefix to be given to the pins, parameters, and functions in the new
-instance
+El prefijo que se dará a los pines, parámetros y funciones en la nueva instancia
 
 .HP
 \fParg\fR
-An argument that may be used by the component to customize this istance.
+Un argumento que puede ser utilizado por el componente para personalizar esta instancia.
 
-.SH DESCRIPTION
-As an experimental feature in HAL 2.1, components may be \fIconstructable\fR.
-Such a component may create pins and parameters not only at the time the module
-is loaded, but it may create additional pins and parameters, and functions on
-demand.
+.SH DESCRIPCIÓN
+Como característica experimental en HAL 2.1, los componentes pueden ser \fIconstructable\fR.
+Tal componente puede crear pines y parámetros no solo en el momento en que el módulo se carga, sino 
+que puede crear pines y parámetros adicionales, y funciones bajo demanda.
 
-.SH RETURN VALUE
-Returns a HAL status code.
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 \fBhalcmd(1)\fR
