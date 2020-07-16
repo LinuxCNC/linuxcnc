@@ -659,7 +659,7 @@ class configurator:
             for line in inFile:
                 if ' '.join(line.split()).startswith('loadrt debounce'):
                     outFile.write(\
-                        '#***** DEBOUNCE FOR THE FLOAT SWITCH *****\n'\
+                        '#***** debounce for the float, ohmic and breakaway switches *****\n'\
                         '# the lower the delay here the better\n'\
                         '# each 1 is a 0.001mm (0.00004") increase in probed height result\n'\
                         + line)
@@ -1329,7 +1329,7 @@ class configurator:
                     if param in hostmot:
                         line = line.replace('[HOSTMOT2]' + param,hostmot[param])
             # comment out old spindle lines
-            elif 'spindle.0.' in line:
+            elif 'spindle' in line.lower():
                 line = '# {}'.format(line)
             # comment out old toolchange lines
             elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool' in line:
@@ -1351,12 +1351,12 @@ class configurator:
                 '# being overwritten by updates or pncconf/stepconf changes\n\n'\
                 '# Other customisations may be placed here as well\n'\
                 '# This file is built by the configurator in your configuration directory\n\n'\
-                '#***** debounce for the float switch *****\n'\
+                '#***** debounce for the float, ohmic and breakaway switches *****\n'\
                 '# the lower the delay here the better\n'\
                 '# each 1 is a 0.001mm (0.00004") increase in probed height result\n'\
-                'loadrt  debounce                cfg=3\n'\
-                'setp    debounce.0.delay        5\n'\
-                'addf    debounce.0              servo-thread\n\n'\
+                'loadrt  debounce          cfg=3\n'\
+                'setp    debounce.0.delay  5\n'\
+                'addf    debounce.0        servo-thread\n\n'\
                 '#***** arc voltage lowpass cutoff frequency *****\n'\
                 '#***** change to the cutoff frequency you require *****\n'\
                 'setp plasmac.lowpass-frequency 0\n\n'\

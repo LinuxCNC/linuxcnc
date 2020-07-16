@@ -5,7 +5,7 @@
 == 调用LinuxCNC
 
 安装后，LinuxCNC就像其他任何Linux程序一样启动：
-在<<faq:terminal,终端>>通过运行命令'linuxcnc'运行，
+在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]通过运行命令'linuxcnc'运行，
 或在菜单“应用程序-CNC”中选择。
 
 [[sec:config-launcher]] (((Configuration Launcher)))
@@ -41,9 +41,9 @@ organized:
 ** 'by_machine' - Configurations organized by machine. “by_machine”-按机器组织的配置。
 
 ** 'apps' - Applications that do not require starting linuxcnc but may be
-   useful for testing or trying applications like <<cha:pyvcp,PyVCP>> or
-   <<cha:glade-vcp,GladeVCP>>. “apps”-不需要启动linuxcnc，但对测试或尝试<<cha:pyvcp,PyVCP>>
-   或<<cha:glade-vcp,GladeVCP>>之类的应用程序可能有用的应用程序。
+   useful for testing or trying applications like http://linuxcnc.org/docs/2.8/html/gui/pyvcp.html[PyVCP] or
+   http://linuxcnc.org/docs/2.8/html/gui/gladevcp.html[GladeVCP]. “apps”-不需要启动linuxcnc，但对测试或尝试 http://linuxcnc.org/docs/2.8/html/gui/pyvcp.html[PyVCP]
+   或 http://linuxcnc.org/docs/2.8/html/gui/gladevcp.html[GladeVCP]之类的应用程序可能有用的应用程序。
 
 ** 'attic' - Obsolete or historical configurations. “attic”-过时或历史配置。
 
@@ -102,7 +102,7 @@ be used with linuxcnc:
 * info - creates a file with system information that may be useful for
   problem diagnosis. 创建包含系统信息的文件，该文件可能对问题诊断很有用。
 * gladevcp - Example gladevcp applications. 示例glaevevcp应用程序。
-* halrun  - Starts halrun in an <<faq:terminal,terminal>>. 在<<faq:terminal,终端>>中启动halrun。
+* halrun  - Starts halrun in a terminal. 在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]中启动halrun。
 * latency - Applications to investigate latency 测试延迟的应用程序
 ** latency-test - standard test 标准测试
 ** latency-plot - stripchart    带状图

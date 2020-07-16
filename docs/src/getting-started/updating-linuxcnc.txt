@@ -41,7 +41,7 @@ Codename:       wheezy
 You should be running on Debian Wheezy (as above), or Ubuntu Precise,
 or Ubuntu Lucid.
 
-
+[[_setting_apt_sources]]
 === Setting apt sources
 
 * Open the `Software Sources` window. The process for doing this

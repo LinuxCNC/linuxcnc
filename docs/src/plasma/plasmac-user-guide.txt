@@ -203,6 +203,20 @@ NOTE: Base machine configuration means a complete working system without any pla
 
 IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. HERE, THESE WILL BE ADDED LATER DURING THE PlasmaC CONFIGURATION.
 
+* Floating Head - it is recommended that a floating head is used and it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
+
+----
+o = 0.5 × a × (v ÷ a)^2
+----
+
+where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec
+
+For a metric machine with a Z axis MAX_ACCELERATION of 600 m/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
+
+For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
+
+It is also recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
+ 
 [[z_settings]]
 
 Recommended settings for the Z axis are:
@@ -217,7 +231,7 @@ When and ONLY WHEN this stage is successfully completed can you configure Plasma
 
 You can create a base machine manually or you may use existing configuration helpers:
 
-NOTE: It is probably best to keep the base machine config simple until you have it fully tested and tuned. If you are using stepconf or pncconf then deselect the VCP Panel, manual tool change and classic ladder options these can be manually added later if you have a need for them.
+NOTE: It is best to keep the base machine config simple until you have it fully tested and tuned. If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options these can be manually added later if you have a need for them.
 
 If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>>:
 
@@ -245,7 +259,7 @@ You NEED to have a fully tested and working base machine configuration without a
 
 CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
-IMPORTANT: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
+NOTE: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
 
 [[configurator]]
 
@@ -275,8 +289,8 @@ HAL connection examples in the following table show an example for both a parall
 
 [width="100%",cols="4,10,6"]
 |===
-|*Field*|*Description*|*Example*
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini|PLASMA
+|*Field*|*Description*|*Examples*
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini|plasma_table
 |Ini File|this is the .ini file you created for your base machine config|base.ini
 |HAL File|this is the .hal file you created for your base machine config|base.hal
 |Mode|select the mode you require +
@@ -323,12 +337,12 @@ HAL connection examples in the following table show an example for both a parall
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run *HalShow* for a full listing of all HAL pins.
 
-Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
+Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine_name
 
 This can be run as follows:
 
 ----
-$ linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
+$ linuxcnc ~/linuxcnc/configs/<machine_name/<machine_name.ini
 ----
 
 After creating a new configuration some initial setup is required.
@@ -397,11 +411,42 @@ Contact bounce or external interference may cause some inconsistent behaviour of
 * Ohmic Probe
 * Breakaway Switch
 
-This may be alleviated by changing the debounce value in the <MACHINE>_connections.hal file. This value applies to all three switches simultaneously in a standard configuration.
-
-You could separate these by using an exclusive debounce component for each switch.
+This may be alleviated by changing the debounce value in the <machine_name>_connections.hal file. In a standard configuration this value applies to all three switches simultaneously but you could separate these by using an exclusive debounce group.
 
 Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
+
+Debounce is achieved by using the HAL link:http://linuxcnc.org/docs/html/man/man9/debounce.9.html[debounce component].
+
+If you require debounce for other equipment like home or limit switches etc then change the following line in the <machine_name>_connections.hal:
+
+----
+loadrt  debounce  cfg=3
+----
+
+to:
+
+----
+loadrt  debounce  cfg=3,n
+----
+
+with n being the number of contacts you need debounced. 
+
+This will create a new debounce group named debounce.1 for your use, then add the following lines:
+
+----
+setp  debounce.1.delay  c
+addf  debounce.1        servo-thread
+----
+
+with c being the number of servo cycles for the debounce time.
+
+Then you can net the debounce to any HAL pin you require in any of the .hal files (except postgui.hal) like the following example:
+
+----
+net home-x-in   parport.1.pin-11-in-not  =>  debounce.1.0.in
+net home-x-out  debounce.1.0.out         =>  joint.0.home-sw-in
+----
+
 
 == Desktop Launcher
 
@@ -414,7 +459,7 @@ After the launcher appears on the desktop, right click on it and then open with 
 Comment=
 Terminal=false
 Name=LinuxCNC
-Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine>/<machine>.ini"
+Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine_name>/<machine_name>.ini"
 Type=Application
 Icon=/usr/share/pixmaps/linuxcncicon.png
 ----
@@ -433,13 +478,13 @@ After an installation, the following files are created in the configuration dire
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|<MACHINE>.ini|configuration file
-|<MACHINE>.hal|HAL connections for the PlasmaC component
-|<MACHINE>_connections.hal|HAL connections to the I/O HAL pins
+|<machine_name>.ini|configuration file
+|<machine_name>.hal|HAL connections for the PlasmaC component
+|<machine_name>_connections.hal|HAL connections to the I/O HAL pins
 |postgui.hal|a HAL file run after the GUI has loaded for user customizing
 |===
 
-NOTE: Custom commands are allowed in <MACHINE>_connections.hal and the postgui.hal files as they are not overwritten during upgrades
+NOTE: Custom commands are allowed in <machine_name>_connections.hal and the postgui.hal files as they are not overwritten during upgrades
 
 In addition to the above files, the following links are created to the files in the source directory:
 [width="100%",cols="1,2"]
@@ -467,11 +512,11 @@ In addition to the above files, the following links are created to the files in 
 After running a new configuration the first time the following files will be created in the configuration directory:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>_config.cfg|configuration settings for the Config Panel
-|<MACHINE>_run.cfg|configuration settings for the Run Panel
-|<MACHINE>_material.cfg|material file for cut parameters
-|<MACHINE>_wizards.cfg|configuration settings for the shape library
+|*Filename*|*Function* (<machine_name> = name of machine in .ini file)
+|<machine_name>_config.cfg|configuration settings for the Config Panel
+|<machine_name>_run.cfg|configuration settings for the Run Panel
+|<machine_name>_material.cfg|material file for cut parameters
+|<machine_name>_wizards.cfg|configuration settings for the shape library
 |plasmac_stats.var|saved statistics
 |===
 
@@ -869,7 +914,7 @@ If multiple tools are enabled then a LinuxCNC tool number is required in the *M3
 * *M3 $1 S1* will select the scribe.
 * *M3 $2 S1* will select the plasma spotting tool.
 
-To enable the multiple tools feature you need to edit the following line in <MACHINE_NAME>_connections.hal.
+To enable the multiple tools feature you need to edit the following line in <machine_name>_connections.hal.
 
 from:
 
@@ -1683,15 +1728,15 @@ IMPORTANT: SEE <<path-tolerance, PATH TOLERANCE>>
 
 ----
 TWOPASS = on (needed for multiple .hal files)
-HALFILE = <MACHINE_NAME>.hal (your base machine .hal file)
+HALFILE = <machine_name_NAME>.hal (your base machine .hal file)
 HALFILE = plasmac.tcl (the standard PlasmaC .hal file )
-HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
+HALFILE = <machine_name>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 ----
 
-The <MACHINE_NAME>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of an <<scribe, scribe>> if required.
+The <machine_name>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of an <<scribe, scribe>> if required.
 
-NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
+NOTE: You could place custom HAL commands in <machine_name>_connections.hal as this file is not overwritten by an upgrade.
 
 *[TRAJ]* Section
 
@@ -2171,7 +2216,7 @@ If you have a format you would like converted, create a *New Topic* in the https
 Materialverter may be run from a GUI file manager by double clicking on *materialverter.py* in your configuration directory or may be run from a terminal with the following command:
 
 ----
-$ python ~/linuxcnc/configs/<machine-name>/materialverter.py
+$ python ~/linuxcnc/configs/<machine_name/materialverter.py
 ----
 
 This will bring up the materialverter dialog:
@@ -2188,7 +2233,7 @@ For SheetCam only, select whether you would like a metric or imperial output fil
 
 For a conversion, select the Input File you wish to have converted.
 
-Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine_name_material.cfg, although you could select a different file and hand edit your <machine_name_material.cfg file.
 
 Click Create/Convert and your new material file will be created.
 
@@ -2196,23 +2241,72 @@ For a Manual creation or a Fusion360 conversion a dialog will show with all avai
 
 image::images/plasmac_material_dialogs.png[width=40%]
 
-NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
+NOTE: If you select ~/linuxcnc/configs/<machine_name_material.cfg then if this file already exists it will be overwritten.
+
+
+[[pm_comms]]
+
+== Hypertherm Powermax Communications
+
+Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
+
+If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
+
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
+
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
+
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
+
+----
+[PLASMAC]
+PM_PORT = /dev/ttyusb0
+----
+
+If you are unsure of the name of your port there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to using this feature in PlasmaC. To use the test script enter the following in a terminal.
+
+----
+$ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
+----
+
+The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
+
+
+The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
+
+To switch the Powermax back to local mode you can either:
+
+.  Disable Powermax Comms from the Run panel
+.  Close LinuxCNC which will put the Powermax into local mode during shutdown.
+.  Powerdown the Powermax for 30 seconds and then power it back on.
+
+NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
+If pyserial is not installed an error message will be displayed.
+
+To install pyserial, type the following in a terminal:
+
+----
+sudo apt-get install python-serial
+----
+
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
+
 
 [[mesa-thcad]]
 
 == Mesa THCAD
 
-The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter.
+The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter. The THCAD may be used for parallel port configs or for configs using other Mesa Electronics hardware.
 
-The THCAD may be used on parallel port configs or configs using other Mesa Electronics hardware.
+The preferred method is to setup the required parameters for the THCAD in your <machine_name>.hal file.
 
-=== Mesa Board Settings
+=== Parallel Port Config
 
-The preferred method is to setup the required parameters for the THCAD in your <machine>.hal file.
-
-An example parallel port config:
+An example parallel port config using a link:http://linuxcnc.org/docs/html/man/man9/encoder.9.html[software encoder].
 
 THCAD jumper settings *UNIPOLAR* and *F/64*
+
+NOTE: If your computer has good latency then you may be able to use *F/32*
 
 ----
 loadrt encoder num_chan=1
@@ -2223,7 +2317,15 @@ addf encoder.capture-position servo-thread
 net arc-voltage-raw parport.1.pin-04-in encoder.0.phase-A
 ----
 
-An example Mesa 7i96 config:
+You then need to note that the *Arc Voltage HAL Pin* entry in the PlasmaC Configurator will be:
+
+----
+encoder.0.velocity
+----
+
+=== Mesa 7i96 Config:
+
+An example Mesa 7i96 config using the onboard hardware encoder. Other Mesa hardware will be similar but with a different board identifier.
 
 THCAD jumper settings *UNIPOLAR* and *F/32*
 
@@ -2234,14 +2336,6 @@ setp  hm2_7i96.0.encoder.00.counter-mode 1
 ----
 
 You then need to note that the *Arc Voltage HAL Pin* entry in the PlasmaC Configurator will be:
-
-For a parallel port config:
-
-----
-encoder.0.velocity
-----
-
-For a Mesa 7i96 config:
 
 ----
 hm2_7i96.0.encoder.00.velocity
@@ -2272,13 +2366,13 @@ This is to obtain the starting values for Voltage Offset and Voltage Scale in th
 If you look at the rear of the THCAD you will see a calibration sticker with:
 
 ----
-     THCAD-5     |      THCAD-10      |      THCAD-300
-                 |                    |
- 0V  121.1 kHz   |    0V  121.1 kHz   |     0V   121.1 kHz
- 5V  925.3 kHz   |   10V  925.3 kHz   |   300V   925.3 kHz
+    THCAD-nnn
+                 
+ 0V  121.1 kHz
+ 5V  925.3 kHz
 ----
 
-Or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
+or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
 
 You can now calculate the values as shown below or use https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator]
 
@@ -2324,53 +2418,6 @@ The THCAD-10 and THCAD-300 examples above would be:
 ----
 121100 / 32 = 3784.375
 ----
-
-[[pm_comms]]
-
-== Powermax Communications
-
-Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
-
-If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
-
-Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
-
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
-
-This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
-
-----
-[PLASMAC]
-PM_PORT = /dev/ttyusb0
-----
-
-If you are unsure of the name of your port there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to using this feature in PlasmaC. To use the test script enter the following in a terminal.
-
-----
-$ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
-----
-
-The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
-
-
-The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
-
-To switch the Powermax back to local mode you can either:
-
-.  Disable Powermax Comms from the Run panel
-.  Close LinuxCNC which will put the Powermax into local mode during shutdown.
-.  Powerdown the Powermax for 30 seconds and then power it back on.
-
-NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
-If pyserial is not installed an error message will be displayed.
-
-To install pyserial, type the following in a terminal:
-
-----
-sudo apt-get install python-serial
-----
-
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
 
 == Support

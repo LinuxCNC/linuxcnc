@@ -8,7 +8,7 @@
 通常而言，步进系统需要比伺服系统更快的线程来生成步进脉冲。
 使用Live-CD可以在提交计算机之前测试软件。
 请记住，延迟测试指标比处理器速度对于软件步骤生成更为重要。
-有关延迟测试的更多信息请访问<<latency-test,此处>>。
+有关延迟测试的更多信息请访问 http://linuxcnc.org/docs/2.8/html/install/latency-test.html[此处]。
 
 其他补充信息在LinuxCNC Wiki网站：
 
