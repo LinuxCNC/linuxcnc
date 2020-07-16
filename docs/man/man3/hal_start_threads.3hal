@@ -1,28 +1,28 @@
-.TH hal_start_threads "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
-.SH NAME
+.TH hal_start_threads "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
 
-hal_start_threads \- Allow HAL threads to begin executing
+hal_start_threads \- Permitir que los hilos HAL comiencen a ejecutarse
 
-.SH SYNTAX
+.SH SINTAXIS
 .HP
-int hal_start_threads()
+int hal_start_threads ()
 
 .HP
-int hal_stop_threads()
+int hal_stop_threads ()
 
-.SH  ARGUMENTS
+.SH ARGUMENTOS
 
-.SH DESCRIPTION
-\fBhal_start_threads\fR starts all threads that have been created.  This
-is the point at which realtime functions start being called.
+.SH DESCRIPCIÓN
+\fBhal_start_threads\fR inicia todos los hilos que se han creado. Este
+es el punto en el que comienzan a llamarse las funciones en tiempo real.
 
-\fBhal_stop_threads\fR stops all threads that were previously started by
-\fBhal_start_threads\fR.  It should be called before any component that
-is part of a system exits.
+\fBhal_stop_threads\fR detiene todos los hilos que fueron iniciados previamente por
+\fBhal_start_threads\fR. Debe llamarse antes de cualquier componente que
+es parte de salida del sistema.
 
-.SH RETURN VALUE
-Returns a HAL status code.
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 \fBhal_export_funct(3hal)\fR, \fBhal_create_thread(3hal)\fR,
 \fBhal_add_funct_to_thread(3hal)\fR

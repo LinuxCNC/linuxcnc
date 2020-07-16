@@ -1,29 +1,28 @@
-.TH hal_init "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
-.SH NAME
+.TH hal_init "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
 
-hal_init \- Sets up HAL and RTAPI
+hal_init \- Configura HAL y RTAPI
 
-.SH SYNTAX
+.SH SINTAXIS
 .HP
  int hal_init(const char *\fImodname\fR)
 
-.SH ARGUMENTS
+.SH ARGUMENTOS
 .IP \fImodname\fR
-The name of this hal module
+El nombre de este módulo hal
 
-.SH DESCRIPTION
+.SH DESCRIPCION
 
-\fBhal_init\fR sets up HAL and RTAPI.  It must be called by any
-module that intends to use the API, before any other RTAPI
-calls.
+\fBhal_init\fR configura HAL y RTAPI. Debe ser llamado por cualquier
+módulo que pretende utilizar la API, antes que cualquier otra llamada RTAPI.
 
-\fImodname\fR must point to a string that identifies the module.
-The string may be no longer than \fBHAL_NAME_LEN\fR characters.
+\fImodname\fR debe apuntar a una cadena que identifica el módulo.
+La cadena no puede tener más de \fBHAL_NAME_LEN\fR caracteres.
 
-.SH REALTIME CONSIDERATIONS
-Call only from within user or init/cleanup code, not from relatime tasks.
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de usuario o de inicio/limpieza, no desde las tareas de relatime.
 
-.SH RETURN VALUE
-On success, returns a positive integer module ID, which is
-used for subsequent calls to hal and rtapi APIs.
-On failure, returns a HAL error code.
+.SH VALOR DEVUELTO
+En caso de éxito, devuelve un ID de módulo entero positivo, que es
+usado para llamadas posteriores a las API hal y rtapi.
+En caso de fallo, devuelve un código de error HAL.
