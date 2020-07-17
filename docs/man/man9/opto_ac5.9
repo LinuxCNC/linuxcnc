@@ -1,68 +1,67 @@
-.\"
-.TH OPTO_AC5 "9" "2008-08-04" "LinuxCNC Documentation" "HAL Component" 
+. \ "
+.TH OPTO_AC5 "9" "2008-08-04" "Documentación LinuxCNC" "Componente HAL"
 .de TQ
 .br
 .ns
-.TP \\$1
+.TP \\ $ 1
 ..
 
-.SH NAME
-opto_ac5 \- Realtime driver for opto22 PCI-AC5 cards
-.SH SYNOPSIS
-\fBloadrt opto_ac5  [portconfig0=0x\fIN\fB] [portconfig1=0x\fIN\fB] 
+.SH NOMBRE
+opto_ac5 \- Controlador en tiempo real para tarjetas opto22 PCI-AC5
+.SH SINOPSIS
+\fBloadrt opto_ac5 [portconfig0=0x\fIN\fB] [portconfig1=0x\fIN\fB]
 
-.SH DESCRIPTION
+.SH DESCRIPCIÓN
 
-These pins and parameters are created by the realtime \fBopto_ac5\fR module.
-The portconfig0 and portconfig1 variables are used to configure the two ports of each card. The first 24 bits of a 32 bit number represent the 24 i/o points of each port. The lowest (rightmost) bit would be HAL pin 0 which is  header connector pin 47. Then next bit to the left would be HAL pin 1,  header connector pin 45 and so on, untill bit 24 would be HAL pin 23 ,  header connector pin 1.
-"1" bits represent output points.
-So channel 0..11 as inputs and 12..23 as outputs would be represented by (in binary) 111111111111000000000000 which is 0xfff000 in hexadecimal. 
-That is the number you would use Eg. loadrt opto_ac5 portconfig0=0xfff000
+Estos pines y parámetros son creados por el módulo en tiempo real \fBopto_ac5\fR.
+Las variables portconfig0 y portconfig1 se utilizan para configurar los dos puertos de cada tarjeta. Los primeros 24 bits de un número de 32 bits representan los 24 puntos de E/S de cada puerto. El bit más bajo (el más a la derecha) sería el pin 0 de HAL, que es el pin 47 del conector de cabecera. Luego, el siguiente bit a la izquierda sería el pin 1 de HAL, el pin 45 del conector de cabecera y así sucesivamente, hasta que el bit 24 sería el pin 23 de HAL, el pin del conector de cabecera 1)
+Los bits "1" representan puntos de salida.
+Por lo tanto, el canal 0..11 como entradas y 12..23 como salidas estarían representados por (en binario) 111111111111000000000000 que es 0xfff000 en hexadecimal.
+Ese es el número que usarías Eg. loadrt opto_ac5 portconfig0 = 0xfff000
 
-If no portconfig variable is specified the default configuration is 12 inputs then 12 outputs.
+Si no se especifica ninguna variable portconfig, la configuración predeterminada es 12 entradas y luego 12 salidas.
 
-Up to 4 boards are supported.  Boards are numbered starting at 0.
+Se admiten hasta 4 tableros. Las tablas están numeradas a partir de 0.
 
-Portnumber can be 0 or 1. Port 0 is closes to the card bracket.
+El número de puerto puede ser 0 o 1. El puerto 0 se cierra al soporte de la tarjeta.
 
-.SH PINS
+.SH PINES
 
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR] OUT bit 
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR] OUT bit
 .TQ
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR]\-not OUT bit 
-Connect a hal bit signal to this pin to read an i/o point from the card.
-The PINNUMBER represents the position in the relay rack. Eg. PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector. The \fB\-not\fR pin is
-inverted so that LOW gives TRUE and HIGH gives FALSE.
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR]\-not OUT bit
+Conecte una señal de hal bit a este pin para leer un punto de E / S de la tarjeta.
+El PINNUMBER representa la posición en el bastidor de relés. P.ej. PINNUMBER 0 es la posición 0 en un rack de relés opto22 y sería el pin 47 en el conector de cabecera de 50 pines. El pin\fB\-not\fR se invierte para que LOW dé TRUE y HIGH dé FALSE.
 
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR] IN bit  
-Connect a hal bit signal to this pin to write to an i/o point of the card.
-The PINNUMBER represents the position in the relay rack.Eg. PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1 on the 50 pin header connector.
+\fBopto_ac5. [\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR] IN bit
+Conecte una señal de hal bit a este pin para escribir en un punto de E / S de la tarjeta.
+El PINNUMBER representa la posición en el bastidor de relés. El PINNUMBER 23 es la posición 23 en un rack de relés opto22 y sería el pin 1 en el conector del encabezado de 50 pines.
 
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBled[\fINUMBER\fB\fR] OUT bit 
-Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
+\fBopto_ac5. [\fIBOARDNUMBER\fB\fR].\fBled [\fINUMBER\fB\fR] OUT bit
+Enciende / apaga uno de los LED incorporados. Los LED están numerados del 0 al 3.
 
-.SH PARAMETERS
+.SH PARÁMETROS
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR]\-invert W bit  
-When TRUE, invert the meaning of the corresponding \fB\-out\fR pin so that TRUE
-gives LOW and FALSE gives HIGH.
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR]\-invert W bit
+Cuando sea TRUE, invierta el significado del pin\fB\-out\fR correspondiente para que TRUE dé BAJO y FALSE dé ALTO.
 
-.SH FUNCTIONS
+.SH FUNCIONES
 
 .TP
 \fBopto_ac5.0.digital\-read
-Add this to a thread to read all the input points.
+Agregue esto a un hilo para leer todos los puntos de entrada.
 
 .TP
 \fBopto_ac5.0.digital\-write
-Add this to a thread to write all the output points and LEDS.
+Agregue esto a un hilo para escribir todos los puntos de salida y LEDS.
 
-.SH BUGS
-All boards are loaded with the same port configurations  as the first board.
+.SH ERRORES
+Todas las placas se cargan con las mismas configuraciones de puerto que la primera placa.
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 
 http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?OptoPciAc5
+

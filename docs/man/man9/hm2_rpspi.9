@@ -20,190 +20,190 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH HM2_RPSPI "9" "2017-06-05" "LinuxCNC Documentation" "HAL Component"
+.TH HM2_RPSPI "9" "05/06/2017" "Documentación LinuxCNC" "Componente HAL"
 .de TQ
 .br
 .ns
 .TP \\$1
 ..
 
-.SH NAME
+.SH NOMBRE
 
-hm2_rpspi \- LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
-.SH SYNOPSIS
+hm2_rpspi \- Controlador HAL LinuxCNC para las tarjetas Mesa Electronics SPI Anything IO, con firmware HostMot2.
+.SH SINOPSIS
 
 .HP
 .B loadrt hm2_rpspi
 .RS 4
 .TP
-\fBconfig\fR [default: ""]
-HostMot2 config strings, described in the
+\fBconfig\fR [predeterminado: ""]
+Cadenas de configuración de HostMot2, descritas en el
 .BR hostmot2 (9)
-manpage.
+página de manual.
 .TP
-\fBspiclk_rate\fR [default: 31250]
-Specify the SPI clock rate in kHz. See
-.BR SPI\ CLOCK\ RATES
-below.
+\fBspiclk_rate\fR [predeterminado: 31250]
+Especifique la frecuencia de reloj SPI en kHz. Ver
+.BR SPI \ RELOJ \ TARIFAS
+abajo.
 .TP
-\fBspiclk_rate_rd\fR [default: -1 (same as \fBspiclk_rate\fR)]
-Specify the SPI read clock rate in kHz. Usually you read and write at the same
-speed. However, you may want to reduce the reading speed if the round-trip is
-too long (see
-.BR SPI\ CLOCK\ RATES
-below).
+\fBspiclk_rate_rd\fR [predeterminado: -1 (igual que \fBspiclk_rate\fR)]
+Especifique la velocidad del reloj de lectura SPI en kHz. Usualmente lees y escribes al mismo
+velocidad. Sin embargo, es posible que desee reducir la velocidad de lectura si el viaje de ida y vuelta es
+demasiado largo (ver
+.BR SPI \ RELOJ \ TARIFAS
+abajo).
 .TP
-\fBspiclk_base\fR [default: 400000000]
-This is the SPI clock divider calculation fallback value. Usually, the base
-rate is read from
-.I /sys/kernel/debug/clk/vpu/clk_rate
-and used in the divider calculation (for the Rpi3 it should be 250\ MHz). The
-\fBspiclk_base\fR is \fIonly\fR used as a fallback if the system's cannot be
-read. It is normally safe (and recommended) that you leave this parameter as
-is.
+\fBspiclk_base\fR [predeterminado: 400000000]
+Este es el valor de reserva del cálculo del divisor de reloj SPI. Por lo general, la base
+la tasa se lee de
+.I / sys / kernel / debug / clk / vpu / clk_rate
+y usado en el cálculo del divisor (para el Rpi3 debería ser 250 \ MHz). los
+\fBspiclk_base\fR se usa \fIonly\fR como reserva si el sistema no puede ser
+leer. Normalmente es seguro (y recomendado) que deje este parámetro como
+es.
 .br
-You should set this manually to 250000000 if your system does not provide
-access to the kernel clock settings. Otherwise, your SPI clock frequency will
-be only 62.5% of the requested value.
+Debe configurarlo manualmente en 250000000 si su sistema no proporciona
+acceso a la configuración del reloj del núcleo. De lo contrario, su frecuencia de reloj SPI
+sea ​​solo el 62.5% del valor solicitado.
 .TP
-\fBspi_pull_miso\fR [default: 1 (pull\-down)]
+\fBspi_pull_miso\fR [predeterminado: 1 (pull\-down)]
 .TP
-\fBspi_pull_mosi\fR [default: 1 (pull\-down)]
+\fBspi_pull_mosi\fR [predeterminado: 1 (pull\-down)]
 .TP
-\fBspi_pull_sclk\fR [default: 1 (pull\-down)]
-Enable or disable pull\-up/pull-down on the SPI lines. A value of 0 disables
-any pull\-up/down on the pin. A value of 1 means pull\-down and 2 means
-pull\-up. The chip enable line(s) are always pull\-up enabled.
+\fBspi_pull_sclk\fR [predeterminado: 1 (pull\-down)]
+Active o desactive pull\-up / pull-down en las líneas SPI. Un valor de 0 deshabilita
+cualquier pull\-up / down en el pin. Un valor de 1 significa pull\-down y 2 significa
+levantar. Las líneas de habilitación de chip siempre están habilitadas para pull\-up.
 .TP
-\fBspi_probe\fR [default: 1]
-Probe SPI port and CE lines for a card. This is a bit\-field indicating which
-combinations of SPI and CE should be probed:
- \-  1 = SPI0/CE0,
- \-  2 = SPI0/CE1,
- \-  4 = SPI1/CE0,
- \-  8 = SPI1/CE1,
- \- 16 = SPI1/CE2.
+\fBspi_probe\fR [predeterminado: 1]
+Puerto SPI de sonda y líneas CE para una tarjeta. Este es un bit\-field que indica qué
+Se deben probar combinaciones de SPI y CE:
+ \- 1 = SPI0 / CE0,
+ \- 2 = SPI0 / CE1,
+ \- 4 = SPI1 / CE0,
+ \- 8 = SPI1 / CE1,
+ \- 16 = SPI1 / CE2.
 
-The probe is performed exactly in above order. Any boards found will be
-numbered 0...4 in the order found. See also
-.BR INTERFACE\ CONFGURATION
-below.
+La sonda se realiza exactamente en el orden anterior. Cualquier tarjeta encontrada será
+numerados 0 ... 4 en el orden encontrado. Ver también
+.BR INTERFAZ \ CONFIGURACIÓN
+abajo.
 
-It is an error if a probe fails and the driver will abort.  The SPI0/SPI1
-peripherals are located at gpio pins (with 40-pin I/O header pin\-number in
-parentheses):
- \- SPI0: MOSI=10(19), MISO=9(21), SCLK=11(23), CE0=8(24), CE1=7(26)
- \- SPI1: MOSI=20(38), MISO=19(35), SCLK=21(40), CE0=18(12), CE1=17(11), CE2=16(36)
+Es un error si falla una sonda y el controlador abortará. El SPI0 / SPI1
+los periféricos se encuentran en los pines gpio (con un pin de encabezado de E / S de 40 pines\-number en
+paréntesis):
+ \- SPI0: MOSI = 10 (19), MISO = 9 (21), SCLK = 11 (23), CE0 = 8 (24), CE1 = 7 (26)
+ \- SPI1: MOSI = 20 (38), MISO = 19 (35), SCLK = 21 (40), CE0 = 18 (12), CE1 = 17 (11), CE2 = 16 (36)
 
 .TP
-\fBspi_debug\fR [default: \-1]
-Set the message level of the running process. The message level is set if
-\fBspi_debug\fR is set to a positive value between 0 and 5, where 0 means no
-messages at all and 5 means everything. A value of \-1 does not touch the
-current message level.
+\fBspi_debug\fR [predeterminado:\-1]
+Establecer el nivel de mensaje del proceso en ejecución. El nivel de mensaje se establece si
+\fBspi_debug\fR se establece en un valor positivo entre 0 y 5, donde 0 significa que no
+mensajes en absoluto y 5 significa todo. Un valor de\-1 no toca el
+nivel de mensaje actual
 
-Caveat Emptor: changing the message level is process-wide and all modules
-within the process will spit out messages at the requested level. This may
-cause quite some clutter in your terminal.
+Advertencia de Emptor: cambiar el nivel del mensaje es un proceso completo y todos los módulos
+dentro del proceso escupirá mensajes en el nivel solicitado. Esto puede
+causar bastante desorden en su terminal.
 
-.SH DESCRIPTION
+.SH DESCRIPCIÓN
 
-hm2_rpspi is a device driver for the Raspberry Pi 2/3 that interfaces Mesa's
-SPI based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC HAL.
-This driver is not based on the linux spidev driver, but on a dedicated
-BCM2835\-SPI driver.
+hm2_rpspi es un controlador de dispositivo para Raspberry Pi 2/3 que interactúa con Mesa
+tarjetas de E / S Anything basadas en SPI (con el firmware HostMot2) al HAL LinuxCNC.
+Este controlador no se basa en el controlador Linux spidev, sino en un controlador dedicado
+BCM2835\-SPI controlador.
 
-It is \fBstrongly\fR recommended that you unload/disable the kernel's spidev
-driver by disabling it using
-.BR raspi-config .
-Please note that having both kernel and user\-space SPI drivers installed can
-result in unexpected interactions and system instabilities.
+Es \fBstrongly\fR recomienda que descargue / deshabilite el spidev del kernel
+conductor deshabilitándolo usando
+.BR raspi-config.
+Tenga en cuenta que tener instalados los controladores SPI kernel y user\-space puede
+resultar en interacciones inesperadas e inestabilidades del sistema.
 
-The supported boards are: 7I90HD.
+Las tarjetas compatibles son: 7I90HD.
 
-The board must have a compatible firmware (ie.: 7i90_spi_svst4_8.bit) loaded on
-the board by the
+La tarjeta debe tener un firmware compatible (es decir: 7i90_spi_svst4_8.bit) cargado en
+el tablero por el
 .BR mesaflash (1)
-program.
+programa.
 
-hm2_rpspi is only available when linuxcnc is configured with "uspace" realtime.
-It works with Raspian and PREEMPT_RT kernel.
+hm2_rpspi solo está disponible cuando linuxcnc está configurado con "uspace" en tiempo real.
+Funciona con el núcleo Raspian y PREEMPT_RT.
 
-.SH INTERFACE CONFIGURATION
+.SH CONFIGURACIÓN DE INTERFAZ
 
-Up to five devices (7i90 boards) are supported. Two on SPI0 and three on SPI1.
-It is recommended that you, at most, use two devices and each device connected
-to a separate SPI port. You can choose which CE lines you prefer or fit the
-design and setup the \fBspi_probe\fR parameter to instruct the driver where to
-search for the board(s).
+Se admiten hasta cinco dispositivos (tarjetas 7i90). Dos en SPI0 y tres en SPI1.
+Se recomienda que, como máximo, use dos dispositivos y cada dispositivo conectado
+a un puerto SPI separado. Puede elegir qué líneas CE prefiere o se ajustan al
+diseñe y configure el parámetro \fBspi_probe\fR para indicar al controlador dónde
+busque el (los) tablero (s).
 
-.SH REALTIME PERFORMANCE OF THE BCM2835-SPI DRIVER
+.SH RENDIMIENTO EN TIEMPO REAL DEL CONDUCTOR BCM2835-SPI
 
 TBD.
-.\"As of kernel 3.8, most or all kernel SPI drivers do not achieve the high"
-.\"realtime response rate required for a typical linuxcnc configuration.  The"
-.\"driver was tested with ..."
+. \ "A partir del núcleo 3.8, la mayoría o todos los controladores SPI del núcleo no alcanzan el máximo"
+. \ "tasa de respuesta en tiempo real requerida para una configuración típica de Linux. El"
+. \ "el controlador fue probado con ..."
 
-.SH SPI CLOCK RATES
-The maximum SPI clock of the BCM2835-SPI driver and the 7i90 is documented over
-32MHz. The SPI driver can provide frequencies well beyond what is acceptable
-for the 7i90. A safe value to start with would be 12.5\ MHz (spiclk_rate=12500)
-and then work your way up from there.
+.SH TARIFAS DE RELOJ SPI
+El reloj SPI máximo del controlador BCM2835-SPI y el 7i90 se documenta durante
+32MHz El controlador SPI puede proporcionar frecuencias mucho más allá de lo aceptable
+para el 7i90. Un valor seguro para comenzar sería 12.5 \ MHz (spiclk_rate = 12500)
+y luego avanza desde allí.
 
-The SPI driver generates (very) discrete clock frequency values, especially in
-the MHz range because of a simple clock divider structure. The base frequency
-is 250\ MHz and the divider for SPI0/SPI1 scales using discrete factors. The
-following list specifies the \fBspiclk_rate\fR setting and the discrete SPI
-clock frequency (250\ MHz\ /\ (2n) for n\ >\ 1):
- \- 62500 \- 62.500\ MHz,
- \- 41667 \- 41.667\ MHz,
- \- 31250 \- 31.250\ MHz,
- \- 25000 \- 25.000\ MHz,
- \- 20834 \- 20.833\ MHz,
- \- 17858 \- 17.857\ MHz,
- \- 15625 \- 15.625\ MHz,
- \- 13889 \- 13.889\ MHz,
- \- 12500 \- 12.500\ MHz,
- \- 11364 \- 11.364\ MHz,
- \- 10417 \- 10.417\ MHz,
- \-  9616 \-  9.615\ MHz,
- \- ....
+El controlador SPI genera valores de frecuencia de reloj (muy) discretos, especialmente en
+el rango de MHz debido a una estructura divisoria de reloj simple. La frecuencia base
+es de 250 \ MHz y el divisor para las escalas SPI0 / SPI1 usando factores discretos. los
+La siguiente lista especifica la configuración de \fBspiclk_rate\fR y el SPI discreto
+frecuencia de reloj (250 \ MHz \ / \ (2n) para n \> \ 1):
+ \- 62500\- 62.500 \ MHz,
+ \- 41667\- 41.667 \ MHz,
+ \- 31250\- 31.250 \ MHz,
+ \- 25000\- 25.000 \ MHz,
+ \- 20834\- 20.833 \ MHz,
+ \- 17858\- 17.857 \ MHz,
+ \- 15625\- 15.625 \ MHz,
+ \- 13889\- 13.889 \ MHz,
+ \- 12500\- 12.500 \ MHz,
+ \- 11364\- 11.364 \ MHz,
+ \- 10417\- 10.417 \ MHz,
+ \- 9616\- 9.615 \ MHz,
+ \- ....
 
-The lowest selectable SPI clock frequency is 30\ kHz (spiclk_rate=30) for SPI0
-and SPI1. Theoretically, the SPI0 port could go slower, but there is no point
-in doing so. You should not expect any real\-time performance with such slow
-setting, unless your machine is located next to a black hole.
+La frecuencia de reloj SPI seleccionable más baja es 30 \ kHz (spiclk_rate = 30) para SPI0
+y SPI1. Teóricamente, el puerto SPI0 podría ir más lento, pero no tiene sentido
+al hacerlo. No debe esperar ningún rendimiento real en tiempo real con una velocidad tan lenta
+configuración, a menos que su máquina esté ubicada al lado de un agujero negro.
 
-The highest SPI clock frequency is, theoretically, 125\ MHz. However, you will
-not be able to build any reliable hardware interface at that frequency. The
-driver limits the clock to 62.5\ MHz (cpiclk_rate=62500). The chances are
-rather slim that you get the interface to work reliably at this frequency. The
-7i90 interface only supports frequencies up to 50\ MHz and that is with perfect
-cabling and impedance matching (in write direction only).
+La frecuencia de reloj SPI más alta es, teóricamente, 125 \ MHz. Sin embargo, lo harás
+no podrá construir ninguna interfaz de hardware confiable a esa frecuencia. los
+El controlador limita el reloj a 62.5 \ MHz (cpiclk_rate = 62500). Las probabilidades son
+es bastante delgado que consigas que la interfaz funcione de manera confiable a esta frecuencia. los
+La interfaz 7i90 solo admite frecuencias de hasta 50 \ MHz y es perfecta
+cableado y adaptación de impedancia (solo en dirección de escritura).
 
-Writing to the 7i90 may be done faster than reading. This is especially
-important if you have "long" wires or any buffers on the SPI\-bus path. You can
-set the read clock frequency to a lower value (using \fBspiclk_rate_rd\fR) to
-counter the effects of the SPI\-bus round-trip needed for read actions. For
-example, you can write at 41.67\ MHz and read at 25.00\ MHz.
+Escribir en el 7i90 puede hacerse más rápido que leer. Esto es especialmente
+importante si tiene cables "largos" o cualquier buffer en la ruta SPI\-bus. Usted puede
+establezca la frecuencia del reloj de lectura en un valor inferior (usando \fBspiclk_rate_rd\fR) en
+contrarrestar los efectos del viaje de ida y vuelta SPI\-bus necesarios para las acciones de lectura. por
+ejemplo, puede escribir a 41.67 \ MHz y leer a 25.00 \ MHz.
 
-It should be noted that the Rpi3 \fBmust\fR have an adequate 5V power supply
-and the power should be properly decoupled right on the 40\-pin I/O header. At
-high speeds and noise on the supply, there is the possibility of noise throwing
-off the SoC's PLL(s), resulting in strange behaviour.
+Cabe señalar que los Rpi3 \fBmust\fR tienen una fuente de alimentación adecuada de 5V
+y la alimentación debe estar correctamente desacoplada en el encabezado de 40\-pin I/O. A
+Altas velocidades y ruido en el suministro, existe la posibilidad de lanzar ruido
+fuera de los PLL del SoC, lo que resulta en un comportamiento extraño.
 
-For optimal performance on the Rpi3, you must disable the "ondemand" CPU
-frequency governor. You may add the following to your /etc/rc.local file:
- echo -n 1200000 > /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
- echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+Para un rendimiento óptimo en el Rpi3, debe deshabilitar la CPU "ondemand"
+regulador de frecuencia Puede agregar lo siguiente a su archivo /etc/rc.local:
+ echo -n 1200000> / sys / devices / system / cpu / cpufreq / policy0 / scaling_min_freq
+ echo -n performance> / sys / devices / system / cpu / cpufreq / policy0 / scaling_governor
 
-Be sure to have a proper heatsink mounted on the SoC or it will get too warm
-and crash.
+Asegúrese de tener un disipador térmico adecuado montado en el SoC o se calentará demasiado
+y chocar.
 
-.SH SEE ALSO
+.SH VER TAMBIÉN
 
 .BR hostmot2 (9)
 
-.SH LICENSE
+.SH LICENCIA
 
 GPL

@@ -1,70 +1,62 @@
-.TH hal_bb_gpio "9" "" "LinuxCNC Documentation" "HAL Component"
-.SH NAME
+.TH hal_bb_gpio "9" "" "Documentación LinuxCNC" "Componente HAL"
+.SH NOMBRE
 
-hal_bb_gpio \- Driver for beaglebone GPIO pins
+hal_bb_gpio \- Controlador para pines GPIO beaglebone
 
-.SH SYNOPSIS
+.SH SINOPSIS
 .HP
 .B loadrt hal_bb_gpio \fIuser_leds=#,...\fR \fIinput_pins=#,...\fR \fIoutput_pins=#,...\fB
 
-.SH USER LEDS
-The \fIuser_leds\fR loadrt parameter controls which LEDs are available to HAL.
-Valid range: 0..3.  These LEDs are next to the ethernet jack and the linuxcnc
-numbers match the silkscreen on beaglbone black.  Empirically, these seem to be
-OR'd with whatever function is assigned to the LED in Linux.
+.SH LEDS DE USUARIO
+El parámetro de loadrt \fIuser_leds\fR controla qué LED están disponibles para HAL.
+Rango válido: 0..3. Estos LED están al lado del conector ethernet y los números linuxcnc coinciden con la serigrafía en Beaglebone Black. Empíricamente, estos parecen ser OR con cualquier función asignada al LED en Linux.
 
 .SS PINS
 .TP
 \fBbb_gpio.userled\fIN\fR bit in
 .TQ
 \fBbb_gpio.userled\fIN\fB-invert\fR bit in
-The associated LED is lit if \fBuserled\fIN\fR xor \fBuserled\fIN\fR-invert\fB
-is TRUE.
+El LED asociado se enciende si \fBuserled\fIN\fR xor \fBuserled\fIN\fR-invert\fB
+es verdad.
 
-.SH INPUT PINS
-The \fIinput_pins\fR loadrt parameter controls which physical I/O pins are
-available to HAL as input pins.  The numbering is "800+N" for pin N on
-connector P8, and "900+N" for pin N on connector P9.  For example, "803"
-means connector P8 pin 3, which is also described in BeagleBone documentation
-as "gpmc_ad6".
+.SH PINES DE ENTRADA
+El parámetro de loadrt \fIinput_pins\fR controla qué pines físicos de E/S estan
+disponible para HAL como pines de entrada. La numeración es "800+N" para el pin N en el conector P8 y "900+N" para el pin N en el conector P9. Por ejemplo, "803"
+significa conector P8 pin 3, que también se describe en la documentación de BeagleBone como "gpmc_ad6".
 
-Specifying pins that are otherwise in use by the system may have undesirable
-side effects, such as crashing rtapi_app or the whole system.
+La especificación de pines que de otro modo están en uso por el sistema puede tener indeseables efectos secundarios, como el bloqueo de rtapi_app o de todo el sistema.
 
 .SS PINS
 .TP
-\fBbb_gpio.p\fIN\fB.in-\fINN\fR bit out
+\fBbb_gpio.p\fIN \fB.in-\fINN\fR bit out
 .TQ
 \fBbb_gpio.p\fIN\fB.in-\fINN\fB-invert\fR bit in
-\fBin-\fINN\fR is a snapshot of the value of the corresponding physical pin XOR
-the value of the corresponding \fBin-\fINN\fB-invert\fR pin.
+\fBin-\fINN\fR es una instantánea del valor del pin físico correspondiente XOR 
+el valor del pin \fBin-\fINN\fB-invert\fR correspondiente.
 
-.SH OUTPUT PINS
-The \fIinput_pins\fR loadrt parameter controls which physical I/O pins are
-available to HAL as input pins.  The numbering is "800+N" for pin N on
-connector P8, and "900+N" for pin N on connector P9.
+.SH PINES DE SALIDA
+El parámetro de loadrt \fIinput_pins\fR controla qué pines físicos de E/S estan
+disponible para HAL como pines de entrada. La numeración es "800+N" para el pin N en conector P8 y "900+N" para el pin N en el conector P9.
 
-Specifying pins that are otherwise in use by the system may have undesirable
-side effects, such as crashing rtapi_app or the whole system.
+La especificación de pines que de otro modo están en uso por el sistema puede tener indeseables efectos secundarios, como el bloqueo de rtapi_app o de todo el sistema.
 
 .SS PINS
 .TP
 \fBbb_gpio.p\fIN\fB.out-\fINN\fR bit out
 .TQ
 \fBbb_gpio.p\fIN\fB.out-\fINN\fB-invert\fR bit in
-The corresponding physical pin is driven with the result of
-\fBin-\fINN\fR xor \fBin-\fINN\fB-invert\fR.
+El pin físico correspondiente se acciona con el resultado de \fBin-\fINN\fR xor \fBin-\fINN\fB-invert\fR.
 
-.SH PARAMETERS
-None
+.SH PARÁMETROS
+Ninguno
 
-.SH FUNCTIONS
+.SH FUNCIONES
 .TP
 .B bb_gpio.read
-Update HAL pins from physical pins
+Actualizar pines HAL de pines físicos
 .TP
 .B bb_gpio.write
-Update physical pins from HAL pins
+Actualizar pines físicos de pines HAL
 
-.SH LICENSE
+.SH LICENCIA
 GPL
