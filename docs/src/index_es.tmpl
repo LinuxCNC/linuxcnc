@@ -251,8 +251,16 @@ function setup_page(){
 			<LI><A HREF="config/moveoff.html">Moveoff Component</A>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Developer Information</a>
+        <li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Informacion para el Integrador</a>
 	<div id="sec13" style="display:none;">
+		<ul>
+		  <li><a href="integrator/steppers.html">Informacion sobre Steppers</a></li>
+		  <li><a href="integrator/stepper-timing.html">Temporizacion del controlador de Stepper</a></li>
+		  <li><a href="integrator/wiring.html">Buenas Practicas de Cableado</a></li>
+	    </ul>
+	</div>
+		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Developer Information</a>
+	<div id="sec14" style="display:none;">
 	<UL>
 	<LI><A HREF="hal/general-ref.html">General Reference</A>
 	<LI><A HREF="code/code-notes.html">Code Notes</A>
@@ -262,12 +270,19 @@ function setup_page(){
 	<LI><A HREF="code/building-linuxcnc.html">Building LinuxCNC</A>
 	</UL>
 	</div>
-		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Glossary, Copyright</a>
-	<div id="sec14" style="display:none;">
+		<li><a onclick="return toggle('sec15')"><img id="sec15_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Glossary, Copyright</a>
+	<div id="sec15" style="display:none;">
 	<UL>
 	<LI><A HREF="common/emc-history.html">LinuxCNC History</A>
 	<LI><A HREF="common/glossary.html">Glossary</A>
 	<LI><A HREF="common/gpld-copyright.html">Copyright and Documentation License</A>
 	</UL>
 	</div>
+
+<h3>Paginas Man</h3>
+<div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
+<p>Para mas informacion sobre paginas man, vea las <a href="common/linux-faq_es.html">FAQ sobre Linux</a></p>
+</div>
+<p><input type="button" id="manExpand" value="Expandir Paginas Man" onclick="return toggle_section(this);"/>
+   <input type="button" id="manCollapse" value="Contraer Paginas Man" onclick="return toggle_section(this);"/></p>
 
