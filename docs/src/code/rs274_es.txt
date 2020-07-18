@@ -1,0 +1,56 @@
+[[cha:rs274]]
+
+= Stand Alone Interpreter
+
+The rs274 stand alone interpreter is available for use via the command line.
+
+== Usage
+
+----
+Usage: rs274 [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]
+          [-b] [-s] [-g] [input file [output file]]
+
+    -p: Specify the pluggable interpreter to use
+    -t: Specify the .tbl (tool table) file to use
+    -v: Specify the .var (parameter) file to use
+    -n: Specify the continue mode:
+           0: continue
+           1: enter MDI mode
+           2: stop (default)
+    -b: Toggle the 'block delete' flag (default: OFF)
+    -s: Toggle the 'print stack' flag (default: OFF)
+    -g: Toggle the 'go (batch mode)' flag (default: OFF)
+    -i: specify the .ini file (default: no ini file)
+    -T: call task_init()
+    -l: specify the log_level (default: -1)
+----
+
+== Example
+
+To see the output of a loop for example we can run rs274 on the following file
+and see that the loop never ends. To break out of the loop use Ctrl Z. The
+following two files are needed to run the example.
+
+.test.ngc
+----
+#<test> = 123.352
+
+o101 while [[#<test> MOD 60 ] NE 0]
+(debug,#<test>)
+    #<test> = [#<test> + 1]
+o101 endwhile
+
+M2
+----
+
+.test.tbl
+----
+T1 P1 Z0.511 D0.125 ;1/8 end mill
+T2 P2 Z0.1 D0.0625 ;1/16 end mill
+T3 P3 Z1.273 D0.201 ;#7 tap drill
+----
+
+.command
+----
+rs274 -g test.ngc -t test.tbl
+----
