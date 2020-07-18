@@ -55,7 +55,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.editing_flag = False
         self.current_system = None
         self.current_tool = 0
-        self.metric_display = False
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
@@ -85,8 +84,10 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     def currentTool(self, data):
         self.current_tool = data
+
     def metricMode(self, state):
-        self.metric_display = state
+        self.tablemodel.metricDisplay(state)
+        self.update()
 
     def createAllView(self):
         # create the view
@@ -107,6 +108,10 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         hh.setMinimumSectionSize(75)
         hh.setStretchLastSection(True)
         hh.setSortIndicator(1,Qt.AscendingOrder)
+
+
+        vh = self.verticalHeader()
+        vh.setVisible(False)
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -171,7 +176,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 # custom model
 #########################################
 class MyTableModel(QAbstractTableModel):
-    def __init__(self, datain, parent=None):
+    def __init__(self, parent=None):
         """
         Args:
             datain: a list of lists\n
@@ -179,11 +184,20 @@ class MyTableModel(QAbstractTableModel):
         """
         super(MyTableModel, self).__init__(parent)
         self.text_template = '%.4f'
+        self.mm_text_template = '%10.3f'
+        self.zero_text_template = '%10.1f'
+        self.imperial_text_template = '%9.4f'
+        self.degree_text_template = '%10.1f'
+        self.metric_display = False
         self.headerdata = ['Select','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
         self.vheaderdata = []
-        self.arraydata = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
+        self.arraydata = [[0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
         self.update(None)
+
+    def metricDisplay(self, state):
+        self.metric_display = state
+        self.layoutChanged.emit()
 
     # make a list of all the checked tools
     def listCheckedTools(self):
@@ -198,7 +212,7 @@ class MyTableModel(QAbstractTableModel):
     def update(self, models):
         data = TOOL.CONVERT_TO_WEAR_TYPE(models)
         if data in (None, []):
-            data = [[QCheckBox(),0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
+            data = [[QCheckBox(),0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         for line in data:
                 if line[0] != QCheckBox:
                     line[0] = QCheckBox()
@@ -227,7 +241,29 @@ class MyTableModel(QAbstractTableModel):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
         elif role == Qt.DisplayRole:
-            return self.arraydata[index.row()][index.column()]
+            value = self.arraydata[index.row()][index.column()]
+            col = index.column()
+            if isinstance(value, float):
+                if value == 0.0:
+                    tmpl = lambda s: self.zero_text_template % s
+                    return tmpl(value)
+                elif col in(16,17):
+                    tmpl = lambda s: self.degree_text_template % s
+                    return tmpl(value)
+                elif self.metric_display:
+                    tmpl = lambda s: self.mm_text_template % s
+                else:
+                    tmpl = lambda s: self.imperial_text_template % s
+                if self.metric_display != INFO.MACHINE_IS_METRIC:
+                    value = INFO.convert_units(value)
+                return tmpl(value)
+
+            if isinstance(value, str):
+                return '%s' % value
+
+            # Default (anything not captured above: e.g. int)
+            return value
+            
         elif role == Qt.CheckStateRole:
             if index.column() == 0:
                 # print(">>> data() row,col = %d, %d" % (index.row(), index.column()))
@@ -273,12 +309,6 @@ class MyTableModel(QAbstractTableModel):
             # don't emit dataChanged - return right away
             return True
 
-        # TODO make valuse actually change in metric/impeial mode
-        # currently it displays always in machine units.
-        # there needs to be conversion added to this code
-        # and this class needs access to templates and units mode.
-        # don't convert tool,pocket,A, B, C, front angle, back angle, orintation or comments
-        tmpl = lambda s: self.text_template % s
         try:
             if col in (1,2,18): # tool, pocket, orientation
                 v = int(value)
@@ -286,19 +316,15 @@ class MyTableModel(QAbstractTableModel):
                 v = str(value) # comment
             else:
                 v = float(value)
+                if self.metric_display:
+                    v = INFO.convert_metric_to_machine(value)
+                else:
+                    v = INFO.convert_imperial_to_machine(value)
             self.arraydata[index.row()][col] = v
         except:
             LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), col))
             return False
         LOG.debug(">>> setData() value = {} ".format(value))
-        LOG.debug(">>> setData() qualified value = {}".format(v))
-        LOG.debug(">>> setData() index.row = {}".format(index.row()))
-        LOG.debug(">>> setData() index.column = {}".format(col))
-
-        LOG.debug(">>> = {}".format(self.arraydata[index.row()][col]))
-        for i in self.arraydata:
-            LOG.debug(">>> = {}".format(i))
-
         self.dataChanged.emit(index, index)
         return True
 
