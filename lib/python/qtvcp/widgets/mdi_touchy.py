@@ -15,11 +15,8 @@
 #
 # touchy style MDI based heavily from Touchy code
 
-import sys
 import os
 import math
-import time
-import hal
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
@@ -389,6 +386,7 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
+    import sys
 
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()
