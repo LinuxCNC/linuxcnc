@@ -1,0 +1,80 @@
+= Lathe Configuration
+
+[[cha:lathe-configuration]]
+
+== Default Plane
+
+When LinuxCNC's interpreter was first written, it was designed for mills.
+That is why the default plane is XY (G17). A normal lathe only uses the
+XZ plane (G18). To change the default plane place the following line in
+the .ini file in the RS274NGC section.
+
+----
+RS274NGC_STARTUP_CODE = G18
+----
+
+The above can be overwritten in a g code program so always set important things
+in the preamble of the g code file.
+
+== INI Settings
+
+The following .ini settings are needed for lathe mode in Axis in addition to
+or replacing normal settings in the .ini file.  These historical settings use
+identity kinematics (trivkins) and 'three' joints (0,1,2) corresponding to 
+coordinates x,y,z.  The joint 1 for the unused y axis is required but not used
+in these historical configurations.  Simulated lathe configs may use these
+historical settings.
+Gmoccapy also uses the mentioned settings, but does offer additional settings,
+check the <<cha:gmoccapy,gmoccapy>> Section for details.
+
+----
+[DISPLAY]
+DISPLAY = axis
+LATHE = 1
+...
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Z
+...
+
+[JOINT_0]
+...
+[JOINT_2]
+...
+[AXIS_X]
+...
+[AXIS_Z]
+...
+----
+
+With joints_axes incorporation, a simpler configuration can be made with just
+the two required joints by specifying trivkins with the 'coordinates='
+parameter:
+
+----
+[DISPLAY]
+DISPLAY = axis
+LATHE = 1
+...
+
+[KINS]
+KINEMATICS = trivkins coordinates=xz
+JOINTS = 2
+
+[TRAJ]
+COORDINATES = X Z
+...
+
+[JOINT_0]
+...
+[JOINT_1]
+...
+[AXIS_X]
+...
+[AXIS_Z]
+...
+----
