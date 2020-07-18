@@ -1,0 +1,15 @@
+:lversion: {sys: cat ../VERSION}
+Manuel de l'intégrateur V{lversion}, {localdate}
+================================================
+:lang: fr
+:masterdir: {indir}
+
+:leveloffset: 1
+
+include::integrator/steppers_es.txt[]
+
+include::integrator/stepper-timing_es.txt[]
+
+include::integrator/wiring_es.txt[]
+
+// vim: set syntax=asciidoc:
