@@ -6,55 +6,96 @@
 <TITLE>LinuxCNC</TITLE>
 <link rel="stylesheet" type="text/css" href="index.css">
 <script type="text/javascript">
-function toggle(a){
-var e=document.getElementById(a);
-var i = document.getElementById(a + '_image');
-if(!e)return true;
-if(e.style.display=="none"){
-e.style.display="block"
-i.src = 'minus.png';
-} else {
-e.style.display="none"
-i.src = 'plus.png';
-}
-return false;
+//<![CDATA[
+var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
+   'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14', 'sec15'],
+   ['man_1', 'man_9','man_3hal', 'man_3rtapi', 'man_3hm2', 'man_3']];
+
+function storeOK() { // Check for HTML5 Local Storage
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
 }
 
-function change(el)
-{
-  if ( el.value === "Expand All" ){
-    el.value = "Collapse All";
-    for (var i=0;i<13;i++){
-      document.getElementById("sec" + i).style.display = '';
-      document.getElementById("sec" + i + '_image').src = 'minus.png';
-    }
+function toggle(sec){
+  var e = document.getElementById(sec);
+  var i = document.getElementById(sec + '_image');
+  if(!e)return true;
+  if(e.style.display=="none"){
+    e.style.display="block"
+    i.src = 'minus.png';
+    if (storeOK()){localStorage.setItem(sec, "block");}
   }
   else {
-    el.value = "Expand All";
-    for (var i=0;i<13;i++){
-      document.getElementById("sec" + i).style.display = 'none';
-      document.getElementById("sec" + i + '_image').src = 'plus.png';
+    e.style.display="none"
+    i.src = 'plus.png';
+    if (storeOK()){localStorage.setItem(sec, "none");}
+  }
+  return false;
+}
+
+function toggle_section(a){
+  if (a.id.substring(0,3) === "doc"){var s = 0;}
+  if (a.id.substring(0,3) === "man"){var s = 1;}
+  if (a.value.substring(0,6) === "Expand"){
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'block';
+      document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "block");}
+    }
+  }
+  else{
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'none';
+      document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "none");}
     }
   }
 }
+
+function setup_page(){
+  for (var s in sections){
+    for (var i in sections[s]){
+      if (localStorage.getItem(sections[s][i]) != null){
+        if (localStorage.getItem(sections[s][i]) === "block"){
+          document.getElementById(sections[s][i]).style.display = 'block';
+          document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+        }
+        else{
+          document.getElementById(sections[s][i]).style.display = 'none';
+          document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+        }
+      }
+      else{
+        document.getElementById(sections[s][i]).style.display = 'none';
+        document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      }
+    }
+  }
+}
+//]]>
 </script>
-</HEAD>
-<BODY>
+</head>
+<body onload="return setup_page()">
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index.html file in your browser after building the documents
      If this is the .html file do not edit it, edit the .tmpl file then build the documents -->
 <div style="text-align: center"><img src="linuxcnc-logo-chips.png" width="175" /></div>
 
-<p>Esta documentaci&oacute;n hace referencia a la versi&oacute;n LinuxCNC <strong>@VERSION@</strong>.<A HREF="index.html">English</A> <A HREF="index_fr.html">Fran&ccedil;ais</A></p>
-<input type="button" value="Expand All" onclick="return change(this);" />
-<UL>
-<LI><a href="http://linuxcnc.org">Home Page</a>  *  
-<A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</A>  *  
-<A HREF="gcode.html">G Code Quick Reference</A>
-<p></p>
-<LI><A HREF="common/overleaf.html">LinuxCNC Document Overview</A>
-<p></p>
+<h3>LinuxCNC version <strong>@VERSION@</strong></h3>
+
+<div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
+<p>Otros idiomas: <A HREF="index.html">Inglés</A> * <A HREF="index_fr.html">Francés</A></p>
+
+<p><a href="http://linuxcnc.org">Pagina web LinuxCNC</a>  *  
+<A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Comunidad Wiki</A>  *  
+<A HREF="gcode_es.html">Referencia Rapida de G Code</A></p>
+</div>
+<p><input type="button" id="docExpand" value="Expandir Todo" onclick="return toggle_section(this);"/>
+   <input type="button" id="docCollapse" value="Contraer Todo" onclick="return toggle_section(this);"/></p>
 <li><a onclick="return toggle('sec0')"><img id="sec0_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Primeros pasos LinuxCNC</a>
 	<div id="sec0" style="display:none;">
 		<UL>
@@ -229,3 +270,4 @@ function change(el)
 	<LI><A HREF="common/gpld-copyright.html">Copyright and Documentation License</A>
 	</UL>
 	</div>
+
