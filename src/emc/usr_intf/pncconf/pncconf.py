@@ -1033,14 +1033,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 "PWM /A":_PD.TPPWMAN,"PWM /B":_PD.TPPWMBN,"PWM /C":_PD.TPPWMCN,
                 "FAULT":_PD.TPPWMF,"ENABLE":_PD.TPPWME}
             pinconvertsserial = {"RXDATA0":_PD.RXDATA0,"TXDATA0":_PD.TXDATA0,"TXE0":_PD.TXEN0,"TXEN0":_PD.TXEN0,
-                                "RXDATA1":_PD.RXDATA0,"TXDATA1":_PD.TXDATA0,"TXE1":_PD.TXEN0,"TXEN1":_PD.TXEN0,
-                                "RXDATA2":_PD.RXDATA1,"TXDATA2":_PD.TXDATA1,"TXE2":_PD.TXEN1,"TXEN2":_PD.TXEN1,
-                                "RXDATA3":_PD.RXDATA2,"TXDATA3":_PD.TXDATA2,"TXE3":_PD.TXEN2,"TXEN3":_PD.TXEN2,
-                                "RXDATA4":_PD.RXDATA3,"TXDATA4":_PD.TXDATA3,"TXE4":_PD.TXEN3,"TXEN4":_PD.TXEN3,
-                                "RXDATA5":_PD.RXDATA4,"TXDATA5":_PD.TXDATA4,"TXE5":_PD.TXEN4,"TXEN4":_PD.TXEN4,
-                                "RXDATA6":_PD.RXDATA5,"TXDATA6":_PD.TXDATA5,"TXE6":_PD.TXEN5,"TXEN6":_PD.TXEN5,
-                                "RXDATA7":_PD.RXDATA6,"TXDATA7":_PD.TXDATA6,"TXE7":_PD.TXEN6,"TXEN7":_PD.TXEN6,
-                                "RXDATA8":_PD.RXDATA7,"TXDATA8":_PD.TXDATA7,"TXE8":_PD.TXEN7,"TXEN8":_PD.TXEN7}
+                                "RXDATA1":_PD.RXDATA1,"TXDATA1":_PD.TXDATA1,"TXE1":_PD.TXEN1,"TXEN1":_PD.TXEN1,
+                                "RXDATA2":_PD.RXDATA2,"TXDATA2":_PD.TXDATA2,"TXE2":_PD.TXEN2,"TXEN2":_PD.TXEN2,
+                                "RXDATA3":_PD.RXDATA3,"TXDATA3":_PD.TXDATA3,"TXE3":_PD.TXEN3,"TXEN3":_PD.TXEN3,
+                                "RXDATA4":_PD.RXDATA4,"TXDATA4":_PD.TXDATA4,"TXE4":_PD.TXEN4,"TXEN4":_PD.TXEN4,
+                                "RXDATA5":_PD.RXDATA5,"TXDATA5":_PD.TXDATA5,"TXE5":_PD.TXEN5,"TXEN4":_PD.TXEN5,
+                                "RXDATA6":_PD.RXDATA6,"TXDATA6":_PD.TXDATA6,"TXE6":_PD.TXEN6,"TXEN6":_PD.TXEN6,
+                                "RXDATA7":_PD.RXDATA7,"TXDATA7":_PD.TXDATA7,"TXE7":_PD.TXEN7,"TXEN7":_PD.TXEN7}
             pinconvertnone = {"NOT USED":_PD.GPIOI}
 
             count = 0
