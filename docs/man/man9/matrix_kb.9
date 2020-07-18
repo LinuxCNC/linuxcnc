@@ -1,0 +1,65 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH MATRIX_KB "9" "2013-03-24" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+
+matrix_kb \- Convierte enteros a pines HAL. Opcionalmente escanea una matriz de puertos IO para crear esos enteros.
+.SH SINOPSIS
+.B loadrt matrix_kb config=\fIRxCs,RxCs\fB... names=\fIname1,name2\fB...
+.P
+Crea un componente configurado para R filas y N columnas de teclado matricial.
+
+Si se especifica la opción \fBs\fR, se alternará cíclicamente un juego de filas de salida y se escaneará un juego de columnas de entrada.
+
+El parámetro \fBnames\fR es opcional, pero si se usa, los pines y funciones HAL usarán los nombres especificados en lugar de los predeterminados. Esto puede ser útil para la lectura y el análisis HAL de 2 pasadas.
+
+No debe haber espacios en las listas de parámetros.
+
+.SH DESCRIPCIÓN
+
+Este componente fue escrito para convertir códigos de escaneo de teclado de matriz en pines HAL.
+Sin embargo, también podría encontrar usos al convertir enteros de 0 a N en N pines HAL.
+
+El componente puede funcionar de dos maneras, y los pines HAL creados varían según el modo.
+
+En el modo predeterminado, el componente espera recibir un código de escaneo desde un controlador separado, pero podría ser cualquier número entero de cualquier fuente. Por lo general, este será el código de escaneo del teclado de una Mesa 7i73. Los códigos predeterminados para keyup y keydown se basan en la especificación Mesa 7i73 con 0x40 que indica un keydown y 0x80 un evento de keyup.
+ Si usa el 7i73, es importante hacer coincidir los puentes del tamaño del teclado con el componente HAL. Las configuraciones válidas para el 7i73 son 4x8 y 8x8.
+Tenga en cuenta que el componente solo funcionará correctamente con la versión 12 (0xC) del firmware 7i73. La versión del firmware es visible en los parámetros del componente en HAL.
+
+En el modo opcional de generación de escaneo, el pin \fBmatrix_kb.\fIN\fB.keycode\fR cambia a un pin de salida y se crea un juego de pines de fila de salida y pines de columna de entrada.
+Estos deben estar conectados a entradas y salidas físicas para escanear la matriz y devolver los valores a HAL. Tenga en cuenta el parámetro \fBnegative\-logic\fR que se describe a continuación, esto deberá configurarse en las forma más comune de entradas flotantes high cuando no están conectadas.
+
+En ambos modos, se crea un juego de pines de salida HAL correspondientes a cada nodo de la matriz.
+
+.SH FUNCIONES
+.TP
+.B matrix_kb.\fIN\fR
+Realizar todas las funciones solicitadas. Debe ejecutarse en un hilo lento para un antirebote efectivo.
+.SH PINES
+.TP
+.B matrix_kb.\fIN\fB.col\-\fICC\fB\-in\fR bit in
+El pin de entrada correspondiente a la columna C.
+.TP
+.B matrix_kb.\fIN\fB.key.r\fIR\fBc\fIC\fR bit out
+El pin correspondiente a la tecla en la fila R columna C de la matriz.
+.TP
+.B matrix_kb.\fIN\fB.keycode\fR u32 in o out según el modo.
+Este pin debe estar conectado al generador de códigos de escaneo si se está utilizando hardware como un 7i73. En este modo, es un pin de entrada. En el modo de escaneo generado internamente, este pin es una salida, pero normalmente no se conectará.
+.B matrix_kb.\fIN\fB.row\-\fIRR\fB\-out bit out
+Los pines de la unidad de exploración de filas. Deben conectarse a pines de hardware externos conectados al teclado.
+
+.SH PARÁMETROS
+.TP
+.B matrix_kb.\fIN\fB.key_rollover\fR u32 r/w (predeterminado 2)
+Con la mayoría de los teclados matriciales, los códigos de escaneo no son ambiguos con 1 o 2 teclas presionadas. Con más teclas presionadas, pueden aparecer pulsaciones de teclas fantasmas. Algunos teclados están optimizados para reducir este problema, y algunos tienen diodos internos para que se pueda presionar cualquier cantidad de teclas simultáneamente. Aumente el valor de este parámetro si dicho teclado está conectado, o si las pulsaciones de teclas fantasmas son más aceptables que solo dos teclas activas al mismo tiempo.
+.TP
+.B matrix_kb.\fIN\fB.negative\-logic\fR bit r/w (predeterminado 1) solo en modo de escaneo
+Cuando no se presionan teclas, una entrada digital típica flotará alto. La entrada será bajada por el teclado cuando la línea de sondeo correspondiente sea baja.
+Establezca este parámetro en 0 si el IO en uso requiere que una fila a la vez sea alta, y una entrada alta corresponde a presionar un botón.
+

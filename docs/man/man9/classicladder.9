@@ -1,0 +1,79 @@
+.\"
+.TH CLASSICLADDER "9" "2008-11-23" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+classicladder \- plc por software en tiempo real basado en lógica de escalera
+.SH SINOPSIS
+\fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB] [numFloatIn=\fIN\fB] [numFloatOut=\fIN\fB]
+
+.SH DESCRIPCIÓN
+Estos pines y parámetros son creados por el módulo \fBclassicladder_rt\fR en tiempo real. Cada período (mínimo 1000000 ns), classicladder lee las entradas, evalúa la lógica de escalera definida en la GUI y luego escribe las salidas.
+
+.SH PINES
+
+.TP
+\fBclassicladder.0.in\-\fINN\fB\fR IN bit
+Estos pines para señales de bit se asignan a las variables \fB%I\fINN\fR en classicladder
+
+.TP
+\fBclassicladder.0.out\-\fINN\fB\fR OUT bit
+Estos pines para señales de bit se asignan a las variables \fB%Q\fINN\fR en la salida desde classicladder
+
+.TP
+\fBclassicladder.0.s32in\-\fINN\fB\fR IN s32
+Entrada entera de classicladder.
+Estos pines para señales s32 se asignan a las variables \fB%IW\fINN\fR en classicladder
+
+.TP
+\fBcclassicladder.0.s32out\-\fINN\fB\fR OUT s32
+Salida entera de classicladder
+Estos pines para señales s32 se asignan a las variables \fB%QW\fINN\fR en classicladder
+
+.TP
+\fBclassicladder.0.floatin\-\fINN\fB\fR IN float
+Entrada entera de classicladder
+Estos pines para señales float se asignan a las variables \fB%IF\fINN\fR en classicladder.
+Estos se truncan a los valores S32 internamente. por ejemplo, 7.5 será 7
+
+.TP
+\fBclassicladder.0.floatout\-\fINN\fB\fR OUT float
+Salida float de classicladder
+Estos pines para señales float se asignan a las variables \fB%QF\fINN\fR en classicladder
+
+.TP
+\fBclassicladder.0.hide_gui IN bit
+Este pin para señal de bit oculta la ventana clásica classicladder, a la vez que corre el código de espacio de usuario. Esto suele ser deseable cuando se usa Modbus, ya que Modbus requiere código en espacio de usuario para su ejecucion.
+
+.SH PARÁMETROS
+
+.TP
+\fBclassicladder.0.refresh.time\fR RO s32
+Muestra cuánto tiempo tardó la última actualización
+
+.TP
+\fBclassicladder.0.refresh.tmax\fR RW s32
+Muestra cuánto tiempo tardó la actualización más larga
+
+.TP
+\fBclassicladder.0.ladder\-state\fR RO s32
+Muestra si el programa se está ejecutando o no.
+.SH FUNCIONES
+
+.TP
+\fBclassicladder.0.refresh\fR FP
+La tasa de actualización de escalon. Agregue esto al hilo servo.
+Puede agregarlo a un hilo más rápido pero no se actualizará más rápido que una vez cada milisegundo (1000000 ns).
+
+.SH ERRORES
+Ver http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?ClassicLadder_Ver_7.124 para la última versión.
+
+.SH VER TAMBIÉN
+Capítulos \fIClassicladder\fR en la documentación de LinuxCNC para una descripción completa de la sintaxis \fBClassicladder\fR y ejemplos
+
+http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?ClassicLadder_Ver_7.124
+
