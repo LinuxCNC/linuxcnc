@@ -1,0 +1,329 @@
+[[cha:Panelui]](((Panelui)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+= Panelui
+
+== Introduction
+
+Panelui is a userspace component to interface buttons to linuxcnc or HAL. +
+It decodes MESA 7I73 style key-scan codes and calls the appropriate routine. +
+It gets input from a realtime component - sampler. +
+Sampler gets it's input from either the MESA 7i73 or sim_matrix_kb component. +
+Panelui is configurable using an INI style text file to define button
+types, HAL pin types, and/or commands.
+
+It can be extended using a Python based 'handler' file to add functions. +
+While actual input buttons are required to be momentary, Panelui will use this
+input to make toggle, radio, or momentary button output. +
+
+== Loading Commands
+The command used to load panelui (with optional -d debug switch):
+----
+loadusr -W panelui -d
+----
+This will initialize panelui, which will look for the INI file panelui.ini in
+the config folder or user folder.
+
+One can validate the INI file with this command:
+----
+loadusr pyui
+----
+This will read, try to correct, then save the panelui.ini file.
+It will print errors to the terminal if found.
+
+A typical HAL file will have these commands added:
+[source,{hal}]
+----
+# commands needed for panelui loading
+# 
+# sampler is needed for panelui
+# cfg= must always be u for panelui. depth sets the available buffer
+loadrt sampler cfg=u depth=1025
+
+#uncomment to validate the panelui INI file
+#loadusr pyui
+
+# -d = debug, -v = verbose debug
+# -d will show you keypress identification and commands called
+# -v is for develeper info
+loadusr -W panelui -d
+
+# using simulated buttons instead of the MESA 7I73 card
+# so we load the sim_matrix_kb component to convert HAL pins to keyscan codes
+loadrt sim_matrix_kb
+
+# connect the compnents together.
+# sampler talks to panelui internally
+net key-scan    sim-matrix-kb.0.out
+net key-scan    sampler.0.pin.0
+
+# add panelui components to a thread
+
+addf sim-matrix-kb.0    servo-thread
+addf sampler.0          servo-thread
+----
+== panelui.ini file reference
+
+.*Key words*
+* KEY= This is used to designate the key that the button responds to. It can be NONE or
+ROW number and column number eg R1C2. A row and column can only be used once.
+* OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND
+* DEFAULT= This sets the starting output of the group or button.
+* GROUP= In radiobuttons, designates the group the button interacts with.
+* GROUP_OUTPUT= sets the output the group pin will be, if this button is active.
+* STATUS_PIN= If TRUE, a HAL pin will be added that reflects the current state of button.
+* TRUE_STATE= sets the output the HAL pin will be, if button is TRUE
+* FALSE_STATE= sets the OUTPUT the HAL pin will be, if the button is FALSE
+* TRUE_COMMAND= sets the command and arguments to be called when the button is TRUE
+* FALSE_COMMAND= sets the command and arguments to be called when the button is FALSE.
+
+.*HAL Prefix*
+[source,{ini}]
+----
+[HAL_PREFIX]
+    NAME= Yourname 
+----
+This allows one to change the prefix of the HAL pins from 'panelui' to an arbritary name.
+
+.*Radio Buttons*
+Radiobutons allow only one button in the group to be active at a time. +
+Each group has its own output pin, separate from each button in the group. +
+Radio button definitions start with the text 'RADIO_BUTTON' inside single brackets.
+[source,{ini}]
+----
+[RADIO_BUTTONS]
+        # The double bracket section(s) define the group(s) of radio buttons.
+        # The group name must be unique and is case sensitive.
+        # Groups output is controlled by what button is active not directly by keycode.
+        # DEFAULT references a button in the group by name and is case sensitive.
+        [[group1_name]]
+            KEY = NONE
+            OUTPUT = FLOAT
+            DEFAULT = small
+            # The triple bracket sections define the buttons in this group.
+            # button names must be unique and are case sensitive.
+            # There must be at least two buttons in a group.
+            #
+            # This button, named 'small'is controller by the row 0 column 1 key.
+            # It will cause the group output to be .0001 when it is pressed.
+            # It has no output of it's own, but has a status
+            # pin which will follow it's current state.
+            # since this button is in a group, DEFAULT has no bearing.
+            # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
+            [[[small]]]
+                KEY = R0C1
+                GROUP = group1_name
+                GROUP_OUTPUT = .0001
+                OUTPUT = NONE
+                STATUS_PIN = True
+                TRUE_STATE = TRUE
+                FALSE_STATE = FALSE
+                TRUE_COMMAND = NONE, NONE
+                FALSE_COMMAND = NONE, NONE
+                DEFAULT = false
+            # This button, named 'large' is controller by the row 0 column 2 key. 
+            # It will cause the group output to be 1000 when it is pressed.
+            # It has a S32 output of it's own, will be 20 on true and 0 on false.
+            # It also has a status pin which will follow it's current state.
+            # since this button is in a group, DEFAULT has no bearing.
+            # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
+            [[[large]]]
+                KEY = R0C2
+                GROUP = group1_name
+                GROUP_OUTPUT = 1000
+                OUTPUT = S32
+                STATUS_PIN = True
+                TRUE_STATE = 20
+                TRUE_COMMAND = NONE, NONE
+                FALSE_COMMAND = NONE, NONE
+                FALSE_STATE = 0
+                DEFAULT = false
+----
+
+.*Toggle Buttons*
+Togglebuttons only change state on each press of the button.
+Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brackets.
+[source,{ini}]
+----
+[TOGGLE_BUTTONS]
+    # Each button name inside double brackets, must be unique and is case sensitive.
+    # This button, named 'tool_change'is controller by the row 2 column 5 key.
+    # It has a BIT output, will output 1 on true state and 0 on false state.
+    # It also has a status pin which will follow it's current state.
+    # DEFAULT sets this to true when first initialized.
+    # The _COMMAND are not used since OUTPUT is not set to COMMAND but validation will
+    # add the lines regardless
+    [[tool_change]]
+        KEY = R2C5
+        OUTPUT = BIT
+        TRUE_COMMAND = NONE, NONE
+        FALSE_COMMAND = NONE, NONE
+        STATUS_PIN = True
+        DEFAULT = TRUE
+        TRUE_STATE = 1
+        FALSE_STATE = 0
+----
+
+
+.*Momentary Buttons*
+Momentary buttons are true when pressed and false when released.
+Momentary button definitions start with the text 'MOMENTARY_BUTTON' inside single brackets.
+[source,{ini}]
+----
+[MOMENTARY_BUTTONS]
+    # Each button name inside double brackets, must be unique and is case sensitive.
+    # This button, named 'spindle_rev'is controller by the row 2 column 3 key.
+    # It has a COMMAND output, so will use TRUE_COMMAND and FALSE_COMMAND.
+    # It also has a status pin which will follow it's current state.
+    # COMMANDs will have a command name and then any required arguments
+    # This TRUE_COMMAND calls an internal command to start the spindle in reverse at 200 rpm
+    # If the spindle is already started, it will increase the rpm.
+    # DEFAULT is not used with Momentary buttons.
+    # The _STATE are not used since OUTPUT is set to COMMAND but validation will
+    # add the lines regardless
+    [[spindle_rev]]
+        KEY = R2C3
+        OUTPUT = COMMAND
+        TRUE_COMMAND = SPINDLE_REVERSE_INCREASE, 200
+        FALSE_COMMAND = None, NONE
+        STATUS_PIN = True
+        DEFAULT = FALSE
+        TRUE_STATE = 1
+        FALSE_STATE = 0
+----
+
+== Internal Command reference
+There are a number of internal commands you may use. +
+
+*mist_on*
+
+*mist_off*
+
+*flood_on*
+
+*flood_off*
+
+*estop*
+
+*estop_reset*
+
+*machine_off*
+
+*machine_on*
+
+*home_all*
+
+*unhome_all*
+
+.*home_selected*
+* required argument: axis number (int)
+
+.*unhome_selected*
+* required argument: axis number (int)
+
+.*override_limits*
+
+.*spindle_forward_adjust*
+* optional argument: starting RPM (int) - default 100
+* Description: If the spindle is stopped it will start in the forward direction.
+If it is already running it will increase or decrease the rpm depending on what direction 
+the spindle is running in.
+
+.*spindle_forward*
+* optional argument: starting RPM (int) - default 100
+
+*spindle_stop*
+
+.*spindle_reverse*
+* optional argument: starting RPM (int) - default 100
+
+.*spindle_reverse_adjust*
+* optional argument: starting RPM (int) - default 100
+* Description: If the spindle is stopped it will start in the reverse direction.
+If it is already running it will increase or decrease the rpm depending on what direction 
+the spindle is running in.
+
+.*spindle_faster*
+* Description: increases spindle speed by 100 RPM
+
+.*spindle_slower*
+* Description: decreases spindle speed  by 100 RPM, until RPM is 100
+
+.*set_linear_jog_velocity*
+* required argument: velocity in inches per minute (float)
+* description: sets the jog velocity on axis 0,1,2,6,7,8 (X,Y,Z,U,V,W)
+
+.*set_angular_jog_velocity*
+* required argument: velocity in degrees per minute (float)
+* description: sets the jog velocity on axis 3,4,5 (A.B.C)
+
+.*continuous_jog*
+* required arguments: axis number (int), direction (int)
+
+.*incremental_jog*
+* required arguments: axis number (int), direction (int), distance (float)
+
+.*quill_up*
+* optional arguments: machine Z axis absolute position (float)
+* Description: Move Z axis to the given machine position
+
+.*feed_hold*
+* required argument: state (bool 0 or 1)
+
+.*feed_override*
+* required argument: rate (float)
+
+.*rapid_override*
+* required argument: rate (float 0-1)
+
+.*spindle_override*
+* required argument: rate (float)
+
+.*max_velocity*
+* required argument: rate (float)
+
+*reload_tooltable*
+
+.*optional_stop*
+* required argument: state (bool 0 or 1)
+
+.*block_delete*
+* required argument: state (bool 0 or 1)
+
+*abort*
+
+*pause*
+
+*resume*
+
+.*single_block*
+* required argument: state (bool 0 or 1)
+
+.*smart_cycle_start*
+* Description: If idle, starts gcode program, if paused runs one line.
+
+.*re_start line*
+* required argument: line number (int)
+
+.*mdi_and_return*
+* required argument: Gcode command(s)
+* Description: records the current mode, calls commands and then returns to mode.
+
+.*mdi*
+* required argument: Gcode command(s)
+* Description: sets mode to MDI, calls commands.
+
+== Handler File Extension
+A special file can be used to add custom python code that will be available as commands.
+panelui_handler.py must be written in python and be placed in the configuration folder.
+If panelui finds a file there it will add it's function calls to the available commands.
+Here is an example of a handler file that adds two functions - hello_world and cycle_mode:
+
+[source,python]
+----
+include::panelui_handler.py[]
+----
+
