@@ -233,6 +233,12 @@ DOC_SRCS_ES := \
 	getting-started/running-linuxcnc-es.txt \
 	config/stepconf-es.txt \
 	config/stepper-quickstart-es.txt \
+	code/code-notes_es.txt \
+	code/style-guide_es.txt \
+	code/nml-messages_es.txt \
+	code/adding-configs_es.txt \
+	code/contributing-to-linuxcnc_es.txt \
+	code/building-linuxcnc_es.txt \
 	getting-started/system-requirements-es.txt \
 
 DOC_SRCS_CN := \
