@@ -229,7 +229,8 @@ DOC_SRCS_FR := \
 DOC_SRCS_ES := \
 	getting-started/about-linuxcnc-es.txt \
 	getting-started/getting-linuxcnc-es.txt \
-	common/linux-faq-es.txt \
+	common/linux-faq_es.txt \
+	common/overleaf_es.txt \
 	getting-started/running-linuxcnc-es.txt \
 	config/stepconf-es.txt \
 	config/stepper-quickstart-es.txt \
