@@ -19,7 +19,7 @@ la ruta especificada por su programa de Código G, mientras opera dentro de los
 límites de la maquina.
 
 Un programa de Código G nunca puede ser completamente obedecido. Por ejemplo,
-imagíne que especifica un programa de solo de línea con el siguiente movimiento:
+imagine que especifica un programa de solo de línea con el siguiente movimiento:
 
 ----
 G1 X1 F10 (G1 es movimiento lineal, X1 es el destino, F10 es la velocidad)
@@ -35,33 +35,32 @@ y luego acelere para los movimientos más largos si no se emplea
 'naive cam detector' con G64 Pn.
 
 La aceleración y desaceleración básica descrita anteriormente no es compleja
-y no hay ningun compromiso que tomar. En el archivo INI se han especificado
+y no hay ningún compromiso que tomar. En el archivo INI se han especificado
 las restricciones de la máquina, como la velocidad y aceleración máxima de ejes, 
 que deben ser obedecidas por el planificador de trayectoria.
 
-Para obtener más información sobre las opciones ini del planificador ver la
-link?sec:traj-section,Seccion Trayectoria en el capítulo INI.
+Para obtener más información sobre las opciones ini del planificador vea la
+link?sec:traj-section,Sección Trayectoria en el capítulo INI.
 
 === Seguimiento de ruta
 
 Un problema menos sencillo es el seguimiento de ruta. Cuando se programa una 
-esquina en Codigo G, el planificador de trayectoria puede hacer varias cosas, 
+esquina en Código G, el planificador de trayectoria puede hacer varias cosas, 
 todas ellas correctas según el caso:
 
 * Puede desacelerar hasta detenerse exactamente en las coordenadas de la esquina, 
 y luego acelerar en la nueva dirección.
 
-* También puede hacer lo que se llama fusion (blending), que consiste en mantener 
-la velocidad de avance mientras pasa por la esquina, por lo que necesario redondear
+* También puede hacer lo que se llama fusión (blending), que consiste en mantener 
+la velocidad de avance mientras pasa por la esquina, por lo que es necesario redondear
 dicha esquina para obedecer las restricciones de la máquina.
 
 Puede ver que aquí si hay un compromiso; se puede reducir la velocidad para obtener 
-un mejor seguimiento de camino, o mantener la velocidad con peor seguimiento. 
+un mejor seguimiento del camino, o mantener la velocidad con peor seguimiento. 
 Dependiendo del corte particular, el material, las herramientas, etc, el programador 
-puede querer comprometerse de manera diferente.
+puede querer comprometerse de una manera u otra.
 
 Los movimientos rápidos también obedecen el control de trayectoria actual. Con 
-
 movimientos suficientemente largos para alcanzar la velocidad máxima en una máquina 
 con baja aceleración y si no se especifica la tolerancia de ruta, puede obtener una 
 esquina bastante redonda.
@@ -71,26 +70,26 @@ esquina bastante redonda.
 Los comandos de control de trayectoria son los siguientes:
 
 * 'G61' - (Modo de ruta exacta) visita el punto programado exactamente, aunque
-    eso signifique que la maquina podría detenerse temporalmente para cambiar la 
-    dirección al siguiente punto programado.
+    eso signifique que la maquina podría detenerse temporalmente para cambiar de 
+    dirección hacia el siguiente punto programado.
 
 * 'G61.1' - (Modo de parada exacta) le dice al planificador que se detenga
-    exactamente en cada fin de segmento.
+    exactamente en cada final de segmento.
 
-* 'G64' - (Fusion sin modo de tolerancia) G64 es la configuración predeterminada
-    cuando se inicia LinuxCNC. G64 es simplemente fusion y 'naive cam detector'
-    no está habilitado. G64 y G64 P0 le dicen al planificador que sacrifique la
+* 'G64' - (Fusión sin modo de tolerancia) G64 es la configuración predeterminada
+    cuando se inicia LinuxCNC. G64 es simplemente fusión sin 'naive cam detector'
+    habilitado. G64 y G64 P0 le dicen al planificador que sacrifique la
     precisión de seguimiento de ruta para mantener la velocidad de avance. Esto
-    es necesario para algunos tipos de material o herramientas donde las paradas
-    exactas son dañinas y puede funciona bien siempre que el programador tenga
-    cuidado de tener en cuenta que la ruta de la herramienta será algo más
-    curvilínea de lo que especifica el programa. Al usar movimientos G0
+    es necesario para algunos tipos de materiales o herramientas donde las paradas
+    exactas son dañinas y puede funciona bien siempre que el programador
+    no olvide que la ruta de la herramienta será algo más
+    curvilínea que lo que especifica el programa. Al usar movimientos G0
     (rápidos) con G64, tenga cuidado con los movimientos a puntos seguros
     (clareance) y permita suficiente distancia para evitar obstáculos en función
     de las capacidades de aceleración de su máquina.
 
-* 'G64 P- Q-' - (Fusion con modo de tolerancia) Esto habilita 'naive cam
-    detector' y permite fusiones con tolerancia. Si se programa G64 P0.05, se le
+* 'G64 P- Q-' - (Fusión con modo de tolerancia) Esto habilita 'naive cam
+    detector' y permite fusiones con tolerancia. Si se programa, por ejemplo, G64 P0.05, se le
     dice al planificador que se desea alimentación continua, pero en esquinas
     programadas quiere que desacelere lo suficiente para que la ruta de la
     herramienta pueda mantenerse a no mas de 0.05 unidades de usuario de la ruta
@@ -98,18 +97,18 @@ Los comandos de control de trayectoria son los siguientes:
     la esquina programada y las limitaciones de la máquina, pero lo único de lo
     que el programador necesita preocuparse es de la tolerancia. Esto le da al
     programador control total sobre el compromiso de seguimiento de camino. La
-    tolerancia de la fusion se puede cambiar a lo largo de todo el programa
-    según sea necesario. Tenga en cuenta que una especificación de G64 P0 tiene
+    tolerancia de la fusión se puede cambiar a lo largo de todo el programa
+    según sea necesario. Tenga en cuenta que una especificación G64 P0 tiene
     el mismo efecto que G64 solo, necesario para compatibilidad con los viejos
-    programas de G Code. Ver la link?gcode:g64,seccion G64 del capítulo
+    programas de G Code. Vea la link?gcode:g64,sección G64 del capítulo
     de Código G.
 
-* 'Fusion sin tolerancia' - El punto controlado tocará cada movimiento
+* 'Fusión sin tolerancia' - El punto controlado tocará cada movimiento
     especificado en al menos un punto. La máquina nunca se moverá a una
     velocidad tal que no pueda llegar a una parada exacta al final del
     movimiento actual (o el próximo movimiento, si hace una pausa cuando la
-    fusion ya ha comenzado). La distancia desde el punto final del movimiento sera 
-    tan grande como deba ser para mantener la mejor alimentacion para el contorno.
+    fusión ya ha comenzado). La distancia desde el punto final del movimiento sera 
+    tan grande como deba ser para mantener la mejor alimentación para el contorno.
 
 * 'Naive Cam Detector' - Varios movimientos G1 sucesivos que involucran solo a los 
     ejes XYZ y que se desvíen menos de una cantidad Q- de una línea recta que los 
@@ -119,14 +118,14 @@ Los comandos de control de trayectoria son los siguientes:
     de P- desde los puntos finales reales de los movimientos. El punto controlado 
     tocará al menos un punto en cada movimiento. La máquina nunca se moverá a una 
     velocidad tal que no puede llegar a una parada exacta al final del movimiento 
-    actual (o siguiente movimiento, si hace una pausa cuando la fusion ya ha
+    actual (o siguiente movimiento, si hace una pausa cuando la fusión ya ha
     comenzado). En movimientos G2/G3, que se muevan en el plano G17 (XY), cuando la
     desviación máxima de un arco desde un línea recta es menor que la tolerancia
     Q-, el arco se divide en dos líneas (desde el inicio del arco hasta el
     punto medio y desde el punto medio hasta el final). Esas líneas están
     entonces sujetas al algoritmo 'Naive Cam Detector' para líneas. Por lo tanto, 
     casos de arco a línea, arco a arco y línea a arco, así como línea a línea,
-    podran beneficiarse de 'naive cam detector'. Esto mejora el rendimiento
+    podrán beneficiarse de 'naive cam detector'. Esto mejora el rendimiento
     de contorneado simplificando el camino.
 
 En la siguiente figura, la línea azul representa la velocidad real de la máquina. 
@@ -197,11 +196,11 @@ ejecuta un archivo G-Code y pueden quedar en un estado diferente al del comienzo
 sesión de LinuxCNC. La mejor práctica es establecer los valores predeterminados 
 necesarios para el trabajo en un preámbulo de su archivo G-Code, sin suponer que los 
 valores predeterminados no han cambiado. Imprimir la página de 
-link?gcode:quick-reference-table,Referencia Rapida>> de códigos G puede ayudarle a recordar que es 
+link?gcode:quick-reference-table,Referencia Rápida>> de códigos G puede ayudarle a recordar que es 
 cada uno.
 
 
-=== Velocidad de alimentacion
+=== Velocidad de Alimentacion
 
 La forma en la que se aplica la velocidad de alimentación depende de si un eje 
 involucrado con el movimiento es un eje giratorio. Lea y comprenda la sección
@@ -213,20 +212,20 @@ torno.
 El offset del radio de la herramienta (G41/G42) requiere que la herramienta sea 
 capaz de tocar en algún lugar a lo largo de cada movimiento programado sin estropear 
 los dos movimientos adyacentes. Si eso no es posible con el diámetro actual de la 
-herramienta, se obtendra un error. Una herramienta de menor diámetro puede trabajar 
+herramienta, se obtendrá un error. Una herramienta de menor diámetro puede trabajar 
 sin error en el mismo camino. Esto significa que puede programar una herramienta 
 para pasar por un camino que es más estrecho que la herramienta sin ningún error
 aparente. Para más información, ver la Sección link?sec:cutter-compensation,Compensación de la Herramienta>>.
 
 == Homing
 
-Después de iniciar LinuxCNC, cada eje debe tener definida una posicion home antes de 
+Después de iniciar LinuxCNC, cada eje debe tener definida una posición home antes de 
 ejecutar un programa o un comando MDI.
 
 Si su máquina no tiene interruptores home, una marca de coincidencia en cada eje 
 puede ayudar a colocar las coordenadas de la máquina en el mismo lugar.
 
-Una vez que los ejes estan en home, se usarán los límites software establecidos en 
+Una vez que los ejes están en home, se usarán los límites software establecidos en 
 el archivo ini.
 
 Si desea desviarse del comportamiento predeterminado, o desea usar el interfaz
@@ -266,7 +265,7 @@ sistema de coordenadas G54.
 Normalmente se usa el sistema de coordenadas G54. Cuando se aplica un offset al 
 actual sistema de coordenadas de usuario, una pequeña bola azul con líneas estará en 
 el link?sec.machine-coordinate-system,origen de maquina>> cuando su DRO esté 
-mostrando 'Posicion: Relativa Actual' en Axis. Si sus offsets son temporales, use 
+mostrando 'Posición: Relativa Actual' en Axis. Si sus offsets son temporales, use 
 Zero Coordinate System del menú o programe la máquina con 'G10 L2 P1 X0 Y0 Z0' al 
 final de su archivo de código G. Cambie el número 'P' para que se adapte al 
 sistema de coordenadas en el que desea borrar el offset.
@@ -282,7 +281,7 @@ Si tiene problemas para obtener 0,0,0 en el DRO cuando piense que
 debería mostrarse, puede que tenga algunos offsets programados y necesita 
 eliminarlos.
 
- - Muevase al origen de la máquina con G53 G0 X0 Y0 Z0
+ - Muévase al origen de la máquina con G53 G0 X0 Y0 Z0
  - Borre cualquier offset de G92 con G92.1
  - Use el sistema de coordenadas G54
  - Establezca el sistema de coordenadas G54 para que sea el mismo que el
@@ -298,7 +297,7 @@ relativo debe ser el mismo que el sistema de coordenadas de máquina.
 El siguiente diagrama muestra una fresadora típica que muestra la dirección del 
 recorrido de la herramienta, la mesa y los interruptores de límite. Observe cómo la 
 mesa se mueve en la dirección opuesta a las flechas del sistema de coordenadas 
-cartesianas mostrado por la imagen 'Direccion Herramienta'. Esto hace que la 
+cartesianas mostrado por la imagen 'Dirección Herramienta'. Esto hace que la 
 herramienta 'se mueva' en el dirección correcta en relación con el material.
 
 .Configuración de fresadora
