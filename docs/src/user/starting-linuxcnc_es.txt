@@ -16,7 +16,7 @@ linuxcnc [opciones] [<ini-file>]
 * '-v' = verbose - imprime información mientras funciona
 * '-d' = hace eco de los comandos del script en la pantalla para detectar fallos 
 
-Si al script 'linuxcnc' se le pasa un archivo .ini, lo lee y se inicia
+Si al script 'linuxcnc' se le pasa un archivo .ini como argumento, lo lee y se inicia
 LinuxCNC. La sección [HAL] del archivo .ini especifica el orden de carga de archivos HAL,
 si se usa más de uno. Una vez que se cargan los archivos HAL=xxx.hal,
 se carga la GUI y luego se carga el archivo POSTGUI=.xxx.hal. Si se han creado objetos PyVCP o
@@ -34,4 +34,4 @@ Los archivos de configuración se guardan en el directorio linuxcnc/configs.
 
 .Selector de configuración
 
-image::images/configuration-selector.png[align="center", alt="Selector de configuración de LinuxCNC"]
+image::images/configuration-selector_es.png[align="center", alt="Selector de configuración de LinuxCNC"]

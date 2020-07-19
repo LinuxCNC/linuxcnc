@@ -15,12 +15,12 @@ Si está utilizando la gui AXIS,
 haga que Axis muestre sus herramientas de torno correctamente.
 Consulte la sección link?cha:ini-configuration,configuración INI>> para obtener más detalles.
 
-Para configurar AXIS para el modo torno.
+Para configurar AXIS para el modo torno:
 
 ---------------------------------------
 [DISPLAY]
 
-# Decirle a Axis que nuestra máquina es un torno.
+# Informar a Axis que nuestra máquina es un torno.
 LATHE = TRUE
 ---------------------------------------
 
@@ -42,7 +42,7 @@ link?gmoccapy:lathe-section, la sección Torno de Gmoccapy>>.
 
 La "Tabla de herramientas" es un archivo de texto que contiene información sobre cada herramienta.
 El archivo se encuentra en el mismo directorio que su configuración y de forma predeterminada se denomina "tool.tbl".
-Las herramientas pueden estar en un cambiador de herramientas o, simplemente, ser cambiadas manualmente.
+Las herramientas pueden estar en un cambiador de herramientas o ser cambiadas manualmente.
 El archivo puede editarse con un editor de texto o actualizarse con G10 L1, L10, L11.
 También hay un editor de tablas de herramientas incorporado en la gui Axis.
 El número máximo de entradas en la tabla de herramientas es 56.
@@ -50,14 +50,14 @@ El número máximo de herramienta y de ranura es 99999.
 
 Las versiones anteriores de LinuxCNC tenían dos formatos de tablas de herramientas diferentes para fresadoras y tornos,
 pero desde la versión 2.4.x, se utiliza un formato de tabla de herramientas para todas las máquinas.
-Simplemente ignore las partes de la tabla de herramientas que no pertenecen a su máquina,o que no necesitas usar.
+Simplemente ignore las partes de la tabla de herramientas que no pertenecen a su máquina,o que no necesite usar.
 Para obtener más información sobre los detalles del formato de tabla de herramientas,
 vea la sección link?sec:tool-table,Tabla de Herramientas>>.
 
 == Orientacion de la herramienta de torno[[lathe-tool-orientation]]
 
 La siguiente figura muestra las orientaciones de la herramienta de torno
-con el ángulo de la línea central de cada orientación e información sobre FRONTANGLE y BACKANGLE.
+con el ángulo de la línea central (l.c.) de cada orientación e información sobre FRONTANGLE y BACKANGLE.
 FRONTANGLE y BACKANGLE están en el sentido de las agujas del reloj comenzando en una línea paralela a Z+.
 
 .Orientaciones de la herramienta del torno
@@ -95,7 +95,7 @@ link?axis:tool-touch-off,Tool Touch Off>>.
 === X Touch Off
 
 El offset del eje X para cada herramienta es normalmente un desplazamiento
-desde la línea central (l.c.) del husillo.
+desde la línea central del husillo.
 
 Un método es tomar su herramienta de torneado normal y
 preparar algunas piezas a un diámetro conocido.
