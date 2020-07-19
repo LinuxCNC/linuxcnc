@@ -5478,12 +5478,6 @@ Connector 2</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="text_column">0</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderer_c2_p2"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
                 <child internal-child="entry">
                   <object class="GtkEntry" id="comboboxentry-entry98">
                     <property name="can_focus">True</property>
@@ -5508,12 +5502,6 @@ Connector 2</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="text_column">0</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderer_c2_p3"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
                 <child internal-child="entry">
                   <object class="GtkEntry" id="comboboxentry-entry100">
                     <property name="can_focus">True</property>
@@ -6149,12 +6137,6 @@ Connector 2</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="text_column">0</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderer_c3_p9"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
                 <child internal-child="entry">
                   <object class="GtkEntry" id="comboboxentry-entry102">
                     <property name="can_focus">True</property>
