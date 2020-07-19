@@ -301,43 +301,43 @@ Familiarícese con el diseño de su máquina e interprete la pantalla según sea
 
 De izquierda a derecha en la pantalla de Axis, los botones de la barra de herramientas (atajos de teclado mostrados [entre corchetes]) son:
 
-* image:images/tool_estop.gif[alt="Stop de Emergencia"] Stop de Emergencia [F1] (también llamado E-Stop)
+* image:images/tool_estop.png[alt="Stop de Emergencia"] Stop de Emergencia [F1] (también llamado E-Stop)
 
-* image:images/tool_power.gif[alt="Encendido de Maquina"] Encendido de Maquina [F2]
+* image:images/tool_power.png[alt="Encendido de Maquina"] Encendido de Maquina [F2]
 
-* image:images/tool_open.gif[alt="Abrir archivo de código G"] Abrir archivo de código G [O]
+* image:images/tool_open.png[alt="Abrir archivo de código G"] Abrir archivo de código G [O]
 
-* image:images/tool_reload.gif[alt="Recargar archivo actual"] Recargar archivo actual [Ctrl-R]
+* image:images/tool_reload.png[alt="Recargar archivo actual"] Recargar archivo actual [Ctrl-R]
 
-* image:images/tool_run.gif[alt="Comenzar a ejecutar el archivo actual"] Comenzar a ejecutar el archivo actual [R]
+* image:images/tool_run.png[alt="Comenzar a ejecutar el archivo actual"] Comenzar a ejecutar el archivo actual [R]
 
-* image:images/tool_step.gif[alt="Ejecutar línea siguiente"] Ejecutar línea siguiente [T]
+* image:images/tool_step.png[alt="Ejecutar línea siguiente"] Ejecutar línea siguiente [T]
 
-* image:images/tool_pause.gif[alt="Pausar ejecución - Reanudar ejecución"] Pausar ejecución [P] Reanudar ejecución [S]
+* image:images/tool_pause.png[alt="Pausar ejecución - Reanudar ejecución"] Pausar ejecución [P] Reanudar ejecución [S]
 
-* image:images/tool_stop.gif[alt="Detener la ejecución del programa"] Detener la ejecución del programa [ESC]
+* image:images/tool_stop.png[alt="Detener la ejecución del programa"] Detener la ejecución del programa [ESC]
 
-* image:images/tool_blockdelete.gif[alt="Saltar lineas"] Saltar lineas con "/" [Alt-M- /]
+* image:images/tool_blockdelete.png[alt="Saltar lineas"] Saltar lineas con "/" [Alt-M- /]
 
-* image:images/tool_optpause.gif[alt="Pausa Opcional"] Pausa Opcional [Alt-M-1]
+* image:images/tool_optpause.png[alt="Pausa Opcional"] Pausa Opcional [Alt-M-1]
 
-* image:images/tool_zoomin.gif[alt="Zoom +"] Zoom (mas)
+* image:images/tool_zoomin.png[alt="Zoom +"] Zoom (mas)
 
-* image:images/tool_zoomout.gif[alt="Zoom -"] Zoom (menos)
+* image:images/tool_zoomout.png[alt="Zoom -"] Zoom (menos)
 
-* image:images/tool_axis_z.gif[alt="Vista superior"] Vista superior
+* image:images/tool_axis_z.png[alt="Vista superior"] Vista superior
 
-* image:images/tool_axis_z2.gif[alt="Vista superior girada"] Vista superior girada
+* image:images/tool_axis_z2.png[alt="Vista superior girada"] Vista superior girada
 
-* image:images/tool_axis_x.gif[alt="Vista lateral"] Vista lateral
+* image:images/tool_axis_x.png[alt="Vista lateral"] Vista lateral
 
-* image:images/tool_axis_y.gif[alt="Vista frontal"] Vista frontal
+* image:images/tool_axis_y.png[alt="Vista frontal"] Vista frontal
 
-* image:images/tool_axis_p.gif[alt="Vista en perspectiva"] Vista en perspectiva
+* image:images/tool_axis_p.png[alt="Vista en perspectiva"] Vista en perspectiva
 
-* image:images/tool_rotate.gif[alt="Alternar entre los modos arrastrar/rotar"] Alternar entre los modos de arrastrar/rotar [D]
+* image:images/tool_rotate.png[alt="Alternar entre los modos arrastrar/rotar"] Alternar entre los modos de arrastrar/rotar [D]
 
-* image:images/tool_clear.gif[alt="Limpiar backplot en vivo"] Limpiar backplot en vivo [Ctrl-K]
+* image:images/tool_clear.png[alt="Limpiar backplot en vivo"] Limpiar backplot en vivo [Ctrl-K]
 
 === Área de visualización gráfica
 

@@ -96,11 +96,11 @@ ejemplo de archivos de subrutina de código G (.ngc) y archivos de metacompilado
 Para probar una demostración, seleccione una configuración sim y comience linuxCNC.
 
 Si utiliza la interfaz gráfica de usuario Axis, presione 'E-Stop'
-image:images/tool_estop.gif[] luego 'Encender Máquina'
-image:images/tool_power.gif[] luego 'Home Todo'. Elija una pestaña ngcgui, complete
+image:images/tool_estop.png[] luego 'Encender Máquina'
+image:images/tool_power.png[] luego 'Home Todo'. Elija una pestaña ngcgui, complete
 cualquier espacio en blanco vacío con valores razonables y presione
 'Crear función' y luego 'Finalizar'. Finalmente presione 'Ejecutar'
-image:images/tool_run.gif[] para ver cómo se ejecuta. Experimentar
+image:images/tool_run.png[] para ver cómo se ejecuta. Experimentar
 creando múltiples características y características de diferentes páginas de pestañas.
 
 Para crear varias subrutinas concatenadas en un solo archivo, vaya a cada pestaña

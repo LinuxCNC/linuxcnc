@@ -6,8 +6,8 @@
 
 Esta sección describe la forma recomendada de descargar
 y hacer una nueva instalación de LinuxCNC. Para los atrevidos, también hay
-Métodos alternativos de instalación.
-Si en su lugar tiene una instalación existente que desea actualizar,
+métodos alternativos de instalación.
+Si su máquina tiene una instalación existente que desea actualizar,
 vaya a la sección <<cha:updating-linuxcnc,Actualizando LinuxCNC>>.
 
 Las instalaciones nuevas de LinuxCNC se crean fácilmente utilizando una imagen 
@@ -28,7 +28,7 @@ El esquema del proceso es este:
 
 == Descargar la imagen
 
-Esta sección describe algunos métodos para descargar la imagen Live/Install.
+Esta sección describe algunos métodos para descargar una imagen Live/Install.
 
 
 === Descarga Normal
@@ -60,7 +60,7 @@ zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync
 
 ==== zsync en Windows
 
-Hay una version Windows de zsync. Funciona como una aplicación de consola. Puede ser
+Hay una versión Windows de zsync. Funciona como una aplicación de consola. Puede ser
 descargado de:
 
 https://www.assembla.com/spaces/zsync-windows/documents
@@ -188,7 +188,7 @@ variantes del kernel, etc.), las nuevas instalaciones son compatibles con las si
 | Debian Wheezy  | amd64 y i386 | original   | solo simulación
 | Ubuntu Precise | i386         | RTAI       | control/sim de máquina
 | Ubuntu Precise | amd64 y i386 | original   | solo simulación
-| Ubuntu Lucid   | i386         | RTAI       | control/simu de máquina
+| Ubuntu Lucid   | i386         | RTAI       | control/sim de máquina
 | Ubuntu Lucid   | amd64 y i386 | original   | solo simulación
 |================================================================
 
@@ -230,7 +230,9 @@ sudo apt-get dist-upgrade
 +
 ----
 sudo apt-get install linux-image-rt-amd64
+----
 o
+----
 sudo apt-get install linux-image-rt-686-pae
 ----
 
