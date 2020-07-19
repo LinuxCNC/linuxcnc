@@ -53,12 +53,12 @@ LinuxCNC viene con varios tipos de interfaces de usuario que se pueden elegir al
 
 link?cha:axis-gui,'Axis', es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
 
-image::../gui/images/axis.png[align="center", alt="Axis, interfaz GUI de teclado estándar"]
+image::../gui/images/axis_es.png[align="center", alt="Axis, interfaz GUI de teclado estándar"]
 
 
 link?cha:touchy-gui,'Touchy' es una GUI para usar con pantalla táctil:
 
-image::../gui/images/touchy.png[align="center", alt="Touchy, una GUI para usar con pantalla táctil"]
+image::../gui/images/touchy_es.png[align="center", alt="Touchy, una GUI para usar con pantalla táctil"]
 
 link?cha:gscreen,'Gscreen'>>, una GUI de pantalla táctil configurable por el usuario:
 

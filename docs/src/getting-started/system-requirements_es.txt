@@ -5,7 +5,7 @@
 
 == Requerimientos Mínimos
 
-Los requerimientos mínimos de hardware para ejecutar LinuxCNC y Debian (o Ubuntu)  pueden variar dependiendo del uso que se le dará al sistema. Los sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retroalimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Mantenga en mente que los resultados del test de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Encontrara mas información sobre el test de latencia <<sub:latency-test,aqui>>.
+Los requerimientos mínimos de hardware para ejecutar LinuxCNC en Debian (o Ubuntu) pueden variar dependiendo del uso que se le dará al sistema. Los sistemas basados en motores a pasos requieren procesadores mas rápidos para generar trenes de pulsos en comparación con los servomecanismos retroalimentados. Usando el Live-CD usted puedes probar el software antes de modificar la computadora. Tenga en cuenta que los resultados del test de latencia son mas importantes que la velocidad del procesador para la generación de pasos por software. Encontrara mas información sobre el test de latencia <<sub:latency-test,aqui>>.
 
 Se puede encontrar información adicional en el sitio wiki de LinuxCNC:
 
@@ -16,17 +16,17 @@ LinuxCNC y Debian/Ubuntu deberían de ejecutarse razonablemente bien en una comp
 * procesador x86 700 Mhz (se recomienda un procesador x86 de 1.2GHz)
 * 384 MB de RAM (se recomienda entre 512MB hasta 1GB)
 * 8 GB de espacio en disco duro
-* Tarjeta gráfica capaz de 1024x768 por lo menos de resolución, que no este ejecutando los controladores propietarios Nvidia o ATI fglrx y, de preferencia, que no se trate de una tarjeta de vídeo integrada que comparta memoria con la CPU.
+* Tarjeta gráfica capaz de 1024x768 al menos de resolución, que no este ejecutando controladores propietarios Nvidia o ATI fglrx y, de preferencia, que no se trate de una tarjeta de vídeo integrada que comparta memoria con la CPU.
 * Una conexión de red o Internet (no es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones y contactar con la comunidad de LinuxCNC)
 
 Los requerimientos mínimos del sistema cambian conforme Debian/Ubuntu evolucionan, por lo tanto revise el 
-sitio web de http://help.ubuntu.com o http://www.debian.org/support para mas detalles sobre el LiveCD que esta usando. El hardware antiguo podría beneficiarse si se selecciona una version mas antigua del LiveCD cuando se encuentre disponible.
+sitio web http://help.ubuntu.com o http://www.debian.org/support para mas detalles sobre el LiveCD que esta usando. El hardware antiguo podría beneficiarse si se selecciona una versión mas antigua del LiveCD cuando se encuentre disponible.
 
 == Hardware Problematico
 
 === Computadores Portatiles
 
-Los computadores portátiles, en general, no son buenos para la generación de pasos  por software en tiempo real. De nuevo, el Test de Latencia ejecutado por un periodo de tiempo prolongado proveerá la información necesaria para determinar si resulta apropiado su uso.
+Los computadores portátiles, en general, no son buenos para la generación de pasos por software en tiempo real. De nuevo, el Test de Latencia ejecutado por un periodo de tiempo prolongado proveerá la información necesaria para determinar si resulta apropiado su uso.
 
 === Tarjetas de Video
 

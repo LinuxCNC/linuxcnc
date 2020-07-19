@@ -7,7 +7,7 @@ Estos son algunos comandos básicos y técnicas para nuevos usuarios de
 linux. Información más completa se puede encontrar en la web o mediante
 las páginas del manual con el comando man.
 
-== Acceso automatico (((Automatic Login)))
+== Login automatico (((Automatic Login)))
 
 Al instalar linuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
 sesión cada vez que encienda el ordenador. Para activar autentificacion automática
@@ -21,28 +21,28 @@ usuario de la lista (seleecione su nombre de usuario).
 N.T. Debian Stretch usa por defecto el entorno de escritorio Xfce, con el gestor
 de pantallas lightDM. Para obtener acceso automatico con Stretch:
 
- .en un terminal, use el comando:
+* En un terminal, use el comando:
  
 ----
 $ /usr/sbin/lightdm --show-config
 ----
 
- .Anote el path absoluto del archivo de configuracion lightdm.conf.
- .Edite con un editor de texto puro (gedit, nano, etc), como root, ese archivo.
- .Busque y descomente las lineas
+* Anote el path absoluto del archivo de configuracion lightdm.conf.
+* Edite ese archivo con un editor de texto puro (gedit, nano, etc), como root.
+* Busque y descomente las lineas:
 
 ----
 #autologin-user=
 #autologin-user-timeout=0
 ----
 
- .Haga autologin-user=su_nombre_usuario
- .Guarde y reinicie.
+* Haga autologin-user=su_nombre_usuario
+* Guarde y reinicie.
 
-== Inicio automatico (((Automatic Startup)))
+== Inicio automatico de LinuxCNC (((Automatic Startup)))
 
 Para tener un inicio automático de linuxCNC con su configuración después
-de encender el equipo valla a 'System > Preferences > Sessions > Startup Applications',
+de encender el equipo vaya a 'System > Preferences > Sessions > Startup Applications',
 seleccione la opcion agregar nuevo.
 Vaya a su carpeta de configuración y
 seleccione el archivo .ini. Cuando el cuadro de dialogo selector de
@@ -62,11 +62,17 @@ al ejemplo anterior. En el proximo reinicio, LinuxCNC arrancara automaticamente.
 
 == Terminal
 
-Many things need to be done from the terminal like checking the kernel message
-buffer with 'dmesg'. Ubuntu and Linux Mint have a keyboard shortcut Ctrl + Alt
-+ t. Most modern file managers support the right key to open a terminal just
-make sure your right clicking on a blank area or a directory not a file name.
-Most OS's have the terminal as a menu item, usually in Accessories.
+Hay que hacer muchas cosas desde la terminal, como verificar el búfer de mensajes 
+del núcleo con 'dmesg'. Ubuntu y Linux Mint tienen un atajo de teclado Ctrl + Alt + t.
+N.T. Debia Stretch no tiene definido ningun atajo de teclado. Se puede crear facilmente
+con el 'Administrador de Configuracion'. 
+
+La mayoría de los administradores de archivos modernos admiten el boton derecho para 
+abrir un terminal; solo asegúrese de hacer clic derecho en un área en blanco o en un 
+directorio.
+
+La mayoría de los sistemas operativos tienen el terminal como elemento de menú, 
+generalmente en 'Accesorios'.
 
 == Paginas de manual [[sec:Man-Pages]]
 
