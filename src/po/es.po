@@ -8717,7 +8717,7 @@ msgstr "DTG"
 #: src/emc/usr_intf/touchy/touchy.glade:143
 #: src/emc/usr_intf/pncconf/realtime.glade:53
 msgid "Absolute"
-msgstr "Absoluto"
+msgstr "Absoluta"
 
 #: src/emc/usr_intf/touchy/touchy.glade:165
 msgid "xr"
@@ -8797,7 +8797,7 @@ msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:448
 msgid "Estop Reset"
-msgstr "Restablecimiento de Estop"
+msgstr "Restablecer Estop"
 
 #: src/emc/usr_intf/touchy/touchy.glade:459
 #: src/emc/usr_intf/stepconf/pport1.glade:21
@@ -8828,11 +8828,11 @@ msgstr "Deshacer todo"
 
 #: src/emc/usr_intf/touchy/touchy.glade:588
 msgid "Home Selected"
-msgstr "Inicio seleccionado"
+msgstr "Home eje seleccionado"
 
 #: src/emc/usr_intf/touchy/touchy.glade:603
 msgid "Unhome Selected"
-msgstr "Unhome Seleccionado"
+msgstr "Unhome eje seleccionado"
 
 #: src/emc/usr_intf/touchy/touchy.glade:625
 msgid "<b>Homing</b>"
@@ -8934,19 +8934,19 @@ msgstr "<b> Refrigerante </b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1422
 msgid "Spindle Forward"
-msgstr "Eje hacia adelante"
+msgstr "Husillo giro adelante"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1433
 msgid "Spindle Reverse"
-msgstr "Eje inverso"
+msgstr "Husillo giro inverso"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1448
 msgid "Spindle Off"
-msgstr "Eje apagado"
+msgstr "Husillo OFF"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1464
 msgid "Spindle Faster"
-msgstr "Eje más rápido"
+msgstr "Husillo más rápido"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1479
 msgid "Spindle Slower"
@@ -9117,7 +9117,7 @@ msgstr "Líneas de archivo cargadas:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2971
 msgid "Pockets:"
-msgstr "Bolsillos:"
+msgstr "Ranuras:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2984
 msgid ""
@@ -9202,7 +9202,7 @@ msgstr "Pieza de trabajo"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3390
 msgid "Fixture"
-msgstr "Fixture"
+msgstr "Fijación"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3410
 msgid "<b>Tool Setting</b>"
@@ -9249,7 +9249,7 @@ msgstr "MV:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3610
 msgid "Jogging"
-msgstr "Trotar"
+msgstr "Jogging"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3624
 msgid "Start Point"
@@ -15812,49 +15812,49 @@ msgstr "Tipo 2"
 #: src/emc/usr_intf/pncconf/z_axis.glade:58
 #: src/emc/usr_intf/pncconf/a_axis.glade:58
 msgid "Towards Negative Limit"
-msgstr "Hacia el límite negativo"
+msgstr "Hacia el Límite Negativo"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:61
 #: src/emc/usr_intf/pncconf/y_axis.glade:61
 #: src/emc/usr_intf/pncconf/z_axis.glade:61
 #: src/emc/usr_intf/pncconf/a_axis.glade:61
 msgid "Towards Positive Limit"
-msgstr "Hacia un límite positivo"
+msgstr "Hacia el Límite Positivo"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:273
 #: src/emc/usr_intf/pncconf/y_axis.glade:273
 #: src/emc/usr_intf/pncconf/z_axis.glade:273
 #: src/emc/usr_intf/pncconf/a_axis.glade:273
 msgid "Use Encoder Index For Home:"
-msgstr "Usar el índice del codificador para el hogar:"
+msgstr "Usar el índice del codificador para home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:321
 #: src/emc/usr_intf/pncconf/y_axis.glade:321
 #: src/emc/usr_intf/pncconf/z_axis.glade:321
 #: src/emc/usr_intf/pncconf/a_axis.glade:321
 msgid "Home Final Velocity:"
-msgstr "Velocidad final de inicio:"
+msgstr "Velocidad final a home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:354
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
 #: src/emc/usr_intf/pncconf/z_axis.glade:354
 #: src/emc/usr_intf/pncconf/a_axis.glade:354
 msgid "Home Latch Direction:"
-msgstr "Dirección de cierre de inicio:"
+msgstr "Dirección de latch de home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:390
 #: src/emc/usr_intf/pncconf/y_axis.glade:390
 #: src/emc/usr_intf/pncconf/z_axis.glade:390
 #: src/emc/usr_intf/pncconf/a_axis.glade:390
 msgid "Home Search Direction:"
-msgstr "Dirección de búsqueda de inicio:"
+msgstr "Dirección de búsqueda de home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:439
 #: src/emc/usr_intf/pncconf/y_axis.glade:439
 #: src/emc/usr_intf/pncconf/z_axis.glade:439
 #: src/emc/usr_intf/pncconf/a_axis.glade:439
 msgid "Home latch Velocity:"
-msgstr "Velocidad de cierre de inicio:"
+msgstr "Velocidad de latch de home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:470
 #: src/emc/usr_intf/pncconf/y_axis.glade:470
@@ -15883,7 +15883,7 @@ msgstr "Usar compensación de contragolpe:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:569
 msgid "Home Position location   (offset from machine zero Origin):"
 msgstr ""
-"Ubicación de la posición inicial (offset desde el origen de la máquina cero):"
+"Ubicación de la posición home (offset desde el origen de la máquina cero):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:586
 #: src/emc/usr_intf/pncconf/y_axis.glade:586
@@ -15908,7 +15908,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:654
 #: src/emc/usr_intf/pncconf/a_axis.glade:654
 msgid "Home Search Velocity:"
-msgstr "Velocidad de búsqueda de inicio:"
+msgstr "Velocidad de búsqueda de home:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:670
 #: src/emc/usr_intf/pncconf/y_axis.glade:670
@@ -17091,8 +17091,7 @@ msgstr ""
 msgid ""
 "**** WARNING GSCREEN: could not import vte terminal - is package installed?"
 msgstr ""
-"**** ADVERTENCIA GSCREEN: no se pudo importar el terminal vte - ¿está "
-"instalado el paquete?"
+"**** ADVERTENCIA GSCREEN: no se pudo importar el terminal vte - ¿está instalado el paquete?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:270
 msgid "Manual Mode"
@@ -17120,8 +17119,7 @@ msgstr "módulo '%s' importado OK"
 msgid ""
 "**** GSCREEN ERROR: INI file path missing from Gscreen launch command ****\n"
 msgstr ""
-"**** ERROR GSGSCREEN: falta la ruta del archivo INI en el comando de inicio "
-"de Gscreen ****\n"
+"**** ERROR GSGSCREEN: falta la ruta del archivo INI en el comando de inicio de Gscreen ****\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:478
 msgid "**** GSCREEN INFO: CUSTOM locale name ="
@@ -17130,7 +17128,7 @@ msgstr "**** INFORMACIÓN GSGSCREEN: nombre local personalizado ="
 #: src/emc/usr_intf/gscreen/gscreen.py:484
 msgid "**** GSCREEN INFO: SKIN locale name ="
 msgstr ""
-"**** INFORMACIÓN GSGSCREEN: nombre de la configuración regional de la PIEL ="
+"**** INFORMACIÓN GSGSCREEN: nombre de la configuración regional de la SKIN ="
 
 #: src/emc/usr_intf/gscreen/gscreen.py:496
 #, python-format
@@ -17162,8 +17160,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:517
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
-msgstr ""
-"**** Gscreen GLADE ERROR: Con el archivo xml de la pantalla principal: %s"
+msgstr "**** Gscreen GLADE ERROR: Con el archivo xml de la pantalla principal: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:522
 #, python-format
@@ -17172,13 +17169,12 @@ msgid ""
 "**** GSCREEN INFO:  Screen 2 -Using CUSTOM glade file from %s ****"
 msgstr ""
 "\n"
-"**** INFORMACIÓN GSGSCREEN: Pantalla 2 -Usando el archivo glade "
-"PERSONALIZADO desde %s ****"
+"**** INFORMACIÓN GSGSCREEN: Pantalla 2 -Usando el archivo glade PERSONALIZADO desde %s ****"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"
-msgstr "**** Gscreen ERROR DE GLADE: Con el archivo xml de la pantalla 2: %s"
+msgstr "**** Gscreen ERROR DE GLADE: Con archivo xml de pantalla 2: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:530
 msgid ""
@@ -17198,19 +17194,17 @@ msgid ""
 "exists."
 msgstr ""
 "*** ERROR de Gscreen: pidiendo un componente HAL usando un nombre que "
-"yaexiste\"."
+"ya existe."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:662
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"No se encontró una entrada predeterminada de incrementos de desplazamiento "
-"en [PANTALLA] del archivo INI"
+"No se encontró una entrada predeterminada de incrementos de jog en [DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:675
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"No se encontró una entrada de incrementos de desplazamiento angular "
-"predeterminada en [DISPLAY] del archivo INI"
+"No se encontró una entrada de incrementos de jog angular predeterminada en [DISPLAY] del archivo INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:684
 #, python-format
@@ -17291,7 +17285,7 @@ msgstr "tiempo de espera %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1257
 msgid "Ready For Homing"
-msgstr "Listo para dirigir"
+msgstr "Listo para Homing"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1308
 msgid ""
@@ -17354,7 +17348,7 @@ msgstr "Cambie a la herramienta # %s, luego haga clic en Aceptar."
 #: src/emc/usr_intf/gscreen/gscreen.py:4270
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3676
 msgid "INFO:"
-msgstr "INFORMACIÓN:"
+msgstr "INFO:"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1935
 #: src/emc/usr_intf/gscreen/gscreen.py:1954
@@ -17379,7 +17373,7 @@ msgstr "Entrada de preajuste de velocidad del husillo"
 #: src/emc/usr_intf/gscreen/gscreen.py:2011
 #: src/emc/usr_intf/gscreen/gscreen.py:2016
 msgid "Manual Tool Index Entry"
-msgstr "Entrada de índice de herramienta manual"
+msgstr "Entrada manual de índice de herramienta"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2184
 msgid "Entry dialog"
@@ -17391,11 +17385,11 @@ msgstr "Componente en tiempo real Classicladder no detectado"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2353
 msgid "ladder not available - is the realtime component loaded?"
-msgstr "escalera no disponible: ¿está cargado el componente en tiempo real?"
+msgstr "ladder no disponible: ¿está cargado el componente en tiempo real?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2503
 msgid "Override Entry"
-msgstr "Anular entrada"
+msgstr "Ajustar entrada"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2547
 msgid "Machine powered on"
@@ -17412,11 +17406,11 @@ msgstr "Calculadora"
 #: src/emc/usr_intf/gscreen/gscreen.py:2784
 #, python-format
 msgid "Axes %s are homed"
-msgstr "Los ejes %s están alojados"
+msgstr "Los ejes %s tienen home"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2798
 msgid "All the axes have been homed"
-msgstr "Todos los ejes han sido dirigidos"
+msgstr "Todos los ejes tienen home"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2811
 #, python-format
@@ -17430,14 +17424,12 @@ msgstr "Programa cargado: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2973
 msgid "Manual Spindle Control"
-msgstr "Control manual del husillo"
+msgstr "Control Manual del husillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3051
 #: src/emc/usr_intf/gscreen/gscreen.py:3052
 msgid "Error with launching on-screen keyboard program -can't find program."
-msgstr ""
-"Error al iniciar el programa de teclado en pantalla: no se puede encontrar "
-"el programa."
+msgstr "Error al iniciar el programa de teclado en pantalla: no se puede encontrar el programa."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3062
 msgid "Keyboard"
@@ -17477,7 +17469,7 @@ msgstr "Origen cero"
 #: src/emc/usr_intf/gscreen/gscreen.py:3681
 #: src/emc/usr_intf/gscreen/gscreen.glade:2573
 msgid "Offset Origin"
-msgstr "Origen desplazado"
+msgstr "Offset de Origen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3696
 msgid ""
@@ -17519,7 +17511,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3738
 msgid "Manual Toolchange"
-msgstr "Cambio manual de herramientas"
+msgstr "Cambio Manual de Herramientas"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3740
 #: src/emc/usr_intf/gmoccapy/dialogs.py:111
@@ -17543,7 +17535,7 @@ msgstr "Arriba"
 #: src/emc/usr_intf/gscreen/gscreen.py:3789
 #: src/emc/usr_intf/gmoccapy/dialogs.py:196
 msgid "Enter"
-msgstr "Enter"
+msgstr "Entrar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3791
 #: src/emc/usr_intf/gmoccapy/dialogs.py:198
@@ -17557,7 +17549,7 @@ msgstr "Listo para reiniciar el programa desde la línea %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3844
 msgid "Invalid embeded tab configuration"
-msgstr "Configuración de pestaña incorporada no válida"
+msgstr "Configuración de pestaña embebida no válida"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4088
 #: src/emc/usr_intf/gscreen/gscreen.py:4155
@@ -17566,7 +17558,7 @@ msgstr "No se puede mover varios ejes"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4091
 msgid "No axis selected to jog"
-msgstr "Ningún eje seleccionado para correr"
+msgstr "Ningún eje seleccionado para jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4158
 msgid "No axis selected to move"
@@ -17574,19 +17566,19 @@ msgstr "No se seleccionó ningún eje para mover"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4228
 msgid "Can't home multiple axis - select HOME ALL instead"
-msgstr "No se puede iniciar varios ejes: seleccione INICIO TODO"
+msgstr "No se puede hacer home en varios ejes: seleccione HOME TODO"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4231
 msgid "No axis selected to home"
-msgstr "Ningún eje seleccionado para inicio"
+msgstr "Ningún eje seleccionado para home"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4238
 msgid "Can't unhome multiple axis"
-msgstr "No se puede deshacer el eje múltiple"
+msgstr "No se puede hacer unhome en ejes múltiples"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4241
 msgid "No axis selected to unhome"
-msgstr "No se seleccionó ningún eje para desenganchar"
+msgstr "No se seleccionó ningún eje para unhome"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4250
 msgid "No axis selected for origin zeroing"
@@ -17594,15 +17586,15 @@ msgstr "No se seleccionó ningún eje para la puesta a cero de origen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4261
 msgid "No axis selected for origin touch-off"
-msgstr "No se seleccionó ningún eje para el touch-off de origen"
+msgstr "No se seleccionó ningún eje para touch-off de origen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4267
 msgid "Can't tool touch-off multiple axes"
-msgstr "No se pueden aplicar herramientas a varios ejes"
+msgstr "No se pueden hacer touch-off en varios ejes"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4270
 msgid "No axis selected for tool touch-off"
-msgstr "No se seleccionó ningún eje para el toque de herramienta"
+msgstr "No se seleccionó ningún eje para touch-off"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4329
 #: src/emc/usr_intf/gscreen/gscreen.py:4414
@@ -17726,7 +17718,7 @@ msgstr "V"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1298
 msgid "G code"
-msgstr "código G"
+msgstr "Código G"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1392
 msgid "<b>G Codes Active</b>"
@@ -17771,7 +17763,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Buscar\n"
-"Texto:"
+" Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2719
@@ -17780,25 +17772,29 @@ msgid ""
 "  Text:"
 msgstr ""
 "Reemplazar\n"
-"Texto:"
+"    Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2729
 msgid ""
 "Replace\n"
 "   All"
-msgstr "Reemplazar   Todas"
+msgstr ""
+"Reemplazar\n"
+"   Todas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2744
 msgid ""
 "Ignore\n"
 " Case"
-msgstr "IgnorarCaso"
+msgstr ""
+"Ignorar\n"
+" Caso"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 msgid "<b>Mode</b>"
-msgstr "<b> Modo </b>"
+msgstr "<b>Modo</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1817
 msgid "Main Level"
@@ -17844,44 +17840,58 @@ msgstr "Métrica\n"
 msgid ""
 "   Display\n"
 "Aux Screen"
-msgstr "MostrarPantalla auxiliar"
+msgstr ""
+"   Mostrar\n"
+"Pantalla auxiliar"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2080
 msgid ""
 "Diameter\n"
 "   Mode"
-msgstr "Diámetro   Modo"
+msgstr ""
+"Modo\n"
+"  Diámetro"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2097
 #: src/emc/usr_intf/gscreen/gscreen.glade:3131
 msgid ""
 " Show\n"
 "Offsets"
-msgstr " Mostradooffsets"
+msgstr ""
+" Mostrar\n"
+"Offsets"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2114
 msgid ""
 "Show\n"
 "DTG"
-msgstr "MostradoDTG"
+msgstr ""
+"Mostrar\n"
+"DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2131
 msgid ""
 " Gscreen\n"
 "Fullscreen"
-msgstr "GscreenPantalla completa"
+msgstr ""
+" Gscreen\n"
+"pantalla completa"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2153
 msgid ""
 " On M7 Use\n"
 "Aux Coolant"
-msgstr "En M7, useRefrigerante auxiliar"
+msgstr ""
+" En M7 Use\n"
+"refrigerante Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2166
 msgid ""
 " On M8 Use\n"
 "Aux Coolant"
-msgstr "En M8, useRefrigerante auxiliar"
+msgstr  ""
+" En M8 Use\n"
+"refrigerante Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2179
 msgid "Hide Pointer"
@@ -17891,7 +17901,9 @@ msgstr "Ocultar puntero"
 msgid ""
 "  Desktop\n"
 "Notification"
-msgstr "EscritorioNotificación"
+msgstr ""
+"  Notification\n"
+" de escritorio"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2263
 #: src/emc/usr_intf/gscreen/gscreen.glade:2403
@@ -17906,7 +17918,9 @@ msgstr "Historial de alarmas"
 msgid ""
 " Launch\n"
 "Halshow"
-msgstr "LanzarHalshow"
+msgstr ""
+" Lanzar\n"
+"Halshow"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2328
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:6665
@@ -17921,7 +17935,9 @@ msgstr "Halmeter"
 msgid ""
 "linuxcnc\n"
 "  Status"
-msgstr "linuxcncEstado"
+msgstr ""
+"Estado\n"
+"  LinuxCNC"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2362
 msgid "Halscope"
@@ -17929,13 +17945,15 @@ msgstr "Halscope"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2421
 msgid "Tooleditor"
-msgstr "Tooleditor"
+msgstr "Editor Herram."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
 msgid ""
 "Offset\n"
 " Page"
-msgstr "offset Página"
+msgstr ""
+"Pagina\n"
+" Offset"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
 msgid "Zero Origin"
@@ -17955,19 +17973,25 @@ msgstr "Configuración de herramienta"
 msgid ""
 "Single\n"
 " Step"
-msgstr "SolteroPaso"
+msgstr  ""
+"Paso\n"
+" Sencillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2696
 msgid ""
 "Run At\n"
 "  Line"
-msgstr "Ejecutar enLínea"
+msgstr ""
+"Correr desde\n"
+"  Linea"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2708
 msgid ""
 "Change \n"
 "  View"
-msgstr "CambiarVer"
+msgstr ""
+"Cambiar \n"
+"  Vista"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2795
 msgid "Homing\n"
@@ -17977,13 +18001,17 @@ msgstr "Homing\n"
 msgid ""
 "Ignore\n"
 "Limits"
-msgstr "IgnorarLímites"
+msgstr ""
+"Ignorar\n"
+"Límites"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
 msgid ""
 "    Set\n"
 "Override"
-msgstr "EstablecerAnular"
+msgstr ""
+" establecer\n"
+"ajuste"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Graphics\n"
@@ -17993,36 +18021,46 @@ msgstr "Gráficos\n"
 msgid ""
 "Menu\n"
 "Level"
-msgstr "MenúNivel"
+msgstr ""
+"Nivel\n"
+"Menu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2886
 msgid ""
 "  Launch\n"
 "Keyboard"
-msgstr "LanzarTeclado"
+msgstr ""
+"  Lanzar\n"
+"Teclado"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2903
 msgid "<b>Select Buttons</b>"
-msgstr "<b> Seleccionar botones </b>"
+msgstr "<b>Seleccionar botones</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2990
 msgid ""
 "Unhome \n"
 "    All"
-msgstr "Unhome    Todas"
+msgstr ""
+"Unhome \n"
+"    Todo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3002
 msgid ""
 "Unhome\n"
 "   Axis"
-msgstr "UnhomeEje"
+msgstr ""
+"Unhome\n"
+"   Eje"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3014
 #: src/emc/usr_intf/gscreen/gscreen.glade:3119
 msgid ""
 "Toggle\n"
 "Readout"
-msgstr "AlternarLeer"
+msgstr  ""
+"Alternar\n"
+"Lectura"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3039
 msgid ""
@@ -18030,14 +18068,14 @@ msgid ""
 "  Mode"
 msgstr ""
 "Modo\n"
-"Jog"
+"  Jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3051
 msgid ""
 "coordinate\n"
 "  System"
 msgstr ""
-"Sistema\n"
+"Sistema de\n"
 "Coordenadas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3095
@@ -18064,7 +18102,9 @@ msgstr "Abrir"
 msgid ""
 " Block\n"
 "Delete"
-msgstr "BloqueEliminar"
+msgstr ""
+" Borrar\n"
+"Bloque"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3252
 msgid ""
@@ -18118,7 +18158,9 @@ msgstr ""
 msgid ""
 "   Jog\n"
 "Speed"
-msgstr "JogVelocidad"
+msgstr ""
+"Velocidad\n"
+"  jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3380
 msgid ""

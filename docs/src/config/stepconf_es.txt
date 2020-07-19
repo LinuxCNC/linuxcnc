@@ -27,9 +27,13 @@ para que los botones de la parte baja de la pantalla sean visibles.
 
 == Pagina de entrada[[sec:Entry-Page]]
 
+.Pagina inicial[[cap:init-Page]]
+
+image::images/stepconf-start_1_es.png[align="center", alt="Pagina inicial"]
+
 .Pimera Pagina[[cap:Entry-Page]]
 
-image::images/stepconf-start_en.png[align="center", alt="Pagina de entrada"]
+image::images/stepconf-start_2_es.png[align="center", alt="Pagina de entrada"]
 
 Los tres primeros botones radio son autoexplicativos:
 
@@ -68,7 +72,7 @@ Las siguientes opciones se registrarán en un archivo de preferencias para la pr
 
 .Informacion Basica[[cap:Basic-Information-Page]]
 
-image::images/stepconf-base_en.png[align="center", alt="Informacion Basica"]
+image::images/stepconf-base_es.png[align="center", alt="Informacion Basica"]
 
 * 'Nombre de la maquina' - 
     (((Nombre de la Maquina)))
@@ -196,7 +200,7 @@ usa generacion de pulsos de paso por software o no.
 
 .Pagina de ajuste del Puerto Paralelo[[cap:Parallel-Port-Setup]]
 
-image::images/stepconf-parallel-1_en.png[align="center", alt="Pagina de ajuste del Puerto Paralelo 1"]
+image::images/stepconf-parallel-1_es.png[align="center", alt="Pagina de ajuste del Puerto Paralelo 1"]
 
 Para cada pin se debera seleccionar la señal de control
 que concuerde con la configuracion del puerto.
@@ -232,18 +236,38 @@ ser invertida (0V para activo/Verdadero, 5v para inactivo/Falso)
 
 .Página de configuración del puerto paralelo 2
 
-image::images/stepconf-parallel-2_en.png[align="center", alt="Página de configuración del puerto paralelo 2"]
+image::images/stepconf-parallel-2_es.png[align="center", alt="Página de configuración del puerto paralelo 2"]
 
 El segundo puerto paralelo (si está seleccionado) puede configurarse y asignar sus pines en esta página. +
 No se pueden seleccionar señales de paso y dirección. +
 Puede seleccionarlo de entrada o de salida para maximizar el número de pines de entrada/salida que están disponibles. +
 Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el número de puerto predeterminado de Linux (probablemente 1).
 
+== Opciones
+
+.Configuracion avanzada
+
+image::images/stepconf-options_es.png[align="center", alt="Configuración avanzada"]
+
+* 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
+link?cha:hal-user-interface, Capitulo HALUI para más información.
+
+* 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
+para trabajar en el. Ver el link?cha:pyvcp,Capítulo PyVCP para más información.
+
+* 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
+(Controlador lógico programable). Ver el
+link?cha:classicladder, Capitulo Classicladder para más información.
+
+* 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
+para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
+generalmente solo es útil si tiene herramientas predimensionadas.
+
 == Configuracion de los Ejes[[sec:Axis-Configuration]](((Axis Configuration)))
 
 .Pagina de configuracion de ejes[[cap:Axis-Configuration-Page]]
 
-image::images/stepconf-axis-x_en.png[align="center", alt="Pagina de configuracion de ejes"]
+image::images/stepconf-axis-x_es.png[align="center", alt="Pagina de configuracion de ejes"]
 
 * 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - 
     (((Motor Steps Per Revolution)))
@@ -366,7 +390,7 @@ image::images/stepconf-axis-x_en.png[align="center", alt="Pagina de configuracio
 
 .Probar este eje
 
-image::images/stepconf-x-test_en.png[align="center", alt="Probar este Eje"]
+image::images/stepconf-x-test_es.png[align="center", alt="Probar este Eje"]
 
 Es un comprobador básico que solo emite señales de paso y dirección
 para probar diferentes valores de aceleración y velocidad.
@@ -440,7 +464,7 @@ reducirlo en un 10% y usarlo como  Aceleración máxima del eje.
 
 .Página de configuración del husillo
 
-image::images/stepconf-spindle_en.png[align="center", alt="Página de configuración del husillo"]
+image::images/stepconf-spindle_es.png[align="center", alt="Página de configuración del husillo"]
 
 Esta página solo aparece cuando se selecciona 'Spindle PWM' en
 la página 'Pin Portout Parallel' para una de las salidas.
@@ -526,26 +550,6 @@ típicamente usará durante el fresado
 Por ejemplo, si su husillo va de 0 RPM a 8000 RPM,
 pero generalmente usa velocidades de 400 RPM (10%) a 4000 RPM (100%),
 encuentre los valores de PWM que dan 1600 RPM (40%) y 2800 RPM (70%).
-
-== Opciones
-
-.Configuracion avanzada
-
-image::images/stepconf-options_en.png[align="center", alt="Configuración avanzada"]
-
-* 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
-link?cha:hal-user-interface, Capitulo HALUI para más información.
-
-* 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
-para trabajar en el. Ver el link?cha:pyvcp,Capítulo PyVCP para más información.
-
-* 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
-(Controlador lógico programable). Ver el
-link?cha:classicladder, Capitulo Classicladder para más información.
-
-* 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
-para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
-generalmente solo es útil si tiene herramientas predimensionadas.
 
 == Configuracion de la maquina completa
 
