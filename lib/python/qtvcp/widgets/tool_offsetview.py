@@ -70,6 +70,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                                                         or INFO.NO_HOME_REQUIRED)))
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
+        STATUS.connect('diameter-mode', lambda w, data: self.diameterMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         conversion = {5:"Y", 6:'Y', 7:"Z", 8:'Z', 9:"A", 10:"B", 11:"C", 12:"U", 13:"V", 14:"W"}
         for num, let in conversion.iteritems():
@@ -87,6 +88,10 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     def metricMode(self, state):
         self.tablemodel.metricDisplay(state)
+        self.update()
+
+    def diameterMode(self, state):
+        self.tablemodel.diameterDisplay(state)
         self.update()
 
     def createAllView(self):
@@ -189,6 +194,7 @@ class MyTableModel(QAbstractTableModel):
         self.imperial_text_template = '%9.4f'
         self.degree_text_template = '%10.1f'
         self.metric_display = False
+        self.diameter_display = False
         self.headerdata = ['Select','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
         self.vheaderdata = []
         self.arraydata = [[0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
@@ -197,6 +203,10 @@ class MyTableModel(QAbstractTableModel):
 
     def metricDisplay(self, state):
         self.metric_display = state
+        self.layoutChanged.emit()
+
+    def diameterDisplay(self, state):
+        self.diameter_display = state
         self.layoutChanged.emit()
 
     # make a list of all the checked tools
@@ -256,6 +266,14 @@ class MyTableModel(QAbstractTableModel):
                     tmpl = lambda s: self.imperial_text_template % s
                 if self.metric_display != INFO.MACHINE_IS_METRIC:
                     value = INFO.convert_units(value)
+                if col in(3,4):
+                    if self.diameter_display:
+                        value *=2
+                        self.headerdata[3] = 'X D'
+                        self.headerdata[4] = 'X Wear D'
+                    else:
+                        self.headerdata[3] = 'X R'
+                        self.headerdata[4] = 'X Wear R'
                 return tmpl(value)
 
             if isinstance(value, str):
@@ -320,6 +338,8 @@ class MyTableModel(QAbstractTableModel):
                     v = INFO.convert_metric_to_machine(value)
                 else:
                     v = INFO.convert_imperial_to_machine(value)
+                if col in(3,4) and self.diameter_display:
+                    v /=2
             self.arraydata[index.row()][col] = v
         except:
             LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), col))
