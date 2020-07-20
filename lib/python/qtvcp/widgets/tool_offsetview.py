@@ -20,8 +20,8 @@ import locale
 import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
-from PyQt5.QtWidgets import QTableView, QAbstractItemView, QCheckBox
-
+from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
+QItemEditorFactory,QDoubleSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -44,6 +44,19 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# custom spinbox controls for editing
+class ItemEditorFactory(QItemEditorFactory):
+    def __init__(self):
+        super(ItemEditorFactory,self).__init__()
+
+    def createEditor(self, userType, parent):
+        if userType == QVariant.Double:
+            doubleSpinBox = QDoubleSpinBox(parent)
+            doubleSpinBox.setDecimals(4)
+            doubleSpinBox.setMaximum(1000)
+            return doubleSpinBox
+        else:
+            return super(ItemEditorFactory,self).createEditor(userType, parent)
 
 class ToolOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -95,6 +108,10 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.update()
 
     def createAllView(self):
+        styledItemDelegate=QStyledItemDelegate()
+        styledItemDelegate.setItemEditorFactory(ItemEditorFactory())
+        self.setItemDelegate(styledItemDelegate)
+
         # create the view
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         #self.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -373,6 +390,7 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = ToolOffsetView()
+    w.setEnabled(True)
     w._hal_init()
     w.show()
     sys.exit(app.exec_())
