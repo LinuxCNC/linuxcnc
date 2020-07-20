@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Documentation.pdf
-Icon=/usr/share/icons/mate/scalable/animations/gb.svg
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-en.svg
 X-GNOME-DocPath=
 Terminal=false
 Name=User Manual - EN

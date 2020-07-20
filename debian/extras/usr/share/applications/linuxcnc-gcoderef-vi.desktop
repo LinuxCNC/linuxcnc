@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode_vi.html
-Icon=/usr/share/icons/mate/scalable/animations/vi.svg
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-vi.svg
 X-GNOME-DocPath=
 Terminal=false
 Name=G-Code Quick Reference - VI
