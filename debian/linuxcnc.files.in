@@ -1,6 +1,7 @@
 etc/linuxcnc/*
 etc/init.d/realtime
 etc/X11/app-defaults/*
+etc/xdg/menus/applications-merged/CNC.menu
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so.*
@@ -40,4 +41,3 @@ usr/share/gtksourceview-2.0/
 usr/share/gscreen
 usr/share/gmoccapy
 usr/share/qtvcp
-

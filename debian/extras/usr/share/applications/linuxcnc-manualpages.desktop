@@ -8,6 +8,6 @@ X-GNOME-DocPath=
 Terminal=false
 Comment=Integrator Information
 StartupNotify=false
-Categories=Utility;Engineering;X-CNC;
+Categories=Utility;Engineering;X-CNC-DOC;
 Keywords=cnc;linuxcnc;cncdoc;
 Name[en_US]=LinuxCNC Manual Pages
