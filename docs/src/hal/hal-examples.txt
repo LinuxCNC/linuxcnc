@@ -96,7 +96,7 @@ the HAL Manual Toolchange component:
 
 ----
 net tool-number <= iocontrol.0.tool-prep-number 
-net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed 
+net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed 
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
 ----
 
