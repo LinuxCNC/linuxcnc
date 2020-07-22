@@ -137,7 +137,7 @@ class configurator:
             self.panel = 0
             self.newIniFile = ''
             self.orgHalFile = ''
-            self.plasmacIniFile = self.copyPath + '/metric_plasmac.ini'
+#            self.plasmacIniFile = self.copyPath + '/metric_plasmac.ini'
             self.inPlace = False
             self.set_mode()
 
@@ -426,6 +426,15 @@ class configurator:
                 return False
         return True
 
+    def b4_fix_config_dir_split(self):
+        inFile = open(self.orgIniFile,'r')
+        for line in inFile:
+            if 'LAST_MAJOR_UPGRADE=0.144' in line.replace(' ',''):
+                inFile.close()
+                return False
+        inFile.close()
+        return True
+
     def set_mode(self):
         if self.mode == 0:
             self.modeLabel.set_text('Use arc voltage for both Arc-OK and THC')
@@ -452,12 +461,13 @@ class configurator:
         # *** set latestMajorUpgrade version number below         ***
         # *** set latestMajorUpgrade in plasmac_run.py            ***
         # *** set LAST_MAJOR_UPGRADE in upgrade_ini_file function ***
+        # *** set LAST_MAJOR_UPGRADE in default_gui.init files    ***
         # *** set LAST_MAJOR_UPGRADE in all example .ini files    ***
         # *** set VERSION in plasmac.comp                         ***
         # *** set self.plasmacVersion in plasmac_config.py        ***
         # *** update versions.html                                ***
         # ***********************************************************
-        self.latestMajorUpgrade = 0.140
+        self.latestMajorUpgrade = 0.144
         # see if this is a version before creating {MACHINE}_connections.hal
         if not os.path.exists('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())):
             return 0.000
@@ -488,6 +498,9 @@ class configurator:
         # if version before splitting config directory
         elif self.b4_split_config_dir():
             return 0.139
+        # if version before splitting config directory
+        elif self.b4_fix_config_dir_split():
+            return 0.143
         # must be the latest version
         else:
         # *** set the latestMajorUpgrade version number in line 437 ***
@@ -1085,6 +1098,21 @@ class configurator:
             inFile.close()
             outFile.close()
 
+        if version < 0.144:
+            print ('v less than 144')
+            bkpFile = '{}/backups/{}.old139'.format(self.configDir, os.path.basename(self.orgIniFile))
+            shutil.copy(self.orgIniFile,bkpFile)
+            inFile = open(bkpFile, 'r')
+            outFile = open('{}'.format(self.orgIniFile), 'w')
+            for line in inFile:
+                if line.startswith('LAST_UPGRADE') or line.startswith('LAST_MAJOR_UPGRADE'):
+                    line = 'LAST_MAJOR_UPGRADE      = 0.144\n'
+                elif './plasmac/test/plasmac_' in line:
+                    line = line.replace('./plasmac/test/plasmac_', 'test/plasmac_')
+                outFile.write(line)
+            inFile.close()
+            outFile.close()
+
     def upgrade_material_file(self,version):
         materialFile = '{}/{}_material.cfg'.format(self.configDir,self.machineName.lower())
         if os.path.exists(materialFile):
@@ -1236,9 +1264,9 @@ class configurator:
                 result += 1
                 a,b = line.strip().replace(' ','').split('=')
                 if b.lower() == 'inch':
-                    self.plasmacIniFile = '{}/{}/imperial_plasmac.ini'.format(self.copyPath,display)
+                    self.plasmacIniFile = '{}/default_{}_imperial.init'.format(self.copyPath, display)
                 else:
-                    self.plasmacIniFile = '{}/{}/metric_plasmac.ini'.format(self.copyPath,display)
+                    self.plasmacIniFile = '{}/default_{}_metric.init'.format(self.copyPath, display)
             if line.startswith('[') or not line:
                 if result == 1:
                     break
@@ -1616,29 +1644,50 @@ class configurator:
                 shutil.rmtree(fNname, ignore_errors=True)
             elif os.path.exists(fNname):
                 os.remove(fNname)
-        # remove existing links to the plasmac source
-        for file in redundantFiles:
+        # remove existing links to the plasmac source from config directory
+        for file in oldFileList:
             fName = os.path.join(self.configDir, file)
-            if os.path.exists(fName):
-                os.remove(fName)
             if os.path.islink(fName):
                 os.unlink(fName)
-        # make links to plasmac source
-        for fileName in ['/','/configurator.py','/materialverter.py','/pmx_test.py','/tool.tbl']:
-            src = '{}{}'.format(self.copyPath,fileName)
-            if fileName == '/':
-                dst = '{}{}'.format(self.configDir,'/plasmac')
+            elif os.path.isfile(fName):
+                os.remove(fName)
+        # if plasmac directory exists remove all existing links
+        plasDir = '{}/plasmac'.format(self.configDir)
+        if os.path.exists(plasDir):
+            if os.path.islink(plasDir):
+                os.unlink(plasDir)
+                os.mkdir(plasDir)
             else:
-                dst = '{}{}'.format(self.configDir,fileName)
-            if fileName == '/tool.tbl':
-                if os.path.islink(dst):
-                    os.unlink(dst)
-                    shutil.copy(src,dst)
+                for fileName in os.listdir(plasDir):
+                    if os.path.islink('{}/{}'.format(plasDir, fileName)):
+                        os.unlink('{}/{}'.format(plasDir, fileName))
+                    elif os.path.isfile('{}/{}'.format(plasDir, fileName)):
+                        os.remove('{}/{}'.format(plasDir, fileName))
+        else:
+            os.mkdir('{}/plasmac'.format(self.configDir))
+        # new links in config directory
+        for fileName in ['configurator.py','materialverter.py','pmx_test.py','versions.html']:
+            src = '{}/{}'.format(self.copyPath,fileName)
+            dst = '{}/{}'.format(self.configDir,fileName)
+            os.symlink(src,dst)
+        # new links in plasmac directory
+        for fileName in newFileList:
+            src = '{}/{}'.format(self.copyPath,fileName)
+            if fileName == 'wizards' or fileName == 'test':
+                dst = '{}/{}'.format(self.configDir,fileName)
             else:
-                print dst
-                if os.path.islink(dst):
-                    os.unlink(dst)
-                os.symlink(src,dst)
+                dst = '{}/plasmac/{}'.format(self.configDir,fileName)
+            os.symlink(src,dst)
+        # the tool table is special, it needs to be a file
+        # and if it is don't overwrite it
+        for fileName in ['tool.tbl']:
+            src = '{}/{}'.format(self.copyPath,fileName)
+            dst = '{}/{}'.format(self.configDir,fileName)
+            if os.path.islink(dst):
+                os.unlink(dst)
+                shutil.copy(src,dst)
+            elif self.configureType == 'new':
+                shutil.copy(src,dst)
         return True
 
     def write_material_file(self):
@@ -2260,42 +2309,82 @@ class configurator:
                 '#CUT_MODE           = \n'\
                 '\n'
 
-redundantFiles = [ \
-                   'blank.ngc',\
-                   'configurator.py',\
-                   'imperial_startup.ngc',\
-                   'M190',\
-                   'materialverter.py',\
-                   'metric_startup.ngc',\
-                   'plasmac.tcl',\
-                   'plasmac_axis.py',\
-                   'plasmac_buttons.glade',\
-                   'plasmac_buttons.hal',\
-                   'plasmac_buttons.py',\
-                   'plasmac_config.glade',\
-                   'plasmac_config.hal',\
-                   'plasmac_config.py',\
-                   'plasmac_control.glade',\
-                   'plasmac_control.hal',\
-                   'plasmac_control.py',\
-                   'plasmac_gcode.py',\
-                   'plasmac_monitor.glade',\
-                   'plasmac_monitor.hal',\
-                   'plasmac_monitor.py',\
-                   'plasmac_run_panel.glade',\
-                   'plasmac_run_tab.glade',\
-                   'plasmac_run.hal',\
-                   'plasmac_run.py',\
-                   'plasmac_stats.glade',\
-                   'plasmac_stats.hal',\
-                   'plasmac_stats.py',\
-                   'plasmac_wizards.glade',\
-                   'plasmac_wizards.py',\
-                   'pmx485.py',\
-                   'pmx_test.py',\
-                   'README.md',\
-                   'test',\
-                   'wizards',\
+newFileList = [ \
+                'blank.ngc',\
+                'imperial_startup.ngc',\
+                'M190',\
+                'metric_startup.ngc',\
+                'plasmac.hal',\
+                'plasmac.tcl',\
+                'plasmac_axis.py',\
+                'plasmac_buttons.glade',\
+                'plasmac_buttons.hal',\
+                'plasmac_buttons.py',\
+                'plasmac_config.glade',\
+                'plasmac_config.hal',\
+                'plasmac_config.py',\
+                'plasmac_control.glade',\
+                'plasmac_control.hal',\
+                'plasmac_control.py',\
+                'plasmac_gcode.py',\
+                'plasmac_monitor.glade',\
+                'plasmac_monitor.hal',\
+                'plasmac_monitor.py',\
+                'plasmac_run_panel.glade',\
+                'plasmac_run_tab.glade',\
+                'plasmac_run.hal',\
+                'plasmac_run.py',\
+                'plasmac_stats.glade',\
+                'plasmac_stats.hal',\
+                'plasmac_stats.py',\
+                'plasmac_wizards.glade',\
+                'plasmac_wizards.py',\
+                'pmx485.py',\
+                'README',\
+                'README.md',\
+                'test',\
+                'wizards',\
+                  ]
+
+oldFileList = [ \
+                'blank.ngc',\
+                'configurator.py',\
+                'imperial_startup.ngc',\
+                'M190',\
+                'materialverter.py',\
+                'metric_startup.ngc',\
+                'plasmac.hal',\
+                'plasmac.tcl',\
+                'plasmac_axis.py',\
+                'plasmac_buttons.glade',\
+                'plasmac_buttons.hal',\
+                'plasmac_buttons.py',\
+                'plasmac_config.glade',\
+                'plasmac_config.hal',\
+                'plasmac_config.py',\
+                'plasmac_control.glade',\
+                'plasmac_control.hal',\
+                'plasmac_control.py',\
+                'plasmac_gcode.py',\
+                'plasmac_monitor.glade',\
+                'plasmac_monitor.hal',\
+                'plasmac_monitor.py',\
+                'plasmac_run_panel.glade',\
+                'plasmac_run_tab.glade',\
+                'plasmac_run.hal',\
+                'plasmac_run.py',\
+                'plasmac_stats.glade',\
+                'plasmac_stats.hal',\
+                'plasmac_stats.py',\
+                'plasmac_wizards.glade',\
+                'plasmac_wizards.py',\
+                'pmx485.py',\
+                'pmx_test.py',\
+                'README',\
+                'README.md',\
+                'versions.html', \
+                'test',\
+                'wizards',\
                   ]
 
 if __name__ == '__main__':
