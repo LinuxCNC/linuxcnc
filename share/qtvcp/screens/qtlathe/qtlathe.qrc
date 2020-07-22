@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/images">
+    <file>../../images/ref_x_not.png</file>
+    <file>../../images/ref_z_not.png</file>
+    <file>../../images/clear.png</file>
+  </qresource>
+</RCC>
