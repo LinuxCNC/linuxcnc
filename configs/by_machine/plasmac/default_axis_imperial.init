@@ -1,0 +1,279 @@
+# this section only reqired if using the sim testing panel
+[APPLICATIONS]
+DELAY                   = 3
+APP                     = test/plasmac_test.py
+
+# required
+[PLASMAC]
+
+# required for upgrades (DO NOT CHANGE)
+LAST_MAJOR_UPGRADE      = 0.144
+
+# sets the operating mode, if not specified the default is 0
+# 0 = use arc-voltage-in for arcOK and THC (no need to connect arc-ok-in, move-up-in and move-down-in)
+# 1 = use arc-ok-in for arcOK and arc-voltage-in for THC (no need to connect move-up-in and move-down-in)
+# 2 = use arc-ok-in for arcOK and move-down-in + move-up-in for THC (no need to connect arc-voltage-in)
+MODE                    = 0
+
+# enable(0) or disable(1) the plasmac config page, if not specified the default is enabled
+CONFIG_DISABLE          = 0
+
+# the font for the Axis GUI, if not specified 'sans 10' will be used
+# valid font sizes are from 9 to 15
+FONT                    = sans 10
+
+# the window size for the Axis GUI
+# 0 = minimum size to suit font
+# 1 = maximized
+# width x height = custom size
+WINDOW_SIZE             = 0
+
+# the theme for the Axis GUI tabs, if not specified the system theme will be used
+THEME                   = Clearlooks
+
+# select portrait mode, if not specified the default is landscape
+#AXIS_ORIENT            = portrait
+
+# percentage of cut-feed-rate used for paused motion speed
+PAUSED_MOTION_SPEED     = 50
+
+# torch on time when manual pulse requested
+TORCH_PULSE_TIME        = 1.0
+
+# for Powermax communications
+#PM_PORT                 = /dev/ttyUSB0
+
+# for the five user buttons in the main window
+BUTTON_1_NAME           = Ohmic\Test
+BUTTON_1_CODE           = ohmic-test
+BUTTON_2_NAME           = Probe\Test
+BUTTON_2_CODE           = probe-test 30
+BUTTON_3_NAME           = Change\Consumables
+BUTTON_3_CODE           = change-consumables X0 F160
+BUTTON_4_NAME           = Pierce\& Cut
+BUTTON_4_CODE           = cut-type
+BUTTON_5_NAME           = Load\Sheet
+BUTTON_5_CODE           = G53 G0 X{JOINT_0 HOME} Y1
+
+# for the ten user buttons in the Extras panel
+BUTTON_10_NAME           = 
+BUTTON_10_CODE           = 
+BUTTON_10_IMAGE          = 
+BUTTON_11_NAME           = 
+BUTTON_11_CODE           = 
+BUTTON_11_IMAGE          = 
+BUTTON_12_NAME           = 
+BUTTON_12_CODE           = 
+BUTTON_12_IMAGE          = 
+BUTTON_13_NAME           = 
+BUTTON_13_CODE           = 
+BUTTON_13_IMAGE          = 
+BUTTON_14_NAME           = PlasmaC\User Guide
+BUTTON_14_CODE           = %xdg-open http://linuxcnc.org/docs/devel/html/plasma/plasmac-user-guide.html
+BUTTON_14_IMAGE          = 
+BUTTON_15_NAME           = 
+BUTTON_15_CODE           = 
+BUTTON_15_IMAGE          = 
+BUTTON_16_NAME           = 
+BUTTON_16_CODE           = 
+BUTTON_16_IMAGE          = 
+BUTTON_17_NAME           = 
+BUTTON_17_CODE           = 
+BUTTON_17_IMAGE          = 
+BUTTON_18_NAME           = 
+BUTTON_18_CODE           = 
+BUTTON_18_IMAGE          = 
+BUTTON_19_NAME           = LinuxCNC\Docs
+BUTTON_19_CODE           = %xdg-open http://linuxcnc.org/docs/devel/html
+BUTTON_19_IMAGE          = 
+
+# this section required as is for removing z axis moves from the loaded gcode file
+# this is optional and if used then plasmac_gcode.py needs to be set as executable
+[FILTER]
+PROGRAM_EXTENSION       = .ngc (filter gcode files)
+ngc                     = ./plasmac/plasmac_gcode.py
+nc                      = ./plasmac/plasmac_gcode.py
+tap                     = ./plasmac/plasmac_gcode.py
+
+[RS274NGC]
+RS274NGC_STARTUP_CODE   = o<imperial_startup> call
+PARAMETER_FILE          = imperial_parameters.txt
+
+# required, ./ must be in this path
+SUBROUTINE_PATH         = ./:./plasmac:../../nc_files/subroutines
+
+# required for reading ini and hal variables
+FEATURES                = 12
+
+# required for our material change
+USER_M_PATH             = ./:./plasmac
+
+[HAL]
+
+# required
+TWOPASS                 = ON
+
+# required - your machine hal file
+HALFILE                 = machine.hal
+
+# required
+HALFILE                 = ./plasmac/plasmac.tcl
+
+# required - see comments in plasmac.hal
+HALFILE                 = plasmac_connections.hal
+
+# required
+HALUI                   = halui
+
+[DISPLAY]
+DISPLAY                 = axis
+POSITION_OFFSET         = RELATIVE
+POSITION_FEEDBACK       = ACTUAL
+MAX_FEED_OVERRIDE       = 1.5
+PROGRAM_PREFIX          = ../../nc_files
+INTRO_GRAPHIC           = linuxcnc.gif
+INTRO_TIME              = 1
+CYCLE_TIME              = 0.1
+INCREMENTS              = 1, .1, .01, .001, .0001
+MDI_HISTORY_FILE        = imperial_mdi_history.txt
+OPEN_FILE               = ""
+EDITOR                  = leafpad
+TOOL_EDITOR             = tooleditor x y
+
+# required
+USER_COMMAND_FILE       = ./plasmac/plasmac_axis.py
+
+# required
+EMBED_TAB_NAME          = Statistics
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_stats -x {XID} -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
+
+# use one of the next two
+# run panel in tab behind preview
+EMBED_TAB_NAME          = Run
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
+# run panel in panel on right side
+#GLADEVCP                = -c plasmac_run -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
+
+EMBED_TAB_NAME          = Config
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_config -x {XID} -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
+
+EMBED_TAB_NAME          = Extras
+EMBED_TAB_COMMAND       = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
+
+[EMC]
+VERSION                 = 1.1
+MACHINE                 = IMPERIAL_PLASMAC
+DEBUG                   = 0
+
+[EMCIO]
+EMCIO                   = io
+CYCLE_TIME              = 0.100
+TOOL_TABLE              = tool.tbl
+
+[TASK]
+TASK                    = milltask
+CYCLE_TIME              = 0.01
+
+[EMCMOT]
+EMCMOT                  = motmod
+BASE_PERIOD             = 32000
+SERVO_PERIOD            = 1000000
+
+[KINS]
+KINEMATICS              = trivkins coordinates=xyyz
+JOINTS                  = 4
+
+[TRAJ]
+SPINDLES                = 3
+COORDINATES             = XYYZ
+LINEAR_UNITS            = inch
+MAX_LINEAR_VELOCITY     = 10
+ANGULAR_UNITS           = degree
+POSITION_FILE           = imperial_position.txt
+
+[AXIS_X]
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 24.0001
+# set to double the value in the corresponding joint
+MAX_VELOCITY            = 20
+# set to double the value in the corresponding joint
+MAX_ACCELERATION        = 200
+# shares the above two equally between the joint and the offset
+OFFSET_AV_RATIO = 0.5
+
+[JOINT_0]
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 24.0001
+MAX_VELOCITY            = 10
+MAX_ACCELERATION        = 100
+STEPGEN_MAXACCEL        = 120
+TYPE                    = LINEAR
+MIN_FERROR              = 0.001
+FERROR                  = 0.04
+HOME                    = 0.0
+HOME_OFFSET             = 0.0
+HOME_SEQUENCE           = 1
+
+[AXIS_Y]
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 24.0001
+# set to double the value in the corresponding joint
+MAX_VELOCITY            = 20
+# set to double the value in the corresponding joint
+MAX_ACCELERATION        = 200
+# shares the above two equally between the joint and the offset
+OFFSET_AV_RATIO = 0.5
+
+[JOINT_1]
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 24.0001
+MAX_VELOCITY            = 10
+MAX_ACCELERATION        = 100
+STEPGEN_MAXACCEL        = 120
+TYPE                    = LINEAR
+MIN_FERROR              = 0.001
+FERROR                  = 0.04
+HOME                    = 0.0
+HOME_OFFSET             = 0.0
+HOME_SEQUENCE           = -2
+
+[JOINT_2]
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 24.0001
+MAX_VELOCITY            = 10
+MAX_ACCELERATION        = 100
+STEPGEN_MAXACCEL        = 120
+TYPE                    = LINEAR
+MIN_FERROR              = 0.001
+FERROR                  = 0.04
+HOME                    = 0.0
+HOME_OFFSET             = 0.0
+HOME_SEQUENCE           = -2
+
+[AXIS_Z]
+# this should be the top of your slats
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 2.7501
+
+# required, set to double the value in the corresponding joint
+MAX_VELOCITY            = 4.75
+
+# required, set to double the value in the corresponding joint
+MAX_ACCELERATION        = 47.50
+
+# required, shares the above two equally between the axis/joint and the offset
+OFFSET_AV_RATIO         = 0.5
+
+[JOINT_3]
+# this should be the top of your slats
+MIN_LIMIT               = -0.0001
+MAX_LIMIT               = 2.7501
+MAX_VELOCITY            = 2.375
+MAX_ACCELERATION        = 23.75
+STEPGEN_MAXACCEL        = 35.0
+TYPE                    = LINEAR
+MIN_FERROR              = 0.01
+FERROR                  = 0.04
+HOME                    = 2.2
+HOME_OFFSET             = 2.75
+HOME_SEQUENCE           = 0

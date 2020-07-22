@@ -46,7 +46,7 @@ class HandlerClass:
         self.builder.get_object('arc-fail-delay').set_digits(1)
         self.builder.get_object('arc-fail-delay-adj').configure(3,0.1,60,0.1,0,0)
         self.builder.get_object('arc-ok-low').set_digits(0)
-        self.builder.get_object('arc-ok-low-adj').configure(30,0,100,1,0,0)
+        self.builder.get_object('arc-ok-low-adj').configure(60,0,100,1,0,0)
         self.builder.get_object('arc-ok-high').set_digits(0)
         self.builder.get_object('arc-ok-high-adj').configure(99999,0,99999,1,0,0)
         self.builder.get_object('arc-max-starts').set_digits(0)
@@ -321,7 +321,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.143'
+        self.plasmacVersion = 'PlasmaC v0.144'
 
         self.halcomp = halcomp
         self.builder = builder

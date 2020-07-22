@@ -51,7 +51,7 @@ class line:
             Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
         elif self.gui == 'gmoccapy':
             self.c = linuxcnc.command()
-            self.c.program_open('./plasmac/blank.ngc')
+            self.c.program_open('./wizards/blank.ngc')
             self.c.program_open(fName)
         else:
             print('Unknown GUI in .ini file')
@@ -652,23 +652,23 @@ class line:
         self.g2Arc = gtk.RadioButton(None, 'Clockwise')
         self.g3Arc = gtk.RadioButton(self.g2Arc, 'Counter Clock')
         self.pixLinePoint = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/line-point.png', 
+                filename='./wizards/images/line-point.png', 
                 width=240, 
                 height=240)
         self.pixLineAngle = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/line-angle.png', 
+                filename='./wizards/images/line-angle.png', 
                 width=240, 
                 height=240)
         self.pixArc3p = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/arc-3p.png', 
+                filename='./wizards/images/arc-3p.png', 
                 width=240, 
                 height=240)
         self.pixArc2pr = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/arc-2pr.png', 
+                filename='./wizards/images/arc-2pr.png', 
                 width=240, 
                 height=240)
         self.pixArcAngle = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/arc-angle.png', 
+                filename='./wizards/images/arc-angle.png', 
                 width=240, 
                 height=240)
         self.image = gtk.Image()

@@ -1065,7 +1065,7 @@ class HandlerClass:
     def upgrade_check(self):
         # the latest version that configurator is required for *****************
         # this may or may not be the current version ***************************
-        latestMajorUpgrade = 0.140
+        latestMajorUpgrade = 0.144
         lastMajorUpgrade = float(self.i.find('PLASMAC', 'LAST_MAJOR_UPGRADE') or self.i.find('PLASMAC', 'LAST_UPGRADE') or 0.0)
         manualUpgrade = int(self.i.find('PLASMAC', 'MANUAL_UPGRADE') or 0)
         if lastMajorUpgrade < latestMajorUpgrade and manualUpgrade != 1:

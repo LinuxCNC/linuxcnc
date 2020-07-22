@@ -337,12 +337,12 @@ HAL connection examples in the following table show an example for both a parall
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run *HalShow* for a full listing of all HAL pins.
 
-Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine_name
+Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine_name>
 
 This can be run as follows:
 
 ----
-$ linuxcnc ~/linuxcnc/configs/<machine_name/<machine_name.ini
+$ linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
 ----
 
 After creating a new configuration some initial setup is required.
@@ -1728,7 +1728,7 @@ IMPORTANT: SEE <<path-tolerance, PATH TOLERANCE>>
 
 ----
 TWOPASS = on (needed for multiple .hal files)
-HALFILE = <machine_name_NAME>.hal (your base machine .hal file)
+HALFILE = <machine_name>.hal (your base machine .hal file)
 HALFILE = plasmac.tcl (the standard PlasmaC .hal file )
 HALFILE = <machine_name>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
@@ -2216,7 +2216,7 @@ If you have a format you would like converted, create a *New Topic* in the https
 Materialverter may be run from a GUI file manager by double clicking on *materialverter.py* in your configuration directory or may be run from a terminal with the following command:
 
 ----
-$ python ~/linuxcnc/configs/<machine_name/materialverter.py
+$ python ~/linuxcnc/configs/<machine_name>/materialverter.py
 ----
 
 This will bring up the materialverter dialog:
@@ -2233,7 +2233,7 @@ For SheetCam only, select whether you would like a metric or imperial output fil
 
 For a conversion, select the Input File you wish to have converted.
 
-Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine_name_material.cfg, although you could select a different file and hand edit your <machine_name_material.cfg file.
+Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine_name>_material.cfg, although you could select a different file and hand edit your <machine_name>_material.cfg file.
 
 Click Create/Convert and your new material file will be created.
 
@@ -2241,7 +2241,7 @@ For a Manual creation or a Fusion360 conversion a dialog will show with all avai
 
 image::images/plasmac_material_dialogs.png[width=40%]
 
-NOTE: If you select ~/linuxcnc/configs/<machine_name_material.cfg then if this file already exists it will be overwritten.
+NOTE: If you select ~/linuxcnc/configs/<machine_name>_material.cfg then if this file already exists it will be overwritten.
 
 
 [[pm_comms]]

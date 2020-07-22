@@ -57,7 +57,7 @@ class rotate:
             Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
         elif self.gui == 'gmoccapy':
             self.c = linuxcnc.command()
-            self.c.program_open('./plasmac/blank.ngc')
+            self.c.program_open('./wizards/blank.ngc')
             self.c.program_open(fName)
         else:
             print('Unknown GUI in .ini file')

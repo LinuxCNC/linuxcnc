@@ -50,7 +50,7 @@ class slot:
             Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
         elif self.gui == 'gmoccapy':
             self.c = linuxcnc.command()
-            self.c.program_open('./plasmac/blank.ngc')
+            self.c.program_open('./wizards/blank.ngc')
             self.c.program_open(fName)
         else:
             print('Unknown GUI in .ini file')
@@ -337,7 +337,7 @@ class slot:
         end.connect('pressed', self.end_this_shape)
         t.attach(end, 4, 5, 10, 11)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
-                filename='./plasmac/wizards/images/slot.png', 
+                filename='./wizards/images/slot.png', 
                 width=240, 
                 height=240)
         image = gtk.Image()

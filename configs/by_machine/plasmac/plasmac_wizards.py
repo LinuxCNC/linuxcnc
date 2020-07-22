@@ -30,7 +30,7 @@ import hal
 import time
 from subprocess import Popen, PIPE
 
-sys.path.append('./plasmac/wizards')
+sys.path.append('./wizards')
 import w_settings
 import w_array
 import w_line
@@ -65,7 +65,7 @@ class wizards:
         self.set_theme()
         for wizard in ['line', 'circle', 'triangle', 'rectangle', 'polygon', 'bolt-circle', 'slot', 'star', 'gusset', 'sector']:
             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
-                    filename='./plasmac/wizards/images/{}-thumb.png'.format(wizard), 
+                    filename='./wizards/images/{}-thumb.png'.format(wizard), 
                     width=60, 
                     height=60)
             image = gtk.Image()
@@ -74,6 +74,7 @@ class wizards:
         self.button_setup()
         self.builder.get_object('button10').connect('realize', self.set_style)
         self.initialized = True
+        self.filter = './plasmac/plasmac_gcode.py'
         gobject.timeout_add(100, self.periodic)
 
     def set_theme(self):
@@ -343,7 +344,7 @@ class wizards:
                 Popen('axis-remote -r', stdout = PIPE, shell = True)
             else:
                 outBuf = open(self.outFile, 'w')
-                filter = Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac/plasmac_gcode.py', self.inFile)], stdin=PIPE, stdout=outBuf, stderr=PIPE)
+                filter = Popen(['sh', '-c', '%s \'%s\'' % (self.filter, self.inFile)], stdin=PIPE, stdout=outBuf, stderr=PIPE)
                 filter.stdin.close()
                 stderr_text = []
                 try:
