@@ -67,7 +67,14 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
             if number <0 or number > len(self._imagePath)-1:
                 LOG.debug('Path reference number out of range: {}'.format(number))
                 return
-            path = os.path.expanduser(self._imagePath[number])
+            # resouces file images.
+            if ':/' in self._imagePath[number]:
+                path = self._imagePath[number]
+                pixmap = QPixmap(path)
+                self.setPixmap(pixmap)
+                return
+            else:
+                path = os.path.expanduser(self._imagePath[number])
         except Exception as e:
             LOG.error('Path reference number: {}'.format(e))
             path = os.path.expanduser(self._defaultImage)
