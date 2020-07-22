@@ -118,6 +118,25 @@ class _VCPWindow(QtWidgets.QMainWindow):
             self.handler_instance.closing_cleanup__()
 
     def load_resources(self):
+        def qrccompile(qrcname,qrcpy):
+            log.info('Compiling qrc: {}'.format(qrcname))
+            try:
+                subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
+            except OSError as e:
+                log.error('{}, pyrcc5 error. try in terminal: sudo apt install pyqt5-dev-tools to install dev tools'.format(e))
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Critical)
+                msg.setText("QTvcp qrc compiling ERROR! ")
+                msg.setInformativeText('Qrc Compile error, try: "sudo apt install pyqt5-dev-tools" to install dev tools')
+                msg.setWindowTitle("Error")
+                msg.setDetailedText('You can continue but some images may be missing')
+                msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
+                msg.show()
+                retval = msg.exec_()
+                if retval == QtWidgets.QMessageBox.Abort: #cancel button
+                    log.critical("Canceled from qrc compiling Error Dialog\n")
+                    raise SystemError('pyrcc5 compiling error: try: "sudo apt install pyqt5-dev-tools"')
+
         if self.PATHS.IS_SCREEN:
             DIR = self.PATHS.SCREENDIR
             BNAME = self.PATHS.BASENAME
@@ -134,13 +153,12 @@ class _VCPWindow(QtWidgets.QMainWindow):
                 pyTime = os.stat(qrcpy).st_mtime
                 # is py older then qrc file?
                 if pyTime < qrcTime:
-                    log.info('Compiling qrc: {}'.format(qrcname))
-                    subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
+                    qrccompile(qrcname,qrcpy)
             # there is a qrc file but no resources.py file...
             else:
-                log.info('Compiling qrc: {}'.format(qrcname))
-                subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
+                qrccompile(qrcname,qrcpy)
 
+            # there is a qrc file but no resources.py file...
         # is there a resource.py in the directory?
         if os.path.isfile(qrcpy):
             try:
