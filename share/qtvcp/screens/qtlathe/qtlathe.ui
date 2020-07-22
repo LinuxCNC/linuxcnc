@@ -6713,12 +6713,15 @@ System</string>
       <item>
        <widget class="StatusImageSwitcher" name="homeIcon">
         <property name="pixmap">
-         <pixmap>../../images/ref_z_not.png</pixmap>
+         <pixmap resource="qtlathe.qrc">:/images/images/ref_z_not.png</pixmap>
+        </property>
+        <property name="image_number" stdset="0">
+         <number>0</number>
         </property>
         <property name="image_list" stdset="0">
          <stringlist>
-          <string>/home/chris/emc-dev/share/qtvcp/images/ref_z_not.png</string>
-          <string>/home/chris/emc-dev/share/qtvcp/images/clear.png</string>
+          <string>:/images/images/ref_z_not.png</string>
+          <string>:/images/images/clear.png</string>
          </stringlist>
         </property>
         <property name="watch_all_homed" stdset="0">
@@ -6735,12 +6738,12 @@ System</string>
       <item>
        <widget class="StatusImageSwitcher" name="homeIcon_x">
         <property name="pixmap">
-         <pixmap>../../images/ref_x_not.png</pixmap>
+         <pixmap resource="qtlathe.qrc">:/images/images/clear.png</pixmap>
         </property>
         <property name="image_list" stdset="0">
          <stringlist>
-          <string>/home/chris/emc-dev/share/qtvcp/images/ref_x_not.png</string>
-          <string>/home/chris/emc-dev/share/qtvcp/images/clear.png</string>
+          <string>:/images/images/ref_x_not.png</string>
+          <string>:/images/images/clear.png</string>
          </stringlist>
         </property>
         <property name="watch_all_homed" stdset="0">

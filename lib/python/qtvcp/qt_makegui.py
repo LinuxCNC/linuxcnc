@@ -1,4 +1,7 @@
-import os,sys
+import os
+import sys
+import subprocess
+
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 import traceback
 
@@ -114,7 +117,39 @@ class _VCPWindow(QtWidgets.QMainWindow):
             log.debug('Calling handler file Closing_cleanup__ function.')
             self.handler_instance.closing_cleanup__()
 
+    def load_resources(self):
+        if self.PATHS.IS_SCREEN:
+            DIR = self.PATHS.SCREENDIR
+            BNAME = self.PATHS.BASENAME
+        else:
+            DIR = self.PATHS.PANELDIR
+            BNAME = self.PATHS.BASENAME
+        qrcname = os.path.join(DIR, BNAME, BNAME+'.qrc')
+        qrcpy = os.path.join(DIR, BNAME, 'resources.py')
+
+        # Is there a qrc file in directory?
+        if os.path.isfile(qrcname):
+            qrcTime =  os.stat(qrcname).st_mtime
+            if os.path.isfile(qrcpy):
+                pyTime = os.stat(qrcpy).st_mtime
+                # is py older then qrc file?
+                if pyTime < qrcTime:
+                    log.info('Compiling qrc: {}'.format(qrcname))
+                    subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
+            # there is a qrc file but no resources.py file...
+            else:
+                log.info('Compiling qrc: {}'.format(qrcname))
+                subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
+
+        # is there a resource.py in the directory?
+        if os.path.isfile(qrcpy):
+            try:
+                import resources
+            except Exception as e:
+                log.warning('couldn not load () resource file: {}'.format(qrcpy, e))
+
     def instance(self):
+        self.load_resources()
         try:
             instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
