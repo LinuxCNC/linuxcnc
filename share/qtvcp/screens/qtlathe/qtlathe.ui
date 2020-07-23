@@ -1275,29 +1275,8 @@
                      </property>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
-                    <widget class="LED" name="led_at_speed">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>20</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>20</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="diameter">
-                      <number>15</number>
-                     </property>
+                   <item>
+                    <widget class="StateLED" name="stateled">
                      <property name="color">
                       <color>
                        <red>0</red>
@@ -1305,8 +1284,8 @@
                        <blue>0</blue>
                       </color>
                      </property>
-                     <property name="state">
-                      <bool>false</bool>
+                     <property name="is_spindle_at_speed_status" stdset="0">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -6982,6 +6961,11 @@ System</string>
    <class>LED</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
   </customwidget>
   <customwidget>
    <class>JogIncrements</class>

@@ -6,10 +6,12 @@ import os
 import linuxcnc
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
+from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -437,12 +439,33 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
+    # add spindle speed bar and at-speed led to tab corner
+    # add a tool number to tab corner
     def make_corner_widgets(self):
-        # add spindle speed bar to tab corner
+        # make a spindle-at-speed green LED
+        self.w.led = LED()
+        self.w.led.setProperty('is_spindle_at_speed_status',True)
+        self.w.led.setProperty('color',QColor(0,255,0,255))
+        self.w.led._hal_init()
+
+        # make a spindle speed bar
         self.w.rpm_bar = QtWidgets.QProgressBar()
         self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
-        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
-        # add tool number status to tab corner
+
+        # containers
+        w = QtWidgets.QWidget()
+        w.setContentsMargins(0,0,0,6)
+        w.setMinimumHeight(40)
+
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self.w.rpm_bar)
+        hbox.addWidget(self.w.led)
+        w.setLayout(hbox)
+
+        # add those to the corner of the right tab widget
+        self.w.rightTab.setCornerWidget(w)
+
+        # add tool number status to left tab corner
         self.w.tool_stat = TOOLSTAT()
         self.w.tool_stat.setProperty('tool_number_status', True)
         self.w.tool_stat.setProperty('textTemplate', 'Tool %d')

@@ -564,6 +564,37 @@ User System  +
 
 It is based on pyQT's QLabel
 
+=== StatusImageSwicher Widget
+Status image switcher will switch between images based on linuxcnc states. +
+'watch spindle' would toggle between 3 images ( stop, fwd, revs) +
+'watch axis homed' would toggle between 2 images ( axis not homed, axis homed) +
+'watch all homed' would toggle between 2 images ( not all homed, all homed) +
+'watch hard limits' would toggle between 2 images or one per joint +
+
+Here is an example of using it to display an icon of Z axis homing state: +
+
+image::images/statusImageSwitcher.png["QTvcp Status Image Switcher",scale="25%"]
+
+In the properties section notice that: +
+'watch axis homed' is checked +
+'axis letter' is set to Z +
+
+If you double click the 'image list' a dialog will show and allow you to add image paths to. +
+If you have one image as an icon and one clear image then that will look like it shows and hides the icon. +
+
+Selecting image paths can be done by selecting the 'pixmap' property and selecting an image. +
+Note: The pixmap setting is for test display only and will be ignored outside of Designer. +
+Right click the image name and you should see 'copy path' +
+Click 'copy path' +
+Now double click the 'image list' property so the dialog shows. +
+Click the 'New' button +
+Paste the image path in the entry box +
+Do that again for the next image - use a clear image to represent a hidden icon. +
+
+You can test display the images from the image list by changing the 'image number' +
+In this case 0 is unhomed 1 would be homed +
+This is for test display only and will be ignored outside of Designer. +
+
 ===  StatusStacked
 This widget displays one of three panels based on linuxcnc's mode. +
 This allows you to automatically display different widgets on Manual, MDI and Auto modes. +

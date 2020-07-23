@@ -105,12 +105,6 @@ class LED(QWidget, _HalWidgetBase):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(brush)
         painter.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
-
-        if self._flashRate > 0 and self._flashing:
-            self._timer.start(self._flashRate)
-        else:
-            self._timer.stop()
-
         painter.end()
 
     def minimumSizeHint(self):
@@ -156,14 +150,14 @@ class LED(QWidget, _HalWidgetBase):
     @pyqtSlot(bool)
     @pyqtSlot(int)
     def setState(self, value):
-        self._state = value
+        self.state = self._state = value
         self.update()
 
     def getState(self):
-        return self._state
+        return self.state
 
     def resetState(self):
-        self._state = False
+        self.state = self._state = False
 
     @pyqtSlot()
     def toggleState(self):
@@ -176,10 +170,19 @@ class LED(QWidget, _HalWidgetBase):
     @pyqtSlot(bool)
     def setFlashing(self, value):
         self._flashing = value
+        if self._flashRate > 0 and value:
+            if self._timer.isActive():
+                return
+            self._timer.start(self._flashRate)
+        else:
+            self._timer.stop()
+            # make sure when flashing stops led ends up at state
+            self._state = self.state
         self.update()
 
+    # flash when state on
     def setFlashState(self, value):
-        self.flash = self._flashing = value
+        self.flash = value
         self.update()
 
     def getFlashState(self):
@@ -197,7 +200,7 @@ class LED(QWidget, _HalWidgetBase):
     diameter = pyqtProperty(int, getDiameter, setDiameter)
     color = pyqtProperty(QColor, getColor, setColor)
     alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment,resetAlignment)
-    state = pyqtProperty(bool, getState, setState, resetState)
+    currentstate = pyqtProperty(bool, getState, setState, resetState)
     flashing = pyqtProperty(bool, getFlashState, setFlashState)
     flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
 
@@ -208,6 +211,15 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     led = LED()
     led.show()
-    led.setState(True)
+
+    # Flash always when method called test
     #led.setFlashing(True)
+    # this shouldn't matter
+    #led.setState(False)
+
+    # Flash only when state on test
+    led.setFlashState(True)
+    # only flash when this is true
+    led.change_state(False)
+
     sys.exit(app.exec_())
