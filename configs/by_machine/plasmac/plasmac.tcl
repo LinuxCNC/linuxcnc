@@ -27,6 +27,7 @@ net plasmac:units-per-mm            halui.machine.units-per-mm  =>  plasmac.unit
 
 # outputs
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
+net plasmac:cutting-stop            halui.spindle.0.stop        =>  plasmac.cutting-stop
 net plasmac:feed-hold               plasmac.feed-hold           =>  motion.feed-hold
 net plasmac:offset-enable           plasmac.offset-enable       =>  axis.x.eoffset-enable axis.y.eoffset-enable axis.z.eoffset-enable
 net plasmac:offset-scale            plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale

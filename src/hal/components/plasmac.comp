@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.144 - 2020 Jul 22
+0.145 - 2020 Jul 24
 
 .I SUMMARY:
 .br
@@ -117,6 +117,7 @@ pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1
 pin out bit     cornerlock_is_locked        "corner locked indicator";
 pin out float   cut_length                  "length of current cut job";
 pin out float   cut_time                    "time of current cut job";
+pin out bit     cutting_stop                "stop manual cut, connect to halui.spindle.0.stop";
 pin out bit     feed_hold                   "feed hold, connect to motion.feed_hold";
 pin out bit     kerfcross_is_locked         "kerf crossing locked indicator [mode 0 & mode 1]";
 pin out bit     led_down                    "thc move down indicator";
@@ -133,6 +134,8 @@ pin out bit     program_stop                "stop current program, connect to ha
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
 pin out bit     scribe_arm                  "arm the scribe";
 pin out bit     scribe_on                   "turn scribe on";
+pin out s32     state_out                   "current state";
+pin out s32     stop_type_out               "current stop type";
 pin out bit     thc_active                  "thc status output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
@@ -207,6 +210,7 @@ variable int    safe_target;                /* safe height target offset */
 variable bool   scribe_pause;               /* scribe pause flag */
 variable float  scribe_arm_timer;           /* scribe timer from arm to on*/
 variable float  scribe_on_timer;            /* scribe timer from on to motion*/
+variable int    state_old = -1;             /* old state*/
 variable bool   target_sensed;              /* sensed top of stock */
 variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
@@ -221,12 +225,9 @@ variable int    x_velocity;                 /* velocity for x motion for consuma
 variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    zero_target;                /* zero height target offset */
 
-/* DEBUGGING PINS */
-pin out s32     state_out                   "current state";
-pin out s32     stop_type_out               "current stop type";
-
 /* PARAMETERS */
-param r s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
+param rw bit     debug_print = FALSE         "print debug messages";
+param rw s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 
 function _;
 
@@ -825,11 +826,20 @@ FUNCTION(_) {
              * if too many attempts then turn torch off, pause program and return to idle state */
             feed_hold = TRUE;
             if(arc_starts > arc_max_starts - 1){
-                program_pause = TRUE;
                 restart_timer = 0;
-                if (!error_message){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nprogram is paused.\n", arc_max_starts);
-                    error_message = 1;
+                if(program_is_idle){
+                    cutting_stop = 1;
+                    state = MAX_HEIGHT;
+                    if (!error_message){
+                        rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nmanual cut is stopped.\n", arc_max_starts);
+                        error_message = 1;
+                    }
+                }else{
+                    program_pause = TRUE;
+                    if (!error_message){
+                        rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nprogram is paused.\n", arc_max_starts);
+                        error_message = 1;
+                    }
                 }
             }else{
                 error_message = 0;
@@ -933,8 +943,8 @@ FUNCTION(_) {
             }
             break;
         case CUT:
-            /* if program is idle then we shouldn't be here */
-            if(program_is_idle){
+            /* if program is idle and spindle.0 is off then we shouldn't be here */
+            if(program_is_idle && !cutting_start){
                 state = IDLE;
             }
             /* while cutting and it is not a dry run:
@@ -1194,6 +1204,7 @@ FUNCTION(_) {
             cut_length = 0;
             cut_time = 0;
             probe_test_error = FALSE;
+            cutting_stop = 0;
             if(stop_type == STOP){
                 auto_cut = FALSE;
                 manual_cut = FALSE;
@@ -1396,8 +1407,90 @@ FUNCTION(_) {
             break;
     }
 
-    /* set debugging pins */
+    /* set status pins */
     state_out = state;
     stop_type_out = stop_type;
+
+    /* debug print */
+    if(debug_print && state_old != state){
+        if(rtapi_get_msg_level() != 3){
+            rtapi_set_msg_level(3);
+        }
+        state_old = state;
+        switch(state){
+            case 0:
+                rtapi_print_msg(RTAPI_MSG_INFO, "IDLE\n");
+                break;
+            case 1:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PROBE_HEIGHT\n");
+                break;
+            case 2:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PROBE_DOWN\n");
+                break;
+            case 3:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PROBE_UP\n");
+                break;
+            case 4:
+                rtapi_print_msg(RTAPI_MSG_INFO, "ZERO_HEIGHT\n");
+                break;
+            case 5:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PIERCE_HEIGHT\n");
+                break;
+            case 6:
+                rtapi_print_msg(RTAPI_MSG_INFO, "TORCH_ON\n");
+                break;
+            case 7:
+                rtapi_print_msg(RTAPI_MSG_INFO, "ARC_OK\n");
+                break;
+            case 8:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PIERCE_DELAY\n");
+                break;
+            case 9:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PUDDLE_JUMP\n");
+                break;
+            case 10:
+                rtapi_print_msg(RTAPI_MSG_INFO, "CUT_HEIGHT\n");
+                break;
+            case 11:
+                rtapi_print_msg(RTAPI_MSG_INFO, "CUT\n");
+                break;
+            case 12:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PAUSE_AT_END\n");
+                break;
+            case 13:
+                rtapi_print_msg(RTAPI_MSG_INFO, "SAFE_HEIGHT\n");
+                break;
+            case 14:
+                rtapi_print_msg(RTAPI_MSG_INFO, "MAX_HEIGHT\n");
+                break;
+            case 15:
+                rtapi_print_msg(RTAPI_MSG_INFO, "FINISH\n");
+                break;
+            case 16:
+                rtapi_print_msg(RTAPI_MSG_INFO, "TORCHPULSE\n");
+                break;
+            case 17:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PAUSED_MOTION\n");
+                break;
+            case 18:
+                rtapi_print_msg(RTAPI_MSG_INFO, "OHMIC_TEST\n");
+                break;
+            case 19:
+                rtapi_print_msg(RTAPI_MSG_INFO, "PROBE_TEST\n");
+                break;
+            case 20:
+                rtapi_print_msg(RTAPI_MSG_INFO, "SCRIBING\n");
+                break;
+            case 21:
+                rtapi_print_msg(RTAPI_MSG_INFO, "CONSUMABLE_CHANGE_ON\n");
+                break;
+            case 22:
+                rtapi_print_msg(RTAPI_MSG_INFO, "CONSUMABLE_CHANGE_OFF\n");
+                break;
+            case 23:
+                rtapi_print_msg(RTAPI_MSG_INFO, "DEBUG\n");
+                break;
+        }
+    }
 
 }
