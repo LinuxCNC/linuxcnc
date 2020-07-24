@@ -1093,7 +1093,14 @@ class HAL:
         print >>file, "setp   pid.%s.error-previous-target true" % let
         # steppers
         if stepflag:
-            print >>file, "setp   pid.%s.maxerror .0005" % let
+            if  self.d.units == _PD._IMPERIAL:
+                me = .0005
+            else:
+                me = .0127
+            print >>file, ('# This setting is to limit bogus stepgen')
+            print >>file, ('# velocity corrections caused by position')
+            print >>file, ('# feedback sample time jitter.')
+            print >>file, "setp   pid.%s.maxerror %f" % (let, me)
         print >>file
         if let == 's':
             name = "spindle"
