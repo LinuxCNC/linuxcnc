@@ -1,136 +1,99 @@
 :lang: es
+[[cha:tooledit-gui]]
 
-[[cha:touchy-gui]]
+= GUI del Editor de Herramientas 
 
-= GUI táctil
+== Descripción general
 
-Touchy es una interfaz de usuario para LinuxCNC diseñada para su uso en paneles de control de máquinas,
-y por lo tanto no requiere teclado ni mouse.
+.Tabla de herramientas
+image::images/tooledit.png[align="center", width="640", alt="GUI del Editor de Herramientas - Descripción general"]
 
-Está diseñado para usarse con una pantalla táctil y funciona en combinación
-con un volante/MPG y algunos botones e interruptores.
+El programa 'tooledit' puede actualizar el archivo de la tabla de herramientas con
+los cambios editados usando el botón Guardar Archivo. El botón Guardar Archivo
+actualiza el archivo del sistema pero se requiere una acción separada para
+actualizar los datos de la tabla de herramientas utilizados por una instancia de LinuxCNC en ejecución.
+Con la GUI Axis, tanto el archivo como los datos de la tabla de herramientas actuales
+utilizado por LinuxCNC se puede actualizar con el botón ReloadTable.
+Este botón está habilitado solo cuando la máquina está encendida e inactiva.
 
-La pestaña 'Volante' tiene botones radio para seleccionar entre las funciones de 'Porcentaje de alimentación',
-'Porcentaje de husillo', 'Velocidad máxima' y 'Jogging' para la entrada del volante/MPG.
-También están previstos botones radio para la selección de eje e incrementos para jog 
+== Ordenación por columnas
 
-.Touchy
+La visualización de la tabla de herramientas se puede ordenar por cualquier columna en forma ascendente
+haciendo clic en el encabezado de la columna. Un segundo clic hace la clasificacion
+en orden descendente. La clasificación de columnas requiere que la máquina
+se configure con la versión tcl mayor o igual a la 8.5.
 
-image::images/touchy.png[align="center", alt="GUI Touchy"]
+.Clasificacion segun DIAM
+image::images/tooledit-sort.png[align="center", alt="GUI del Editor de Herramientas - Ordenación por columnas"]
 
-== Configuración del panel
-
-=== Conexiones HAL
-
-Touchy requiere que cree un archivo llamado 'touchy.hal' en su
-directorio de configuración (el directorio en el que se encuentra su archivo ini) para
-conectar sus controles. Touchy ejecuta los comandos HAL en este archivo
-después de que haya hecho disponibles sus propios pines para la conexión.
-
-Para obtener más información sobre los archivos HAL y el comando net, consulte el
-enlace?cha:basic-hal-reference,Referencia básica de HAL>>.
-
-Touchy tiene varios pines de salida que deben conectarse al
-controlador de movimiento para controlar el jogging de volante:
-
- - 'touchy.jog.wheel.increment',
-que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
-
- - 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable'
-para cada eje N.
-
-[NOTE] 'N' representa el número de eje 0-8.
-
- - Además de estar conectado a 'touchy.wheel-count', la cuenta del volante
-también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
-HAL 'ilowpass' para suavizar el jog con el volante,
-asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
-
-.Controles requeridos.
-
- - Botón de cancelación (contacto momentáneo) conectado al pin HAL 'touchy.abort'
- - Botón de inicio de ciclo (contacto momentáneo) conectado a 'touchy.cycle-start'
- - Rueda / MPG, conectada a 'touchy.wheel-count' y pines de movimiento como se describe anteriormente
- - Bloque único (interruptor de palanca) conectado a 'touchy.single-block'
-
-.Controles opcionales.
-
- - Para jog continuo, una palanca momentánea bidireccional centrada
-   (o dos botones momentáneos) para cada eje, enganchados a 'touchy.jog.continuous.x.negative',
-   'touchy.jog.continuous.x.positive', etc.
- - Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad
-   , debe conectarse a 'touchy.quill-up'.
-
-.Lámparas de panel opcionales.
-
- - 'touchy.jog.active' muestra cuando los controles de desplazamiento del panel están activos.
- - 'touchy.status-indicator' está encendido cuando la máquina está ejecutando código G,
-    y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
-
-=== Recomendado para cualquier configuración
-
- - Botón de parada Estop conectado en la cadena de parada
-
-== Configuración
-
-=== Habilitar Touchy
-
-Para usar Touchy, en la sección '[DISPLAY]' de su archivo ini cambie
-la línea del selector a 'DISPLAY = touchy'
-
-=== Preferencias
-
-Cuando inicie Touchy la primera vez, verifique la pestaña Preferencias.
-Si usa una pantalla táctil, elija la opción para ocultar el puntero
-Mejores resultados.
-
-La ventana de estado tiene una altura fija, establecida por el tamaño de una fuente fija.
-Esto puede verse afectado por el DPI de Gnome, configurado en Sistema /
-Preferencias / Apariencia / Fuentes / Detalles. Si la parte inferior de la pantalla está
-cortar, reducir la configuración de DPI.
-
-Todos los demás tamaños de fuente se pueden cambiar en la pestaña Preferencias.
-
-=== Macros
-
-Touchy puede invocar macros de O-word usando la interfaz MDI. Para configurar
-esto, en la sección '[TOUCHY]' del archivo ini, agregue uno o más 'MACRO'
-líneas. Cada uno debe tener el formato
-
-'MACRO = incremento xinc yinc'
-
-En este ejemplo, incremento es el nombre de la macro y acepta dos
-parámetros, llamados xinc e yinc.
-
-Ahora, coloque la macro en un archivo llamado 'increment.ngc', en el
-Directorio 'PROGRAM_PREFIX' o cualquier directorio en 'SUBROUTINE_PATH'.
-
-Debería verse así:
-
+Dependiendo de otras aplicaciones instaladas en el sistema, puede ser
+necesario habilitar tcl/tk8.5 con los comandos:
 ----
-O <incremento> sub
-G91 G0 X # 1 Y # 2
-G90
-O <increment> endsub
+sudo update-alternative --config tclsh # selecciona la opción para tclsh8.5
+sudo update-alternative --config wish  # selecciona la opción para wish8.5
 ----
 
-Observe que el nombre del sub coincide con el nombre del archivo y el nombre de la macro exactamente,
-Incluyendo caso.
+== Selección de columnas
+Por defecto, el programa 'tooledit' mostrará todas las posibles
+columnas de parámetros de la tabla de herramientas. Dado que pocas máquinas utilizan todos los
+parámetros, las columnas mostradas pueden ser limitadas con el siguiente ajuste de archivo ini:
 
-Cuando invoque la macro presionando el botón Macro en el MDI
-en Touchy, puede ingresar valores para xinc e yinc. Estos son
-pasó a la macro como '# 1' y '# 2' respectivamente. Te parámetros
-dejar en blanco se pasan como valor 0.
 
-Si hay varias macros diferentes, presione el botón Macro
-repetidamente para recorrerlos.
 
-En este ejemplo simple, si ingresas -1 para xinc y presionas ciclo
-inicio, se invocará un movimiento rápido 'G0', moviendo una unidad a
-la izquierda.
+Sintaxis en archivo .INI
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit column_name column_name ...
+----
 
-Esta capacidad macro es útil para el sondeo de bordes / agujeros y otras configuraciones
-tareas, así como quizás fresado de agujeros u otras operaciones simples
-que se puede hacer desde el panel sin necesidad de escribir especialmente
-programas de gcode.
+.Ejemplo para columnas Z y DIAM
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit Z DIAM
+----
+
+image::images/tooledit-columns.png[align="center", alt="GUI del Editor de Herramientas - Selección de columnas"]
+
+== Uso independiente
+El programa 'tooledit' también se puede invocar como un programa independiente.
+Por ejemplo, si el programa está en la ruta de acceso del usuario, escribiendo
+'tooledit' se mostrará la sintaxis de uso:
+
+----
+Uso:
+       tooledit nombre de archivo
+       tooledit [column_1 ... column_n] nombre de archivo
+
+Los nombres de columna permitidos son: x y z a b c u v w diam front back orien
+----
+
+Para sincronizar 'tooledit' independiente con un LinuxCNC en ejecución,
+el nombre de archivo debe ser el mismo que el especificado en [EMCIO]TOOL_TABLE del archivo ini de LinuxCNC.
+
+Cuando se usa el programa 'tooledit' mientras se está ejecutando LinuxCNC,
+la ejecución de comandos gcode u otros programas pueden alterar el archivo de tabla de herramientas.
+Los cambios de archivos son detectados por 'tooledit' y se muestra un mensaje:
+
+  Advertencia: Archivo modificado por otro proceso
+
+La pantalla de la tabla de herramientas 'tooledit' se puede actualizar para leer el
+archivo modificado con el botón Releer.
+
+La tabla de herramientas se especifica en el archivo ini con una entrada:
+
+  [EMCIO]TOOL_TABLE = tool_table_filename
+
+El archivo de la tabla de herramientas se puede editar con cualquier editor de texto simple (no
+un procesador de textos).
+
+La gui Axis puede usar opcionalmente una configuración de archivo ini para especificar el programa editor de herramientas
+
+
+  [DISPLAY]TOOL_EDITOR = path_to_editor_programa
+
+Por defecto, se usa el programa llamado 'tooledit'. Este editor
+es compatible con todos los parámetros de la tabla de herramientas, permite la adición y eliminación
+de entradas de herramientas, y realiza una serie de verificaciones de validez en
+valores paramétricos.
+
 

@@ -4,7 +4,7 @@ LinuxCNC V{lversion}, {localdate}
 :ascii-ids:
 :lang: es
 
-= Contents
+= Contenido
 
 :masterdir: {indir}
 
@@ -14,7 +14,7 @@ LinuxCNC V{lversion}, {localdate}
 
 :leveloffset: 1
 
-= Introduction
+= Introduccion
 
 image::common/images/emc2-intro.*[]
 
@@ -66,13 +66,13 @@ include::gui/axis_es.txt[]
 
 include::gui/gmoccapy_es.txt[]
 
-// include::gui/ngcgui_es.txt[]
+include::gui/ngcgui_es.txt[]
 
 include::gui/touchy_es.txt[]
 
 include::gui/gscreen_es.txt[]
 
-// include::gui/tklinuxcnc_es.txt[]
+include::gui/tklinuxcnc_es.txt[]
 
 // include::plasma/plasmac-user-guide_es.txt[]
 
@@ -82,17 +82,17 @@ include::gui/gscreen_es.txt[]
 
 :leveloffset: 2
 
-// include::gcode/coordinates_es.txt[]
+include::gcode/coordinates_es.txt[]
 
 // include::gcode/overview_es.txt[]
 
 include::gcode/g-code_es.txt[]
 
-include::gcode/m-code_es.txt[]
+// include::gcode/m-code_es.txt[]
 
-include::gcode/o-code_es.txt[]
+// include::gcode/o-code_es.txt[]
 
-include::gcode/other-code_es.txt[]
+// include::gcode/other-code_es.txt[]
 
 // include::examples/gcode_es.txt[]
 
@@ -106,9 +106,9 @@ include::gcode/other-code_es.txt[]
 
 :leveloffset: 2
 
-// include::gcode/tool-compensation_es.txt[]
+include::gcode/tool-compensation_es.txt[]
 
-// include::gui/tooledit_es.txt[]
+include::gui/tooledit_es.txt[]
 
 :leveloffset: 0
 

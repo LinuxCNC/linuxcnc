@@ -242,7 +242,11 @@ DOC_SRCS_ES := \
 	user/user-intro_es.txt \
 	user/user-concepts_es.txt \
 	user/starting-linuxcnc_es.txt \
+	gcode/coordinates_es.txt \
+	gcode/g-code_es.txt \
 	gcode/machining-center_es.txt \
+	gcode/overview_es.txt \
+	gcode/tool-compensation_es.txt \
 	lathe/lathe-user_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	config/stepper-quickstart_es.txt \
@@ -254,6 +258,7 @@ DOC_SRCS_ES := \
 	code/building-linuxcnc_es.txt \
 	gui/axis_es.txt \
 	gui/gmoccapy_es.txt \
+	gui/tooledit_es.txt \
 	gui/touchy_es.txt \
 	gui/gscreen_es.txt \
 	gui/qtdragon_es.txt \
