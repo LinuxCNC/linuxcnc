@@ -1,144 +1,144 @@
-= Moveoff Component
+﻿:lang: es
 
 [[cha:moveoff]]
 
-The moveoff Hal component is a Hal-only method
-for implementing offsets.  See the manpage ('$ man moveoff')
-for the IMPORTANT limitations and warnings.
+= Componente moveoff
 
-The moveoff component is used to offset joint positions using custom Hal
-connections.  Implementing an offset-while-program-is-paused functionality is
-supported with appropriate connections for the input pins.  Nine joints are
-supported.
+El componente Hal moveoff es un método exclusivo de Hal
+para implementar offsets. Ver la página de manual ('$ man moveoff')
+para limitaciones y advertencias IMPORTANTES.
 
-The axis offset pin values (offset-in-M) are continuously applied (respecting
-limits on value, velocity, and acceleration) to the output pins
-(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
-pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
-anded internally.   A 'warning pin' is set and a message issued if the
-apply-offsets pin is deasserted while offsets are applied.  The warning pin
-remains TRUE until the offsets are removed or the apply-offsets pin is set.
+El componente moveoff se utiliza para offsets de posiciones articulares utilizando conexiones Hal personalizadas.
+Implementa una funcionalidad offset-mientras-programa-parado
+con conexiones apropiadas para los pines de entrada. Se soportan nueve articulaciones.
 
-Typically, the move-enable pin is connected to external controls and the
-apply-offsets pin is connected to halui.program.is-paused (for offsets only
-while paused) or set to TRUE (for continuously applied offsets).
+Los valores de los pines de offset de eje (offset-in-M) se aplican continuamente (respetando
+límites de valor, velocidad y aceleración) a los pines de salida
+(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) cuando ambos pines (apply-offsets y move-enable) de
+entrada de habilitacion son TRUE. Las dos entradas habilitadoras estan
+asociadas internamente con un AND. Si el pin apply-offsets va a FALSE mientras se aplican los offsets, se
+activa un 'pin de advertencia' y se emite un mensaje . El pin de advertencia
+permanece TRUE hasta que se eliminen los offsets o el pin apply-offsets vuelva a TRUE.
 
-Applied offsets are 'automatically returned' to zero (respecting limits)
-when either of the enabling inputs is deactivated.  The zero value
-tolerance is specified by the epsilon input pin value.
+Normalmente, el pin move-enable está conectado a controles externos y
+el pin apply-offsets está conectado a halui.program.is-paused (solo para offsets
+mientras se está en pausa) o establecido en TRUE (para offsets aplicados continuamente).
 
-Waypoints are recorded when the moveoff componenent is enabled.  Waypoints are
-managed with the waypoint-sample-secs and waypoint-threshold pins.  When the
-backtrack-enable pin is TRUE, the auto-return path follows the recorded
-waypoints.  When the memory available for waypoints is exhausted, offsets are
-frozen and the waypoint-limit pin is asserted.  This restriction applies
-regardless of the state of the backtrack-enable pin.  An enabling pin must be
-deasserted to allow a return to the original (non-offset position).
+Los offsets aplicados se 'devuelven automáticamente' a cero (respetando los límites)
+cuando cualquiera de las entradas de habilitación está desactivada. El valor cero
+de tolerancia se especifica mediante el valor epsilon del pin de entrada.
 
-Backtracking through waypoints results in 'slower' movement rates as the
-moves are point-to-point respecting velocity and acceleration settings.  The
-velocity and acceleration limit pins can be managed dynamically to control
-offsets at all times.
+Los puntos de referencia se registran cuando el componente moveoff está habilitado. Los puntos de referencia son
+gestionado con los pines waypoint-sample-secs y waypoint-threshold. Cuando el
+el pin backtrack-enable es TRUE, la ruta de retorno automático sigue los
+waypoints grabados. Cuando la memoria disponible para waypoints se agota, los offsets son
+congelados y el pin waypoint-limit va TRUE. Esta restricción se aplica
+independientemente del estado del pin backtrack-enable. Un pin de habilitación debe ser
+puesto a FALSE para permitir un retorno al original (posición sin offset).
 
-When backtrack-enable is FALSE, the auto-return move is *NOT*
-coordinated, each axis returns to zero at its own rate.  If a controlled path
-is wanted in this condition, each axis should be manually returned to zero
-before deasserting an enabling pin.
+Retroceder a través de puntos de ruta resulta en tasas de movimiento 'más lentas' en la medida que
+los movimientos son punto a punto respetando la velocidad y la configuración de aceleración.
+Los pines de límite de velocidad y aceleración se pueden gestionar dinámicamente para controlar
+offsets en todo momento.
 
-The waypoint-sample-secs, waypoint-threshold, and epsilon pins are evaluated
-only when the component is idle.
+Cuando backtrack-enable es FALSE, el movimiento de retorno automático *NO* es
+coordinado; cada eje vuelve a cero a su propio ritmo. Si se desea una ruta controlada
+en esta condición, cada eje debe devolverse manualmente a cero
+antes de hacer FALSE un pin de habilitación.
 
-The offsets-applied output pin is provided to indicate the current state to a
-GUI so that program resumption can be managed.  If the offset(s) are non-zero
-when the apply-offsets pin is deasserted (for example when resuming a program
-when offsetting during a pause), offsets are returned to zero (respecting
-limits) and an 'Error' message is issued.
+Los pines waypoint-sample-secs, waypoint-threshold, y epsilon se evalúan
+solo cuando el componente está inactivo.
+
+Se proporciona el pin de salida offsets-applied para indicar el estado actual a una
+GUI para que se pueda gestionar la reanudación del programa. Si el offset(s) no es cero
+cuando se desactiva el pin apply-offsets (por ejemplo, cuando se reanuda un programa
+tras offsets durante una pausa), los offsets se devuelven a cero (respetando
+límites) y se emite un mensaje de 'Error'.
 
 [CAUTION]
-If offsets are enabled and applied and the machine is turned off for any
-reason, any 'external' Hal logic that manages the enabling pins and the
-offset-in-M inputs is responsible for their state when the machine is
-subsequently turned on again.
+Si los offsets están habilitados y aplicados y la máquina está apagada por cualquier
+razón, cualquier lógica Hal 'externa' que maneje los pines habilitadores y 
+las entradas offset-in-M es responsable de su estado cuando la máquina
+se vuelva a encender posteriormente.
 
-This Hal-only means of offsetting is typically not known to LinuxCNC
-nor available in GUI preview displays. *No protection is provided* for
-offset moves that exceed soft limits managed by LinuxCNC. Since soft limits
-are not honored, an offset move may encounter hard limits (or *CRASH* if
-there are no limit switches). Use of the offset-min-M and offset-max-M inputs
-to limit travel is recommended. Triggering a hard limit will turn off
-the machine -- see *Caution* above.
+LinuxCNC generalmente no conoce este medio de offsets solo-Hal
+ni está disponible en las pantallas de vista previa de las GUI. *No se proporciona protección* para
+movimientos con offset ​​que exceden los límites soft administrados por LinuxCNC. Ya que los límites soft
+no se cumplen, un movimiento de offset puede encontrar límites fisicos (o un *CHOQUE* si
+no hay interruptores de límite). Se recomienda limitar la carrera con el uso de las entradas
+offset-min-M y offset-max-M. Disparar un límite fisico apagará
+la máquina - vea *Precaución* arriba.
 
-The offset-in-M values may be set with inifile settings, controlled by a GUI,
-or managed by other Hal components and connections.  Fixed values may be
-appropriate in simple cases where the direction and amount of offset is
-well-defined but a control method is required to deactivate an enabling
-pin in order to return offsets to zero.  GUIs may provide means for users to
-set, increment, decrement, and accumulate offset values for each axis and may
-set offset-in-M values to zero before deasserting an enabling pin.
+Los valores de desplazamiento en M pueden establecerse con configuraciones inifile, controladas por una GUI,
+o gestionado por otros componentes y conexiones Hal. Los valores fijos pueden ser
+apropiado en casos simples donde la dirección y la cantidad de desplazamiento es
+bien definido pero se requiere un método de control para desactivar un pin de habilitación
+para devolver las compensaciones a cero. Las GUI pueden proporcionar medios para que los usuarios
+puedan establecer, incrementar, disminuir y acumular valores de compensación para cada eje y puedan
+establecer los valores de offset en M en cero antes de hacer FALSE un pin de habilitación.
 
-The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
-waypoint-threshold may not be suitable for any particular application.  This
-Hal component is unaware of limits enforced elsewhere by LinuxCNC.
-Users should test usage in a simulator application and understand all
-hazards before use on hardware.
-
-
-Sim configurations that demonstrate the component and a
-gui (moveoff_gui) are located in:
-
-* configs/sim/axis/moveoff     (axis-ui)
-* configs/sim/touchy/ngcgui    (touchy-ui)
+Los valores predeterminados para accel, vel, min, max, epsilon, waypoint-sample-secs y
+waypoint-threshold pueden no ser adecuados para ninguna aplicación en particular. Este
+componente Hal desconoce los límites impuestos por LinuxCNC en otros lugares.
+Los usuarios deben probar el uso en una aplicación de simulador y comprender todos los
+riesgos antes de su uso en hardware.
 
 
-== Modifying an existing configuration
+Las configuraciones Sim que demuestran el componente y una
+gui (moveoff_gui) se encuentran en:
 
-A system-provided halfile (LIB:hookup_moveoff.tcl) can be used to adapt an
-existing configuration to use the moveoff component.  Additional ini file
-settings support the use of a simple gui (moveoff_gui) for controlling offsets.
-
-When the system halfile (LIB:hookup_moveoff.tcl) is properly specified in
-a configuration ini file, it will:
-
-. Disconnect the original joint.N.motor-pos-cmd and joint.N.motor-pos-fb pin
-  connections
-. Load (loadrt) the moveoff component (using the name mv) with a personality
-  set to accomodate all axes identified in the ini file
-. Add (addf) the moveoff component functions in the required sequence
-. Reconnect the joint.N.motor-pos-cmd and joint.N.motor-pos-fb pins to use
-  the moveoff component
-. Set the moveoff component operating parameters and limits for each axis
-  in accordance with additional ini file settings
+* configs/sim/axis/moveoff (axis-ui)
+* configs/sim/touchy/ngcgui (touchy-ui)
 
 
-Note: The moveoff_gui application supports configurations that use known
-kinematics modules with KINEMATICS_TYPE=KINEMATICS_IDENTITY.  Supported
-modules include: trivkins.  With identity kins, moveoff_gui
-assigns each axis name specified with the command line parameter '-axes axisnames'
-to the corresponding joint.
+== Modificar una configuración existente
 
-Modify an existing configuration as follows:
+Se puede utilizar un halfile proporcionado por el sistema (LIB:hookup_moveoff.tcl) para adaptar una
+configuración existente para usar el componente moveoff. El archivo ini adicional
+de configuración admite el uso de una interfaz gráfica de usuario simple (moveoff_gui) para controlar los offsets.
 
-Make sure there is an ini file entry for [HAL]HALUI and create a new
-[HAL]HALFILE entry for LIB:hookup_moveoff.tcl.
-The entry for LIB:hookup_moveoff.tcl should follow all HALFILE= entries
-for halfiles that connect the pins for joint.N.motor-pos-cmd,
-joint.N.motor-pos-fb, and any components connected to these pins (pid
-and encoder components in a servo system for instance).
+Cuando el archivo HAL del sistema (LIB:hookup_moveoff.tcl) se especifica correctamente en
+un archivo ini de configuración, podrá:
+
+. Desconectar los pines joint.N.motor-pos-cmd and joint.N.motor-pos-fb
+. Cargar (loadrt) el componente moveoff (usando el nombre mv) con una personalidad
+  configurada para acomodar todos los ejes identificados en el archivo ini
+. Agregar (addf) las funciones del componente moveoff en la secuencia requerida
+. Volver a conectar los pines joint.N.motor-pos-cmd y joint.N.motor-pos-fb para usar
+  el componente
+. Establecer los parámetros operativos y los límites del componente moveoff para cada eje
+  de acuerdo con la configuración adicional del archivo ini
+
+
+Nota: La aplicación moveoff_gui admite configuraciones que utilizan
+módulos de cinemática conocidos con KINEMATICS_TYPE=KINEMATICS_IDENTITY.
+Los módulos soportados incluyen: trivkins. Con cinemática de identidad, moveoff_gui
+asigna cada nombre de eje especificado con el parámetro de línea de comando '-axes axisnames'
+a la articulación correspondiente.
+
+Modifique una configuración existente de la siguiente manera:
+
+Asegúrese de que haya una entrada de archivo ini para [HAL]HALUI y cree una nueva
+entrada [HAL]HALFILE para LIB:hookup_moveoff.tcl.
+La entrada para LIB:hookup_moveoff.tcl debe seguir todas las entradas HALFILE=
+para halfiles que conectan los pines para joint.N.motor-pos-cmd,
+joint.N.motor-pos-fb, y cualquier componente conectado a estos pines (pid
+y componentes de codificador en un sistema servo, por ejemplo).
 
 ----
 [HAL]
-HALUI   = halui
-HALFILE = existing_configuration_halfile_1
+HALUI = halui
+MEDIO = existente_configuration_halfile_1
 ...
-HALFILE = existing_configuration_halfile_n
+MEDIO = existente_configuration_halfile_n
 HALFILE = LIB:hookup_moveoff.tcl
 ----
 
-Add ini file entries for the per-axis settings for each axis in use (if an
-entry is not defined, the corresponding entry from the [AXIS_n] section will be
-used, if no entry is found, then the moveoff component default will be used.
-Note: Using component defaults or [AXIS_n] section values for per-axis offset
-settings is NOT recommended.
+Agregue entradas de archivo ini para la configuración por eje para cada eje en uso (si una
+entrada no está definida, la entrada correspondiente de la sección [AXIS_n] será
+utilizada; si no se encuentra ninguna entrada, se utilizará lo predeterminado del componente moveoff.
+Nota: NO se recomienda la configuración usando los valores predeterminados o valores de 
+sección [AXIS_n] para offset por eje.
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -147,8 +147,8 @@ MAX_VELOCITY =
 MAX_ACCELERATION =
 ----
 
-Add ini file entries for moveoff component settings
-(omit to use moveoff defaults):
+Agregar entradas de archivo ini para la configuración del componente moveoff
+(omitalo para usar los valores predeterminados):
 ----
 [MOVEOFF]
 EPSILON =
@@ -156,58 +156,58 @@ WAYPOINT_SAMPLE_SECS =
 WAYPOINT_THRESHOLD =
 ----
 
-The moveoff_gui is used to make additional required connections and provide
-a popup gui to:
+moveoff_gui se usa para hacer conexiones requeridas adicionales y proporcionar
+una gui emergente para:
 
-. Provide a control togglebutton to Enable/Disable offsets
-. Provide a control togglebutton to Enable/Disable backtracking
-. Provide control pushbuttons to Increment/Decrement/Zero each axis offset
-. Display each axis offset current value
-. Display current offset status (disabled, active, removing, etc)
+. Proporcionar un botón de control para habilitar/deshabilitar las compensaciones
+. Proporcionar un botón de control para activar/desactivar el seguimiento
+. Proporcionar botones de control para aumentar/disminuir/Cero cada offset de eje
+. Mostrar el valor actual de offset de cada eje
+. Mostrar el estado de offset actual (deshabilitado, activo, eliminando, etc.)
 
-The provided control buttons are optional depending upon the state of
-the moveoff component move-enable pin.  Both a display and controls
-for enabling offsetting are provided if the pin mv.move-enable
-is NOT connected when the moveoff_gui is started.  For this case,
-the moveoff_gui manages the moveoff component move-enable pin
-(named mv.move-enable) as well as the offsets (mv.move-offset-in-M)
-and the backtracking enable (mv.backtrack-enable)
+Los botones de control provistos son opcionales dependiendo del estado del
+pin move-enable del componente. Se proporcionan tanto una pantalla como controles
+para habilitar offsets si el pin mv.move-enable
+NO está conectado cuando se inicia moveoff_gui. Para este caso,
+moveoff_gui administra el pin de habilitación de movimiento del componente
+(denominado mv.move-enable), así como los offsets (mv.move-offset-in-M)
+y la habilitacion de backtracking (mv.backtrack-enable)
 
-If the mv.move-enable pin IS connected when the moveoff_gui
-is started, the moveoff_gui will provide a display but NO controls.
-This mode supports configurations that use a jog wheel or other methods
-of controlling the offset inputs and the enable pins (mv.offset-in-M,
+Si el pin mv.move-enable está conectado cuando moveoff_gui
+se inicia, moveoff_gui proporcionará una pantalla pero NO controles.
+Este modo admite configuraciones que usan una rueda de selección u otros métodos
+de controlar las entradas de offsets y los pines de habilitación (mv.offset-in-M,
 mv.move-enable, mv.backtrack-enable).
 
-The moveoff_gui makes the required connections for the moveoff component pins:
-mv.power_on and mv.apply-offsets.  The mv.power_on pin is connected to the
-motion.motion-enabled pin (a new signal is automatically created if necessary).
-The mv.apply-offsets is connected to halui.program.is-paused or set to 1
-depending upon the command line option -mode [ onpause | always ].  A new signal
-is automatically created if necessary.
+Moveoff_gui realiza las conexiones necesarias para los pines del componente moveoff;
+mv.power_on y mv.apply-offsets. El pin mv.power_on está conectado al
+pin motion.motion-enabled (una nueva señal se crea automáticamente si es necesario).
+mv.apply-offsets está conectado a halui.program.is-paused o se establece en 1
+dependiendo de la opción de línea de comando -mode [onpause | siempre ]. Una nueva señal
+se crea automáticamente si es necesario.
 
-To use the moveoff_gui, add an entry in the ini file [APPLICATIONS]
-section as follows:
+Para usar moveoff_gui, agregue una entrada en la sección del archivo ini [APPLICATIONS]
+de la siguiente manera:
 ----
 [APPLICATIONS]
-# Note: a delay (specified in seconds) may be required if connections
-# are made using postgui halfiles ([HAL]POSTGUI_HALFILE=)
+# Nota: puede ser requerido un retraso (especificado en segundos) si las conexiones
+# se hacen usando halfiles postgui ([HAL]POSTGUI_HALFILE=)
 DELAY = 0
-APP = moveoff_gui option1 option2 ...
+APP = moveoff_gui opción1 opción2 ...
 ----
 
-When the halfile LIB:hookup_moveoff.tcl is used to load and connect the
-moveoff component, the mv.move-enable pin will not be connected and
-local controls provided by the moveoff_gui will be used.  This is the 
-simplest method to test or demonstrate the moveoff component when
-modifying an existing ini configuration.
+Cuando el archivo hal LIB:hookup_moveoff.tcl se usa para cargar y conectar el
+componente moveoff, el pin mv.move-enable no se conectará y
+se utilizarán los controles locales proporcionados por moveoff_gui. Este es el
+método más simple para probar o demostrar el componente cuando se ha
+modificado una configuración ini existente.
 
-To enable external controls while using the moveoff_gui display
-for offset values and status, halfiles that follow LIB:hookup_moveoff.tcl
-must make additional connections.  For example, the supplied demonstration
-configs (configs/sim/axis/moveoff/*.ini) use a simple system halfile
-(named LIB:moveoff_external.hal) to connect the mv.move-enable,mv.offset-in-M,
-and mv.bactrack-enable pins to signals:
+Para habilitar controles externos mientras se usa la pantalla moveoff_gui
+para valores de offsets y estado, los halfiles que siguen a LIB:hookup_moveoff.tcl
+debe hacer conexiones adicionales. Por ejemplo, las demostraciones proporcionadas
+(configs/sim/axis/moveoff/*.ini) usan un halfile de sistema simple
+(llamado LIB:moveoff_external.hal) para conectar los pines mv.move-enable, mv.offset-in-M
+mv.bactrack-enable a señales:
 ----
 [HAL]
 HALUI = halui
@@ -216,10 +216,10 @@ HALFILE = LIB:hookup_moveoff.tcl
 HALFILE = LIB:moveoff_external.hal
 ----
 
-The connections made by LIB:moveoff_external.hal (for a three axis
-configuration) are:
+Las conexiones realizadas por LIB:moveoff_external.hal (para una configuración
+de tres ejes) son:
 ----
-net external_enable    mv.move-enable
+net external_enable mv.move-enable
 
 net external_offset_0 mv.offset-in-0
 net external_offset_1 mv.offset-in-1
@@ -228,62 +228,63 @@ net external_offset_2 mv.offset-in-2
 net external_backtrack_en mv.backtrack-enable
 ----
 
-These signals (external_enable, external_offset_M, external_backtrack_en) may
-be managed by subsequent HALFILES (including POSTGUI_HALFILEs) to provide 
-customized control of the component while using the moveoff_gui display
-for current offset values and offset status.
+Estas señales (external_enable, external_offset_M, external_backtrack_en) pueden
+ser administradas por HALFILES posteriores (incluidos POSTGUI_HALFILEs) para proporcionar
+control personalizado del componente mientras se usa la pantalla moveoff_gui
+para valores de offset y estado actuales.
 
-The moveoff_gui is configured with command line options.  For details
-on the operation of moveoff_gui, see the man page:
+Moveoff_gui se configura con opciones de línea de comando. Para detalles
+sobre la operación de moveoff_gui, vea la página del manual:
 ----
 $ man moveoff_gui
 ----
-For a brief listing of command line options for moveoff_gui, use the command
-line help option:
+Para obtener una breve lista de las opciones de línea de comando para moveoff_gui, use el comando
+opción de ayuda de línea:
 ----
 $ moveoff_gui --help
 
-Usage:
-moveoff_gui [Options]
+Uso:
+moveoff_gui [Opciones]
 
-Options:
-    [--help | -? | -- -h ]  (This text)
+Opciones:
+    [--ayuda | -? | -- -h] (Este texto)
 
-    [-mode [onpause | always]]  (default: onpause)
-                                  (onpause: show gui when program paused)
-                                  (always:  show gui always)
+    [-modo [enpausa | siempre]] (predeterminado: enpausa)
+                                  (enpausa: muestra la gui cuando el programa está en pausa)
+                                  (siempre: muestra gui siempre)
 
-    [-axes axisnames]       (default: xyz (no spaces))
-                              (letters from set of: x y z a b c u v w)
-                              (example: -axes z)
-                              (example: -axes xz)
-                              (example: -axes xyz)
-    [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
-                              (specify one per -inc (up to 4) )
-                              (example: -inc 0.001 -inc 0.01 -inc 0.1 )
-    [-size integer]         (default: 14
-                              (Overall gui popup size is based on font size)
-    [-loc center|+x+y]      (default: center)
-                              (example: -loc +10+200)
-    [-autoresume]           (default: notused)
-                              (resume program when move-enable deasserted)
-    [-delay delay_secs]     (default: 5 (resume delay))
+    [-axes axisnames]        (predeterminado: xyz (sin espacios))
+                              (letras del conjunto de: x y z a b c u v w)
+                              (ejemplo: -axes z)
+                              (ejemplo: -axes xz)
+                              (ejemplo: -axes xyz)
+    [-inc incrementvalue]    (predeterminado: 0.001 0.01 0.10 1.0)
+                              (especifique uno por cada (hasta 4))
+                              (ejemplo: -inc 0.001 -inc 0.01 -inc 0.1)
+    [entero de tamaño]       (predeterminado: 14
+                              (El tamaño general emergente de la gui se basa en el tamaño de la fuente)
+    [-loc center | +x+y]     (predeterminado: centro)
+                              (ejemplo: -loc +10+200)
+    [-autoresume]            (predeterminado: no utilizado)
+                              (reanudar el programa cuando move-enable sea false)
+    [-delay delay_secs]      (predeterminado: 5 (retraso de reanudación))
 
-Options for special cases:
-    [-noentry]              (default: notused)
-                              (don't create entry widgets)
-    [-no_resume_inhibit]    (default: notused)
-                              (do not use a resume-inhibit-pin)
-    [-no_pause_requirement] (default: notused)
-                              (no check for halui.program.is-paused)
-    [-no_cancel_autoresume] (default: notused)
-                              (useful for retraact offsets with simple)
-                              (external control                       )
-    [-no_display]           (default: notused)
-                              (Use when both external controls and displays)
-                              (are in use (see Note))                      )
+Opciones para casos especiales:
+    [-noentry]               (predeterminado: no utilizado)
+                              (no cree widgets de entrada)
+    [-no_resume_inhibit]     (predeterminado: no utilizado)
+                              (no use un pin de reanudar inhibición)
+    [-no_pause_requirement]  (predeterminado: no utilizado)
+                              (sin verificación de halui.program.is-paused)
+    [-no_cancel_autoresume]  (predeterminado: no utilizado)
+                              (útil para retractaciones con simple)
+                              (control externo                       )
+    [-no_display]            (predeterminado: no utilizado)
+                              (Usar cuando tanto los controles externos como las pantallas)
+                              (están en uso (ver Nota)))
 
-Note: If the moveoff move-enable pin (mv.move-enable) is connected when
-      moveoff_gui is started, external controls are required and only
-      displays are provided.
+Nota: Si el pin mv.move-enable está conectado cuando
+      moveoff_gui se inicia, se requieren controles externos y solo
+      se proporciona pantallas.
 ----
+

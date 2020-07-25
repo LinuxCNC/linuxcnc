@@ -51,7 +51,7 @@ DOC_SRCS_EN := \
 	config/lathe-config.txt \
 	config/moveoff.txt \
 	config/pncconf.txt \
-	config/python-interface.txt \
+	config/python-interface_es.txt \
 	config/stepconf.txt \
 	config/stepper-diagnostics.txt \
 	config/stepper.txt \
@@ -229,44 +229,86 @@ DOC_SRCS_FR := \
 	Master_Integrator_fr.txt \
 
 DOC_SRCS_ES := \
-	getting-started/about-linuxcnc_es.txt \
-	getting-started/system-requirements_es.txt \
-	getting-started/getting-linuxcnc_es.txt \
-	getting-started/running-linuxcnc_es.txt \
-	getting-started/updating-linuxcnc_es.txt \
+	code/adding-configs_es.txt \
+	code/building-linuxcnc_es.txt \
+	code/code-notes_es.txt \
+	code/contributing-to-linuxcnc_es.txt \
+	code/nml-messages_es.txt \
+	code/rs274_es.txt \
+	code/style-guide_es.txt \
+	common/emc-history_es.txt \
+	common/glossary_es.txt \
+	common/gpld-copyright_es.txt \
 	common/linux-faq_es.txt \
 	common/overleaf_es.txt \
-	config/stepconf_es.txt \
+	config/core-components_es.txt \
+	config/ini-config_es.txt \
+	config/ini-homing_es.txt \
+	config/integrator-concepts_es.txt \
+	config/lathe-config_es.txt \
+	config/moveoff_es.txt \
 	config/pncconf_es.txt \
-	user/user-foreword_es.txt \
-	user/user-intro_es.txt \
-	user/user-concepts_es.txt \
-	user/starting-linuxcnc_es.txt \
-	gcode/machining-center_es.txt \
-	lathe/lathe-user_es.txt \
-	plasma/plasma-cnc-primer_es.txt \
+	config/python-interface_es.txt \
+	config/stepconf_es.txt \
+	config/stepper_es.txt \
+	config/stepper-diagnostics_es.txt \
 	config/stepper-quickstart_es.txt \
-	code/code-notes_es.txt \
-	code/style-guide_es.txt \
-	code/nml-messages_es.txt \
-	code/adding-configs_es.txt \
-	code/contributing-to-linuxcnc_es.txt \
-	code/building-linuxcnc_es.txt \
+	examples/gcode_es.txt \
+	examples/gs2-example_es.txt \
+	examples/pci-parallel-port_es.txt \
+	examples/spindle_es.txt \
+	gcode/coordinates_es.txt \
+	gcode/g-code_es.txt \
+	gcode/m-code_es.txt \
+	gcode/machining-center_es.txt \
+	gcode/o-code_es.txt \
+	gcode/other-code_es.txt \
+	gcode/overview_es.txt \
+	gcode/rs274ngc_es.txt \
+	gcode/tool-compensation_es.txt \
+	getting-started/about-linuxcnc_es.txt \
+	getting-started/getting-linuxcnc_es.txt \
+	getting-started/running-linuxcnc_es.txt \
+	getting-started/system-requirements_es.txt \
+	getting-started/updating-linuxcnc_es.txt \
 	gui/axis_es.txt \
 	gui/gmoccapy_es.txt \
-	gui/touchy_es.txt \
 	gui/gscreen_es.txt \
+	gui/ngcgui_es.txt\
 	gui/qtdragon_es.txt \
 	gui/qtvcp_es.txt \
-	gui/ngcgui_es.txt\
-	hal/intro_es.txt \
-	hal/twopass_es.txt \
+	gui/tooledit_es.txt \
+	gui/touchy_es.txt \
 	hal/basic-hal_es.txt \
-	hal/tutorial_es.txt \
-	config/core-components_es.txt \
+	hal/canonical-devices_es.txt \
+	hal/comp_es.txt \
 	hal/components_es.txt \
-	hal/rtcomps_es.txt \
+	hal/general-ref_es.txt \
+	hal/hal-examples_es.txt \
+	hal/halmodule_es.txt \
 	hal/halshow_es.txt \
+	hal/haltcl_es.txt \
+	hal/halui-examples_es.txt \
+	hal/intro_es.txt \
+	hal/parallel-port_es.txt \
+	hal/rtcomps_es.txt \
+	hal/tools_es.txt \
+	hal/tutorial_es.txt \
+	hal/twopass_es.txt \
+	install/latency-test_es.txt \
+	lathe/lathe-user_es.txt \
+	motion/kinematics_es.txt \
+    motion/dh-parameters_es.txt \
+	motion/5-axis-kinematics_es.txt \
+	motion/external-offsets_es.txt \
+	motion/pid-theory_es.txt \
+	motion/tweaking-steppers_es.txt \
+	plasma/plasma-cnc-primer_es.txt \
+	remap/remap_es.txt \
+	user/starting-linuxcnc_es.txt \
+	user/user-concepts_es.txt \
+	user/user-foreword_es.txt \
+	user/user-intro_es.txt \
 	Master_Getting_Started_es.txt \
 	Master_Documentation_es.txt \
 	Master_Developer_es.txt \

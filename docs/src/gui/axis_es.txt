@@ -11,7 +11,7 @@ Tk y OpenGL para mostrar la interfaz de usuario.
 
 .Ventana de AXIS
 
-image::images/axis.png[align="center",alt="Ventana AXIS"]
+image::images/axis_es.png[align="center",alt="Ventana AXIS"]
 
 == Primeros pasos
 
@@ -463,7 +463,7 @@ la pantalla de texto se desplazará automáticamente para mostrar la línea actu
 
 Líneas actuales y seleccionadas
 
-image::images/axis-currentandselected.png[align="center",alt="Líneas actuales y seleccionadas"]
+image::images/axis-currentandselected_es.png[align="center",alt="Líneas actuales y seleccionadas"]
 
 
 === Control manual
@@ -534,7 +534,7 @@ El valor resultante se muestra como un número.
 
 .Touch Off
 
-image::images/touchoff.png[align="center", alt="Touch Off"]
+image::images/touchoff_es.png[align="center", alt="Touch Off"]
 
 Consulte también las opciones 'Tool touch off to workpiece' y 'Tool touch off to fixture'
 en el menú Machine.
@@ -576,7 +576,7 @@ en ejecución, los controles MDI no están disponibles.
 
 La pestaña MDI
 
-image::images/axis-mdi.png[align="center",alt="pestaña MDI"]
+image::images/axis-mdi_es.png[align="center",alt="pestaña MDI"]
 
 * 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
 
@@ -686,7 +686,7 @@ Mostrar estado de LinuxCNC
 
 .Ventana de estado de LinuxCNC
 
-image::images/axis-emc-status.png[align="center",alt="Status LinuxCNC"]
+image::images/axis-emc-status_es.png[align="center",alt="Status LinuxCNC"]
 
 El nombre de cada elemento se muestra en la columna izquierda. El valor actual
 se muestra en la columna derecha. Si el valor ha cambiado recientemente,
@@ -755,7 +755,7 @@ programe un G1 sin movimiento después de T<n>.
 
 .Ventana de cambio de herramientas manual
 
-image::images/manual-tool-change.png[align="center",alt="Ventana de cambio de herramientas manual"]
+image::images/manual-tool-change_es.png[align="center",alt="Ventana de cambio de herramientas manual"]
 
 == Módulos de Python
 
@@ -804,7 +804,7 @@ establecen las coordenadas Z de estos planos, que por defecto son 0 y 1,5 unidad
 
 .Modo de corte de espuma.
 
-image::images/axis-foam.png[align="center",alt="Modo de corte de espuma"]
+image::images/axis-foam_es.png[align="center",alt="Modo de corte de espuma"]
 
 
 == Configuración avanzada

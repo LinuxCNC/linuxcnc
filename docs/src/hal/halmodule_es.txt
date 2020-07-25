@@ -1,14 +1,16 @@
+:lang: es
+
 [[cha:halmodule]]
 
-= Creating Userspace Python Components
+= Crear Componentes Python de Espacio de Usuario
 
-== Basic usage
+== Uso Básico
 
-A userspace component begins by creating its pins and parameters, then
-enters a loop which will periodically drive all the outputs from the
-inputs. The following component copies the value seen on its input pin
-('passthrough.in') to its output pin ('passthrough.out') approximately
-once per second.
+Un componente de espacio de usuario comienza creando sus pines y parámetros. Luego
+entra en un bucle que manejara periódicamente todas las salidas segun las
+entradas. El siguiente componente copia el valor visto en su pin de entrada
+('passthrough.in') a su pin de salida ('passthrough.out') aproximadamente
+una vez por segundo.
 
 [source,c]
 ----
@@ -26,11 +28,11 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-Copy the above listing into a file named "passthrough", make it
-executable ('chmod +x'), and place it on your '$PATH'. Then try it out:
+Copie el listado anterior en un archivo llamado "passthrough", hágalo
+ejecutable ('chmod +x'), y colóquelo en su '$PATH'. Luego, pruébelo:
 
 ----
-halrun
+Halrun
 
 halcmd: loadusr passthrough
 
@@ -41,7 +43,7 @@ halcmd: show pin
      03   float IN          0  passthrough.in 
      03   float OUT         0  passthrough.out 
 
-halcmd: setp passthrough.in 3.14 
+halcmd: setp passthrough.in 3.14
 
 halcmd: show pin
 
@@ -51,184 +53,184 @@ halcmd: show pin
      03   float OUT      3.14  passthrough.out 
 ----
 
-== Userspace components and delays
+== Componentes de espacio de usuario y retrasos
 
-If you typed “show pin” quickly, you may see that 'passthrough.out' 
-still had its old value of 0. This is because of the call to
-'time.sleep(1)', which makes the assignment to the output pin occur at
-most once per second. Because this is a userspace component, the actual
-delay between assignments can be much longer if the
-memory used by the passthrough component is swapped to disk, the
-assignment could be delayed until that memory is swapped back in.
+Si escribió el segundo "show pin" rápidamente, puede ver que 'passthrough.out'
+todavía tenía su valor anterior de 0. Esto se debe a la llamada a
+'time.sleep(1)', que hace que la asignación al pin de salida ocurra al
+menos una vez por segundo. Como este es un componente de espacio de usuario, la demora real
+entre asignaciones puede ser mucho más larga si
+la memoria utilizada por el componente passthrough se intercambia en el disco; la 
+asignación se puede retrasar hasta que la memoria se intercambie nuevamente.
 
-Thus, userspace components are suitable for user-interactive elements
-such as control panels (delays in the range of milliseconds are not
-noticed, and longer delays are acceptable), but not for sending step
-pulses to a stepper driver board (delays must always be in the range of
-microseconds, no matter what).
+Por lo tanto, los componentes del espacio de usuario son adecuados para elementos interactivos con el usuario
+como los paneles de control (los retrasos en el rango de milisegundos no seran
+notados, y son aceptables demoras más largas), pero no para enviar pulsos de paso
+a una placa de control paso a paso (los retrasos siempre deben estar en el rango de
+microsegundos).
 
-== Create pins and parameters
+== Crear pines y parámetros
 
 ----
 h = hal.component("passthrough")
 ----
 
-The component itself is created by a call to the constructor
-'hal.component'. The arguments are the HAL component name and
-(optionally) the
-prefix used for pin and parameter names. If the prefix is not
-specified, the component name is used.
+El componente en sí es creado por una llamada al constructor
+'hal.component'. Los argumentos son el nombre del componente HAL y
+(opcionalmente) el
+prefijo utilizado para los nombres de los pines y los parámetros. Si el prefijo no se
+especifica, se usa el nombre del componente.
 
 ----
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
 ----
 
-Then pins are created by calls to methods on the component object. The
-arguments are: pin name suffix, pin type, and pin direction. For
-parameters, the arguments are: parameter name suffix, parameter type,
-and parameter direction.
+Los pines se crean mediante llamadas a métodos en el objeto componente. Los
+argumentos son: sufijo del nombre del pin, tipo de pin y dirección del pin. Para
+parámetros, los argumentos son: sufijo del nombre del parámetro, tipo de parámetro,
+y dirección del parámetro.
 
-.HAL Option Names
+.Nombres de la opción .HAL
 [width="100%",cols="<3s,4*<"]
 |===========================================================
-|Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
-|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |
-|Parameter Directions:    |HAL_RO  |HAL_RW    |        |
+|Tipos Pines y Parametros:  |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
+|Direcciones de Pin:        |HAL_IN  |HAL_OUT   |HAL_IO  |
+|Direcciones de Parametros: |HAL_RO  |HAL_RW    |        |
 |===========================================================
 
-The full pin or parameter name is formed by joining the prefix and the
-suffix with a ".", so in the example the pin created is called
+El nombre completo del pin o parámetro se forma uniendo el prefijo y el
+sufijo con un ".", por lo que en el ejemplo, el pin creado se llama
 'passthrough.in'.
 
 ----
 h.ready()
 ----
 
-Once all the pins and parameters have been created, call the
-'.ready()' method.
+Una vez que se hayan creado todos los pines y parámetros, llame al
+método '.ready()'.
 
-=== Changing the prefix
+=== Cambiar el Prefijo
 
-The prefix can be changed by calling the '.setprefix()' method. The
-current prefix can be retrieved by calling the '.getprefix()' method.
+El prefijo se puede cambiar llamando al método '.setprefix()'. Los
+prefijo actuales se puede recuperar llamando al método '.getprefix()'.
 
-== Reading and writing pins and parameters
+== Lectura y Escritura de Pines y Parámetros
 
-For pins and parameters which are also proper Python identifiers, the
-value may be accessed or set using the attribute syntax:
+Para los pines y parámetros que también sean identificadores adecuados de Python, el
+valor puede ser accedido o establecido usando la sintaxis de atributo:
 
 ----
 h.out = h.in
 ----
 
-For all pins, whether or not they are also proper Python identifiers,
-the value may be accessed or set using the subscript syntax:
+Para todos los pines, sean o no identificadores adecuados de Python,
+el valor puede ser accedido o establecido usando la sintaxis de subíndice:
 
 ----
 h['out'] = h['in']
 ----
 
-=== Driving output (HAL_OUT) pins
+=== Manejo de Pines de Salida (HAL_OUT)
 
-Periodically, usually in response to a timer, all HAL_OUT pins should
-be "driven" by assigning them a new value. This should be done whether
-or not the value is different than the last one assigned. When a pin is
-connected to a signal, its old output value is not copied into the
-signal, so the proper value will only appear on the signal once the
-component assigns a new value.
+Periódicamente, generalmente en respuesta a un temporizador, todos los pines HAL_OUT deben
+ser "manejados" al asignarles un nuevo valor. Esto debe hacerse, sea
+o no el valor diferente al último asignado. Cuando un pin es
+conectado a una señal, su valor de salida anterior no se copia en la
+señal, por lo que el valor correcto solo aparecerá en la señal una vez que el
+componente asigna un nuevo valor.
 
-=== Driving bidirectional (HAL_IO) pins
+=== Manejo de pines bidireccionales (HAL_IO)
 
-The above rule does not apply to bidirectional pins. Instead, a
-bidirectional pin should only be driven by the component when the
-component wishes to change the value. For instance, in the canonical
-encoder interface, the encoder component only sets the 'index-enable'
-pin to *FALSE* (when an index pulse is seen and the old value is
-*TRUE*), but never sets it to *TRUE*. Repeatedly driving the pin
-*FALSE*  might cause the other connected component to act as though
-another index pulse had been seen. 
+La regla anterior no se aplica a los pines bidireccionales. En cambio, un
+pin bidireccional solo debe ser manejado por el componente cuando el
+componente desea cambiar el valor. Por ejemplo, en el 
+interfaz canónico de encoder, el componente solo establece el pin 'index-enable'
+a *FALSE* (cuando se produce un pulso de índice y el valor anterior es
+*TRUE*), pero nunca, por si mismo, lo establece en *TRUE*. Llevando repetidamente el pin
+a *FALSE* puede hacer que el otro componente conectado actúe como si
+hubiese sido visto otro impulso de índice.
 
-== Exiting
+== Salida
 
-A 'halcmd unload' request for the component is delivered as a 
-'KeyboardInterrupt' exception. When an unload request arrives, the 
-process should either 
-exit in a short time, or call the '.exit()' method on the component 
-if substantial work (such as reading or 
-writing files) must be done to complete the shutdown process.
+Una solicitud 'halcmd unload' para el componente se entrega como una
+excepción 'KeyboardInterrupt'. Cuando llega una solicitud de descarga, el
+proceso debe o bien salir en poco tiempo o llamar al método '.exit()' en el componente,
+si un trabajo sustancial (como lectura o escritura de archivos) debe hacerse 
+para completar el proceso de apagado.
 
-== Helpful Functions
+== Funciones útiles
 
 === component_exists
 
-Does the specified component exist at this time. +
-Example: +
+Existencia del componente especificado en este momento +
+Ejemplo: +
 hal.component_exists("testpanel") +
 
 === component_is_ready
-Is the specified component ready at this time. +
-Example: +
+
+Componente especificado listo en este momento +
+Ejemplo: +
 hal.component_is_ready("testpanel") +
 
 === get_msg_level
 
-Get the current Realtime msg level. +
+Nivel msg de tiempo real actual.
 
 === set_msg_level
 
-set the current Realtime msg level. +
-used for debugging information. +
+Establecer nivel msg de tiempo real. +
+usado para informacion de depuracion. +
 
 === connect
 
-Connect a pin to a signal. +
-example: +
+Conecta un pin a una señal. +
+ejemplo: +
 hal.connect("pinname","signal_name")
 
 === get_value
 
-read a pin, param or signal directly. +
-example: +
+leer pin, parametro o señal directamente. +
+ejemplo: +
 value = hal.get_value("iocontrol.0.emc-enable-in") +
 
 === new_signal
-Create a New signal of the type specified. +
-example" +
-hal.new_sig("signalname",hal.HAL_BIT)
+Crea una nueva señal del tipo especificado. +
+ejemplo "+
+hal.new_sig("nombre-de-la-señal",hal.HAL_BIT)
 
 === pin_has_writer
 
-Does the specified pin have a driving pin connected. +
-Returns True or False. +
+El pin especificado tiene un pin de manejo conectado +
+Devuelve verdadero o falso. +
 h.in.pin_has_writer()
 
 === get_name
-Get the HAL object name +
+Obtener nombre de objeto HAL +
 h.in.get_name() +
-return a string
+devuelve una cadena
 
 === get_type
-Get the HAL object's type +
+Obtener tipo de objeto HAL +
 h.in.get_type() +
-returns an integer
+devuelve un entero
 
 === get_dir
-Get the HAL object direction type +
+Obtener tipo de direccion de objeto HAL +
 h.in.get_dir() +
-returns an integer
+devuelve un entero
 
 === get
-get the HAL object value +
+Obtener valor del objeto HAL +
 h.in.get()
 
 === set
-set the HAL object value +
+Establecer valor del objeto HAL +
 h.out.set(10)
 
 === is_pin
-Is the object a pin or parameter? +
+el objeto es pin o parametro? +
 h.in.is_pin() +
-returns bool
+devuelve bool
 
 === sampler_base
 
@@ -242,15 +244,16 @@ TODO +
 
 TODO +
 
+
 === set_p
 
-Set a pin value of any pin in the HAL system. +
-example: +
+Establecer un valor en cualquier pin HAL. +
+ejemplo: +
 hal.set_p("pinname","10") +
 
-== Constants
+== Constantes
 
-Use These To specify details rather then the value they hold.
+Úselas para especificar detalles con el valor que representan.
 
 * HAL_BIT
 
@@ -280,9 +283,9 @@ Use These To specify details rather then the value they hold.
 
 * MSG_WARN
 
-== System Information
+== Información del sistema
 
-Read these to aquire information about the realtime system.
+Leer estas variables para obtener información sobre el sistema en tiempo real.
 
 * is_kernelspace
 
@@ -292,11 +295,11 @@ Read these to aquire information about the realtime system.
 
 * is_userspace
 
-== Use with hal_glib in GladeVCP Handler
-GladeVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
-This signal can be used to register a function to call when the HAL pin changes state. +
+== Usar con hal_glib en el handler GladeVCP
+GladeVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
+Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
 
-One must import the module and the hal module:
+Uno debe importar el módulo y el módulo hal:
 
 [source,python]
 ----
@@ -304,7 +307,7 @@ import hal_glib
 import hal
 ----
 
-Then make a pin and connect a 'value-changed' (the watcher) signal to a function call:
+Luego haga un pin y conecte una señal 'value-changed' (el observador) a una llamada de función:
 [source,python]
 ----
 class HandlerClass:
@@ -313,7 +316,7 @@ class HandlerClass:
         self.example_trigger.connect('value-changed', self._on_example_trigger_change)
 ----
 
-And have a function to be called:
+Y tener una función que se llamará:
 [source,python]
 ----
     def _on_example_trigger_change(self,pin,userdata=None):
@@ -321,65 +324,66 @@ And have a function to be called:
         print "pin name= %s" % (pin.get_name())
         print "pin type= %d" % (pin.get_type())
 
-        # this can be called outside the function
+        # esto se puede llamar fuera de la función
         self.example_trigger.get()
 ----
 
-== Use with hal_glib in QtVCP Handler
-QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
-This signal can be used to register a function to call when the HAL pin changes state. +
+== Usar con hal_glib en el handler QtVCP
+QtVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
+Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
 
-One must import the hal module:
+Uno debe importar el módulo hal:
 
 [source,python]
 ----
 import hal
 ----
 
-Then make a pin and connect a 'value_changed' (the watcher) signal to a function call:
+Luego haga un pin y conecte una señal 'value_changed' (el observador) a una llamada de función:
 [source,python]
 ----
     ########################
-    # **** INITIALIZE **** #
+    # **** INICIALIZAR **** #
     ########################
-    # widgets allows access to  widgets from the qtvcp files
-    # at this point the widgets and hal pins are not instantiated
+    # widgets permite el acceso a widgets desde los archivos qtvcp
+    # en este punto, los widgets y los pines hal no están instanciados
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.testPin = self.hal.newpin('test-pin', hal.HAL_BIT, hal.HAL_IN)
         self.testPin.value_changed.connect(lambda s: self.setTestPin(s))
 ----
 
-And have a function to be called. +
-This shows ways to get the pin value and information. +
+Y tener una función que se llamará. +
+Esto muestra formas de obtener el valor y la información del pin. +
 [source,python]
 ----
-    #####################
-    # general functions #
-    #####################
+    #######################
+    # funciones generales #
+    #######################
     def setTestPin(self, data):
         print "Test pin value changed to:" % (data)
         print 'halpin object =', self.w.sender()
         print 'Halpin name: ',self.sender().text()
         print 'Halpin type: ',self.sender().get_type()
 
-        # this can be called outside the function
+        # esto se puede llamar fuera de la función
         print self.testPin.get()
 ----
 
 
-== Project ideas
+== Ideas de proyectos
 
-* Create an external control panel with buttons, switches, and
-   indicators. Connect everything to a microcontroller, and connect the
-   microcontroller to the PC using a serial interface. Python has a very
-   capable serial interface module called
-   http://pyserial.sourceforge.net/[pyserial] 
-   (Ubuntu package name “python-serial”, in the universe repository)
-* Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
-   and use it to display a digital readout with information of your choice
-   (Ubuntu package name “lcdproc”, in the universe repository)
-* Create a virtual control panel using any GUI library supported by
-   Python (gtk, qt, wxwindows, etc)
+* Crea un panel de control externo con botones, interruptores y
+   indicadores. Conecte todo a un microcontrolador, y conecte el
+   microcontrolador a la PC con una interfaz serie. Python tiene un muy
+   eficaz módulo de interfaz serie llamado
+   http://pyserial.sourceforge.net/[pyserial]
+   (Nombre del paquete de Ubuntu "python-serial", en el repositorio universo)
+* Adjunte un módulo LCD compatible con http://lcdproc.omnipotent.net/[LCDProc]-
+   y úselo para mostrar una lectura digital con la información que elija
+   (Nombre del paquete de Ubuntu "lcdproc", en el repositorio universo)
+* Crear un panel de control virtual utilizando cualquier biblioteca GUI compatible con
+   Python (gtk, qt, wxwindows, etc.)
+
 
 

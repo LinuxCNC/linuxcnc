@@ -1,31 +1,33 @@
-= Lathe Configuration
+:lang: es
 
 [[cha:lathe-configuration]]
 
-== Default Plane
+﻿= Configuración de torno
 
-When LinuxCNC's interpreter was first written, it was designed for mills.
-That is why the default plane is XY (G17). A normal lathe only uses the
-XZ plane (G18). To change the default plane place the following line in
-the .ini file in the RS274NGC section.
+== Plano predeterminado
+
+Cuando el intérprete de LinuxCNC se escribió por primera vez, fue diseñado para fresadoras.
+Es por eso que el plano predeterminado es XY (G17). Un torno normal solo usa el
+plano XZ (G18). Para cambiar el plano predeterminado, coloque la siguiente línea en
+el archivo .ini en la sección RS274NGC.
 
 ----
 RS274NGC_STARTUP_CODE = G18
 ----
 
-The above can be overwritten in a g code program so always set important things
-in the preamble of the g code file.
+Lo anterior se puede sobrescribir en un programa de código g, por lo que siempre debe configurar cosas importantes
+en el preámbulo del archivo de código g.
 
-== INI Settings
+== Configuración INI
 
-The following .ini settings are needed for lathe mode in Axis in addition to
-or replacing normal settings in the .ini file.  These historical settings use
-identity kinematics (trivkins) and 'three' joints (0,1,2) corresponding to 
-coordinates x,y,z.  The joint 1 for the unused y axis is required but not used
-in these historical configurations.  Simulated lathe configs may use these
-historical settings.
-Gmoccapy also uses the mentioned settings, but does offer additional settings,
-check the <<cha:gmoccapy,gmoccapy>> Section for details.
+Las siguientes configuraciones .ini son necesarias para el modo torno en Axis además de
+o reemplazando a la configuración normal en el archivo .ini. Estas configuraciones históricas usan
+cinemática de identidad (trivkins) y 'tres' articulaciones (0,1,2) correspondientes a
+coordenadas x, y, z. En estas configuraciones históricas se requiere la articulacion 1
+para el eje Y no utilizado. Las configuraciones de torno simuladas pueden usar estos
+ajustes históricos.
+Gmoccapy también usa las configuraciones mencionadas, pero ofrece configuraciones adicionales.
+Verifique la sección <<cha:gmoccapy,gmoccapy>> para más detalles.
 
 ----
 [DISPLAY]
@@ -51,9 +53,8 @@ COORDINATES = X Z
 ...
 ----
 
-With joints_axes incorporation, a simpler configuration can be made with just
-the two required joints by specifying trivkins with the 'coordinates='
-parameter:
+Con la incorporación de joint_axes, se puede hacer una configuración más simple con solo
+las dos articulaciones requeridas especificando trivkins con el parámetro 'coordinates=':
 
 ----
 [DISPLAY]
@@ -78,3 +79,4 @@ COORDINATES = X Z
 [AXIS_Z]
 ...
 ----
+

@@ -1,463 +1,459 @@
+:lang: es
+
 [[cha:o-codes]]
 
-= O Codes
+= Códigos O
 
-O-codes provide for flow control in NC programs. Each block has an
-associated number, which is the number used after O. Care must be taken
-to properly match the O-numbers. O codes use the letter 'O' not the
-number zero as the first character in the number like O100 or o100.
+Los códigos O proporcionan control de flujo en programas NC. Cada bloque tiene un
+número asociado, que es el número utilizado después de O. Se debe tener cuidado
+para que coincidan adecuadamente los números O. Los códigos O usan la letra 'O' no el
+número cero como el primer carácter en el número como O100 u o100.
 
-== Numbering
+== Numeración
 
-Numbered O codes must have a unique number for each subroutine, 
-.Numbering Example
+Los códigos O numerados deben tener un número único para cada subrutina,
+.Ejemplo de numeración
 ----
-(the start of o100)
+(el comienzo de o100)
 o100 sub
-(notice that the if-endif block uses a different number)
-  (the start of o110)
-  o110 if [#2 GT 5]
-    (some code here)
-  (the end of o110)
-  o110 endif
-  (some more code here)
-(the end of o100)
+(observe que el bloque if-endif usa un número diferente)
+  (el comienzo de o110)
+  o110 if [#2 GT 5]
+    (algún código aquí)
+  (el final de o110)
+  o110 endif
+  (un poco más de código aquí)
+(el final de o100)
 o100 endsub
 ----
 
 [[ocode:comments]]
-== Comments
+== Comentarios
 (((Comments)))
 
-Comments on the same line as the O word should not be used as the behavior can
-change in the future.
+No deben usarse comentarios en la misma línea que la palabra O, ya que el comportamiento puede
+cambiar en el futuro.
 
-The behavior is undefined if:
+El comportamiento es indefinido si:
 
-* The same number is used for more than one block
-* Other words are used on a line with an O- word
-* Comments are used on a line with an O-word
+* Se utiliza el mismo número para más de un bloque.
+* Se usan otras palabras en una línea con una palabra O
+* Se usan comentarios en una línea con una palabra O
 
 [NOTE]
-Using the lower case o makes it easier to distinguish from a 0
-that might have been mistyped. For example o100 is easier to
-see than O100 that it is not a 0.
+El uso de minúsculas o hace que sea más fácil distinguir de un 0
+que podría haber sido mal escrito. Por ejemplo, que no es un 0 es más fácil de
+ver en o100 que en O100.
 
 [[ocode:subroutines]]
-== Subroutines
-(((Subroutines)))
+== Subrutinas
+(((Subrutinas)))
 
-Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
-'Onnn sub' and 'Onnn endsub' are not executed until the subroutine is called
-with 'Onnn call'. Each subroutine must use a unique number.
+Las subrutinas comienzan en 'Onnn sub' y terminan en 'Onnn endsub'. Las líneas entre
+'Onnn sub' y 'Onnn endsub' no se ejecutan hasta que se llama a la subrutina
+con 'Onnn call'. Cada subrutina debe usar un número único.
 
-.Subroutine Example
+Ejemplo de subrutina
 ----
 o100 sub
-  G53 G0 X0 Y0 Z0 (rapid move to machine home)
+  G53 G0 X0 Y0 Z0 (rápido al home de la máquina)
 o100 endsub
 
-(the subroutine is called)
+(se llama la subrutina)
 o100 call
 M2
 ----
-See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more
-information.
+Consulte las secciones <<gcode:g53,G53>> , <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 .O- Return
-Inside a subroutine, 'O- return' can be executed. This immediately
-returns to the calling code, just as though 'O- endsub' was encountered.
+Dentro de una subrutina, se puede ejecutar 'O- return'. Esto vuelve al código de llamada
+inmediatamente, como si se encontrara 'O-endsub'.
 
-.O- Return Example
+.O- Ejemplo de return
 ----
 o100 sub
-  (test if parameter #2 is greater than 5)
-  o110 if [#2 GT 5]
-    (return to top of subroutine if test is true)
-    o100 return
-  o110 endif
-    (this only gets executed if parameter #2 is not greater than 5)
-    (DEBUG, parameter 1 is [#1])
+  (prueba si el parámetro #2 es mayor que 5)
+  o110 if [#2 GT 5]
+    (regrese al inicio de la subrutina si la prueba es verdadera)
+    o100 return
+  o110 endif
+    (esto solo se ejecuta si el parámetro #2 no es mayor que 5)
+    (DEBUG, el parámetro 2 es [#1])
 o100 endsub
 ----
-See the <<gcode:binary-operators,Binary Operators>> & <<gcode:parameters,Parameters>> sections for more information.
+Consulte las secciones <<gcode:binary-operators,operadores binarios>> y <<gcode:parameters,parámetros>> para obtener más información.
 
 .O- Call
-'O- Call' takes up to 30 optional arguments, which are passed to the
-subroutine
- as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
-value as in the
-calling context. On return from the subroutine, the values of
-parameters #1 through #30 (regardless of the number of arguments) will
-be restored to the values they had before the call. Parameters #1 - #30
-are local to the subroutine.
+'O- Call' toma hasta 30 argumentos opcionales, que se pasan a la subrutina
+como '#1', '#2', ..., #N. Los parámetros de #N+1 a #30 tienen el mismo
+valor como en el contexto de llamada. Al regresar de la subrutina, los valores de
+los parámetros del 1 al 30 (independientemente del número de argumentos)
+serán restaurados a los valores que tenían antes de la llamada. Los parámetros #1 - #30
+son locales a la subrutina.
 
-Because '1 2 3' is parsed as the number 123, the parameters must be
-enclosed in
-square brackets. The following calls a subroutine with 3 arguments:
+Como '1 2 3' se analiza como el número 123, los parámetros deben estar
+entre corchetes. Lo siguiente llama a una subrutina con 3 argumentos:
 
-.O- Call Example
+.O- Ejemplo de llamada
 ----
 o100 sub
-  (test if parameter #2 is greater than 5)
-  o110 if [#2 GT 5]
-    (return to top of subroutine if test is true)
-    o100 return
-  o110 endif
-    (this only gets executed if parameter #2 is not greater than 5)
-    (DEBUG, parameter 1 is [#1])
-    (DEBUG, parameter 3 is [#3])
+  (prueba si el parámetro #2 es mayor que 5)
+  o110 if [#2 GT 5]
+    (regresa al inicio de la subrutina si la prueba es verdadera)
+    o100 return
+  o110 endif
+    (esto solo se ejecuta si el parámetro #2 no es mayor que 5)
+    (DEBUG, el parámetro 1 es [#1])
+    (DEBUG, el parámetro 3 es [#3])
 o100 endsub
 
 o100 call [100] [2] [325]
 ----
 
-Subroutine bodies may not be nested. They may only be called after
-they are defined. They may be called from other functions, and may call
-themselves recursively if it makes sense to do so. The maximum
-subroutine nesting level is 10.
+Los cuerpos de subrutina no pueden estar anidados. Solo pueden llamarse después
+de ser definidos. Pueden ser llamados desde otras funciones, y pueden llamarse
+a sí mismos recursivamente si tiene sentido hacerlo. El maximo
+nivel de anidación de subrutinas es 10.
 
-Subroutines can change the value of parameters above #30 and those changes will
-be visible to the calling code. Subroutines may also change the value of global
-named parameters.
+Las subrutinas pueden cambiar el valor de los parámetros por encima de #30 y esos cambios
+serán visible para el código de llamada. Las subrutinas también pueden cambiar el valor de
+parámetros globales con nombre.
 
 [[ocode:fanuc-style-programs]]
-=== Fanuc-Style Numbered Programs ===
-(((Subroutines, M98, M99)))
+=== Programas numerados al estilo Fanuc ===
+(((Subrutinas, M98, M99)))
 
-Numbered programs (both main and subprograms), the 'M98' call and
-'M99' return M-codes, and their respective semantic differences are an
-alternative to the rs274ngc subroutines described above, provided for
-compatibility with Fanuc and other machine controllers.
+Programas numerados (tanto principales como subprogramas), la llamada 'M98' y
+'M99' devuelven códigos M, y sus respectivas diferencias semánticas son un
+alternativa a las subrutinas rs274ngc descritas anteriormente, proporcionadas para
+compatibilidad con Fanuc y otros controladores de máquina.
 
-Numbered programs are enabled by default, and may be disabled by
-placing `DISABLE_FANUC_STYLE_SUB = 1` in the `[RS274NGC]` section
-of the `.ini` file.
+Los programas numerados están habilitados de manera predeterminada y pueden deshabilitarse
+colocando `DISABLE_FANUC_STYLE_SUB = 1` en la sección `[RS274NGC]` del archivo `.ini`.
 
 [NOTE]
 
-Numbered main and subprogram definitions and calls differ from
-traditional rs274ngc both in syntax and execution.  To reduce the
-possibility of confusion, the interpreter will raise an error if
-definitions of one style are mixed with calls of another.
+Las definiciones y llamadas principales y subprogramas numerados difieren de
+rs274ngc tradicional tanto en sintaxis como en ejecución. Para reducir la
+posibilidad de confusión, el intérprete generará un error si
+las definiciones de un estilo se mezclan con las llamadas de otro.
 
-.Numbered Subprogram Simple Example
+Ejemplo simple de subprograma numerado
 [source,{ngc}]
 ----
-o1 (Example 1)    ; Main program 1, "Example 1"
-M98 P100          ; Call subprogram 100
-M30               ; End main program
+o1 (Ejemplo 1)		; Programa principal 1, "Ejemplo 1"
+M98 P100			; Llama al subprograma 100
+M30					; Fin del programa principal
 
-o100              ; Beginning of subprogram 100
-  G53 G0 X0 Y0 Z0 ; Rapid move to machine home
-M99               ; Return from subprogram 100
+o100				; Comienzo del subprograma 100
+  G53 G0 X0 Y0 Z0	; Rápido a home máquina
+M99					; Regresar del subprograma 100
 ----
 
-.`o1 (Title)`
+.`o1 (Título)`
 
-The optional main program beginning block gives the main program the
-number `1`.  Some controllers treat an optional following
-parenthesized comment as a program title, `Example 1` in this example,
-but this has no special meaning in the rs274ngc interpreter.
+El bloque inicial opcional del programa principal le da al programa principal
+el número `1`. Algunos controladores tratan un seguiente
+comentario opcional entre paréntesis como título del programa, `Ejemplo 1` en este ejemplo,
+pero esto no tiene un significado especial en el intérprete rs274ngc.
 
 .`M98 P- <L\->`
 
-Call a numbered subprogram.  The block `M98 P100` is analogous to the
-traditional `o100 call` syntax, but may only be used to call a
-following numbered subprogram defined with `o100`...`M99`.  An
-optional 'L'-word specifies a loop count.
+Llama a un subprograma numerado. El bloque `M98 P100` es análogo a la
+sintaxis tradicional `o100 call`, pero solo se puede usar para llamar a un
+subprograma numerado definido con `o100` ...` M99`. Una palabra
+opcional 'L'- especifica un recuento de bucles.
 
 .`M30`
 
-The main program must be terminated with `M02` or `M30` (or `M99`; see
-below).
+El programa principal debe terminarse con `M02` o `M30` (o `M99`; consulte
+abajo).
 
-.`O-` subprogram definition start
+.`O-` Inicio de definición de subprograma
 
-Marks the start of a numbered subprogram definition.  The block `O100`
-is similar to `o100 sub`, except that it must be placed later in the
-file than the `M98 P100` calling block.
+Marca el inicio de una definición de subprograma numerado. El bloque `O100`
+es similar a `o100 sub`, excepto que debe colocarse más adelante en el
+archivo que el bloque de llamada `M98 P100`.
 
-.`M99` return from numbered subroutine
+.`M99` Return de la subrutina numerada
 
-The block `M99` is analogous to the traditional `o100 endsub` syntax,
-but may only terminate a numbered program (`o100` in this example),
-and may not terminate a subroutine beginning with the `o100 sub`
-syntax.
+El bloque `M99` es análogo a la sintaxis tradicional` o100 endsub`,
+pero solo puede terminar un programa numerado (`o100` en este ejemplo),
+y no puede terminar una subrutina que comience con sintaxis `o100 sub`.
 
-The `M98` subprogram call differs from rs274ngc `O call` in the
-following ways:
+La llamada de subprograma `M98` difiere de rs274ngc `O call` en lo
+siguiente:
 
-* The numbered subprogram must follow the `M98` call in the program
-file.  The interpreter will throw an error if the subprogram precedes
-the call block.
+* El subprograma numerado debe seguir la llamada `M98` en el archivo de programa.
+El intérprete arrojará un error si el subprograma precede al bloque de llamada.
 
-* Parameters `#1`, `#2`, ..., `#30` are global and accessible in
-numbered subprograms, similar to higher-numbered parameters in
-traditional style calls.  Modifications to these parameters within a
-subprogram are global modifications, and will be persist after
-subprogram return.
+* Los parámetros `#1`,` #2`, ..., `#30` son globales y accesibles en
+subprogramas numerados, similares a los parámetros numerados más altos en
+llamadas de estilo tradicional. Modificaciones a estos parámetros dentro de un
+el subprograma son modificaciones globales y persistirán después del retorno de
+subprograma.
 
-* `M98` subprogram calls have no return value.
+* Las llamadas `M98` a subprograma no tienen valor de retorno.
 
-* `M98` subprogram call blocks may contain an optional L-word
-specifying a loop repeat count.  Without the L-word, the subprogram
-will execute once only (equivalent to `M98 L1`).  An `M98 L0` block
-will not execute the subprogram.
+* Los bloques de llamadas del subprograma `M98` pueden contener una palabra L opcional
+especificando un recuento de repetición de bucle. Sin la palabra L, el subprograma
+se ejecutará solo una vez (equivalente a `M98 L1`). Un bloque `M98 L0`
+no ejecutará el subprograma.
 
-In rare cases, the `M99` M-code may be used to terminate the main
-program, where it indicates an 'endless program'.  When the
-interpreter reaches an `M99` in the main program, it will skip back to
-the beginning of the file and resume execution at the first line.  An
-example use of an endless program is in a machine warm-up cycle; a
-block delete program end `/M30` block might be used to stop the cycle
-at a tidy point when the operator is ready.
+En casos raros, el código `M99` puede usarse para terminar el programa principal,
+donde indica un 'programa sin fin'. Cuando el
+el intérprete alcanza un `M99` en el programa principal, saltará de nuevo al
+comienzo del archivo y reanudara la ejecución en la primera línea.
+Un ejemplo de un programa sin fin es en un ciclo de calentamiento de la máquina; una
+bloque final de programa con eliminacion `/M30` puede usarse para detener el ciclo
+en un punto ordenado cuando el operador está listo.
 
-.Numbered Subprogram Full Example
+.Ejemplo completo de subprograma numerado
 [source,{ngc}]
 ----
-O1                             ; Main program 1
+O1                             ; Programa principal 1
   #1 = 0
   (PRINT,X MAIN BEGIN:  1=#1)
-  M98 P100 L5                  ; Call subprogram 100
+  M98 P100 L5                  ; Llame al subprograma 100
   (PRINT,X MAIN END:  1=#1)
-M30                            ; End main program
+M30                            ; Fin del programa principal
 
-O100                           ; Subprogram 100
+O100                           ; Subprograma 100
   #1 = [#1 + 1]
-  M98 P200 L5                  ; Call subprogram 200
+  M98 P200 L5                  ; Llamada a subprograma 200
   (PRINT,>> O100:  #1)
-M99                            ; Return from Subprogram 100
+M99                            ; Return desde Subprograma 100
 
-O200                           ; Subprogram 200
+O200                           ; Subprograma 200
   #1 = [#1 + 0.01]
   (PRINT,>>>> O200:  #1)
-M99                            ; Return from Subprogram 200
+M99                            ; Return desde Subprograma 200
 ----
 
-In this example, parameter `#1` is initialized to `0`.  Subprogram
-`O100` is called five times in a loop.  Nested within each call to
-`O100`, subprogram `O200` is called five times in a loop, for 25 times
+En este ejemplo, el parámetro `#1` se inicializa a `0`. El subprograma
+`O100` se llama cinco veces en un bucle. Anidado dentro de cada llamada a
+`O100`, el subprograma `O200` se llama cinco veces en un ciclo; 25 veces en
 total.
 
-Note that parameter `#1` is global.  At the end of the main program,
-after updates within `O100` and `O200`, its value will equal `5.25`.
+Tenga en cuenta que el parámetro `#1` es global. Al final del programa principal,
+después de las actualizaciones dentro de `O100` y` O200`, su valor será igual a `5.25`.
 
 [[ocode:looping]]
-== Looping
-(((Subroutines, Looping)))
+== Bucles
+(((Subrutinas, bucles)))
 
-The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
-each case, the loop is exited when the 'while' condition evaluates to
-false. The difference is when the test condition is done. The 'do/while'
-loop runs the code in the loop then checks the test condition. The
-'while/endwhile' loop does the test first.
+El 'bucle while' tiene dos estructuras: 'while/endwhile' y 'do/while'.
+En cada caso, el ciclo se cierra cuando la condición 'while' se evalúa como
+falso. La diferencia es cuando se realiza la condición de prueba. El bucle 'do/while'
+ejecuta el código en el bucle y luego verifica la condición de prueba.
+El bucle 'while/endwhile' hace la prueba primero.
 
-.While Endwhile Example
+.Ejemplo While/Endwhile
 ----
-(draw a sawtooth shape)
-G0 X1 Y0 (move to start position)
-#1 = 0 (assign parameter #1 the value of 0)
-F25 (set a feed rate)
+(dibuja una forma de diente de sierra)
+G0 X1 Y0 (mover a la posición inicial)
+#1 = 0 (asigne al parámetro # 1 el valor de 0)
+F25 (establecer una velocidad de alimentación)
 o101 while [#1 LT 10]
-  G1 X0
-  G1 Y[#1/10] X1
-  #1 = [#1+1] (increment the test counter)
+  G1 X0
+  G1 Y[#1/10] X1
+  #1 = [#1+1] (incrementar el contador de prueba)
 o101 endwhile
-M2 (end program)
+M2 (final del programa)
 ----
 
-.Do While Example
+.Ejemplo Do/While
 ----
-#1 = 0 (assign parameter #1 the value of 0)
+#1 = 0 (asigne al parámetro # 1 el valor de 0)
 o100 do
-  (debug, parameter 1 = #1)
-  o110 if [#1 EQ 2]
-    #1 = 3 (assign the value of 3 to parameter #1)
-    (msg, #1 has been assigned the value of 3)
-    o100 continue (skip to start of loop)
-  o110 endif
-  (some code here)
-  #1 = [#1 + 1] (increment the test counter)
+  (debug, parámetro 1 = #1)
+  o110 if [#1 EQ 2]
+    #1 = 3 (asigne el valor de 3 al parámetro #1)
+    (msg, #1 se le ha asignado el valor de 3)
+    o100 continue (saltar al inicio del bucle)
+  o110 endif
+  (algún código aquí)
+  #1 = [#1+1] (incrementar el contador de prueba)
 o100 while [#1 LT 3]
-(msg, Loop Done!)
+(msg, bucle hecho!)
 M2
 ----
 
-Inside a while loop, 'O- break' immediately exits the loop, and 'O-
-continue' immediately skips to the next evaluation of the 'while'
-condition. If it is still true, the loop begins again at the top. If
-it is false, it exits the loop.
+Dentro de un ciclo while, 'O- break' sale inmediatamente del ciclo, y 'O- continue' salta 
+inmediatamente a la próxima evaluación de la condición 'while'.
+Si aún es cierta, el ciclo comienza nuevamente en la parte superior. Si
+es falsa, sale del bucle.
 
 [[ocode:conditional]]
-== Conditional
-(((Subroutines, Conditional Loops)))
+== Condicionales
+(((Subrutinas, bucles condicionales)))
 
-The 'if' conditional consists of a group of statements with the same 'o' number
-that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
-may be between the starting 'if' and the ending 'endif'.
+El condicional 'if' consiste en un grupo de declaraciones con el mismo número 'o'
+que comienzan con 'if' y terminan con 'endif'. Condiciones opcionales 'elseif' y 'else'
+puede estar entre el inicio 'if' y el final 'endif'.
 
-If the 'if' conditional evaluates to true then the group of statements
-following the 'if' up to the next conditional line are executed. 
+Si el condicional 'if' se evalúa como verdadero, entonces  se ejecuta el grupo de declaraciones
+siguiendo al 'if' hasta la siguiente línea condicional.
 
-If the 'if' conditional evaluates to false then the 'elseif' conditions are
-evaluated in order until one evaluates to true. If the 'elseif' condition is
-true then the statements following the 'elseif' up to the next conditional
-line are executed. If none of the 'if' or 'elseif' conditions evaluate to true
-then the statements following the 'else' are executed. When a condition is
-evaluated to true no more conditions are evaluated in the group.
+Si el condicional 'if' se evalúa como falso, entonces las condiciones 'elseif' son
+evaluadas en orden hasta que una evalúa como verdadera. Si la condición 'elseif' es
+cierta entonces se ejecutan las declaraciones que siguen al 'elseif' hasta el próximo condicional.
+Si ninguna de las condiciones 'if' o 'elseif' se evalúa como verdadera,
+entonces se ejecutan las declaraciones que siguen al 'else'. Cuando una condición es
+evaluada como verdadero, no se evalúan más condiciones en el grupo.
 
-.If Endif Example
+.Ejemplo If / Endif
 ----
-(if parameter #31 is equal to 3 set S2000)
+(si el parámetro #31 es igual a 3, configure S2000)
 o101 if [#31 EQ 3]
-  S2000
+  S2000
 o101 endif
 ----
 
-.If ElseIf Else EndIf Example
+.Ejemplo If ElseIf Else EndIf
 ----
-(if parameter #2 is greater than 5 set F100)
+(si el parámetro #2 es mayor que 5, configure F100)
 o102 if [#2 GT 5]
-  F100
+  F100
 o102 elseif [#2 LT 2]
-(else if parameter #2 is less than 2 set F200)
-  F200
-(else if parameter #2 is 2 through 5 set F150)
+(de lo contrario, si el parámetro #2 es menor que 2, configure F200)
+  F200
+(de lo contrario, si el parámetro #2 es de 2 al 5, configure F150)
 o102 else
-  F150
+  F150
 o102 endif
 ----
 
-Several conditons may be tested for by 'elseif' statements until the
-'else' path is finally executed if all preceding conditons are false:
+Se pueden probar varias condiciones mediante declaraciones 'elseif' hasta que
+la ruta 'else' finalmente se ejecuta si todas las condiciones anteriores son falsas:
 
-.If Elseif Else Endif Example
+.Ejemplo If Elseif Else Endif
 ----
-(if parameter #2 is greater than 5 set F100)
+(si el parámetro #2 es mayor que 5, configure F100)
 O102 if [#2 GT 5]
-  F100
-(else if parameter #2 less than 2 set F200)
+  F100
+(de lo contrario, si el parámetro #2 es inferior a 2, configure F200)
 O102 elseif [#2 LT 2]
-  F20
-(parameter #2 is between 2 and 5)
+  F20
+(el parámetro #2 está entre 2 y 5)
 O102 else
-  F200
+  F200
 O102 endif
 ----
 
 [[ocode:repeat]]
 == Repeat
-(((Subroutines, Repeat Loop)))
+(((Subrutinas, repetir bucle)))
 
-The 'repeat' will execute the statements inside of the
-repeat/endrepeat the specified number of times. The example shows how
-you might mill a diagonal series of shapes starting at the present
-position.
+'repeat' ejecutará las declaraciones dentro de
+repeat/endrepeat el número especificado de veces. El ejemplo muestra cómo
+puede fresar una serie diagonal de formas a partir de la presente
+posición.
 
-.Repeat Example
+.Ejemplo de repeat
 ----
-(Mill 5 diagonal shapes)
-G91 (Incremental mode)
+(Fresar 5 formas diagonales)
+G91 (modo incremental)
 o103 repeat [5]
-... (insert milling code here)
-G0 X1 Y1 (diagonal move to next position)
+... (inserte el código de fresado aquí)
+G0 X1 Y1 (movimiento diagonal a la siguiente posición)
 o103 endrepeat
-G90 (Absolute mode)
+G90 (modo absoluto)
 ----
 
 [[ocode:indirection]]
-== Indirection
-(((Indirection)))
+== Indirección
+(((Indirección)))
 
-The O-number may be given by a parameter and/or calculation.
+El O-número puede ser dado por un parámetro y/o cálculo.
 
-.Indirection Example
+Ejemplo de Indirección
 ----
 o[#101+2] call
 ----
 
-.Computing values in O-words
-For more information on computing values see the following sections
+.Calculando valores en O-palabras
+Para obtener más información sobre los valores, consulte las siguientes secciones
 
-* <<gcode:parameters,Parameters>>
-* <<gcode:expressions,Expressions>>
-* <<gcode:binary-operators,Binary Operators>>
-* <<gcode:functions,Functions>>
+* <<gcode:parameters,parámetros>>
+* <<gcode:expressions,expresiones>>
+* <<gcode:binary-operators,operadores binarios>>
+* <<gcode:functions,funciones>>
 
 [[ocode:calling-files]]
-== Calling Files
-(((Calling Files)))
+== Llamando a archivos
+(((Archivos de llamada)))
 
-To call a separate file with a subroutine name the file the same as
-your call and include a sub and endsub in the file. The file must be in the
-directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the ini file.
-The file name can include *lowercase* letters, numbers, dash, and underscore
-only. A named subroutine file can contain only a single subroutine definition.
+Para llamar a un archivo separado con una subrutina, nombre el archivo igual que
+su llamada e incluya un sub y endub en el archivo. El archivo debe estar en el
+directorio señalado por 'PROGRAM_PREFIX' o 'SUBROUTINE_PATH' en el archivo ini.
+El nombre del archivo puede incluir *letras minúsculas*, números, guiones y guiones bajos
+solamente. Un archivo de subrutina con nombre solo puede contener una única definición de subrutina.
 
-.Named File Example
+Ejemplo de archivo con nombre
 ----
 o<myfile> call
 ----
 
-.Numbered File Example
+Ejemplo de archivo numerado
 ----
 o123 call
 ----
 
-In the called file you must include the oxxx sub and endsub and the
-file must be a valid file.
+En el archivo llamado, debe incluir el sub y el endsub oxxx y el
+archivo debe ser un archivo válido.
 
-.Called File Example
+Ejemplo de archivo llamado
 ----
-(filename myfile.ngc)
+(nombre de archivo myfile.ngc)
 o<myfile> sub
-  (code here)
+  (código aquí)
 o<myfile> endsub
 M2
 ----
 
 [NOTE]
-The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
-by the interpreter. More information about the search path and options for the
-search path are in the INI Configuration Section.
+Los nombres de los archivos son solo letras minúsculas, por lo que 'o <MyFile>' se convierte en 'o <myfile>'
+por el intérprete. Más información sobre la ruta de búsqueda y las opciones para
+la ruta de búsqueda se encuentra en la sección de configuración INI.
 
-== Subroutine return values(((Return Values)))
+== Valores de retorno de subrutina (((Valores de retorno)))
 
-Subroutines may optionally return a value by an optional expression at
-an 'endsub' or 'return' statement.
+Las subrutinas pueden devolver opcionalmente un valor mediante una expresión opcional en
+una declaración 'endsub' o 'return'.
 
-.Return value example
+Ejemplo de valor de retorno
 ----
 o123 return [#2 *5]
 ...
-o123 endsub [3 * 4]
+o123 endub [3 * 4]
 ----
 
-A subroutine return value is stored in the '#<_value>'
-<<gcode:predefined-named-parameters, predefined named parameter>> , and
-the '#<_value_returned>' predefined parameter is set to 1, to indicate
-a value was returned. Both parameters are global, and are cleared just
-before the next subroutine call.
+Un valor de retorno de subrutina se almacena en el 
+<<gcode:predefined-named-parameters, parámetro con nombre predefinido>> '#<_value>' y
+el parámetro predefinido '#<_value_returned>' se establece en 1, para indicar que
+se ha devuelto un valor. Ambos parámetros son globales y se borran solo
+antes de la próxima llamada de subrutina.
 
 [[ocode:errors]]
-== Errors
-(((O-Code Errors)))
+== Errores
+(((Errores de código O)))
 
-The following statements  cause an error message and  abort the
-interpreter:
+Las siguientes declaraciones provocan un mensaje de error y abortan el
+interprete:
 
- - a `return` or `endsub` not within a sub defintion
- - a label on `repeat` which is defined elsewhere
- - a label on `while` which is defińed elsewhere and not referring to a `do`
- - a label on `if` defined elsewhere
- - a undefined label on `else` or `elseif`
- - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
- - a label on `break` or `continue` which does not point to a matching `while` or `do`
- - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
-    
-To make these errors non-fatal  warnings on stderr, set bit 0x20 in
-the `[RS274NGC]FEATURE=` mask ini option. 
+ - un `return` o` endsub` no dentro de una subdefinición
+ - una etiqueta en 'repeat' que se define en otra parte
+ - una etiqueta en `while` que se define en otro lugar y no se refiere a un` do`
+ - una etiqueta en `if` definida en otra parte
+ - una etiqueta indefinida en `else` o` elseif`
+ - una etiqueta en `else`,` elseif` o `endif` no apunta a un` if` coincidente
+ - una etiqueta en `break` o` continue` que no apunta a una coincidencia `while` o` do`
+ - una etiqueta en `endrepeat` o` endwhile` sin hacer referencia a un `while` o` repeat` correspondiente
+    
+Para hacer estos errores advertencias no fatales en stderr, establezca el bit 0x20 en
+la opción mask [[RS274NGC]FEATURE=` del .ini.
 
 
-// vim: set syntax=asciidoc:
+// vim: set syntax = asciidoc:
+

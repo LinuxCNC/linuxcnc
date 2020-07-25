@@ -1,0 +1,186 @@
+:lang: es
+
+= Ajuste PID
+
+== Controlador PID
+
+Un controlador PID (Controlador Proporcional-Integral-Derivativo) es un mecanismo de control por realimentación
+ampliamente usado en sistemas de control industrial.
+footnote:[Esta subsección está tomada de un articulo mucho más extenso
+encontrado en http://en.wikipedia.org/wiki/PID_controller]
+
+Este controlador calcula la desviación o error entre un valor medido de un proceso (típicamente un
+proceso industrial) y un valor deseado. La diferencia
+(o señal de 'error') se usa para calcular un nuevo valor de la
+entrada al proceso que lleva al valor medido del proceso
+a su punto de ajuste deseado.
+
+A diferencia de algoritmos de control más simples, el controlador PID puede ajustar
+las salidas basandose en el historial y tasa de cambio de la señal de error, 
+lo que proporciona un control más preciso y estable. (Se puede demostrar
+matemáticamente que un bucle PID producirá un control preciso y estable en
+casos donde un control proporcional simple tendría un
+error de estado estable o haría que el proceso oscilara).
+
+=== Conceptos básicos de lazo de control
+
+Intuitivamente, el bucle PID intenta automatizar lo que haria un operario inteligente
+con un dial medidor y un boton de control. El operador
+lee el medidor que muestra la medición de la salida de un proceso, y usa el
+mando para ajustar la entrada del proceso (la 'acción') hasta que
+la medición de salida del proceso se estabiliza al valor deseado.
+
+En la literatura de control más antigua, este proceso de ajuste se denomina
+acción 'reset'. La posición de la aguja en el medidor es una
+'medida', 'valor de proceso' o 'variable de proceso'. El valor deseado
+en el medidor se llama 'punto de ajuste' (también llamado 'valor de ajuste').
+La diferencia entre la aguja del indicador y el punto de ajuste es el "error".
+
+Un lazo de control consta de tres partes:
+
+1. Medición por un sensor conectado al proceso (por ejemplo, un codificador),
+
+2. Decisión en un elemento controlador,
+
+3. Acción a través de un dispositivo de salida, como un motor.
+
+A medida que el controlador lee el sensor, resta esta medida
+del 'punto de ajuste' para determinar el 'error'. Luego usa el error para
+calcular una corrección de la variable de entrada del proceso (la 'acción')
+para que esta corrección elimine el error de la salida del proceso.
+
+En un bucle PID, la corrección se calcula a partir del error de tres maneras:
+cancelar el error actual directamente (Proporcional), cantidad de
+tiempo que el error ha persistido sin corregir (Integral), y anticipar el
+error futuro a partir de la tasa de cambio del error en el tiempo (Derivado).
+
+Un controlador PID se puede usar para controlar cualquier variable medible que
+pueda verse afectada por la manipulación de alguna otra variable de proceso. Por
+ejemplo, se puede usar para controlar la temperatura, la presión, la velocidad de flujo,
+composición química, velocidad u otras variables. El control de la velocidad
+de crucero de un automóvil es un ejemplo de un proceso fuera de la industria que utiliza
+control PID.
+
+Algunos sistemas de control organizan los controladores PID en cascadas o redes.
+Es decir, un control 'maestro' produce señales utilizadas por controladores 'esclavos'.
+Una situación común es el control del motor; a menudo se quiere que el
+motor tenga una velocidad controlada, con el controlador 'esclavo'
+(a menudo integrado en un driver de frecuencia variable) que gestiona directamente la
+velocidad basada en una entrada proporcional.Esta entrada 'esclava' es alimentada por 
+la salida del controlador 'maestro', que está controlando basándose en una variable relacionada.
+
+=== Teoría
+
+'PID' lleva el nombre de sus tres cálculos de corrección; todos añaden
+o ajustan la cantidad controlada. Estas adiciones son en realidad
+'restas' de error, porque las proporciones son generalmente negativas:
+
+.Proporcional
+
+Para manejar el estado presente, el error se multiplica por una
+P constante (de 'proporcional', negativa) y se añade (restando el error)
+a la cantidad controlada. P solo es válido en la banda sobre la que
+la salida del controlador es proporcional al error del sistema. Note
+que cuando el error es cero, la salida de un controlador proporcional es
+cero.
+
+.Integral
+
+Para aprender del pasado, el error está integrado (acumulado) sobre un
+período de tiempo, y luego multiplicado por una constante I (negativa, haciendo
+un promedio), y añadido a (restando el error de) la cantidad controlada. 
+Se promedia el error medido para encontrar el error promedio del proceso
+desde el punto de ajuste. Un sistema proporcional simple oscila, avanzando y 
+retrocediendo alrededor del punto establecido porque no hay
+nada para eliminar el error cuando se sobrepasa, u oscila y/o
+se estabiliza a un valor demasiado bajo o demasiado alto. Al agregar una 
+proporción negativa (es decir, restar parte de) del error promedio de la
+entrada de proceso, la diferencia promedio entre la salida del proceso y
+el punto de ajuste siempre se está reduciendo. Por lo tanto, eventualmente, una
+salida del proceso del bucle PID bien ajustado se establecerá en el punto de ajuste.
+
+.Derivativo
+
+Para manejar el futuro, se calcula la primera derivada (la pendiente del error)
+con el tiempo y se multiplica por otra constante (negativa)
+D, y también se añade a (restando el error de) la cantidad controlada.
+El término derivativo controla la respuesta a un cambio en el sistema.
+Cuanto mayor es el término derivado, más rápidamente responde el controlador
+a los cambios en el resultado del proceso.
+
+Más técnicamente, un bucle PID se puede caracterizar como un filtro aplicado
+a un complejo sistema de dominio de frecuencia. Esto es útil para
+calcular si realmente alcanzará un valor estable. Si los valores
+se eligen incorrectamente, la entrada del proceso controlado puede oscilar, y
+la salida del proceso nunca permanecerá en el punto de ajuste.
+
+=== Afinacion del lazo
+
+'Afinar' un lazo de control es ajustar sus parámetros de control
+(ganancia/banda proporcional, ganancia integral/reset , ganancia derivativa/tasa) a
+los valores óptimos para la respuesta deseada de control. El comportamiento óptimo
+en un cambio de proceso o cambio de punto de ajuste varía según
+la aplicación. Algunos procesos no deben permitir un sobre-exceso de la
+variable de proceso sobre el punto de ajuste. Otros procesos deben minimizar la
+energía gastada para alcanzar un nuevo punto de referencia. Generalmente se requiere estabilidad de
+respuesta y el proceso no debe oscilar para ninguna combinación de condiciones de proceso y puntos de ajuste.
+
+El ajuste de los bucles se hace más complicado por el tiempo de respuesta del
+proceso; puede tomar minutos u horas que un cambio de punto de ajuste produzca
+un efecto estable. Algunos procesos tienen un grado de no linealidad y, por lo tanto,
+parámetros que funcionan bien en condiciones de carga completa no funcionan cuando el
+el proceso se inicia sin carga. Esta sección describe algunos
+métodos manuales tradicionales para sintonización de bucle.
+
+Hay varios métodos para ajustar un ciclo PID. La elección del método
+dependerá en gran medida de si el ciclo se puede sintonizar 'fuera de línea'
+y de la velocidad de respuesta del sistema. Si el sistema puede ser
+puesto fuera de línea, el mejor método de ajuste a menudo implica someter al
+sistema a un cambio de un paso la entrada, midiendo la salida en función del
+tiempo y usando esta respuesta para determinar los parámetros de control.
+
+.Método simple
+
+Si el sistema debe permanecer en línea, se debe configurar primero un ajuste a cero
+de los valores I y D. Aumentar P hasta que la salida del lazo
+oscile. Luego aumentar I hasta que la oscilación se detenga. Por último, aumentar
+D hasta que el ciclo sea aceptablemente rápido en alcanzar su referencia. Un PID rápido
+generalmente sobrepasa ligeramente el punto de ajuste establecido para alcanzarlo con más
+rapidez. Sin embargo, algunos sistemas no pueden aceptar estos rebasamientos.
+
+[width="90%", options="header", cols="^,4*<"]
+| =====================================
+| Parámetro | Tiempo de subida | Sobredisparo | Tiempo de estabilizacion | Error de estado estable
+| P | Disminuir | Aumentar | Pequeño cambio | Disminuir
+| I | Disminuir | Aumentar | Aumentar | Eliminar
+| D | Pequeño cambio | Disminuir | Disminuir | Pequeño cambio
+| =====================================
+
+Efectos del aumento de parámetros
+
+.Método Ziegler-Nichols
+
+Otro método de ajuste se conoce formalmente como el 'método Ziegler-Nichols', presentado 
+por John G. Ziegler y Nathaniel B. Nichols. Comienza de la misma manera que el método 
+descrito anteriormente: primero, se configura I y D a cero y luego se aumenta la ganancia P y 
+se expone el ciclo a una interferencia externa, por ejemplo golpeando el eje del motor para
+sacarlo del equilibrio, con el fin de determinar la ganancia crítica y el
+período de oscilación hasta que la salida del bucle comience a oscilar.
+Anote la ganancia crítica (K~c~) y el periodo de la oscilación
+de la salida (P~c~). Luego ajuste los controles P, I y D como muestra la tabla:
+
+[width="90%", options="header", cols="4*^"]
+| =======================================
+| Tipo de control | P       | I        | D
+| P               | .5K~c~  |          |
+| PI              | .45K~c~ | P~c~/1.2 |
+| PID             | .6K~c~  | P~c~/2   | P~c~/8
+| =======================================
+
+.Pasos Finales
+
+Después de ajustar el eje, verifique el error de seguimiento con Halscope para 
+asegurarse de que está dentro de los requisitos de su máquina. Hay más información sobre
+Halscope en el manual de usuario de HAL.
+
+
