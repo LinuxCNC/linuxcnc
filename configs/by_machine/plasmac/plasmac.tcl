@@ -15,7 +15,6 @@ net plasmac:feed-override           halui.feed-override.value   =>  plasmac.feed
 net plasmac:feed-reduction          motion.analog-out-03        =>  plasmac.feed-reduction
 net plasmac:float-switch-out        debounce.0.0.out            =>  plasmac.float-switch
 net plasmac:motion-type             motion.motion-type          =>  plasmac.motion-type
-net plasmac:offset-current          axis.z.eoffset              =>  plasmac.offset-current
 net plasmac:ohmic-probe-out         debounce.0.2.out            =>  plasmac.ohmic-probe
 net plasmac:program-is-idle         halui.program.is-idle       =>  plasmac.program-is-idle
 net plasmac:program-is-paused       halui.program.is-paused     =>  plasmac.program-is-paused
@@ -24,6 +23,9 @@ net plasmac:requested-velocity      motion.requested-vel        =>  plasmac.requ
 net plasmac:thc-disable             motion.digital-out-02       =>  plasmac.thc-disable
 net plasmac:torch-off               motion.digital-out-03       =>  plasmac.torch-off
 net plasmac:units-per-mm            halui.machine.units-per-mm  =>  plasmac.units-per-mm
+net plasmac:x-offset-current        axis.x.eoffset              =>  plasmac.x-offset-current
+net plasmac:y-offset-current        axis.y.eoffset              =>  plasmac.y-offset-current
+net plasmac:z-offset-current        axis.z.eoffset              =>  plasmac.z-offset-current
 
 # outputs
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
