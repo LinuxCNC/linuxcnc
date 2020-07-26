@@ -16,6 +16,7 @@
 #################################################################################
 
 from PyQt5.QtCore import pyqtProperty
+import hal
 from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
 from qtvcp import logger
@@ -34,7 +35,6 @@ class StateLED(LED):
 
     def __init__(self, parent=None):
         super(StateLED, self).__init__(parent)
-        self.has_hal_pins = False
         self.setState(False)
 
         self.is_estopped = False
@@ -67,7 +67,9 @@ class StateLED(LED):
             if data:
                 return
             self._flip_state(False)
-
+        # optional output HAL pin reflecting state
+        if self._halpin_option:
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
         if self.is_estopped:
             STATUS.connect('state-estop', lambda w: self._flip_state(True))
             STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))
@@ -111,6 +113,11 @@ class StateLED(LED):
             if self.invert_state:
                 data = not data
             self.change_state(data)
+
+    def change_state(self, state):
+        super(StateLED, self).change_state(state)
+        if self._halpin_option:
+            self.hal_pin.set(state)
 
     def joint_homed(self, joint):
         if int(joint) == self.joint_number:
@@ -165,9 +172,13 @@ class StateLED(LED):
     def spindle_actual_changed(self, speed):
         self._actual = speed
         if not STATUS.is_spindle_on():
+            if self._halpin_option:
+                self.hal_pin.set(False)
             return
         flash = self.spindle_near_check()
         self.setFlashing(flash)
+        if self._halpin_option:
+            self.hal_pin.set(not flash)
 
     def spindle_near_check(self):
         req = self._requested * self._override
