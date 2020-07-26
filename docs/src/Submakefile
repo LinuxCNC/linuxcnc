@@ -236,6 +236,9 @@ DOC_SRCS_ES := \
 	getting-started/updating-linuxcnc_es.txt \
 	common/linux-faq_es.txt \
 	common/overleaf_es.txt \
+	config/ini-config_es.txt \
+	config/ini-homing_es.txt \
+	config/integrator-concepts_es.txt \
 	config/stepconf_es.txt \
 	config/pncconf_es.txt \
 	user/user-foreword_es.txt \
@@ -245,6 +248,7 @@ DOC_SRCS_ES := \
 	gcode/coordinates_es.txt \
 	gcode/g-code_es.txt \
 	gcode/machining-center_es.txt \
+	gcode/m-code_es.txt \
 	gcode/overview_es.txt \
 	gcode/tool-compensation_es.txt \
 	lathe/lathe-user_es.txt \

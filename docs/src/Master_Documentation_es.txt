@@ -88,7 +88,7 @@ include::gcode/coordinates_es.txt[]
 
 include::gcode/g-code_es.txt[]
 
-// include::gcode/m-code_es.txt[]
+include::gcode/m-code_es.txt[]
 
 // include::gcode/o-code_es.txt[]
 
@@ -120,7 +120,7 @@ include::gui/tooledit_es.txt[]
 
 :leveloffset: 2
 
-// include::config/integrator-concepts_es.txt[]
+include::config/integrator-concepts_es.txt[]
 
 // include::install/latency-test_es.txt[]
 
@@ -136,9 +136,9 @@ include::gui/tooledit_es.txt[]
 
 // include::config/stepper-quickstart_es.txt[]
 
-// include::config/ini-config_es.txt[]
+include::config/ini-config_es.txt[]
 
-// include::config/ini-homing_es.txt[]
+include::config/ini-homing_es.txt[]
 
 // include::config/lathe-config_es.txt[]
 

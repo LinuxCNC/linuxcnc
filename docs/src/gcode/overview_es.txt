@@ -143,14 +143,14 @@ Las siguientes reglas se utilizan para números (explícitos). En estas reglas, 
 dígito es un solo carácter entre 0 y 9.
 
 * Un número consta de (1) un signo, más o menos, opcional, seguido de
-   (2) de cero a muchos dígitos, seguido, posiblemente, por (3) un punto decimal,
-   seguido de (4) cero a muchos dígitos, siempre que haya al menos
-   un dígito en algún lugar del número.
+(2) de cero a muchos dígitos, seguido, posiblemente, por (3) un punto decimal,
+seguido de (4) cero a muchos dígitos, siempre que haya al menos
+un dígito en algún lugar del número.
 * Hay dos tipos de números: enteros y decimales. Un entero
-   no tiene un punto decimal en él; un decimal si lo tiene.
+no tiene un punto decimal en él; un decimal si lo tiene.
 * Los números pueden tener cualquier número de dígitos, sujeto a la limitación de
-   longitud de la línea. Solo se retendrán unas diecisiete cifras significativas,
-   suficiente para todas las aplicaciones conocidas.
+longitud de la línea. Solo se retendrán unas diecisiete cifras significativas,
+suficiente para todas las aplicaciones conocidas.
 * Un número distinto de cero sin signo en su primer carácter, se supone que es positivo.
 
 Observe que los ceros inicial (antes del punto decimal y el primer dígito distinto de cero)
@@ -530,8 +530,8 @@ se puede agregar fácilmente, sin cambios en el código .ngc.
 * '#<_units_per_rev>' - Devuelve 1 si el modo udes/revolución (G95) está activado, de lo contrario 0.
 
 * '#<_coord_system>' - Devuelve un flotante del nombre del sistema de coordenadas actual (G54..G59.3).
-    Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
-    550.000000 y si está en G59.1 el valor de retorno es 591.000000.
+Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
+550.000000 y si está en G59.1 el valor de retorno es 591.000000.
 
 [width="20%",options="header"]
 |====
@@ -642,8 +642,8 @@ se puede agregar fácilmente, sin cambios en el código .ngc.
     El número de ranura seleccionado por un código T. Predeterminado -1
     (sin ranura seleccionada).
 
-* '#<_value>' -
-    Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
+* '#<_value>' - 
+Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
     valor 0 si no hay expresión después de 'return' o 'endsub'. Inicializado
     a 0 al inicio del programa.
 
@@ -1252,7 +1252,7 @@ Cuando la ejecución correcta de su programa depende de la configuración modal,
 asegúrese de configurarlos al comienzo del programa de pieza. Los modos pueden llegar
 desde programas anteriores y desde los comandos MDI.
 
-.Preámbulo de ejemplo para una fresadora.
+Preámbulo de ejemplo para una fresadora.
 [source,{ngc}]
 ---------------------------------------------------------------------
 G17 G20 G40 G49 G54 G80 G90 G94
