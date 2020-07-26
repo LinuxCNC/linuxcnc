@@ -53,6 +53,7 @@ rapidLine = ''
 thisMaterial = 0
 offsetG41 = False
 cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = True).communicate()[0])
+feedWarning = False
 #pauseAtEnd = 2
 # error dialog
 def dialog_error(mode, title, error):
@@ -574,23 +575,26 @@ with open(inCode, 'r')as fRead:
 
 #                   FIX_ME if state tag ups pin released in master branch
                     if linuxcnc.version.startswith('2.9.') or True:
-                        if cutFeed and cutFeed != codeFeed:
-                            wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
-                            wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
-                            wng  += '\nTHC calculations will be based on the\n'
-                            wng  += 'material #{} feed rate which may cause issues.\n'.format(material)
-                        else:
-                            wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
-                            wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
-                            wng  += '\nThis will cause the THC calculations\n'
-                            wng  += 'to use the motion.requested-vel HAL pin\n'
-                            wng  += 'which is not recommended.\n'
-                        wng  += '\nThe recommended settings are to use\n'
-                        wng  += 'F#<_hal[plasmac.cut-feed-rate]>\n'
-                        wng  += 'in the G-Code file and a valid cut feed rate\n'
-                        wng  += 'in the material cut parameters.\n'
-                        wng  += '\nWarning near line #{}\n'.format(lineNum)
-                        dialog_error(gtk.MESSAGE_WARNING, 'Feed Rate WARNING', wng)
+                        if not feedWarning:
+                            if cutFeed and cutFeed != codeFeed:
+                                wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
+                                wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
+                                wng  += '\nTHC calculations will be based on the\n'
+                                wng  += 'material #{} feed rate which may cause issues.\n'.format(material)
+                            else:
+                                wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
+                                wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
+                                wng  += '\nThis will cause the THC calculations\n'
+                                wng  += 'to use the motion.requested-vel HAL pin\n'
+                                wng  += 'which is not recommended.\n'
+                            wng  += '\nThe recommended settings are to use\n'
+                            wng  += 'F#<_hal[plasmac.cut-feed-rate]>\n'
+                            wng  += 'in the G-Code file and a valid cut feed rate\n'
+                            wng  += 'in the material cut parameters.\n'
+                            wng  += '\nFirst warning near line #{}\n'.format(lineNum)
+                            wng  += '\nPlease check all feed rates.\n'.format(material)
+                            dialog_error(gtk.MESSAGE_WARNING, 'Feed Rate WARNING', wng)
+                            feedWarning = True
                     else:
                         pass
 

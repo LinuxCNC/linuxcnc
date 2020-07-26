@@ -700,7 +700,7 @@ def user_button_pressed(button,commands):
     if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
        not commands: return
     from subprocess import Popen,PIPE
-    if 'change-consumables' in commands.lower():
+    if 'change-consumables' in commands.lower() and not hal.get_value('plasmac.breakaway'):
         if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
             hal.set_p('plasmac.consumable-change', '0')
             hal.set_p('plasmac.x-offset', '0')
