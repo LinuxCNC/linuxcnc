@@ -1,0 +1,2 @@
+#!/bin/sh
+[ -e "`dirname "$1"`/relative_header" ]

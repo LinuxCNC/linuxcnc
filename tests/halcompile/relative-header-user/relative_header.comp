@@ -1,0 +1,10 @@
+component relative_header;
+pin out bit out;
+include "local.h";
+license "GPL";
+option userspace yes;
+;;
+void user_mainloop(void) {
+    FOR_ALL_INSTS() { out = ! out; }
+    rtapi_delay(100 * 1000 * 1000);
+}
