@@ -36,6 +36,7 @@ class LED(QWidget, _HalWidgetBase):
         self._diamY = 0
         self._diameter = 15
         self._color = QColor("red")
+        self._off_color = QColor("black")
         self._alignment = Qt.AlignCenter
         self.state = False
         self.flash = False
@@ -52,7 +53,6 @@ class LED(QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if (self._halpin_option):
-            _HalWidgetBase._hal_init(self)
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
             # not sure we need a flash pin
@@ -97,7 +97,7 @@ class LED(QWidget, _HalWidgetBase):
         if self._state:
             gradient.setColorAt(1, self._color)
         else:
-            gradient.setColorAt(1, Qt.black)
+            gradient.setColorAt(1, self._off_color)
 
         painter.begin(self)
         brush = QBrush(gradient)
@@ -134,6 +134,14 @@ class LED(QWidget, _HalWidgetBase):
     @pyqtSlot(QColor)
     def setColor(self, value):
         self._color = value
+        self.update()
+
+    def getOffColor(self):
+        return self._off_color
+
+    @pyqtSlot(QColor)
+    def setOffColor(self, value):
+        self._off_color = value
         self.update()
 
     def getAlignment(self):
@@ -199,6 +207,7 @@ class LED(QWidget, _HalWidgetBase):
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     diameter = pyqtProperty(int, getDiameter, setDiameter)
     color = pyqtProperty(QColor, getColor, setColor)
+    off_color = pyqtProperty(QColor, getColor, setColor)
     alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment,resetAlignment)
     currentstate = pyqtProperty(bool, getState, setState, resetState)
     flashing = pyqtProperty(bool, getFlashState, setFlashState)

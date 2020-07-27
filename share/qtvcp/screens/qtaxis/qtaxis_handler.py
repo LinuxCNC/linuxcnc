@@ -446,7 +446,8 @@ class HandlerClass:
         self.w.led = LED()
         self.w.led.setProperty('is_spindle_at_speed_status',True)
         self.w.led.setProperty('color',QColor(0,255,0,255))
-        self.w.led._hal_init()
+        self.w.led.hal_init(self.hal, 'spindle_is_at_speed',
+             self.w.led, self.w, self.PATHS, self.w.PREFS_)
 
         # make a spindle speed bar
         self.w.rpm_bar = QtWidgets.QProgressBar()
