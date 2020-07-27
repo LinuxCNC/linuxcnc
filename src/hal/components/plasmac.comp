@@ -382,7 +382,9 @@ FUNCTION(_) {
         if(state == IDLE && breakaway && !program_is_idle){
             torch_on = FALSE;
             program_pause = TRUE;
-            stop_type = PAUSE;
+            if(stop_type != WAIT){
+                stop_type = PAUSE;
+            }
             probe_required = TRUE;
             rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch activated\n"
                                           "program is paused.\n");
