@@ -11,6 +11,8 @@ the software before committing a computer. Keep in mind that the
 Latency Test numbers are more important than the processor speed for
 software step generation. More information on the Latency Test is 
 <<latency-test,here>>.
+In addition LinuxCNC needs to be run on an operating system that uses a
+specially modified kernel. See <this section,Kernel and Version Requirements>
 
 Additional information is on the LinuxCNC Wiki site:
 
@@ -34,6 +36,43 @@ Minimum hardware requirements change as Ubuntu evolves so check the
 https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD you're using.
 Older hardware may benefit from selecting an older version of the LiveCD when
 available.
+
+== Kernel and Version requirements
+
+LinuxCNC requires a kernel modified for realtime use to control real
+machine hardware. It can, however run on a standard kernel in simulation
+mode for purposes such as checking G-code, testing config files and
+learning the system.
+To work with these kernel versions there are two versions of LinuxCNC
+distributed.
+
+The realtime kernel options are preempt-rt, RTAI and Xenomai.
+
+You can discover the kernel version of your system with the command
+
+ uname -a
+
+=== Preempt-RT
+
+Preempt-RT is the newst of the realtime systems, and is also the version
+that is closest to a mainline kernel. Preempt-RT kernels are available
+as precompiled packages from the main repositories. The search term
+"PREEMPT_RT" will find them, and one can be downloaded and installed
+just like any other package.
+Preempt-RT will generally have the best driver support and is the only
+option for systems using the Mesa ethernet-connected hardware driver
+cards. In general preempt-rt has the worst latency of the available
+systems, but there are exceptions.
+
+RTAI has been the mainstay of LinuxCNC distributions for many years. It
+will generally give the best realtime performance in terms of low
+latency, but might have poorer peripheral support and not as many screen
+resolutions. An RTAI lernel is available from the LinuxCNC package
+repository. If you installed from the Live/Install image then switching
+kernel and LinuxCNC flavour is described in [Installing-RTAI].
+
+Xenomai is also supported, but you will have to find or build the kernel
+and compile LinuxCNC from source to utilise it.
 
 == Problematic Hardware
 
