@@ -45,6 +45,7 @@ An indicator that optionally follows a HAL pin's logic. +
 * halpin_option -selects if the LED follows an input HAL pin or program state.
 * diameter -diameter of the LED
 * color - Color of the LED when on.
+* off_color - Color of the LED when off.
 * alignment - Qt Alignment hint.
 * state -current state of LED
 * flashing -turns flashing option on and off.
@@ -695,16 +696,42 @@ This widget allow the user to adjust linuxcnc setting via a slide. +
 
 It is based on pyQT's QSlider
 
-===  Led State Widget
+===  State LED Widget
 
-This widget gives status on linuxcnc's selected state. +
+This widget gives status on the selected linuxcnc state. +
 
-* diameter -diameter of the LED
+The state options are: +
+
+* is_paused_status
+* is_estopped_status
+* is_on_status
+* is_idle_status_
+* is_homed_status
+* is_flood_status
+* is_mist_status
+* is_block_delete_status
+* is_optional_stop_status
+* is_joint_homed_status
+* is_limits_overridden_status
+* is_manual_status
+* is_mdi_status
+* is_auto_status
+* is_spindle_stopped_status
+* is_spindle_fwd_status
+* is_spindle_rev_status
+* is_spindle_at_speed_status
+
+There are properties that can be changed:
+
+* halpin_option - Adds an output pin that reflects selected state
+* invert_state_status - Invert the LED state compared to the linuxcnc state.
+* diameter -Diameter of the LED
 * color - Color of the LED when on.
+* off_color - Color of the LED when off.
 * alignment - Qt Aliment hint.
-* state -current state of LED
-* flashing -turns flashing option on and off.
-* flashRate -sets the flash rate.
+* state - Current state of LED (for testing in designer)
+* flashing - Turns flashing option on and off.
+* flashRate - Sets the flash rate.
 
 The LED properties can be defined in a stylesheet with the following code added to the .qss file. +
 The name_of_led would be the name defined Designer's editor. +
@@ -851,13 +878,27 @@ image::images/qtvcp_mdiTouchy.png["QTvcp MDI Touchy",scale="25%"]
 This widget display button and entry lines for use with entering MDI commands. +
 It is based on Linuxcnc's Touchy screen's MDI entry process. +
 It's large buttons are most useful for touch screens. +
-It requires a handler file connection to actually run the MDI command +
-if the widget was named mditouchy in designer, this command would +
+ +
+To use MDITouchy, first press one of the 'G/XY', 'G/RO', 'M' or 'T' button. +
+On the left, will show the current line that can be filled out, then press 'Next' for the next line. +
+'Calc' will pop up a calculator dialog. +
+'Clear' clears th ecurrent entry. +
+'Back' allows you to change previous line entries. +
+ +
+The widget requires an explicied call to MDITouchu's python code to actually run the MDI command +
+For handler file code: if the widget was named mditouchy in designer, this command would +
 run the displayed MDI command. +
 
 [source,python]
 ----
 self.w.mditouchy.run_command()
+----
+
+For action button use: if the widget was named mditouchy in designer, +
+use the action button's 'Call python commands' option and enter: +
+[source,python]
+----
+INSTANCE.mditouchy.run_command()
 ----
 
 The macro button will cycle though macro's defined in the INI heading [DISPLAY] +
@@ -872,6 +913,7 @@ parameters, named xinc and yinc.
 
 Now, place the macro in a file named 'increment.ngc', in the +
 'PROGRAM_PREFIX' directory or any directory in the 'SUBROUTINE_PATH'. +
+(specified in the INI file) +
 
 It should look like: +
 

@@ -285,4 +285,145 @@ which in this case is self.w.filemanager (the name given in the designer editor)
 Now our custom function will print the file path to the terminal before loading the file. +
 Obviously boring but shows the principle. +
 
+== Adding widgets Programmatically
 
+In some situation it is only possible to add widgets with python code rather then using the Designer editor. +
+When adding Qtvcp widgets programmatically, sometimes there are extra steps to be taken. +
+Here we are going to add a spindle speed indicator bar and up-to-speed LED to a tab widget corner. +
+Designer does not support adding corner widgets to tabs but PyQt does. +
+This is a cut down example from Qtaxis screen's handler file. +
+
+First we must import the libraries we need. +
+often these libraries are already imported in the handler file. +
+QtWidgets gives us access to the QProgress bar +
+QColor is for the LED color +
+StateLED is the Qtvcp library used to create the spindle-at-speed LED +
+Status is used to catch linuxcnc status information. +
+Info gives us information about the machine configuration. +
+
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from PyQt5 import QtWidgets
+from PyQt5.QtGui import QColor
+from qtvcp.widgets.state_led import StateLED as LED
+from qtvcp.core import Status, Info
+----
+
+STATUS and INFO are initialized outside the handler class so as to be a global reference (no self. in front) +
+
+[source,python]
+----
+##########################################
+# **** instantiate libraries section **** #
+###########################################
+
+STATUS = Status()
+INFO = Info()
+----
+
+For the spindle speed indicator we need to know the current spindle speed: +
+We register with STATUS to catch the 'actual-spindle-speed-changed' signal to call +
+a function named: 'self.update_spindle()' +
+
+[source,python]
+----
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        self.hal = halcomp
+        self.w = widgets
+        self.PATHS = paths
+
+        STATUS.connect('actual-spindle-speed-changed', lambda w,speed: self.update_spindle(speed))
+----
+
+We need to make sure the Designer widgets are already built before we try to add to them. +
+We add a function call 'self.make_corner_widgets()' to build our extra widgets at the right time. +
+
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTSCREEN
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        self.make_corner_widgets()
+----
+
+Ok let's code the function to build the widgets and add them in the tab widget. +
+We are assuming there is a tab widget built with Designer called 'rightTab'. +
+
+'self.w.led = LED()' - this initializes the basic StateLed widget and uses self.w.led as the reference from then on. +
+'self.w.led.setProperty('is_spindle_at_speed_status',True)' - since the stateLED can be used for many indications +
+we must set the property that designates it as a  spindle-at-speed LED. +
+'self.w.led.setProperty('color',QColor(0,255,0,255))' this sets it as green when on. +
+'self.w.led.hal_init(self.hal, 'spindle_is_at_speed',self.w.led, self.w, self.PATHS, self.w.PREFS_) - this is the extra function call required with some Qtvcp widgets. +
+It gives the special widgets reference to the HAL component, the HAL widget name, the  actual object, the window object, the path library, the preference object. +
+ +
+'self.w.rpm_bar = QtWidgets.QProgressBar()' - initialize a PyQt5 QProgress bar. +
+'self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)' - set the max range of the Progress bar to the max specified in the INI. +
+
+
+Since you can only add one widget to the tab corner and we have two we want there, we must add the two into a container. +
+We create a QWidget and add a QHBoxLayout to the QWidget. +
+The we add our QProgress bar and LED to the layout. +
+
+
+'self.w.rightTab.setCornerWidget(w)' - finally we add the QWidget (with our QProgress bar and LED in it) to the tab widget's corner. +
+
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+
+    def make_corner_widgets(self):
+        # make a spindle-at-speed green LED
+        self.w.led = LED()
+        self.w.led.setProperty('is_spindle_at_speed_status',True)
+        self.w.led.setProperty('color',QColor(0,255,0,255))
+        self.w.led.hal_init(self.hal, 'spindle_is_at_speed', self.w.led, self.w, self.PATHS, self.w.PREFS_)
+
+        # make a spindle speed bar
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+
+        # container
+        w = QtWidgets.QWidget()
+        w.setContentsMargins(0,0,0,6)
+        w.setMinimumHeight(40)
+
+        # layout
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self.w.rpm_bar)
+        hbox.addWidget(self.w.led)
+        w.setLayout(hbox)
+
+        # add the container to the corner of the right tab widget
+        self.w.rightTab.setCornerWidget(w)
+----
+ 
+Now we build the function to actually update out QProgressBar when STATUS updates the spindle speed. +
+'self.w.rpm_bar.setInvertedAppearance(bool(data<0))' - In this case we chose to display left-to-right or right-to-left depending if we are turning clockwise or anticlockwise. +
+'self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))' - This formats the writing in the bar. +
+'self.w.rpm_bar.setValue(abs(data))' - This sets the length of the colored bar. +
+[source,python]
+----
+    ########################
+    # callbacks from STATUS #
+    ########################
+    def update_spindle(self, data):
+        self.w.rpm_bar.setInvertedAppearance(bool(data<0))
+        self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
+        self.w.rpm_bar.setValue(abs(data))
+----
