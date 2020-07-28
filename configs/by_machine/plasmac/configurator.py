@@ -1099,8 +1099,7 @@ class configurator:
             outFile.close()
 
         if version < 0.144:
-            print ('v less than 144')
-            bkpFile = '{}/backups/{}.old139'.format(self.configDir, os.path.basename(self.orgIniFile))
+            bkpFile = '{}/backups/{}.old143'.format(self.configDir, os.path.basename(self.orgIniFile))
             shutil.copy(self.orgIniFile,bkpFile)
             inFile = open(bkpFile, 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
