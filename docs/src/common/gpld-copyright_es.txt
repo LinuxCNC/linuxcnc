@@ -1,5 +1,7 @@
 = Seccion Legal
 
+N.T. Estos textos legales solo se muestra en Inglés ya que las traducciones no se reconocen oficialmente. 
+
 == Terminos de Copyright
 
 Copyright (c) 2000-2016 LinuxCNC.org

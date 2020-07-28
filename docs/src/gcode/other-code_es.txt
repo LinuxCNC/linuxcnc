@@ -1,81 +1,82 @@
+:lang: es
 [[cha:other-codes]]
 
-= Other Codes
+= Otros códigos
 
 [[sec:set-feed-rate]]
-== F: Set Feed Rate
-(((F: Set Feed Rate)))
+== F: Establecer velocidad de alimentación
+(((F: Establecer velocidad de alimentación)))
 
-'Fx' - set the feed rate to 'x'.  'x' is usually in machine units
-(inches or millimeters) per minute.
+'Fx' - establece la velocidad de avance a 'x'. 'x' usualmente está en unidades máquina
+(pulgadas o milímetros) por minuto.
 
-The application of the feed rate is as described in the
-<<sub:feed-rate,Feed Rate>> Section, unless 'inverse time feed rate mode'
-or 'feed per revolution mode' are in effect, in which case the feed rate
-is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> Section.
+La aplicación de la velocidad de alimentación es como se describe en la Sección 
+<<sub:feed-rate, Velocidad de alimentación>>, a menos que estén vigentes 'modo de velocidad de alimentación de tiempo inverso' o 'modo de avance por revolución', en cuyo caso la velocidad de avance
+es como se describe en la  Sección <<gcode:g93-g94-g95,G93 G94 G95>>.
 
 [[sec:set-spindle-speed]]
-== S: Set Spindle Speed
-(((S: Set Spindle Speed)))
+== S: Establecer la velocidad de husillo
+(((S: Establecer velocidad del husillo)))
 
-'Sx [$n]' - set the speed of the spindle to 'x' revolutions per minute (RPM)
-with the optional $ set the spindle speed for a specific spindle. Without the $
-the command will default to spindle.0
+'Sx [$n]' - establece la velocidad del husillo a 'x' revoluciones por minuto (RPM).
+Con el $ opcional establece la velocidad del husillo para un husillo específico. Sin el $,
+el comando pasará por defecto a spindle.0
 
-The spindle(s) or selected spindle will turn at that speed when a 'M3' or 'M4'
-is in effect. It is OK to program an S word whether the spindle is turning or
-not. If the speed override switch is enabled and not set at 100%, the speed will
-be different from what is programmed. 
+Los husillos o husillo seleccionado girarán a esa velocidad cuando un 'M3' o 'M4'
+esté en efecto. Está bien programar una palabra S si el husillo está girando o
+no. Si el interruptor de ajuste de velocidad está habilitado y no está configurado al 100%, la velocidad
+será diferente de lo programado.
 
-It is OK to program S0, the spindle will not turn if that is done.
+Está bien programar S0; el husillo no girará.
 
-It is an error if:
+Es un error si:
 
-* the S number is negative.
+* el número S es negativo.
 
 [[sec:select-tool]]
-== T: Select Tool
-(((T: Select Tool)))
+== T: Seleccionar herramienta
+(((T: Seleccionar herramienta)))
 
-'Tx' - prepare to change to tool 'x'.
+'Tx': prepára el cambio a la herramienta 'x'.
 
-The tool is not changed until an 'M6' is programmed (see Section
-<<mcode:m6,M6>>). The T word may appear on the same line as the
-'M6' or on a previous line. It is OK if T words appear on two or more
-lines with no tool change. Only the the most recent T word will take
-effect at the next tool change.
+La herramienta no se cambia hasta que se programa un 'M6' (consulte la sección
+<<mcode:m6,M6>>). La palabra T puede aparecer en la misma línea que el
+'M6' o en una línea anterior. Está bien si las palabras T aparecen en dos o más
+líneas sin cambio de herramienta. Solo la palabra T más reciente tomará
+efecto en el siguiente cambio de herramienta.
 
-NOTE: When LinuxCNC is configured for a nonrandom toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
-Section>>), 'T0' gets special handling: no tool will be selected. This
-is useful if you want the spindle to be empty after a tool change.
+NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio (consulte
+la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section, EMCIO>>), 
+'T0' tiene un manejo especial: no se seleccionará ninguna herramienta. Esto
+es útil si desea que el husillo quede vacío después de un cambio de herramienta.
 
-NOTE: When LinuxCNC is configured for a random toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
-Section>>), 'T0' does not get any special treatment: T0 is a valid
-tool like any other.  It is customary to use T0 on a random toolchanger
-machine to track an empty pocket, so that it behaves like a nonrandom
-toolchanger machine and unloads the spindle.
+NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio (consulte
+la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section,EMCIO>>), 'T0' no recibe 
+ningún tratamiento especial: T0 es una herramienta válida como cualquier otra. Es costumbre 
+usar T0 en un cambiador de herramientas aleatorio
+para rastrear una ranura vacía, para que se comporte como cambiador de herramientas
+no aleatorio y descargue el husillo.
 
-It is an error if:
+Es un error si:
 
-* a negative T number is used,
+* se usa un número T negativo,
 
-* T number is used that does not appear in the tool table file (with
-    the exception that T0 on nonrandom toolchangers *is* accepted,
-    as noted above).
+* Se utiliza un número T que no aparece en el archivo de la tabla de herramientas (con
+    la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
+    como se señaló anteriormente).
 
-On some machines, the carousel will move when a T word is programmed,
-at the same time machining is occurring. On such machines, programming
-the T word several lines before a tool change will save time. A common
-programming practice for such machines is to put the T word for the
-next tool to be used on the line after a tool change. This maximizes
-the time available for the carousel to move.
+En algunas máquinas, el carrusel se moverá cuando se programe una palabra T,
+Al mismo tiempo, se está mecanizando. En tales máquinas, la programación
+de la palabra T varias líneas antes de un cambio de herramienta ahorrará tiempo. Una práctica común
+de programación para tales máquinas es poner la palabra T para la
+siguiente herramienta que se utilizará en la línea después de un cambio de herramienta. Esto maximiza
+el tiempo disponible para que el carrusel se mueva.
 
-Rapid moves after a 'T<n>' will not show on the AXIS preview until after
-a feed move. This is for machines that travel long distances to change
-the tool like a lathe. This can be very confusing at first. To turn
-this feature off for the current tool program a G1 without any
-move after the 'T<n>'.
+Los movimientos rápidos después de una 'T<n>' no se mostrarán en la vista previa de AXIS hasta después
+un movimiento de alimentación. Esto es para máquinas que viajan largas distancias para cambiar
+la herramienta, como un torno. Esto puede ser muy confuso al principio. Para desactivar
+esta característica para la herramienta actual, programe un G1 sin ningún
+movimiento después de 'T<n>'.
 
-// vim: set syntax=asciidoc:
+// vim: set syntax = asciidoc:
+

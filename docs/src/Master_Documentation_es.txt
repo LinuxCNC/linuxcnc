@@ -90,11 +90,11 @@ include::gcode/g-code_es.txt[]
 
 include::gcode/m-code_es.txt[]
 
-// include::gcode/o-code_es.txt[]
+include::gcode/o-code_es.txt[]
 
-// include::gcode/other-code_es.txt[]
+include::gcode/other-code_es.txt[]
 
-// include::examples/gcode_es.txt[]
+include::examples/gcode_es.txt[]
 
 // include::gcode/rs274ngc_es.txt[]
 
@@ -126,7 +126,7 @@ include::config/integrator-concepts_es.txt[]
 
 // include::motion/tweaking-steppers_es.txt[]
 
-// include::config/stepper-diagnostics_es.txt[]
+include::config/stepper-diagnostics_es.txt[]
 
 :leveloffset: 1
 
@@ -140,15 +140,15 @@ include::config/ini-config_es.txt[]
 
 include::config/ini-homing_es.txt[]
 
-// include::config/lathe-config_es.txt[]
+include::config/lathe-config_es.txt[]
 
 // include::hal/haltcl_es.txt[]
 
 // include::remap/remap_es.txt[]
 
-// include::config/moveoff_es.txt[]
+include::config/moveoff_es.txt[]
 
-// include::config/stepper_es.txt[]
+include::config/stepper_es.txt[]
 
 :leveloffset: 1
 
@@ -174,7 +174,7 @@ include::config/ini-homing_es.txt[]
 
 // include::hal/halui-examples_es.txt[]
 
-// include::config/python-interface_es.txt[]
+include::config/python-interface_es.txt[]
 
 // include::gui/vismach_es.txt[]
 
@@ -218,13 +218,13 @@ include::config/ini-homing_es.txt[]
 
 :leveloffset: 2
 
-// include::examples/pci-parallel-port_es.txt[]
+include::examples/pci-parallel-port_es.txt[]
 
 // include::examples/spindle_es.txt[]
 
 // include::examples/mpg_es.txt[]
 
-// include::examples/gs2-example_es.txt[]
+include::examples/gs2-example_es.txt[]
 
 :leveloffset: 1
 
@@ -289,7 +289,7 @@ include::hal/rtcomps_es.txt[]
 
 // include::motion/external-offsets_es.txt[]
 
-// include::code/rs274_es.txt[]
+include::code/rs274_es.txt[]
 
 :leveloffset: 0
 

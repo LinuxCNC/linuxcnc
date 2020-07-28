@@ -12,30 +12,30 @@
 
 [width="60%", options="header", cols="2^,5<"]
 |========================================
-|Código                            | Descripción
-|<< mcode: m0-m1,M0 M1>>         | Pausa del programa
-|<< mcode: m2-m30,M2 M30>>       | Fin del programa
-|<< mcode: m60,M60>>             | Pausa Cambio Palet
-|<< mcode: m3-m4-m5,M3 M4 M5>>   | Control de husillo
-|<< mcode: m6,M6>>               | Cambio de herramienta
-|<< mcode: m7-m8-m9,M7 M8 M9>>   | Control de refrigerante
-|<< mcode: m19,M19>>             | Orientacion de Husillo 
-|<< mcode: m48-m49,M48 M49>>     | Activar/Desactivar Ajustes de avance y husillo 
-|<< mcode: m50,M50>>             | Control de ajuste de alimentación
-|<< mcode: m51,M51>>             | Control de ajuste del husillo
-|<< mcode: m52,M52>>             | Control adaptativo de alimentación
-|<< mcode: m53,M53>>             | Control de parada de alimentación
-|<< mcode: m61,M61>>             | Establecer número de herramienta actual
-|<< mcode: m62-m65,M62-M65>>     | Control de salida
-|<< mcode: m66,M66>>             | Control de entrada
-|<< mcode: m67,M67>>             | Control de salida analógica sicronizada
-|<< mcode: m68,M68>>             | Control de salida analógica inmediata
-|<< mcode: m70,M70>>             | Guardar estado modal
-|<< mcode: m71,M71>>             | Invalidar estado modal almacenado
-|<< mcode: m72,M72>>             | Restaurar estado modal
-|<< mcode: m73,M73>>             | Guardar estado modal Autorestore
-|<< mcode: m98-m99,M98 M99>>     | Llamar y regresar de subprograma
-|<< mcode: m100-m199,M100-M199>> | Códigos M definidos por el usuario
+|Código                        | Descripción
+|<<mcode:m0-m1,M0 M1>>         | Pausa del programa
+|<<mcode:m2-m30,M2 M30>>       | Fin del programa
+|<<mcode:m60,M60>>             | Pausa Cambio Palet
+|<<mcode:m3-m4-m5,M3 M4 M5>>   | Control de husillo
+|<<mcode:m6,M6>>               | Cambio de herramienta
+|<<mcode:m7-m8-m9,M7 M8 M9>>   | Control de refrigerante
+|<<mcode:m19,M19>>             | Orientacion de Husillo 
+|<<mcode:m48-m49,M48 M49>>     | Activar/Desactivar Ajustes de avance y husillo 
+|<<mcode:m50,M50>>             | Control de ajuste de alimentación
+|<<mcode:m51,M51>>             | Control de ajuste del husillo
+|<<mcode:m52,M52>>             | Control adaptativo de alimentación
+|<<mcode:m53,M53>>             | Control de parada de alimentación
+|<<mcode:m61,M61>>             | Establecer número de herramienta actual
+|<<mcode:m62-m65,M62-M65>>     | Control de salida
+|<<mcode:m66,M66>>             | Control de entrada
+|<<mcode:m67,M67>>             | Control de salida analógica sicronizada
+|<<mcode:m68,M68>>             | Control de salida analógica inmediata
+|<<mcode:m70,M70>>             | Guardar estado modal
+|<<mcode:m71,M71>>             | Invalidar estado modal almacenado
+|<<mcode:m72,M72>>             | Restaurar estado modal
+|<<mcode:m73,M73>>             | Guardar estado modal Autorestore
+|<<mcode:m98-m99,M98 M99>>     | Llamar y regresar de subprograma
+|<<mcode:m100-m199,M100-M199>> | Códigos M definidos por el usuario
 |========================================
 
 

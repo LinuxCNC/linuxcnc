@@ -198,9 +198,12 @@ HAL::
     Sin embargo, HAL puede hacer más que configurar controladores de hardware.
 
 Home::
-     (((origen))) Una ubicación específica en el entorno de trabajo de la máquina
+     (((home))) Una ubicación específica en el entorno de trabajo de la máquina
     que se usa para asegurar que tanto la computadora como la máquina están de acuerdo
     sobre la posición de la herramienta.
+
+Homing::
+     (((homing))) Acción de definicion de la posición home.
 
 Husillo::
      (((husillo))) La parte de una máquina herramienta que gira
@@ -258,6 +261,9 @@ NML::
 
 Número de punto flotante::
     Un número que tiene un punto decimal. (12.300). En HAL se lo conoce como float.
+
+Offset::
+    Ver Compensaciones
     
 Par cinemático ::
     Conjunto de dos sólidos rígidos, unidos de forma que permite ciertos movimientos relativos y restringe otros.
