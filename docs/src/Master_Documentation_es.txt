@@ -96,7 +96,7 @@ include::gcode/other-code_es.txt[]
 
 include::examples/gcode_es.txt[]
 
-// include::gcode/rs274ngc_es.txt[]
+include::gcode/rs274ngc_es.txt[]
 
 // include::gui/image-to-gcode_es.txt[]
 
@@ -220,7 +220,7 @@ include::config/python-interface_es.txt[]
 
 include::examples/pci-parallel-port_es.txt[]
 
-// include::examples/spindle_es.txt[]
+include::examples/spindle_es.txt[]
 
 // include::examples/mpg_es.txt[]
 

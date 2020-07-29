@@ -253,6 +253,7 @@ DOC_SRCS_ES := \
 	examples/gcode_es.txt \
 	examples/pci-parallel-port_es.txt \
 	examples/gs2-example_es.txt \
+	examples/spindle_es.txt \
 	user/user-foreword_es.txt \
 	user/user-intro_es.txt \
 	user/user-concepts_es.txt \
@@ -263,6 +264,7 @@ DOC_SRCS_ES := \
 	gcode/m-code_es.txt \
 	gcode/o-code_es.txt \
 	gcode/other-code_es.txt \
+	gcode/rs274ngc_es.txt \
 	gcode/overview_es.txt \
 	gcode/tool-compensation_es.txt \
 	lathe/lathe-user_es.txt \

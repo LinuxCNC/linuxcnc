@@ -1,8 +1,9 @@
 :lang: es
+:toc:
 
 [[cha:homing-configuration]]
 
-﻿= Configuración de Homing
+﻿= Configuracion de Homing
 
 == Descripción general
 
