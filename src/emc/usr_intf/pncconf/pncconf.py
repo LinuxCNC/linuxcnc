@@ -340,8 +340,10 @@ class App:
             itr = self.widgets.discovery_interface_combobox.get_active_iter()
             d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
             a = self.widgets.discovery_address_entry.get_text()
-        print('discovery:',n,d,a)
-        return n,d,a
+            r =  self.widgets.discovery_read_option.get_active()
+            print ('discovery:',n,d,a,r)
+            return n,d,a,r
+        return None,None,None,None
 
     def discovery_interface_combobox_changed(self,w):
         itr = w.get_active_iter()
@@ -1210,13 +1212,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return temp
 
     def discover_mesacards(self):
-        name, interface, address = self.get_discovery_meta()
+        name, interface, address, readoption = self.get_discovery_meta()
         if name is None: return None
 
         if not name:
             name = '5i25'
 
-        if self.debugstate:
+        if self.debugstateor or readoption:
             print('try to discover board by reading help text input:',name)
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),

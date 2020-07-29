@@ -104,7 +104,7 @@ The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
 directly to a USB storage device (flash drive) or a DVD and used to boot
 a computer.  The image is too large to fit on a CD.
 
-.Writing the image to a USB storage device in Linux or Mac OSX
+.Writing the image to a USB storage device in Linux
 
 . Connect a USB storage device (for example a flash drive or thumb
   drive type device).
@@ -208,7 +208,8 @@ to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
-WARNING: Do not upgrade the operating system if prompted to do so.
+WARNING: Do not upgrade the operating system if prompted to do so. You
+should accept OS _updates_ however, especially security updates.
 
 == Install Problems
 
@@ -250,7 +251,7 @@ NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
 The Preempt-rt kernels are available for Debian from the regular
 debian.org archive. The preempt-rt kernel for RaspBerry Pi is available
 from the LinuxCNC repository.  The package is called `linux-image-rt-*`
-Simply install the package in the same way as any other packege from the
+Simply install the package in the same way as any other package from the
 Synaptic Package manager or with apt-get at the command-line.
 
 .RTAI Kernels
@@ -331,11 +332,10 @@ uname -v
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
-. Add the apt repository. Either edit /etc/apt/sources.list or use the
-"Repositories" section of the Synaptic Package Manager to add this line:
+. Add the apt repository:
 +
 ----
- deb http://linuxcnc.org/ buster 2.8-rtpreempt
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -369,11 +369,7 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 ----
-Either edit /etc/apt/sources.list or use the "Repositories" section of
-the Synaptic Package Manager to add this line
-
- deb http://linuxcnc.org/ buster base 2.8-rt
-
+ echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -407,10 +403,10 @@ sudo apt-get install linuxcnc
 ----
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
-. Add the apt repository, edit /etc/apt/sources.list and add
+. Add the apt repository:
 +
 -----
-deb http://linuxcnc.org/ buster base 2.8-rt
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 -----
 . Update the package list from linuxcnc.org
 +
