@@ -119,7 +119,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
 
     def load_resources(self):
         def qrccompile(qrcname,qrcpy):
-            log.info('Compiling qrc: {}'.format(qrcname))
+            log.info('Compiling qrc: {} to \n {}'.format(qrcname,qrcpy))
             try:
                 subprocess.call(["pyrcc5","-o","{}".format(qrcpy),"{}".format(qrcname)])
             except OSError as e:
@@ -143,28 +143,33 @@ class _VCPWindow(QtWidgets.QMainWindow):
         else:
             DIR = self.PATHS.PANELDIR
             BNAME = self.PATHS.BASENAME
-        qrcname = os.path.join(DIR, BNAME, BNAME+'.qrc')
-        qrcpy = os.path.join(DIR, BNAME, 'resources.py')
+        qrcname = self.PATHS.QRC
+        qrcpy = self.PATHS.QRCPY
 
         # Is there a qrc file in directory?
-        if os.path.isfile(qrcname):
+        if qrcname is not None:
             qrcTime =  os.stat(qrcname).st_mtime
-            if os.path.isfile(qrcpy):
+            if qrcpy is not None and os.path.isfile(qrcpy):
                 pyTime = os.stat(qrcpy).st_mtime
                 # is py older then qrc file?
                 if pyTime < qrcTime:
                     qrccompile(qrcname,qrcpy)
-            # there is a qrc file but no resources.py file...
+            # there is a qrc file but no resources.py file...compile it
             else:
                 qrccompile(qrcname,qrcpy)
 
-            # there is a qrc file but no resources.py file...
         # is there a resource.py in the directory?
-        if os.path.isfile(qrcpy):
+        # if so add a path to it so we can import it.
+        if qrcpy is not None and os.path.isfile(qrcpy):
             try:
-                import resources
+                sys.path.insert(0, os.path.join(DIR, BNAME))
+                import importlib
+                importlib.import_module('resources',os.path.join(DIR, BNAME))
+                log.info('Imported resources.py filed: {}'.format(qrcpy))
             except Exception as e:
-                log.warning('couldn not load () resource file: {}'.format(qrcpy, e))
+                log.warning('could not load {} resource file: {}'.format(qrcpy, e))
+        else:
+            log.info('No resource file to load: {}'.format(qrcpy))
 
     def instance(self):
         self.load_resources()
