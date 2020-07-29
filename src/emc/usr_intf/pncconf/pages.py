@@ -231,6 +231,7 @@ class Pages:
             state = True
         else:
             state = False
+        self.w.input_tab.set_visible(state)
         self.d.advanced_option = state
         self.page_set_state(['options','external','realtime'],state)
         self.d.createsymlink = self.w.createsymlink.get_active()
@@ -1454,6 +1455,7 @@ different program to copy to your configuration file.\nThe edited program will b
 ######################
     def on_discovery_interface_combobox_changed(self,w):
         self.a.discovery_interface_combobox_changed(w)
+
 # BOILER CODE
     def __getitem__(self, item):
         return getattr(self, item)
