@@ -33,7 +33,7 @@ BUTTON_1_CODE           = ohmic-test
 BUTTON_2_NAME           = Probe Test
 BUTTON_2_CODE           = probe-test 30
 BUTTON_3_NAME           = Change Consumables
-BUTTON_3_CODE           = change-consumables X0 F160
+BUTTON_3_CODE           = change-consumables X0 Y0 F160
 BUTTON_4_NAME           = Pierce & Cut
 BUTTON_4_CODE           = cut-type
 

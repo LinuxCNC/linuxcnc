@@ -197,7 +197,7 @@ class HandlerClass:
             isIdleOn = False 
         for n in range(1,5):
             if 'change-consumables' in self.iniButtonCode[n]:
-                if hal.get_value('halui.program.is-paused'):
+                if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.stop-type-out') > 1:
                     self.builder.get_object('button' + str(n)).set_sensitive(True)
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)
@@ -239,8 +239,8 @@ class HandlerClass:
             hal.set_p('plasmac.xy-feed-rate', '0')
         return True
 
-    def consumable_change_setup(self, ccParm):
-        self.ccX = self.ccY = self.ccF = ''
+    def consumable_change_setup(self, ccParm, button):
+        self.ccX = self.ccY = self.ccF = 0.0
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -269,18 +269,18 @@ class HandlerClass:
         if self.ccX and \
            (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
            self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
-            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n')
-            print('x out of bounds for consumable change\n')
+            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
+            print('X out of bounds for consumable change\n')
             raise SystemExit()
         if self.ccY and \
            (self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
            self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n')
-            print('y out of bounds for consumable change\n')
+            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
+            print('Y out of bounds for consumable change\n')
             raise SystemExit()
         if not self.ccF:
-            self.dialog_error('invalid feed rate for consumable change\n\nCheck .ini file settings\n')
-            print('invalid consumable change feed rate\n')
+            self.dialog_error('Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
+            print('Invalid consumable change feed rate\n')
             raise SystemExit()
 
     def dialog_error(self, error):
@@ -324,9 +324,9 @@ class HandlerClass:
             if 'change-consumables' in code:
                 ccParm = self.i.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 if ccParm:
-                    self.consumable_change_setup(ccParm)
+                    self.consumable_change_setup(ccParm, str(button))
                 else:
-                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n')
+                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
         self.set_theme()
         self.builder.get_object('button1').connect('realize', self.set_style)
         gobject.timeout_add(100, self.periodic)
