@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.147 - 2020 Jul 27
+0.148 - 2020 Jul 29
 
 .I SUMMARY:
 .br
@@ -1379,38 +1379,40 @@ FUNCTION(_) {
                 }
                 consumable_changing = TRUE;
             }else{
-                if(x_velocity && x_offset_counts != x_offset){
-                    if(x_offset > 0){
-                        if(x_offset_counts + x_velocity < x_offset){
-                            x_offset_counts += x_velocity;
+                if(consumable_change){
+                    if(x_velocity && x_offset_counts != x_offset){
+                        if(x_offset > 0){
+                            if(x_offset_counts + x_velocity < x_offset){
+                                x_offset_counts += x_velocity;
+                            }else{
+                                x_offset_counts = x_offset;
+                            }
                         }else{
-                            x_offset_counts = x_offset;
-                        }
-                    }else{
-                        if(x_offset_counts - x_velocity > x_offset){
-                            x_offset_counts -= x_velocity;
-                        }else{
-                            x_offset_counts = x_offset;
+                            if(x_offset_counts - x_velocity > x_offset){
+                                x_offset_counts -= x_velocity;
+                            }else{
+                                x_offset_counts = x_offset;
+                            }
                         }
                     }
-                }
-                if(y_velocity && y_offset_counts != y_offset){
-                    if(y_offset > 0){
-                        if(y_offset_counts + y_velocity < y_offset){
-                            y_offset_counts += y_velocity;
+                    if(y_velocity && y_offset_counts != y_offset){
+                        if(y_offset > 0){
+                            if(y_offset_counts + y_velocity < y_offset){
+                                y_offset_counts += y_velocity;
+                            }else{
+                                y_offset_counts = y_offset;
+                            }
                         }else{
-                            y_offset_counts = y_offset;
-                        }
-                    }else{
-                        if(y_offset_counts - y_velocity > y_offset){
-                            y_offset_counts -= y_velocity;
-                        }else{
-                            y_offset_counts = y_offset;
+                            if(y_offset_counts - y_velocity > y_offset){
+                                y_offset_counts -= y_velocity;
+                            }else{
+                                y_offset_counts = y_offset;
+                            }
                         }
                     }
                 }
             }
-            if(x_offset_counts == x_offset && y_offset_counts == y_offset){
+            if((x_offset_counts == x_offset && y_offset_counts == y_offset) || !consumable_change){
                 state = IDLE;
             }
             break;

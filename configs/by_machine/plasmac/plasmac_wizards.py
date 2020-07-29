@@ -118,12 +118,23 @@ class wizards:
             except:
                 self.dialog_error('Error opening {}'.format(self.configFile))
 
-    def dialog_error(self, eWizard, error):
+    def wizard_error(self, eWizard, error):
         md = gtk.MessageDialog(self.W, 
                                gtk.DIALOG_DESTROY_WITH_PARENT,
                                gtk.MESSAGE_ERROR, 
                                gtk.BUTTONS_CLOSE,
                                '{} WIZARD ERROR\n\n{}'.format(eWizard, error))
+        md.set_keep_above(True)
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.run()
+        md.destroy()
+
+    def dialog_error(self, error):
+        md = gtk.MessageDialog(self.W, 
+                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.MESSAGE_ERROR, 
+                               gtk.BUTTONS_CLOSE,
+                               error)
         md.set_keep_above(True)
         md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
         md.run()
@@ -143,92 +154,92 @@ class wizards:
             array = w_array.array()
             error = array.do_array(self.fWizard, self.tmpDir, True)
             if error:
-                self.dialog_error('ARRAY', error)
+                self.wizard_error('ARRAY', error)
         elif self.s.file:
             reload(w_array)
             array = w_array.array()
             error = array.do_array(self.s.file, self.tmpDir, False)
             if error:
-                self.dialog_error('ARRAY', error)
+                self.wizard_error('ARRAY', error)
         else:
-            self.dialog_error('ARRAY', 'No file available to create array from')
+            self.wizard_error('ARRAY', 'No file available to create array from')
 
     def on_settings_pressed(self, widget):
         reload(w_settings)
         settings = w_settings.settings()
         error = settings.do_settings()
         if error:
-            self.dialog_error('LINE', error)
+            self.wizard_error('SETTINGS', error)
 
     def on_line_pressed(self, widget):
         reload(w_line)
         line = w_line.line()
         error = line.do_line(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('LINE', error)
+            self.wizard_error('LINE', error)
 
     def on_circle_pressed(self, widget):
         reload(w_circle)
         circle = w_circle.circle()
         error = circle.do_circle(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('CIRCLE', error)
+            self.wizard_error('CIRCLE', error)
 
     def on_triangle_pressed(self, widget):
         reload(w_triangle)
         triangle = w_triangle.triangle()
         error = triangle.do_triangle(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('TRIANGLE', error)
+            self.wizard_error('TRIANGLE', error)
 
     def on_rectangle_pressed(self, widget):
         reload(w_rectangle)
         rectangle = w_rectangle.rectangle()
         error = rectangle.do_rectangle(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('RECTANGLE', error)
+            self.wizard_error('RECTANGLE', error)
 
     def on_polygon_pressed(self, widget):
         reload(w_polygon)
         polygon = w_polygon.polygon()
         error = polygon.do_polygon(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('POLYGON', error)
+            self.wizard_error('POLYGON', error)
 
     def on_bolt_circle_pressed(self, widget):
         reload(w_bolt_circle)
         bolt_circle = w_bolt_circle.bolt_circle()
         error = bolt_circle.do_bolt_circle(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('BOLT CIRCLE', error)
+            self.wizard_error('BOLT CIRCLE', error)
 
     def on_slot_pressed(self, widget):
         reload(w_slot)
         slot = w_slot.slot()
         error = slot.do_slot(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('SLOT', error)
+            self.wizard_error('SLOT', error)
 
     def on_star_pressed(self, widget):
         reload(w_star)
         star = w_star.star()
         error = star.do_star(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('STAR', error)
+            self.wizard_error('STAR', error)
 
     def on_gusset_pressed(self, widget):
         reload(w_gusset)
         gusset = w_gusset.gusset()
         error = gusset.do_gusset(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('GUSSET', error)
+            self.wizard_error('GUSSET', error)
 
     def on_sector_pressed(self, widget):
         reload(w_sector)
         sector = w_sector.sector()
         error = sector.do_sector(self.fWizard, self.tmpDir)
         if error:
-            self.dialog_error('SECTOR', error)
+            self.wizard_error('SECTOR', error)
 
     def on_rotate_pressed(self, widget):
         self.s.poll()
@@ -239,13 +250,13 @@ class wizards:
             inFile = self.s.file
             mode = 'file'
         else:
-            self.dialog_error('ROTATE', 'No file available to rotate')
+            self.wizard_error('ROTATE', 'No file available to rotate')
             return
         reload(w_rotate)
         rotate = w_rotate.rotate()
         error = rotate.do_rotate(self.fWizard, inFile, self.tmpDir)
         if error:
-            self.dialog_error('ROTATE', error)
+            self.wizard_error('ROTATE', error)
 
     def button_setup(self):
         self.iniButtonName = ['Names','','','','','','','','','']
@@ -275,9 +286,9 @@ class wizards:
             if 'change-consumables' in code:
                 ccParm = self.i.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 if ccParm:
-                    self.consumable_change_setup(ccParm)
+                    self.consumable_change_setup(ccParm, str(button))
                 else:
-                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n')
+                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
             try:
                 if pic:
                     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
@@ -408,8 +419,8 @@ class wizards:
                 self.probeButton.set_style(self.buttonPlain)
                 self.probeButton = ''
 
-    def consumable_change_setup(self, ccParm):
-        self.ccX = self.ccY = self.ccF = ''
+    def consumable_change_setup(self, ccParm, button):
+        self.ccX = self.ccY = self.ccF = 0.0
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
@@ -438,18 +449,18 @@ class wizards:
         if self.ccX and \
            (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
            self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
-            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n')
+            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
             print('x out of bounds for consumable change\n')
             raise SystemExit()
         if self.ccY and \
            (self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
            self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n')
+            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
             print('y out of bounds for consumable change\n')
             raise SystemExit()
         if not self.ccF:
-            self.dialog_error('invalid feed rate for consumable change\n\nCheck .ini file settings\n')
-            print('invalid consumable change feed rate\n')
+            self.dialog_error('Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
+            print('Invalid consumable change feed rate\n')
             raise SystemExit()
 
     def set_style(self,button):
@@ -479,7 +490,7 @@ class wizards:
             if 'load' in self.iniButtonCode[n]:
                 pass
             elif 'change-consumables' in self.iniButtonCode[n]:
-                if hal.get_value('halui.program.is-paused'):
+                if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.stop-type-out') > 1:
                     self.builder.get_object('button' + str(n)).set_sensitive(True)
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)

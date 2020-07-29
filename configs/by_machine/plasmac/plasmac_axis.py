@@ -841,7 +841,7 @@ def user_live_update():
     # set buttons state
     for n in range(1,6):
         if 'change-consumables' in iniButtonCode[n]:
-            if hal.get_value('halui.program.is-paused'):
+            if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.stop-type-out') > 1:
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
                 w(fbuttons + '.button' + str(n),'configure','-state','disabled')
@@ -954,9 +954,9 @@ def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
     w(fpausedmotion + '.paused-motion-speed','configure','-from','1','-to','100','-resolution','1')
 
-def consumable_change_setup(ccParm):
+def consumable_change_setup(ccParm, button):
     global ccF, ccX, ccY
-    ccX = ccY = ccF = ''
+    ccX = ccY = ccF = 0.0
     X = Y = F = ''
     ccAxis = [X, Y, F]
     ccName = ['x', 'y', 'f']
@@ -985,17 +985,16 @@ def consumable_change_setup(ccParm):
     if ccX and \
        (ccX < round(float(inifile.find('AXIS_X', 'MIN_LIMIT')), 6) or \
        ccX > round(float(inifile.find('AXIS_X', 'MAX_LIMIT')), 6)):
-        print('x out of bounds for consumable change\n')
+        print('\nX out of bounds for consumable change\nCheck .ini file settings\nBUTTON_{}_CODE\n'.format(str(button)))
         raise SystemExit()
     if ccY and \
        (ccY < round(float(inifile.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
        ccY > round(float(inifile.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-        print('y out of bounds for consumable change\n')
+        print('\nY out of bounds for consumable change\nCheck .ini file settings\nBUTTON_{}_CODE\n'.format(str(button)))
         raise SystemExit()
     if not ccF:
-        print('invalid consumable change feed rate\n')
+        print('\nInvalid consumable change feed rate\nCheck .ini file settings\nBUTTON_{}_CODE\n'.format(str(button)))
         raise SystemExit()
-
 
 ################################################################################
 # setup
@@ -1015,9 +1014,9 @@ for button in range(1,6):
     if 'change-consumables' in inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'):
         ccParm = inifile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
         if ccParm:
-            consumable_change_setup(ccParm)
+            consumable_change_setup(ccParm, str(button))
         else:
-            print('consumable change parameters required\n')
+            print('\nConsumable change parameters required\nCheck .ini file settings\nBUTTON_{}_CODE\n'.format(str(button)))
         break
 wScales = [\
     ftorch + '.torch-pulse-time',\
