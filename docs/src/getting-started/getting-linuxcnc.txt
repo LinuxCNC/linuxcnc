@@ -8,10 +8,10 @@ and make a fresh install of LinuxCNC.  There are also
 adventurous.  If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
-[Note]
-LinuxCNC requires a special kernel with real-time extensions. There are
-three possibilities here, preempt-rt, RTAI or Xenomai. In addition there
-are two versions of LinuxCNC which work with these kernels.
+NOTE: LinuxCNC requires a special kernel with real-time extensions. There are
+three possibilities here: preempt-rt, RTAI or Xenomai. In addition there
+are two versions of LinuxCNC which work with these kernels. See the table
+below for details.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
@@ -104,7 +104,7 @@ The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
 directly to a USB storage device (flash drive) or a DVD and used to boot
 a computer.  The image is too large to fit on a CD.
 
-.Writing the image to a USB storage device in Linux
+.Writing the image to a USB storage device in Linux or Mac OSX
 
 . Connect a USB storage device (for example a flash drive or thumb
   drive type device).
@@ -119,7 +119,31 @@ a computer.  The image is too large to fit on a CD.
 dd if=linuxcnc-2.8.0-buster.iso of=/dev/sde
 -----
 
-.Writing the image to a DVD in Linux or Mac OSX
+.Writing the image to a USB storage device in Mac OSX
+
+. Open a terminal and type
++
+-----
+diskutil list
+-----
+. Insert the USB and note the name of the new disk that appears, eg
+  /dev/disk5
+. unmount the USB. The number found above should be substitued in place
+  of the N
++
+-----
+diskutil unmountDisk /dev/diskN
+-----
+. Transfer the data with dd, as for Linux above. Note that the disk name
+  has an added "r" at the begining
++
+-----
+sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
+-----
+. Note that this may take a long time to complete and there will be no
+  feedback during the process.
+
+.Writing the image to a DVD in Linux
 
 . Insert a blank DVD into your burner. A 'CD/DVD Creator' or 'Choose Disc Type'
   window will pop up. Close this, as we will not be using it.
@@ -139,20 +163,25 @@ dd if=linuxcnc-2.8.0-buster.iso of=/dev/sde
 . Open Infra Recorder, and select the 
  'Actions' menu, then 'Burn image'.
 
+.Writing the image to a DVD in Mac OSX
+
+. Download the .iso file
+. Right-click on the file in the Finder window and select "Burn to disc"
+  (The option to burn to disc  will only appear if the machine has an
+  optical drive fitted or connected)
+
 == Testing LinuxCNC
 
 With the USB storage device plugged in or the DVD in the DVD drive,
 shut down the computer then turn the computer back on. This will boot
 the computer from the Live/Install Image and choose the Live boot option.
 
-[Note]
-If the system does not boot from the DVD or USB stick it might be necesary
-to change the boot order in the PC BIOS.
+NOTE: If the system does not boot from the DVD or USB stick it might be
+necesary to change the boot order in the PC BIOS.
 
 Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
-settings like screen resolution in a Live session, but you can (and should)
-run the latency test.
+settings in a Live session, but you can (and should) run the latency test.
 
 To try out LinuxCNC: from the Applications/CNC menu pick LinuxCNC. A
 dialog box will open from which you can choose one of many sample
@@ -179,8 +208,7 @@ to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
-[WARNING]
-Do not upgrade the operating system if prompted to do so.
+WARNING: Do not upgrade the operating system if prompted to do so.
 
 == Install Problems
 
@@ -202,21 +230,30 @@ kernel flavors, etc), new installs are supported on following platforms:
 run on any 64-bit x86 system)
 
 [options="header"]
-|===================================================================
-| Distribution   | Architecture | kernel     | Typical use
-| Debian Buster  | amd64 & i386 | Stock      | simulation only
-| Debian Buster  | amd64        | preemp-rt  | machine control & simulation
-| Debian Buster  | amd64        | RTAI       | machine control (known issues)
-| Debian Jessie  | amd64 & i386 | Stock      | simulation only
-| Debian Wheezy  | i386         | RTAI       | machine control & simulation
-| Debian Wheezy  | amd64 & i386 | Preempt-RT | machine control & simulation
-| Debian Wheezy  | amd64 & i386 | Stock      | simulation only
-| Ubuntu Precise | i386         | RTAI       | machine control & simulation
-| Ubuntu Precise | amd64 & i386 | Stock      | simulation only
-|===================================================================
+|=========================================================================
+| Distribution   | Architecture  | kernel     | package name    | Typical use
+| Debian Buster  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Buster  | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
+| Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)
+| Debian Jessie  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Debian Wheezy  | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Preempt-RT | linuxcnc-uspace | machine control & simulation
+| Debian Wheezy  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+| Ubuntu Precise | i386          | RTAI       | linuxcnc        | machine control & simulation
+| Ubuntu Precise | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
+|=========================================================================
 
-[Note]
-LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
+NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
+
+.Preempt-RT kernels
+
+The Preempt-rt kernels are available for Debian from the regular
+debian.org archive. The preempt-rt kernel for RaspBerry Pi is available
+from the LinuxCNC repository.  The package is called `linux-image-rt-*`
+Simply install the package in the same way as any other packege from the
+Synaptic Package manager or with apt-get at the command-line.
+
+.RTAI Kernels
 
 The RTAI kernels are available for download from the linuxcnc.org
 debian archive.  The apt source is:
@@ -225,7 +262,7 @@ debian archive.  The apt source is:
 * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
 * Ubuntu Precise: `deb http://linuxcnc.org precise base`
 
-Note that Debian Wheezy and Ubuntu Precise are both extremely old, and
+NOTE: Debian Wheezy and Ubuntu Precise are both extremely old, and
 are out of their support period. It is strongly advised not to use either
 for a new install, and to seriously consider upgrading an existing
 installation.
@@ -233,20 +270,15 @@ installation.
 The Buster / RTAI package is only available on amd64, but there are very
 few surviving systems that can not run a 64-bit OS.
 
-There are known issues with the RTAI kernel with this version of LinuxCNC.
-The system will occasionally lock solid. However, this has, so far,
-been seen only during system exit. While running the system appears to be
-stable.
+WARNING: There are known issues with the 64-bit RTAI 5.2 kernel with
+this version of LinuxCNC. The system will occasionally lock solid.
+However, this has, so far, been seen only during system exit. While
+running the system appears to be stable. But should nevertheless be
+considered experimental at this point.
 
-[Note]
-If you decide to use the RTAI kernel and see a problem outside the
+NOTE: If you decide to use the RTAI 5.2 kernel and see a problem outside the
 circumstances described above then please report it immediately to the
 project developers.
-
-The Preempt-RT kernels are available for Debian from the regular
-debian.org archive.  The package is called `linux-image-rt-amd64` Simply
-install them in the same way as any other packege from the Synaptic
-Package manager or with apt-get at the command-line.
 
 === Installing on Debian Buster (with Preempt-RT kernel)
 
@@ -320,7 +352,7 @@ sudo apt-get install linuxcnc-uspace
 [[cha:Installing-RTAI]]
 === Installing on Debian Buster (with experimental RTAI kernel)
 
-Warning: This kernel has known stability problems. It appears to run
+WARNING: This kernel has known stability problems. It appears to run
 reliably once LinuxCNC is loaded. However kernel panics have been seen
 at system shut-down.
 
@@ -349,11 +381,51 @@ the Synaptic Package Manager to add this line
 ----
 sudo apt-get update
 ----
-
-. Install linuccnc (a reboot may be required prior to installing)
+. Install the RTAI kernel
++
+----
+sudo apt-get install linux-image-4.14.174-rtai-amd64
+----
+. Install the RTAI application layer
++
+----
+sudo apt-get install rtai-modules-4.14.174
+----
+. Install linuxcnc (a reboot may be required prior to installing)
 +
 ----
 sudo apt-get install linuxcnc
+----
+
+=== Installing on Raspbian 10
+
+. Download a stock Raspbian image to an SD card and install in the
+  https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way]
+. Boot the Pi and open a terminal
+. Add the LinuxCNC Archive Signing Key to your apt keyring
++
+----
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+----
+. Add the apt repository, edit /etc/apt/sources.list and add
++
+-----
+deb http://linuxcnc.org/ buster base 2.8-rt
+-----
+. Update the package list from linuxcnc.org
++
+----
+sudo apt-get update
+----
+. install the realtime kernel
++
+----
+sudo apt-get install linux-image-4.19.71-rt24-v7l+
+----
+. Install linuxcnc (a reboot may be required prior to installing)
++
+----
+sudo apt-get install linuxcnc-uspace
 ----
 
 
