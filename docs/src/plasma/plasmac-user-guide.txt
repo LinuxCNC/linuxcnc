@@ -729,10 +729,17 @@ NOTE: This frame is only visible if a PM_PORT is configured in the [PLASMAC] sec
 
 [underline]*Save Button*
 
-The **Save** button has two modes of operation:
+image::images/plasmac_save_dialog.png[width=20%]
 
-. If the Default material is displayed then only this will be saved.
-. If any other material is displayed then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
+The **Save** button brings up a dialog with the following options:
+
+[width="100%",cols="4,16"]
+|===
+|Material|Save the Cut Parameters for the material currently displayed.
+|Settings|Save all setting except for the Cut Parameters.
+|Both|Save The Cut Parameters and the settings.
+|Cancel|Close the dialog withaout saving.
+|===
 
 [underline]*Reload Button*
 
