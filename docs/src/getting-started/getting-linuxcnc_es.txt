@@ -104,7 +104,7 @@ La imagen LinuxCNC Live/Install es una imagen ISO híbrida que se puede grabar
 directamente a un dispositivo de almacenamiento USB (unidad flash) o un DVD y se usa para arrancar
 un ordenador. La imagen es demasiado grande para caber en un CD.
 
-.Escribir la imagen en un dispositivo de almacenamiento USB en Linux o Mac OSX
+.Escribir la imagen en un dispositivo de almacenamiento USB en Linux
 
 . Conecte un dispositivo de almacenamiento USB (por ejemplo, una unidad flash o un
   dispositivo similar).
@@ -205,7 +205,9 @@ conocimientos de Linux.
 Está bien actualizar todo, excepto el sistema operativo, cuando se le pida.
 
 [WARNING]
-No actualice el sistema operativo si se le solicita que lo haga.
+No actualice el sistema operativo si se le solicita que lo haga. Debe aceptar en cambio los 
+_updates_ o actualizaciones de _su versión_ , especialmente las de seguridad. 
+ 
 
 == Problemas de Instalacion 
 
@@ -328,11 +330,10 @@ uname -v
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 
-. Agregue el repositorio apt. Edite /etc/apt/sources.list o use la
-sección "Repositorios" del Administrador de paquetes Synaptic para agregar esta línea:
+. Añada el repositorio apt:
 +
 ----
- deb http://linuxcnc.org/ buster 2.8-rtpreempt
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Actualice la lista de paquetes desde linuxcnc.org
@@ -366,11 +367,7 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 . Agregue el repositorio apt:
 +
 ----
-Edite /etc/apt/sources.list o use la sección "Repositorios" de
-Synaptic para agregar esta línea
-
- deb http://linuxcnc.org/ buster base 2.8-rt
-
+echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Actualice la lista de paquetes de linuxcnc.org
@@ -404,10 +401,10 @@ sudo apt-get install linuxcnc
 ----
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
-. Agregue el repositorio de apt; edite /etc/apt/sources.list y agregue
+. Agregue el repositorio de apt
 +
 -----
-deb http://linuxcnc.org/ buster base 2.8-rt
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 -----
 . Actualice la lista de paquetes de linuxcnc.org
 +

@@ -142,7 +142,7 @@ include::config/ini-homing_es.txt[]
 
 include::config/lathe-config_es.txt[]
 
-// include::hal/haltcl_es.txt[]
+include::hal/haltcl_es.txt[]
 
 // include::remap/remap_es.txt[]
 
@@ -252,11 +252,11 @@ include::hal/twopass_es.txt[]
 
 include::hal/tutorial_es.txt[]
 
-// include::hal/general-ref_es.txt[]
+include::hal/general-ref_es.txt[]
 
 include::config/core-components_es.txt[]
 
-// include::hal/canonical-devices_es.txt[]
+include::hal/canonical-devices_es.txt[]
 
 // include::hal/tools_es.txt[]
 
@@ -266,11 +266,11 @@ include::hal/components_es.txt[]
 
 include::hal/rtcomps_es.txt[]
 
-// include::hal/hal-examples_es.txt[]
+include::hal/hal-examples_es.txt[]
 
-// include::hal/comp_es.txt[]
+include::hal/comp_es.txt[]
 
-// include::hal/halmodule_es.txt[]
+include::hal/halmodule_es.txt[]
 
 
 :leveloffset: 0

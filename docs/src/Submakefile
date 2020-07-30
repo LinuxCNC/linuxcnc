@@ -229,7 +229,7 @@ DOC_SRCS_FR := \
 	Master_Integrator_fr.txt \
 
 DOC_SRCS_ES := \
-    code/rs274_es.txt \
+	code/rs274_es.txt \
 	getting-started/about-linuxcnc_es.txt \
 	getting-started/system-requirements_es.txt \
 	getting-started/getting-linuxcnc_es.txt \
@@ -287,11 +287,17 @@ DOC_SRCS_ES := \
 	hal/intro_es.txt \
 	hal/twopass_es.txt \
 	hal/basic-hal_es.txt \
+	hal/canonical-devices_es.txt \
+	hal/comp_es.txt \
 	hal/tutorial_es.txt \
 	config/core-components_es.txt \
 	hal/components_es.txt \
+	hal/general-ref_es.txt \
 	hal/rtcomps_es.txt \
 	hal/halshow_es.txt \
+	hal/haltcl_es.txt \
+	hal/hal-examples_es.txt \
+	hal/halmodule_es.txt \
 	Master_Getting_Started_es.txt \
 	Master_Documentation_es.txt \
 	Master_Developer_es.txt \
