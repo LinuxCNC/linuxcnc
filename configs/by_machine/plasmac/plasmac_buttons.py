@@ -57,21 +57,32 @@ class HandlerClass:
     def user_button_pressed(self, button, commands):
         if not commands: return
         if 'change-consumables' in commands.lower():
+            self.consumable_change_setup()
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
                 hal.set_p('plasmac.consumable-change', '0')
                 hal.set_p('plasmac.x-offset', '0')
                 hal.set_p('plasmac.y-offset', '0')
                 hal.set_p('plasmac.xy-feed-rate', '0')
             else:
-                hal.set_p('plasmac.xy-feed-rate', str(int(self.ccF)))
-                if self.ccX or self.ccX == 0:
-                    hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccX - self.s.position[0]) / hal.get_value('plasmac.offset-scale')))
+                if self.ccF == 'None' or self.ccF < 1:
+                    self.dialog_error('Invalid feed rate for consumable change\n\nCheck .ini file settings\n')
+                    return
                 else:
-                    hal.set_p('plasmac.x-offset', '0')
-                if self.ccY or self.ccY == 0:
-                    hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccY - self.s.position[1]) / hal.get_value('plasmac.offset-scale')))
-                else:
-                    hal.set_p('plasmac.y-offset', '0')
+                    hal.set_p('plasmac.xy-feed-rate', str(float(self.ccF)))
+                if self.ccX == 'None':
+                    self.ccX = self.s.position[0]
+                if self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) + (10 * hal.get_value('halui.machine.units-per-mm')):
+                    self.ccX = round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) + (10 * hal.get_value('halui.machine.units-per-mm'))
+                elif self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6) - (10 * hal.get_value('halui.machine.units-per-mm')):
+                    self.ccX = round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6) - (10 * hal.get_value('halui.machine.units-per-mm'))
+                if self.ccY == 'None':
+                    self.ccY = self.s.position[1]
+                if self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) + (10 * hal.get_value('halui.machine.units-per-mm')):
+                    self.ccY = round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) + (10 * hal.get_value('halui.machine.units-per-mm'))
+                elif self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6) - (10 * hal.get_value('halui.machine.units-per-mm')):
+                    self.ccY = round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6) - (10 * hal.get_value('halui.machine.units-per-mm'))
+                hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccX - self.s.position[0]) / hal.get_value('plasmac.offset-scale')))
+                hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccY - self.s.position[1]) / hal.get_value('plasmac.offset-scale')))
                 hal.set_p('plasmac.consumable-change', '1')
         elif commands.lower() == 'ohmic-test':
             hal.set_p('plasmac.ohmic-test','1')
@@ -239,24 +250,24 @@ class HandlerClass:
             hal.set_p('plasmac.xy-feed-rate', '0')
         return True
 
-    def consumable_change_setup(self, ccParm, button):
-        self.ccX = self.ccY = self.ccF = 0.0
+    def consumable_change_setup(self):
+        self.ccX = self.ccY = self.ccF = 'None'
         X = Y = F = ''
         ccAxis = [X, Y, F]
         ccName = ['x', 'y', 'f']
         for loop in range(3):
             count = 0
-            if ccName[loop] in ccParm:
+            if ccName[loop] in self.ccParm:
                 while 1:
-                    if not ccParm[count]: break
-                    if ccParm[count] == ccName[loop]:
+                    if not self.ccParm[count]: break
+                    if self.ccParm[count] == ccName[loop]:
                         count += 1
                         break
                     count += 1
                 while 1:
-                    if count == len(ccParm): break
-                    if ccParm[count].isdigit() or ccParm[count] in '.-':
-                        ccAxis[loop] += ccParm[count]
+                    if count == len(self.ccParm): break
+                    if self.ccParm[count].isdigit() or self.ccParm[count] in '.-':
+                        ccAxis[loop] += self.ccParm[count]
                     else:
                         break
                     count += 1
@@ -266,22 +277,6 @@ class HandlerClass:
                     self.ccY = float(ccAxis[loop])
                 elif ccName[loop] == 'f' and ccAxis[loop]:
                     self.ccF = float(ccAxis[loop])
-        if self.ccX and \
-           (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
-           self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
-            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
-            print('X out of bounds for consumable change\n')
-            raise SystemExit()
-        if self.ccY and \
-           (self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
-           self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
-            print('Y out of bounds for consumable change\n')
-            raise SystemExit()
-        if not self.ccF:
-            self.dialog_error('Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(button))
-            print('Invalid consumable change feed rate\n')
-            raise SystemExit()
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
@@ -322,11 +317,7 @@ class HandlerClass:
                 self.builder.get_object('button' + str(button)).set_label(blabel)
                 self.builder.get_object('button' + str(button)).children()[0].set_justify(gtk.JUSTIFY_CENTER)
             if 'change-consumables' in code:
-                ccParm = self.i.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
-                if ccParm:
-                    self.consumable_change_setup(ccParm, str(button))
-                else:
-                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
+                self.ccParm = self.i.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
         self.set_theme()
         self.builder.get_object('button1').connect('realize', self.set_style)
         gobject.timeout_add(100, self.periodic)
