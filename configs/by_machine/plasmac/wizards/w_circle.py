@@ -29,7 +29,7 @@ import shutil
 import hal
 from subprocess import Popen,PIPE
 
-class circle:
+class circle_wiz:
 
     def __init__(self):
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -37,72 +37,9 @@ class circle:
         self.s = linuxcnc.stat()
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
+        self.scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
 
-    def dialog_error(self, error):
-        md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
-        md.run()
-        md.destroy()
-
-    def load_file(self, fName):
-        if self.gui == 'axis':
-            Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
-        elif self.gui == 'gmoccapy':
-            self.c = linuxcnc.command()
-            self.c.program_open('./wizards/blank.ngc')
-            self.c.program_open(fName)
-        else:
-            print('Unknown GUI in .ini file')
-
-    def end_this_shape(self, event):
-        if os.path.exists(self.fWizard):
-            outWiz = open(self.fWizard, 'a+')
-            post = False
-            for line in outWiz:
-                if '(postamble)' in line:
-                    post = True
-            if not post:
-                outWiz.write('\n(postamble)\n')
-                outWiz.write('{}\n'.format(self.postamble))
-                outWiz.write('m30\n')
-            outWiz.close()
-            self.load_file(self.fWizard)
-        self.W.destroy()
-        return None
-
-    def add_shape_to_file(self, event):
-        if os.path.exists(self.fWizard):
-            path = os.path.dirname(os.path.abspath(self.fWizard))
-            tmp = ('{}/tmp'.format(path))
-            shutil.copyfile(self.fWizard, tmp)
-            inWiz = open(tmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            for line in inWiz:
-                if '(postamble)' in line:
-                    break
-                outWiz.write(line)
-            inWiz.close()
-            outWiz.close()
-            os.remove(tmp)
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'a')
-            for line in inTmp:
-                outWiz.write(line)
-        else:
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            outWiz.write('(preamble)\n')
-            outWiz.write('{}\n'.format(self.preamble))
-            outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-            for line in inTmp:
-                outWiz.write(line)
-        inTmp.close()
-        outWiz.close()
-        self.add.set_sensitive(False)
-
-    def send_preview(self, event):
-        self.check_entries()
+    def circle_preview(self, event):
         self.s.poll()
         xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
         yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
@@ -164,24 +101,23 @@ class circle:
                     leadInOffset = radius
             else:
                 sHole = False
-            self.fTmp = '{}/shape.tmp'.format(self.tmpDir)
-            self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
             outTmp = open(self.fTmp, 'w')
             outNgc = open(self.fNgc, 'w')
             if sHole:
                 speed = 0.6
             else:
                 speed = 1.0
-            if os.path.exists(self.fWizard):
-                inWiz = open(self.fWizard, 'r')
-                for line in inWiz:
-                    if '(postamble)' in line:
-                        break
-                    outNgc.write(line)
-            else:
-                outNgc.write('(preamble)\n')
-                outNgc.write('{}\n'.format(self.preamble))
-                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+            inWiz = open(self.fNgcBkp, 'r')
+            for line in inWiz:
+                if '(new wizard)' in line:
+                    outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                    outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                    break
+                elif '(postamble)' in line:
+                    break
+                elif 'm2' in line.lower() or 'm30' in line.lower():
+                    break
+                outNgc.write(line)
             outTmp.write('\n(wizard circle)\n')
             if sHole:
                 outTmp.write('M67 E3 Q60 (reduce feed rate to 60%)\n')
@@ -233,22 +169,21 @@ class circle:
             for line in outTmp:
                 outNgc.write(line)
             outTmp.close()
-            outNgc.write('\n(postamble)\n')
-            outNgc.write('{}\n'.format(self.postamble))
-            outNgc.write('m30\n')
+            outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+            outNgc.write('m2\n')
             outNgc.close()
-            self.load_file(self.fNgc)
+            self.parent.preview.load(self.fNgc)
             self.add.set_sensitive(True)
-            hal.set_p('plasmac_run.preview-tab', '1')
+            self.parent.xOrigin = self.xSEntry.get_text()
+            self.parent.yOrigin = self.ySEntry.get_text()
         else:
-            self.dialog_error('Diameter is required')
+            self.parent.dialog_error('CIRCLE', 'Diameter is required')
 
     def over_cut(self, lastX, lastY, IJ, radius, outTmp):
-        scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
         try:
             oclength = float(self.ocEntry.get_text())
         except:
-            oclength = 4 * scale
+            oclength = 0
         centerX = lastX + IJ
         centerY = lastY + IJ
         cosA = math.cos(oclength / radius)
@@ -267,10 +202,9 @@ class circle:
             dir = '3'
         outTmp.write('g{0} x{1:.6f} y{2:.6f} i{3:.6f} j{3:.6f}\n'.format(dir, endX, endY, IJ))
 
-    def outside_toggled(self,widget):
+    def outside_toggled(self, widget):
         if widget.get_active():
             self.overcut.set_active(False)
-            self.ocEntry.set_text('')
             self.overcut.set_sensitive(False)
             self.ocEntry.set_sensitive(False)
         else:
@@ -281,6 +215,7 @@ class circle:
             if rad <= self.sRadius:
                 self.overcut.set_sensitive(True)
                 self.ocEntry.set_sensitive(True)
+        self.auto_preview('auto')
 
     def overcut_toggled(self,widget):
         if widget.get_active():
@@ -294,29 +229,16 @@ class circle:
                 rad = 0
             if (self.outside.get_active() and lolen) or not rad or rad > self.sRadius:
                 self.overcut.set_active(False)
+        self.auto_preview('auto')    
 
-    def ocentry_changed(self,widget):
-        if self.outside.get_active():
-            self.ocEntry.set_text('')
-
-    def check_entries(self):
+    def entry_changed(self, widget):
+        self.parent.entry_changed(widget)
         try:
             rad = float(self.dEntry.get_text()) / 2
         except:
             rad = 0
-        if rad > self.sRadius:
+        if rad >= self.sRadius:
             self.overcut.set_active(False)
-        if rad <= self.sRadius and self.overcut.get_active():
-            self.loEntry.set_text('')
-
-    def diameter_changed(self,widget):
-        try:
-            rad = float(self.dEntry.get_text()) / 2
-        except:
-            rad = 0
-        if rad > self.sRadius:
-            self.overcut.set_active(False)
-            self.ocEntry.set_text('')
             self.overcut.set_sensitive(False)
             self.ocEntry.set_sensitive(False)
         else:
@@ -324,112 +246,122 @@ class circle:
                 self.overcut.set_sensitive(True)
                 self.ocEntry.set_sensitive(True)
 
-    def do_circle(self, fWizard, tmpDir):
-        self.tmpDir = tmpDir
-        self.fWizard = fWizard
+    def auto_preview(self, widget):
+        if self.dEntry.get_text() and float(self.dEntry.get_text()) > 0:
+            self.circle_preview('auto') 
+
+    def circle_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS, xOrigin, yOrigin):
+        entries.set_row_spacings(rowS)
+        self.parent = parent
+        for child in entries.get_children():
+            entries.remove(child)
+        self.fNgc = fNgc
+        self.fNgcBkp = fNgcBkp
+        self.fTmp = fTmp
         self.sRadius = 0.0
         self.hSpeed = 100
-        self.W = gtk.Dialog('Circle',
-                       None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       buttons = None)
-        self.W.set_keep_above(True)
-        self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.W.set_default_size(250, 200)
-        t = gtk.Table(1, 1, True)
-        t.set_row_spacings(6)
-        self.W.vbox.add(t)
         cutLabel = gtk.Label('Cut Type')
         cutLabel.set_alignment(0.95, 0.5)
-        cutLabel.set_width_chars(10)
-        t.attach(cutLabel, 0, 1, 0, 1)
+        cutLabel.set_width_chars(8)
+        entries.attach(cutLabel, 0, 1, 0, 1)
         self.outside = gtk.RadioButton(None, 'Outside')
         self.outside.connect('toggled',self.outside_toggled)
-        t.attach(self.outside, 1, 2, 0, 1)
+        entries.attach(self.outside, 1, 2, 0, 1)
         inside = gtk.RadioButton(self.outside, 'Inside')
-        t.attach(inside, 2, 3, 0, 1)
+        entries.attach(inside, 2, 3, 0, 1)
         offsetLabel = gtk.Label('Offset')
         offsetLabel.set_alignment(0.95, 0.5)
-        offsetLabel.set_width_chars(10)
-        t.attach(offsetLabel, 3, 4, 0, 1)
-        self.offset = gtk.CheckButton('Kerf Width')
-        t.attach(self.offset, 4, 5, 0, 1)
+        offsetLabel.set_width_chars(8)
+        entries.attach(offsetLabel, 3, 4, 0, 1)
+        self.offset = gtk.CheckButton('Kerf')
+        self.offset.connect('toggled', self.auto_preview)
+        entries.attach(self.offset, 4, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
-        lLabel.set_width_chars(10)
-        t.attach(lLabel, 0, 1, 1, 2)
+        lLabel.set_width_chars(8)
+        entries.attach(lLabel, 0, 1, 1, 2)
         self.liEntry = gtk.Entry()
-        self.liEntry.set_width_chars(10)
-        t.attach(self.liEntry, 1, 2, 1, 2)
+        self.liEntry.set_width_chars(8)
+        self.liEntry.connect('activate', self.auto_preview)
+        self.liEntry.connect('changed', self.entry_changed)
+        entries.attach(self.liEntry, 1, 2, 1, 2)
         loLabel = gtk.Label('Lead Out')
         loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(10)
-        t.attach(loLabel, 0, 1, 2, 3)
+        loLabel.set_width_chars(8)
+        entries.attach(loLabel, 0, 1, 2, 3)
         self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(10)
-        t.attach(self.loEntry, 1, 2, 2, 3)
+        self.loEntry.set_width_chars(8)
+        self.loEntry.connect('activate', self.auto_preview)
+        self.loEntry.connect('changed', self.entry_changed)
+        entries.attach(self.loEntry, 1, 2, 2, 3)
         xSLabel = gtk.Label('X start')
         xSLabel.set_alignment(0.95, 0.5)
-        xSLabel.set_width_chars(10)
-        t.attach(xSLabel, 0, 1, 3, 4)
+        xSLabel.set_width_chars(8)
+        entries.attach(xSLabel, 0, 1, 3, 4)
         self.xSEntry = gtk.Entry()
-        self.xSEntry.set_width_chars(10)
-        t.attach(self.xSEntry, 1, 2, 3, 4)
+        self.xSEntry.set_width_chars(8)
+        self.xSEntry.connect('activate', self.auto_preview)
+        self.xSEntry.connect('changed', self.entry_changed)
+        entries.attach(self.xSEntry, 1, 2, 3, 4)
         ySLabel = gtk.Label('Y start')
         ySLabel.set_alignment(0.95, 0.5)
-        ySLabel.set_width_chars(10)
-        t.attach(ySLabel, 0, 1, 4, 5)
+        ySLabel.set_width_chars(8)
+        entries.attach(ySLabel, 0, 1, 4, 5)
         self.ySEntry = gtk.Entry()
-        self.ySEntry.set_width_chars(10)
-        t.attach(self.ySEntry, 1, 2, 4, 5)
+        self.ySEntry.set_width_chars(8)
+        self.ySEntry.connect('activate', self.auto_preview)
+        self.ySEntry.connect('changed', self.entry_changed)
+        entries.attach(self.ySEntry, 1, 2, 4, 5)
         self.centre = gtk.RadioButton(None, 'Centre')
-        t.attach(self.centre, 1, 2, 5, 6)
-        self.bLeft = gtk.RadioButton(self.centre, 'Bottom Left')
-        t.attach(self.bLeft, 0, 1, 5, 6)
+        self.centre.connect('toggled', self.auto_preview)
+        entries.attach(self.centre, 1, 2, 5, 6)
+        self.bLeft = gtk.RadioButton(self.centre, 'Btm Lft')
+        entries.attach(self.bLeft, 0, 1, 5, 6)
         dLabel = gtk.Label('Diameter')
         dLabel.set_alignment(0.95, 0.5)
-        dLabel.set_width_chars(10)
-        t.attach(dLabel, 0, 1, 6, 7)
+        dLabel.set_width_chars(8)
+        entries.attach(dLabel, 0, 1, 6, 7)
         self.dEntry = gtk.Entry()
-        self.dEntry.set_width_chars(10)
-        self.dEntry.connect('changed', self.diameter_changed)
-        t.attach(self.dEntry, 1, 2, 6, 7)
+        self.dEntry.set_width_chars(8)
+        self.dEntry.connect('activate', self.auto_preview)
+        self.dEntry.connect('changed', self.entry_changed)
+        entries.attach(self.dEntry, 1, 2, 6, 7)
         ocDesc = gtk.Label('Over Cut')
         ocDesc.set_alignment(0.95, 0.5)
-        ocDesc.set_width_chars(10)
-        t.attach(ocDesc, 0, 1, 7, 8)
+        ocDesc.set_width_chars(8)
+        entries.attach(ocDesc, 0, 1, 7, 8)
         self.overcut = gtk.CheckButton('')
         self.overcut.connect('toggled', self.overcut_toggled)
         self.overcut.set_sensitive(False)
-        t.attach(self.overcut, 1, 2, 7, 8)
+        entries.attach(self.overcut, 1, 2, 7, 8)
         ocLabel = gtk.Label('OC Length')
         ocLabel.set_alignment(0.95, 0.5)
-        ocLabel.set_width_chars(10)
-        t.attach(ocLabel, 0, 1, 8, 9)
+        ocLabel.set_width_chars(8)
+        entries.attach(ocLabel, 0, 1, 8, 9)
         self.ocEntry = gtk.Entry()
-        self.ocEntry.set_width_chars(10)
+        self.ocEntry.set_width_chars(8)
         self.ocEntry.set_sensitive(False)
-        self.ocEntry.connect('changed', self.ocentry_changed)
-        t.attach(self.ocEntry, 1, 2, 8, 9)
+        self.ocEntry.set_text(str(4 * self.scale))
+        self.ocEntry.connect('activate', self.auto_preview)
+        self.ocEntry.connect('changed', self.entry_changed)
+        entries.attach(self.ocEntry, 1, 2, 8, 9)
         preview = gtk.Button('Preview')
-        preview.connect('pressed', self.send_preview)
-        t.attach(preview, 0, 1, 9, 10)
+        preview.connect('pressed', self.circle_preview)
+        entries.attach(preview, 0, 1, 13, 14)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
-        self.add.connect('pressed', self.add_shape_to_file)
-        t.attach(self.add, 2, 3, 9, 10)
-        end = gtk.Button('Return')
-        end.connect('pressed', self.end_this_shape)
-        t.attach(end, 4, 5, 9, 10)
+        self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
+        entries.attach(self.add, 2, 3, 13, 14)
+        undo = gtk.Button('Undo')
+        undo.connect('pressed', self.parent.undo_shape, self.add)
+        entries.attach(undo, 4, 5, 13, 14)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 filename='./wizards/images/circle.png', 
                 width=240, 
                 height=240)
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
-        t.attach(image, 2, 5, 1, 9)
-        self.xSEntry.grab_focus()
-        self.W.show_all()
+        entries.attach(image, 2, 5, 1, 9)
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
             for line in f_in:
@@ -450,4 +382,7 @@ class circle:
                     self.sRadius = float(line.strip().split('=')[1]) / 2
                 elif line.startswith('hole-speed'):
                     self.hSpeed = float(line.strip().split('=')[1])
-        response = self.W.run()
+        self.xSEntry.set_text('{:0.3f}'.format(float(xOrigin)))
+        self.ySEntry.set_text('{:0.3f}'.format(float(yOrigin)))
+        self.parent.W.show_all()
+        self.dEntry.grab_focus()
