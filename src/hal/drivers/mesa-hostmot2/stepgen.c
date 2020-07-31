@@ -382,7 +382,7 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     }
     
     hm2->stepgen.mode_reg[i] = 3;
-    buff = inst->hal.param.step_type;
+    buff = inst->hal.param.step_type -1;
     hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_length_addr
             + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
 }
