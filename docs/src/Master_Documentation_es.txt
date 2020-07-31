@@ -172,7 +172,7 @@ include::config/stepper_es.txt[]
 
 // include::gui/halui_es.txt[]
 
-// include::hal/halui-examples_es.txt[]
+include::hal/halui-examples_es.txt[]
 
 include::config/python-interface_es.txt[]
 
@@ -184,7 +184,7 @@ include::config/python-interface_es.txt[]
 
 :leveloffset: 2
 
-// include::hal/parallel-port_es.txt[]
+include::hal/parallel-port_es.txt[]
 
 // include::drivers/ax5214h_es.txt[]
 

@@ -285,6 +285,8 @@ DOC_SRCS_ES := \
 	gui/qtvcp_es.txt \
 	gui/ngcgui_es.txt\
 	hal/intro_es.txt \
+	hal/parallel-port_es.txt \
+	hal/halui-examples_es.txt \
 	hal/twopass_es.txt \
 	hal/basic-hal_es.txt \
 	hal/canonical-devices_es.txt \
