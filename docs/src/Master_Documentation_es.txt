@@ -122,9 +122,9 @@ include::gui/tooledit_es.txt[]
 
 include::config/integrator-concepts_es.txt[]
 
-// include::install/latency-test_es.txt[]
+include::install/latency-test_es.txt[]
 
-// include::motion/tweaking-steppers_es.txt[]
+include::motion/tweaking-steppers_es.txt[]
 
 include::config/stepper-diagnostics_es.txt[]
 
@@ -258,7 +258,7 @@ include::config/core-components_es.txt[]
 
 include::hal/canonical-devices_es.txt[]
 
-// include::hal/tools_es.txt[]
+include::hal/tools_es.txt[]
 
 include::hal/halshow_es.txt[]
 
@@ -283,7 +283,7 @@ include::hal/halmodule_es.txt[]
 
 // include::motion/dh-parameters_es.txt[]
 
-// include::motion/5-axis-kinematics_es.txt[]
+include::motion/5-axis-kinematics_es.txt[]
 
 // include::motion/pid-theory_es.txt[]
 

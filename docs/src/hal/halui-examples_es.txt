@@ -26,7 +26,7 @@ modo automático, el pin `halui.mode.is-auto` será true.
 Si ambas entradas al componente `and2.0` son true,
 `and2.0.out` se activara e iniciará el programa a traves de `halui.program.run`.
 
-Ejemplo de arranque remoto
+.Ejemplo de arranque remoto
 image::images/remote-start.png[alt="Ejemplo de arranque remoto"]
 
 Los comandos hal necesarios para lograr lo anterior son:
