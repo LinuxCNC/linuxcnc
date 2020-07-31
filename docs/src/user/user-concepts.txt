@@ -56,6 +56,7 @@ Rapid moves also obey the current trajectory control. With moves long
 enough to reach maximum velocity on a machine with low acceleration and
 no path tolerance specified, you can get a fairly round corner.
 
+[[programming-the-planner]]
 === Programming the Planner(((Programming the Planner)))
 
 The trajectory control commands are as follows:

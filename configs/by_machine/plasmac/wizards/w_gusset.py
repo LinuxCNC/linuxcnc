@@ -29,7 +29,7 @@ import shutil
 import hal
 from subprocess import Popen,PIPE
 
-class gusset:
+class gusset_wiz:
 
     def __init__(self):
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -38,70 +38,7 @@ class gusset:
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
 
-    def dialog_error(self, error):
-        md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
-        md.run()
-        md.destroy()
-
-    def load_file(self, fName):
-        if self.gui == 'axis':
-            Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
-        elif self.gui == 'gmoccapy':
-            self.c = linuxcnc.command()
-            self.c.program_open('./wizards/blank.ngc')
-            self.c.program_open(fName)
-        else:
-            print('Unknown GUI in .ini file')
-
-    def end_this_shape(self, event):
-        if os.path.exists(self.fWizard):
-            outWiz = open(self.fWizard, 'a+')
-            post = False
-            for line in outWiz:
-                if '(postamble)' in line:
-                    post = True
-            if not post:
-                outWiz.write('\n(postamble)\n')
-                outWiz.write('{}\n'.format(self.postamble))
-                outWiz.write('m30\n')
-            outWiz.close()
-            self.load_file(self.fWizard)
-        self.W.destroy()
-        return None
-
-    def add_shape_to_file(self, event):
-        if os.path.exists(self.fWizard):
-            path = os.path.dirname(os.path.abspath(self.fWizard))
-            tmp = ('{}/tmp'.format(path))
-            shutil.copyfile(self.fWizard, tmp)
-            inWiz = open(tmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            for line in inWiz:
-                if '(postamble)' in line:
-                    break
-                outWiz.write(line)
-            inWiz.close()
-            outWiz.close()
-            os.remove(tmp)
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'a')
-            for line in inTmp:
-                outWiz.write(line)
-        else:
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            outWiz.write('(preamble)\n')
-            outWiz.write('{}\n'.format(self.preamble))
-            outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-            for line in inTmp:
-                outWiz.write(line)
-        inTmp.close()
-        outWiz.close()
-        self.add.set_sensitive(False)
-
-    def send_preview(self, event):
+    def gusset_preview(self, event):
         self.s.poll()
         xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
         yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
@@ -148,20 +85,19 @@ class gusset:
                 dir = [down, right]
             else:
                 dir = [up, left]
-            self.fTmp = '{}/shape.tmp'.format(self.tmpDir)
-            self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
             outTmp = open(self.fTmp, 'w')
             outNgc = open(self.fNgc, 'w')
-            if os.path.exists(self.fWizard):
-                inWiz = open(self.fWizard, 'r')
-                for line in inWiz:
-                    if '(postamble)' in line:
-                        break
-                    outNgc.write(line)
-            else:
-                outNgc.write('(preamble)\n')
-                outNgc.write('{}\n'.format(self.preamble))
-                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+            inWiz = open(self.fNgcBkp, 'r')
+            for line in inWiz:
+                if '(new wizard)' in line:
+                    outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                    outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                    break
+                elif '(postamble)' in line:
+                    break
+                elif 'm2' in line.lower() or 'm30' in line.lower():
+                    break
+                outNgc.write(line)
             outTmp.write('\n(wizard gusset)\n')
             if leadInOffset > 0:
                 xlCentre = xS + (leadInOffset * math.cos(dir[0]))
@@ -228,125 +164,140 @@ class gusset:
             for line in outTmp:
                 outNgc.write(line)
             outTmp.close()
-            outNgc.write('\n(postamble)\n')
-            outNgc.write('{}\n'.format(self.postamble))
-            outNgc.write('m30\n')
+            outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+            outNgc.write('m2\n')
             outNgc.close()
-            self.load_file(self.fNgc)
+            self.parent.preview.load(self.fNgc)
             self.add.set_sensitive(True)
-            hal.set_p('plasmac_run.preview-tab', '1')
+            self.parent.xOrigin = self.xSEntry.get_text()
+            self.parent.yOrigin = self.ySEntry.get_text()
         else:
             msg = ''
             if width <= 0:
                 msg += 'A positive width value is required\n\n'
             if height <= 0:
                 msg += 'A positive height value is required\n\n'
-            self.dialog_error(msg)
+            self.parent.dialog_error('GUSSET', msg)
 
-    def do_gusset(self, fWizard, tmpDir):
-        self.tmpDir = tmpDir
-        self.fWizard = fWizard
-        self.W = gtk.Dialog('Gusset',
-                            None,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            buttons = None)
-        self.W.set_keep_above(True)
-        self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.W.set_default_size(250, 200)
-        t = gtk.Table(1, 1, True)
-        t.set_row_spacings(6)
-        self.W.vbox.add(t)
+    def auto_preview(self, widget):
+        if self.wEntry.get_text() and self.hEntry.get_text():
+            self.gusset_preview('auto') 
+
+    def gusset_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS, xOrigin, yOrigin):
+        entries.set_row_spacings(rowS)
+        self.parent = parent
+        for child in entries.get_children():
+            entries.remove(child)
+        self.fNgc = fNgc
+        self.fNgcBkp = fNgcBkp
+        self.fTmp = fTmp
         cutLabel = gtk.Label('Cut Type')
         cutLabel.set_alignment(0.95, 0.5)
-        cutLabel.set_width_chars(10)
-        t.attach(cutLabel, 0, 1, 0, 1)
+        cutLabel.set_width_chars(8)
+        entries.attach(cutLabel, 0, 1, 0, 1)
         self.outside = gtk.RadioButton(None, 'Outside')
-        t.attach(self.outside, 1, 2, 0, 1)
+        self.outside.connect('toggled', self.auto_preview)
+        entries.attach(self.outside, 1, 2, 0, 1)
         inside = gtk.RadioButton(self.outside, 'Inside')
-        t.attach(inside, 2, 3, 0, 1)
+        entries.attach(inside, 2, 3, 0, 1)
         offsetLabel = gtk.Label('Offset')
         offsetLabel.set_alignment(0.95, 0.5)
-        offsetLabel.set_width_chars(10)
-        t.attach(offsetLabel, 3, 4, 0, 1)
-        self.offset = gtk.CheckButton('Kerf Width')
-        t.attach(self.offset, 4, 5, 0, 1)
+        offsetLabel.set_width_chars(8)
+        entries.attach(offsetLabel, 3, 4, 0, 1)
+        self.offset = gtk.CheckButton('Kerf')
+        self.offset.connect('toggled', self.auto_preview)
+        entries.attach(self.offset, 4, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
-        lLabel.set_width_chars(10)
-        t.attach(lLabel, 0, 1, 1, 2)
+        lLabel.set_width_chars(8)
+        entries.attach(lLabel, 0, 1, 1, 2)
         self.liEntry = gtk.Entry()
-        self.liEntry.set_width_chars(10)
-        t.attach(self.liEntry, 1, 2, 1, 2)
+        self.liEntry.set_width_chars(8)
+        self.liEntry.connect('activate', self.auto_preview)
+        self.liEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.liEntry, 1, 2, 1, 2)
         loLabel = gtk.Label('Lead Out')
         loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(10)
-        t.attach(loLabel, 0, 1, 2, 3)
+        loLabel.set_width_chars(8)
+        entries.attach(loLabel, 0, 1, 2, 3)
         self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(10)
-        t.attach(self.loEntry, 1, 2, 2, 3)
+        self.loEntry.set_width_chars(8)
+        self.loEntry.connect('activate', self.auto_preview)
+        self.loEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.loEntry, 1, 2, 2, 3)
         xSLabel = gtk.Label('X start')
         xSLabel.set_alignment(0.95, 0.5)
-        xSLabel.set_width_chars(10)
-        t.attach(xSLabel, 0, 1, 3, 4)
+        xSLabel.set_width_chars(8)
+        entries.attach(xSLabel, 0, 1, 3, 4)
         self.xSEntry = gtk.Entry()
-        self.xSEntry.set_width_chars(10)
-        t.attach(self.xSEntry, 1, 2, 3, 4)
+        self.xSEntry.set_width_chars(8)
+        self.xSEntry.connect('activate', self.auto_preview)
+        self.xSEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.xSEntry, 1, 2, 3, 4)
         ySLabel = gtk.Label('Y start')
         ySLabel.set_alignment(0.95, 0.5)
-        ySLabel.set_width_chars(10)
-        t.attach(ySLabel, 0, 1, 4, 5)
+        ySLabel.set_width_chars(8)
+        entries.attach(ySLabel, 0, 1, 4, 5)
         self.ySEntry = gtk.Entry()
-        self.ySEntry.set_width_chars(10)
-        t.attach(self.ySEntry, 1, 2, 4, 5)
+        self.ySEntry.set_width_chars(8)
+        self.ySEntry.connect('activate', self.auto_preview)
+        self.ySEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.ySEntry, 1, 2, 4, 5)
         wLabel = gtk.Label('Width')
         wLabel.set_alignment(0.95, 0.5)
-        wLabel.set_width_chars(10)
-        t.attach(wLabel, 0, 1, 5, 6)
+        wLabel.set_width_chars(8)
+        entries.attach(wLabel, 0, 1, 5, 6)
         self.wEntry = gtk.Entry()
-        self.wEntry.set_width_chars(10)
-        t.attach(self.wEntry, 1, 2, 5, 6)
+        self.wEntry.set_width_chars(8)
+        self.wEntry.connect('activate', self.auto_preview)
+        self.wEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.wEntry, 1, 2, 5, 6)
         hLabel = gtk.Label('Height')
         hLabel.set_alignment(0.95, 0.5)
-        hLabel.set_width_chars(10)
-        t.attach(hLabel, 0, 1, 6, 7)
+        hLabel.set_width_chars(8)
+        entries.attach(hLabel, 0, 1, 6, 7)
         self.hEntry = gtk.Entry()
-        self.hEntry.set_width_chars(10)
-        t.attach(self.hEntry, 1, 2, 6, 7)
+        self.hEntry.set_width_chars(8)
+        self.hEntry.connect('activate', self.auto_preview)
+        self.hEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.hEntry, 1, 2, 6, 7)
         rLabel = gtk.Label('Radius')
         rLabel.set_alignment(0.95, 0.5)
-        rLabel.set_width_chars(10)
-        t.attach(rLabel, 0, 1, 7, 8)
+        rLabel.set_width_chars(8)
+        entries.attach(rLabel, 0, 1, 7, 8)
         self.rEntry = gtk.Entry()
-        self.rEntry.set_width_chars(10)
+        self.rEntry.set_width_chars(8)
         self.rEntry.set_text('0')
-        t.attach(self.rEntry, 1, 2, 7, 8)
+        self.rEntry.connect('activate', self.auto_preview)
+        self.rEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.rEntry, 1, 2, 7, 8)
         aLabel = gtk.Label('Angle')
         aLabel.set_alignment(0.95, 0.5)
-        aLabel.set_width_chars(10)
-        t.attach(aLabel, 0, 1, 8, 9)
+        aLabel.set_width_chars(8)
+        entries.attach(aLabel, 0, 1, 8, 9)
         self.aEntry = gtk.Entry()
-        self.aEntry.set_width_chars(10)
+        self.aEntry.set_width_chars(8)
         self.aEntry.set_text('90')
-        t.attach(self.aEntry, 1, 2, 8, 9)
+        self.aEntry.connect('activate', self.auto_preview)
+        self.aEntry.connect('changed',self.parent.entry_changed)
+        entries.attach(self.aEntry, 1, 2, 8, 9)
         preview = gtk.Button('Preview')
-        preview.connect('pressed', self.send_preview)
-        t.attach(preview, 0, 1, 10, 11)
+        preview.connect('pressed', self.gusset_preview)
+        entries.attach(preview, 0, 1, 13, 14)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
-        self.add.connect('pressed', self.add_shape_to_file)
-        t.attach(self.add, 2, 3, 10, 11)
-        end = gtk.Button('Return')
-        end.connect('pressed', self.end_this_shape)
-        t.attach(end, 4, 5, 10, 11)
+        self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
+        entries.attach(self.add, 2, 3, 13, 14)
+        undo = gtk.Button('Undo')
+        undo.connect('pressed', self.parent.undo_shape, self.add)
+        entries.attach(undo, 4, 5, 13, 14)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 filename='./wizards/images/gusset.png', 
                 width=240, 
                 height=240)
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
-        t.attach(image, 2, 5, 1, 9)
-        self.xSEntry.grab_focus()
-        self.W.show_all()
+        entries.attach(image, 2, 5, 1, 9)
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
             for line in f_in:
@@ -358,4 +309,8 @@ class gusset:
                     self.liEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('lead-out'):
                     self.loEntry.set_text(line.strip().split('=')[1])
-        response = self.W.run()
+        self.xSEntry.set_text('{:0.3f}'.format(float(xOrigin)))
+        self.ySEntry.set_text('{:0.3f}'.format(float(yOrigin)))
+        self.parent.undo_shape(None, self.add)
+        self.parent.W.show_all()
+        self.wEntry.grab_focus()

@@ -29,7 +29,7 @@ import shutil
 import hal
 from subprocess import Popen,PIPE
 
-class bolt_circle:
+class bolt_circle_wiz:
 
     def __init__(self):
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -37,71 +37,9 @@ class bolt_circle:
         self.s = linuxcnc.stat()
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
+        self.scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
 
-    def dialog_error(self, error):
-        md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
-        md.run()
-        md.destroy()
-
-    def load_file(self, fName):
-        if self.gui == 'axis':
-            Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
-        elif self.gui == 'gmoccapy':
-            self.c = linuxcnc.command()
-            self.c.program_open('./wizards/blank.ngc')
-            self.c.program_open(fName)
-        else:
-            print('Unknown GUI in .ini file')
-
-    def end_this_shape(self, event):
-        if os.path.exists(self.fWizard):
-            outWiz = open(self.fWizard, 'a+')
-            post = False
-            for line in outWiz:
-                if '(postamble)' in line:
-                    post = True
-            if not post:
-                outWiz.write('\n(postamble)\n')
-                outWiz.write('{}\n'.format(self.postamble))
-                outWiz.write('m30\n')
-            outWiz.close()
-            self.load_file(self.fWizard)
-        self.W.destroy()
-        return None
-
-    def add_shape_to_file(self, event):
-        if os.path.exists(self.fWizard):
-            path = os.path.dirname(os.path.abspath(self.fWizard))
-            tmp = ('{}/tmp'.format(path))
-            shutil.copyfile(self.fWizard, tmp)
-            inWiz = open(tmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            for line in inWiz:
-                if '(postamble)' in line:
-                    break
-                outWiz.write(line)
-            inWiz.close()
-            outWiz.close()
-            os.remove(tmp)
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'a')
-            for line in inTmp:
-                outWiz.write(line)
-        else:
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            outWiz.write('(preamble)\n')
-            outWiz.write('{}\n'.format(self.preamble))
-            outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-            for line in inTmp:
-                outWiz.write(line)
-        inTmp.close()
-        outWiz.close()
-        self.add.set_sensitive(False)
-
-    def send_preview(self, event):
+    def bolt_circle_preview(self, event):
         self.s.poll()
         xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
         yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
@@ -172,20 +110,19 @@ class bolt_circle:
                     yC = yPos
                 else:
                     yC = yPos + cRadius
-            self.fTmp = '{}/shape.tmp'.format(self.tmpDir)
-            self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
             outTmp = open(self.fTmp, 'w')
             outNgc = open(self.fNgc, 'w')
-            if os.path.exists(self.fWizard):
-                inWiz = open(self.fWizard, 'r')
-                for line in inWiz:
-                    if '(postamble)' in line:
-                        break
-                    outNgc.write(line)
-            else:
-                outNgc.write('(preamble)\n')
-                outNgc.write('{}\n'.format(self.preamble))
-                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+            inWiz = open(self.fNgcBkp, 'r')
+            for line in inWiz:
+                if '(new wizard)' in line:
+                    outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                    outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                    break
+                elif '(postamble)' in line:
+                    break
+                elif 'm2' in line.lower() or 'm30' in line.lower():
+                    break
+                outNgc.write(line)
             for hole in range(holes):
                 outTmp.write('\n(wizard bolt circle, hole #{})\n'.format(hole + 1))
                 xhC = xC + cRadius * math.cos(hAngle * hole + angle)
@@ -228,13 +165,13 @@ class bolt_circle:
             for line in outTmp:
                 outNgc.write(line)
             outTmp.close()
-            outNgc.write('\n(postamble)\n')
-            outNgc.write('{}\n'.format(self.postamble))
-            outNgc.write('m30\n')
+            outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+            outNgc.write('m2\n')
             outNgc.close()
-            self.load_file(self.fNgc)
+            self.parent.preview.load(self.fNgc)
             self.add.set_sensitive(True)
-            hal.set_p('plasmac_run.preview-tab', '1')
+            self.parent.xOrigin = self.xSEntry.get_text()
+            self.parent.yOrigin = self.ySEntry.get_text()
         else:
             msg = ''
             if cRadius == 0:
@@ -243,14 +180,13 @@ class bolt_circle:
                 msg += 'Hole Diameter is required\n\n'
             if holes == 0:
                 msg += '# of Holes are required'
-            self.dialog_error(msg)
+            self.parent.dialog_error('BOLT-CIRCLE', msg)
 
     def over_cut(self, lastX, lastY, IJ, radius, outTmp):
-        scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
         try:
             oclength = float(self.ocEntry.get_text())
         except:
-            oclength = 4 * scale
+            oclength = 0
         centerX = lastX + IJ
         centerY = lastY
         cosA = math.cos(oclength / radius)
@@ -261,46 +197,48 @@ class bolt_circle:
         endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
         outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, IJ, 0))
 
-    def diameter_changed(self,widget):
+    def entry_changed(self, widget):
+        self.parent.entry_changed(widget)
+        # check if small hole valid
         try:
             rad = float(self.hdEntry.get_text()) / 2
         except:
             rad = 0
         if rad >= self.sRadius:
             self.overcut.set_active(False)
-            self.ocEntry.set_text('')
             self.overcut.set_sensitive(False)
             self.ocEntry.set_sensitive(False)
         else:
             self.overcut.set_sensitive(True)
             self.ocEntry.set_sensitive(True)
 
-    def do_bolt_circle(self, fWizard, tmpDir):
-        self.tmpDir = tmpDir
-        self.fWizard = fWizard
+    def auto_preview(self, widget):
+        if self.dEntry.get_text() and self.hdEntry.get_text() and self.hEntry.get_text():
+            self.bolt_circle_preview('auto') 
+
+    def bolt_circle_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS, xOrigin, yOrigin):
+        entries.set_row_spacings(rowS)
+        self.parent = parent
+        for child in entries.get_children():
+            entries.remove(child)
+        self.fNgc = fNgc
+        self.fNgcBkp = fNgcBkp
+        self.fTmp = fTmp
         self.sRadius = 0.0
         self.hSpeed = 100
-        self.W = gtk.Dialog('Bolt Circle',
-                       None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       buttons = None)
-        self.W.set_keep_above(True)
-        self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.W.set_default_size(250, 200)
-        t = gtk.Table(1, 1, True)
-        t.set_row_spacings(6)
-        self.W.vbox.add(t)
         offsetLabel = gtk.Label('Offset')
         offsetLabel.set_alignment(0.95, 0.5)
-        offsetLabel.set_width_chars(10)
-        t.attach(offsetLabel, 0, 1, 0, 1)
-        self.offset = gtk.CheckButton('Kerf Width')
-        t.attach(self.offset, 1, 2, 0, 1)
+        offsetLabel.set_width_chars(8)
+        entries.attach(offsetLabel, 0, 1, 0, 1)
+        self.offset = gtk.CheckButton('Kerf')
+        self.offset.connect('toggled', self.auto_preview)
+        entries.attach(self.offset, 1, 2, 0, 1)
         ocBox = gtk.HBox()
         self.ocBlank = gtk.Label('    ')
         ocBox.pack_start(self.ocBlank, expand = True, fill = True)
         self.overcut = gtk.CheckButton('Over Cut')
         self.overcut.set_sensitive(False)
+        self.overcut.connect('toggled', self.auto_preview)
         ocBox.pack_start(self.overcut)
         ocLabel = gtk.Label('OC Length')
         ocLabel.set_alignment(0.95, 0.5)
@@ -309,97 +247,116 @@ class bolt_circle:
         self.ocEntry = gtk.Entry()
         self.ocEntry.set_width_chars(5)
         self.ocEntry.set_sensitive(False)
+        self.ocEntry.set_text(str(4 * self.scale))
+        self.ocEntry.connect('activate', self.auto_preview)
+        self.ocEntry.connect('changed', self.entry_changed)
         ocBox.pack_start(self.ocEntry)
-        t.attach(ocBox, 2, 5, 0, 1)
+        entries.attach(ocBox, 2, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
-        lLabel.set_width_chars(10)
-        t.attach(lLabel, 0, 1, 1, 2)
+        lLabel.set_width_chars(8)
+        entries.attach(lLabel, 0, 1, 1, 2)
         self.liEntry = gtk.Entry()
-        self.liEntry.set_width_chars(10)
-        t.attach(self.liEntry, 1, 2, 1, 2)
+        self.liEntry.set_width_chars(8)
+        self.liEntry.connect('activate', self.auto_preview)
+        self.liEntry.connect('changed', self.entry_changed)
+        entries.attach(self.liEntry, 1, 2, 1, 2)
         loLabel = gtk.Label('Lead Out')
         loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(10)
-        t.attach(loLabel, 0, 1, 2, 3)
+        loLabel.set_width_chars(8)
+        entries.attach(loLabel, 0, 1, 2, 3)
         self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(10)
-        t.attach(self.loEntry, 1, 2, 2, 3)
+        self.loEntry.set_width_chars(8)
+        self.loEntry.connect('activate', self.auto_preview)
+        self.loEntry.connect('changed', self.entry_changed)
+        entries.attach(self.loEntry, 1, 2, 2, 3)
         xSLabel = gtk.Label('X start')
         xSLabel.set_alignment(0.95, 0.5)
-        xSLabel.set_width_chars(10)
-        t.attach(xSLabel, 0, 1, 3, 4)
+        xSLabel.set_width_chars(8)
+        entries.attach(xSLabel, 0, 1, 3, 4)
         self.xSEntry = gtk.Entry()
-        self.xSEntry.set_width_chars(10)
-        t.attach(self.xSEntry, 1, 2, 3, 4)
+        self.xSEntry.set_width_chars(8)
+        self.xSEntry.connect('activate', self.auto_preview)
+        self.xSEntry.connect('changed', self.entry_changed)
+        entries.attach(self.xSEntry, 1, 2, 3, 4)
         ySLabel = gtk.Label('Y start')
         ySLabel.set_alignment(0.95, 0.5)
-        ySLabel.set_width_chars(10)
-        t.attach(ySLabel, 0, 1, 4, 5)
+        ySLabel.set_width_chars(8)
+        entries.attach(ySLabel, 0, 1, 4, 5)
         self.ySEntry = gtk.Entry()
-        self.ySEntry.set_width_chars(10)
-        t.attach(self.ySEntry, 1, 2, 4, 5)
+        self.ySEntry.set_width_chars(8)
+        self.ySEntry.connect('activate', self.auto_preview)
+        self.ySEntry.connect('changed', self.entry_changed)
+        entries.attach(self.ySEntry, 1, 2, 4, 5)
         self.centre = gtk.RadioButton(None, 'Centre')
-        t.attach(self.centre, 1, 2, 5, 6)
-        self.bLeft = gtk.RadioButton(self.centre, 'Bottom Left')
-        t.attach(self.bLeft, 0, 1, 5, 6)
+        self.centre.connect('toggled', self.auto_preview)
+        entries.attach(self.centre, 1, 2, 5, 6)
+        self.bLeft = gtk.RadioButton(self.centre, 'Btm Lft')
+        entries.attach(self.bLeft, 0, 1, 5, 6)
         dLabel = gtk.Label('Diameter')
         dLabel.set_alignment(0.95, 0.5)
-        dLabel.set_width_chars(10)
-        t.attach(dLabel, 0, 1, 6, 7)
+        dLabel.set_width_chars(8)
+        entries.attach(dLabel, 0, 1, 6, 7)
         self.dEntry = gtk.Entry()
-        self.dEntry.set_width_chars(10)
-        t.attach(self.dEntry, 1, 2, 6, 7)
-        hdLabel = gtk.Label('Hole Diameter')
+        self.dEntry.set_width_chars(8)
+        self.dEntry.connect('activate', self.auto_preview)
+        self.dEntry.connect('changed', self.entry_changed)
+        entries.attach(self.dEntry, 1, 2, 6, 7)
+        hdLabel = gtk.Label('Hole Dia')
         hdLabel.set_alignment(0.95, 0.5)
-        hdLabel.set_width_chars(10)
-        t.attach(hdLabel, 0, 1, 7, 8)
+        hdLabel.set_width_chars(8)
+        entries.attach(hdLabel, 0, 1, 7, 8)
         self.hdEntry = gtk.Entry()
-        self.hdEntry.set_width_chars(10)
-        self.hdEntry.connect('changed', self.diameter_changed)
-        t.attach(self.hdEntry, 1, 2, 7, 8)
+        self.hdEntry.set_width_chars(8)
+        self.hdEntry.connect('activate', self.auto_preview)
+        self.hdEntry.connect('changed', self.entry_changed)
+        entries.attach(self.hdEntry, 1, 2, 7, 8)
         hLabel = gtk.Label('# of holes')
         hLabel.set_alignment(0.95, 0.5)
-        hLabel.set_width_chars(10)
-        t.attach(hLabel, 0, 1, 8, 9)
+        hLabel.set_width_chars(8)
+        entries.attach(hLabel, 0, 1, 8, 9)
         self.hEntry = gtk.Entry()
-        self.hEntry.set_width_chars(10)
-        t.attach(self.hEntry, 1, 2, 8, 9)
+        self.hEntry.set_width_chars(8)
+        self.hEntry.connect('activate', self.auto_preview)
+        self.hEntry.connect('changed', self.entry_changed)
+        entries.attach(self.hEntry, 1, 2, 8, 9)
         aLabel = gtk.Label('Start Angle')
         aLabel.set_alignment(0.95, 0.5)
-        aLabel.set_width_chars(10)
-        t.attach(aLabel, 0, 1, 9, 10)
+        aLabel.set_width_chars(8)
+        entries.attach(aLabel, 0, 1, 9, 10)
         self.aEntry = gtk.Entry()
-        self.aEntry.set_width_chars(10)
+        self.aEntry.set_width_chars(8)
         self.aEntry.set_text('0')
-        t.attach(self.aEntry, 1, 2, 9, 10)
-        cALabel = gtk.Label('Circle Angle')
+        self.aEntry.connect('activate', self.auto_preview)
+        self.aEntry.connect('changed', self.entry_changed)
+        entries.attach(self.aEntry, 1, 2, 9, 10)
+        cALabel = gtk.Label('Circle Ang')
         cALabel.set_alignment(0.95, 0.5)
-        cALabel.set_width_chars(10)
-        t.attach(cALabel, 2, 3, 9, 10)
+        cALabel.set_width_chars(8)
+        entries.attach(cALabel, 2, 3, 9, 10)
         self.cAEntry = gtk.Entry()
-        self.cAEntry.set_width_chars(10)
+        self.cAEntry.set_width_chars(8)
         self.cAEntry.set_text('360')
-        t.attach(self.cAEntry, 3, 4, 9, 10)
+        self.cAEntry.connect('activate', self.auto_preview)
+        self.cAEntry.connect('changed', self.entry_changed)
+        entries.attach(self.cAEntry, 3, 4, 9, 10)
         preview = gtk.Button('Preview')
-        preview.connect('pressed', self.send_preview)
-        t.attach(preview, 0, 1, 11, 12)
+        preview.connect('pressed', self.bolt_circle_preview)
+        entries.attach(preview, 0, 1, 13, 14)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
-        self.add.connect('pressed', self.add_shape_to_file)
-        t.attach(self.add, 2, 3, 11, 12)
-        end = gtk.Button('Return')
-        end.connect('pressed', self.end_this_shape)
-        t.attach(end, 4, 5, 11, 12)
+        self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
+        entries.attach(self.add, 2, 3, 13, 14)
+        undo = gtk.Button('Undo')
+        undo.connect('pressed', self.parent.undo_shape, self.add)
+        entries.attach(undo, 4, 5, 13, 14)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 filename='./wizards/images/bolt-circle.png', 
                 width=240, 
                 height=240)
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
-        t.attach(image, 2, 5, 1, 9)
-        self.xSEntry.grab_focus()
-        self.W.show_all()
+        entries.attach(image, 2, 5, 1, 9)
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
             for line in f_in:
@@ -420,4 +377,8 @@ class bolt_circle:
                     self.sRadius = float(line.strip().split('=')[1]) / 2
                 elif line.startswith('hole-speed'):
                     self.hSpeed = float(line.strip().split('=')[1])
-        response = self.W.run()
+        self.xSEntry.set_text('{:0.3f}'.format(float(xOrigin)))
+        self.ySEntry.set_text('{:0.3f}'.format(float(yOrigin)))
+        self.parent.undo_shape(None, self.add)
+        self.parent.W.show_all()
+        self.dEntry.grab_focus()

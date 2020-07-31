@@ -1397,6 +1397,8 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 
 == Conversational Shape Library
 
+image::images/plasmac_conversational.png[width=40%]
+
 The conversational shape library consists of several basic shapes and functions and is available from the *Extras* tab in the Gui. It is not meant to be a CAD/CAM replacement and there are limitations to what can be achieved.
 
 Blank entries in the shape dialogs will use the current setting at the time. e.g. If *X start* was blank then the current X axis position would be used.
@@ -1406,15 +1408,33 @@ All lead-ins and lead-outs are arcs except for:
 * Small holes
 * Stars
 
-The *New* button in the Extras Panel is only required if you wish to begin a new shape or group and a current shape or group exists.
+The cut order is the in the same order as the shape was built.
 
-All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
+Pressing *Return* on the keyboard while editing parameters will automatically show the preview of the shape if there are enough parameters entered to create the shape. Clicking checkboxes will do the same.
+
+The *New* button will remove the current G-Code file and load a blank G-Code file.
+
+The *Save* button opens a dialog allowing the current shape to be saved as a G-Code  file.
+
+The *Settings* button allows changing the global settings.
+
+The *Finish* button will close the Conversational Panel and load the current shape into LinuxCNC. If the last edit was not added then it will be lost.
+
+The *Preview* button will display a preview of the current shape provide the required information is present.
+
+The *Continue* button is for lines and arcs only and allows another segment to be added to the current segment/segments.
+
+The *Add* button will store the current shape as is
+
+The *Undo* button will revert to the previous stored state. If there have been no edits since the last store then it will stay at the current state.
+
+If there is a G-Code file loaded in LinuxCNC when the Conversational Panel is opened then that code will be imported into conversational as the the first shape of the job. If this code is not required then it can be removed with the New button.
+
+NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
 === Settings
 
-Global settings for the shape library can be set by pressing *Settings* in the Extras Panel. This will bring up the settings dialog to allow the changing and saving of these global settings.
-
-The default parameters available are:
+Global settings for the shape library can be set by pressing *Settings* in the Conversational Panel. This will display all the available settings parameters:
 
 * Preamble
 * Postamble
@@ -1423,16 +1443,17 @@ The default parameters available are:
 * Lead-out length
 * Small hole diameter
 * Small hole speed
+* Window Size
 
 Any internal circle that has a diameter less than *Small hole diameter* is classed as a small hole. It will have a straight lead-in with a length the lesser of the radius of the hole and the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
 
+Pressing the *Save* button will save all the settings as displayed and will change the window size to the displayed size.
+
 === Single Shape
 
-. Select the shape you wish to create which will open a dialog for that shape.
-. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
-  If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel.
-. Enter the appropriate values in the shape dialog and press *Preview* to load the shape.
-. If the shape is not correct, edit the values and press *Preview* and the new shape will be shown. Repeat until you are satisfied with the shape.
+. Select the shape you wish to create which will display the available parameters.
+. Enter the appropriate values and press *Preview* to display the shape.
+. If the shape is not correct, edit the values and press *Preview* and the new shape will be displayed. Repeat until you are satisfied with the shape.
 
 === Lines And Arcs
 
@@ -1446,16 +1467,16 @@ There are two line types and three arc types available.
 . Arc from start point, end point and radius
 . Arc from start point, length, angle and radius
 
-To use this feature:
+To use lines and arcs:
 
-. Select Lines and Arcs to open the dialog
+. Select Lines and Arcs
 . Select the type of line to create
+. Enter the desired parameters
 . Preview the shape
 . If satisfied with the shape press Continue
-. The start point is now hidden as it is automatically set to the end of the previous shape
 . Change the line type if needed and continue this procedure until the shape is complete.
 
-If you create a closed shape then you will need to create any required leadin and leadout as the first and last moves.
+If you wish to create a closed shape then you will need to create any required leadin as the first segment of the shape. If a leadout is required it will need to be the last segment of the shape.
 
 NOTE: At this stage there is no automatic option for a leadin/leadout if the shape is closed. +
 It is intended that this will be available in the future as well as kerf width compensation.
@@ -1472,49 +1493,45 @@ Groups cannot be edited, only added to.
 
 . Create the first shape as in *Single Shape*.
 . Press *Add* and the shape will be added to the group.
-. If you wish to add another version of the same shape then edit the parameters as in #4 above and press *Add* when you are satisfied with the shape.
-. If you wish to add a different shape, press *Return* in the shape dialog and create a new shape as in *Single Shape*.
+. If you wish to add another version of the same shape then edit the required parameters and press *Add* when you are satisfied with the shape.
+. If you wish to add a different shape, select that shape and create as in *Single Shape*.
 . Repeat until you have added all the required shapes to complete the group. 
 
 === Rotate
 
-The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or a loaded G-Code file.
+The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
 
-Arrays cannot be rotated but rotated shapes can be arrayed.
+Arrays created with Conversational may be rotated but imported arrays cannot be rotated.
 
 Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
 
-. Create a shape, a group or load a G-Code file.
+. Create a shape, a group or use the imported G-Code file.
 . Press *Rotate* to open the rotate dialog.
-. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
-  If using Gmoccapy, open the Preview Panel and move the rotate dialog so you can see the Preview Panel.
-. Enter the appropriate values in the rotate dialog and press *Preview* to load the rotated code.
+. Enter the appropriate values in the rotate dialog and press *Preview* to display the rotated code.
 . If the rotation is not correct, edit the values and press *Preview* and the new rotated code will be shown. Repeat until you are satisfied with the rotated code.
-. Press *Accept* to complete the procedure.
-
-TIP: A loaded G-Code program may be rotated zero degrees then Accepted and you can than add other shapes to create a group.
+. Press *Add* to complete the procedure.
 
 === Array
 
-An array can be created from a shape, a group or a loaded G-Code file.
+An array can be created from a shape, a group or an imported G-Code file.
+
+Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
 
 The cut order of an array is from left to right, starting at the bottom row and ending at the top row.
 
-. Create a shape, a group or load a G-Code file.
+. Create a shape, a group or use the imported G-Code file.
 . Press *Array* to open the array dialog.
-. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
-  If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel.
-. Enter the appropriate values in the array dialog and press *Preview* to load the array.
+. Enter the appropriate values in the array dialog and press *Preview* to display the array.
 . If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until you are satisfied with the array.
-. Press *Accept* to complete the procedure.
+. Press *Add* to complete the procedure.
 
 === Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the *Save G-Code* feature in the GUI.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *Save* button.
 
 === Running A Job
 
-The current job displayed in the Preview Panel may be run at any time.
+To run a job, press the *Finish* button which will close the Conversational Panel and return to LinuxCNC.
 
 [[scribe]]
 

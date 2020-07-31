@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.149 - 2020 Jul 29
+0.150 - 2020 Jul 31
 
 .I SUMMARY:
 .br
@@ -105,7 +105,7 @@ pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
-pin in  s32     xy_feed_rate                "feed-rate for consumable change";
+pin in  float   xy_feed_rate                "feed-rate for consumable change";
 pin in  float   x_offset                    "offest to apply to axis x for consumable change";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
 pin in  float   y_offset                    "offest to apply to axis y for consumable change";
@@ -116,6 +116,7 @@ pin in  float   z_offset_current            "current z axis offset, connect to a
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
 pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
+pin out bit     consumable_changing         "consumables are being changed";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
 pin out float   cut_length                  "length of current cut job";
 pin out float   cut_time                    "time of current cut job";
@@ -158,7 +159,6 @@ variable float  axis_y_start;               /* axis y position at start of cut *
 variable bool   auto_cut;                   /* auto cut mode is active */
 variable float  spotting_timer;             /* spotting timer */
 variable bool   spotting;                   /* spotting flag */
-variable bool   consumable_changing;        /* consumables are being changed */
 variable int    count;                      /* for counting */
 variable int    cut_height_first;           /* cut height at start of cut */
 variable int    cut_height_last;            /* cut height at end of cut */
@@ -266,24 +266,29 @@ typedef enum{IDLE,
              SCRIBING,
              CONSUMABLE_CHANGE_ON,
              CONSUMABLE_CHANGE_OFF,
-             DEBUG} state_t;
+             DEBUG,
+            } state_t;
 
 typedef enum{NONE,
              STOP,
              WAIT,
-             PAUSE} stop_type_t;
+             PAUSE,
+            } stop_type_t;
 
 typedef enum{ZERO,
              UP,
-             DOWN} move_direction_t;
+             DOWN,
+            } move_direction_t;
 
 typedef enum{FLOAT,
-             OHMIC} probe_type_t;
+             OHMIC,
+            } probe_type_t;
 
 typedef enum{EMPTY,
              CUTTING,
              SCRIBE,
-             SPOTTING} tool_t;
+             SPOTTING,
+            } tool_t;
 
 state_t state = IDLE;
 stop_type_t stop_type = NONE;
@@ -391,21 +396,25 @@ FUNCTION(_) {
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
         }else if(!probe_test && (external_estop || program_is_idle) && cut_started && !program_run){
-            auto_cut = FALSE;
-            if(!pause_at_end){
-                torch_on = FALSE;
-            }
-            stop_type = STOP;
-            program_stop = TRUE;
-            cut_started = FALSE;
-            probe_required = TRUE;
-            axis_x_finish = 0;
-            axis_y_finish = 0;
-            if(!external_estop){
-                pause_at_end_timer = pause_at_end;
-                state = PAUSE_AT_END;
+            if(consumable_changing){
+                state = CONSUMABLE_CHANGE_OFF;
             }else{
-                state = MAX_HEIGHT;
+                auto_cut = FALSE;
+                if(!pause_at_end){
+                    torch_on = FALSE;
+                }
+                stop_type = STOP;
+                program_stop = TRUE;
+                cut_started = FALSE;
+                probe_required = TRUE;
+                axis_x_finish = 0;
+                axis_y_finish = 0;
+                if(!external_estop){
+                    pause_at_end_timer = pause_at_end;
+                    state = PAUSE_AT_END;
+                }else{
+                    state = MAX_HEIGHT;
+                }
             }
         }else if(!probe_test && state > IDLE && state <= CUT && stop_type == NONE && cut_started){
             if(program_is_paused){
@@ -529,15 +538,13 @@ FUNCTION(_) {
                 if(paused_motion_speed && (stop_type == PAUSE || stop_type == WAIT)){
                     state = PAUSED_MOTION;
                 /* if we get a consumable change start request and we are paused */
-            }else if(consumable_change && (stop_type == PAUSE || stop_type == WAIT) && !consumable_changing){
-                    state = CONSUMABLE_CHANGE_ON;
-
-                /* if we get a consumable change stop request and we are changing consumables */
-            }else if(!consumable_change && (stop_type == PAUSE || stop_type == WAIT) && consumable_changing){
-                        state = CONSUMABLE_CHANGE_OFF;
-
+                }else if(consumable_change && (stop_type == PAUSE || stop_type == WAIT) && !consumable_changing){
+                    state = MAX_HEIGHT;
+                    /* if we get a consumable change stop request and we are changing consumables */
+                }else if(!consumable_change && (stop_type == PAUSE || stop_type == WAIT) && consumable_changing){
+                    state = CONSUMABLE_CHANGE_OFF;
                 /* if we get a torch start request and we are stopped or waiting for a restart */
-            }else if((tool == CUTTING || tool == SPOTTING || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
+                }else if((tool == CUTTING || tool == SPOTTING || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -613,19 +620,18 @@ FUNCTION(_) {
                             state = PROBE_HEIGHT;
                         }
                     }
-            /* if we get a resume request and we are paused */
-            }else if(!program_is_paused && stop_type == PAUSE){
-                if(consumable_changing){
-                    state = CONSUMABLE_CHANGE_OFF;
-                }else if(motion_type == 1){
-                    feed_hold = FALSE;
-                }else{
-                    feed_hold = TRUE;
-                }
-                stop_type = NONE;
-
-            /* if torch pulse requested */
-            }else if(torch_pulse_start && !breakaway && !float_switch && !ohmic_probe){
+                /* if we get a resume request and we are paused */
+                }else if(!program_is_paused && stop_type == PAUSE){
+                    if(consumable_changing){
+                        state = CONSUMABLE_CHANGE_OFF;
+                    }else if(motion_type == 1){
+                        feed_hold = FALSE;
+                    }else{
+                        feed_hold = TRUE;
+                    }
+                    stop_type = NONE;
+                /* if torch pulse requested */
+                }else if(torch_pulse_start && !breakaway && !float_switch && !ohmic_probe){
                     feed_hold = TRUE;
                     state = TORCHPULSE;
                 /* if ohmic probe shorted test requested */
@@ -634,7 +640,7 @@ FUNCTION(_) {
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
                 /* if we get a air-scribe start request */
-            }else if(tool == SCRIBE && !probe_test && homed){
+                }else if(tool == SCRIBE && !probe_test && homed){
                     state = SCRIBING;
                     scribe_arm_timer = scribe_arm_delay;
                     scribe_pause = FALSE;
@@ -1201,7 +1207,11 @@ FUNCTION(_) {
                     }
                     /* do height override here for remainder of job */
                     height_ovr_old = 0;
-                    state = FINISH;
+                    if(consumable_change){
+                        state = CONSUMABLE_CHANGE_ON;
+                    }else{
+                        state = FINISH;
+                    }
                 }
             }
             break;
@@ -1363,15 +1373,9 @@ FUNCTION(_) {
                     y_velocity = 0;
                 }else if(x_offset == 0){
                     x_velocity = 0;
-                    if(y_offset > 0){
-                        y_velocity = xy_feed_rate * velocity_scale;
-                    }else{
-                    }
+                    y_velocity = xy_feed_rate * velocity_scale;
                 }else if(y_offset == 0){
-                    if(x_offset > 0){
-                        x_velocity = xy_feed_rate * velocity_scale;
-                    }else{
-                    }
+                    x_velocity = xy_feed_rate * velocity_scale;
                 }else{
                     angle_x_y = atan2(y_offset, x_offset);
                     x_velocity = fabs(xy_feed_rate * velocity_scale * cos(angle_x_y));
@@ -1458,7 +1462,7 @@ FUNCTION(_) {
             break;
         case DEBUG:
             /* holding state for debugging */
-            rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here...\n");
+            rtapi_print_msg(RTAPI_MSG_ERR, "We should never end up here...\n");
             break;
     }
 

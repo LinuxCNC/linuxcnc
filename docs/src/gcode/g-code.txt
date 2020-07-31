@@ -232,6 +232,11 @@ rotations. For each P increment above 1 an extra full circle is added to the
 programmed arc. Multi turn helical arcs are supported and give motion useful
 for milling holes or threads.
 
+WARNING: If the pitch of the helix is very small (less than the
+<<programming-the-planner,naive CAM tolerance>> then
+the helix might be converted into a straight line.
+https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]
+
 If a line of code makes an arc and includes rotary axis motion,
 the rotary axes turn at a constant rate so that the rotary
 motion starts and finishes when the XYZ motion starts and finishes.

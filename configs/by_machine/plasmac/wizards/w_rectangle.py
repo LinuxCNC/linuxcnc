@@ -29,7 +29,7 @@ import shutil
 import hal
 from subprocess import Popen,PIPE
 
-class rectangle:
+class rectangle_wiz:
 
     def __init__(self):
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -38,70 +38,7 @@ class rectangle:
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
 
-    def dialog_error(self, error):
-        md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
-        md.run()
-        md.destroy()
-
-    def load_file(self, fName):
-        if self.gui == 'axis':
-            Popen('axis-remote {}'.format(fName), stdout = PIPE, shell = True)
-        elif self.gui == 'gmoccapy':
-            self.c = linuxcnc.command()
-            self.c.program_open('./wizards/blank.ngc')
-            self.c.program_open(fName)
-        else:
-            print('Unknown GUI in .ini file')
-
-    def end_this_shape(self, event):
-        if os.path.exists(self.fWizard):
-            outWiz = open(self.fWizard, 'a+')
-            post = False
-            for line in outWiz:
-                if '(postamble)' in line:
-                    post = True
-            if not post:
-                outWiz.write('\n(postamble)\n')
-                outWiz.write('{}\n'.format(self.postamble))
-                outWiz.write('m30\n')
-            outWiz.close()
-            self.load_file(self.fWizard)
-        self.W.destroy()
-        return None
-
-    def add_shape_to_file(self, event):
-        if os.path.exists(self.fWizard):
-            path = os.path.dirname(os.path.abspath(self.fWizard))
-            tmp = ('{}/tmp'.format(path))
-            shutil.copyfile(self.fWizard, tmp)
-            inWiz = open(tmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            for line in inWiz:
-                if '(postamble)' in line:
-                    break
-                outWiz.write(line)
-            inWiz.close()
-            outWiz.close()
-            os.remove(tmp)
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'a')
-            for line in inTmp:
-                outWiz.write(line)
-        else:
-            inTmp = open(self.fTmp, 'r')
-            outWiz = open(self.fWizard, 'w')
-            outWiz.write('(preamble)\n')
-            outWiz.write('{}\n'.format(self.preamble))
-            outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-            for line in inTmp:
-                outWiz.write(line)
-        inTmp.close()
-        outWiz.close()
-        self.add.set_sensitive(False)
-
-    def send_preview(self, event):
+    def rectangle_preview(self, event):
         self.s.poll()
         xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
         yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
@@ -112,11 +49,11 @@ class rectangle:
                     msg  = 'A positive X Length is required\n\n'
                     msg += 'and\n\n'
                     msg += 'A positive Y Length is required\n'
-                    self.dialog_error(msg)
+                    self.parent.dialog_error('RECTANGLE', msg)
                     return
             except:
                 msg = 'Invalid X Length or Y Length\n'
-                self.dialog_error(msg)
+                self.parent.dialog_error('RECTANGLE', msg)
                 return
             if self.r1Entry.get_text():
                 radius1 = float(self.r1Entry.get_text())
@@ -137,22 +74,22 @@ class rectangle:
             if radius1 + radius2 > float(self.xLEntry.get_text()):
                 msg  = 'Radius 1 plus Radius 2 ({})\n\n'.format(radius1 + radius2)
                 msg += 'can not be greater than {}\n'.format(float(self.xLEntry.get_text()))
-                self.dialog_error(msg)
+                self.parent.dialog_error('RECTANGLE', msg)
                 return
             if radius1 + radius3 > float(self.yLEntry.get_text()):
                 msg  = 'Radius 1 plus Radius 3 ({})\n\n'.format(radius1 + radius3)
                 msg += 'can not be greater than {}\n'.format(float(self.yLEntry.get_text()))
-                self.dialog_error(msg)
+                self.parent.dialog_error('RECTANGLE', msg)
                 return
             if radius2 + radius4 > float(self.yLEntry.get_text()):
                 msg  = 'Radius 2 plus Radius 4 ({})\n\n'.format(radius2 + radius4)
                 msg += 'can not be greater than {}\n'.format(float(self.yLEntry.get_text()))
-                self.dialog_error(msg)
+                self.parent.dialog_error('RECTANGLE', msg)
                 return
             if radius3 > float(self.xLEntry.get_text()) / 2 or radius4 > float(self.xLEntry.get_text()) / 2:
                 msg  = 'Neither Radius 3 nor Radius 4\n\n'
                 msg += 'can be greater than {}\n'.format(float(self.xLEntry.get_text()) / 2)
-                self.dialog_error(msg)
+                self.parent.dialog_error('RECTANGLE', msg)
                 return
             if self.xLEntry.get_text():
                 xLB = float(self.xLEntry.get_text()) - (radius3 + radius4)
@@ -203,20 +140,19 @@ class rectangle:
                     dir = [down, right, left]
                 else:
                     dir = [up, left, right]
-                self.fTmp = '{}/shape.tmp'.format(self.tmpDir)
-                self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
                 outTmp = open(self.fTmp, 'w')
                 outNgc = open(self.fNgc, 'w')
-                if os.path.exists(self.fWizard):
-                    inWiz = open(self.fWizard, 'r')
-                    for line in inWiz:
-                        if '(postamble)' in line:
-                            break
-                        outNgc.write(line)
-                else:
-                    outNgc.write('(preamble)\n')
-                    outNgc.write('{}\n'.format(self.preamble))
-                    outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                inWiz = open(self.fNgcBkp, 'r')
+                for line in inWiz:
+                    if '(new wizard)' in line:
+                        outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                        outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                        break
+                    elif '(postamble)' in line:
+                        break
+                    elif 'm2' in line.lower() or 'm30' in line.lower():
+                        break
+                    outNgc.write(line)
                 outTmp.write('\n(wizard rectangle)\n')
                 if leadInOffset > 0:
                     xlCentre = xS + (leadInOffset * math.cos(angle + dir[0]))
@@ -236,11 +172,21 @@ class rectangle:
                     y1 = yS + (float(self.xLEntry.get_text()) / 2 - radius3) * math.sin(angle + dir[2])
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
                     if radius3 > 0:
-                        xrCentre = x1 + (radius3 * math.cos(angle + up))
-                        yrCentre = y1 + (radius3 * math.sin(angle + up))
-                        xrEnd = xrCentre + (radius3 * math.cos(angle + left))
-                        yrEnd = yrCentre + (radius3 * math.sin(angle + left))
-                        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        if self.r3Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x1 + (radius3 * math.cos(angle + left))
+                            yrCentre = y1 + (radius3 * math.sin(angle + left))
+                            xrEnd = xrCentre + (radius3 * math.cos(angle + up))
+                            yrEnd = yrCentre + (radius3 * math.sin(angle + up))
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        else:
+                            xrCentre = x1 + (radius3 * math.cos(angle + up))
+                            yrCentre = y1 + (radius3 * math.sin(angle + up))
+                            xrEnd = xrCentre + (radius3 * math.cos(angle + left))
+                            yrEnd = yrCentre + (radius3 * math.sin(angle + left))
+                        if self.r3Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x2 = xrEnd + yLL * math.cos(angle + up)
                         y2 = yrEnd + yLL * math.sin(angle + up)
                     else:
@@ -248,11 +194,21 @@ class rectangle:
                         y2 = y1 + yLL * math.sin(angle + up)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                     if radius1 > 0:
-                        xrCentre = x2 + (radius1 * math.cos(angle + right))
-                        yrCentre = y2 + (radius1 * math.sin(angle + right))
-                        xrEnd = xrCentre + (radius1 * math.cos(angle + up))
-                        yrEnd = yrCentre + (radius1 * math.sin(angle + up))
-                        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        if self.r1Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x2 + (radius1 * math.cos(angle + up))
+                            yrCentre = y2 + (radius1 * math.sin(angle + up))
+                            xrEnd = xrCentre + (radius1 * math.cos(angle + right))
+                            yrEnd = yrCentre + (radius1 * math.sin(angle + right))
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        else:
+                            xrCentre = x2 + (radius1 * math.cos(angle + right))
+                            yrCentre = y2 + (radius1 * math.sin(angle + right))
+                            xrEnd = xrCentre + (radius1 * math.cos(angle + up))
+                            yrEnd = yrCentre + (radius1 * math.sin(angle + up))
+                        if self.r1Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x3 = xrEnd + xLT * math.cos(angle + right)
                         y3 = yrEnd + xLT * math.sin(angle + right)
                     else:
@@ -260,11 +216,21 @@ class rectangle:
                         y3 = y2 + xLT * math.sin(angle + right)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
                     if radius2 > 0:
-                        xrCentre = x3 + (radius2 * math.cos(angle + down))
-                        yrCentre = y3 + (radius2 * math.sin(angle + down))
-                        xrEnd = xrCentre + (radius2 * math.cos(angle + right))
-                        yrEnd = yrCentre + (radius2 * math.sin(angle + right))
-                        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        if self.r2Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x3 + (radius2 * math.cos(angle + right))
+                            yrCentre = y3 + (radius2 * math.sin(angle + right))
+                            xrEnd = xrCentre + (radius2 * math.cos(angle + down))
+                            yrEnd = yrCentre + (radius2 * math.sin(angle + down))
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        else:
+                            xrCentre = x3 + (radius2 * math.cos(angle + down))
+                            yrCentre = y3 + (radius2 * math.sin(angle + down))
+                            xrEnd = xrCentre + (radius2 * math.cos(angle + right))
+                            yrEnd = yrCentre + (radius2 * math.sin(angle + right))
+                        if self.r2Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x4 = xrEnd + yLR * math.cos(angle + down)
                         y4 = yrEnd + yLR * math.sin(angle + down)
                     else:
@@ -272,21 +238,41 @@ class rectangle:
                         y4 = y3 + yLR * math.sin(angle + down)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
                     if radius4 > 0:
-                        xrCentre = x4 + (radius4 * math.cos(angle + left))
-                        yrCentre = y4 + (radius4 * math.sin(angle + left))
-                        xrEnd = xrCentre + (radius4 * math.cos(angle + down))
-                        yrEnd = yrCentre + (radius4 * math.sin(angle + down))
-                        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        if self.r4Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x4 + (radius4 * math.cos(angle + down))
+                            yrCentre = y4 + (radius4 * math.sin(angle + down))
+                            xrEnd = xrCentre + (radius4 * math.cos(angle + left))
+                            yrEnd = yrCentre + (radius4 * math.sin(angle + left))
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        else:
+                            xrCentre = x4 + (radius4 * math.cos(angle + left))
+                            yrCentre = y4 + (radius4 * math.sin(angle + left))
+                            xrEnd = xrCentre + (radius4 * math.cos(angle + down))
+                            yrEnd = yrCentre + (radius4 * math.sin(angle + down))
+                        if self.r4Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                 else:
                     x1 = xS + (float(self.xLEntry.get_text()) / 2 - radius4) * math.cos(angle + dir[2])
                     y1 = yS + (float(self.xLEntry.get_text()) / 2 - radius4) * math.sin(angle + dir[2])
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
                     if radius4 > 0:
-                        xrCentre = x1 + (radius4 * math.cos(angle + up))
-                        yrCentre = y1 + (radius4 * math.sin(angle + up))
-                        xrEnd = xrCentre + (radius4 * math.cos(angle + right))
-                        yrEnd = yrCentre + (radius4 * math.sin(angle + right))
-                        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        if self.r4Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x1 + (radius4 * math.cos(angle + right))
+                            yrCentre = y1 + (radius4 * math.sin(angle + right))
+                            xrEnd = xrCentre + (radius4 * math.cos(angle + up))
+                            yrEnd = yrCentre + (radius4 * math.sin(angle + up))
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        else:
+                            xrCentre = x1 + (radius4 * math.cos(angle + up))
+                            yrCentre = y1 + (radius4 * math.sin(angle + up))
+                            xrEnd = xrCentre + (radius4 * math.cos(angle + right))
+                            yrEnd = yrCentre + (radius4 * math.sin(angle + right))
+                        if self.r4Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x2 = xrEnd + yLR * math.cos(angle + up)
                         y2 = yrEnd + yLR * math.sin(angle + up)
                     else:
@@ -294,11 +280,21 @@ class rectangle:
                         y2 = y1 + yLR * math.sin(angle + up)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                     if radius2 > 0:
-                        xrCentre = x2 + (radius2 * math.cos(angle + left))
-                        yrCentre = y2 + (radius2 * math.sin(angle + left))
-                        xrEnd = xrCentre + (radius2 * math.cos(angle + up))
-                        yrEnd = yrCentre + (radius2 * math.sin(angle + up))
-                        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        if self.r2Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x2 + (radius2 * math.cos(angle + up))
+                            yrCentre = y2 + (radius2 * math.sin(angle + up))
+                            xrEnd = xrCentre + (radius2 * math.cos(angle + left))
+                            yrEnd = yrCentre + (radius2 * math.sin(angle + left))
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        else:
+                            xrCentre = x2 + (radius2 * math.cos(angle + left))
+                            yrCentre = y2 + (radius2 * math.sin(angle + left))
+                            xrEnd = xrCentre + (radius2 * math.cos(angle + up))
+                            yrEnd = yrCentre + (radius2 * math.sin(angle + up))
+                        if self.r2Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x3 = xrEnd + xLT * math.cos(angle + left)
                         y3 = yrEnd + xLT * math.sin(angle + left)
                     else:
@@ -306,11 +302,21 @@ class rectangle:
                         y3 = y2 + xLT * math.sin(angle + left)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
                     if radius1 > 0:
-                        xrCentre = x3 + (radius1 * math.cos(angle + down))
-                        yrCentre = y3 + (radius1 * math.sin(angle + down))
-                        xrEnd = xrCentre + (radius1 * math.cos(angle + left))
-                        yrEnd = yrCentre + (radius1 * math.sin(angle + left))
-                        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        if self.r1Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x3 + (radius1 * math.cos(angle + left))
+                            yrCentre = y3 + (radius1 * math.sin(angle + left))
+                            xrEnd = xrCentre + (radius1 * math.cos(angle + down))
+                            yrEnd = yrCentre + (radius1 * math.sin(angle + down))
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        else:
+                            xrCentre = x3 + (radius1 * math.cos(angle + down))
+                            yrCentre = y3 + (radius1 * math.sin(angle + down))
+                            xrEnd = xrCentre + (radius1 * math.cos(angle + left))
+                            yrEnd = yrCentre + (radius1 * math.sin(angle + left))
+                        if self.r1Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                         x4 = xrEnd + yLL * math.cos(angle + down)
                         y4 = yrEnd + yLL * math.sin(angle + down)
                     else:
@@ -318,11 +324,21 @@ class rectangle:
                         y4 = y3 + yLL * math.sin(angle + down)
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
                     if radius3 > 0:
-                        xrCentre = x4 + (radius3 * math.cos(angle + right))
-                        yrCentre = y4 + (radius3 * math.sin(angle + right))
-                        xrEnd = xrCentre + (radius3 * math.cos(angle + down))
-                        yrEnd = yrCentre + (radius3 * math.sin(angle + down))
-                        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        if self.r3Button.child.get_text().startswith('iRadius'):
+                            xrCentre = x4 + (radius3 * math.cos(angle + down))
+                            yrCentre = y4 + (radius3 * math.sin(angle + down))
+                            xrEnd = xrCentre + (radius3 * math.cos(angle + right))
+                            yrEnd = yrCentre + (radius3 * math.sin(angle + right))
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        else:
+                            xrCentre = x4 + (radius3 * math.cos(angle + right))
+                            yrCentre = y4 + (radius3 * math.sin(angle + right))
+                            xrEnd = xrCentre + (radius3 * math.cos(angle + down))
+                            yrEnd = yrCentre + (radius3 * math.sin(angle + down))
+                        if self.r3Button.child.get_text().startswith('Radius'):
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
+                        else:
+                            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 if leadOutOffset > 0:
                     if self.outside.get_active():
@@ -341,151 +357,174 @@ class rectangle:
                 for line in outTmp:
                     outNgc.write(line)
                 outTmp.close()
-                outNgc.write('\n(postamble)\n')
-                outNgc.write('{}\n'.format(self.postamble))
-                outNgc.write('m30\n')
+                outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+                outNgc.write('m2\n')
                 outNgc.close()
-                self.load_file(self.fNgc)
+                self.parent.preview.load(self.fNgc)
                 self.add.set_sensitive(True)
-                hal.set_p('plasmac_run.preview-tab', '1')
+            self.parent.xOrigin = self.xSEntry.get_text()
+            self.parent.yOrigin = self.ySEntry.get_text()
         else:
             msg  = 'A positive X Length is required\n\n'
             msg += 'and\n\n'
             msg += 'A positive Y Length is required\n'
-            self.dialog_error(msg)
+            self.parent.dialog_error('RECTANGLE', msg)
 
-    def do_rectangle(self, fWizard, tmpDir):
-        self.tmpDir = tmpDir
-        self.fWizard = fWizard
-        self.W = gtk.Dialog('Rectangle',
-                       None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       buttons = None)
-        self.W.set_keep_above(True)
-        self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.W.set_default_size(250, 200)
-        t = gtk.Table(1, 1, True)
-        t.set_row_spacings(6)
-        self.W.vbox.add(t)
+    def rad_button_pressed(self, button, value):
+        if button.child.get_text()[:3] == 'Rad':
+            button.child.set_text('Chamfer {}'.format(value))
+        elif button.child.get_text()[:3] == 'Cha':
+            button.child.set_text('iRadius {}'.format(value))
+        else:
+            button.child.set_text('Radius {}'.format(value))
+        self.auto_preview('local')
+
+    def auto_preview(self, widget):
+        if self.xLEntry.get_text() and self.yLEntry.get_text():
+            self.rectangle_preview('auto') 
+
+    def rectangle_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS, xOrigin, yOrigin):
+        entries.set_row_spacings(rowS)
+        self.parent = parent
+        for child in entries.get_children():
+            entries.remove(child)
+        self.fNgc = fNgc
+        self.fNgcBkp = fNgcBkp
+        self.fTmp = fTmp
         cutLabel = gtk.Label('Cut Type')
         cutLabel.set_alignment(0.95, 0.5)
-        cutLabel.set_width_chars(10)
-        t.attach(cutLabel, 0, 1, 0, 1)
+        cutLabel.set_width_chars(8)
+        entries.attach(cutLabel, 0, 1, 0, 1)
         self.outside = gtk.RadioButton(None, 'Outside')
-        t.attach(self.outside, 1, 2, 0, 1)
+        self.outside.connect('toggled', self.auto_preview)
+        entries.attach(self.outside, 1, 2, 0, 1)
         inside = gtk.RadioButton(self.outside, 'Inside')
-        t.attach(inside, 2, 3, 0, 1)
+        entries.attach(inside, 2, 3, 0, 1)
         offsetLabel = gtk.Label('Offset')
         offsetLabel.set_alignment(0.95, 0.5)
-        offsetLabel.set_width_chars(10)
-        t.attach(offsetLabel, 3, 4, 0, 1)
-        self.offset = gtk.CheckButton('Kerf Width')
-        t.attach(self.offset, 4, 5, 0, 1)
+        offsetLabel.set_width_chars(8)
+        entries.attach(offsetLabel, 3, 4, 0, 1)
+        self.offset = gtk.CheckButton('Kerf')
+        self.offset.connect('toggled', self.auto_preview)
+        entries.attach(self.offset, 4, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
-        lLabel.set_width_chars(10)
-        t.attach(lLabel, 0, 1, 1, 2)
+        lLabel.set_width_chars(8)
+        entries.attach(lLabel, 0, 1, 1, 2)
         self.liEntry = gtk.Entry()
-        self.liEntry.set_width_chars(10)
-        t.attach(self.liEntry, 1, 2, 1, 2)
+        self.liEntry.set_width_chars(8)
+        self.liEntry.connect('activate', self.auto_preview)
+        self.liEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.liEntry, 1, 2, 1, 2)
         loLabel = gtk.Label('Lead Out')
         loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(10)
-        t.attach(loLabel, 0, 1, 2, 3)
+        loLabel.set_width_chars(8)
+        entries.attach(loLabel, 0, 1, 2, 3)
         self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(10)
-        t.attach(self.loEntry, 1, 2, 2, 3)
+        self.loEntry.set_width_chars(8)
+        self.loEntry.connect('activate', self.auto_preview)
+        self.loEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.loEntry, 1, 2, 2, 3)
         xSLabel = gtk.Label('X start')
         xSLabel.set_alignment(0.95, 0.5)
-        xSLabel.set_width_chars(10)
-        t.attach(xSLabel, 0, 1, 3, 4)
+        xSLabel.set_width_chars(8)
+        entries.attach(xSLabel, 0, 1, 3, 4)
         self.xSEntry = gtk.Entry()
-        self.xSEntry.set_width_chars(10)
-        t.attach(self.xSEntry, 1, 2, 3, 4)
+        self.xSEntry.set_width_chars(8)
+        self.xSEntry.connect('activate', self.auto_preview)
+        self.xSEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.xSEntry, 1, 2, 3, 4)
         ySLabel = gtk.Label('Y start')
         ySLabel.set_alignment(0.95, 0.5)
-        ySLabel.set_width_chars(10)
-        t.attach(ySLabel, 0, 1, 4, 5)
+        ySLabel.set_width_chars(8)
+        entries.attach(ySLabel, 0, 1, 4, 5)
         self.ySEntry = gtk.Entry()
-        self.ySEntry.set_width_chars(10)
-        t.attach(self.ySEntry, 1, 2, 4, 5)
+        self.ySEntry.set_width_chars(8)
+        self.ySEntry.connect('activate', self.auto_preview)
+        self.ySEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.ySEntry, 1, 2, 4, 5)
         self.centre = gtk.RadioButton(None, 'Centre')
-        t.attach(self.centre, 1, 2, 5, 6)
-        self.bLeft = gtk.RadioButton(self.centre, 'Bottom Left')
-        t.attach(self.bLeft, 0, 1, 5, 6)
+        self.centre.connect('toggled', self.auto_preview)
+        entries.attach(self.centre, 1, 2, 5, 6)
+        self.bLeft = gtk.RadioButton(self.centre, 'Btm Lft')
+        entries.attach(self.bLeft, 0, 1, 5, 6)
         xLLabel = gtk.Label('X length')
         xLLabel.set_alignment(0.95, 0.5)
-        xLLabel.set_width_chars(10)
-        t.attach(xLLabel, 0, 1, 6, 7)
+        xLLabel.set_width_chars(8)
+        entries.attach(xLLabel, 0, 1, 6, 7)
         self.xLEntry = gtk.Entry()
-        self.xLEntry.set_width_chars(10)
-        t.attach(self.xLEntry, 1, 2, 6, 7)
+        self.xLEntry.set_width_chars(8)
+        self.xLEntry.connect('activate', self.auto_preview)
+        self.xLEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.xLEntry, 1, 2, 6, 7)
         yLLabel = gtk.Label('Y length')
         yLLabel.set_alignment(0.95, 0.5)
-        yLLabel.set_width_chars(10)
-        t.attach(yLLabel, 0, 1, 7, 8)
+        yLLabel.set_width_chars(8)
+        entries.attach(yLLabel, 0, 1, 7, 8)
         self.yLEntry = gtk.Entry()
-        self.yLEntry.set_width_chars(10)
-        t.attach(self.yLEntry, 1, 2, 7, 8)
+        self.yLEntry.set_width_chars(8)
+        self.yLEntry.connect('activate', self.auto_preview)
+        self.yLEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.yLEntry, 1, 2, 7, 8)
         angLabel = gtk.Label('Angle')
         angLabel.set_alignment(0.95, 0.5)
-        angLabel.set_width_chars(10)
-        t.attach(angLabel, 0, 1, 8, 9)
+        angLabel.set_width_chars(8)
+        entries.attach(angLabel, 0, 1, 8, 9)
         self.angEntry = gtk.Entry()
-        self.angEntry.set_width_chars(10)
+        self.angEntry.set_width_chars(8)
         self.angEntry.set_text('0')
-        t.attach(self.angEntry, 1, 2, 8, 9)
-        r1Label = gtk.Label('Radius 1')
-        r1Label.set_alignment(0.95, 0.5)
-        r1Label.set_width_chars(10)
-        t.attach(r1Label, 0, 1, 9, 10)
+        self.angEntry.connect('activate', self.auto_preview)
+        self.angEntry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.angEntry, 1, 2, 8, 9)
+        self.r1Button = gtk.Button('Radius 1')
+        self.r1Button.connect('pressed', self.rad_button_pressed, '1')
+        entries.attach(self.r1Button, 0, 1, 9, 10)
         self.r1Entry = gtk.Entry()
-        self.r1Entry.set_width_chars(10)
-        self.r1Entry.set_text('0')
-        t.attach(self.r1Entry, 1, 2, 9, 10)
-        r2Label = gtk.Label('Radius 2')
-        r2Label.set_alignment(0.95, 0.5)
-        r2Label.set_width_chars(10)
-        t.attach(r2Label, 2, 3, 9, 10)
+        self.r1Entry.set_width_chars(8)
+        self.r1Entry.connect('activate', self.auto_preview)
+        self.r1Entry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.r1Entry, 1, 2, 9, 10)
+        self.r2Button = gtk.Button('Radius 2')
+        self.r2Button.connect('pressed', self.rad_button_pressed, '2')
+        entries.attach(self.r2Button, 2, 3, 9, 10)
         self.r2Entry = gtk.Entry()
-        self.r2Entry.set_width_chars(10)
-        self.r2Entry.set_text('0')
-        t.attach(self.r2Entry, 3, 4, 9, 10)
-        r3Label = gtk.Label('Radius 3')
-        r3Label.set_alignment(0.95, 0.5)
-        r3Label.set_width_chars(10)
-        t.attach(r3Label, 0, 1, 10, 11)
+        self.r2Entry.set_width_chars(8)
+        self.r2Entry.connect('activate', self.auto_preview)
+        self.r2Entry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.r2Entry, 3, 4, 9, 10)
+        self.r3Button = gtk.Button('Radius 3')
+        self.r3Button.connect('pressed', self.rad_button_pressed, '3')
+        entries.attach(self.r3Button, 0, 1, 10, 11)
         self.r3Entry = gtk.Entry()
-        self.r3Entry.set_width_chars(10)
-        self.r3Entry.set_text('0')
-        t.attach(self.r3Entry, 1, 2, 10, 11)
-        r4Label = gtk.Label('Radius 4')
-        r4Label.set_alignment(0.95, 0.5)
-        r4Label.set_width_chars(10)
-        t.attach(r4Label, 2, 3, 10, 11)
+        self.r3Entry.set_width_chars(8)
+        self.r3Entry.connect('activate', self.auto_preview)
+        self.r3Entry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.r3Entry, 1, 2, 10, 11)
+        self.r4Button = gtk.Button('Radius 4')
+        self.r4Button.connect('pressed', self.rad_button_pressed, '4')
+        entries.attach(self.r4Button, 2, 3, 10, 11)
         self.r4Entry = gtk.Entry()
-        self.r4Entry.set_width_chars(10)
-        self.r4Entry.set_text('0')
-        t.attach(self.r4Entry, 3, 4, 10, 11)
+        self.r4Entry.set_width_chars(8)
+        self.r4Entry.connect('activate', self.auto_preview)
+        self.r4Entry.connect('changed', self.parent.entry_changed)
+        entries.attach(self.r4Entry, 3, 4, 10, 11)
         preview = gtk.Button('Preview')
-        preview.connect('pressed', self.send_preview)
-        t.attach(preview, 0, 1, 12, 13)
+        preview.connect('pressed', self.rectangle_preview)
+        entries.attach(preview, 0, 1, 13, 14)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
-        self.add.connect('pressed', self.add_shape_to_file)
-        t.attach(self.add, 2, 3, 12, 13)
-        end = gtk.Button('Return')
-        end.connect('pressed', self.end_this_shape)
-        t.attach(end, 4, 5, 12, 13)
+        self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
+        entries.attach(self.add, 2, 3, 13, 14)
+        undo = gtk.Button('Undo')
+        undo.connect('pressed', self.parent.undo_shape, self.add)
+        entries.attach(undo, 4, 5, 13, 14)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 filename='./wizards/images/rectangle.png', 
                 width=240, 
                 height=240)
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
-        t.attach(image, 2, 5, 1, 9)
-        self.xSEntry.grab_focus()
-        self.W.show_all()
+        entries.attach(image, 2, 5, 1, 9)
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
             for line in f_in:
@@ -502,4 +541,8 @@ class rectangle:
                     self.liEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('lead-out'):
                     self.loEntry.set_text(line.strip().split('=')[1])
-        response = self.W.run()
+        self.xSEntry.set_text('{:0.3f}'.format(float(xOrigin)))
+        self.ySEntry.set_text('{:0.3f}'.format(float(yOrigin)))
+        self.parent.undo_shape(None, self.add)
+        self.parent.W.show_all()
+        self.xLEntry.grab_focus()
