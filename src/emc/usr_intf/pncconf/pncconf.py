@@ -484,10 +484,6 @@ class App:
         self.widgets.help_window.set_title(_("Help Pages") )
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
-        if self.debugstate:
-            self.widgets.input_tab.set_visible(True)
-        else:
-            self.widgets.input_tab.set_visible(False)
         self.widgets.help_window.present()
 
     def print_page(self,print_dialog, context, n, imagename):
