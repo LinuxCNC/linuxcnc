@@ -31,7 +31,6 @@ net plasmac:z-offset-current        axis.z.eoffset              =>  plasmac.z-of
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
 net plasmac:cutting-stop            halui.spindle.0.stop        =>  plasmac.cutting-stop
 net plasmac:feed-hold               plasmac.feed-hold           =>  motion.feed-hold
-net plasmac:offset-enable           plasmac.offset-enable       =>  axis.x.eoffset-enable axis.y.eoffset-enable axis.z.eoffset-enable
 net plasmac:offset-scale            plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale
 net plasmac:program-pause           plasmac.program-pause       =>  halui.program.pause
 net plasmac:program-resume          plasmac.program-resume      =>  halui.program.resume
@@ -40,7 +39,9 @@ net plasmac:program-stop            plasmac.program-stop        =>  halui.progra
 net plasmac:torch-on                plasmac.torch-on
 net plasmac:x-offset-counts         plasmac.x-offset-counts     =>  axis.x.eoffset-counts
 net plasmac:y-offset-counts         plasmac.y-offset-counts     =>  axis.y.eoffset-counts
+net plasmac:xy-offset-enable        plasmac.xy-offset-enable    =>  axis.x.eoffset-enable axis.y.eoffset-enable
 net plasmac:z-offset-counts         plasmac.z-offset-counts     =>  axis.z.eoffset-counts
+net plasmac:z-offset-enable         plasmac.z-offset-enable     =>  axis.z.eoffset-enable
 
 # multiple spindles
 if [info exists ::TRAJ(SPINDLES)] {
