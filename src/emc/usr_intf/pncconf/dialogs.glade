@@ -38,7 +38,7 @@
       </row>
       <row>
         <col id="0" translatable="yes">Pci</col>
-        <col id="1" translatable="yes"> </col>
+        <col id="1" translatable="yes">PCI</col>
       </row>
       <row>
         <col id="0" translatable="yes">Parallel Port</col>
@@ -3137,6 +3137,9 @@ or discard changes and quit?</property>
                           <placeholder/>
                         </child>
                         <child>
+                          <placeholder/>
+                        </child>
+                        <child>
                           <object class="GtkLabel" id="maxrpm">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -3152,6 +3155,9 @@ or discard changes and quit?</property>
                             <property name="y_options"/>
                             <property name="x_padding">4</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                         <child>
                           <placeholder/>
@@ -4328,6 +4334,30 @@ or discard changes and quit?</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">9</property>
                     <property name="n_columns">4</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>

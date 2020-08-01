@@ -1211,11 +1211,22 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             name = '5i25'
 
         if self.debugstate or readoption:
+
             print 'try to discover board by reading help text input:',name
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),
                         buf.get_end_iter(),
                         True)
+
+            # This is a HACK to pass info about the interface forward
+            # otherwise thw driver info is blank in the discovered firmware
+            if interface == '--addr':
+                inter = 'ETH'
+            elif interface == '--epp':
+                inter = 'EPP'
+            else:
+                inter = 'PCI'
+            info = info + "\n {}".format(inter)
         else:
             info = self.call_mesaflash(name,interface,address)
         print 'INFO:',info,'<-'
@@ -1324,13 +1335,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             i = i.lstrip()
             temp2 = i.split(" ")
             #print i,temp2
-            if 'ETH' in i:
-                DRIVER = 'hm2_eth'
-            if 'PCI' in i:
-                DRIVER = 'hm2_pci'
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
+            if 'ETH' in i:
+                DRIVER = 'hm2_eth'
+            elif 'PCI' in i:
+                DRIVER = 'hm2_pci'
+            elif 'EPP' in i:
+                if '7i43' in BOARDNAME.lower():
+                    DRIVER = 'hm2_7i43'
+                else:
+                    DRIVER = 'hm2_7i90'
             if 'DEVICE AT' in i:
                 if ssflag:
                     n1 = add_element(ELEMENT,'SSERIALDEVICES')
