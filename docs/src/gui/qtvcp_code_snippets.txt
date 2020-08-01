@@ -414,9 +414,9 @@ The we add our QProgress bar and LED to the layout. +
 ----
  
 Now we build the function to actually update out QProgressBar when STATUS updates the spindle speed. +
-'self.w.rpm_bar.setInvertedAppearance(bool(data<0))' - In this case we chose to display left-to-right or right-to-left depending if we are turning clockwise or anticlockwise. +
-'self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))' - This formats the writing in the bar. +
-'self.w.rpm_bar.setValue(abs(data))' - This sets the length of the colored bar. +
+'self.w.rpm_bar.setInvertedAppearance()' - In this case we chose to display left-to-right or right-to-left depending if we are turning clockwise or anticlockwise. +
+'self.w.rpm_bar.setFormat()' - This formats the writing in the bar. +
+'self.w.rpm_bar.setValue()' - This sets the length of the colored bar. +
 [source,python]
 ----
     ########################
