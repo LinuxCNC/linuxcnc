@@ -57,8 +57,12 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.setWindowTitle('Cam View')
         self.setGeometry(100, 100, 200, 200)
         self.text_color = QColor(255, 255, 255)
+        self.circle_color = QtCore.Qt.red
+        self.cross_color = QtCore.Qt.yellow
+        self.cross_pointer_color = QtCore.Qt.white
         self.font = QFont("arial,helvetica", 40)
-        self.text = ''
+        self.text = 'No Image'
+        self.rotationIncrement = .5
         self.pix = None
         self.stopped = False
 
@@ -82,20 +86,24 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale -= .1
             if mouse_state == QtCore.Qt.RightButton:
-                self.rotation -= 2
+                self.rotation -= self.rotationIncrement
         else:
             if mouse_state == QtCore.Qt.NoButton:
                 self.diameter += 2
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale += .1
             if mouse_state == QtCore.Qt.RightButton:
-                self.rotation += 2
+                self.rotation += self.rotationIncrement
         if self.diameter < 2: self.diameter = 2
         if self.diameter > w: self.diameter = w
         if self.rotation > 360: self.rotation = 0
         if self.rotation < 0: self.rotation = 360
         if self.scale < 1: self.scale = 1
         if self.scale > 5: self.scale = 5
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() & QtCore.Qt.RightButton:
+            self.rotation = 0
 
     def nextFrameSlot(self, w):
         if not self.video: return
@@ -169,10 +177,9 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         qp.setPen(self.text_color)
         qp.setFont(self.font)
         if self.pix:
-            text = self.text
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{}'.format(self.rotation))
         else:
-            text = 'No Image'
-        qp.drawText(self.rect(), QtCore.Qt.AlignCenter, text)
+            qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
 
     def drawCircle(self, event, gp):
         size = self.size()
@@ -181,7 +188,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         radx = self.diameter/2
         rady = self.diameter/2
         # draw red circles
-        gp.setPen(QtCore.Qt.red)
+        gp.setPen(self.circle_color)
         center = QtCore.QPoint(w/2, h/2)
         gp.drawEllipse(center, radx, rady)
 
@@ -189,14 +196,17 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         size = self.size()
         w = size.width()/2
         h = size.height()/2
-        pen = QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
-        gp.setPen(pen)
+        pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.SolidLine)
+        pen = QPen(self.cross_color, 1, QtCore.Qt.SolidLine)
         gp.translate(w, h)
         gp.rotate(self.rotation)
+        gp.setPen(pen0)
+        gp.drawLine(0, 0-self.gap, 0, -h)
+        gp.setPen(pen)
         gp.drawLine(-w, 0, 0-self.gap, 0)
         gp.drawLine(0+self.gap, 0, w, 0)
         gp.drawLine(0, 0+self.gap, 0, h)
-        gp.drawLine(0, 0-self.gap, 0, -h)
+
 
 
 class WebcamVideoStream:
