@@ -222,7 +222,7 @@ class main_wiz:
             if self.gui == 'axis':
                 Popen('axis-remote {}'.format(self.fNgc), stdout = PIPE, shell = True)
             elif self.gui == 'gmoccapy':
-                self.c.program_open('./plasmac/blank.ngc')
+                self.c.program_open('./wizards/blank.ngc')
                 time.sleep(0.1)
                 self.c.program_open(self.fNgc)
             else:
