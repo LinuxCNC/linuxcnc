@@ -59,6 +59,8 @@ class main_wiz:
         self.preview.program_alpha = True
         self.preview.set_cone_basesize(0.1)
         self.preview.mouse_btn_mode = 6
+        if self.scale == 0.039370:
+            self.preview.metric_units = False
         self.rowSpace = 2
         self.tmpDir = ('/tmp/plasmac_wizards')
         if not os.path.isdir(self.tmpDir):
@@ -345,8 +347,15 @@ class main_wiz:
                         wHeight = int(line.strip().split('=')[1])
                     except:
                         wHeight = 0
+                elif line.startswith('grid-size'):
+                    try:
+                        gSize = float(line.strip().split('=')[1])
+                    except:
+                        gSize = 0
         if wWidth and wHeight:
             self.resize_window(wWidth, wHeight)
+        if gSize:
+            self.preview.grid_size = gSize
         self.W.show_all()
         self.s.poll()
         if self.s.file:

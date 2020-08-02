@@ -177,6 +177,13 @@ class sector_wiz:
         if self.rEntry.get_text() and self.sEntry.get_text():
             self.sector_preview('auto') 
 
+    def entry_changed(self, widget):
+        if not self.liEntry.get_text() or float(self.liEntry.get_text()) == 0:
+            self.offset.set_sensitive(False)
+        else:
+            self.offset.set_sensitive(True)
+        self.parent.entry_changed(widget)
+
     def sector_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS, xOrigin, yOrigin):
         entries.set_row_spacings(rowS)
         self.parent = parent
@@ -210,7 +217,7 @@ class sector_wiz:
         self.liEntry = gtk.Entry()
         self.liEntry.set_width_chars(8)
         self.liEntry.connect('activate', self.auto_preview)
-        self.liEntry.connect('changed', self.parent.entry_changed)
+        self.liEntry.connect('changed', self.entry_changed)
         entries.attach(self.liEntry, 1, 2, 1, 2)
         loLabel = gtk.Label('Lead Out')
         loLabel.set_alignment(0.95, 0.5)
@@ -221,7 +228,8 @@ class sector_wiz:
         self.loEntry.connect('activate', self.auto_preview)
         self.loEntry.connect('changed', self.parent.entry_changed)
         entries.attach(self.loEntry, 1, 2, 2, 3)
-        xSLabel = gtk.Label('X start')
+        xSLabel = gtk.Label()
+        xSLabel.set_markup('X <span foreground="red">origin</span>')
         xSLabel.set_alignment(0.95, 0.5)
         xSLabel.set_width_chars(8)
         entries.attach(xSLabel, 0, 1, 3, 4)
@@ -230,7 +238,8 @@ class sector_wiz:
         self.xSEntry.connect('activate', self.auto_preview)
         self.xSEntry.connect('changed', self.parent.entry_changed)
         entries.attach(self.xSEntry, 1, 2, 3, 4)
-        ySLabel = gtk.Label('Y start')
+        ySLabel = gtk.Label()
+        ySLabel.set_markup('Y <span foreground="red">origin</span>')
         ySLabel.set_alignment(0.95, 0.5)
         ySLabel.set_width_chars(8)
         entries.attach(ySLabel, 0, 1, 4, 5)
@@ -297,6 +306,8 @@ class sector_wiz:
                     self.loEntry.set_text(line.strip().split('=')[1])
         self.xSEntry.set_text('{:0.3f}'.format(float(xOrigin)))
         self.ySEntry.set_text('{:0.3f}'.format(float(yOrigin)))
+        if not self.liEntry.get_text() or float(self.liEntry.get_text()) == 0:
+            self.offset.set_sensitive(False)
         self.parent.undo_shape(None, self.add)
         self.parent.W.show_all()
         self.rEntry.grab_focus()
