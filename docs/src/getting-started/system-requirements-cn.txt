@@ -13,20 +13,21 @@
 请看<this section,Kernel and Version Requirements>
 
 其他补充信息在LinuxCNC Wiki网站：
-
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware_Requirements]
 
-LinuxCNC和Debian Linux在具有以下最低硬件规格的电脑上应能挺好地运行。这些数字不是绝对最小值，但是对于大多数步进系统，它们将提供合理的性能。
+LinuxCNC和Debian Linux在具有以下最低硬件规格的电脑上应能挺好地运行。
+这些数字不是绝对最小值，但是对于大多数步进系统，它们将提供合理的性能。
 
 * 700 MHz x86 处理器（建议使用1.2 GHz x86 处理器）或Raspberry Pi 4或更好。
 * 如果要从LiveCD运作LinuxCNC 2.8和Debian Buster，系统需要可达64-位元。
 * 至少512 MB RAM
 * 8 GB硬盘
-* 至少可以支持1024x768分辨率，并未使用Nvidia或ATI fglrx专属驱动程式的显卡。现代板载的图形芯片组基本上可用。
+* 至少可以支持1024x768分辨率，并未使用Nvidia或ATI fglrx专属驱动程式的显卡。
+现代板载的图形芯片组基本上可用。
 * 网络或互联网链接（并非严格要求，但是对于更新和于LinuxCNC社区进行交流非常有用）
 
 最低硬件要求会随着Linux发行版的发展而变化，
-因此请查看Debian网站以获取有关您所使用的LiveCD的详细信息。
+因此请查看 https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]网站以获取有关您所使用的LiveCD的详细信息。
 如果可用，选择较旧版本的LiveCD可能会使较旧的硬件受益。
 
 == 内核与版本要求
@@ -44,11 +45,18 @@ LinuxCNC需要经过更改，可实时操作的内核以控制现实中的机器
 
 === Preempt-RT与linuxcnc-uspace
 
-Preempt-RT是所有实时系统里最新的，更是其中最接近主线内核的版本。 Preempt-RT内核可于主储存库内以预编译程式包形式获取。您可以搜索“PREEMPT_RT”找到它们，然后普通地下载并安装任何一个程式包。通常来说，Preempt-RT会有最好的驱动程序支援，并是使用Mesa以太网联通硬件驱动卡的系统的唯一选项。通常来说，Preempt-RT在所有系统中有最差的延迟，但是也有例外。
+Preempt-RT是所有实时系统里最新的，更是其中最接近主线内核的版本。
+Preempt-RT内核可于主储存库内以预编译程式包形式获取。
+您可以搜索“PREEMPT_RT”找到它们，然后普通地下载并安装任何一个程式包。
+通常来说，Preempt-RT会有最好的驱动程序支援，并是使用Mesa以太网联通硬件驱动卡的系统的唯一选项。
+通常来说，Preempt-RT在所有系统中有最差的延迟，但是也有例外。
 
 === RTAI与linuxcnc
 
-多年以来，RTAI一直支持不同的LinuxCNC发行版。通常来说，它较低的延迟代表它有最好的实时性能，但是可能会有较差的周边支援和较少的分辨率。 LinuxCNC程式包储存库中有一个RTAI内核。如果你从Live/Install镜像安装，那更变内核和LinuxCNC发行版的过程可在[Installing-RTAI]中找到。
+多年以来，RTAI一直支持不同的LinuxCNC发行版。
+通常来说，它较低的延迟代表它有最好的实时性能，但是可能会有较差的周边支援和较少的分辨率。
+LinuxCNC程式包储存库中有一个RTAI内核。
+如果你从Live/Install镜像安装，那更变内核和LinuxCNC发行版的过程可在[Installing-RTAI]中找到。
 
 === Xenomai与linuxcnc-uspace
 
