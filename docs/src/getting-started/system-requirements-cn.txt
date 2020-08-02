@@ -56,7 +56,7 @@ Preempt-RT内核可于主储存库内以预编译程式包形式获取。
 多年以来，RTAI一直支持不同的LinuxCNC发行版。
 通常来说，它较低的延迟代表它有最好的实时性能，但是可能会有较差的周边支援和较少的分辨率。
 LinuxCNC程式包储存库中有一个RTAI内核。
-如果你从Live/Install镜像安装，那更变内核和LinuxCNC发行版的过程可在[Installing-RTAI]中找到。
+如果你从Live/安装镜像安装，那更变内核和LinuxCNC发行版的过程可在[Installing-RTAI]中找到。
 
 === Xenomai与linuxcnc-uspace
 
