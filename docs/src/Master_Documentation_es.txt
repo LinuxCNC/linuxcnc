@@ -144,7 +144,7 @@ include::config/lathe-config_es.txt[]
 
 include::hal/haltcl_es.txt[]
 
-// include::remap/remap_es.txt[]
+include::remap/remap_es.txt[]
 
 include::config/moveoff_es.txt[]
 
@@ -279,15 +279,15 @@ include::hal/halmodule_es.txt[]
 
 :leveloffset: 1
 
-// include::motion/kinematics_es.txt[]
+include::motion/kinematics_es.txt[]
 
-// include::motion/dh-parameters_es.txt[]
+include::motion/dh-parameters_es.txt[]
 
 include::motion/5-axis-kinematics_es.txt[]
 
-// include::motion/pid-theory_es.txt[]
+include::motion/pid-theory_es.txt[]
 
-// include::motion/external-offsets_es.txt[]
+include::motion/external-offsets_es.txt[]
 
 include::code/rs274_es.txt[]
 

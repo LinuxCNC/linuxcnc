@@ -260,14 +260,14 @@ function setup_page(){
 		<li><a onclick="return toggle('sec12')"><img id="sec12_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Temas Avanzados</a>
 	<div id="sec12" style="display:none;">
 		<UL>
-		<li><a href="motion/kinematics.html">Cinemática</a></li>
-		<li><a href="motion/dh-parameters.html">Parámetros DH (Denavit-Hartenberg)</a></li>
+		<li><a href="motion/kinematics_es.html">Cinemática</a></li>
+		<li><a href="motion/dh-parameters_es.html">Parámetros DH (Denavit-Hartenberg)</a></li>
 		<li><a href="motion/5-axis-kinematics_es.html">Cinemática de 5 Ejes (con modelado matematico)</a></li>
-		<li><a href="motion/pid-theory.html">Teoría PID</a></li>
-		<li><a href="remap/remap.html">Remapeo: Extendiendo LinuxCNC</a></li>
+		<li><a href="motion/pid-theory_es.html">Teoría PID</a></li>
+		<li><a href="remap/remap_es.html">Remapeo: Extendiendo LinuxCNC</a></li>
 		<li><a href="config/moveoff_es.html">Componente Moveoff</a></li>
 		<li><a href="code/rs274_es.html">Intérprete rs274 autónomo</a></li>
-		<li><a href="motion/external-offsets.html">Offsets Externos</a></li>
+		<li><a href="motion/external-offsets_es.html">Offsets Externos</a></li>
 		</UL>
 	</div>
         <li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Información para el Integrador</a>
@@ -306,3 +306,347 @@ function setup_page(){
 </div>
 <p><input type="button" id="manExpand" value="Expandir Páginas Man" onclick="return toggle_section(this);"/>
    <input type="button" id="manCollapse" value="Contraer Páginas Man" onclick="return toggle_section(this);"/></p>
+<p><a onclick="return toggle('man_1')"><img id="man_1_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Comandos y componentes de espacio de usuario</a></p>
+<div id="man_1" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man1/axis-remote.1.html">axis-remote</a></li>
+<li><a href="man/man1/axis.1.html">axis</a></li>
+<li><a href="man/man1/elbpcom.1.html">elbpcom</a></li>
+<li><a href="man/man1/gladevcp.1.html">gladevcp</a></li>
+<li><a href="man/man1/gs2.1.html">gs2</a></li>
+<li><a href="man/man1/hal_input.1.html">hal_input</a></li>
+<li><a href="man/man1/hal_manualtoolchange.1.html">hal_manualtoolchange</a></li>
+<li><a href="man/man1/hal_parport.1.html">hal_parport</a></li>
+<li><a href="man/man1/halcmd.1.html">halcmd</a></li>
+<li><a href="man/man1/halcompile.1.html">halcompile</a></li>
+<li><a href="man/man1/halmeter.1.html">halmeter</a></li>
+<li><a href="man/man1/halrun.1.html">halrun</a></li>
+<li><a href="man/man1/halsampler.1.html">halsampler</a></li>
+<li><a href="man/man1/halstreamer.1.html">halstreamer</a></li>
+<li><a href="man/man1/haltcl.1.html">haltcl</a></li>
+<li><a href="man/man1/halui.1.html">halui</a></li>
+<li><a href="man/man1/hy_gt_vfd.1.html">hy_gt_vfd</a></li>
+<li><a href="man/man1/hy_vfd.1.html">hy_vfd</a></li>
+<li><a href="man/man1/io.1.html">io</a></li>
+<li><a href="man/man1/iocontrol.1.html">iocontrol</a></li>
+<li><a href="man/man1/linuxcnc.1.html">linuxcnc</a></li>
+<li><a href="man/man1/linuxcncrsh.1.html">linuxcncrsh</a></li>
+<li><a href="man/man1/mb2hal.1.html">mb2hal</a></li>
+<li><a href="man/man1/milltask.1.html">milltask</a></li>
+<li><a href="man/man1/mitsub_vfd.1.html">mitsub_vfd</a></li>
+<li><a href="man/man1/moveoff_gui.1.html">moveoff_gui</a></li>
+<li><a href="man/man1/pmx485.1.html">pmx485</a></li>
+<li><a href="man/man1/pyvcp.1.html">pyvcp</a></li>
+<li><a href="man/man1/shuttle.1.html">shuttle</a></li>
+<li><a href="man/man1/sim_pin.1.html">sim_pin</a></li>
+<li><a href="man/man1/thermistor.1.html">thermistor</a></li>
+<li><a href="man/man1/vfdb_vfd.1.html">vfdb_vfd</a></li>
+<li><a href="man/man1/vfs11_vfd.1.html">vfs11_vfd</a></li>
+<li><a href="man/man1/xhc-hb04.1.html">xhc-hb04</a></li>
+<li><a href="man/man1/xhc-whb04b-6.1.html">xhc-whb04b-6</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_9')"><img id="man_9_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Componentes Realtime y modulos de kernel</a></p>
+<div id="man_9" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man9/abs.9.html">abs</a></li>
+<li><a href="man/man9/abs_s32.9.html">abs_s32</a></li>
+<li><a href="man/man9/and2.9.html">and2</a></li>
+<li><a href="man/man9/at_pid.9.html">at_pid</a></li>
+<li><a href="man/man9/axis.9.html">axis</a></li>
+<li><a href="man/man9/axistest.9.html">axistest</a></li>
+<li><a href="man/man9/bin2gray.9.html">bin2gray</a></li>
+<li><a href="man/man9/biquad.9.html">biquad</a></li>
+<li><a href="man/man9/bitslice.9.html">bitslice</a></li>
+<li><a href="man/man9/bitwise.9.html">bitwise</a></li>
+<li><a href="man/man9/bldc.9.html">bldc</a></li>
+<li><a href="man/man9/blend.9.html">blend</a></li>
+<li><a href="man/man9/carousel.9.html">carousel</a></li>
+<li><a href="man/man9/charge_pump.9.html">charge_pump</a></li>
+<li><a href="man/man9/clarke2.9.html">clarke2</a></li>
+<li><a href="man/man9/clarke3.9.html">clarke3</a></li>
+<li><a href="man/man9/clarkeinv.9.html">clarkeinv</a></li>
+<li><a href="man/man9/classicladder.9.html">classicladder</a></li>
+<li><a href="man/man9/comp.9.html">comp</a></li>
+<li><a href="man/man9/constant.9.html">constant</a></li>
+<li><a href="man/man9/conv_bit_float.9.html">conv_bit_float</a></li>
+<li><a href="man/man9/conv_bit_s32.9.html">conv_bit_s32</a></li>
+<li><a href="man/man9/conv_bit_u32.9.html">conv_bit_u32</a></li>
+<li><a href="man/man9/conv_float_s32.9.html">conv_float_s32</a></li>
+<li><a href="man/man9/conv_float_u32.9.html">conv_float_u32</a></li>
+<li><a href="man/man9/conv_s32_bit.9.html">conv_s32_bit</a></li>
+<li><a href="man/man9/conv_s32_float.9.html">conv_s32_float</a></li>
+<li><a href="man/man9/conv_s32_u32.9.html">conv_s32_u32</a></li>
+<li><a href="man/man9/conv_u32_bit.9.html">conv_u32_bit</a></li>
+<li><a href="man/man9/conv_u32_float.9.html">conv_u32_float</a></li>
+<li><a href="man/man9/conv_u32_s32.9.html">conv_u32_s32</a></li>
+<li><a href="man/man9/corexy_by_hal.9.html">corexy_by_hal</a></li>
+<li><a href="man/man9/counter.9.html">counter</a></li>
+<li><a href="man/man9/ddt.9.html">ddt</a></li>
+<li><a href="man/man9/deadzone.9.html">deadzone</a></li>
+<li><a href="man/man9/debounce.9.html">debounce</a></li>
+<li><a href="man/man9/demux.9.html">demux</a></li>
+<li><a href="man/man9/differential.9.html">differential</a></li>
+<li><a href="man/man9/edge.9.html">edge</a></li>
+<li><a href="man/man9/encoder.9.html">encoder</a></li>
+<li><a href="man/man9/encoder_ratio.9.html">encoder_ratio</a></li>
+<li><a href="man/man9/eoffset_per_angle.9.html">eoffset_per_angle</a></li>
+<li><a href="man/man9/estop_latch.9.html">estop_latch</a></li>
+<li><a href="man/man9/feedcomp.9.html">feedcomp</a></li>
+<li><a href="man/man9/flipflop.9.html">flipflop</a></li>
+<li><a href="man/man9/gantry.9.html">gantry</a></li>
+<li><a href="man/man9/gantrykins.9.html">gantrykins</a></li>
+<li><a href="man/man9/gearchange.9.html">gearchange</a></li>
+<li><a href="man/man9/genhexkins.9.html">genhexkins</a></li>
+<li><a href="man/man9/genserkins.9.html">genserkins</a></li>
+<li><a href="man/man9/gentrivkins.9.html">gentrivkins</a></li>
+<li><a href="man/man9/gladevcp.9.html">gladevcp</a></li>
+<li><a href="man/man9/gray2bin.9.html">gray2bin</a></li>
+<li><a href="man/man9/hal_bb_gpio.9.html">hal_bb_gpio</a></li>
+<li><a href="man/man9/histobins.9.html">histobins</a></li>
+<li><a href="man/man9/hm2_7i43.9.html">hm2_7i43</a></li>
+<li><a href="man/man9/hm2_7i90.9.html">hm2_7i90</a></li>
+<li><a href="man/man9/hm2_eth.9.html">hm2_eth</a></li>
+<li><a href="man/man9/hm2_pci.9.html">hm2_pci</a></li>
+<li><a href="man/man9/hm2_rpspi.9.html">hm2_rpspi</a></li>
+<li><a href="man/man9/hm2_spi.9.html">hm2_spi</a></li>
+<li><a href="man/man9/hostmot2.9.html">hostmot2</a></li>
+<li><a href="man/man9/hypot.9.html">hypot</a></li>
+<li><a href="man/man9/ilowpass.9.html">ilowpass</a></li>
+<li><a href="man/man9/integ.9.html">integ</a></li>
+<li><a href="man/man9/invert.9.html">invert</a></li>
+<li><a href="man/man9/joyhandle.9.html">joyhandle</a></li>
+<li><a href="man/man9/kins.9.html">kins</a></li>
+<li><a href="man/man9/knob2float.9.html">knob2float</a></li>
+<li><a href="man/man9/latencybins.9.html">latencybins</a></li>
+<li><a href="man/man9/lcd.9.html">lcd</a></li>
+<li><a href="man/man9/limit1.9.html">limit1</a></li>
+<li><a href="man/man9/limit2.9.html">limit2</a></li>
+<li><a href="man/man9/limit3.9.html">limit3</a></li>
+<li><a href="man/man9/lincurve.9.html">lincurve</a></li>
+<li><a href="man/man9/lineardeltakins.9.html">lineardeltakins</a></li>
+<li><a href="man/man9/logic.9.html">logic</a></li>
+<li><a href="man/man9/lowpass.9.html">lowpass</a></li>
+<li><a href="man/man9/lut5.9.html">lut5</a></li>
+<li><a href="man/man9/maj3.9.html">maj3</a></li>
+<li><a href="man/man9/match8.9.html">match8</a></li>
+<li><a href="man/man9/matrix_kb.9.html">matrix_kb</a></li>
+<li><a href="man/man9/max31855.9.html">max31855</a></li>
+<li><a href="man/man9/maxkins.9.html">maxkins</a></li>
+<li><a href="man/man9/mesa_7i65.9.html">mesa_7i65</a></li>
+<li><a href="man/man9/mesa_pktgyro_test.9.html">mesa_pktgyro_test</a></li>
+<li><a href="man/man9/message.9.html">message</a></li>
+<li><a href="man/man9/minmax.9.html">minmax</a></li>
+<li><a href="man/man9/motion.9.html">motion</a></li>
+<li><a href="man/man9/moveoff.9.html">moveoff</a></li>
+<li><a href="man/man9/mult2.9.html">mult2</a></li>
+<li><a href="man/man9/multiclick.9.html">multiclick</a></li>
+<li><a href="man/man9/multiswitch.9.html">multiswitch</a></li>
+<li><a href="man/man9/mux16.9.html">mux16</a></li>
+<li><a href="man/man9/mux2.9.html">mux2</a></li>
+<li><a href="man/man9/mux4.9.html">mux4</a></li>
+<li><a href="man/man9/mux8.9.html">mux8</a></li>
+<li><a href="man/man9/mux_generic.9.html">mux_generic</a></li>
+<li><a href="man/man9/near.9.html">near</a></li>
+<li><a href="man/man9/not.9.html">not</a></li>
+<li><a href="man/man9/offset.9.html">offset</a></li>
+<li><a href="man/man9/ohmic.9.html">ohmic</a></li>
+<li><a href="man/man9/oneshot.9.html">oneshot</a></li>
+<li><a href="man/man9/opto_ac5.9.html">opto_ac5</a></li>
+<li><a href="man/man9/or2.9.html">or2</a></li>
+<li><a href="man/man9/orient.9.html">orient</a></li>
+<li><a href="man/man9/pentakins.9.html">pentakins</a></li>
+<li><a href="man/man9/pid.9.html">pid</a></li>
+<li><a href="man/man9/plasmac.9.html">plasmac</a></li>
+<li><a href="man/man9/pumakins.9.html">pumakins</a></li>
+<li><a href="man/man9/pwmgen.9.html">pwmgen</a></li>
+<li><a href="man/man9/rosekins.9.html">rosekins</a></li>
+<li><a href="man/man9/rotatekins.9.html">rotatekins</a></li>
+<li><a href="man/man9/sample_hold.9.html">sample_hold</a></li>
+<li><a href="man/man9/sampler.9.html">sampler</a></li>
+<li><a href="man/man9/scale.9.html">scale</a></li>
+<li><a href="man/man9/scarakins.9.html">scarakins</a></li>
+<li><a href="man/man9/select8.9.html">select8</a></li>
+<li><a href="man/man9/serport.9.html">serport</a></li>
+<li><a href="man/man9/setsserial.9.html">setsserial</a></li>
+<li><a href="man/man9/siggen.9.html">siggen</a></li>
+<li><a href="man/man9/sim_axis_hardware.9.html">sim_axis_hardware</a></li>
+<li><a href="man/man9/sim_encoder.9.html">sim_encoder</a></li>
+<li><a href="man/man9/sim_home_switch.9.html">sim_home_switch</a></li>
+<li><a href="man/man9/sim_matrix_kb.9.html">sim_matrix_kb</a></li>
+<li><a href="man/man9/sim_parport.9.html">sim_parport</a></li>
+<li><a href="man/man9/sim_spindle.9.html">sim_spindle</a></li>
+<li><a href="man/man9/simple_tp.9.html">simple_tp</a></li>
+<li><a href="man/man9/sphereprobe.9.html">sphereprobe</a></li>
+<li><a href="man/man9/spindle.9.html">spindle</a></li>
+<li><a href="man/man9/spindle_monitor.9.html">spindle_monitor</a></li>
+<li><a href="man/man9/sserial.9.html">sserial</a></li>
+<li><a href="man/man9/stepgen.9.html">stepgen</a></li>
+<li><a href="man/man9/steptest.9.html">steptest</a></li>
+<li><a href="man/man9/streamer.9.html">streamer</a></li>
+<li><a href="man/man9/sum2.9.html">sum2</a></li>
+<li><a href="man/man9/supply.9.html">supply</a></li>
+<li><a href="man/man9/thc.9.html">thc</a></li>
+<li><a href="man/man9/thcud.9.html">thcud</a></li>
+<li><a href="man/man9/threads.9.html">threads</a></li>
+<li><a href="man/man9/threadtest.9.html">threadtest</a></li>
+<li><a href="man/man9/time.9.html">time</a></li>
+<li><a href="man/man9/timedelay.9.html">timedelay</a></li>
+<li><a href="man/man9/timedelta.9.html">timedelta</a></li>
+<li><a href="man/man9/toggle.9.html">toggle</a></li>
+<li><a href="man/man9/toggle2nist.9.html">toggle2nist</a></li>
+<li><a href="man/man9/tripodkins.9.html">tripodkins</a></li>
+<li><a href="man/man9/tristate_bit.9.html">tristate_bit</a></li>
+<li><a href="man/man9/tristate_float.9.html">tristate_float</a></li>
+<li><a href="man/man9/trivkins.9.html">trivkins</a></li>
+<li><a href="man/man9/updown.9.html">updown</a></li>
+<li><a href="man/man9/watchdog.9.html">watchdog</a></li>
+<li><a href="man/man9/wcomp.9.html">wcomp</a></li>
+<li><a href="man/man9/weighted_sum.9.html">weighted_sum</a></li>
+<li><a href="man/man9/wj200_vfd.9.html">wj200_vfd</a></li>
+<li><a href="man/man9/xhc_hb04_util.9.html">xhc_hb04_util</a></li>
+<li><a href="man/man9/xor2.9.html">xor2</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3hal')"><img id="man_3hal_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: HAL</a></p>
+<div id="man_3hal" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man3/hal_add_funct_to_thread.3hal.html">hal_add_funct_to_thread</a></li>
+<li><a href="man/man3/hal_bit_t.3hal.html">hal_bit_t</a></li>
+<li><a href="man/man3/hal_bool.3hal.html">hal_bool</a></li>
+<li><a href="man/man3/hal_create_thread.3hal.html">hal_create_thread</a></li>
+<li><a href="man/man3/hal_del_funct_from_thread.3hal.html">hal_del_funct_from_thread</a></li>
+<li><a href="man/man3/hal_exit.3hal.html">hal_exit</a></li>
+<li><a href="man/man3/hal_export_funct.3hal.html">hal_export_funct</a></li>
+<li><a href="man/man3/hal_float_t.3hal.html">hal_float_t</a></li>
+<li><a href="man/man3/hal_get_lock.3hal.html">hal_get_lock</a></li>
+<li><a href="man/man3/hal_init.3hal.html">hal_init</a></li>
+<li><a href="man/man3/hal_link.3hal.html">hal_link</a></li>
+<li><a href="man/man3/hal_malloc.3hal.html">hal_malloc</a></li>
+<li><a href="man/man3/hal_param_alias.3hal.html">hal_param_alias</a></li>
+<li><a href="man/man3/hal_param_bit_new.3hal.html">hal_param_bit_new</a></li>
+<li><a href="man/man3/hal_param_bit_newf.3hal.html">hal_param_bit_newf</a></li>
+<li><a href="man/man3/hal_param_float_new.3hal.html">hal_param_float_new</a></li>
+<li><a href="man/man3/hal_param_float_newf.3hal.html">hal_param_float_newf</a></li>
+<li><a href="man/man3/hal_param_new.3hal.html">hal_param_new</a></li>
+<li><a href="man/man3/hal_param_s32_new.3hal.html">hal_param_s32_new</a></li>
+<li><a href="man/man3/hal_param_s32_newf.3hal.html">hal_param_s32_newf</a></li>
+<li><a href="man/man3/hal_param_u32_new.3hal.html">hal_param_u32_new</a></li>
+<li><a href="man/man3/hal_param_u32_newf.3hal.html">hal_param_u32_newf</a></li>
+<li><a href="man/man3/hal_parport.3hal.html">hal_parport</a></li>
+<li><a href="man/man3/hal_pin_alias.3hal.html">hal_pin_alias</a></li>
+<li><a href="man/man3/hal_pin_bit_new.3hal.html">hal_pin_bit_new</a></li>
+<li><a href="man/man3/hal_pin_bit_newf.3hal.html">hal_pin_bit_newf</a></li>
+<li><a href="man/man3/hal_pin_float_new.3hal.html">hal_pin_float_new</a></li>
+<li><a href="man/man3/hal_pin_float_newf.3hal.html">hal_pin_float_newf</a></li>
+<li><a href="man/man3/hal_pin_new.3hal.html">hal_pin_new</a></li>
+<li><a href="man/man3/hal_pin_s32_new.3hal.html">hal_pin_s32_new</a></li>
+<li><a href="man/man3/hal_pin_s32_newf.3hal.html">hal_pin_s32_newf</a></li>
+<li><a href="man/man3/hal_pin_u32_new.3hal.html">hal_pin_u32_new</a></li>
+<li><a href="man/man3/hal_pin_u32_newf.3hal.html">hal_pin_u32_newf</a></li>
+<li><a href="man/man3/hal_ready.3hal.html">hal_ready</a></li>
+<li><a href="man/man3/hal_s32_t.3hal.html">hal_s32_t</a></li>
+<li><a href="man/man3/hal_set_constructor.3hal.html">hal_set_constructor</a></li>
+<li><a href="man/man3/hal_set_lock.3hal.html">hal_set_lock</a></li>
+<li><a href="man/man3/hal_signal_delete.3hal.html">hal_signal_delete</a></li>
+<li><a href="man/man3/hal_signal_new.3hal.html">hal_signal_new</a></li>
+<li><a href="man/man3/hal_start_threads.3hal.html">hal_start_threads</a></li>
+<li><a href="man/man3/hal_stream.3hal.html">hal_stream</a></li>
+<li><a href="man/man3/hal_type_t.3hal.html">hal_type_t</a></li>
+<li><a href="man/man3/hal_u32_t.3hal.html">hal_u32_t</a></li>
+<li><a href="man/man3/hal_unlink.3hal.html">hal_unlink</a></li>
+<li><a href="man/man3/intro.3hal.html">intro</a></li>
+<li><a href="man/man3/undocumented.3hal.html">undocumented</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3rtapi')"><img id="man_3rtapi_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: RTAPI</a></p>
+<div id="man_3rtapi" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man3/EXPORT_FUNCTION.3rtapi.html">EXPORT_FUNCTION</a></li>
+<li><a href="man/man3/MODULE_AUTHOR.3rtapi.html">MODULE_AUTHOR</a></li>
+<li><a href="man/man3/MODULE_DESCRIPTION.3rtapi.html">MODULE_DESCRIPTION</a></li>
+<li><a href="man/man3/MODULE_LICENSE.3rtapi.html">MODULE_LICENSE</a></li>
+<li><a href="man/man3/RTAPI_MP_ARRAY_INT.3rtapi.html">RTAPI_MP_ARRAY_INT</a></li>
+<li><a href="man/man3/RTAPI_MP_ARRAY_LONG.3rtapi.html">RTAPI_MP_ARRAY_LONG</a></li>
+<li><a href="man/man3/RTAPI_MP_ARRAY_STRING.3rtapi.html">RTAPI_MP_ARRAY_STRING</a></li>
+<li><a href="man/man3/RTAPI_MP_INT.3rtapi.html">RTAPI_MP_INT</a></li>
+<li><a href="man/man3/RTAPI_MP_LONG.3rtapi.html">RTAPI_MP_LONG</a></li>
+<li><a href="man/man3/RTAPI_MP_STRING.3rtapi.html">RTAPI_MP_STRING</a></li>
+<li><a href="man/man3/intro.3rtapi.html">intro</a></li>
+<li><a href="man/man3/rtapi_app_exit.3rtapi.html">rtapi_app_exit</a></li>
+<li><a href="man/man3/rtapi_app_main.3rtapi.html">rtapi_app_main</a></li>
+<li><a href="man/man3/rtapi_atomic.3rtapi.html">rtapi_atomic</a></li>
+<li><a href="man/man3/rtapi_bool.3rtapi.html">rtapi_bool</a></li>
+<li><a href="man/man3/rtapi_byteorder.3rtapi.html">rtapi_byteorder</a></li>
+<li><a href="man/man3/rtapi_clock_set_period.3rtapi.html">rtapi_clock_set_period</a></li>
+<li><a href="man/man3/rtapi_delay.3rtapi.html">rtapi_delay</a></li>
+<li><a href="man/man3/rtapi_delay_max.3rtapi.html">rtapi_delay_max</a></li>
+<li><a href="man/man3/rtapi_device.3rtapi.html">rtapi_device</a></li>
+<li><a href="man/man3/rtapi_div_u64.3rtapi.html">rtapi_div_u64</a></li>
+<li><a href="man/man3/rtapi_div_u64_rem.3rtapi.html">rtapi_div_u64_rem</a></li>
+<li><a href="man/man3/rtapi_exit.3rtapi.html">rtapi_exit</a></li>
+<li><a href="man/man3/rtapi_firmware.3rtapi.html">rtapi_firmware</a></li>
+<li><a href="man/man3/rtapi_get_clocks.3rtapi.html">rtapi_get_clocks</a></li>
+<li><a href="man/man3/rtapi_get_msg_level.3rtapi.html">rtapi_get_msg_level</a></li>
+<li><a href="man/man3/rtapi_get_time.3rtapi.html">rtapi_get_time</a></li>
+<li><a href="man/man3/rtapi_gfp.3rtapi.html">rtapi_gfp</a></li>
+<li><a href="man/man3/rtapi_inb.3rtapi.html">rtapi_inb</a></li>
+<li><a href="man/man3/rtapi_init.3rtapi.html">rtapi_init</a></li>
+<li><a href="man/man3/rtapi_io.3rtapi.html">rtapi_io</a></li>
+<li><a href="man/man3/rtapi_is.3rtapi.html">rtapi_is</a></li>
+<li><a href="man/man3/rtapi_list.3rtapi.html">rtapi_list</a></li>
+<li><a href="man/man3/rtapi_module_param.3rtapi.html">rtapi_module_param</a></li>
+<li><a href="man/man3/rtapi_mutex.3rtapi.html">rtapi_mutex</a></li>
+<li><a href="man/man3/rtapi_open_as_root.3rtapi.html">rtapi_open_as_root</a></li>
+<li><a href="man/man3/rtapi_outb.3rtapi.html">rtapi_outb</a></li>
+<li><a href="man/man3/rtapi_parport.3rtapi.html">rtapi_parport</a></li>
+<li><a href="man/man3/rtapi_pci.3rtapi.html">rtapi_pci</a></li>
+<li><a href="man/man3/rtapi_print.3rtapi.html">rtapi_print</a></li>
+<li><a href="man/man3/rtapi_prio.3rtapi.html">rtapi_prio</a></li>
+<li><a href="man/man3/rtapi_prio_highest.3rtapi.html">rtapi_prio_highest</a></li>
+<li><a href="man/man3/rtapi_prio_lowest.3rtapi.html">rtapi_prio_lowest</a></li>
+<li><a href="man/man3/rtapi_prio_next_higher.3rtapi.html">rtapi_prio_next_higher</a></li>
+<li><a href="man/man3/rtapi_prio_next_lower.3rtapi.html">rtapi_prio_next_lower</a></li>
+<li><a href="man/man3/rtapi_region.3rtapi.html">rtapi_region</a></li>
+<li><a href="man/man3/rtapi_release_region.3rtapi.html">rtapi_release_region</a></li>
+<li><a href="man/man3/rtapi_request_region.3rtapi.html">rtapi_request_region</a></li>
+<li><a href="man/man3/rtapi_set_msg_level.3rtapi.html">rtapi_set_msg_level</a></li>
+<li><a href="man/man3/rtapi_shmem.3rtapi.html">rtapi_shmem</a></li>
+<li><a href="man/man3/rtapi_shmem_delete.3rtapi.html">rtapi_shmem_delete</a></li>
+<li><a href="man/man3/rtapi_shmem_getptr.3rtapi.html">rtapi_shmem_getptr</a></li>
+<li><a href="man/man3/rtapi_shmem_new.3rtapi.html">rtapi_shmem_new</a></li>
+<li><a href="man/man3/rtapi_slab.3rtapi.html">rtapi_slab</a></li>
+<li><a href="man/man3/rtapi_snprintf.3rtapi.html">rtapi_snprintf</a></li>
+<li><a href="man/man3/rtapi_stdint.3rtapi.html">rtapi_stdint</a></li>
+<li><a href="man/man3/rtapi_string.3rtapi.html">rtapi_string</a></li>
+<li><a href="man/man3/rtapi_strlcpy.3rtapi.html">rtapi_strlcpy</a></li>
+<li><a href="man/man3/rtapi_task_delete.3rtapi.html">rtapi_task_delete</a></li>
+<li><a href="man/man3/rtapi_task_new.3rtapi.html">rtapi_task_new</a></li>
+<li><a href="man/man3/rtapi_task_pause.3rtapi.html">rtapi_task_pause</a></li>
+<li><a href="man/man3/rtapi_task_resume.3rtapi.html">rtapi_task_resume</a></li>
+<li><a href="man/man3/rtapi_task_self.3rtapi.html">rtapi_task_self</a></li>
+<li><a href="man/man3/rtapi_task_start.3rtapi.html">rtapi_task_start</a></li>
+<li><a href="man/man3/rtapi_task_wait.3rtapi.html">rtapi_task_wait</a></li>
+<li><a href="man/man3/undocumented.3rtapi.html">undocumented</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3hm2')"><img id="man_3hm2_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: Hostmot2</a></p>
+<div id="man_3hm2" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man3/hm2_allocate_bspi_tram.3hm2.html">hm2_allocate_bspi_tram</a></li>
+<li><a href="man/man3/hm2_bspi_set_read_function.3hm2.html">hm2_bspi_set_read_function</a></li>
+<li><a href="man/man3/hm2_bspi_set_write_function.3hm2.html">hm2_bspi_set_write_function</a></li>
+<li><a href="man/man3/hm2_bspi_setup_chan.3hm2.html">hm2_bspi_setup_chan</a></li>
+<li><a href="man/man3/hm2_bspi_write_chan.3hm2.html">hm2_bspi_write_chan</a></li>
+<li><a href="man/man3/hm2_pktuart_read.3hm2.html">hm2_pktuart_read</a></li>
+<li><a href="man/man3/hm2_pktuart_send.3hm2.html">hm2_pktuart_send</a></li>
+<li><a href="man/man3/hm2_pktuart_setup.3hm2.html">hm2_pktuart_setup</a></li>
+<li><a href="man/man3/hm2_tram_add_bspi_frame.3hm2.html">hm2_tram_add_bspi_frame</a></li>
+<li><a href="man/man3/hm2_uart_read.3hm2.html">hm2_uart_read</a></li>
+<li><a href="man/man3/hm2_uart_send.3hm2.html">hm2_uart_send</a></li>
+<li><a href="man/man3/hm2_uart_setup.3hm2.html">hm2_uart_setup</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3')"><img id="man_3_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: General</a></p>
+<div id="man_3" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/man3/PM_ROTATION_VECTOR.3.html">PM_ROTATION_VECTOR</a></li>
+</ul></div>
+</body>
+</html>
+
