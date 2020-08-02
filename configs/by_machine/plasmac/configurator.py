@@ -2309,7 +2309,6 @@ class configurator:
                 '\n'
 
 newFileList = [ \
-                'blank.ngc',\
                 'imperial_startup.ngc',\
                 'M190',\
                 'metric_startup.ngc',\

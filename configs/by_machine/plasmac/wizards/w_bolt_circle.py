@@ -226,13 +226,6 @@ class bolt_circle_wiz:
         self.fTmp = fTmp
         self.sRadius = 0.0
         self.hSpeed = 100
-        offsetLabel = gtk.Label('Offset')
-        offsetLabel.set_alignment(0.95, 0.5)
-        offsetLabel.set_width_chars(8)
-        entries.attach(offsetLabel, 0, 1, 0, 1)
-        self.offset = gtk.CheckButton('Kerf')
-        self.offset.connect('toggled', self.auto_preview)
-        entries.attach(self.offset, 1, 2, 0, 1)
         ocBox = gtk.HBox()
         self.ocBlank = gtk.Label('    ')
         ocBox.pack_start(self.ocBlank, expand = True, fill = True)
@@ -251,7 +244,14 @@ class bolt_circle_wiz:
         self.ocEntry.connect('activate', self.auto_preview)
         self.ocEntry.connect('changed', self.entry_changed)
         ocBox.pack_start(self.ocEntry)
-        entries.attach(ocBox, 2, 5, 0, 1)
+        entries.attach(ocBox, 0, 3, 0, 1)
+        offsetLabel = gtk.Label('Offset')
+        offsetLabel.set_alignment(0.95, 0.5)
+        offsetLabel.set_width_chars(8)
+        entries.attach(offsetLabel, 3, 4, 0, 1)
+        self.offset = gtk.CheckButton('Kerf')
+        self.offset.connect('toggled', self.auto_preview)
+        entries.attach(self.offset, 4, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
         lLabel.set_width_chars(8)
@@ -261,16 +261,8 @@ class bolt_circle_wiz:
         self.liEntry.connect('activate', self.auto_preview)
         self.liEntry.connect('changed', self.entry_changed)
         entries.attach(self.liEntry, 1, 2, 1, 2)
-        loLabel = gtk.Label('Lead Out')
-        loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(8)
-        entries.attach(loLabel, 0, 1, 2, 3)
-        self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(8)
-        self.loEntry.connect('activate', self.auto_preview)
-        self.loEntry.connect('changed', self.entry_changed)
-        entries.attach(self.loEntry, 1, 2, 2, 3)
-        xSLabel = gtk.Label('X start')
+        xSLabel = gtk.Label()
+        xSLabel.set_markup('X <span foreground="red">origin</span>')
         xSLabel.set_alignment(0.95, 0.5)
         xSLabel.set_width_chars(8)
         entries.attach(xSLabel, 0, 1, 3, 4)
@@ -279,7 +271,8 @@ class bolt_circle_wiz:
         self.xSEntry.connect('activate', self.auto_preview)
         self.xSEntry.connect('changed', self.entry_changed)
         entries.attach(self.xSEntry, 1, 2, 3, 4)
-        ySLabel = gtk.Label('Y start')
+        ySLabel = gtk.Label()
+        ySLabel.set_markup('Y <span color="red">origin</span>')
         ySLabel.set_alignment(0.95, 0.5)
         ySLabel.set_width_chars(8)
         entries.attach(ySLabel, 0, 1, 4, 5)
@@ -371,8 +364,6 @@ class bolt_circle_wiz:
                         self.bLeft.set_active(1)
                 elif line.startswith('lead-in'):
                     self.liEntry.set_text(line.strip().split('=')[1])
-                elif line.startswith('lead-out'):
-                    self.loEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('hole-diameter'):
                     self.sRadius = float(line.strip().split('=')[1]) / 2
                 elif line.startswith('hole-speed'):

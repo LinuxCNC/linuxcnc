@@ -44,8 +44,12 @@ class settings_wiz:
         f_out.write('hole-speed={}\n'.format(self.sEntry.get_text()))
         f_out.write('window-width={}\n'.format(self.wWEntry.get_text()))
         f_out.write('window-height={}\n'.format(self.wHEntry.get_text()))
+        f_out.write('grid-size={}\n'.format(self.gSEntry.get_text()))
         if self.wWEntry.get_text() and self.wHEntry.get_text():
             self.parent.resize_window(int(self.wWEntry.get_text()), int(self.wHEntry.get_text()))
+        if self.gSEntry.get_text():
+            self.parent.preview.grid_size = float(self.gSEntry.get_text())
+            self.parent.preview.load(self.fNgc)
 
     def load_config(self, widget):
         if os.path.exists(self.configFile):
@@ -72,6 +76,8 @@ class settings_wiz:
                     self.wWEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('window-height'):
                     self.wHEntry.set_text(line.strip().split('=')[1])
+                elif line.startswith('grid-size'):
+                    self.gSEntry.set_text(line.strip().split('=')[1])
 
     def entry_changed(self, widget):
         if widget.get_text():
@@ -166,6 +172,14 @@ class settings_wiz:
         self.wHEntry.set_width_chars(8)
         self.wHEntry.connect('changed', self.entry_changed)
         entries.attach(self.wHEntry, 3, 4, 9, 10)
+        gSLabel = gtk.Label('Grid Size')
+        gSLabel.set_alignment(0.95, 0.5)
+        gSLabel.set_width_chars(8)
+        entries.attach(gSLabel, 0, 1, 11, 12)
+        self.gSEntry = gtk.Entry()
+        self.gSEntry.set_width_chars(8)
+        self.gSEntry.connect('changed', self.entry_changed)
+        entries.attach(self.gSEntry, 1, 2, 11, 12)
         save = gtk.Button('Save')
         save.connect('pressed', self.save_settings)
         entries.attach(save, 1, 2, 13, 14)
