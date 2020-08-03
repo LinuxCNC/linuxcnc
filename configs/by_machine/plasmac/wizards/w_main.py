@@ -329,7 +329,7 @@ class main_wiz:
         self.quit_button = gtk.Button('Finish')
         self.quit_button.connect('clicked', self.close_window, 'quit')
         self.button_box.attach(self.quit_button, 4, 5, 0, 1)
-        wWidth = wHeight = 0
+        wWidth = wHeight = gSize = 0
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
             for line in f_in:

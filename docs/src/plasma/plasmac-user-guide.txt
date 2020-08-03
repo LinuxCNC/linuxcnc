@@ -712,6 +712,15 @@ NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status
 |Start Cut|Press to commence a single cut.
 |===
 
+[underline]*Mesh Cutting*
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Enable|Enable mesh mode for cutting expanded metal.
+|Ignore OK|Don't require Arc OK to start cut in mesh mode.
+|===
+
 [underline]*Powermax Comms*
 
 [width="100%",cols="4,16"]
@@ -1392,6 +1401,14 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 . When the Arc OK is received the machine can be jogged along the cut line using the jog buttons (or jog keys if enabled). +
 . When the cut is complete press *Esc*. +
 . The torch will turn off and the Z axis returns to the starting position.
+
+=== Mesh Mode (expanded metal)
+
+Expanded metal is able to be cut provided your machine has a pilot arc torch and it is capable of constant pilot arc mode.
+
+Mesh mode disables torch height control and also ignores a lost Arc OK signal. To enable this mode check the Mesh Mode checkbutton in the Run Panel.
+
+It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore OK checkbutton on the Run Panel. This has no effect if Mesh Mode is not selected.
 
 [[shape-library]]
 
