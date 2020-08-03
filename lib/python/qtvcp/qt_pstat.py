@@ -188,10 +188,10 @@ class _PStat(object):
         if self.IS_SCREEN:
             defaultqrcpy = os.path.join(self.SCREENDIR, self.BASENAME, qrcpy_fn)
             localqrcpy = os.path.join(self.CONFIGPATH, qrcpy_fn)
-            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                if qrcpy_fn in(files):
-                    localqrcpy = os.path.join(root, qrcpy_fn)
-                    break
+            #for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+                #if qrcpy_fn in(files):
+                    #localqrcpy = os.path.join(root, qrcpy_fn)
+                    #break
         else:
             localqrcpy = os.path.join(self.WORKINGDIR, qrcpy_fn)
             defaultqrcpy = os.path.join(self.PANELDIR, self.BASENAME, qrcpy_fn)

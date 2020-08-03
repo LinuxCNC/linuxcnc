@@ -346,7 +346,7 @@ class HandlerClass:
         if self.shutdown_check:
             answer = MSG.showdialog('Do you want to shutdown now?',
                 details='You can set a preference to not see this message',
-                 display_type=MSG.YN_TYPE)
+                 display_type='YESNO')
             if not answer:
                 self.w.overlay.hide()
                 event.ignore()

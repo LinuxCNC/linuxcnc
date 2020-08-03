@@ -716,6 +716,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         # name the top and bottom frames so it's easier to style
         self.bottomMenu.setObjectName('%sBottomButtonFrame'% self.objectName())
         self.topMenu.setObjectName('%sTopButtonFrame'% self.objectName())
+        self.editor.setObjectName('{}_display'.format( self.objectName()))
 
     def editMode(self):
         self.topMenu.show()

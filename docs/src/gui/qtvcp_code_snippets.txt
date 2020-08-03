@@ -364,12 +364,20 @@ Ok let's code the function to build the widgets and add them in the tab widget. 
 We are assuming there is a tab widget built with Designer called 'rightTab'. +
 
 'self.w.led = LED()' - this initializes the basic StateLed widget and uses self.w.led as the reference from then on. +
-'self.w.led.setProperty('is_spindle_at_speed_status',True)' - since the stateLED can be used for many indications +
+'self.w.led.setProperty("is_spindle_at_speed_status",True)' - since the stateLED can be used for many indications +
 we must set the property that designates it as a  spindle-at-speed LED. +
-'self.w.led.setProperty('color',QColor(0,255,0,255))' this sets it as green when on. +
-'self.w.led.hal_init(self.hal, 'spindle_is_at_speed',self.w.led, self.w, self.PATHS, self.w.PREFS_) - this is the extra function call required with some Qtvcp widgets. +
-It gives the special widgets reference to the HAL component, the HAL widget name, the  actual object, the window object, the path library, the preference object. +
- +
+'self.w.led.setProperty("color",QColor(0,255,0,255))' this sets it as green when on. +
+'self.w.led.hal_init(HAL_NAME = "spindle_is_at_speed")' - this is the extra function call required with some Qtvcp widgets. +
+If HAL_NAME is omitted it will use the widget objectName if there is one. +
+It gives the special widgets reference to: +
+
+* self.HAL_GCOMP_ - The HAL component wrapped in qtvcp's core QComponent
+* self.HAL_NAME_ -The HAL widget name
+* self.QT_OBJECT_ -the  actual object
+* self.QTVCP_INSTANCE_- The window object
+* self.PATHS_ -the path library
+* self.PREFS_ -the preference object.
+
 'self.w.rpm_bar = QtWidgets.QProgressBar()' - initialize a PyQt5 QProgress bar. +
 'self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)' - set the max range of the Progress bar to the max specified in the INI. +
 
@@ -392,7 +400,7 @@ The we add our QProgress bar and LED to the layout. +
         self.w.led = LED()
         self.w.led.setProperty('is_spindle_at_speed_status',True)
         self.w.led.setProperty('color',QColor(0,255,0,255))
-        self.w.led.hal_init(self.hal, 'spindle_is_at_speed', self.w.led, self.w, self.PATHS, self.w.PREFS_)
+        self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')
 
         # make a spindle speed bar
         self.w.rpm_bar = QtWidgets.QProgressBar()
