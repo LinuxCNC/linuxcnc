@@ -10,7 +10,7 @@
 请注意，延迟测试结果比处理器速度对于软件步进生成更为重要。
 有关延迟测试的更多信息请访问 http://linuxcnc.org/docs/2.8/html/install/latency-test.html[此处]。
 再者，LinuxCNC必须运行于使用经过特殊更改的内核的操作系统。
-请看<this section,Kernel and Version Requirements>
+请看 <<kernel_and_version_requirements,内核与版本要求>>
 
 其他补充信息在LinuxCNC Wiki网站：
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware_Requirements]
@@ -30,6 +30,7 @@ LinuxCNC和Debian Linux在具有以下最低硬件规格的电脑上应能挺好
 因此请查看 https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]网站以获取有关您所使用的LiveCD的详细信息。
 如果可用，选择较旧版本的LiveCD可能会使较旧的硬件受益。
 
+[[kernel_and_version_requirements]]
 == 内核与版本要求
 
 LinuxCNC需要经过更改，可实时操作的内核以控制现实中的机器硬件。
