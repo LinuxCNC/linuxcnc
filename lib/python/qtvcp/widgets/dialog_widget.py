@@ -1094,8 +1094,7 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         l.addWidget(buttonBox)
 
     def _hal_init(self):
-        self._o.hal_init(self.HAL_GCOMP_, self.HAL_NAME_, self.QT_OBJECT_,
-                     self.QTVCP_INSTANCE_, self.PATHS_, self.PREFS_)
+        self._o.hal_init()
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
 

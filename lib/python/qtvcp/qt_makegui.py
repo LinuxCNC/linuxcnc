@@ -4,7 +4,7 @@ import subprocess
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 import traceback
-
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Set up logging
 import logger
 log = logger.getLogger(__name__)
@@ -93,6 +93,9 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
+        # make an instance with embeded variables so they
+        # are available to all subclassed objects
+        _HalWidgetBase(halcomp,path,self)
 
     def registerHalWidget(self, widget):
         self._halWidgetList.append(widget)

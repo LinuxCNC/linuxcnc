@@ -92,10 +92,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         # initialize indicated buttons
         w = self.QTVCP_INSTANCE_
-        self.pbtn_allow_auto_zero.hal_init(self.HAL_GCOMP_, self.HAL_NAME_+'-auto-z-zero',
-             self.pbtn_allow_auto_zero, w, w.PATHS, self.PREFS_)
-        self.pbtn_allow_auto_skew.hal_init(self.HAL_GCOMP_, self.HAL_NAME_+'-auto-skew',
-             self.pbtn_allow_auto_skew, w, w.PATHS, self.PREFS_)
+        self.pbtn_allow_auto_zero.hal_init(HAL_NAME = self.HAL_NAME_+'-auto-z-zero')
+        self.pbtn_allow_auto_skew.hal_init(HAL_NAME = self.HAL_NAME_+'-auto-skew')
 
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )

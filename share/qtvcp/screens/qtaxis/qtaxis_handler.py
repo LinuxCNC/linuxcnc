@@ -446,8 +446,7 @@ class HandlerClass:
         self.w.led = LED()
         self.w.led.setProperty('is_spindle_at_speed_status',True)
         self.w.led.setProperty('color',QColor(0,255,0,255))
-        self.w.led.hal_init(self.hal, 'spindle_is_at_speed',
-             self.w.led, self.w, self.PATHS, self.w.PREFS_)
+        self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')
 
         # make a spindle speed bar
         self.w.rpm_bar = QtWidgets.QProgressBar()
@@ -470,7 +469,7 @@ class HandlerClass:
         self.w.tool_stat = TOOLSTAT()
         self.w.tool_stat.setProperty('tool_number_status', True)
         self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
-        self.w.tool_stat._hal_init()
+        self.w.tool_stat.hal_init()
         self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.w.tool_stat.setFixedWidth(60)
         self.w.leftTab.setCornerWidget(self.w.tool_stat)

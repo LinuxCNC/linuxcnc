@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>versaProbe</class>
+ <widget class="QWidget" name="versaProbe">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -3993,7 +3993,7 @@ TOOL</string>
   <connection>
    <sender>pbtn_set_x</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_x_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4009,7 +4009,7 @@ TOOL</string>
   <connection>
    <sender>pbtn_set_y</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_y_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4025,7 +4025,7 @@ TOOL</string>
   <connection>
    <sender>pbtn_set_z</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_z_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4041,7 +4041,7 @@ TOOL</string>
   <connection>
    <sender>pbtn_set_angle</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_angle_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4057,7 +4057,7 @@ TOOL</string>
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>help_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4145,12 +4145,12 @@ TOOL</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="skew_buttonGroup">
+  <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="outside_buttonGroup">
+  <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
