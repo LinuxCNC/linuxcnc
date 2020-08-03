@@ -7,12 +7,12 @@
 The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending
 on the exact usage. Stepper systems in general require faster threads to
 generate step pulses than servo systems. You can use the Live-CD to test
-the software before committing to a permenaent installation on a computer.
+the software before committing to a permanent installation on a computer.
 Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
 Latency Test is <<latency-test,here>>.
 In addition LinuxCNC needs to be run on an operating system that uses a
-specially modified kernel. See <this section,Kernel and Version Requirements>
+specially modified kernel. See <<kernel_and_version_requirements,Kernel and Version Requirements>>
 
 Additional information is on the LinuxCNC Wiki site:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
@@ -24,7 +24,7 @@ systems.
 
 * 700 MHz x86 processor (1.2 GHz x86 processor recommended) or Raspberry
   Pi 4 or better.
-* To run LinuxCNC 2.8 and Debian Buster drom the LiveCD the system should
+* To run LinuxCNC 2.8 and Debian Buster from the LiveCD the system should
   be 64-bit capable.
 * 512 MB or more of RAM
 * 8 GB hard disk
@@ -39,6 +39,7 @@ check the https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]
 web site for details on the LiveCD you're using. Older hardware may
 benefit from selecting an older version of the LiveCD when available.
 
+[[kernel_and_version_requirements]]
 == Kernel and Version requirements
 
 LinuxCNC requires a kernel modified for realtime use to control real
@@ -71,7 +72,7 @@ systems, but there are exceptions.
 RTAI has been the mainstay of LinuxCNC distributions for many years. It
 will generally give the best realtime performance in terms of low
 latency, but might have poorer peripheral support and not as many screen
-resolutions. An RTAI lernel is available from the LinuxCNC package
+resolutions. An RTAI kernel is available from the LinuxCNC package
 repository. If you installed from the Live/Install image then switching
 kernel and LinuxCNC flavour is described in [Installing-RTAI].
 
