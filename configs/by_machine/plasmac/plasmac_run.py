@@ -139,19 +139,25 @@ class HandlerClass:
         t_number = 0
         t_name = 'Default'
         self.materialName = t_name
-        k_width = (self.builder.get_object('kerf-width').get_value())
-        thc_enable = self.builder.get_object('thc-enable').get_active()
-        p_height = self.builder.get_object('pierce-height').get_value()
-        p_delay = self.builder.get_object('pierce-delay').get_value()
-        pj_height = self.builder.get_object('puddle-jump-height').get_value()
-        pj_delay = self.builder.get_object('puddle-jump-delay').get_value()
-        c_height = self.builder.get_object('cut-height').get_value()
-        c_speed = self.builder.get_object('cut-feed-rate').get_value()
-        c_amps = self.builder.get_object('cut-amps').get_value()
-        c_volts = self.builder.get_object('cut-volts').get_value()
-        pause = self.builder.get_object('pause-at-end').get_value()
-        g_press = self.builder.get_object('gas-pressure').get_value()
-        c_mode = self.builder.get_object('cut-mode').get_value()
+        inDict = {}
+        with open(self.configFile) as inFile:
+            for line in inFile:
+                if '=' in line:
+                    (key, val) = line.strip().split('=')
+                    inDict[key] = val
+        k_width = float(inDict['kerf-width'])
+        thc_enable = True if inDict['thc-enable'] == 'True' else False
+        p_height = float(inDict['pierce-height'])
+        p_delay = float(inDict['pierce-delay'])
+        pj_height = float(inDict['puddle-jump-height'])
+        pj_delay = float(inDict['puddle-jump-delay'])
+        c_height = float(inDict['cut-height'])
+        c_speed = float(inDict['cut-feed-rate'])
+        c_amps = float(inDict['cut-amps'])
+        c_volts = float(inDict['cut-volts'])
+        pause = float(inDict['pause-at-end'])
+        g_press = float(inDict['gas-pressure'])
+        c_mode = float(inDict['cut-mode'])
         t_item = 0
         self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
         with open(self.materialFile, 'r') as f_in:
@@ -401,24 +407,6 @@ class HandlerClass:
             self.get_material()
             self.materialUpdate = False
 
-    def on_thc_auto_toggled(self,button):
-        if button.get_active():
-            self.builder.get_object('thc-enable').set_sensitive(True)
-            self.builder.get_object('thc-enable-label').set_text('THC Enable')
-
-    def on_thc_on_toggled(self,button):
-        if button.get_active():
-            self.halcomp['thc-enable-out'] = 1
-            self.builder.get_object('thc-enable').set_sensitive(False)
-            self.builder.get_object('thc-enable-label').set_text('THC ENABLED')
-
-    def on_thc_off_toggled(self,button):
-        if button.get_active():
-            self.halcomp['thc-enable-out'] = 0
-
-            self.builder.get_object('thc-enable').set_sensitive(False)
-            self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
-
     def first_material_changed(self, halpin):
         material = halpin.get()
         if not self.material_exists(material):
@@ -548,6 +536,8 @@ class HandlerClass:
         self.builder.get_object('puddle-jump-delay-adj').configure(0,0,9,0.01,0,0)
         self.builder.get_object('thc-enable').set_active(1)
         self.builder.get_object('use-auto-volts').set_active(1)
+        self.builder.get_object('mesh-enable').set_active(0)
+        self.builder.get_object('mesh-ignore-ok').set_active(0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('kerf-width').set_digits(2)
             self.builder.get_object('kerf-width-adj').configure(0.5,0,5,0.01,0,0)
@@ -722,40 +712,44 @@ class HandlerClass:
                 self.save_material(material, position)
 
     def save_defaults(self, mode, widgets):
-        try:
-            shutil.copy(self.configFile,'{}.tmp'.format(self.configFile))
-            inFile = open('{}.tmp'.format(self.configFile), 'r')
-            outFile = open('{}'.format(self.configFile), 'w')
+        for key in sorted(self.configDict.iterkeys()):
+            if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                self.builder.get_object(key).update()
+        # try:
+        inDict = {}
+        with open(self.configFile) as inFile:
             for line in inFile:
                 if '=' in line:
-                    widget = line.split('=')[0]
-                    if widget in widgets:
-                        if isinstance(self.builder.get_object(widget), gladevcp.hal_widgets.HAL_SpinButton):
-                            self.builder.get_object(widget).update()
-                            value = self.builder.get_object(widget).get_value()
-                            outFile.write(widget + '=' + str(value) + '\n')
-                        elif isinstance(self.builder.get_object(widget), gladevcp.hal_widgets.HAL_CheckButton):
-                            value = self.builder.get_object(widget).get_active()
-                            outFile.write(widget + '=' + str(value) + '\n')
-                        elif widget == 'thc-mode':
-                            if self.builder.get_object('thc-auto').get_active():
-                                outFile.write(widget + '=thc-auto\n')
-                            if self.builder.get_object('thc-on').get_active():
-                                outFile.write(widget + '=thc-on\n')
-                            if self.builder.get_object('thc-off').get_active():
-                                outFile.write(widget + '=thc-off\n')
-                    else:
-                        outFile.write(line)
-                else:
-                    outFile.write(line)
-            inFile.close()
-            outFile.close()
-            os.remove('{}.tmp'.format(self.configFile))
-            if mode == 'material':
-                self.set_saved_material()
-        except:
-            self.dialog_error('Config File Error', 'Error opening {}'.format(self.configFile))
-            print('*** error opening {}'.format(self.configFile))
+                    (key, val) = line.strip().split('=')
+                    inDict[key] = val
+        outFile = open('{}'.format(self.configFile), 'w')
+        outFile.write('#plasmac run tab/panel configuration file, format is:\n')
+        outFile.write('#name = value\n\n')
+        for key in sorted(self.configDict.iterkeys()):
+            if key in widgets:
+                print(key + '=' + str(self.configDict[key]))
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
+                    outFile.write('{}={}\n'.format(key, str(self.builder.get_object(key).get_value())))
+                elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
+                    outFile.write('{}={}\n'.format(key, str(self.builder.get_object(key).get_active())))
+                elif key == 'thc-mode':
+                    if self.builder.get_object('thc-auto').get_active():
+                        outFile.write('{}=thc-auto\n'.format(key))
+                    if self.builder.get_object('thc-on').get_active():
+                        outFile.write('{}=thc-on\n'.format(key))
+                    if self.builder.get_object('thc-off').get_active():
+                        outFile.write('{}=thc-off\n'.format(key))
+            elif key in inDict:
+                outFile.write('{}={}\n'.format(key, inDict[key]))
+            else:
+                print 'cannot save unknown parameter:', key
+        outFile.close()
+        if mode == 'material':
+            self.set_saved_material()
+        # except:
+        #     self.dialog_error('Config File Error', 'Error opening {}'.format(self.configFile))
+        #     print('*** error opening {}'.format(self.configFile))
 
     def save_material(self, material, position):
         for key in sorted(self.configDict.iterkeys()):
@@ -845,8 +839,28 @@ class HandlerClass:
         self.materialFileDict[active][13] = self.builder.get_object('cut-mode').get_value()
 
     def periodic(self):
-        if self.builder.get_object('thc-auto').get_active():
-            self.halcomp['thc-enable-out'] = self.builder.get_object('thc-enable').get_active()
+        if self.builder.get_object('mesh-enable').get_active() or hal.get_value('plasmac:mesh-enable-1'):
+            self.halcomp['thc-enable-out'] = False
+            self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
+            self.builder.get_object('thc-enable').set_sensitive(False)
+        else:
+            if self.builder.get_object('thc-auto').get_active():
+                self.builder.get_object('thc-enable').set_sensitive(True)
+                if self.builder.get_object('thc-enable').get_active():
+                    self.halcomp['thc-enable-out'] = True
+                    self.builder.get_object('thc-enable-label').set_text('THC ENABLED')
+                else:
+                    self.halcomp['thc-enable-out'] = False
+                    self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
+            elif self.builder.get_object('thc-on').get_active():
+                self.halcomp['thc-enable-out'] = True
+                self.builder.get_object('thc-enable').set_sensitive(False)
+                self.builder.get_object('thc-enable-label').set_text('THC ENABLED')
+            elif self.builder.get_object('thc-off').get_active():
+                self.halcomp['thc-enable-out'] = False
+                self.builder.get_object('thc-enable').set_sensitive(False)
+                self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
+
         mode = hal.get_value('plasmac.mode')
         if mode != self.oldMode:
             if mode == 0:
@@ -1189,7 +1203,8 @@ class HandlerClass:
         self.settingsWidgets = ['cornerlock-enable', 'kerfcross-enable', \
                                 'ohmic-probe-enable', 'powermax-enable', \
                                 'thc-mode', 'use-auto-volts', \
-                                'x-single-cut', 'y-single-cut']
+                                'x-single-cut', 'y-single-cut', \
+                                'mesh-enable', 'mesh-ignore-ok']
         self.materialWidgets = ['cut-amps', 'cut-feed-rate',\
                                 'cut-height', 'cut-mode', \
                                 'cut-volts', 'gas-pressure', \

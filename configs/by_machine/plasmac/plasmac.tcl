@@ -20,6 +20,7 @@ net plasmac:program-is-idle         halui.program.is-idle       =>  plasmac.prog
 net plasmac:program-is-paused       halui.program.is-paused     =>  plasmac.program-is-paused
 net plasmac:program-is-running      halui.program.is-running    =>  plasmac.program-is-running
 net plasmac:requested-velocity      motion.requested-vel        =>  plasmac.requested-velocity
+net plasmac:mesh-enable-1           motion.digital-out-01       =>  plasmac.mesh-enable-1
 net plasmac:thc-disable             motion.digital-out-02       =>  plasmac.thc-disable
 net plasmac:torch-off               motion.digital-out-03       =>  plasmac.torch-off
 net plasmac:units-per-mm            halui.machine.units-per-mm  =>  plasmac.units-per-mm
