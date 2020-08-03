@@ -61,7 +61,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.cross_color = QtCore.Qt.yellow
         self.cross_pointer_color = QtCore.Qt.white
         self.font = QFont("arial,helvetica", 40)
-        self.text = 'No Image'
+        if LIB_GOOD:
+            self.text = 'No Image'
+        else:
+            self.text = 'Missing\npython-opencv\nLibrary'
         self.rotationIncrement = .5
         self.pix = None
         self.stopped = False
