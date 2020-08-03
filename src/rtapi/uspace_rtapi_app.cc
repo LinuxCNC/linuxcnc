@@ -600,8 +600,12 @@ struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
         pthread_once(&key_once, init_key);
-        if(do_thread_lock)
-            pthread_mutex_init(&thread_lock, 0);
+        if(do_thread_lock) {
+            pthread_mutexattr_t attr;
+            pthread_mutexattr_init(&attr);
+            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+            pthread_mutex_init(&thread_lock, &attr);
+        }
     }
     int task_delete(int id);
     int task_start(int task_id, unsigned long period_nsec);
@@ -1042,9 +1046,21 @@ void *Posix::wrapper(void *arg)
   pthread_setspecific(key, arg);
 
   Posix &papp = reinterpret_cast<Posix&>(App());
-  if(papp.do_thread_lock)
-      pthread_mutex_lock(&papp.thread_lock);
+  if(papp.do_thread_lock) {
+    int r = pthread_mutex_lock(&papp.thread_lock);
+    if(r != 0) {
+        printf("pthread_mutex_lock failed with status %d\n", r);
+        abort();
+    }
+  }
 
+  if(papp.do_thread_lock && getenv("RTAPI_LOCK_FAIL")) {
+    int r = pthread_mutex_lock(&papp.thread_lock);
+    if(r != 0) {
+        printf("pthread_mutex_lock failed with status %d\n", r);
+        abort();
+    }
+  }
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
   rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
@@ -1086,8 +1102,13 @@ int Posix::task_self() {
 }
 
 void Posix::wait() {
-    if(do_thread_lock)
-        pthread_mutex_unlock(&thread_lock);
+    if(do_thread_lock) {
+        int r = pthread_mutex_unlock(&thread_lock);
+        if(r != 0) {
+            printf("pthread_mutex_unlock failed with status %d\n", r);
+            abort();
+        }
+    }
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
     rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
@@ -1103,8 +1124,13 @@ void Posix::wait() {
         int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
         if(res < 0) perror("clock_nanosleep");
     }
-    if(do_thread_lock)
-        pthread_mutex_lock(&thread_lock);
+    if(do_thread_lock) {
+        int r = pthread_mutex_lock(&thread_lock);
+        if(r != 0) {
+            printf("pthread_mutex_lock failed with status %d\n", r);
+            abort();
+        }
+    }
 }
 
 unsigned char Posix::do_inb(unsigned int port)
