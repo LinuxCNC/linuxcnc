@@ -55,12 +55,13 @@ class main_wiz:
         self.savePath = self.i.find('DISPLAYaqw', 'PROGRAM_PREFIX') or \
                         '{}/linuxcnc/nc_files'.format(os.path.expanduser("~"))
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
-        self.scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
+        # glcanon has a reversed scale to just about everything else...
+        self.scale = 1.0 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 0.03937000787402
         self.preview = preview(self.i)
         self.preview.program_alpha = True
         self.preview.set_cone_basesize(0.1)
         self.preview.mouse_btn_mode = 6
-        if self.scale == 0.039370:
+        if self.scale == 1.0:
             self.preview.metric_units = False
         self.rowSpace = 2
         self.tmpDir = ('/tmp/plasmac_wizards')
@@ -366,7 +367,7 @@ class main_wiz:
                         wHeight = 0
                 elif line.startswith('grid-size'):
                     try:
-                        gSize = float(line.strip().split('=')[1])
+                        gSize = float(line.strip().split('=')[1]) * self.scale
                     except:
                         gSize = 0
         if wWidth and wHeight:

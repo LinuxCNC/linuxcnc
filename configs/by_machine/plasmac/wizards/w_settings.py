@@ -48,7 +48,7 @@ class settings_wiz:
         if self.wWEntry.get_text() and self.wHEntry.get_text():
             self.parent.resize_window(int(self.wWEntry.get_text()), int(self.wHEntry.get_text()))
         if self.gSEntry.get_text():
-            self.parent.preview.grid_size = float(self.gSEntry.get_text())
+            self.parent.preview.grid_size = float(self.gSEntry.get_text()) * self.parent.scale
             self.parent.preview.load(self.fNgc)
 
     def load_config(self, widget):
