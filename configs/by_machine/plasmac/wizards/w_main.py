@@ -27,6 +27,7 @@ import math
 import linuxcnc
 import shutil
 import hal
+import gobject
 from subprocess import Popen,PIPE
 import gremlin
 
@@ -68,6 +69,13 @@ class main_wiz:
         self.fTmp = '{}/temp.ngc'.format(self.tmpDir)
         self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
         self.fNgcBkp = '{}/backup.ngc'.format(self.tmpDir)
+        gobject.timeout_add(100, self.periodic)
+
+    def periodic(self):
+        # exit if linuxcnc not running
+        if not hal.component_exists('plasmac_run'):
+            self.W.destroy()
+        return True
 
     def dialog_error(self, wizard, error):
         md = gtk.MessageDialog(self.W, 
@@ -103,11 +111,11 @@ class main_wiz:
         outNgc.close()
         shutil.copyfile(self.fNgc, self.fTmp)
         shutil.copyfile(self.fNgc, self.fNgcBkp)
-        if self.gui == 'axis':
-            Popen('axis-remote {}'.format(self.fNgc), stdout = PIPE, shell = True)
-        elif self.gui == 'gmoccapy':
-            self.c.program_open(self.fNgc)
-        time.sleep(0.1)
+        # if self.gui == 'axis':
+        #     Popen('axis-remote {}'.format(self.fNgc), stdout = PIPE, shell = True)
+        # elif self.gui == 'gmoccapy':
+        #     self.c.program_open(self.fNgc)
+        # time.sleep(0.1)
         self.preview.load(self.fNgc)
 
     def on_save_clicked(self, widget):
@@ -216,19 +224,25 @@ class main_wiz:
         array = w_array.array_wiz()
         array.array_show(self, self.entry_box, self.fNgc, self.fNgcBkp, self.fTmp, self.rowSpace, mode)
 
-    def close_window(self, widget, event):
-        if event == 'quit':
-            self.W.emit('delete-event', gtk.gdk.Event(gtk.gdk.DELETE))
+    def on_send_clicked(self, widget):
+        shutil.copyfile(self.fNgcBkp, self.fNgc)
+        if self.gui == 'axis':
+            Popen('axis-remote {}'.format(self.fNgc), stdout = PIPE, shell = True)
+        elif self.gui == 'gmoccapy':
+            self.c.program_open('./wizards/blank.ngc')
+            time.sleep(0.1)
+            self.c.program_open(self.fNgc)
         else:
-            shutil.copyfile(self.fNgcBkp, self.fNgc)
-            if self.gui == 'axis':
-                Popen('axis-remote {}'.format(self.fNgc), stdout = PIPE, shell = True)
-            elif self.gui == 'gmoccapy':
-                self.c.program_open('./wizards/blank.ngc')
-                time.sleep(0.1)
-                self.c.program_open(self.fNgc)
-            else:
-                print('Unknown GUI in .ini file')
+            print('Unknown GUI in .ini file')
+        print 'send to gui'
+        self.W.destroy()
+
+    def on_quit_clicked(self, widget):
+        print 'quit'
+        self.W.destroy()
+
+    def on_delete_event(self, window, event):
+        print 'delete_event\n'
         self.W.destroy()
 
     def remove_temp_files(self):
@@ -257,7 +271,7 @@ class main_wiz:
         self.W.set_keep_above(True)
         self.W.set_position(gtk.WIN_POS_CENTER)
         self.W.set_default_size(890, 663)
-        self.W.connect('delete_event', self.close_window)
+        self.W.connect('delete_event', self.on_delete_event)
         top = gtk.HBox(True, 2)
         bottom = gtk.HBox()
         self.W.vbox.pack_start(top, expand = False, fill = True)
@@ -326,9 +340,12 @@ class main_wiz:
         self.settings = gtk.Button('Settings')
         self.settings.connect('clicked', self.on_settings_clicked)
         self.button_box.attach(self.settings, 2, 3, 0, 1)
-        self.quit_button = gtk.Button('Finish')
-        self.quit_button.connect('clicked', self.close_window, 'quit')
-        self.button_box.attach(self.quit_button, 4, 5, 0, 1)
+        self.quit = gtk.Button('Quit')
+        self.quit.connect('clicked', self.on_quit_clicked)
+        self.button_box.attach(self.quit, 3, 4, 0, 1)
+        self.send = gtk.Button('Send')
+        self.send.connect('clicked', self.on_send_clicked)
+        self.button_box.attach(self.send, 4, 5, 0, 1)
         wWidth = wHeight = gSize = 0
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
