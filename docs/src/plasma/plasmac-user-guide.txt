@@ -211,7 +211,7 @@ o = 0.5 × a × (v ÷ a)^2
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec
 
-For a metric machine with a Z axis MAX_ACCELERATION of 600 m/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
+For a metric machine with a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
 
 For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
 
