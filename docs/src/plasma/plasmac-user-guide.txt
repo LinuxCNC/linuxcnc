@@ -211,7 +211,7 @@ o = 0.5 × a × (v ÷ a)^2
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec
 
-For a metric machine with a Z axis MAX_ACCELERATION of 600 m/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
+For a metric machine with a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
 
 For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
 
@@ -1435,13 +1435,15 @@ The *Save* button opens a dialog allowing the current shape to be saved as a G-C
 
 The *Settings* button allows changing the global settings.
 
-The *Finish* button will close the Conversational Panel and load the current shape into LinuxCNC. If the last edit was not added then it will be lost.
+The *Quit* button will close the Conversational Panel, all edits will be discarded.
+
+The *Send* button will close the Conversational Panel and load the current shape into LinuxCNC. If the last edit was not added then it will be discarded.
 
 The *Preview* button will display a preview of the current shape provide the required information is present.
 
 The *Continue* button is for lines and arcs only and allows another segment to be added to the current segment/segments.
 
-The *Add* button will store the current shape as is
+The *Add* button will store the current shape into the current job.
 
 The *Undo* button will revert to the previous stored state. If there have been no edits since the last store then it will stay at the current state.
 
