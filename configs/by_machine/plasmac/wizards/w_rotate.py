@@ -41,13 +41,13 @@ class rotate_wiz:
         self.previewed = False
 
     def rotate_cancel(self, widget):
-        shutil.copyfile(self.fNgcBkp, self.fNgc)
-        self.parent.preview.load(self.fNgc)
+        shutil.copyfile(self.parent.fNgcBkp, self.parent.fNgc)
+        self.parent.preview.load(self.parent.fNgc)
         self.previewed = False
 
     def rotate_accept(self, widget):
-        shutil.copyfile(self.fNgc, self.fNgcBkp)
-        self.parent.preview.load(self.fNgc)
+        shutil.copyfile(self.parent.fNgc, self.parent.fNgcBkp)
+        self.parent.preview.load(self.parent.fNgc)
 
     def rotate_preview(self, event):
         if self.aEntry.get_text():
@@ -62,8 +62,8 @@ class rotate_wiz:
             yOffset = float(self.yOEntry.get_text())
         else:
             yOffset = 0
-        outNgc = open(self.fNgc, 'w')
-        inCod = open(self.fNgcBkp, 'r')
+        outNgc = open(self.parent.fNgc, 'w')
+        inCod = open(self.parent.fNgcBkp, 'r')
         for line in inCod:
             if line.strip().lower().startswith('g'):
                 rLine = self.rotate_object(angle, xOffset, yOffset, line)
@@ -75,7 +75,7 @@ class rotate_wiz:
                 outNgc.write(line)
         inCod.close()
         outNgc.close()
-        self.parent.preview.load(self.fNgc)
+        self.parent.preview.load(self.parent.fNgc)
         # if self.previewed:
         #     md.destroy()
         self.previewed = True
@@ -124,54 +124,52 @@ class rotate_wiz:
                 newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
             return ('{}\n'.format(newLine))
 
-    def rotate_show(self, parent, entries, fNgc, fNgcBkp, fTmp, rowS):
-        entries.set_row_spacings(rowS)
+    def rotate_show(self, parent):
         self.parent = parent
-        for child in entries.get_children():
-            entries.remove(child)
-        self.fNgc = fNgc
-        self.fNgcBkp = fNgcBkp
+        self.parent.entries.set_row_spacings(self.parent.rowSpace)
+        for child in self.parent.entries.get_children():
+            self.parent.entries.remove(child)
         try:
-            shutil.copyfile(inFile, self.fNgcBkp)
+            shutil.copyfile(inFile, self.parent.fNgcBkp)
         except:
             pass
         aLabel = gtk.Label('Angle')
         aLabel.set_alignment(0.95, 0.5)
-        entries.attach(aLabel, 1, 2, 1, 2)
+        self.parent.entries.attach(aLabel, 1, 2, 1, 2)
         self.aEntry = gtk.Entry()
         self.aEntry.set_width_chars(8)
         self.aEntry.set_text('0')
         self.aEntry.connect('activate', self.rotate_preview)
         self.aEntry.connect('changed', self.parent.entry_changed)
-        entries.attach(self.aEntry, 2, 3, 1, 2)
+        self.parent.entries.attach(self.aEntry, 2, 3, 1, 2)
         xOLabel = gtk.Label('X Offset')
         xOLabel.set_alignment(0.95, 0.5)
-        entries.attach(xOLabel, 1, 2, 3, 4)
+        self.parent.entries.attach(xOLabel, 1, 2, 3, 4)
         self.xOEntry = gtk.Entry()
         self.xOEntry.set_width_chars(8)
         self.xOEntry.set_text('0')
         self.xOEntry.connect('activate', self.rotate_preview)
         self.xOEntry.connect('changed', self.parent.entry_changed)
-        entries.attach(self.xOEntry, 2, 3, 3, 4)
+        self.parent.entries.attach(self.xOEntry, 2, 3, 3, 4)
         yOLabel = gtk.Label('Y Offset')
         yOLabel.set_alignment(0.95, 0.5)
-        entries.attach(yOLabel, 1, 2, 5, 6)
+        self.parent.entries.attach(yOLabel, 1, 2, 5, 6)
         self.yOEntry = gtk.Entry()
         self.yOEntry.set_width_chars(8)
         self.yOEntry.set_text('0')
         self.yOEntry.connect('activate', self.rotate_preview)
         self.yOEntry.connect('changed', self.parent.entry_changed)
-        entries.attach(self.yOEntry, 2, 3, 5, 6)
+        self.parent.entries.attach(self.yOEntry, 2, 3, 5, 6)
         self.preview = gtk.Button('Preview')
         self.preview.connect('pressed', self.rotate_preview)
-        entries.attach(self.preview, 0, 1, 13, 14)
+        self.parent.entries.attach(self.preview, 0, 1, 13, 14)
         self.add = gtk.Button('Add')
         self.add.connect('pressed', self.rotate_accept)
         self.add.set_sensitive(False)
-        entries.attach(self.add, 2, 3, 13, 14)
+        self.parent.entries.attach(self.add, 2, 3, 13, 14)
         undo = gtk.Button('Undo')
         undo.connect('pressed', self.rotate_cancel)
-        entries.attach(undo, 4, 5, 13, 14)
+        self.parent.entries.attach(undo, 4, 5, 13, 14)
         self.parent.undo_shape(None, self.add)
         self.parent.W.show_all()
         self.aEntry.grab_focus()
