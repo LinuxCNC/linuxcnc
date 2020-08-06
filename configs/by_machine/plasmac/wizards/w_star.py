@@ -79,10 +79,10 @@ class star_wiz:
                 leadInOffset = float(self.liEntry.get_text())
             else:
                 leadInOffset = 0
-            if self.loEntry.get_text():
-                leadOutOffset = float(self.loEntry.get_text())
-            else:
-                leadOutOffset = 0
+            # if self.loEntry.get_text():
+            #     leadOutOffset = float(self.loEntry.get_text())
+            # else:
+            #     leadOutOffset = 0
             if self.aEntry.get_text():
                 angle = math.radians(float(self.aEntry.get_text()))
             else:
@@ -224,15 +224,15 @@ class star_wiz:
         self.liEntry.connect('activate', self.auto_preview)
         self.liEntry.connect('changed', self.entry_changed)
         self.parent.entries.attach(self.liEntry, 1, 2, 1, 2)
-        loLabel = gtk.Label('Lead Out')
-        loLabel.set_alignment(0.95, 0.5)
-        loLabel.set_width_chars(8)
-        self.parent.entries.attach(loLabel, 0, 1, 2, 3)
-        self.loEntry = gtk.Entry()
-        self.loEntry.set_width_chars(8)
-        self.loEntry.connect('activate', self.auto_preview)
-        self.loEntry.connect('changed', self.parent.entry_changed)
-        self.parent.entries.attach(self.loEntry, 1, 2, 2, 3)
+        # loLabel = gtk.Label('Lead Out')
+        # loLabel.set_alignment(0.95, 0.5)
+        # loLabel.set_width_chars(8)
+        # self.parent.entries.attach(loLabel, 0, 1, 2, 3)
+        # self.loEntry = gtk.Entry()
+        # self.loEntry.set_width_chars(8)
+        # self.loEntry.connect('activate', self.auto_preview)
+        # self.loEntry.connect('changed', self.parent.entry_changed)
+        # self.parent.entries.attach(self.loEntry, 1, 2, 2, 3)
         xSLabel = gtk.Label()
         xSLabel.set_markup('X <span foreground="red">origin</span>')
         xSLabel.set_alignment(0.95, 0.5)
@@ -326,8 +326,8 @@ class star_wiz:
                         self.bLeft.set_active(1)
                 elif line.startswith('lead-in'):
                     self.liEntry.set_text(line.strip().split('=')[1])
-                elif line.startswith('lead-out'):
-                    self.loEntry.set_text(line.strip().split('=')[1])
+                # elif line.startswith('lead-out'):
+                #     self.loEntry.set_text(line.strip().split('=')[1])
         self.xSEntry.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
         self.ySEntry.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
         if not self.liEntry.get_text() or float(self.liEntry.get_text()) == 0:
