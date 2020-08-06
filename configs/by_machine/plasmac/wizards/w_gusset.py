@@ -58,21 +58,34 @@ class gusset_wiz:
             if self.aEntry.get_text():
                 angle = math.radians(float(self.aEntry.get_text()))
             else:
-                angle = 0.0
+                angle = up
             if self.rEntry.get_text():
                 radius = float(self.rEntry.get_text())
+                if radius > height or radius > width:
+                    msg = 'Radius must be less than width and height\n\n'
+                    self.parent.dialog_error('GUSSET', msg)
+                    return
             else:
                 radius = 0.0
-            bLength = (width - radius) / 2
-            sLength = height - radius
             if self.xSEntry.get_text():
-                xS = float(self.xSEntry.get_text()) + (bLength + radius) * math.cos(right)
+                x0 = float(self.xSEntry.get_text())
             else:
-                xS = xPos + (bLength + radius) * math.cos(right)
+                x0 = xPos
             if self.ySEntry.get_text():
-                yS = float(self.ySEntry.get_text()) + (bLength + radius) * math.sin(right)
+                y0 = float(self.ySEntry.get_text())
             else:
-                yS = yPos + (bLength + radius) * math.sin(right)
+                y0 = yPos
+            x1 = x0 + width * math.cos(right)
+            y1 = y0 + width * math.sin(right)
+            x2 = x0 + height * math.cos(angle)
+            y2 = y0 + height * math.sin(angle)
+            hypotLength = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+            if x2 <= x1:
+                hypotAngle = left - math.atan((y2 - y1) / (x1 - x2))
+            else:
+                hypotAngle = right - math.atan((y2 - y1) / (x1 - x2))
+            xS = x1 + (hypotLength / 2) * math.cos(hypotAngle)
+            yS = y1 + (hypotLength / 2) * math.sin(hypotAngle)
             if self.liEntry.get_text():
                 leadInOffset = math.sin(math.radians(45)) * float(self.liEntry.get_text())
             else:
@@ -82,9 +95,15 @@ class gusset_wiz:
             else:
                 leadOutOffset = 0
             if self.outside.get_active():
-                dir = [down, right]
+                if y2 >= y0:
+                    dir = [up, right]
+                else:
+                    dir = [down, left]
             else:
-                dir = [up, left]
+                if y2 >= y0:
+                    dir = [down, left]
+                else:
+                    dir = [up, right]
             outTmp = open(self.parent.fTmp, 'w')
             outNgc = open(self.parent.fNgc, 'w')
             inWiz = open(self.parent.fNgcBkp, 'r')
@@ -100,10 +119,10 @@ class gusset_wiz:
                 outNgc.write(line)
             outTmp.write('\n(wizard gusset)\n')
             if leadInOffset > 0:
-                xlCentre = xS + (leadInOffset * math.cos(dir[0]))
-                ylCentre = yS + (leadInOffset * math.sin(dir[0]))
-                xlStart = xlCentre + (leadInOffset * math.cos(dir[1]))
-                ylStart = ylCentre + (leadInOffset * math.sin(dir[1]))
+                xlCentre = xS + (leadInOffset * math.cos(hypotAngle - dir[0]))
+                ylCentre = yS + (leadInOffset * math.sin(hypotAngle - dir[0]))
+                xlStart = xlCentre + (leadInOffset * math.cos(hypotAngle - dir[1]))
+                ylStart = ylCentre + (leadInOffset * math.sin(hypotAngle - dir[1]))
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
                 if self.offset.get_active():
                     outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
@@ -113,48 +132,59 @@ class gusset_wiz:
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 outTmp.write('m3 $0 s1\n')
             if self.outside.get_active():
-                x1 = xS + bLength * math.cos(left)
-                y1 = yS + bLength * math.sin(left)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
-                x2 = xS + (bLength + radius) * math.cos(left)
-                y2 = yS + (bLength + radius) * math.sin(left)
                 if radius > 0:
-                    x3 = x2 + radius * math.cos(angle)
-                    y3 = y2 + radius * math.sin(angle)
-                    outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x2 - x1, y2 - y1))
-                x4 = x2 + (sLength + radius) * math.cos(angle)
-                y4 = y2 + (sLength + radius) * math.sin(angle)
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
-                x5 = xS + bLength * math.cos(right)
-                y5 = yS + bLength * math.sin(right)
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x5, y5))
-            else:
-                x1 = xS + bLength * math.cos(right)
-                y1 = yS + bLength * math.sin(right)
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
-                x4 = xS + (bLength + radius) * math.cos(left)
-                y4 = yS + (bLength + radius) * math.sin(left)
-                x2 = x4 + (sLength + radius) * math.cos(angle)
-                y2 = y4 + (sLength + radius) * math.sin(angle)
+                    x3 = x0 + radius
+                    y3 = y0
+                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
+                    x4 = x0 + radius * math.cos(angle)
+                    y4 = y0 + radius * math.sin(angle)
+                    if self.rButton.child.get_text().startswith('Radius'):
+                        if y2 >= y0:
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x4, y4 , x0 - x3, y0 - y3))
+                        else:
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x4, y4 , x0 - x3, y0 - y3))
+                    else:
+                        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
+                else:
+                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x0, y0))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
-                x3 = x4 + radius * math.cos(angle)
-                y3 = y4 + radius * math.sin(angle)
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
+                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+            else:
+                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                 if radius > 0:
-                    x5 = x4 + radius * math.cos(right)
-                    y5 = y4 + radius * math.sin(right)
-                    outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x5, y5 , x4 - x3, y4 - y3))
+                    x3 = x0 + radius
+                    y3 = y0
+                    x4 = x0 + radius * math.cos(angle)
+                    y4 = y0 + radius * math.sin(angle)
+                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
+                    if self.rButton.child.get_text().startswith('Radius'):
+                        if y2 >= y0:
+                            outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x0 - x4, y0 - y4))
+                        else:
+                            outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x0 - x4, y0 - y4))
+                    else:
+                        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
+                else:
+                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x0, y0))
+                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
             outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
             if leadOutOffset > 0:
                 if self.outside.get_active():
-                    dir = [down, left]
+                    if y2 >= y0:
+                        dir = [up, left]
+                    else:
+                        dir = [down, right]
                 else:
-                    dir = [up, right]
-                xlCentre = xS + (leadOutOffset * math.cos(dir[0]))
-                ylCentre = yS + (leadOutOffset * math.sin(dir[0]))
-                xlEnd = xlCentre + (leadOutOffset * math.cos(dir[1]))
-                ylEnd = ylCentre + (leadOutOffset * math.sin(dir[1]))
+                    if y2 >= y0:
+                        dir = [down, right]
+                    else:
+                        dir = [up, left]
+                xlCentre = xS + (leadOutOffset * math.cos(hypotAngle - dir[0]))
+                ylCentre = yS + (leadOutOffset * math.sin(hypotAngle - dir[0]))
+                xlEnd = xlCentre + (leadOutOffset * math.cos(hypotAngle - dir[1]))
+                ylEnd = ylCentre + (leadOutOffset * math.sin(hypotAngle - dir[1]))
                 outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xS, ylCentre - yS))
             if self.offset.get_active():
                 outTmp.write('g40\n')
@@ -184,6 +214,13 @@ class gusset_wiz:
             if height <= 0:
                 msg += 'A positive height value is required\n\n'
             self.parent.dialog_error('GUSSET', msg)
+
+    def rad_button_pressed(self, button):
+        if button.child.get_text()[:3] == 'Rad':
+            button.child.set_text('Chamfer')
+        else:
+            button.child.set_text('Radius')
+        self.auto_preview('local')
 
     def auto_preview(self, widget):
         if self.wEntry.get_text() and self.hEntry.get_text():
@@ -273,10 +310,16 @@ class gusset_wiz:
         self.hEntry.connect('activate', self.auto_preview)
         self.hEntry.connect('changed',self.parent.entry_changed)
         self.parent.entries.attach(self.hEntry, 1, 2, 6, 7)
-        rLabel = gtk.Label('Radius')
-        rLabel.set_alignment(0.95, 0.5)
-        rLabel.set_width_chars(8)
-        self.parent.entries.attach(rLabel, 0, 1, 7, 8)
+
+        # rLabel = gtk.Label('Radius')
+        # rLabel.set_alignment(0.95, 0.5)
+        # rLabel.set_width_chars(8)
+        # self.parent.entries.attach(rLabel, 0, 1, 7, 8)
+
+        self.rButton = gtk.Button('Radius')
+        self.rButton.connect('pressed', self.rad_button_pressed)
+        self.parent.entries.attach(self.rButton, 0, 1, 7, 8)
+
         self.rEntry = gtk.Entry()
         self.rEntry.set_width_chars(8)
         self.rEntry.set_text('0')

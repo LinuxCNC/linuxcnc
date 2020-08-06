@@ -102,20 +102,31 @@ class triangle_wiz:
                     a = c / math.sin(C) * math.sin(A)
                     done = True
         if done:
-            xCPoint = xBPoint + a * math.cos(angle)
-            yCPoint = yBPoint + a * math.sin(angle)
-            xAPoint = xBPoint + c * math.cos(angle + B)
-            yAPoint = yBPoint + c * math.sin(angle + B)
-            xCentre = xBPoint + (a / 2) * math.cos(angle)
-            yCentre = yBPoint + (a / 2) * math.sin(angle)
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
-            if self.outside.get_active():
-                dir = [down, right]
+            xCPoint = xBPoint + a * math.cos(angle)
+            yCPoint = yBPoint + a * math.sin(angle)
+            xAPoint = xBPoint + c * math.cos(angle + B)
+            yAPoint = yBPoint + c * math.sin(angle + B)
+            hypotLength = math.sqrt((xAPoint - xCPoint) ** 2 + (yAPoint - yCPoint) ** 2)
+            if xAPoint <= xCPoint:
+                hypotAngle = left - math.atan((yAPoint - yCPoint) / (xCPoint - xAPoint))
             else:
-                dir = [up, left]
+                hypotAngle = right - math.atan((yAPoint - yCPoint) / (xCPoint - xAPoint))
+            xS = xCPoint + (hypotLength / 2) * math.cos(hypotAngle)
+            yS = yCPoint + (hypotLength / 2) * math.sin(hypotAngle)
+            if self.outside.get_active():
+                if yAPoint >= yBPoint:
+                    dir = [up, right]
+                else:
+                    dir = [down, left]
+            else:
+                if yAPoint >= yBPoint:
+                    dir = [down, left]
+                else:
+                    dir = [up, right]
             outTmp = open(self.parent.fTmp, 'w')
             outNgc = open(self.parent.fNgc, 'w')
             inWiz = open(self.parent.fNgcBkp, 'r')
@@ -131,37 +142,43 @@ class triangle_wiz:
                 outNgc.write(line)
             outTmp.write('\n(wizard triangle)\n')
             if leadInOffset > 0:
-                xlCentre = xCentre + (leadInOffset * math.cos(angle + dir[0]))
-                ylCentre = yCentre + (leadInOffset * math.sin(angle + dir[0]))
-                xlStart = xlCentre + (leadInOffset * math.cos(angle + dir[1]))
-                ylStart = ylCentre + (leadInOffset * math.sin(angle + dir[1]))
+                xlCentre = xS + (leadInOffset * math.cos(hypotAngle - dir[0]))
+                ylCentre = yS + (leadInOffset * math.sin(hypotAngle - dir[0]))
+                xlStart = xlCentre + (leadInOffset * math.cos(hypotAngle - dir[1]))
+                ylStart = ylCentre + (leadInOffset * math.sin(hypotAngle - dir[1]))
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
                 if self.offset.get_active():
                     outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
                 outTmp.write('m3 $0 s1\n')
-                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xCentre, yCentre , xlCentre - xlStart, ylCentre - ylStart))
+                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS , xlCentre - xlStart, ylCentre - ylStart))
             else:
-                outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xCentre, yCentre))
+                outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 outTmp.write('m3 $0 s1\n')
             if self.outside.get_active():
+                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xCPoint , yCPoint))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xBPoint , yBPoint))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xAPoint , yAPoint))
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xCPoint , yCPoint))
             else:
-                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xCPoint , yCPoint))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xAPoint , yAPoint))
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xBPoint , yBPoint))
-            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xCentre, yCentre))
+                outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xCPoint , yCPoint))
+            outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
             if leadOutOffset > 0:
                 if self.outside.get_active():
-                    dir = [down, left]
+                    if yAPoint >= yBPoint:
+                        dir = [up, left]
+                    else:
+                        dir = [down, right]
                 else:
-                    dir = [up, right]
-                xlCentre = xCentre + (leadOutOffset * math.cos(angle + dir[0]))
-                ylCentre = yCentre + (leadOutOffset * math.sin(angle + dir[0]))
-                xlEnd = xlCentre + (leadOutOffset * math.cos(angle + dir[1]))
-                ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[1]))
-                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xCentre, ylCentre - yCentre))
+                    if yAPoint >= yBPoint:
+                        dir = [down, right]
+                    else:
+                        dir = [up, left]
+                xlCentre = xS + (leadOutOffset * math.cos(hypotAngle - dir[0]))
+                ylCentre = yS + (leadOutOffset * math.sin(hypotAngle - dir[0]))
+                xlEnd = xlCentre + (leadOutOffset * math.cos(hypotAngle - dir[1]))
+                ylEnd = ylCentre + (leadOutOffset * math.sin(hypotAngle - dir[1]))
+                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xS, ylCentre - yS))
             outTmp.write('g40\n')
             outTmp.write('m5\n')
             outTmp.close()
