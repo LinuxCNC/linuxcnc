@@ -55,13 +55,14 @@ class main_wiz:
         self.savePath = self.i.find('DISPLAYaqw', 'PROGRAM_PREFIX') or \
                         '{}/linuxcnc/nc_files'.format(os.path.expanduser("~"))
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
-        # glcanon has a reversed scale to just about everything else...
-        self.scale = 1.0 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 0.03937000787402
+        self.scale = 0.03937000787402 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
         self.preview = preview(self.i)
         self.preview.program_alpha = True
         self.preview.set_cone_basesize(0.1)
         self.preview.mouse_btn_mode = 6
         if self.scale == 1.0:
+            self.preview.metric_units = True
+        else:
             self.preview.metric_units = False
         self.rowSpace = 2
         self.tmpDir = ('/tmp/plasmac_wizards')
@@ -347,11 +348,26 @@ class main_wiz:
         wWidth = wHeight = gSize = 0
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
+            self.preamble = self.postamble = ''
+            self.origin = False
+            self.leadIn = self.leadOut = '0'
+            self.holeRadius = 0
+            self.holeSpeed = 100
             for line in f_in:
-                if line.startswith('postamble'):
-                    self.postamble = line.strip().split('=')[1]
-                elif line.startswith('preamble'):
+                if line.startswith('preamble'):
                     self.preamble = line.strip().split('=')[1]
+                elif line.startswith('postamble'):
+                    self.postamble = line.strip().split('=')[1]
+                elif line.startswith('origin') and line.strip().split('=')[1] == 'True':
+                    self.origin = True
+                elif line.startswith('lead-in'):
+                    self.leadIn = line.strip().split('=')[1]
+                elif line.startswith('lead-out'):
+                    self.leadOut = line.strip().split('=')[1]
+                elif line.startswith('hole-diameter'):
+                    self.holeRadius = float(line.strip().split('=')[1]) / 2
+                elif line.startswith('hole-speed'):
+                    self.holeSpeed = float(line.strip().split('=')[1])
                 elif line.startswith('window-width'):
                     try:
                         wWidth = int(line.strip().split('=')[1])
@@ -364,7 +380,8 @@ class main_wiz:
                         wHeight = 0
                 elif line.startswith('grid-size'):
                     try:
-                        gSize = float(line.strip().split('=')[1]) * self.scale
+                        # glcanon has a reversed scale to just about everything else... :(
+                        gSize = float(line.strip().split('=')[1]) * (0.03937000787402 / self.scale)
                     except:
                         gSize = 0
         if wWidth and wHeight:
@@ -384,8 +401,8 @@ class main_wiz:
             self.on_new_clicked(None)
         #hal.set_p('plasmac_run.preview-tab', '1')
         self.s.poll()
-        self.xOrigin = str(self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0])
-        self.yOrigin = str(self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1])
+        self.xOrigin = float(self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0])
+        self.yOrigin = float(self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1])
         self.on_line_clicked(None)
         response = self.W.run()
 

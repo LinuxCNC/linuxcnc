@@ -33,11 +33,6 @@ from subprocess import Popen,PIPE
 class line_wiz:
 
     def __init__(self):
-        self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-        self.c = linuxcnc.command()
-        self.s = linuxcnc.stat()
-        self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
-        self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
         self.add_segment = 0
         self.gcodeSave = ''
         self.savedX = ''
@@ -54,7 +49,11 @@ class line_wiz:
     def line_preview(self, event):
         if self.add_segment == 0:
             try:
+                if not self.entry1.get_text():
+                    self.entry1.set_text('{:0.3f}'.format(self.parent.xOrigin))
                 self.xS = float(self.entry1.get_text())
+                if not self.entry2.get_text():
+                    self.entry2.set_text('{:0.3f}'.format(self.parent.yOrigin))
                 self.yS = float(self.entry2.get_text())
             except:
                 msg  = 'Invalid entry detected\n'
@@ -65,7 +64,7 @@ class line_wiz:
             inWiz = open(self.parent.fNgcBkp, 'r')
             for line in inWiz:
                 if '(new wizard)' in line:
-                    outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                    outNgc.write('\n{} (preamble)\n'.format(self.parent.preamble))
                     outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
                     break
                 elif '(postamble)' in line:
@@ -161,14 +160,12 @@ class line_wiz:
         for line in outTmp:
             outNgc.write(line)
         outTmp.close()
-        outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+        outNgc.write('\n{} (postamble)\n'.format(self.parent.postamble))
         outNgc.write('m2\n')
         outNgc.close()
         self.parent.preview.load(self.parent.fNgc)
         self.add.set_sensitive(True)
         self.cont.set_sensitive(True)
-#        self.parent.xOrigin = self.xSEntry.get_text()
-#        self.parent.yOrigin = self.ySEntry.get_text()
         if self.add_segment == 1:
             self.add_segment = 2
 
@@ -182,6 +179,8 @@ class line_wiz:
         self.xE = self.xS + (inL * math.cos(angle))
         self.yE = self.yS + (inL * math.sin(angle))
         self.gcodeLine = 'g1 x{:.6f} y{:.6f}\n'.format(self.xE, self.yE)
+        self.savedX = str(self.xE)
+        self.savedY = str(self.yE)
 
     def do_arc_3_points(self, inX1, inY1, inXE, inYE):
         self.xE = inXE
@@ -220,6 +219,8 @@ class line_wiz:
         angle = math.radians(inA)
         xE = self.xS + (inL * math.cos(angle))
         yE = self.yS + (inL * math.sin(angle))
+        self.savedX = str(xE)
+        self.savedY = str(yE)
         self.do_arc_2_points_radius(xE, yE, inR)
 
     def line_type_changed(self, widget):
@@ -235,18 +236,18 @@ class line_wiz:
             self.set_arc_by_angle_radius()
 
     def auto_preview(self, widget):
-        if ((self.add_segment == 0 and self.entry1.get_text() and self.entry2.get_text()) and \
+        if ((self.add_segment == 0) and \
            ((self.lType.get_active_text() == 'line point to point' and self.entry4.get_text() and self.entry5.get_text()) or \
            (self.lType.get_active_text() == 'line by angle' and self.entry4.get_text() and self.entry5.get_text()) or \
            (self.lType.get_active_text() == 'arc 3p' and self.entry4.get_text() and self.entry5.get_text() and self.entry7.get_text() and self.entry8.get_text()) or \
            (self.lType.get_active_text() == 'arc 2p & radius' and self.entry4.get_text() and self.entry5.get_text() and self.entry7.get_text()) or \
            (self.lType.get_active_text() == 'arc angle & radius' and self.entry4.get_text() and self.entry5.get_text() and self.entry7.get_text()))) or \
-           (self.add_segment >= 1 and \
-           ((self.lType.get_active_text() == 'line point to point' and self.entry1.get_text() and self.entry2.get_text()) or \
-           (self.lType.get_active_text() == 'line by angle' and self.entry1.get_text() and self.entry2.get_text()) or \
-           (self.lType.get_active_text() == 'arc 3p' and self.entry1.get_text() and self.entry2.get_text() and self.entry4.get_text() and self.entry5.get_text()) or \
-           (self.lType.get_active_text() == 'arc 2p & radius' and self.entry1.get_text() and self.entry2.get_text() and self.entry4.get_text()) or \
-           (self.lType.get_active_text() == 'arc angle & radius' and self.entry1.get_text() and self.entry2.get_text() and self.entry4.get_text()))):
+           ((self.add_segment >= 1 and self.entry1.get_text() and self.entry2.get_text()) and \
+           ((self.lType.get_active_text() == 'line point to point') or \
+           (self.lType.get_active_text() == 'line by angle') or \
+           (self.lType.get_active_text() == 'arc 3p' and self.entry4.get_text() and self.entry5.get_text()) or \
+           (self.lType.get_active_text() == 'arc 2p & radius' and self.entry4.get_text()) or \
+           (self.lType.get_active_text() == 'arc angle & radius' and self.entry4.get_text()))):
             self.line_preview('auto') 
 
     def set_line_point_to_point(self):
@@ -254,9 +255,9 @@ class line_wiz:
         if self.add_segment > 0:
             self.entry1.grab_focus()
             self.label1.set_text('End X')
-            self.entry1.set_text(self.savedX)
+            self.entry1.set_text('{:0.3f}'.format(float(self.savedX)))
             self.label2.set_text('End Y')
-            self.entry2.set_text(self.savedY)
+            self.entry2.set_text('{:0.3f}'.format(float(self.savedY)))
             self.label3.hide()
             self.entry3.hide()
             self.label4.hide()
@@ -273,9 +274,9 @@ class line_wiz:
             self.g2Arc.hide()
         else:
             self.label1.set_text('Start X')
-            self.entry1.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
+            self.entry1.set_text('{:0.3f}'.format(0))
             self.label2.set_text('Start Y')
-            self.entry2.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+            self.entry2.set_text('{:0.3f}'.format(0))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('End X')
@@ -321,9 +322,9 @@ class line_wiz:
         else:
             self.entry4.grab_focus()
             self.label1.set_text('Start X')
-            self.entry1.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
+            self.entry1.set_text('{:0.3f}'.format(0))
             self.label2.set_text('Start Y')
-            self.entry2.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+            self.entry2.set_text('{:0.3f}'.format(0))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('Length')
@@ -348,18 +349,18 @@ class line_wiz:
         if self.add_segment > 0:
             self.entry1.grab_focus()
             self.label1.set_text('Next X')
-            self.entry1.set_text(self.savedX)
+            self.entry1.set_text('{:0.3f}'.format(float(self.savedX)))
             self.label2.set_text('Next Y')
-            self.entry2.set_text(self.savedY)
+            self.entry2.set_text('{:0.3f}'.format(float(self.savedY)))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('End X')
             self.label4.show()
-            self.entry4.set_text(self.savedX)
+            self.entry4.set_text('{:0.3f}'.format(float(self.savedX)))
             self.entry4.show()
             self.label5.set_text('End Y')
             self.label5.show()
-            self.entry5.set_text(self.savedY)
+            self.entry5.set_text('{:0.3f}'.format(float(self.savedY)))
             self.entry5.show()
             self.label6.hide()
             self.entry6.hide()
@@ -372,9 +373,9 @@ class line_wiz:
         else:
             self.entry4.grab_focus()
             self.label1.set_text('Start X')
-            self.entry1.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
+            self.entry1.set_text('{:0.3f}'.format(0))
             self.label2.set_text('Start Y')
-            self.entry2.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+            self.entry2.set_text('{:0.3f}'.format(0))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('Next X')
@@ -403,9 +404,9 @@ class line_wiz:
         if self.add_segment > 0:
             self.entry1.grab_focus()
             self.label1.set_text('End X')
-            self.entry1.set_text(self.savedX)
+            self.entry1.set_text('{:0.3f}'.format(float(self.savedX)))
             self.label2.set_text('End Y')
-            self.entry2.set_text(self.savedY)
+            self.entry2.set_text('{:0.3f}'.format(float(self.savedY)))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('Radius')
@@ -429,9 +430,9 @@ class line_wiz:
         else:
             self.entry4.grab_focus()
             self.label1.set_text('Start X')
-            self.entry1.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
+            self.entry1.set_text('{:0.3f}'.format(0))
             self.label2.set_text('Start Y')
-            self.entry2.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+            self.entry2.set_text('{:0.3f}'.format(0))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('End X')
@@ -488,9 +489,9 @@ class line_wiz:
         else:
             self.entry4.grab_focus()
             self.label1.set_text('Start X')
-            self.entry1.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
+            self.entry1.set_text('{:0.3f}'.format(0))
             self.label2.set_text('Start Y')
-            self.entry2.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+            self.entry2.set_text('{:0.3f}'.format(0))
             self.label3.hide()
             self.entry3.hide()
             self.label4.set_text('Length')
@@ -653,18 +654,6 @@ class line_wiz:
                 height=240)
         self.image = gtk.Image()
         self.parent.entries.attach(self.image, 2, 5, 1, 9)
-        if os.path.exists(self.configFile):
-            f_in = open(self.configFile, 'r')
-            for line in f_in:
-                if line.startswith('preamble'):
-                    self.preamble = line.strip().split('=')[1]
-                elif line.startswith('postamble'):
-                    self.postamble = line.strip().split('=')[1]
-        # self.s.poll()
-        # self.xOrigin = str(self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0])
-        # self.yOrigin = str(self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1])
-        #self.xOrigin = xOrigin
-        #self.yOrigin = yOrigin
         self.parent.undo_shape(None, self.add)
         self.lType.set_active(0)
         self.parent.W.show_all()

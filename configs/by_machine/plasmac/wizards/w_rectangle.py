@@ -32,16 +32,9 @@ from subprocess import Popen,PIPE
 class rectangle_wiz:
 
     def __init__(self):
-        self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-        self.c = linuxcnc.command()
-        self.s = linuxcnc.stat()
-        self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
-        self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
+        pass
 
     def rectangle_preview(self, event):
-        self.s.poll()
-        xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
-        yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
         xLB = yLR = xLT = yLL = 0
         if self.xLEntry.get_text() and self.yLEntry.get_text():
             try:
@@ -118,26 +111,18 @@ class rectangle_wiz:
                 up = math.radians(90)
                 left = math.radians(180)
                 down = math.radians(270)
-                if self.xSEntry.get_text():
-                    if self.centre.get_active():
-                        xS = float(self.xSEntry.get_text()) + yC * math.cos(angle + up)
-                    else:
-                        xS = float(self.xSEntry.get_text()) + blLength * math.cos(angle + right + blAngle)
+                if not self.xSEntry.get_text():
+                    self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
+                if self.centre.get_active():
+                    xS = float(self.xSEntry.get_text()) + yC * math.cos(angle + up)
                 else:
-                    if self.centre.get_active():
-                        xS = xPos + yC * math.cos(angle + up)
-                    else:
-                        xS = xPos + blLength * math.cos(angle + right + blAngle)
-                if self.ySEntry.get_text():
-                    if self.centre.get_active():
-                        yS = float(self.ySEntry.get_text()) + yC * math.sin(angle + up)
-                    else:
-                        yS = float(self.ySEntry.get_text()) + blLength * math.sin(angle + right + blAngle)
+                    xS = float(self.xSEntry.get_text()) + blLength * math.cos(angle + right + blAngle)
+                if not self.ySEntry.get_text():
+                    self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
+                if self.centre.get_active():
+                    yS = float(self.ySEntry.get_text()) + yC * math.sin(angle + up)
                 else:
-                    if self.centre.get_active():
-                        yS = yPos + yC * math.sin(angle + up)
-                    else:
-                        yS = yPos + blLength * math.sin(angle + right + blAngle)
+                    yS = float(self.ySEntry.get_text()) + blLength * math.sin(angle + right + blAngle)
                 if self.outside.get_active():
                     dir = [up, left, right]
                 else:
@@ -147,7 +132,7 @@ class rectangle_wiz:
                 inWiz = open(self.parent.fNgcBkp, 'r')
                 for line in inWiz:
                     if '(new wizard)' in line:
-                        outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                        outNgc.write('\n{} (preamble)\n'.format(self.parent.preamble))
                         outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
                         break
                     elif '(postamble)' in line:
@@ -359,19 +344,11 @@ class rectangle_wiz:
                 for line in outTmp:
                     outNgc.write(line)
                 outTmp.close()
-                outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+                outNgc.write('\n{} (postamble)\n'.format(self.parent.postamble))
                 outNgc.write('m2\n')
                 outNgc.close()
                 self.parent.preview.load(self.parent.fNgc)
                 self.add.set_sensitive(True)
-            if self.xSEntry.get_text():
-                self.parent.xOrigin = self.xSEntry.get_text()
-            else:
-                self.parent.xOrigin = xPos
-            if self.ySEntry.get_text():
-                self.parent.yOrigin = self.ySEntry.get_text()
-            else:
-                self.parent.yOrigin = yPos
         else:
             msg  = 'A positive X Length is required\n\n'
             msg += 'and\n\n'
@@ -539,24 +516,14 @@ class rectangle_wiz:
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
         self.parent.entries.attach(image, 2, 5, 1, 9)
-        if os.path.exists(self.configFile):
-            f_in = open(self.configFile, 'r')
-            for line in f_in:
-                if line.startswith('preamble'):
-                    self.preamble = line.strip().split('=')[1]
-                elif line.startswith('postamble'):
-                    self.postamble = line.strip().split('=')[1]
-                elif line.startswith('origin'):
-                    if line.strip().split('=')[1] == 'True':
-                        self.centre.set_active(1)
-                    else:
-                        self.bLeft.set_active(1)
-                elif line.startswith('lead-in'):
-                    self.liEntry.set_text(line.strip().split('=')[1])
-                elif line.startswith('lead-out'):
-                    self.loEntry.set_text(line.strip().split('=')[1])
-        self.xSEntry.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
-        self.ySEntry.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+        if self.parent.origin:
+            self.centre.set_active(1)
+        else:
+            self.bLeft.set_active(1)
+        self.liEntry.set_text(self.parent.leadIn)
+        self.loEntry.set_text(self.parent.leadOut)
+        self.xSEntry.set_text('{:0.3f}'.format(0))
+        self.ySEntry.set_text('{:0.3f}'.format(0))
         if not self.liEntry.get_text() or float(self.liEntry.get_text()) == 0:
             self.offset.set_sensitive(False)
         self.parent.undo_shape(None, self.add)
