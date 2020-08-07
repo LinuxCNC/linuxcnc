@@ -32,17 +32,9 @@ from subprocess import Popen,PIPE
 class circle_wiz:
 
     def __init__(self):
-        self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-        self.c = linuxcnc.command()
-        self.s = linuxcnc.stat()
-        self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
-        self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
-        self.scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
+        pass
 
     def circle_preview(self, event):
-        self.s.poll()
-        xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
-        yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
         if self.dEntry.get_text():
             radius = float(self.dEntry.get_text()) / 2
         else:
@@ -65,26 +57,18 @@ class circle_wiz:
                 leadOutOffset = math.sin(math.radians(45)) * float(self.loEntry.get_text())
             else:
                 leadOutOffset = 0
-            if self.xSEntry.get_text():
-                if self.centre.get_active():
-                    xC = float(self.xSEntry.get_text())
-                else:
-                    xC = float(self.xSEntry.get_text()) + radius
+            if not self.xSEntry.get_text():
+                self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
+            if self.centre.get_active():
+                xC = float(self.xSEntry.get_text())
             else:
-                if self.centre.get_active():
-                    xC = xPos
-                else:
-                    xC = xPos + radius
-            if self.ySEntry.get_text():
-                if self.centre.get_active():
-                    yC = float(self.ySEntry.get_text())
-                else:
-                    yC = float(self.ySEntry.get_text()) + radius
+                xC = float(self.xSEntry.get_text()) + radius
+            if not self.ySEntry.get_text():
+                self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
+            if self.centre.get_active():
+                yC = float(self.ySEntry.get_text())
             else:
-                if self.centre.get_active():
-                    yC = yPos
-                else:
-                    yC = yPos + radius
+                yC = float(self.ySEntry.get_text()) + radius
             xS = xC - ijOffset - ijDiff
             yS = yC - ijOffset - ijDiff
             right = math.radians(0)
@@ -95,7 +79,7 @@ class circle_wiz:
                 dir = [left, down]
             else:
                 dir = [right, up]
-            if radius <= self.sRadius:
+            if radius <= self.parent.holeRadius:
                 sHole = True
                 if leadInOffset > radius:
                     leadInOffset = radius
@@ -103,14 +87,10 @@ class circle_wiz:
                 sHole = False
             outTmp = open(self.parent.fTmp, 'w')
             outNgc = open(self.parent.fNgc, 'w')
-            if sHole:
-                speed = 0.6
-            else:
-                speed = 1.0
             inWiz = open(self.parent.fNgcBkp, 'r')
             for line in inWiz:
                 if '(new wizard)' in line:
-                    outNgc.write('\n{} (preamble)\n'.format(self.preamble))
+                    outNgc.write('\n{} (preamble)\n'.format(self.parent.preamble))
                     outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
                     break
                 elif '(postamble)' in line:
@@ -120,7 +100,7 @@ class circle_wiz:
                 outNgc.write(line)
             outTmp.write('\n(wizard circle)\n')
             if sHole:
-                outTmp.write('M67 E3 Q60 (reduce feed rate to 60%)\n')
+                outTmp.write('M67 E3 Q{} (reduce feed rate to 60%)\n'.format(self.parent.holeSpeed))
             if leadInOffset > 0:
                 if sHole and not self.outside.get_active():
                     xlStart = xS + leadInOffset * math.cos(angle)
@@ -169,19 +149,11 @@ class circle_wiz:
             for line in outTmp:
                 outNgc.write(line)
             outTmp.close()
-            outNgc.write('\n{} (postamble)\n'.format(self.postamble))
+            outNgc.write('\n{} (postamble)\n'.format(self.parent.postamble))
             outNgc.write('m2\n')
             outNgc.close()
             self.parent.preview.load(self.parent.fNgc)
             self.add.set_sensitive(True)
-            if self.xSEntry.get_text():
-                self.parent.xOrigin = self.xSEntry.get_text()
-            else:
-                self.parent.xOrigin = xPos
-            if self.ySEntry.get_text():
-                self.parent.yOrigin = self.ySEntry.get_text()
-            else:
-                self.parent.yOrigin = yPos
         else:
             self.parent.dialog_error('CIRCLE', 'Diameter is required')
 
@@ -218,7 +190,7 @@ class circle_wiz:
                 rad = float(self.dEntry.get_text()) / 2
             except:
                 rad = 0
-            if rad <= self.sRadius:
+            if rad <= self.parent.holeRadius:
                 self.overcut.set_sensitive(True)
                 self.ocEntry.set_sensitive(True)
         self.auto_preview('auto')
@@ -233,7 +205,7 @@ class circle_wiz:
                 rad = float(self.dEntry.get_text()) / 2
             except:
                 rad = 0
-            if (self.outside.get_active() and lolen) or not rad or rad > self.sRadius:
+            if (self.outside.get_active() and lolen) or not rad or rad > self.parent.holeRadius:
                 self.overcut.set_active(False)
         self.auto_preview('auto')    
 
@@ -243,7 +215,7 @@ class circle_wiz:
             rad = float(self.dEntry.get_text()) / 2
         except:
             rad = 0
-        if rad >= self.sRadius:
+        if rad >= self.parent.holeRadius:
             self.overcut.set_active(False)
             self.overcut.set_sensitive(False)
             self.ocEntry.set_sensitive(False)
@@ -261,8 +233,6 @@ class circle_wiz:
         self.parent.entries.set_row_spacings(self.parent.rowSpace)
         for child in self.parent.entries.get_children():
             self.parent.entries.remove(child)
-        self.sRadius = 0.0
-        self.hSpeed = 100
         cutLabel = gtk.Label('Cut Type')
         cutLabel.set_alignment(0.95, 0.5)
         cutLabel.set_width_chars(8)
@@ -346,7 +316,7 @@ class circle_wiz:
         self.ocEntry = gtk.Entry()
         self.ocEntry.set_width_chars(8)
         self.ocEntry.set_sensitive(False)
-        self.ocEntry.set_text(str(4 * self.scale))
+        self.ocEntry.set_text(str(4 * self.parent.scale))
         self.ocEntry.connect('activate', self.auto_preview)
         self.ocEntry.connect('changed', self.entry_changed)
         self.parent.entries.attach(self.ocEntry, 1, 2, 8, 9)
@@ -367,28 +337,14 @@ class circle_wiz:
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
         self.parent.entries.attach(image, 2, 5, 1, 9)
-        if os.path.exists(self.configFile):
-            f_in = open(self.configFile, 'r')
-            for line in f_in:
-                if line.startswith('preamble'):
-                    self.preamble = line.strip().split('=')[1]
-                elif line.startswith('postamble'):
-                    self.postamble = line.strip().split('=')[1]
-                elif line.startswith('origin'):
-                    if line.strip().split('=')[1] == 'True':
-                        self.centre.set_active(1)
-                    else:
-                        self.bLeft.set_active(1)
-                elif line.startswith('lead-in'):
-                    self.liEntry.set_text(line.strip().split('=')[1])
-                elif line.startswith('lead-out'):
-                    self.loEntry.set_text(line.strip().split('=')[1])
-                elif line.startswith('hole-diameter'):
-                    self.sRadius = float(line.strip().split('=')[1]) / 2
-                elif line.startswith('hole-speed'):
-                    self.hSpeed = float(line.strip().split('=')[1])
-        self.xSEntry.set_text('{:0.3f}'.format(float(self.parent.xOrigin)))
-        self.ySEntry.set_text('{:0.3f}'.format(float(self.parent.yOrigin)))
+        if self.parent.origin:
+            self.centre.set_active(1)
+        else:
+            self.bLeft.set_active(1)
+        self.liEntry.set_text(self.parent.leadIn)
+        self.loEntry.set_text(self.parent.leadOut)
+        self.xSEntry.set_text('{:0.3f}'.format(0))
+        self.ySEntry.set_text('{:0.3f}'.format(0))
         self.parent.undo_shape(None, self.add)
         self.parent.W.show_all()
         self.dEntry.grab_focus()
