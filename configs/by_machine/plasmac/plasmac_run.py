@@ -590,7 +590,9 @@ class HandlerClass:
 
     def load_config_file(self):
         for item in widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)):
-            self.configDict[item] = '0'
+            # we don't set mesh mode
+            if item != 'mesh-enable':
+                self.configDict[item] = '0'
         self.configDict['thc-mode'] = '0'
         convertFile = False
         if os.path.exists(self.configFile):
@@ -661,7 +663,7 @@ class HandlerClass:
             with open(self.configFile, 'w') as f_out:
                 f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
                 for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number': # or key == 'kerf-width':
+                    if key == 'material-number' or key == 'mesh-mode':
                         pass
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                         self.builder.get_object(key).update()
@@ -727,7 +729,6 @@ class HandlerClass:
         outFile.write('#name = value\n\n')
         for key in sorted(self.configDict.iterkeys()):
             if key in widgets:
-                print(key + '=' + str(self.configDict[key]))
                 if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                     self.builder.get_object(key).update()
                     outFile.write('{}={}\n'.format(key, str(self.builder.get_object(key).get_value())))
@@ -743,7 +744,7 @@ class HandlerClass:
             elif key in inDict:
                 outFile.write('{}={}\n'.format(key, inDict[key]))
             else:
-                print 'cannot save unknown parameter:', key
+                print '*** cannot save unknown parameter:', key
         outFile.close()
         if mode == 'material':
             self.set_saved_material()
