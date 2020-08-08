@@ -82,12 +82,17 @@ class sector_wiz:
             self.parent.dialog_error('SECTOR', msg)
             return
 # set origin position
+        kOffset = hal.get_value('plasmac_run.kerf-width-f') * self.offset.get_active() / 2
         if not self.xSEntry.get_text():
             self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
-        xO = float(self.xSEntry.get_text())
         if not self.ySEntry.get_text():
             self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
-        yO = float(self.ySEntry.get_text())
+        if self.outside.get_active():
+            xO = float(self.xSEntry.get_text()) + kOffset
+            yO = float(self.ySEntry.get_text()) + kOffset
+        else:
+            xO = float(self.xSEntry.get_text()) - kOffset
+            yO = float(self.ySEntry.get_text()) - kOffset
 # set start point
         xS = xO + (radius * 0.75) * math.cos(angle)
         yS = yO + (radius * 0.75) * math.sin(angle)

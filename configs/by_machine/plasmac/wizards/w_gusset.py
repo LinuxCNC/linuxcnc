@@ -57,12 +57,17 @@ class gusset_wiz:
                     return
             else:
                 radius = 0.0
+            kOffset = hal.get_value('plasmac_run.kerf-width-f') * self.offset.get_active() / 2
             if not self.xSEntry.get_text():
                 self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
-            x0 = float(self.xSEntry.get_text())
             if not self.ySEntry.get_text():
                 self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
-            y0 = float(self.ySEntry.get_text())
+            if self.outside.get_active():
+                x0 = float(self.xSEntry.get_text()) + kOffset
+                y0 = float(self.ySEntry.get_text()) + kOffset
+            else:
+                x0 = float(self.xSEntry.get_text()) - kOffset
+                y0 = float(self.ySEntry.get_text()) - kOffset
             x1 = x0 + width * math.cos(right)
             y1 = y0 + width * math.sin(right)
             x2 = x0 + height * math.cos(angle)
