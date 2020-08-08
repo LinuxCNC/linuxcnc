@@ -61,18 +61,25 @@ class slot_wiz:
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
+            kOffset = hal.get_value('plasmac_run.kerf-width-f') * self.offset.get_active() / 2
             if not self.xSEntry.get_text():
                 self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
             if self.centre.get_active():
                 xS = float(self.xSEntry.get_text()) + (width / 2) * math.cos(angle + up)
             else:
-                xS = float(self.xSEntry.get_text()) + blLength * math.cos(angle + right + blAngle)
+                if self.outside.get_active():
+                    xS = (float(self.xSEntry.get_text()) + kOffset) + blLength * math.cos(angle + right + blAngle)
+                else:
+                    xS = (float(self.xSEntry.get_text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
             if not self.ySEntry.get_text():
                 self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
             if self.centre.get_active():
                 yS = float(self.ySEntry.get_text()) + (width / 2) * math.sin(angle + up)
             else:
-                yS = float(self.ySEntry.get_text()) + blLength * math.sin(angle + right + blAngle)
+                if self.outside.get_active():
+                    yS = (float(self.ySEntry.get_text()) + kOffset) + blLength * math.sin(angle + right + blAngle)
+                else:
+                    yS = (float(self.xSEntry.get_text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
             if self.outside.get_active():
                 dir = [up, left, right]
             else:

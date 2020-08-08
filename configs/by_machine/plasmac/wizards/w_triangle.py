@@ -35,12 +35,17 @@ class triangle_wiz:
         pass
 
     def triangle_preview(self, event):
+        kOffset = hal.get_value('plasmac_run.kerf-width-f') * self.offset.get_active() / 2
         if not self.xSEntry.get_text():
             self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
-        xBPoint = float(self.xSEntry.get_text())
         if not self.ySEntry.get_text():
             self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
-        yBPoint = float(self.ySEntry.get_text())
+        if self.outside.get_active():
+            xBPoint = float(self.xSEntry.get_text()) + kOffset
+            yBPoint = float(self.ySEntry.get_text()) + kOffset
+        else:
+            xBPoint = float(self.xSEntry.get_text()) - kOffset
+            yBPoint = float(self.ySEntry.get_text()) - kOffset
         if self.angEntry.get_text():
             angle = math.radians(float(self.angEntry.get_text()))
         else:

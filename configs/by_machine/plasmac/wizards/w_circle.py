@@ -57,18 +57,25 @@ class circle_wiz:
                 leadOutOffset = math.sin(math.radians(45)) * float(self.loEntry.get_text())
             else:
                 leadOutOffset = 0
+            kOffset = hal.get_value('plasmac_run.kerf-width-f') * self.offset.get_active() / 2
             if not self.xSEntry.get_text():
                 self.xSEntry.set_text('{:0.3f}'.format(self.parent.xOrigin))
             if self.centre.get_active():
                 xC = float(self.xSEntry.get_text())
             else:
-                xC = float(self.xSEntry.get_text()) + radius
+                if self.outside.get_active():
+                    xC = float(self.xSEntry.get_text()) + radius + kOffset
+                else:
+                    xC = float(self.xSEntry.get_text()) + radius - kOffset
             if not self.ySEntry.get_text():
                 self.ySEntry.set_text('{:0.3f}'.format(self.parent.yOrigin))
             if self.centre.get_active():
                 yC = float(self.ySEntry.get_text())
             else:
-                yC = float(self.ySEntry.get_text()) + radius
+                if self.outside.get_active():
+                    yC = float(self.ySEntry.get_text()) + radius + kOffset
+                else:
+                    yC = float(self.ySEntry.get_text()) + radius - kOffset
             xS = xC - ijOffset - ijDiff
             yS = yC - ijOffset - ijDiff
             right = math.radians(0)
