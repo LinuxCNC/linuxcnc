@@ -7,12 +7,18 @@ import linuxcnc
 import hal
 
 from PyQt5 import QtCore, QtWidgets
+try:
+    from PyQt5.QtWebKitWidgets import QWebView
+except ImportError:
+    raise Exception("Qtvcp error with qtLathe - is package python-pyqt5.qtwebkit installed?")
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.file_manager import FileManager as FILEMGR
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
+from qtvcp.lib.gcodes import GCodes
 
 from qtvcp.core import Status, Action, Info
 
@@ -50,12 +56,12 @@ class HandlerClass:
     # widgets allows access to  widgets from the qtvcp files
     # at this point the widgets and hal pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
+       # some global variables
         self.hal = halcomp
         self.w = widgets
         self.PATH = paths
         self._big_view = -1
-        self.STYLEEDITOR = SSE(widgets,paths)
-        self.flag =0
+        self.flag = 0
         self.activeStyle = ''' { background-color: white;}'''
         self.defaultStyle = ''' { background-color: light blue;}'''
         self.activeWidgetDict = {'programPage':False,'userPage':False,'machinePage':False,
@@ -63,7 +69,14 @@ class HandlerClass:
                             'workoffsetsPage':False,'setupPage':False}
         self.current_mode = (None,None)
         self._last_count = 0
-       
+        self.run_time = 0
+        self.time_tenths = 0
+        self.timerOn = False
+        self.slow_jog_factor = 10
+
+        self.STYLEEDITOR = SSE(widgets,paths)
+        self.GCODES = GCodes()
+
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('command-running', lambda w: self.start_timer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
@@ -74,11 +87,6 @@ class HandlerClass:
         STATUS.connect('interp-run', lambda w: self.w.pushbutton_metric.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.w.pushbutton_metric.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.w.pushbutton_metric.setEnabled(False))
-        # some global variables
-        self.run_time = 0
-        self.time_tenths = 0
-        self.timerOn = False
-        self.slow_jog_factor = 10
 
     ##########################################
     # Special Functions called from QTVCP
@@ -89,6 +97,12 @@ class HandlerClass:
     # 
     def class_patch__(self):
         GCODE.exitCall = self.editor_exit
+        # patch filemanager so we can trap single click loading
+        # (doesn't work well on a touchscreen)
+        # you can only load using a button defined in designer now
+        # keep a reference to the original function as 'superLoad'
+        FILEMGR.superLoad = FILEMGR.load
+        FILEMGR.load = self.FMGRnoop
 
     # at this point:
     # the widgets are instantiated.
@@ -109,6 +123,13 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         self.w.pushbutton_metric.clicked[bool].connect(self.change_mode)
+
+        # web view widget for SETUP SHEET page
+        self.web_view = QWebView()
+        self.w.verticalLayout_setup.addWidget(self.web_view)
+        self.set_default_html()
+
+        self.GCODES.setup_list()
 
     def before_loop__(self):
         STATUS.connect('state-estop',lambda q:self.w.close())
@@ -193,30 +214,15 @@ class HandlerClass:
             self.w.progressBar.setFormat('Completed: {}%'.format(fraction))
 
     def toggle_prog(self):
-        cur = self.w.mainPaneStack.currentIndex()
         if self.current_mode == ('program', 'run'):
-            self.w.mainPaneStack.setCurrentIndex(1)
             self.set_active_mode('program', 'load')
         else:
-            self.w.mainPaneStack.setCurrentIndex(0)
             self.set_active_mode('program', 'run')
 
     def toggle_MDI(self):
-        self.w.mainPaneStack.setCurrentIndex(0)
-
-        cur = self.w.widgetswitcher.currentIndex()
-        if cur == 4:
-            next = self.w.mdi_tab.currentIndex() +1
-            if next > self.w.mdi_tab.count() - 1:
-                next = 0
-            self.w.mdi_tab.setCurrentIndex(next)
-        else:
-            self.w.widgetswitcher.setCurrentIndex(4)
-            self.w.mdi_tab.setCurrentIndex(0)
-        self.set_active_mode('mdi',cur)
+        self.set_active_mode('mdi',None)
 
     def toggle_setup(self):
-        self.w.widgetswitcher.setCurrentIndex(3)
         self.set_active_mode('setup',None)
 
     def toggle_dro(self):
@@ -227,14 +233,8 @@ class HandlerClass:
 			self.w.droPaneStack.setCurrentIndex(next)
         
     def toggle_offsets(self):
-        self.w.mainPaneStack.setCurrentIndex(0)
-        cur = self.w.widgetswitcher.currentIndex()
-        if cur == 2:
-            self.set_active_mode('offsetPage','tool')
-            self.w.widgetswitcher.setCurrentIndex(0)
-        else:
-            self.w.widgetswitcher.setCurrentIndex(2)
-            self.set_active_mode('offsetPage','work')
+        self.set_active_mode('offsetPage',None)
+
 
     def set_edit_mode(self, num):
         if num == 2:
@@ -243,17 +243,7 @@ class HandlerClass:
             self.w.gcodeeditor.readOnlyMode()
 
     def toggle_graphics(self):
-        cur = self.w.mainLeftStack.currentIndex()
-        if cur == 0:
-            if self.w.widgetswitcher.get_current_number() == 0:
-                self.w.widgetswitcher.show_default()
-                self.w.mainLeftStack.setCurrentIndex(1)
-            elif self.w.widgetswitcher.get_current_number() == 1:
-                self.w.widgetswitcher.show_default()
-                self.w.mainLeftStack.setCurrentIndex(0)
-        elif cur == 1:
-            self.w.mainLeftStack.setCurrentIndex(0)
-            self.w.widgetswitcher.show_id_widget(1)
+        self.set_active_mode('graphics', None)
 
     # tool tab
     def btn_m61_clicked(self):
@@ -336,22 +326,55 @@ class HandlerClass:
 
         if mode == 'program':
             if index =='run':
+                self.w.mainLeftStack.setCurrentIndex(0)# gcode
+                self.w.mainPaneStack.setCurrentIndex(0)# normal
                 update('programPage')
                 self.w.label_mode.setText('Operation-Run Program')
             else:
+                self.w.mainLeftStack.setCurrentIndex(0)# gcode
+                self.w.mainPaneStack.setCurrentIndex(1)# load
                 update('loadPage')
                 self.w.label_mode.setText('Operation-Load Program')
         elif mode == 'setup':
+            self.w.mainPaneStack.setCurrentIndex(0)# normal
+            self.w.widgetswitcher.setCurrentIndex(3)# setup manual
+            self.w.mainLeftStack.setCurrentIndex(1) # setup html
             update('setupPage')
             self.w.label_mode.setText('Operation- Manual Setup')
         elif mode == 'mdi':
+            self.w.mainPaneStack.setCurrentIndex(0)
+            cur = self.w.widgetswitcher.currentIndex()
+            if cur == 4:
+                next = self.w.mdi_tab.currentIndex() +1
+                if next > self.w.mdi_tab.count() - 1:
+                    next = 0
+                self.w.mdi_tab.setCurrentIndex(next)
+            else:
+                self.w.widgetswitcher.setCurrentIndex(4)
+                self.w.mdi_tab.setCurrentIndex(0)
             update('mdiPage')
             self.w.label_mode.setText('Operation- MDI Control')
         elif mode == 'offsetPage':
-            if index == 'tool':
+            self.w.mainPaneStack.setCurrentIndex(0)
+            cur = self.w.widgetswitcher.currentIndex()
+            if cur == 2:
+                self.w.widgetswitcher.setCurrentIndex(0)
                 update('tooloffsetsPage')
-            elif index == 'work':
+            else:
+                self.w.widgetswitcher.setCurrentIndex(2)
                 update('workoffsetsPage')
+        elif mode == 'graphics':
+            cur = self.w.mainLeftStack.currentIndex()
+            if cur == 0: # gcode
+                if self.w.widgetswitcher.get_current_number() == 0:
+                    self.w.widgetswitcher.show_default()
+                    self.w.mainLeftStack.setCurrentIndex(2)
+                elif self.w.widgetswitcher.get_current_number() == 1:
+                    self.w.widgetswitcher.show_default()
+                    self.w.mainLeftStack.setCurrentIndex(0)
+            elif cur == 2:
+                self.w.mainLeftStack.setCurrentIndex(0)
+                self.w.widgetswitcher.show_id_widget(1)
         else:
             print ('mode/index not recognized')
             return
@@ -411,6 +434,50 @@ class HandlerClass:
     def homed_on_test(self):
         return (STATUS.machine_is_on()
             and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+    def btn_load_file_clicked(self):
+        fname = self.w.filemanager.getCurrentSelected()
+        if fname[1] is True:
+            self.load_code(fname[0])
+
+    # class patched filemanager to trap single click loading
+    # this makes the original function do nothing
+    def FMGRnoop(self, fname):
+        pass
+    def load_code(self, fname):
+        if fname is None: return
+        if fname.endswith(".ngc") or fname.endswith(".py"):
+            # call original filemanager load function to load program
+            self.w.filemanager.superLoad(fname)
+
+            # change filepath extension to autoload an html setup page
+            fname = os.path.splitext(fname)[0]+'.html'
+
+        if fname.endswith(".html"):
+            if os.path.exists(fname):
+                self.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                return
+        self.set_default_html(fname)
+
+    def set_default_html(self,filename=None):
+        if filename is None: filename = 'No program Loaded'
+        print filename
+        self.html = """<html>
+<head>
+<title>Test page for the download:// scheme</title>
+</head>
+<body>
+<h1>Setup Tab</h1>
+<p> tried loading::%s</p>
+<p>If there was a HTML setup file , it would auto load and be shown here..</p>
+<img src="file://%s" alt="lcnc_swoop" />
+<hr />
+
+<a href="http://linuxcnc.org/docs/html/lathe/lathe-user.html">Lathe User Information link</a>
+</body>
+</html>
+""" %(filename,os.path.join(self.PATH.IMAGEDIR,'lcnc_swoop.png'))
+        self.web_view.setHtml(self.html)
 
     #####################
     # KEY BINDING CALLS #
