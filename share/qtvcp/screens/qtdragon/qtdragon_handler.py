@@ -303,6 +303,7 @@ class HandlerClass:
                     event.accept()
                     return True
 
+        if event.isAutoRepeat():return True
         # ok if we got here then try keybindings
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)

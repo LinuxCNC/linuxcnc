@@ -55,7 +55,6 @@ class MyEventFilter(QtCore.QObject):
                 if (self.has_key_p_handler):
                     handled = self.w.handler_instance.keypress_event__(receiver,event)
                 elif self.has_process_key_handler:
-                    if event.isAutoRepeat():return True
                     p,k,c,s,ctrl = self.process_event(event,True)
                     handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
                 if handled: return True
@@ -65,7 +64,6 @@ class MyEventFilter(QtCore.QObject):
                 if (self.has_key_r_handler):
                     handled = self.w.handler_instance.keyrelease_event__(event)
                 elif self.has_process_key_handler:
-                    if event.isAutoRepeat():return True
                     p,k,c,s,ctrl = self.process_event(event,False)
                     handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
                 if handled: return True

@@ -101,6 +101,9 @@ class HandlerClass:
                 self.w.mdi_line.keyPressEvent(event)
                 event.accept()
             return True
+
+        if event.isAutoRepeat():return True
+
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True

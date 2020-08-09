@@ -144,6 +144,8 @@ class HandlerClass:
                     QtCore.Qt.Key_F6,QtCore.Qt.Key_F7,QtCore.Qt.Key_F11,QtCore.Qt.Key_F12):
             raise
 
+        if event.isAutoRepeat():return True
+
         # ok if we got here then try keybindings
         try:
             return KEYBIND.call(self,event,is_pressed,shift,cntrl)
