@@ -40,7 +40,7 @@ import linuxcnc            # to get our own error system
 import gobject             # needed to add the timer for periodic
 import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
-from collections import OrderedDict # meeded for proper jog button arrangement
+from collections import OrderedDict # needed for proper jog button arrangement
 
 from gladevcp.gladebuilder import GladeBuilder
 
@@ -1144,7 +1144,7 @@ class gmoccapy(object):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog button")
 
-        self.jog_button_dic = from collections import OrderedDict()
+        self.jog_button_dic = OrderedDict()
 
         for axis in self.axis_list:
             for direction in ["+","-"]:
