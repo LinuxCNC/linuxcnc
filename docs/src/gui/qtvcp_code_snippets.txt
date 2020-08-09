@@ -285,6 +285,33 @@ which in this case is self.w.filemanager (the name given in the designer editor)
 Now our custom function will print the file path to the terminal before loading the file. +
 Obviously boring but shows the principle. +
 
+There is another slightly different way to do this that can have advantages. +
+You can store the reference to the original function in the original class. +
+the trick here is to make sure the function name you use to store it, is not already +
+used in the class. 'super__' added to the function name would be a good choice +
+We won't use that in built in qtvcp widgets. +
+
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTVCP
+    ##########################################
+
+    # For changing functions in widgets we can 'class patch'.
+    # class patching must be done before the class is instantiated.
+    def class_patch__(self):
+        FM.super__load = FM.load # keep a reference of the old function in the original class
+        FM.load = self.our_load # redirect function to our handle file function
+
+    #####################
+    # GENERAL FUNCTIONS #
+    #####################
+
+    def our_load(self,fname):
+        print fname
+        self.w.filemanager.super__load(fname)
+----
+
 == Adding widgets Programmatically
 
 In some situation it is only possible to add widgets with python code rather then using the Designer editor. +

@@ -69,6 +69,7 @@ class HandlerClass:
             if isinstance(receiver,QtWidgets.QDialog):
                 print 'dialog'
                 return True
+        if event.isAutoRepeat():return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
