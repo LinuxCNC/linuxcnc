@@ -970,6 +970,15 @@ class HandlerClass:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
                             self.builder.get_object('cut-amps').set_range(hal.get_value('pmx485.current_min'), hal.get_value('pmx485.current_max'))
                     self.pmx485Connected = True
+                if (hal.get_value('plasmac.mesh-enable-0') or hal.get_value('plasmac.mesh-enable-1')) and not self.meshMode:
+                    self.oldCutMode = self.builder.get_object('cut-mode').get_value()
+                    self.builder.get_object('cut-mode').set_value(2)
+                    self.builder.get_object('cut-mode').set_sensitive(False)
+                    self.meshMode = True
+                elif not hal.get_value('plasmac.mesh-enable-0') and not hal.get_value('plasmac.mesh-enable-1') and self.meshMode:
+                    self.builder.get_object('cut-mode').set_value(self.oldCutMode)
+                    self.builder.get_object('cut-mode').set_sensitive(True)
+                    self.meshMode = False
             else:
                 self.fault = '0000'
                 self.pmx485Started = False
@@ -999,6 +1008,8 @@ class HandlerClass:
             self.builder.get_object('gas-pressure').connect('value-changed', self.pmx485_pressure_changed)
             self.pressure = self.builder.get_object('gas-pressure').get_value()
             self.connTimer = 0
+            self.meshMode = False
+            self.oldCutMode = 1
         else:
             self.builder.get_object('gas-pressure').hide()
             self.builder.get_object('gas-pressure-label').hide()
