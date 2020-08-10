@@ -61,7 +61,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = '2.8'
+    LINUXCNCVERSION = 'Master (2.9)'
 
 def get_value(w):
     try:
