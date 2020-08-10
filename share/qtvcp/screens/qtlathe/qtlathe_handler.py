@@ -130,6 +130,7 @@ class HandlerClass:
         self.set_default_html()
 
         self.GCODES.setup_list()
+        self.w.gcode_editor.hide()
 
     def before_loop__(self):
         STATUS.connect('state-estop',lambda q:self.w.close())
@@ -310,7 +311,7 @@ class HandlerClass:
 
 
     def editor_exit(self):
-        self.w.gcodeeditor.exit()
+        self.btn_gcode_edit_clicked(False)
 
     def set_active_mode(self, mode, index):
         #print mode,index
@@ -436,6 +437,21 @@ class HandlerClass:
     def homed_on_test(self):
         return (STATUS.machine_is_on()
             and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+    # file tab
+    def btn_gcode_edit_clicked(self, state):
+        if not STATUS.is_on_and_idle():
+            return
+        for x in ["load", "next", "prev"]:
+            self.w["btn_file_{}".format(x)].setEnabled(not state)
+        if state:
+            self.w.filemanager.hide()
+            self.w.gcode_editor.show()
+            self.w.gcode_editor.editMode()
+        else:
+            self.w.filemanager.show()
+            self.w.gcode_editor.hide()
+            self.w.gcode_editor.readOnlyMode()
 
     def btn_load_file_clicked(self):
         fname = self.w.filemanager.getCurrentSelected()
