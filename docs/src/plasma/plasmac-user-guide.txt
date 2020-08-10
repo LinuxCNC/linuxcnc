@@ -1172,7 +1172,7 @@ This also enables near end of life consumables to be used for piercing and they 
 There are two ways of enabling this feature:
 
 * Program a <<button-cut, custom user button>> to toggle between the cut types.
-* Adding a line *#<pierce-only> = 1* anywhere in a G-Code file to enable Pierce Only mode for the current file.
+* Adding a line *#<pierce-only> = 1* in the G-Code file before the first cut to enable Pierce Only mode for the current file.
 
 If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
 
@@ -1402,14 +1402,25 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 . When the cut is complete press *Esc*. +
 . The torch will turn off and the Z axis returns to the starting position.
 
+[[mesh-mode]]
+
 === Mesh Mode (expanded metal)
 
 Expanded metal is able to be cut provided your machine has a pilot arc torch and it is capable of constant pilot arc mode.
 
-Mesh mode disables torch height control and also ignores a lost Arc OK signal. To enable this mode check the Mesh Mode checkbutton in the Run Panel.
+Mesh mode disables torch height control and also ignores a lost Arc OK signal. It can be selected by:
+
+. The Mesh Mode checkbutton in the Run Panel.
+. HAL pin motion.digital-out-01 from G-Code.
+
+----
+M62 P1 or M64 P1 (enable mesh mode)
+M63 P1 or M65 P1 (disable mesh mode)
+----
 
 It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore OK checkbutton on the Run Panel. This has no effect if Mesh Mode is not selected.
 
+If you have <<pm_comms, RS485>> communications enabled with a Hypertherm Powermax plasma cutter then selecting mesh mode will disable the Cut Mode spinbutton in the Run Panel and it will select cut mode 2 (CPA). When mesh mode is disabled then the Cut Mode spinbutton will be re-enabled and the original cut mode will be restored.
 [[shape-library]]
 
 == Conversational Shape Library
@@ -2323,6 +2334,8 @@ To switch the Powermax back to local mode you can either:
 .  Close LinuxCNC which will put the Powermax into local mode during shutdown.
 .  Powerdown the Powermax for 30 seconds and then power it back on.
 
+TIP: If Powermax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode in the Powermax unit.
+
 NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
 
@@ -2539,6 +2552,14 @@ continue hole path for overcut
     #<i_diameter> = nn (imperial)
 |Specify <<overcut, overcut>> length
    |#<oclength> = n
+|Specify <<cut-types, pierce-only>> mode
+   |#<pierce-only> = n (0=normal cut mode, 1=pierce only mode)
+|Enable <<mesh-mode, Mesh Mode>>
+   |M62 P1 (synchronised with motion) +
+    M64 P1 (immediate)
+|Disable <<mesh-mode, Mesh Mode>>
+   |M63 P1 (synchronised with motion) +
+    M65 P1 (immediate)
 |Create or edit materials. +
 options: +
 1 - Create temporary default +
