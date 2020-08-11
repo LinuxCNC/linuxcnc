@@ -40,7 +40,7 @@ las restricciones de la máquina, como la velocidad y aceleración máxima de ej
 que deben ser obedecidas por el planificador de trayectoria.
 
 Para obtener más información sobre las opciones ini del planificador vea la
-link?sec:traj-section,Sección Trayectoria en el capítulo INI.
+<<sec:traj-section,Sección Trayectoria en el capítulo INI.
 
 === Seguimiento de ruta
 
@@ -100,7 +100,7 @@ Los comandos de control de trayectoria son los siguientes:
     tolerancia de la fusión se puede cambiar a lo largo de todo el programa
     según sea necesario. Tenga en cuenta que una especificación G64 P0 tiene
     el mismo efecto que G64 solo, necesario para compatibilidad con los viejos
-    programas de G Code. Vea la link?gcode:g64,sección G64 del capítulo
+    programas de G Code. Vea la <<gcode:g64,sección G64 del capítulo
     de Código G.
 
 * 'Fusión sin tolerancia' - El punto controlado tocará cada movimiento
@@ -196,7 +196,7 @@ ejecuta un archivo G-Code y pueden quedar en un estado diferente al del comienzo
 sesión de LinuxCNC. La mejor práctica es establecer los valores predeterminados 
 necesarios para el trabajo en un preámbulo de su archivo G-Code, sin suponer que los 
 valores predeterminados no han cambiado. Imprimir la página de 
-link?gcode:quick-reference-table,Referencia Rápida>> de códigos G puede ayudarle a recordar que es 
+<<gcode:quick-reference-table,Referencia Rápida>> de códigos G puede ayudarle a recordar que es 
 cada uno.
 
 
@@ -204,7 +204,7 @@ cada uno.
 
 La forma en la que se aplica la velocidad de alimentación depende de si un eje 
 involucrado con el movimiento es un eje giratorio. Lea y comprenda la sección
-link?sec:cnc-machine-overview,Velocidad de Avance>> si tiene un eje giratorio o un 
+<<sec:cnc-machine-overview,Velocidad de Avance>> si tiene un eje giratorio o un 
 torno.
 
 === Offset del radio de la herramienta
@@ -215,7 +215,7 @@ los dos movimientos adyacentes. Si eso no es posible con el diámetro actual de 
 herramienta, se obtendrá un error. Una herramienta de menor diámetro puede trabajar 
 sin error en el mismo camino. Esto significa que puede programar una herramienta 
 para pasar por un camino que es más estrecho que la herramienta sin ningún error
-aparente. Para más información, ver la Sección link?sec:cutter-compensation,Compensación de la Herramienta>>.
+aparente. Para más información, ver la Sección <<sec:cutter-compensation,Compensación de la Herramienta>>.
 
 == Homing
 
@@ -230,22 +230,22 @@ el archivo ini.
 
 Si desea desviarse del comportamiento predeterminado, o desea usar el interfaz
 Mini, necesitará configurar la opción NO_FORCE_HOMING = 1 en la sección [TRAJ] de su 
-archivo ini. Se puede obtener más información sobre homing en link?sec:homing-
+archivo ini. Se puede obtener más información sobre homing en <<sec:homing-
 configuration,Velocidad de Avance>>.
 
 == Cambios de herramientas
 
 Hay varias opciones al hacer cambios de herramientas manuales. Ver la 
-link?sec:emcio-section,Sección [EMCIO]>> para obtener información sobre la 
+<<sec:emcio-section,Sección [EMCIO]>> para obtener información sobre la 
 configuración de estas opciones. Ver también las secciones 
-link?gcode:g28-g28.1,G28>> y link?gcode:g30-g30.1,G30>> del capítulo de Código G.
+<<gcode:g28-g28.1,G28>> y <<gcode:g30-g30.1,G30>> del capítulo de Código G.
 
 == Sistemas de coordenadas
 
 Los sistemas de coordenadas pueden ser confusos al principio. Antes de manejar una 
 máquina CNC debe comprender los conceptos básicos de los sistemas de coordenadas 
 utilizados por LinuxCNC. La información detallada sobre los sistemas de coordenadas 
-está en la sección link?cha:coordinate-system,Sistema de Coordenadas>> de 
+está en la sección <<cha:coordinate-system,Sistema de Coordenadas>> de 
 este manual.
 
 === Coordenadas Maquina G53
@@ -264,7 +264,7 @@ sistema de coordenadas G54.
 
 Normalmente se usa el sistema de coordenadas G54. Cuando se aplica un offset al 
 actual sistema de coordenadas de usuario, una pequeña bola azul con líneas estará en 
-el link?sec.machine-coordinate-system,origen de maquina>> cuando su DRO esté 
+el <<sec.machine-coordinate-system,origen de maquina>> cuando su DRO esté 
 mostrando 'Posición: Relativa Actual' en Axis. Si sus offsets son temporales, use 
 Zero Coordinate System del menú o programe la máquina con 'G10 L2 P1 X0 Y0 Z0' al 
 final de su archivo de código G. Cambie el número 'P' para que se adapte al 

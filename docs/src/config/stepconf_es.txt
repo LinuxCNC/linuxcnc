@@ -250,14 +250,14 @@ Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el núm
 image::images/stepconf-options_es.png[align="center", alt="Configuración avanzada"]
 
 * 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
-link?cha:hal-user-interface, Capitulo HALUI para más información.
+<<cha:hal-user-interface, Capitulo HALUI para más información.
 
 * 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
-para trabajar en el. Ver el link?cha:pyvcp,Capítulo PyVCP para más información.
+para trabajar en el. Ver el <<cha:pyvcp,Capítulo PyVCP para más información.
 
 * 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
 (Controlador lógico programable). Ver el
-link?cha:classicladder, Capitulo Classicladder para más información.
+<<cha:classicladder, Capitulo Classicladder para más información.
 
 * 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
 para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
@@ -308,8 +308,8 @@ image::images/stepconf-axis-x_es.png[align="center", alt="Pagina de configuracio
     (((Maximum Acceleration)))
     El valor correcto de esta casilla solo puede ser determinado
     por experimentacion. Vea 
-    link?sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad, y
-    link?sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion.
+    <<sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad, y
+    <<sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion.
 
 * 'Posicion Home' (Home Location) - 
     (((Home Location)))

@@ -1,7 +1,7 @@
 :lang: es
 :toc:
 
-[[cha: plasma-primer]]
+[[cha:plasma-primer]]
 
 = Basicos del Corte por Plasma para Usuarios de LinuxCNC
 
@@ -84,7 +84,7 @@ Con el lanzamiento de la interfaz de voltaje a frecuencia Mesa THCAD, LinuxCNC p
 
 Jim Colt, de Hypertherm, dice que los mejores controladores de THC estaban completamente integrados en el controlador CNC. Por supuesto, se refería a los sistemas de gama alta fabricados por Hypertherm, Esab, Thermal Dynamics y otros, como Advanced Robotic Technology en Australia, sin soñar que el código abierto podría producir sistemas utilizando este enfoque que rivaliza con los sistemas de gama alta.
 
-La inclusión de offsets externos en Linuxcnc V2.8 permitió que el control de plasma en LinuxCNC se elevara a un nivel completamente nuevo. Los offsets externos se refieren a la capacidad de aplicar un offset a la posición ordenada del eje, externa al controlador de movimiento. Esto es perfecto para el control de THC por plasma como un método para ajustar la altura de la antorcha en tiempo real según nuestra metodología de control de proceso elegida. Después de una serie de compilaciones experimentales, la configuración link?cha:plasmac-user-guide,PlasmaC>> se incorporó a LinuxCNC 2.8. Este ha sido un proyecto extremadamente ambicioso y muchas personas en todo el mundo han participado en las pruebas y la mejora del conjunto de características. PlasmaC es único en el sentido de que su objetivo de diseño era admitir todos los THC, incluidos los de bit bang, hasta el sofisticado control de voltaje de la antorcha si el voltaje está disponible para LinuxCNC a través de un THCAD o algún otro sensor de voltaje. Además, PlasmaC está diseñado para ser un sistema independiente que no necesita ninguna subrutina adicional de código G y permite al usuario definir sus propias tablas de corte que están almacenadas en el sistema y accesibles mediante un menú desplegable.
+La inclusión de offsets externos en Linuxcnc V2.8 permitió que el control de plasma en LinuxCNC se elevara a un nivel completamente nuevo. Los offsets externos se refieren a la capacidad de aplicar un offset a la posición ordenada del eje, externa al controlador de movimiento. Esto es perfecto para el control de THC por plasma como un método para ajustar la altura de la antorcha en tiempo real según nuestra metodología de control de proceso elegida. Después de una serie de compilaciones experimentales, la configuración <<cha:plasmac-user-guide,PlasmaC>> se incorporó a LinuxCNC 2.8. Este ha sido un proyecto extremadamente ambicioso y muchas personas en todo el mundo han participado en las pruebas y la mejora del conjunto de características. PlasmaC es único en el sentido de que su objetivo de diseño era admitir todos los THC, incluidos los de bit bang, hasta el sofisticado control de voltaje de la antorcha si el voltaje está disponible para LinuxCNC a través de un THCAD o algún otro sensor de voltaje. Además, PlasmaC está diseñado para ser un sistema independiente que no necesita ninguna subrutina adicional de código G y permite al usuario definir sus propias tablas de corte que están almacenadas en el sistema y accesibles mediante un menú desplegable.
 
 == Señal Arc OK
 
@@ -104,7 +104,7 @@ La antorcha se monta en una plataforma deslizante que puede moverse hacia arriba
 
 Independientemente del método de sondeo utilizado, se recomienda encarecidamente que se implemente el interruptor flotante para que haya una señal fallback o secundaria para evitar daños a la antorcha por un choque.
 
-[[detección óhmica]]
+[[ohmic-sensing]]
 
 === Detección óhmica
 
@@ -254,7 +254,7 @@ Por lo general, se requieren los siguientes pines (tenga en cuenta que las conex
 * En algunas circunstancias, se puede usar el relé del husillo integrado en las tarjetas Mesa en lugar de un relé externo.
 * Generalmente conectado a 'spindle.0.on'
 
-ADVERTENCIA: Se recomienda encarecidamente que la antorcha no se pueda habilitar mientras este pin sea falso; de lo contrario, la antorcha no se apagará cuando se presione Estop;
+[WARNING] Se recomienda encarecidamente que la antorcha no se pueda habilitar mientras este pin sea falso; de lo contrario, la antorcha no se apagará cuando se presione Estop;
 
 === Interruptor flotante (entrada)
 
@@ -265,14 +265,14 @@ ADVERTENCIA: Se recomienda encarecidamente que la antorcha no se pueda habilitar
 
 === Activación del sensor óhmico (salida)
 
-* Vea el esquema de link?ohmic-sensing,detección óhmica>>.
+* Vea el esquema de <<ohmic-sensing,detección óhmica>>.
 * Conecte el pin de salida a un lado de los relés de aislamiento y el otro lado a tierra de la alimentación de campo.
 * En una configuración que no sea PlasmaC, generalmente activado por un 'motion.digital-out-<nn>' para que M62 / M63 / M64 / M65 pueda controlarlo en G-Code
 
 
 === Detección óhmica (entrada)
 
-* Tenga cuidado de seguir el esquema de link?ohmic-sensing,detección óhmica>> mostrado anteriormente.
+* Tenga cuidado de seguir el esquema de <<ohmic-sensing,detección óhmica>> mostrado anteriormente.
 * Una fuente de alimentación aislada activa un relé cuando el protector de la antorcha hace contacto con el material.
 * Conecte la alimentación de campo a un terminal de salida y el otro a la entrada.
 * Tenga cuidado de observar la polaridad del relé si se utilizan relés de estado sólido optoacoplados.
@@ -353,7 +353,7 @@ MAX_VELOCITY = 60
 MAX_ACCELERATION = 700
 ----
 
-Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la link?sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y link?cha:external-offsets, Offsets externos>> en la documentación de Linuxcnc.
+Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets, Offsets externos>> en la documentación de Linuxcnc.
 
 == Lectura de voltaje de arco con el THCAD de Mesa
 
@@ -481,7 +481,7 @@ Los motores paso a paso sufren de resonancia y es probable que un piñón de tra
 
 == PlasmaC, Configuración de plasma LinuxCNC 
 
-La link?cha:plasmac-user-guide, configuración de PlasmaC >>  se compone de un componente HAL (plasmac.hal) más configuraciones completas para Axis y Gmoccapy ha recibido una contribución considerable de muchos en el movimiento de código abierto LinuxCNC que ha avanzado  en la comprensión de los controladores de plasma desde aproximadamente 2015. Se han realizado muchas pruebas y trabajos de desarrollo para lograr que PlasmaC alcance su estado de funcionamiento actual. Se ha incluido todo, desde el diseño del circuito hasta el control y la configuración del código G. Además, PlasmaC admite THC externos como el Proma 150, pero realmente se destaca cuando se combina con un controlador Mesa, ya que esto permite que el integrador incluya el convertidor de voltaje a frecuencia Mesa THCAD, diseñado específicamente para lidiar con el entorno de plasma hostil.
+La <<cha:plasmac-user-guide, configuración de PlasmaC >>  se compone de un componente HAL (plasmac.hal) más configuraciones completas para Axis y Gmoccapy ha recibido una contribución considerable de muchos en el movimiento de código abierto LinuxCNC que ha avanzado  en la comprensión de los controladores de plasma desde aproximadamente 2015. Se han realizado muchas pruebas y trabajos de desarrollo para lograr que PlasmaC alcance su estado de funcionamiento actual. Se ha incluido todo, desde el diseño del circuito hasta el control y la configuración del código G. Además, PlasmaC admite THC externos como el Proma 150, pero realmente se destaca cuando se combina con un controlador Mesa, ya que esto permite que el integrador incluya el convertidor de voltaje a frecuencia Mesa THCAD, diseñado específicamente para lidiar con el entorno de plasma hostil.
 
 PlasmaC está diseñado para ser independiente e incluye la capacidad de incluir sus tablas de corte, pero también incluye características para ser utilizadas con un postprocesador como SheetCam.
 

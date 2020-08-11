@@ -40,8 +40,8 @@ El selector de configuración ofrece una selección de configuraciones organizad
 ** 'by_machine' - Configuraciones organizadas por tipo de máquina.
 
 ** 'apps' - aplicaciones que no requieren iniciar linuxcnc pero pueden ser
-   útiles para pruebas o aplicaciones como link?cha:pyvcp,PyVCP o
-   link?cha:glade-vcp,GladeVCP.
+   útiles para pruebas o aplicaciones como <<cha:pyvcp,PyVCP o
+   <<cha:glade-vcp,GladeVCP.
 
 ** 'attic' - Configuraciones obsoletas o históricas.
 

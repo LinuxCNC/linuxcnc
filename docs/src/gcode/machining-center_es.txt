@@ -69,12 +69,12 @@ velocidad utilizada en el husillo, en porcentaje de la velocidad programada.
 === Interruptor de borrado de bloque
 
 Una máquina CNC puede tener un interruptor de eliminación de bloques de codigo G marcados para ello. Vea la
-seccion link?sub:block-delete-switch,Eliminar Bloques>>.
+seccion <<sub:block-delete-switch,Eliminar Bloques>>.
 
 === Interruptor de parada de programa opcional
 
 Una máquina CNC puede tener un interruptor de parada opcional de programa. Ver la
-seccion link?sub:optional-program-stop, parada opcional de programa>>.
+seccion <<sub:optional-program-stop, parada opcional de programa>>.
 
 == Componentes de control y datos
 
@@ -166,7 +166,7 @@ enlace?gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 === Refrigerante (((refrigerante)))
 
 El refrigerante de inundación y el refrigerante de niebla pueden encenderse independientemente.
-El lenguaje RS274/NGC los apaga juntos con un solo codigo M. Ver Sección link?mcode:m7-m8-m9,M7 M8 M9>>.
+El lenguaje RS274/NGC los apaga juntos con un solo codigo M. Ver Sección <<mcode:m7-m8-m9,M7 M8 M9>>.
 
 === Dwell (((dwell)))
 
@@ -174,7 +174,7 @@ Se puede ordenar que un centro de mecanizado haga dwell (es decir, mantenga todo
 inmóviles) durante una cantidad específica de tiempo. El uso más común de dwell
 es romper y despejar las virutas, por lo que el husillo suele girar durante un
 dwell. Independientemente del modo de control de ruta (ver la sección 
-link?sec:path-control-mode,control de ruta>>) la máquina se detendrá exactamente al final del
+<<sec:path-control-mode,control de ruta>>) la máquina se detendrá exactamente al final del
 movimiento programado anterior, como si estuviera en modo de ruta exacta.
 
 === Unidades (((unidades)))
@@ -248,7 +248,7 @@ los interruptores se deshabilitan automáticamente.
 LinuxCNC reacciona a la configuración de porcentaje de alimentación y velocidad cuando estos
 interruptores están habilitados.
 
-Consulte la sección link?mcode:m48-m49,Interruptores M48-M49>> para obtener más información.
+Consulte la sección <<mcode:m48-m49,Interruptores M48-M49>> para obtener más información.
 
 [[sub:block-delete-switch]]
 
@@ -294,7 +294,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----
 
 Para obtener más información sobre los detalles del formato de la tabla de herramientas,
-vea la sección link?sec:tool-table,Formato de la tabla de herramientas>>.
+vea la sección <<sec:tool-table,Formato de la tabla de herramientas>>.
 
 == Parametros
 
