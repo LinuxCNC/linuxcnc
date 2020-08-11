@@ -1,7 +1,12 @@
+ver 3.0.9
+- added settings to set min, default and angular velocities
+  for angular jogging. No keyboard shortcuts for jogging angular
+  axis, all prepared for doing so, but no idea which keys to use
+
 ver 3.0.8.3
-- The function to arange jogging buttons relies on the dict
+- The function to arrange jogging buttons relies on the dict
   that hold available axes to be in the same order as defined.
-  in python 2.7 that is not the default behaivor of dicts.
+  in python 2.7 that is not the default behavior of dicts.
   So the function (with a XYZAB machine for example) gave two
   sets of row/coloumn numbers for four buttons, leading to two
   buttons not being available.
@@ -31,7 +36,7 @@ ver 3.0.7.2
 - did not update the gmoccapy.tool measurement hal pin, so tool measurement ended
   with an error after a restart of the GUI
   Thanks to Mark and Ralf for reporting
-
+..
 ver 3.0.7.1
 - jogging of non trivial kinematics need an int for jogging
 
