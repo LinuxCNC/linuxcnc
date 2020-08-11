@@ -1897,7 +1897,7 @@ static void output_to_hal(void)
 		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
 				emcmotStatus->spindle_status[spindle_num].speed / 60.;
 		*(emcmot_hal_data->spindle[spindle_num].spindle_on) =
-				((emcmotStatus->spindle_status[spindle_num].speed *
+				((emcmotStatus->spindle_status[spindle_num].state *
 						emcmotStatus->spindle_status[spindle_num].net_scale) != 0) ? 1 : 0;
 		*(emcmot_hal_data->spindle[spindle_num].spindle_forward) =
 				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out > 0) ? 1 : 0;

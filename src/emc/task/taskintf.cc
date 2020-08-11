@@ -1840,10 +1840,12 @@ int emcSpindleAbort(int spindle)
 
 int emcSpindleSpeed(int spindle, double speed, double css_factor, double offset)
 {
-    if (emcmotStatus.spindle_status[spindle].speed == 0){
-        return 0;} //spindle stopped, not updating speed */
-
-    return emcSpindleOn(spindle, speed, css_factor, offset);
+    emcmotCommand.command = EMCMOT_SPINDLE_ON;
+    emcmotCommand.spindle = spindle;
+    emcmotCommand.vel = speed;
+    emcmotCommand.ini_maxvel = css_factor;
+    emcmotCommand.acc = offset;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcSpindleOrient(int spindle, double orientation, int mode)
@@ -1858,9 +1860,9 @@ int emcSpindleOrient(int spindle, double orientation, int mode)
 
 int emcSpindleOn(int spindle, double speed, double css_factor, double offset, int wait_for_at_speed)
 {
-
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
     emcmotCommand.spindle = spindle;
+    emcmotCommand.state = 1;
     emcmotCommand.vel = speed;
     emcmotCommand.ini_maxvel = css_factor;
     emcmotCommand.acc = offset;
@@ -1871,6 +1873,7 @@ int emcSpindleOn(int spindle, double speed, double css_factor, double offset, in
 int emcSpindleOff(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_OFF;
+    emcmotCommand.state = 0;
     emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

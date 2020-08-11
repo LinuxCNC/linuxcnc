@@ -1770,6 +1770,8 @@ void emcmotCommandHandler(void *arg, long period)
 	        /* 	tpAbort(&emcmotDebug->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
 	        /* } else {...} */
+	        rtapi_print( "command state %d\n", emcmotCommand->state);
+	        emcmotStatus->spindle_status[n].state = emcmotCommand->state;
 	        emcmotStatus->spindle_status[n].speed = emcmotCommand->vel;
 	        emcmotStatus->spindle_status[n].css_factor = emcmotCommand->ini_maxvel;
 	        emcmotStatus->spindle_status[n].xoffset = emcmotCommand->acc;
@@ -1804,6 +1806,7 @@ void emcmotCommandHandler(void *arg, long period)
         }
         for (n = s0; n<=s1; n++){
 
+	        emcmotStatus->spindle_status[n].state = 0;
 	        emcmotStatus->spindle_status[n].speed = 0;
 	        emcmotStatus->spindle_status[n].direction = 0;
 	        emcmotStatus->spindle_status[n].brake = 1; // engage brake
