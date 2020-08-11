@@ -1,0 +1,35 @@
+.TH SUM2 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sum2 \- Sum of two inputs (each with a gain) and an offset
+.SH SYNOPSIS
+.HP
+.B loadrt sum2 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsum2.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B sum2.\fIN\fB.in0\fR float in \fR
+.TQ
+.B sum2.\fIN\fB.in1\fR float in \fR
+.TQ
+.B sum2.\fIN\fB.out\fR float out \fR
+out = in0 * gain0 + in1 * gain1 + offset
+.SH PARAMETERS
+.TP
+.B sum2.\fIN\fB.gain0\fR float rw \fR(default: \fI1.0\fR)
+.TQ
+.B sum2.\fIN\fB.gain1\fR float rw \fR(default: \fI1.0\fR)
+.TQ
+.B sum2.\fIN\fB.offset\fR float rw \fR
+.SH LICENSE
+
+GPL

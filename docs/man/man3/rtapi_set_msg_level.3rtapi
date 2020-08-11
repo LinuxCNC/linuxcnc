@@ -1,30 +1,30 @@
-.TH rtapi_set_msg_level "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_set_msg_level "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_get_msg_level, rtapi_set_msg_level \- Obtiene o establece el nivel de registro
+rtapi_get_msg_level, rtapi_set_msg_level \- Get or set the logging level
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
  int rtapi_set_msg_level(int \fIlevel\fR)
 
 .HP
  int rtapi_get_msg_level()
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIlevel\fR
-El nivel de registro deseado
+The desired logging level
 
-.SH DESCRIPCIÓN
-Obtiene o establece el nivel de mensaje RTAPI utilizado por \fBrtapi_print_msg\fR. Dependiendo
-del RTOS, este nivel puede aplicarse a un solo módulo RTAPI, o puede aplicarse
-a un grupo de módulos.
+.SH DESCRIPTION
+Get or set the RTAPI message level used by \fBrtapi_print_msg\fR.  Depending
+on the RTOS, this level may apply to a single RTAPI module, or it may apply
+to a group of modules.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede llamar desde codigo de usuario, init/cleanup y código en tiempo real.
+.SH REALTIME CONSIDERATIONS
+May be called from user, init/cleanup, and realtime code.
 
-.SH VALOR DEVUELTO
-\fBrtapi_set_msg_level\fR devuelve un código de estado y \fBrtapi_get_msg_level\fR
-devuelve el nivel actual.
+.SH RETURN VALUE
+\fBrtapi_set_msg_level\fR returns a status code, and \fBrtapi_get_msg_level\fR
+returns the current level.
 RTAPI_MSG_NONE = 0,
 RTAPI_MSG_ERR = 1,
 RTAPI_MSG_WARN = 2,
@@ -32,5 +32,5 @@ RTAPI_MSG_INFO = 3,
 RTAPI_MSG_DBG = 4
 RTAPI_MSG_ALL = 5
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_print_msg(3rtapi)\fR

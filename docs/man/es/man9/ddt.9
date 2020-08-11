@@ -1,0 +1,25 @@
+.TH DDT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+ddt \- Compute the derivative of the input function
+.SH SYNOPSIS
+.HP
+.B loadrt ddt [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBddt.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B ddt.\fIN\fB.in\fR float in \fR
+.TQ
+.B ddt.\fIN\fB.out\fR float out \fR
+.SH LICENSE
+
+GPL

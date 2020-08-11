@@ -1,0 +1,74 @@
+.TH introducción "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal \- Introducción a la API HAL
+
+.SH DESCRIPCIÓN
+
+HAL significa Capa de Abstracción de Hardware y LinuxCNC la utiliza para transferir
+datos en tiempo real desde y hacia dispositivos de E/S y otros módulos de bajo nivel.
+
+\fBhal.h\fR define la API y las estructuras de datos utilizadas por HAL. Este archivo se
+incluye en componentes HAL de tiempo real y no real. HAL usa la interfaz RTAPI
+en tiempo real, y los símbolos #define RTAPI y ULAPI se utilizan para
+distinguir entre código en tiempo real y no real. La API definida en este
+archivo se implementa en hal_lib.c y se puede compilar para vincularla
+a componentes HAL en tiempo real o de espacio de usuario.
+
+HAL es un enfoque muy modular para las partes de bajo nivel de un sistema de control de movimiento.
+El objetivo de HAL es permitir que un integrador de sistemas conecte un
+grupo de componentes de software juntos para cumplir con los requisitos de E/S que él (o
+ella) necesita. Esto incluye E/S en tiempo real y no real, así como 
+control básico del motor hasta, e incluyendo, un lazo de posición PID. La funcion que tienen
+en común todos ellos es que procesan señales. En general, una señal es un
+elemento de datos que se actualiza a intervalos regulares. Por ejemplo, un bucle PID obtiene el
+comando de posición y señales de retroalimentación, y produce una señal de comando de velocidad.
+
+HAL se basa en el enfoque utilizado para diseñar circuitos electrónicos. En
+electrónica, los componentes listos para usar, como circuitos integrados, se colocan en una
+placa de circuito y sus pines están interconectados para construir lo que, en general, se necesite.
+Los componentes individuales pueden ser tan simples como un amplificador operacional,
+o tan complejo como un procesador digital de señal. Cada componente puede ser
+probado individualmente, para asegurarse de que funciona según lo diseñado. Después, los componentes
+se colocan en un circuito más grande y las señales que los conectan pueden ser
+monitoreadas para pruebas y resolución de problemas.
+
+Al igual que los componentes electrónicos, los componentes HAL tienen pines, y los pines pueden ser
+interconectados por señales.
+
+En el HAL, una \fIsignal\fR o señal, contiene el valor real de datos que pasa de un pin
+a otro. Cuando se crea una señal, se asigna espacio para el valor de los datos.
+Un \fIpin\fR, por otro lado, es un puntero, no un valor de datos. Cuando un pin es
+conectado a una señal, el puntero del pin está configurado para apuntar al valor de los datos de la señal.
+Esto permite que el componente acceda a la señal con muy poca sobrecarga de
+tiempo de ejecución. (Si un pin no está vinculado a ninguna señal, el puntero apunta
+a una ubicación ficticia, por lo que el código en tiempo real no tiene que tratar con
+punteros nulos o tratar las variables no vinculadas como un caso especial).
+
+Hay tres enfoques para escribir un componente HAL. Los que no
+requieren un rendimiento en tiempo real se pueden escribir como un proceso único de modo de usuario.
+Los componentes que necesitan un gran rendimiento en tiempo real pero que tienen una configuración
+y requisitos de inicio simples se pueden hacer como un unico módulo del núcleo, utilizando
+información de inicio predefinida o parámetros insmod-time. Finalmente, los componentes mas complejos
+puede usar tanto un módulo de kernel para la parte en tiempo real como un proceso de espacio de usuario para
+manejar el acceso a archivos ini, la interfaz de usuario (posiblemente incluyendo funciones de GUI) y
+otros detalles.
+
+HAL utiliza la interfaz RTAPI/ULAPI. Si RTAPI está definido en hal_lib.c hará
+generar un módulo kernel hal_lib.o que se "insmoded" y proporciona las funciones
+para todos los componentes basados ​​en módulos del núcleo. El mismo archivo fuente compilado con
+#define ULAPI lo haría en espacio de usuario hal_lib.o que está vinculado estáticamente al
+código de espacio de usuario para hacer ejecutables de espacio de usuario. Las listas de variables y la informacion
+de enlaces se almacena en un bloque de memoria compartida y se protege con mutexes,
+para que los módulos del núcleo y cualquiera de los varios programas en modo de usuario puedan acceder a los
+datos.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Para obtener una explicación de las consideraciones en tiempo real, consulte \fBintro(3rtapi)\fR.
+
+.SH CÓDIGOS DE ESTADO HAL
+Excepto como se indica en páginas específicas del manual, HAL devuelve valores errno negativos
+para errores y valores no negativos en caso de éxito.
+
+.SH VER TAMBIÉN
+\fBintro(3rtapi)\fR

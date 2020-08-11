@@ -1,0 +1,39 @@
+.\" Copyright (c) 2007 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH PYVCP "1" "2007-04-01" "Documentación LinuxCNC" "El controlador de máquina mejorado"
+.SH NOMBRE
+pyvcp \- Panel de control virtual para LinuxCNC
+.SH SINOPSIS
+\fBpyvcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fIcomponent\-name\fR] \fImyfile.xml\fR
+.SH OPCIONES
+.TP
+\fB\-g\fR \fIWxH + X + Y\fR
+Esto establece la geometría inicial de la ventana raíz.
+Use 'WxH' solo para el tamaño, '+ X + Y' para solo la posición, o 'WxH + X + Y' para ambos.
+El tamaño/posición utiliza unidades de píxeles. Se hace referencia a la posición desde la parte superior izquierda.
+.TP
+\fB\-c\fR\fIcomponent-name\fR
+Use \fIcomponent-name\fR como el nombre del componente HAL. Si el nombre del componente no es
+especificado, se utiliza el nombre base del archivo xml. \fR
+.SH "VER TAMBIÉN"
+\fIPython Virtual Control Panel\fR en la documentación de LinuxCNC para obtener una descripción de
+sintaxis xml, junto con ejemplos

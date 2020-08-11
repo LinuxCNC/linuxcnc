@@ -1,0 +1,167 @@
+.TH CAROUSEL "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+carousel \- Orient a toolchanger carousel using various encoding schemes
+.SH SYNOPSIS
+
+.B loadrt carousel pockets=\fIN\fR[,\fIN\fR]
+.B encoding=\fIssss\fR[,\fIsss\fR]\fB
+.B num_sense=\fIN\fR[,\fIN\fR]
+.B dir=\fIN\fR[,\fIN]
+
+.RS 4
+.TP
+\fBpockets\fR The number of pockets in each toolchanger.
+Use up to 8 numbers separated by commas to create multiple carousel components.
+.TP
+\fBencoding\fR The position encoding.
+gray, binary, bcd, index, edge or single. Default = 'gray'
+.TP
+\fBnum_sense\fR The number of position sense pins.
+Default = 4.
+.TP
+\fBdir\fR Set to 1 for unidirectional or  2 for bidirectional operation.
+Default = bidirectional
+.TP
+\fBparity\fR Set to 1 for odd parity, 0 for even parity checking.
+Default = 0 (even)
+.RE
+.SH DESCRIPTION
+
+This component is intended to help operate various types of
+carousel-type toolchangers. 
+The component can be configured to operate with binary, binary-coded decimal (BCD)
+or gray-coded position feedback, with an individual sensor for each tool position
+or with a sensor at each tool position and a separate index.
+
+Both unidirectional and bidirectional systems are supported and those that reverse
+against a stop when in position. 
+
+The number of carousel component instances created depends on the number of
+entries in the 'pockets' modparam. For example
+
+.B loadrt carousel pockets=10,10,8
+
+Would create 3 carousel instances with 10, 10 and 8 pockets. The other 
+parameters are optional. If absent then defaults will be used. Any missing
+entry will assume the previous value.
+
+When the enable pin is set to true the component will immediately set the 
+"active" pin to true and then (for a bidirectional instance) calculate the
+shortest path to the requested pocket number. The appropriate motor direction
+output pins will then be set. Bit outputs for forward and reverse are provided
+as well as a three-state velocity output for driving a DC motor PWM or a 
+velocity-mode stepgen. 
+
+The component will monitor the carousel position and, when the correct position
+is reached, set the motor-control pins to 0, set "active" to 0 and set "ready"
+to 1.
+
+In index mode the behaviour is slightly different. The first time that the "enable"
+pin is set; the carousel will rotate forwards until
+both the index and pulse inputs are true. If there is no pulse line at the
+index position then a HAL "or2" function can be used to allow the index sensor
+to toggle both inputs. Setting "enable" low does not halt the homing move, so if
+homing on first tool change is not needed then the enable pin can be toggled by
+an axis homing pin or a script. \fBedge\fR is a special case of index mode for tool
+changers with pockets on both the rising and falling edges of the position sensor.
+(Seen on at least one Denford Orac.)
+
+For tool changers which lock the carousel against a stop the \fBrev-pulse\fR pin can
+be set to a non-zero value. The motor-rev pin will then be set for this many seconds
+at the completion of the tool search and at the same time the reverse duty/cycle
+velocity value will be sent to the motor-vel pin. 
+
+.SH FUNCTIONS
+.TP
+\fBcarousel.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B carousel.\fIN\fB.pocket-number\fR s32 in \fR
+The pocket to move to when the .enable pin goes high. If the value
+passed is gigher than the number of pockests specified in the "pockets" modparam then modulo arithmetic
+is used. This is intended to allow the use of multiple tools in the same holder, as is sometimes
+useful with lathes.
+.TP
+.B carousel.\fIN\fB.enable\fR bit in \fR
+Set this pin high to start movement. Setting it low will stop movement
+.TP
+.B carousel.\fIN\fB.active\fR bit out \fR
+indicates that the component is active
+.TP
+.B carousel.\fIN\fB.ready\fR bit out \fR
+This pin goes high when the carousel is in-position
+.TP
+.B carousel.\fIN\fB.strobe\fR bit in \fR(default: \fI1\fR)
+Use this pin to indicate that the position feedback is valid. Often
+provided by binary encoders
+.TP
+.B carousel.\fIN\fB.parity\fR bit in \fR
+Some encoders supply a parity bit, if this is connected then the
+parity-error output bit will indicate parity errors
+.TP
+.B carousel.\fIN\fB.sense-\fIM\fB\fR bit in  (M=0..personality) \fR
+Carousel position feedback pins. In 'index' mode there 
+will be only 2 pins. sense-0 is the index and sense-1 is the pocket sensor.
+.TP
+.B carousel.\fIN\fB.rev-pulse\fR float in \fR
+The duration in seconds for which a ratchet changer (Boxford, Emco)
+should pulse the reverse pin to lock the holder
+.TP
+.B carousel.\fIN\fB.fwd-dc\fR float in \fR
+Velocity or duty cycle when forwards rotation is desired
+.TP
+.B carousel.\fIN\fB.rev-dc\fR float in \fR
+ Velocity or duty cycle when reverse rotation is desired
+.TP
+.B carousel.\fIN\fB.hold-dc\fR float in \fR
+Duty cycle when carousel is in-position (to hold against stop)
+.TP
+.B carousel.\fIN\fB.jog-fwd\fR bit in \fR
+Jog the carousel forwards one tool position
+.TP
+.B carousel.\fIN\fB.jog-rev\fR bit in \fR
+Jog the carousel in reverse (only if dir = 2).
+It is very important that these pins should be debounced and should probably
+also be interlocked to only operate when the machine is idle.
+.TP
+.B carousel.\fIN\fB.motor-fwd\fR bit out \fR
+Indicates the motor should run forwards (bigger numbers)
+.TP
+.B carousel.\fIN\fB.motor-rev\fR bit out \fR
+Indicates the motor should run reverse.
+.TP
+.B carousel.\fIN\fB.parity-error\fR bit out \fR
+Indicates a parity error
+.TP
+.B carousel.\fIN\fB.current-position\fR s32 out \fR
+This pin indicates the current position feedback
+.TP
+.B carousel.\fIN\fB.motor-vel\fR float out \fR
+The duty-cycle or velocity to drive a DC motor or stepgen
+.SH PARAMETERS
+.TP
+.B carousel.\fIN\fB.state\fR s32 r \fR(default: \fI0\fR)
+Current component state
+.TP
+.B carousel.\fIN\fB.homing\fR bit r \fR(default: \fI0\fR)
+Shows that homing is in progress. Only used for index mode
+.TP
+.B carousel.\fIN\fB.homed\fR bit r \fR(default: \fI0\fR)
+Shows that homing is complete. Only used in index and edge modes
+.TP
+.B carousel.\fIN\fB.timer\fR float r \fR
+Shows the value of the internal timer
+.SH AUTHOR
+
+andy pugh
+.SH LICENSE
+
+GPL

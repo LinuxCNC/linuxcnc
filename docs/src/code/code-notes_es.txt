@@ -1044,7 +1044,7 @@ con cada búfer.
 NML puede interactuar con cms desde los punteros almacenados en las listas
 y el por qué de que Doxygen no muestra las relaciones reales involucradas.
 
-[NOTA]
+[NOTE]
 La configuración se almacena en la memoria antes de pasar un puntero a
 una línea específica para el constructor cms. El constructor cms analiza luego
 la línea nuevamente para extraer un par de variables ... Tendría más

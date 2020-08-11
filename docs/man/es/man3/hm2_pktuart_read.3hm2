@@ -1,0 +1,71 @@
+\# Author Boris Skegin
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_pktuart_read "3hm2" "2016-02-26" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_pktuart_read \- lee datos de un búfer UART Hostmot2
+
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])
+
+.SH DESCRIPCIÓN
+\fBhm2_pktuart_read\fR lee datos del PktUART "name".
+"name" es una cadena única dada a cada PktUART durante la configuración de hostmot2. Los nombres de los 
+canales disponibles se imprimen en la salida estándar durante la carga del controlador y toman la forma:
+hm2_<nombre de la tajeta>.<índice de la tarjeta>.pktuart.<índice> .
+Por ejemplo hm2_5i25.0.pktuart.0
+
+Esta función lee un número variable de paquetes PktUART del canal especificado.
+Debe usarse dentro de un componente HAL en tiempo real registrado con el
+controlador principal hostmot2 que utiliza la función hm2_pktuart_setup en el  código de configuración.
+
+"(*num_frames)*(*max_frame_length)" debe ser <= sizeof "data", que se intenta
+estimar o adivinar antes de llamar a la función.
+Si hay más bytes en el búfer que el tamaño del array de datos, entonces se devuelve RxArraySizeError.
+
+Tenga en cuenta que PktUART MaxFrameSize tiene codificados 1024 bytes en hostmot2.vhd.
+
+
+.SH VALOR DEVUELTO
+Devuelve el número de bytes leídos en caso de éxito y códigos de error negativos en caso de error.
+
+"num_frames", cuyo puntero se pasa por valor, se establece en el número de datagramas leídos.
+
+Los códigos de error negativos son:
+.TP
+.B -1 - error de lectura/escritura de bajo nivel
+.TP
+.B -EINVAL: cualquier error de configuración por instancia de PktUART 
+.TP
+.B
+.TP
+.B -HM2_PKTUART_RxStartbitError - Error de registro de modo Rx
+.TP
+.B -HM2_PKTUART_RxOverrunError - Error de registro de modo Rx
+.TP
+.B -HM2_PKTUART_RxRCFIFOError - Error de registro de modo Rx
+.TP
+.B
+.TP
+.B -HM2_PKTUART_RxPacketOverrrunError - Error de registro de recuento Rx
+.TP
+.B -HM2_PKTUART_RxPacketStartbitError - Error de registro de recuento Rx
+.TP
+.B
+.TP
+.B -HM2_PKTUART_RxPacketSizeZero: el tamaño del paquete recibido es cero
+.TP
+.B -HM2_PKTUART_RxArraySizeError: el array de datos es demasiado pequeño para todos los datos en el búfer
+.TP
+Los valores numéricos de los códigos de error HM2_PKTUART_ se definen en src/hal/drivers/mesa-hostmot2/pktuart_errno.h.
+
+
+.SH VER TAMBIÉN
+.TP
+.B man hm2_pktuart_setup, man hm2_pktuart_send
+.TP
+Consulte src/hal/drivers/mesa_pktgyro_test.comp para ver un ejemplo de uso.
+

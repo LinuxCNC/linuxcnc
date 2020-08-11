@@ -1,4 +1,4 @@
-.TH funct "3" "2006-10-12" "Documentación LinuxCNC" "libposemath"
+.TH funct "3" "2006-10-12" "LinuxCNC Documentation" "libposemath"
 .de TQ
 .br
 .ns
@@ -6,51 +6,51 @@
 ..
 .SH NAME
 
-PM_CARTESIAN \- Posición cartesiana de tres ejes
+PM_CARTESIAN \- Three-axis cartesian position
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 .B #include "posemath.h"
 .HP
 .B struct PM_CARTESIAN;
 
-.SH CONSTRUCTORES
+.SH CONSTRUCTORS
 .TP
 .B PM_CARTESIAN()
-Construir el punto <0,0,0>
+Construct the point <0,0,0>
 .TP
 .B PMCARTESIAN(double \fIx\fB, double \fIy\fB, double \fIz\fB)
-Construir el punto <\fIx\fB,\fIy\fB,\fIz\fB>
+Construct the point <\fIx\fB,\fIy\fB,\fIz\fB>
 .TP
 .B PMCARTESIAN(const PM_CARTESIAN &v)
-Construir una copia del punto \fIv\fR
+Construct a copy of the point \fIv\fR
 
-.SH DATOS
+.SH DATA
 .B double \fIx\fB, \fIy\fB, \fIz
 
-.SH OPERADORES
+.SH OPERATORS
 .TP
 .B operator[](int n);
-Devuelve el componente \fIn\fRsimo del vector (x=0, y=1, z=2)
+Return the \fIn\fRth component of the vector (x=0, y=1, z=2)
 .TP
 .B int operator==(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
 .TQ
 .B int operator!=(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
-Operador de igualdad y desigualdad de elementos
+Elementwise equality and inequality operator
 .TP
 .B PM_CARTESIAN operator+(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
 .TQ
 .B PM_CARTESIAN operator\-(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
-Suma y resta de vectores
+Addition and subtraction of vectors
 .TP
 .B PM_CARTESIAN operator*(double \fIs\fB, PM_CARTESIAN \fIv\fB)
 .TQ
 .B PM_CARTESIAN operator*(PM_CARTESIAN \fIv\fB, double \fIs\fB)
-Multiplicación escalar
+Scalar multiplication
 .TP
 .B PM_CARTESIAN operator/(PM_CARTESIAN \fIv\fB, double \fIs\fB)
-Multiplicación escalar por \fI1/s\fR
-.SH OTRAS FUNCIONES EN OBJETOS PM_CARTESIAN
+Scalar multiplication by \fI1/s\fR
+.SH OTHER FUNCTIONS ON PM_CARTESIAN OBJECTS
 .TP
 .B double dot(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
 .TQ
@@ -58,4 +58,4 @@ Multiplicación escalar por \fI1/s\fR
 .TQ
 .B PM_CARTESIAN norm(PM_CARTESIAN \fIv\fB)
 
-.SH VER TAMBIÉN
+.SH SEE ALSO

@@ -1,65 +1,65 @@
-.TH introducción "3rtapi" "2006-10-02" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH intro "3rtapi" "2006-10-02" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi \- Introducción a la API RTAPI
+rtapi \- Introduction to the RTAPI API
 
-.SH DESCRIPCIÓN
-RTAPI es una biblioteca que proporciona una API uniforme para varios sistemas
-operativos en tiempo real. A partir de LinuxCNC 2.7, se soportan hilos POSIX y RTAI.
+.SH DESCRIPTION
+RTAPI is a library providing a uniform API for several real time operating
+systems.  As of LinuxCNC 2.7, POSIX threads and RTAI are supported.
 
-.SH ARCHIVOS HEADER
+.SH HEADER FILES
 .SS rtapi.h
-El archivo \fBrtapi.h\fR define el codigo RTAPI tanto en tiempo real como no real.
-Esto es un cambio desde Rev 2, donde la API no real (espacio de usuario)
-se definió en ulapi.h y utilizó diferentes nombres de funciones. Los símbolos RTAPI
-y ULAPI se utilizan para determinar qué modo se está compilando; RTAPI para
-en tiempo real y ULAPI para no real.
+The file \fBrtapi.h\fR defines the RTAPI for both realtime and non-realtime
+code.  This is a change from Rev 2, where the non-realtime (user space) API
+was defined in ulapi.h and used different function names.  The symbols RTAPI
+and ULAPI are used to determine which mode is being compiled, RTAPI for
+realtime and ULAPI for non-realtime.
 
 .SS rtapi_math.h
-El archivo \fRrtapi_math.h\fR define funciones y constantes de punto flotante.
-Debe usarse en lugar de \fR <math.h>\fR en componentes rtapi en tiempo real.
+The file \fRrtapi_math.h\fR defines floating-point functions and constants.
+It should be used instead of \fR<math.h>\fR in rtapi real-time components.
 
 
 .SS rtapi_string.h
-El archivo \fRrtapi_string.h\fR define funciones relacionadas con cadenas.
-Debe usarse en lugar de \fR<string.h>\fR en componentes rtapi en tiempo real.
+The file \fRrtapi_string.h\fR defines string-related functions.
+It should be used instead of \fR<string.h>\fR in rtapi real-time components.
 
 .SS rtapi_byteorder.h
-Este archivo define las macros de preprocesador RTAPI_BIG_ENDIAN,
-RTAPI_LITTLE_ENDIAN y RTAPI_FLOAT_BIG_ENDIAN como verdadero o falso según
-las características del sistema objetivo. Debe usarse en lugar de
-\fB<endian.h>\fR (espacio de usuario) o \fB<linux/byteorder.h>\fR (espacio de kernel).
+This file defines the preprocessor macros RTAPI_BIG_ENDIAN,
+RTAPI_LITTLE_ENDIAN, and RTAPI_FLOAT_BIG_ENDIAN as true or false depending on
+the characteristics of the target system.  It should be used instead of
+\fB<endian.h>\fR (userspace) or \fB<linux/byteorder.h>\fR (kernel space).
 
 .SS rtapi_limits.h
-Este archivo define el valor mínimo y máximo de algunos tipos enteros fundamentales
-, como INT_MIN e INT_MAX. Esto debe usarse en lugar de
-\fB<limits.h>\fR porque ese archivo de encabezado no está disponible para los módulos del kernel.
+This file defines the minimum and maximum value of some fundamental integral
+types, such as INT_MIN and INT_MAX.  This should be used instead of
+\fB<limits.h>\fR because that header file is not available to kernel modules.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-.SS Código de espacio de usuario 
-Ciertas funciones no están disponibles en el código del espacio de usuario. Esto incluye funciones
-que realizan acceso directo a dispositivos, como \fBrtapi_inb(3)\fR.
+.SH REALTIME CONSIDERATIONS
+.SS Userspace code
+Certain functions are not available in userspace code.  This includes functions
+that perform direct device access such as \fBrtapi_inb(3)\fR.
 
-SS. Código Init/limpieza
-Ciertas funciones solo se pueden invocar desde el código de inicio/limpieza en tiempo real.
-Esto incluye funciones que realizan la asignación de memoria, como \fBrtapi_shmem_new(3)\fR.
+.SS Init/cleanup code
+Certain functions may only be called from realtime init/cleanup code.
+This includes functions that perform memory allocation, such as
+\fBrtapi_shmem_new(3)\fR.
 
-.SS Código en tiempo real
-Solo se pueden invocar algunas funciones desde el código en tiempo real. Esto incluye
-funciones que realizan acceso directo a dispositivos, como \fBrtapi_inb(3)\fR.
-Excluye la mayoría de las API de kernel de Linux, como \fRdo_gettimeofday(3)\fR y
-muchas API de rtapi como \fRrtapi_shmem_new(3)\fR.
+.SS Realtime code
+Only a few functions may be called from realtime code.  This includes
+functions that perform direct device access such as \fBrtapi_inb(3)\fR.
+It excludes most Linux kernel APIs such as \fRdo_gettimeofday(3)\fR and
+many rtapi APIs such as \fRrtapi_shmem_new(3)\fR.
 
-.SS Simulador 
-Para que un módulo RTAPI se pueda construir en el entorno "sim" (sistema  en tiempo real falso, sin privilegios especiales),
-no debe usar \fBninguna\fR API del kernel de Linux y no debe usar las API RTAPI para el acceso directo a dispositivos, como
-\fBrtapi_inb(3)\fR. Esto incluye automáticamente cualquier controlador de dispositivo de hardware,
-y también dispositivos que usan API de kernel de Linux para hacer cosas como crear
-dispositivos o entradas especiales en el sistema de archivos \fB/proc\fR.
+.SS Simulator
+For an RTAPI module to be buildable in the "sim" environment (fake realtime
+system without special privileges), it must not use \fBany\fR linux kernel
+APIs, and must not use the RTAPI APIs for direct device access such as
+\fBrtapi_inb(3)\fR.  This automatically includes any hardware device drivers,
+and also devices which use Linux kernel APIs to do things like create
+special devices or entries in the \fB/proc\fR filesystem.
 
-.SH CÓDIGOS DE ESTADO RTAPI
-Excepto como se indica en páginas específicas del manual, RTAPI devuelve valores errno negativos
-para errores y valores no negativos para éxito.
-
-
+.SH RTAPI STATUS CODES
+Except as noted in specific manual pages, RTAPI returns negative errno values
+for errors, and nonnegative values for success.
 

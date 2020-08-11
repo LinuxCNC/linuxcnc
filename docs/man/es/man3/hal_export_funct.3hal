@@ -1,0 +1,51 @@
+.TH hal_export_funct "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_export_funct \- crea una función en tiempo real invocable desde un hilo
+
+.SH SINTAXIS
+.HP
+typedef void(*hal_funct_t)(void * \fIarg\fR, long \fIperiod\fR)
+.HP
+int hal_export_funct(const char *\fIname\fR, hal_funct_t \fIfunct\fR, void *\fIarg\fR, int \fIuses_fp\fR, int \fIreentrant\fR, int \fIcomp_id\fR)
+
+.SH  ARGUMENTOS
+.IP \fIname\fR
+El nombre de la función.
+
+.IP \fIfunct\fR
+El puntero a la función.
+
+.IP \fIarg\fR
+El argumento que se pasará como el primer parámetro de \fIfunct\fR
+
+.IP \fIuses_fp\fR
+No cero si la función utiliza operaciones de punto flotante, incluida la asignación
+de valores de coma flotante con "=".
+
+.IP \fIreentrant\fR
+Si reentrant no es cero, la función puede ser reemplazada y llamada nuevamente
+antes de que se complete la primera llamada. De lo contrario, solo se puede agregar a un
+hilo.
+
+.IP \fIcomp_id\fR
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+
+.SH DESCRIPCION
+\fBhal_export_funct\fR crea una función en tiempo real proporcionada por un componente
+disponible para el sistema. Una llamada posterior a  \fBhal_add_funct_to_thread\fR
+se puede usar para programar la ejecución de la función según lo necesite el sistema.
+
+Cuando esta función se coloca en un hilo HAL y se inician los hilos HAL,
+\fIfunct\fR se llama repetidamente con dos argumentos: \fIvoid *arg\fR es el
+mismo valor que se le dio a \fBhal_export_funct\fR, y \fIlong period\fR es
+el intervalo entre llamadas en nanosegundos.
+
+Cada llamada a la función debe hacer una pequeña cantidad de trabajo y retornar.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH VER TAMBIÉN
+\fBhal_create_thread(3hal)\fR, \fBhal_add_funct_to_thread(3hal)\fR
+

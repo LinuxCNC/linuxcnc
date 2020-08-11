@@ -530,7 +530,7 @@ DEFAULT_LINEAR_ACCELERATION
 MAX_LINEAR_ACCELERATION
 ----
 
-[NOTA]
+[NOTE]
 
 No se han implementado soporte para especificar la planificación de trayectoria angular 
 predeterminada y aceleraciones máximas.

@@ -250,7 +250,7 @@ image::images/pncconf-mesa-config.png[alt="Configuración de Mesa"]
 
 La dirección de parport se usa solo con la tarjeta parport de Mesa, la 7i43. Los parport en placa base generalmente usan 0x278 o 0x378, aunque debería poder encontrar la dirección desde la página de BIOS. La 7i43 requiere que el puerto paralelo use el modo EPP, de nuevo establecido en la página de BIOS. Si usa un puerto paralelo PCI, la dirección puede ser buscada utilizando el botón de búsqueda en la página básica.
 
-[NOTA]
+[NOTE]
 Muchas tarjetas PCI no son compatibles con el protocolo EPP correcto.
 
 La frecuencia base PDM PWM y 3PWM establece el equilibrio entre rizado y linealidad. Si usa tarjetas hijas Mesa, los documentos para la placa deben dar recomendaciones.

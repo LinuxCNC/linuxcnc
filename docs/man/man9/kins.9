@@ -1,14 +1,14 @@
 .de TQ
 .br
 .ns
-.TP \\ $ 1
+.TP \\$1
 ..
 
-.TH KINS "9" "2014-12-22" "Documentación LinuxCNC" "Módulos cinemáticos"
-.SH NOMBRE
-kins \- definiciones cinemáticas para LinuxCNC
-.SH SINOPSIS
-.B loadrt trivkins (uso para la mayoría de las máquinas cartesianas)
+.TH KINS "9" "2014-12-22" "LinuxCNC Documentation" "Kinematics Modules"
+.SH NAME
+kins \- kinematics definitions for LinuxCNC
+.SH SYNOPSIS
+.B loadrt trivkins (use for most cartesian machines)
 .PP
 .B loadrt corexykins
 .PP
@@ -16,7 +16,7 @@ kins \- definiciones cinemáticas para LinuxCNC
 .PP
 .B loadrt genserkins
 .PP
-.B loadrt lineardeltakins (ver página de manual separada)
+.B loadrt lineardeltakins (see separate manpage)
 .PP
 .B loadrt maxkins
 .PP
@@ -32,7 +32,7 @@ kins \- definiciones cinemáticas para LinuxCNC
 .PP
 .B loadrt scarakins
 .PP
-.B carga trípodes trípode
+.B loadrt tripodkins
 .PP
 .B loadrt xyzac\-trt\-kins
 .PP
@@ -41,82 +41,113 @@ kins \- definiciones cinemáticas para LinuxCNC
 .B loadrt 5axiskins
 .PP
 
-.SH DESCRIPCIÓN
-En lugar de exportar pines y funciones HAL, estos componentes proporcionan las definiciones cinemáticas directas e inversas para LinuxCNC.
+.SH DESCRIPTION
+Rather than exporting HAL pins and functions, these components provide the
+forward and inverse kinematics definitions for LinuxCNC.
 
-.SS trivkins \- cinemática trivial generalizada
-Los números de articulación se asignan secuencialmente de acuerdo con las letras de eje especificadas con el parámetro \fBcoordinates=\fR.
+.SS trivkins \- generalized trivial kinematics
+Joint numbers are assigned sequentialy according to the axis letters specified
+with the \fBcoordinates=\fR parameter.
 
-Si se omite el parámetro coordinates=, se asignan números de articulación \fBsecuencialmente\fR a cada letra de eje conocida ("xyzabcuvw").
-
-.TP
-Ejemplo: loadrt\fBtrivkins\fR
-.TP
-Asigna todas las letras de los ejes a números de articulación en secuencia:
-.PP
-   x==articulación0, y==articulación1, z==articulación2
-   a==articulación3, b==articulación4, c==articulación5
-   u==articulación6, v==articulación7, w==articulación8
-
-.TQ
-Ejemplo: loadrt\fBtrivkins coordinates= xyz\fR
-.TQ
-Asignaciones: x==articulación0, y==articulación1, z==articulación2
-
-.TQ
-Ejemplo: loadrt\fBtrivkins coordinates=xz\fR
-.TQ
-Asigna: x==articulación0, z==articulación1
-
-.TQ
-Ejemplo: loadrt\fBtrivkins coordinates=xyzy\fR
-.TQ
-Asignaciones: x==articulación0, y0==articulación1, z==articulación2, y1==articulación3
-
-
-.PP
-El tipo de cinemática predeterminado es\fBKINEMATICS_IDENTITY\fR. Las GUIs puede proporcionar características especiales para configuraciones que utilizan este tipo de cinemática predeterminada. Por ejemplo, la GUI Axis maneja automáticamente las operaciones de modo de articulación y mundial para que las distinciones entre las articulaciones y los ejes no sean visibles para el operador.
-Esto es factible ya que existe una correspondencia exacta entre un número articulación y su letra de eje correspondiente.
-
-.TQ
-El tipo de cinemática se puede establecer con el parámetro \fBkinstype=\fR:
-
-.TQ
-  kinstype=\fB1\fR para KINEMATICS_IDENTITY (predeterminado si kinstype = omitido)
-.TQ
-  kinstype=[\fBb\fR|\fBB\fR] para KINEMATICS_BOTH
-.TQ
-  kinstype=[\fBf\fR|\fBF\fR] para KINEMATICS_FORWARD_ONLY
-.TQ
-  kinstype=[\fBi\fR|\fBI\fR] para KINEMATICS_INVERSE_ONLY
+If the coordinates= parameter is omitted, joint numbers are assigned
+\fBsequentially\fR to every known axis letter ("xyzabcuvw").
 
 .TP
-Ejemplo: loadrt \fBtrivkins coordinates=xyz kinstype=b\fR
-
+Example: loadrt \fBtrivkins\fR
+.TP
+Assigns all axis letters to joint numbers in sequence:
 .PP
-Use kinstype=\fBB\fR (KINEMATICS_BOTH) para configuraciones que necesitan mover articulaciones de forma independiente (modo articulación) o como movimientos coordinados (teleop) en coordenadas mundiales.
-
-Cuando se usa la GUI Axis con KINEMATICS_BOTH, la tecla '\fB$\fR' se usa para alternar entre los modos de articulación y teleop (mundial).
-
-.PP
-Se puede usar una letra de eje más de una vez (\fBduplicadas\fR) para asignar múltiples articulaciones a una sola letra de coordenadas de eje.
+   x==joint0, y==joint1, z==joint2
+   a==joint3, b==joint4, c==joint5
+   u==joint6, v==joint7, w==joint8
 
 .TQ
-Ejemplo: coordinates=\fBxyyzw\fR kinstype=\fBB\fR
+Example: loadrt \fBtrivkins coordinates=xyz\fR
 .TQ
-Asigna: x==articulación0, y==articulación1\fBAND\fR articulación2, z==articulación3, w==articulación4
+Assigns: x==joint0, y==joint1, z==joint2
+
+.TQ
+Example: loadrt \fBtrivkins coordinates=xz\fR
+.TQ
+Assigns: x==joint0, z==joint1
+
+.TQ
+Example: loadrt \fBtrivkins coordinates=xyzy\fR
+.TQ
+Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3
+
 
 .PP
-El ejemplo anterior ilustra una configuración de pórtico que usa letras de coordenadas \fBduplicadas\fR para indicar que dos articulaciones (articulación1 y articulación2) mueven un solo eje (y). El uso de kinstype=\fBB\fR permite alternar la configuración entre los modos de operación articulación y mundial. Las opciones de configuración de referencia están disponibles para sincronizar el movimiento de referencia final para las articulaciones seleccionadas; consulte la documentación de\fConfiguracion Homing\fR.
+The default kinematics type is \fBKINEMATICS_IDENTITY\fR.  Guis may provide
+special features for configurations using this default kinematics type.  For
+instance, the axis gui automatically handles joint and world mode operations so
+that the distinctions between joints and axes are not visible to the operator.
+This is feasible since there is an exact correspondence between a joint number
+and its matching axis letter.
 
-\fBNOTES\fR para coordenadas \fBduplicadas\fR:
+.TQ
+The kinematics type can be set with the \fBkinstype=\fR parameter:
 
-Cuando se utilizan letras de coordenadas \fBduplicadas\fR, la especificación KINEMATICS_BOTH (kinstype=\fBB\fR) permite que una interfaz gráfica de usuario admita el offset de cada articulación individual en \fBModo articulación\fR.
-Se requiere \fBprecaución\fR en máquinas en las que el movimiento de una sola articulación (en un articulación especificada por una letra de coordenada \fBduplicada\fR) puede conducir a daños del pórtico u otros resultados no deseados.
-Cuando se omite el parámetro kinstype=, la operación por defecto es KINEMATICS_IDENTITY (kinstype=\fB1\fR) y una interfaz gráfica de usuario puede permitir jog en función de una letra de coordenada de eje seleccionada (o mediante una tecla del teclado) antes de completar el recorrido y la máquina aún en\fBModo articulación\fR. La articulación seleccionada dependerá de la implementación de la interfaz gráfica de usuario, pero normalmente solo se moverá una de las múltiples articulaciones del conjunto. En consecuencia, se recomienda especificar KINEMATICS_BOTH, ya que permite el soporte para un jog independiente e inequívoco de cada articulación individual.
-Las máquinas que implementan el recorrido de referencia para todas las articulaciones (incluidas las disposiciones para sincronizar el movimiento de referencia final para múltiples articulaciones) pueden conectarse al arranque de la máquina y cambiar automáticamente al modo\fBmundial\fR donde está disponible el jogging por coordenadas.
+.TQ
+  kinstype=\fB1\fR     for KINEMATICS_IDENTITY (default if kinstype= omitted)
+.TQ
+  kinstype=[\fBb\fR|\fBB\fR] for KINEMATICS_BOTH
+.TQ
+  kinstype=[\fBf\fR|\fBF\fR] for KINEMATICS_FORWARD_ONLY
+.TQ
+  kinstype=[\fBi\fR|\fBI\fR] for KINEMATICS_INVERSE_ONLY
 
-.SS corexykins \- Cinematica CoreXY
+.TP
+Example: loadrt \fBtrivkins coordinates=xyz kinstype=b\fR
+
+.PP
+Use kinstype=\fBB\fR (KINEMATICS_BOTH) for configurations that need to move joints
+independently (joint mode) or as coordinated (teleop) movements in world coordinates.
+
+When using the axis gui with KINEMATICS_BOTH, the '\fB$\fR' key is
+used to toggle between joint and teleop (world) modes.
+
+.PP
+An axis letter may be used more than once (\fBduplicated\fR) to assign
+multiple joints to a single axis coordinate letter.
+
+.TQ
+Example: coordinates=\fBxyyzw\fR kinstype=\fBB\fR
+.TQ
+Assigns: x==joint0, y==joint1 \fBAND\fR joint2, z==joint3, w==joint4
+
+.PP
+The above example illustrates a gantry configuration that uses
+\fBduplicated\fR coordinate letters to indicate that
+two joints (joint1 and joint2) move a single axis (y).  Using
+kinstype=\fBB\fR allows the configuration to be toggled between joint
+and world modes of operation.  Homing configuration options are 
+available to synchronize the final homing move for selected joints --
+see the documentation for \fBHoming Configuration\fR.
+
+\fBNOTES\fR for \fBduplicated\fR coordinates:
+
+When \fBduplicated\fR coordinate letters are used, specifying
+KINEMATICS_BOTH (kinstype=\fBB\fR) allows a gui to support
+jogging of each individual joint in \fBjoint mode\fR.
+\fBCaution\fR is required for machines where the movement
+of a single joint (in a set specified by a \fBduplicated\fR coordinate letter)
+can lead to gantry racking or other unwanted outcomes.
+When the kinstype= parameter is omitted, operation defaults to
+KINEMATICS_IDENTITY (kinstype=\fB1\fR) and a gui may allow jogging
+based upon a selected axis coordinate letter
+(or by a keyboard key) before homing is completed and the
+machine is still in \fBjoint mode\fR.  The joint selected will depend upon
+the gui implementation but typically only one of the multiple
+joints in the set will jog.  Consequently, specifying KINEMATICS_BOTH
+is recommended as it enables support for unambiguous, independent
+jogging of each individual joint.  
+Machines that implement homing for all joints (including the provisions
+for synchronizing the final homing move for multiple joints) may be homed
+at machine startup and automatically switch to \fBworld\fR mode where
+per-coordinate jogging is available.
+
+.SS corexykins \- CoreXY Kinematics
 .TP
 X = 0.5*(JOINT_0 + JOINT_1)
 .TQ
@@ -124,13 +155,15 @@ Y = 0.5*(JOINT_0 \- JOINT_1)
 .TQ
 Z = JOINT_2
 .TP
-[KINS]JOINTS= debe especificar 3 o más articulaciones (máximo 9)
+[KINS]JOINTS= must specify 3 or more joints (maximum 9)
 .TP
-Si está habilitado por el número de [KINS]JOINTS= especificado, JOINT_3,4,5,6,7,8 corresponde a las coordenadas A, B, C, U, V, W respectivamente.
+If enabled by the number of [KINS]JOINTS= specified, JOINT_3,4,5,6,7,8 correspond to coordinates A,B,C,U,V,W respectively.
 
 
-.SS genhexkins\- Cinemática Hexápodo
-Da seis grados de libertad en posición y orientación (XYZABC). La ubicación de las articulaciones de la base y la plataforma está definida por los parámetros hal. La iteración cinemática hacia adelante está controlada por pines hal.
+.SS genhexkins \- Hexapod Kinematics
+Gives six degrees of freedom in position and orientation (XYZABC).  The
+location of base and platform joints is defined by hal parameters.  The
+forward kinematics iteration is controlled by hal pins.
 .TP
 .B genhexkins.base.\fIN\fB.x
 .TQ
@@ -143,11 +176,11 @@ Da seis grados de libertad en posición y orientación (XYZABC). La ubicación d
 .B genhexkins.platform.\fIN\fB.y
 .TQ
 .B genhexkins.platform.\fIN\fB.z
-Parámetros que describen las coordenadas de la articulación\fIN-sima\fR.
+Parameters describing the \fIN\fRth joint's coordinates.
 .TQ
 .B genhexkins.spindle\-offset
-Se agregó a todas las articulaciones las coordenadas Z para cambiar el origen de la máquina.
-Facilita el ajuste de la posición del husillo.
+Added to all joints Z coordinates to change the machine origin.
+Facilitates adjusting spindle position.
 .TQ
 .B genhexkins.base\-n.\fIN\fB.x
 .TQ
@@ -160,38 +193,47 @@ Facilita el ajuste de la posición del husillo.
 .B genhexkins.platform\-n.\fIN\fB.y
 .TQ
 .B genhexkins.platform\-n.\fIN\fB.z
-Parámetros que describen los vectores unitarios del eje de la articulación \fIN-sima\fR. Se utiliza para calcular la corrección de la longitud del corredizo para articulaciones cardánicas y actuadores no cautivos.
+Parameters describing unit vectors of \fIN\fRth joint's axis. Used to
+calculate strut length correction for cardanic joints and non-captive
+actuators.
 .TQ
 .B genhexkins.screw\-lead
-Paso del tornillo del corredizo del actuador, positivo para roscas a derecha.
-El valor predeterminado es 0 (corrección de longitud deshabilitada).
+Lead of strut actuator screw, positive for the right-handed thread.
+Default is 0 (strut length correction disabled).
 .TQ
 .B genhexkins.correction.\fIN\fB
-Valores actuales de corrección de la longitud del corredizo para actuadores no cautivos con articulaciones cardánicas.
+Current values of strut length correction for non-captive actuators with
+cardanic joints.
 .B genhexkins.convergence\-criterion
-Valor mínimo de error que finaliza las iteraciones con una solución convergente.
+Minimum error value that ends iterations with converged solution.
 .TQ
 .B genhexkins.limit\-iterations
-Límite de iteraciones, si las iteraciones excedidas se detienen sin convergencia.
+Limit of iterations, if exceeded iterations stop with no convergence.
 .TQ
 .B genhexkins.max\-error
-Valor de error máximo, si las iteraciones excedidas se detienen sin convergencia.
+Maximum error value, if exceeded iterations stop with no convergence.
 .TQ
 .B genhexkins.last\-iterations
-Número de iteraciones empleadas para la última solución de cinemática directa.
+Number of iterations spent for the last forward kinematics solution.
 .TQ
 .B genhexkins.max\-iterations
-Número máximo de iteraciones empleadas para una solución convergente durante la sesión actual.
+Maximum number of iterations spent for a converged solution during current
+session.
 .TQ
 .B genhexkins.tool\-offset
-offset TCP desde el origen de la plataforma a lo largo de Z para implementar la función RTCP. Para
-evitar saltos de articulaciones cambie el offset de la herramienta solo cuando la plataforma no está inclinada.
+TCP offset from platform origin along Z to implement RTCP function. To
+avoid joints jump change tool offset only when the platform is not tilted.
 
-.SS genserkins \- cinemática serial generalizada
-Cinemática que puede modelar un manipulador general de eslabones en serie con hasta 6 articulaciones angulares.
+.SS genserkins \- generalized serial kinematics
+Kinematics that can model a general serial-link manipulator with up to 6
+angular joints.
 
-La cinemática utiliza la definición de Denavit-Hartenberg para la articulación y los eslabones. Las definiciones de DH son las utilizadas por John J Craig en "Introducción a la robótica: mecánica y control". Los parámetros para el manipulador se definen mediante pines hal .
-Tenga en cuenta que esto utiliza una convención a veces conocida como "Parámetros DH modificados" y esto debe tenerse en cuenta al configurar el sistema.
+The kinematics use Denavit-Hartenberg definition for the joint and
+links. The DH definitions are the ones used by John J Craig in
+"Introduction to Robotics: Mechanics and Control" The parameters for the
+manipulator are defined by hal pins.
+Note that this uses a convention sometimes known as "Modified DH Parameters"
+and this must be borne in mind when setting up the system. 
 https://w.wiki/NcY
 .TP
 .B genserkins.A\-\fIN
@@ -199,13 +241,18 @@ https://w.wiki/NcY
 .B genserkins.ALPHA\-\fIN
 .TQ
 .B genserkins.D\-\fIN
-Parámetros que describen la geometría de la articulación\fIN-esima\fRth.
+Parameters describing the \fIN\fRth joint's geometry.
 
-.SS maxkins\- Ejemplo de cinemática de 5 ejes
-Cinemática de fresadora de mesa de 5 ejes de Chris Radek llamada 'max' con cabezal basculante (eje B) y giratorio horizontal montado en la mesa (eje C). Proporciona movimiento UVW en el sistema de coordenadas girado. El archivo fuente, maxkins.c, puede ser un punto de partida útil para otros sistemas de 5 ejes.
+.SS maxkins \- 5-axis kinematics example
+Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
+head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
+UVW motion in the rotated coordinate system.  The source file, maxkins.c,
+may be a useful starting point for other 5-axis systems.
 
-.SS pentakins \- Cinematica Pentapod
-Da cinco grados de libertad en posición y orientación (XYZAB). La ubicación de la base y las articulaciones efectoras está definida por los parámetros hal. La iteración cinemática hacia adelante está controlada por pines hal.
+.SS pentakins \- Pentapod Kinematics
+Gives five degrees of freedom in position and orientation (XYZAB).  The
+location of base and effector joints is defined by hal parameters.  The
+forward kinematics iteration is controlled by hal pins.
 .TP
 .B pentakins.base.\fIN\fB.x
 .TQ
@@ -216,28 +263,31 @@ Da cinco grados de libertad en posición y orientación (XYZAB). La ubicación d
 .B pentakins.effector.\fIN\fB.r
 .TQ
 .B pentakins.effector.\fIN\fB.z
-Parámetros que describen el radio de la articulación efectora\fIN\fR-esima y la posición axial.
+Parameters describing the \fIN\fRth effector joint's radius and axial
+position.
 .TQ
 .B pentakins.convergence\-criterion
-Valor mínimo de error que finaliza las iteraciones con una solución convergente.
+Minimum error value that ends iterations with converged solution.
 .TQ
 .B pentakins.limit\-iterations
-Límite de iteraciones, si las iteraciones excedidas se detienen sin convergencia.
+Limit of iterations, if exceeded iterations stop with no convergence.
 .TQ
 .B pentakins.max\-error
-Valor de error máximo, si las iteraciones excedidas se detienen sin convergencia.
+Maximum error value, if exceeded iterations stop with no convergence.
 .TQ
 .B pentakins.last\-iterations
-Número de iteraciones gastadas para la última solución de cinemática directa.
+Number of iterations spent for the last forward kinematics solution.
 .TQ
 .B pentakins.max\-iterations
-Número máximo de iteraciones gastadas para una solución convergente durante la sesión actual.
+Maximum number of iterations spent for a converged solution during current
+session.
 .TQ
 .B pentakins.tool\-offset
-offset TCP desde el origen del efector a lo largo de Z para implementar la función RTCP. Para evitar el salto de las articulaciones, cambie la herramienta de offset solo cuando la plataforma no esté inclinada.
+TCP offset from effector origin along Z to implement RTCP function. To
+avoid joints jump change tool offset only when the platform is not tilted.
 
-.SS pumakins \- cinemática para robots con tipo puma
-Cinemática para un robot estilo puma con 6 articulaciones
+.SS pumakins \- kinematics for puma typed robots
+Kinematics for a puma-style robot with 6 joints
 .TP
 .B pumakins.A2
 .TQ
@@ -246,55 +296,67 @@ Cinemática para un robot estilo puma con 6 articulaciones
 .B pumakins.D3
 .TQ
 .B pumakins.D4
-Describen la geometría del robot.
+Describe the geometry of the robot
 
-.SS rosekins \- cinemática para un motor rose usando una articulación transversal, longitudinal y rotativa (3 articulaciones)
+.SS rosekins \- kinematics for a rose engine using
+a transverse, longitudinal, and rotary joint (3 joints)
 
-.SS rotarydeltakins \- cinemática para una máquina rotatoria delta. Robot rotatorio delta (3 articulaciones)
+.SS rotarydeltakins \- kinematics for a rotary delta machine
+Rotary delta robot (3 Joints)
 
-.SS rotatekins \- Cinemática rotada
-Los ejes X e Y se giran 45 grados en comparación con las articulaciones 0 y 1.
+.SS rotatekins \- Rotated Kinematics
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 
-.SS scarakins \- cinemática para robots tipo SCARA
+.SS scarakins \- kinematics for SCARA-type robots
 .TP
 .B scarakins.D1
-Distancia vertical desde el plano del suelo al centro del brazo interno.
+Vertical distance from the ground plane to the center of the inner arm.
 .TP
 .B scarakins.D2
-Distancia horizontal entre el eje de la articulación [0] y el eje de la articulación [1], es decir, la longitud del brazo interno.
+Horizontal distance between joint[0] axis and joint[1] axis, ie.  the
+length of the inner arm.
 .TP
 .B scarakins.D3
-Distancia vertical desde el centro del brazo interno al centro del brazo externo. Puede ser positivo o negativo dependiendo de la estructura del robot.
+Vertical distance from the center of the inner arm to the center of the
+outer arm.  May be positive or negative depending on the structure of
+the robot.
 .TP
 .B scarakins.D4
-Distancia horizontal entre el eje de la articulación [1] y el eje de la articulación [2], es decir, La longitud del brazo externo.
+Horizontal distance between joint[1] axis and joint[2] axis, ie.  the
+length of the outer arm.
 .TP
 .B scarakins.D5
-Distancia vertical desde el efector final hasta la punta de herramientas. Positivo significa que la punta de herramientas esta más baja que el efector final, y es el caso normal.
+Vertical distance from the end effector to the tooltip.  Positive means
+the tooltip is lower than the end effector, and is the normal case.
 .TP
 .B scarakins.D6
-Distancia horizontal desde la línea central del efector final (y las articulaciones de los ejes 2 y 3) y la punta de herramientas. Cero significa que la punta de herramientas está en la línea central. Los valores distintos de cero deben ser positivos, si son negativos, introducen un offset de 180 grados en el valor de la articulación [3].
+Horizontal distance from the centerline of the end effector (and the
+joints 2 and 3 axis) and the tooltip.  Zero means the tooltip is on the
+centerline.  Non-zero values should be positive, if negative they
+introduce a 180 degree offset on the value of joint[3].
 
-.SS tripodkins \- Cinemática de trípode
-Las articulaciones representan la distancia del punto controlado desde tres ubicaciones predefinidas (los motores), dando tres grados de libertad en posición (XYZ)
+.SS tripodkins \- Tripod Kinematics
+The joints represent the distance of the controlled point from three predefined
+locations (the motors), giving three degrees of freedom in position (XYZ)
 .TP
 .B tripodkins.Bx
 .TQ
 .B tripodkins.Cx
 .TQ
 .B tripodkins.Cy
-La ubicación de los tres motores es (0,0), (Bx, 0) y (Cx, Cy)
+The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
-.SS xyzac\-trt\-kins \- Fresadora de 5 ejes (mesa giratoria/basculante)
-Mesa inclinable (A) y giratoria horizontal montada en la mesa © (5 articulaciones). La asignación de articulación predeterminada es X: 0, Y: 1, Z: 2, A: 3, C: 4.
-El mapeo de articulación se puede alterar con el parámetro de coordenadas de la misma manera que lo admite trivkins.
+.SS xyzac\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
+Tilting table (A) and horizontal rotary mounted tothe table (C)
+(5 Joints)
 
-.SS xyzbc\-trt\-kins \- Fresa de 5 ejes (mesa giratoria / basculante)
-Mesa basculante (B) y giratoria horizontal montada en la mesa (eje C) (5 articulaciones). La asignación de articulación predeterminada es X: 0, Y: 1, Z: 2, A: 3, C: 4.
-El mapeo de articulación se puede alterar con el parámetro de coordenadas de la misma manera que lo admite trivkins.
+.SS xyzbc\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
+Tilting table (B) and horizontal rotary mounted to table (C axis)
+(5 Joints)
 
-.SS 5axiskins \- fresadora de puente de 5 ejes
-XYZBC (5 articulaciones)
+.SS 5axiskins \- 5 Axis bridge mill
+XYZBC (5 Joints)
 
-.SH VER TAMBIÉN
-Sección\fIKinematics\fR en la documentación de LinuxCNC
+.SH SEE ALSO
+\fIKinematics\fR section in the LinuxCNC documentation
+

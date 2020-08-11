@@ -1,36 +1,36 @@
-.TH rtapi_delay "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_delay "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_delay \- Busy-loop para retrasos cortos
+rtapi_delay \- Busy-loop for short delays
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 void rtapi_delay(long int \fInsec\fR)
 .HP
 void rtapi_delay_max()
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fInsec\fR
-La longitud de retraso deseada en nanosegundos
+The desired delay length in nanoseconds
 
-.SH DESCRIPCIÓN
-\fBrtapi_delay\fR es un retraso simple. Está destinado solo para
-retrasos cortos, ya que simplemente se repite, desperdiciando ciclos de CPU.
+.SH DESCRIPTION
+\fBrtapi_delay\fR is a simple delay.  It is intended only for short
+delays, since it simply loops, wasting CPU cycles.
 
-\fBrtapi_delay_max\fR devuelve el retraso máximo permitido (generalmente
-aproximadamente 1/4 del período del reloj). Cualquier llamada a \fBrtapi_delay\fR
-solicitando un retraso mayor que el máximo se retrasará solo por el tiempo máximo.
+\fBrtapi_delay_max\fR returns the max delay permitted (usually
+approximately 1/4 of the clock period).  Any call to \fBrtapi_delay\fR
+requesting a delay longer than the max will delay for the max time only.
 
-Se debe llamar a \fBrtapi_delay_max\fR antes de usar \fBrtapi_delay\fR para
-asegúrese de que se puedan lograr los retrasos requeridos. La resolución real
-del retraso puede ser tan buena como un nano-segundo, o tan mala como varios
-microsegundos
+\fBrtapi_delay_max\fR should be called before using \fBrtapi_delay\fR to
+make sure the required delays can be achieved.  The actual resolution
+of the delay may be as good as one nano-second, or as bad as a several
+microseconds.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede llamar desde el código de inicio/limpieza y desde dentro de las tareas en tiempo real.
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code, and from within realtime tasks.
 
-.SH VALOR DEVUELTO
-\fBrtapi_delay_max\fB devuelve el retraso máximo permitido.
+.SH RETURN VALUE
+\fBrtapi_delay_max\fB returns the maximum delay permitted.
 
-.SH VER TAMBIÉN
-\fBrtapi_clock_set_period (3rtapi)\fR
+.SH SEE ALSO
+\fBrtapi_clock_set_period(3rtapi)\fR

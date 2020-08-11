@@ -1,0 +1,37 @@
+.TH SPINDLE_MONITOR "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+spindle_monitor \- spindle at-speed and underspeed detection
+.SH SYNOPSIS
+.HP
+.B loadrt spindle_monitor [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBspindle-monitor.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B spindle-monitor.\fIN\fB.spindle-is-on\fR bit in \fR
+.TQ
+.B spindle-monitor.\fIN\fB.spindle-command\fR float in \fR
+.TQ
+.B spindle-monitor.\fIN\fB.spindle-feedback\fR float in \fR
+.TQ
+.B spindle-monitor.\fIN\fB.spindle-at-speed\fR bit out \fR
+.TQ
+.B spindle-monitor.\fIN\fB.spindle-underspeed\fR bit out \fR
+.SH PARAMETERS
+.TP
+.B spindle-monitor.\fIN\fB.level\fR u32 rw \fR
+state machine state
+.TP
+.B spindle-monitor.\fIN\fB.threshold\fR float rw \fR
+.SH LICENSE
+
+gpl v2 or higher

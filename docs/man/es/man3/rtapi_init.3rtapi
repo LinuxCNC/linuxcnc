@@ -1,0 +1,28 @@
+.TH rtapi_init "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_init \- Configura RTAPI
+
+.SH SINTAXIS
+.HP
+int rtapi_init(const char *\fImodname\fR)
+
+.SH ARGUMENTOS
+.IP \ fImodname\fR
+El nombre de este módulo rtapi
+
+.SH DESCRIPCIÓN
+
+\fBrtapi_init\fR configura RTAPI. Debe ser llamado por cualquier
+módulo que pretende utilizar la API, antes que cualquier otra llamada RTAPI.
+
+\fImodname\fR puede apuntar opcionalmente a una cadena que identifica
+el módulo. La cadena se truncará en \fBRTAPI_NAME_LEN\fR caracteres. Si \fImodname\fR es \fBNULL\fR, el sistema asignará un nombre.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de usuario o de inicio/limpieza, no desde las tareas de realtime.
+
+.SH VALOR DEVUELTO
+En caso de éxito, devuelve un ID de módulo entero positivo, que es
+utilizado para llamadas posteriores a rtapi_xxx_new, rtapi_xxx_delete,
+y rtapi_exit. En caso de fallo, devuelve un código de error RTAPI.

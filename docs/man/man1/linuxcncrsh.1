@@ -1,70 +1,70 @@
-.TH linuxcncrsh 1 "31 de mayo de 2011" "" "El Controlador de Máquina Mejorado"
-.SH NOMBRE
-linuxcncrsh \- interfaz en modo texto para comandar LinuxCNC a través de la red
-.SH SINOPSIS
-.SI
-linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPCIONES]
+.TH linuxcncrsh 1 "May 31, 2011" "" "The Enhanced Machine Controller"
+.SH NAME
+linuxcncrsh \- text-mode interface for commanding LinuxCNC over the network
+.SH SYNOPSIS
+.B
+linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .br
-.SH DESCRIPCIÓN
-\fBlinuxcncrsh\fP es una interfaz de usuario para LinuxCNC. En lugar de abrir una
-ventana GUI como axis(1) o touchy(1), procesa comandos en modo texto
-que recibe a través de la red. Un humano (o un programa) puede interactuar
-con \fBlinuxcncrsh\fP usando telnet(1) o nc(1) o programas similares.
+.SH DESCRIPTION
+\fBlinuxcncrsh\fP is a user interface for LinuxCNC.  Instead of popping up a GUI
+window like axis(1) and touchy(1) do, it processes text-mode commands
+that it receives via the network.  A human (or a program) can interface
+with \fBlinuxcncrsh\fP using telnet(1) or nc(1) or similar programs.
 .P
-Todas las características de LinuxCNC están disponibles a través de la interfaz \fBlinuxcncrsh\fP.
-.SH OPCIONES
+All features of LinuxCNC are available via the \fBlinuxcncrsh\fP interface.
+.SH OPTIONS
 .P
 .B
 \-p,\-\-port PORT_NUMBER
 .RS
-Especifique el puerto de escucha para linuxcncrsh. El valor predeterminado es 5007 si se omite.
+Specify the port for linuxcncrsh to listen on.  Defaults to 5007 if omitted.
 .RE
 .P
 .B
 \-n,\-\-name SERVER_NAME
 .RS
-Establece el nombre del servidor que linuxcncrsh usará para identificarse durante
-el reconocimiento con un nuevo cliente. El valor predeterminado es EMCNETSVR si se omite.
+Sets the server name that linuxcncrsh will use to identify itself during
+handshaking with a new client.  Defaults to EMCNETSVR if omitted.
 .RE
 .P
 .B
-\-w,\-\-connectpw CONTRASEÑA
+\-w,\-\-connectpw PASSWORD
 .RS
-Especifique la contraseña de conexión para usar durante el protocolo de enlace con un nuevo
-cliente. Tenga en cuenta que la contraseña se envía sin cifrar, por lo que puede leerse
-por cualquiera que pueda leer paquetes en la red entre el servidor y
-el cliente. El valor predeterminado es EMC si se omite.
+Specify the connection password to use during handshaking with a new
+client.  Note that the password is sent in the clear, so it can be read
+by anyone who can read packets on the network between the server and
+the client.  Defaults to EMC if omitted.
 .RE
 .P
 .B
-\-e,\-\-enablepw CONTRASEÑA
+\-e,\-\-enablepw PASSWORD
 .RS
-Especifique la contraseña requerida para habilitar LinuxCNC a través de linuxcncrsh. Tenga en cuenta que
-la contraseña se envía sin cifrar, por lo que cualquier persona que pueda leer 
-paquetes en la red entre el servidor y el cliente puede leerla. Por defecto es
-EMCTOO si se omite.
+Specify the password required to enable LinuxCNC via linuxcncrsh.  Note that the
+password is sent in the clear, so it can be read by anyone who can read
+packets on the network between the server and the client.  Defaults to
+EMCTOO if omitted.
 .RE
 .P
 .B
 \-s,\-\-sessions MAX_SESSIONS
 .RS
-Especifique el número máximo de conexiones simultáneas. El valor predeterminado es \-1
-(sin límite) si no se especifica.
+Specify the maximum number of simultaneous connections.  Defaults to \-1
+(no limit) if not specified.
 .RE
 .P
-Además de las opciones enumeradas anteriormente, linuxcncrsh acepta una opción
-LINUXCNC_OPTION especial al final:
+In addition to the options listed above, linuxcncrsh accepts an optional
+special LINUXCNC_OPTION at the end:
 .P
 .B
 \-ini LINUXCNC_INI_FILE
 .RS
-Archivo LinuxCNC .ini a usar. La opción \-ini \fBdebe\fP estar precedida por dos
-guiones: "\-\-". El valor predeterminado es emc.ini si se omite.
+LinuxCNC .ini file to use.  The \-ini option \fBmust\fP be preceded by two
+dashes: "\-\-".  Defaults to emc.ini if omitted.
 .RE
-.SH Inicio de linuxcncrsh
+.SH Starting linuxcncrsh
 .P
-Para usar linuxcncrsh en lugar de una GUI LinuxCNC normal como Axis o Touchy, especifique
-su archivo .ini así:
+To use linuxcncrsh instead of a normal LinuxCNC GUI like axis or touch, specify
+it in your .ini file like this:
 .RS
 .P
 .B [DISPLAY]
@@ -72,608 +72,611 @@ su archivo .ini así:
 .B DISPLAY=linuxcncrsh
 .RE
 .P
-Para usar linuxcncrsh además de una GUI normal, puede iniciarlo
-al final de su archivo .hal, o ejecutarlo a mano en una ventana de terminal.
+To use linuxcncrsh in addition to a normal GUI, you can either start it
+at the end of your .hal file, or run it by hand in a terminal window.
 .P
-Para iniciarlo desde hal, agregue una línea como esta al final de su archivo .hal:
+To start it from hal, add a line like this to the end of your .hal file:
 .RS
 .P
-.B loadusr linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPTIONS]
+.B loadusr linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .RE
 .P
-Para iniciarlo desde la terminal, ejecute linuxcncrsh manualmente de esta manera:
+To start it from the terminal, run linuxcncrsh manually like this:
 .RS
 .P
-.B linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPTIONS]
+.B linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .RE
-.SH Conexión
+.SH Connecting
 .P
-Una vez que LinuxCNC esté activo y se esté ejecutando linuxcncrsh, puede conectarse a él utilizando
-\fBtelnet\fP o \fBnc\fP o similar:
+Once LinuxCNC is up and linuxcncrsh is running, you can connect to it using
+\fBtelnet\fP or \fBnc\fP or similar:
 .RS
 .P
 .B telnet HOST PORT
 .RS
-HOST es el nombre de host o la dirección IP de la computadora que ejecuta linuxcncrsh, y
-PORT es el puerto en el que está escuchando (5007 si no le dio a linuxcncrsh la opción \-\-port).
+HOST is the hostname or IP address of the computer running linuxcncrsh, and
+PORT is the port it's listening on (5007 if you did not give linuxcncrsh the
+\-\-port option).
 
 .RE
-.SH Protocolo de red
+.SH Network protocol
 .P
-linuxcncrsh acepta conexiones TCP en el puerto especificado por la opción \-\-port,
-o 5007 si no se especifica.
+linuxcncrsh accepts TCP connections on the port specified by the \-\-port option,
+or 5007 if not specified.
 .P
-El cliente envía solicitudes y el servidor linuxcncrsh devuelve respuestas.
-Las solicitudes consisten en una palabra de comando seguida de parámetros específicos del comando. 
-Las solicitudes y la mayoría de los parámetros de solicitud son insensibles a mayúsculas y minúsculas.
-Las excepciones son contraseñas, rutas de archivo y cadenas de texto.
+The client sends requests, and the linuxcncrsh server returns replies.
+Requests consist of a command word followed by optional command-specific
+parameters.  Requests and most request parameters are case
+insensitive. The exceptions are passwords, file paths and text strings.
 .P
-Las solicitudes de linuxcncrsh se finalizan con terminaciones de línea; cualquier combinación de
-uno o más caracteres '\\r' y '\\n'. Las respuestas de linuxcncrsh finalizan
-con la secuencia \'\\r\\n\'.
+Requests to linuxcncrsh are terminated with line endings, any combination of
+one or more '\\r' and '\\n' characters.  Replies from linuxcncrsh are terminated
+with the sequence \'\\r\\n\'.
 .P
-Los comandos admitidos son los siguientes:
+The supported commands are as follows:
 .P
-\fBhello <contraseña> <cliente> <versión>\fR
+\fBhello <password> <client> <version>\fR
 .RS
-<contraseña> debe coincidir con la contraseña de conexión de linuxcncrsh o "EMC" si no
-se suministró \-\-connectpw. Los tres argumentos pueden no contener espacios en blanco.
-Si se ingresó una contraseña válida, el servidor responderá con:
+<password> must match linuxcncrsh's connect password, or "EMC" if no
+\-\-connectpw was supplied.  The three arguments may not contain whitespace.
+If a valid password was entered the server will respond with:
 .RS
-\fIHELLO ACK <Nombre del servidor> <Versión del servidor>\fR
+\fIHELLO ACK <ServerName> <ServerVersion>\fR
 .RE
 .P
-Si se produce una contraseña no válida o cualquier otro error de sintaxis, el servidor
-responde con:
+If an invalid password or any other syntax error occurs then the server 
+responds with:
 .RS
 \fIHELLO NAK\fR
 .RE
 .RE
 .P
-\fBget <subcommand> [<parámetros>]\fR
+\fBget <subcommand> [<parameters>]\fR
 .RS
-El comando get toma uno de los subcomandos LinuxCNC (descrito en la
-sección \fBSubcomandos LinuxCNC\fR, a continuación) y cero o más parámetros
-adicionales específicos del subcomando.
+The get command takes one of the LinuxCNC sub-commands (described in the
+section \fBLinuxCNC Subcommands\fR, below) and zero or more additional
+subcommand-specific parameters.
 .RE
 .P
-\fBset <subcommand> <parámetros>\fR
+\fBset <subcommand> <parameters>\fR
 .RS
-El comando set toma uno de los subcomandos LinuxCNC (descrito en el
-sección \fBSubcomandos LinuxCNC\fR, a continuación) y uno o más parámetros adicionales.
+The set command takes one of the LinuxCNC sub-commands (described in the
+section \fBLinuxCNC Subcommands\fR, below) and one or more additional
+parameters.
 .RE
 .P
 \fBquit\fR
 .RS
-El comando quit desconecta la conexión de socket asociada.
+The quit command disconnects the associated socket connection.
 .RE
 .P
 \fBshutdown\fR
 .RS
-El comando shutdown le dice a LinuxCNC que apague y desconecte la
-sesión. Este comando solo se puede emitir si el reconocimiento ha sido
-negociado con éxito y la conexión tiene el control del CNC (ver subcomando
-\fBenable\fR en la sección \fBSubcomandos LinuxCNC\fR, a continuación).
+The shutdown command tells LinuxCNC to shutdown and disconnect the
+session. This command may only be issued if the Hello has been
+successfully negotiated and the connection has control of the CNC (see
+\fBenable\fR subcommand in the \fBLinuxCNC Subcommands\fR section, below).
 .RE
 .P
 \fBhelp\fR
 .RS
-El comando de ayuda devolverá información de ayuda en formato de texto sobre la
-conexión. Si no se especifican parámetros, detallará los comandos disponibles.
-Si se especifica un comando, proporcionará información de uso
-para el comando especificado. La ayuda responderá independientemente de si un
-"Hello" se ha negociado con éxito.
+The help command will return help information in text format over the
+connection. If no parameters are specified, it will itemize the available
+commands.  If a command is specified, it will provide usage information
+for the specified command. Help will respond regardless of whether a
+"Hello" has been successsfully negotiated.
 .RE
-.SH "Subcomandos LinuxCNC"
+.SH "LinuxCNC Subcommands"
 .P
-Los subcomandos para \fBget\fR y \fBset\fR son:
+Subcommands for \fBget\fR and \fBset\fR are:
 .P
 \fBecho {on|off}\fR
 .RS
-Con get, se ignora cualquier parámetro on/off y es devuelto el estado de eco actual.
-Con set, se establece el estado del eco como se especifica. El eco por defecto es
-on cuando se establece la conexión por primera vez. Cuando el eco está activado, todos los comandos
-hará eco al recibirlo. Este estado es local para cada conexión.
+With get, any on/off parameter is ignored and the current echo state is
+returned.  With set, sets the echo state as specified.  Echo defaults to
+on when the connection is first established.  When echo is on, all commands
+will be echoed upon receipt.  This state is local to each connection.
 .RE
 .P
 \fBverbose {on|off}\fR
 .RS
-Con get, cualquier parámetro on/off se ignora y es devuelto el estado detallado actual.
-Con set, se establece el estado detallado como se especifica. Cuando el modo detallado
-está activado, todos los comandos set devuelven un reconocimiento positivo en la forma
-SET <COMMAND> ACK, y se emitirán mensajes de error de texto (FIXME: no
-se lo que esto significa). El estado detallado es local para cada conexión,
-y comienza OFF en nuevas conexiones.
+With get, any on/off parameter is ignored and the current verbose state
+is returned.  With set, sets the verbose state as specified.  When verbose
+mode is on, all set commands return positive acknowledgement in the form
+SET <COMMAND> ACK, and text error messages will be issued (FIXME: I don't
+know what this means).  The verbose state is local to each connection,
+and starts out OFF on new connections.
 .RE
 .P
 \fBenable {<passwd>|off}\fR
 .RS
-El estado de habilitación de la sesión indica si la conexión actual está
-habilitada para realizar funciones de control. Con get, se ignora cualquier parámetro,
-y se devuelve el estado de habilitación actual. Con set y una contraseña válida coincidente
-con \-\-enablepw (EMCTOO si no se especifica), la conexión actual
-está habilitada para las funciones de control. "OFF" no puede usarse como
-una contraseña y deshabilita las funciones de control para esta conexión.
+The session's enable state indicates whether the current connection is
+enabled to perform control functions.  With get, any parameter is ignored,
+and the current enable state is returned.  With set and a valid password
+matching linuxcncrsh's \-\-enablepw (EMCTOO if not specified), the current
+connection is enabled for control functions.  "OFF" may not be used as
+a password and disables control functions for this connection.
 .RE
 .P
 \fBconfig [TBD]\fR
 .RS
-Sin usar, ignorar por ahora.
+Unused, ignore for now.
 .RE
 .P
-\fBcomm_mode {ascii| binary}\fR
+\fBcomm_mode {ascii|binary}\fR
 .RS
-Con get, se ignora cualquier parámetro y se devuelve el modo de
-comunicacion actual. Con set, se establecerá el modo de comunicaciones en
-el modo especificado El modo ascii es el modo de solicitud/respuesta de texto, el
-protocolo binario no está actualmente diseñado o implementado.
+With get, any parameter is ignored and the current communications
+mode is returned.  With set, will set the communications mode to the
+specified mode.  The ascii mode is the text request/reply mode, the
+binary protocol is not currently designed or implemented.
 .RE
 .P
-\fBcomm_prot <versión>\fR
+\fBcomm_prot <version>\fR
 .RS
-Con get, se ignora cualquier parámetro y se devuelve la versión actual del protocolo
-utilizado por el servidor. Con set, se configura el servidor para que use
-la versión de protocolo especificada, siempre que sea inferior o igual al
-mayor número de versión compatible con la implementación del servidor.
+With get, any parameter is ignored and the current protocol version
+used by the server is returned.  With set, sets the server to use the
+specified protocol version, provided it is lower than or equal to the
+highest version number supported by the server implementation.
 .RE
 .P
 \fBinifile\fR
 .RS
-¡Actualmente no implementado! Con get, devuelve la cadena "emc.ini".
-Debería devolver la ruta completa y el nombre de archivo de la configuración actual
-inifile. Set no hace nada.
+Not currently implemented!  With get, returns the string "emc.ini".
+Should return the full path and file name of the current configuration
+inifile.  Setting this does nothing.
 .RE
 .P
 \fBplat\fR
 .RS
-Con get, devuelve la cadena "Linux".
+With get, returns the string "Linux".
 .RE
 .P
-\fBini <var> <sección>\fR
+\fBini <var> <section>\fR
 .RS
-Actualmente no implementado, ¡no lo use! Debería devolver el valor de la cadena
-<var> en la sección <sección> del archivo ini.
+Not currently implemented, do not use!  Should return the string value
+of <var> in section <section> of the ini file.
 .RE
 .P
-\fBdebug <valor>\fR
+\fBdebug <value>\fR
 .RS
-Con get, se ignora cualquier parámetro y se devuelve el valor entero actual de
-EMC_DEBUG. Tenga en cuenta que el valor de EMC_DEBUG devuelto es
-el del archivo ini de la UI, que puede ser diferente al archivo ini de emc.
-Con set, se envía un comando a EMC para establecer el nuevo nivel de depuración y
-establece el EMC_DEBUG global aquí con el mismo valor. Esto hará que los
-dos valores sean iguales, ya que realmente deberían ser iguales.
+With get, any parameter is ignored and the current integer value of
+EMC_DEBUG is returned.  Note that the value of EMC_DEBUG returned is
+the from the UI's ini file, which may be different than emc's ini file.
+With set, sends a command to the EMC to set the new debug level, and
+sets the EMC_DEBUG global here to the same value. This will make the
+two values the same, since they really ought to be the same.
 .RE
 .P
-\fBset_wait {recived|done}\fR
+\fBset_wait {received|done}\fR
 .RS
-La configuración set_wait controla la espera después de recibir un comando.
-Puede ser "recived" (después de que el comando fue enviado y recibido) o "done"
-(después de que se ejecuto el comando). Con get, se ignora cualquier parámetro y
-se devuelve la configuración actual de set_wait. Con set, se establece la configuración set_wait
-al valor especificado.
+The set_wait setting controls the wait after receiving a command.
+It can be "received" (after the command was sent and received) or "done"
+(after the command was done).  With get, any parameter is ignored and the
+current set_wait setting is returned.  With set, set the set_wait setting
+to the specified value.
 .RE
 .P
-\fBwait {recived|done}\fR
+\fBwait {received|done}\fR
 .RS
-Con set, fuerza una espera para que se reciba el comando anterior, o done.
+With set, force a wait for the previous command to be received, or
+done.
 .RE
 .P
 \fBset_timeout <timeout>\fR
 .RS
-Con set, establece el tiempo de espera para que los comandos vuelvan a los <timeout>
-segundos. El tiempo de espera es un número real. Si es <= 0.0, significa esperar para siempre.
-El valor predeterminado es 0.0, espera para siempre.
+With set, set the timeout for commands to return to <timeout>
+seconds. Timeout is a real number. If it's <= 0.0, it means wait forever.
+Default is 0.0, wait forever.
 .RE
 .P
 \fBupdate {none|auto}\fR
 .RS
-El modo de actualización controla si se deben devolver valores nuevos u obsoletos para
-"obtener" solicitudes. Cuando el modo de actualización es "none", devuelve valores obsoletos;
-cuando es "auto" devuelve valores nuevos. El valor predeterminado es "auto" para nuevas
-conexiones. Ajústelo a "none" si quiere confundirse.
+The update mode controls whether to return fresh or stale values for
+"get" requests.  When the update mode is "none" it returns stale values,
+when it's "auto" it returns fresh values.  Defaults to "auto" for new
+connections.  Set this to "none" if you like to be confused.
 .RE
 .P
 \fBerror\fR
 .RS
-Con get, devuelve la cadena de error actual o "ok" si no hay error.
+With get, returns the current error string, or "ok" if no error.
 .RE
 .P
 \fBoperator_display\fR
 .RS
-Con get, devuelve la cadena de visualización del operador actual, o "ok" si no hay ninguno.
+With get, returns the current operator display string, or "ok" if none.
 .RE
 .P
 \fBoperator_text\fR
 .RS
-Con get, devuelve la cadena de texto del operador actual, o "ok" si no hay ninguno.
+With get, returns the current operator text string, or "ok" if none.
 .RE
 .P
 \fBtime\fR
 .RS
-Con get, devuelve el tiempo, en segundos, desde el comienzo del epoch.
-El tiempo de inicio depende de la plataforma.
+With get, returns the time, in seconds, from the start of the epoch. This
+starting time depends on the platform.
 .RE
 .P
 \fBestop {on|off}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelve la configuración actual de estop
-como "on" o "off". Con set, establece estop como se especifica. Estop "on"
-significa que la máquina está en estado de parada y no actuará.
+With get, ignores any parameters and returns the current estop setting
+as "on" or "off".  With set, sets the estop as specified.  Estop "on"
+means the machine is in the estop state and won't run.
 .RE
 .P
 \fBmachine {on|off}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelve el encendido actual de la máquina
-configurando como "on" o "off". Con set, enciende o apaga la máquina como se
-especifique.
+With get, ignores any parameters and returns the current machine power
+setting as "on" or "off".  With set, sets the machine on or off as
+specified.
 .RE
 .P
 \fBmode {manual|auto|mdi}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelve el modo de máquina actual.
-Con set, establece el modo de máquina como se especifica.
+With get, ignores any parameters and returns the current machine mode.
+With set, sets the machine mode as specified.
 .RE
 .P
 \fBmist {on|off}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelve el ajuste de refrigerante de niebla actual.
-Con set, establece la configuración de niebla como se especifica.
+With get, ignores any parameters and returns the current mist coolant
+setting.  With set, sets the mist setting as specified.
 .RE
 .P
 \fBflood {on|off}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelve el ajuste de refrigerante de inundación actual.
-Con set, establece la configuración de inundación como se especifica.
+With get, ignores any parameters and returns the current flood coolant
+setting.  With set, sets the flood setting as specified.
 .RE
 .P
 \fBlube {on|off}\fR
 .RS
-Con get, ignora cualquier parámetro y devuelveel ajuste de la bomba de lubricación actual.
-Con set, establece la configuración de la bomba de lubricación como se especifica.
+With get, ignores any parameters and returns the current lube pump
+setting.  With set, sets the lube pump setting as specified.
 .RE
 .P
 \fBlube_level\fR
 .RS
-Con get, devuelve la lectura del sensor de nivel de lubricante como "ok" o "low".
-Con set, no hay efecto real.
+With get, returns the lubricant level sensor reading as "ok" or "low".
+With set, mocks you for wishful thinking.
 .RE
 .P
 \fBspindle {forward|reverse|increase|decrease|constant|off}\fR
 .RS
-Con get, se ignora cualquier parámetro y el estado actual del cabezal es
-devuelto como "forward", "reverse", "increase", "decrease", "constant" o "off". Con
-set, establece el husillo como se especifica. Tenga en cuenta que "increase" y "decrease"
-provocará un cambio de velocidad en la dirección correspondiente hasta que
-se envía el comando "constant".
+With get, any parameter is ignored and the current spindle state is
+returned as "forward", "reverse", "increase", "decrease", or "off". With
+set, sets the spindle as specified.  Note that "increase" and "decrease"
+will cause a speed change in the corresponding direction until a
+"constant" command is sent.
 .RE
 .P
 \fBbrake {on|off}\fR
 .RS
-Con get, se ignora cualquier parámetro y la configuración actual del freno es
-devuelta. Con set, el freno se establece como se especifica.
+With get, any parameter is ignored and the current brake setting is
+returned.  With set, the brake is set as specified.
 .RE
 .P
 \fBtool\fR
 .RS
-Con get, devuelve la identificación de la herramienta cargada actualmente.
+With get, returns the id of the currently loaded tool.
 .RE
 .P
 \fBtool_offset\fR
 .RS
-Con get, devuelve el desplazamiento de longitud de herramienta aplicado actualmente.
+With get, returns the currently applied tool length offset.
 .RE
 .P
-\fBload_tool_table <archivo>\fR
+\fBload_tool_table <file>\fR
 .RS
-Con set, carga la tabla de herramientas especificada por <archivo>.
+With set, loads the tool table specified by <file>.
 .RE
 .P
-\fBhome {0|1|2|...}|-1\fR
+\fBhome {0|1|2|...} | -1\fR
 .RS
-Con set, pone home a la articulación indicada o, si -1, home Todas las articulaciones
+With set, homes the indicated joint or if -1, Home All joints
 .RE
 .P
 \fBjog_stop joint_number|axis_letter\fR
 .RS
-Con set, detiene cualquier jog en curso en la articulación o eje especificado.
-Si TELEOP_ENABLE es NO, use joint_number;
-Si TELEOP_ENABLE es SÍ, use axis_letter.
+With set, stop any in-progress jog on the specified joint or axis.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
 \fBjog joint_number|axis_letter <speed>\fR
 .RS
-Con set, mueve la articulación o eje especificado a la <velocidad>; el signo de velocidad es dirección.
-Si TELEOP_ENABLE es NO, use joint_number;
-Si TELEOP_ENABLE es SÍ, use axis_letter.
+With set, jog the specified joint or axis at <speed>; sign of speed is direction.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
 \fBjog_incr jog_number|axis_letter <speed> <incr>\fR
 .RS
-Con set, mueve la articulación o eje indicado por incremento <incr> en <speed>; el signo de
-la velocidad es dirección.
-Si TELEOP_ENABLE es NO, use joint_number;
-Si TELEOP_ENABLE es SÍ, use axis_letter.
+With set, jog the indicated joint or axis by increment <incr> at the <speed>; sign of
+speed is direction.
+If TELEOP_ENABLE is  NO, use joint_number;
+If TELEOP_ENABLE is YES, use axis_letter.
 .RE
 .P
 \fBfeed_override <percent>\fR
 .RS
-Con get, se ignora cualquier parámetro y retorna el ajuste de alimentación actual
-(como un porcentaje del feed ordenado). Con set, establece el ajuste de feed
-como se especifica.
+With get, any parameter is ignored and the current feed override is
+returns (as a percentage of commanded feed).  With set, sets the feed
+override as specified.
 .RE
 .P
 \fBspindle_override <percent>\fR
 .RS
-Con get, se ignora cualquier parámetro y retorna el ajuste de husillo actual
-(como un porcentaje de husillo ordenado). Con set, establece el ajuste de husillo
-como se especifica.
+With get, any parameter is ignored and the current spindle override
+is returned (as a percentage of commanded speed).  With set, sets the
+spindle override as specified.
 .RE
 .P
 \fBabs_cmd_pos [{0|1|...}]\fR
 .RS
-Con get, devuelve la posición ordenada del eje especificado en absoluto
-coordenadas Si no se especifica ningún eje, devuelve todos los ejes ordenados
-posición absoluta
+With get, returns the specified axis' commanded position in absolute
+coordinates.  If no axis is specified, returns all axes' commanded
+absolute position.
 .RE
 .P
 \fBabs_act_pos [{0|1|...}]\fR
 .RS
-Con get, devuelve la posición real del eje especificado en absoluto
-coordenadas Si no se especifica ningún eje, devuelve el absoluto real de todos los ejes
-posición.
+With get, returns the specified axis' actual position in absolute
+coordinates.  If no axis is specified, returns all axes' actual absolute
+position.
 .RE
 .P
 \fBrel_cmd_pos [{0|1|...}]\fR
 .RS
-Con get, devuelve la posición ordenada del eje especificado en relación
-coordenadas, incluido el desplazamiento de la longitud de la herramienta. Si no se especifica ningún eje,
-devuelve la posición relativa ordenada de todos los ejes.
+With get, returns the specified axis' commanded position in relative
+coordinates, including tool length offset.  If no axis is specified,
+returns all axes' commanded relative position.
 .RE
 .P
 \fBrel_act_pos [{0|1|...}]\fR
 .RS
-Con get, devuelve la posición real del eje especificado en relación
-coordenadas, incluido el desplazamiento de la longitud de la herramienta. Si no se especifica ningún eje,
-devuelve la posición relativa real de todos los ejes.
+With get, returns the specified axis' actual position in relative
+coordinates, including tool length offset.  If no axis is specified,
+returns all axes' actual relative position.
 .RE
 .P
 \fBjoint_pos [{0|1|...}]\fR
 .RS
-Con get, devuelve la posición real de la articulación especificada en absoluto
-coordenadas, excluyendo el desplazamiento de la longitud de la herramienta. Si no se especifica una junta,
-devuelve la posición absoluta real de todas las articulaciones.
+With get, returns the specified joint's actual position in absolute
+coordinates, excluding tool length offset.  If no joint is specified,
+returns all joints' actual absolute position.
 .RE
 .P
 \fBpos_offset [{X|Y|Z|R|P|W}]\fR
 .RS
-Con get, devuelve el desplazamiento de posición asociado con la coordenada mundial
-previsto.
+With get, returns the position offset associated with the world coordinate
+provided.
 .RE
 .P
 \fBjoint_limit [{0|1|...}]\fR
 .RS
-Con get, devuelve el estado límite de la unión especificada como "ok", "minsoft",
-"minhard", "maxsoft" o "maxhard". Si no se especifica un número conjunto,
-devuelve el estado límite de todas las articulaciones.
+With get, returns limit status of the specified joint as "ok", "minsoft",
+"minhard", "maxsoft", or "maxhard".  If no joint number is specified,
+returns the limit status of all joints.
 .RE
 .P
 \fBjoint_fault [{0|1|...}]\fR
 .RS
-Con get, devuelve el estado de falla de la unión especificada como "ok" o
-"culpa". Si no se especifica un número conjunto, devuelve el estado de falla de
-Todas las articulaciones.
+With get, returns the fault status of the specified joint as "ok" or
+"fault".  If no joint number is specified, returns the fault status of
+all joints.
 .RE
 .P
 \fBjoint_homed [{0|1|...}]\fR
 .RS
-Con get, devuelve el estado de referencia de la unión especificada como "referenciada"
-o no". Si no se especifica un número conjunto, devuelve el estado de inicio de
-Todas las articulaciones.
+With get, returns the homed status of the specified joint as "homed"
+or "not".  If no joint number is specified, returns the homed status of
+all joints.
 .RE
 .P
-\fBmdi <cadena>\fR
+\fBmdi <string>\fR
 .RS
-Con set, envía <cadena> como un comando MDI.
+With set, sends <string> as an MDI command.
 .RE
 .P
 \fBtask_plan_init\fR
 .RS
-Con set, inicializa el intérprete de programa.
+With set, initializes the program interpreter.
 .RE
 .P
-\fBopen <nombre de archivo>\fR
+\fBopen <filename>\fR
 .RS
-Con set, abre el archivo con nombre. El <nombre de archivo> es abierto por linuxcnc,
-por lo que debería ser una ruta absoluta o una ruta relativa que comience en
-el directorio de trabajo de linuxcnc (el directorio del archivo .ini activo).
+With set, opens the named file.  The <filename> is opened by linuxcnc,
+so it should either be an absolute path or a relative path starting in
+the linuxcnc working directory (the directory of the active .ini file).
 .RE
 .P
 \fBrun [<StartLine>]\fR
 .RS
-Con set, ejecuta el programa abierto. Si no se especifica StartLine, se ejecuta
-desde el principio. Si se especifica una línea de inicio, la línea de inicio se ejecuta desde
-esa linea. Una línea de inicio de \ -1 se ejecuta en modo de verificación.
+With set, runs the opened program.  If no StartLine is specified, runs
+from the beginning.  If a StartLine is specified, start line, runs from
+that line. A start line of \-1 runs in verify mode.
 .RE
 .P
 \fBpause\fR
 .RS
-Con set, pausa la ejecución del programa.
+With set, pause program execution.
 .RE
 .P
 \fBresume\fR
 .RS
-Con set, reanudar la ejecución del programa.
+With set, resume program execution.
 .RE
 .P
 \fBabort\fR
 .RS
-Con set, abortar programa o ejecución MDI.
+With set, abort program or MDI execution.
 .RE
 .P
 \fBstep\fR
 .RS
-Con set, pasa el programa una línea.
+With set, step the program one line.
 .RE
 .P
 \fBprogram\fR
 .RS
-Con get, devuelve el nombre del programa abierto actualmente o "ninguno".
+With get, returns the name of the currently opened program, or "none".
 .RE
 .P
 \fBprogram_line\fR
 .RS
-Con get, devuelve la línea actualmente en ejecución del programa.
+With get, returns the currently executing line of the program.
 .RE
 .P
 \fBprogram_status\fR
 .RS
-Con get, devuelve "inactivo", "en ejecución" o "en pausa".
+With get, returns "idle", "running", or "paused".
 .RE
 .P
 \fBprogram_codes\fR
 .RS
-Con get, devuelve la cadena para los códigos de programa actualmente activos.
+With get, returns the string for the currently active program codes.
 .RE
 .P
 \fBjoint_type [<joint>]\fR
 .RS
-Con get, devuelve "lineal", "angular" o "personalizado" para el tipo de
-junta especificada (o para todas las juntas si no se especifica ninguna).
+With get, returns "linear", "angular", or "custom" for the type of the
+specified joint (or for all joints if none is specified).
 .RE
 .P
-\fBjoint_units [<unidad>]\fR
+\fBjoint_units [<joint>]\fR
 .RS
-Con get, devuelve "inch", "mm", "cm" o "deg", "rad", "grad" o
-"personalizado", para las unidades nativas correspondientes de la unión especificada (o
-para todas las juntas si no se especifica ninguna). El tipo del eje (lineal o
-angular) se utiliza para resolver qué tipo de unidades se devuelven. las unidades
-se obtienen heurísticamente, en base a las unidades numéricas EMC_AXIS_STAT ::
-valor de unidades de usuario por mm o deg. Para juntas lineales, algo cercano
-a 0.03937 se considera "pulgada", 1.000 es "mm", 0.1 es "cm", de lo contrario es
-"personalizado". Para juntas angulares, algo cercano a 1,000 se considera "deg",
-PI / 180 es "rad", 100/90 es "grad", de lo contrario es "personalizado".
+With get, returns "inch", "mm", "cm", or "deg", "rad", "grad", or
+"custom", for the corresponding native units of the specified joint (or
+for all joints if none is specified).  The type of the axis (linear or
+angular) is used to resolve which type of units are returned. The units
+are obtained heuristically, based on the EMC_AXIS_STAT::units numerical
+value of user units per mm or deg.  For linear joints, something close
+to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is "cm", otherwise it's
+"custom".  For angular joints, something close to 1.000 is deemed "deg",
+PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
 .RE
 .P
 \fBprogram_units\fR
 .RS
-Sinónimo de program_linear_units.
+Synonym for program_linear_units.
 .RE
 .P
 \fBprogram_linear_units\fR
 .RS
-Con get, devuelve "inch", "mm", "cm" o "none", para el correspondiente
-unidades lineales que están activas en el intérprete de programa.
+With get, returns "inch", "mm", "cm", or "none", for the corresponding
+linear units that are active in the program interpreter.
 .RE
 .P
 \fBprogram_angular_units\fR
 .RS
-Con get, devuelve "deg", "rad", "grad" o "none" para el correspondiente
-unidades angulares que están activas en el intérprete de programa.
+With get, returns "deg", "rad", "grad", or "none" for the corresponding
+angular units that are active in the program interpreter.
 .RE
 .P
 \fBuser_linear_units\fR
 .RS
-Con get, devuelve "inch", "mm", "cm" o "custom", para el correspondiente
-Unidades lineales de usuario nativo del nivel de trayectoria LinuxCNC. Esto se obtiene
-heurísticamente, basado en el valor numérico EMC_TRAJ_STAT :: linearUnits
-de unidades de usuario por mm. Algo cercano a 0.03937 se considera "pulgada",
-1.000 es "mm", 0.1 es "cm", de lo contrario es "personalizado".
+With get, returns "inch", "mm", "cm", or "custom", for the corresponding
+native user linear units of the LinuxCNC trajectory level. This is obtained
+heuristically, based on the EMC_TRAJ_STAT::linearUnits numerical value
+of user units per mm.  Something close to 0.03937 is deemed "inch",
+1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
 .RE
 .P
 \fBuser_angular_units\fR
 .RS
-Devuelve "deg", "rad", "grad" o "custom" para el nativo correspondiente
-Unidades angulares de usuario del nivel de trayectoria LinuxCNC. Al igual que con las unidades lineales,
-Esto se obtiene heurísticamente.
+Returns "deg", "rad", "grad", or "custom" for the corresponding native
+user angular units of the LinuxCNC trajectory level. Like with linear units,
+this is obtained heuristically.
 .RE
 .P
 \fBdisplay_linear_units\fR
 .RS
-Con get, devuelve "inch", "mm", "cm" o "personalizado" para el lineal
-unidades que están activas en la pantalla. Este es efectivamente el valor
-de linearUnitConversion.
+With get, returns "inch", "mm", "cm", or "custom", for the linear
+units that are active in the display.  This is effectively the value
+of linearUnitConversion.
 .RE
 \fBdisplay_angular_units\fR
 .RS
-Con get, devuelve "deg", "rad", "grad" o "custom", para el angular
-unidades que están activas en la pantalla. Este es efectivamente el valor
-de angularUnitConversion.
+With get, returns "deg", "rad", "grad", or "custom", for the angular
+units that are active in the display.  This is effectively the value
+of angularUnitConversion.
 .RE
 .P
 \fBlinear_unit_conversion {inch|mm|cm|auto}\fR
 .RS
-Con get, se ignora cualquier parámetro y la conversión de unidad activa es
-devuelto Con set, establece la unidad que se mostrará. Si es "auto",
-las unidades que se mostrarán coinciden con las unidades del programa.
+With get, any parameter is ignored and the active unit conversion is
+returned.  With set, sets the unit to be displayed.  If it's "auto",
+the units to be displayed match the program units.
 .RE
 .P
 \fBangular_unit_conversion {deg|rad|grad|auto}\fR
 .RS
-Con get, se ignora cualquier parámetro y la conversión de unidad activa es
-devuelto Con set, establece las unidades que se mostrarán. Si es "auto",
-las unidades que se mostrarán coinciden con las unidades del programa.
+With get, any parameter is ignored and the active unit conversion is
+returned.  With set, sets the units to be displayed. If it's "auto",
+the units to be displayed match the program units.
 .RE
 .P
 \fBprobe_clear\fR
 .RS
-Con el set, borre la bandera de la sonda disparada.
+With set, clear the probe tripped flag.
 .RE
 .P
 \fBprobe_tripped\fR
 .RS
-Con get, devuelve el estado de la sonda: ¿se ha disparado la sonda desde el último borrado?
+With get, return the probe state - has the probe tripped since the last clear?
 .RE
 .P
 \fBprobe_value\fR
 .RS
-Con get, devuelve el valor actual de la señal de la sonda.
+With get, return the current value of the probe signal.
 .RE
 .P
 \fBprobe\fR
 .RS
-Con el set, muévete hacia una determinada ubicación. Si la sonda se dispara
-la forma de detener el movimiento, registrar la posición y levantar la bandera de la sonda disparada.
+With set, move toward a certain location. If the probe is tripped on
+the way stop motion, record the position and raise the probe tripped flag.
 .RE
 .P
 \fBteleop_enable [on|off]\fR
 .RS
-Con get, se ignora cualquier parámetro y el modo teleop actual es
-devuelto Con set, establece el modo teleop como se especifica.
+With get, any parameter is ignored and the current teleop mode is
+returned.  With set, sets the teleop mode as specified.
 .RE
 .P
 \fBkinematics_type\fR
 .RS
-Con get, devuelve el tipo de funciones cinemáticas utilizadas (identidad = 1,
-serial = 2, paralelo = 3, personalizado = 4).
+With get, returns the type of kinematics functions used (identity=1,
+serial=2, parallel=3, custom=4).
 .RE
 .P
 \fBoverride_limits {on|off}\fR
 .RS
-Con get, se ignora cualquier parámetro y la configuración override_limits es
-devuelto Con set, el parámetro override_limits se establece como se especifica.
-Si override_limits está activado, deshabilita los límites de hardware de fin de viaje para
-permitir correr fuera de un límite. Si los parámetros están desactivados, entonces los límites de hardware
-están habilitados
+With get, any parameter is ignored and the override_limits setting is
+returned.  With set, the override_limits parameter is set as specified.
+If override_limits is on, disables end of travel hardware limits to
+allow jogging off of a limit. If parameters is off, then hardware limits
+are enabled.
 .RE
 .P
 \fBoptional_stop {0|1}\fR
 .RS
-Con get, se ignora cualquier parámetro y la actual "parada opcional en M1"
-Se devuelve la configuración. Con set, la configuración se establece como se especifica.
+With get, any parameter is ignored and the current "optional stop on M1"
+setting is returned.  With set, the setting is set as specified.
 .RE
-.SH Sesión de ejemplo
+.SH Example Session
 .P
-Esta sección muestra una sesión de ejemplo para la máquina local (\fBlocalhost\fR).
-Usted escribe los elementos en negrita, la salida de máquina no es negrita. Los valores predeterminados se muestran para
---port PORT_NUMBER (\fB5007\fR), --conectpw PASSWORD (\fBEMC\fR) y
---enablepw CONTRASEÑA (\fBEMCTOO\fR).
+This section shows an example session to the local machine (\fBlocalhost\fR).
+Bold items are typed by you, non-bold is machine output.  Default values  are shown for
+--port PORT_NUMBER (\fB5007\fR), --conectpw PASSWORD (\fBEMC\fR), and
+--enablepw PASSWORD (\fBEMCTOO\fR).
 .P
-El usuario se conecta a linuxcncrsh, reconocimiento con el servidor (hello), habilita
-comandos para la máquina de esta sesión (set enable), saca la máquina
-de parada (apaga estop) y la enciende (la máquina), hace todos los home de
-los ejes, cambia la máquina al modo mdi, envía un comando MDI de código g,
-luego se desconecta y apaga LinuxCNC.
+The user connects to linuxcncrsh, handshakes with the server (hello), enables
+machine commanding from this session (set enable), brings the machine
+out of estop (set estop off) and turns it on (set machine on), homes all
+the axes, switches the machine to mdi mode, sends an MDI g-code command,
+then disconnects and shuts down LinuxCNC.
 .P
 > \fBtelnet localhost 5007\fR
 .br

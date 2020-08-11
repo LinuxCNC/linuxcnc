@@ -1,0 +1,25 @@
+.TH CONV_BIT_FLOAT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+conv_bit_float \- Convert a value from bit to float
+.SH SYNOPSIS
+.HP
+.B loadrt conv_bit_float [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconv-bit-float.\fIN\fB\fR (requires a floating-point thread)
+Update 'out' based on 'in'
+.SH PINS
+.TP
+.B conv-bit-float.\fIN\fB.in\fR bit in \fR
+.TQ
+.B conv-bit-float.\fIN\fB.out\fR float out \fR
+.SH LICENSE
+
+GPL

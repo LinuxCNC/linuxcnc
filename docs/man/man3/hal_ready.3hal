@@ -1,21 +1,21 @@
-.TH funct "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
-.SH NOMBRE
+.TH funct "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
 
-hal_ready \- indica que este componente está listo
+hal_ready \- indicates that this component is ready
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
-hal_ready (int \fIcomp_id\fR)
+ hal_ready(int \fIcomp_id\fR)
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIcomp_id\fR
-Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
 
-.SH DESCRIPCIÓN
-\fBhal_ready\fR indica que este componente está listo (ha creado todos sus pines,
-parámetros y funciones). Esto debe llamarse en cualquier componente HAL en tiempo real
-antes de que su \fBrtapi_app_init\fR salga, y en cualquier componente de espacio de 
-usuario antes de entrar en su bucle principal.
+.SH DESCRIPTION
+\fBhal_ready\fR indicates that this component is ready (has created all its pins,
+parameters, and functions).  This must be called in any realtime HAL component
+before its \fBrtapi_app_init\fR exits, and in any userspace component before it
+enters its main loop.
 
-.SH VALOR DEVUELTO
-Devuelve un código de estado HAL.
+.SH RETURN VALUE
+Returns a HAL status code.

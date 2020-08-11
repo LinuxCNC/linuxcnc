@@ -1,0 +1,65 @@
+.TH introducción "3rtapi" "2006-10-02" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi \- Introducción a la API RTAPI
+
+.SH DESCRIPCIÓN
+RTAPI es una biblioteca que proporciona una API uniforme para varios sistemas
+operativos en tiempo real. A partir de LinuxCNC 2.7, se soportan hilos POSIX y RTAI.
+
+.SH ARCHIVOS HEADER
+.SS rtapi.h
+El archivo \fBrtapi.h\fR define el codigo RTAPI tanto en tiempo real como no real.
+Esto es un cambio desde Rev 2, donde la API no real (espacio de usuario)
+se definió en ulapi.h y utilizó diferentes nombres de funciones. Los símbolos RTAPI
+y ULAPI se utilizan para determinar qué modo se está compilando; RTAPI para
+en tiempo real y ULAPI para no real.
+
+.SS rtapi_math.h
+El archivo \fRrtapi_math.h\fR define funciones y constantes de punto flotante.
+Debe usarse en lugar de \fR <math.h>\fR en componentes rtapi en tiempo real.
+
+
+.SS rtapi_string.h
+El archivo \fRrtapi_string.h\fR define funciones relacionadas con cadenas.
+Debe usarse en lugar de \fR<string.h>\fR en componentes rtapi en tiempo real.
+
+.SS rtapi_byteorder.h
+Este archivo define las macros de preprocesador RTAPI_BIG_ENDIAN,
+RTAPI_LITTLE_ENDIAN y RTAPI_FLOAT_BIG_ENDIAN como verdadero o falso según
+las características del sistema objetivo. Debe usarse en lugar de
+\fB<endian.h>\fR (espacio de usuario) o \fB<linux/byteorder.h>\fR (espacio de kernel).
+
+.SS rtapi_limits.h
+Este archivo define el valor mínimo y máximo de algunos tipos enteros fundamentales
+, como INT_MIN e INT_MAX. Esto debe usarse en lugar de
+\fB<limits.h>\fR porque ese archivo de encabezado no está disponible para los módulos del kernel.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+.SS Código de espacio de usuario 
+Ciertas funciones no están disponibles en el código del espacio de usuario. Esto incluye funciones
+que realizan acceso directo a dispositivos, como \fBrtapi_inb(3)\fR.
+
+SS. Código Init/limpieza
+Ciertas funciones solo se pueden invocar desde el código de inicio/limpieza en tiempo real.
+Esto incluye funciones que realizan la asignación de memoria, como \fBrtapi_shmem_new(3)\fR.
+
+.SS Código en tiempo real
+Solo se pueden invocar algunas funciones desde el código en tiempo real. Esto incluye
+funciones que realizan acceso directo a dispositivos, como \fBrtapi_inb(3)\fR.
+Excluye la mayoría de las API de kernel de Linux, como \fRdo_gettimeofday(3)\fR y
+muchas API de rtapi como \fRrtapi_shmem_new(3)\fR.
+
+.SS Simulador 
+Para que un módulo RTAPI se pueda construir en el entorno "sim" (sistema  en tiempo real falso, sin privilegios especiales),
+no debe usar \fBninguna\fR API del kernel de Linux y no debe usar las API RTAPI para el acceso directo a dispositivos, como
+\fBrtapi_inb(3)\fR. Esto incluye automáticamente cualquier controlador de dispositivo de hardware,
+y también dispositivos que usan API de kernel de Linux para hacer cosas como crear
+dispositivos o entradas especiales en el sistema de archivos \fB/proc\fR.
+
+.SH CÓDIGOS DE ESTADO RTAPI
+Excepto como se indica en páginas específicas del manual, RTAPI devuelve valores errno negativos
+para errores y valores no negativos para éxito.
+
+
+

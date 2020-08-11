@@ -1,0 +1,48 @@
+.TH SIM_MATRIX_KB "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sim_matrix_kb \- convert HAL pin inputs to keycodes
+.SH SYNOPSIS
+.HP
+.B loadrt sim_matrix_kb [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsim-matrix-kb.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B sim-matrix-kb.\fIN\fB.out\fR u32 out \fR
+pin that outputs the Keycode
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c00.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c01.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c02.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c03.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c04.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c05.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c06.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.TP
+.B sim-matrix-kb.\fIN\fB.button.c07.r\fIMM\fB\fR bit in  (MM=00..07) \fR
+array of  inputs
+.SH LICENSE
+
+GPL

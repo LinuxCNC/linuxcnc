@@ -24,197 +24,196 @@
 .\"
 .\" $Id: vfs11_vfd.1,v 1.8 2009-09-19 13:49:34 mah Exp $
 .\"
-.TH vfs11_vfd "1" "19 de septiembre de 2009" "vfs11 VFD" "Documentación LinuxCNC"
+.TH vfs11_vfd "1" "September 19, 2009" "vfs11 VFD" "LinuxCNC Documentation"
 
-.SH NOMBRE
-\fBvfs11_vfd\fR \- Componente de espacio de usuario HAL para drivers de frecuencia variable Toshiba-Schneider VF-S11
+.SH NAME
+\fBvfs11_vfd\fR - HAL userspace component for Toshiba-Schneider VF-S11 Variable Frequency Drives
 
-.SH SINOPSIS
+.SH SYNOPSIS
 .B vfs11_vfd
-.RI [OPCIONES]
+.RI [OPTIONS]
 .br
 
-.SH DESCRIPCIÓN
-Esta página del manual explica el componente
-.B vfs11_vfd .
-Este componente lee y escribe en el vfs11 a través de una conexión Modbus.
-.P
-\fBvfs11_vfd\fP es para usar con LinuxCNC.
+.SH DESCRIPTION
+This manual page explains the
+.B vfs11_vfd
+component. This component reads and writes to the vfs11 via a Modbus connection.
+.PP
+\fBvfs11_vfd\fP is for use with LinuxCNC.
 
-.SH OPCIONES
+.SH OPTIONS
 .B
-.IP \-n \-\-name\ <halname>
-establecer el nombre del componente HAL
+.IP \-n\ \-\-name\ <halname>
+set the HAL component name
 .B
-.IP \-d \-\-debug
-Activar mensajes de depuración. También se alternó enviando una señal USR1 al proceso vfs11_vfd.
+.IP \-d\ \-\-debug
+Turn on debugging messages. Also toggled by sending a USR1 signal to the vfs11_vfd process.
 .B
-.IP \-m \-\-modbus\-debug
-Active los mensajes de depuración Modbus. Esto hará que todos los mensajes Modbus se impriman en hexadecimal en el terminal.
-También se activa al enviar una señal USR2 al proceso vfs11_vfd.
+.IP \-m\ \-\-modbus\-debug
+Turn on Modbus debugging messages. This will cause all Modbus messages to be printed in hex on the terminal.
+Also toggled by sending a USR2 signal to the vfs11_vfd process.
 .B
-.IP \-I \-\- ini\ <nombre de archivo>
-tomar la configuración de este ini
-expediente. El valor predeterminado es la variable de entorno INI_FILE_NAME.
+.IP \-I\ \-\-ini\ <inifilename>
+take configuration from this ini
+file. Defaults to environment variable INI_FILE_NAME.
 .B
-.IP \-S \-\-section \<section\-name>
-tomar configuración de esto
-sección en el archivo ini. El valor predeterminado es 'VFS11'.
+.IP \-S\ \-\-section\ <section\ name>
+take configuration from this
+section in the ini file. Defaults to 'VFS11'.
 .B
-.IP \-r \-\-report\-device
-informar de las propiedades del dispositivo en la consola al inicio
+.IP \-r\ \-\-report\-device
+report device propertiers on console at startup
 
 .SH PINS
 .B
 .IP <name>.acceleration\-pattern\ (bit,\ in)
-cuando sea verdadero, establezca los tiempos de aceleración y desaceleración como se define en los registros F500 y F501 respectivamente. Se utiliza en bucles PID para elegir tiempos de rampa más cortos para evitar la oscilación.
+when true, set acceleration and deceleration times as defined in registers F500 and F501 respecitvely. Used in PID loops to choose shorter ramp times to avoid oscillation.
 .B
-.IP <nombre>.alarm\-code\ (s32, \ out)
-distinto de cero si la unidad está en estado de alarma. Mapa de bits que describe la información de alarma (consulte la descripción del registro FC91). Utilizar
-.I rr\-reset
-(ver abajo) para borrar la alarma.
+.IP <name>.alarm\-code\ (s32,\ out)
+non-zero if drive is in alarmed state. Bitmap describing alarm information (see register FC91 description). Use
+.I err\-reset
+(see below) to clear the alarm.
 .B
-.IP <nombre>.at\-speed\ (bit, \ out)
-cuando la unidad está a la velocidad ordenada (ver
+.IP <name>.at\-speed\ (bit,\ out)
+when drive is at commanded speed (see
 .I
 speed\-tolerance
-abajo)
+below)
 .B
-.IP <nombre>.current\-load\-percentage\ (float, \ out)
-reportado desde el VFD
+.IP <name>.current\-load\-percentage\ (float,\ out)
+reported from the VFD
 .B
-.IP <nombre>.dc\-brake\ \ (bit, \ in)
-active el freno de CC. También apaga el husillo\-on.
+.IP <name>.dc\-brake\ \ (bit,\ in)
+engage the DC brake. Also turns off spindle\-on.
 .B
-.IP <nombre>.enable\ (bit, \ in)
-habilitar el VFD. Si es falso, todos los parámetros operativos aún se leen, pero se libera el control y se habilita el control del panel (sujeto a la configuración del VFD).
+.IP <name>.enable\ (bit,\ in)
+enable the VFD. If false, all operating parameters are still read but control is released and  panel control is enabled (subject to VFD setup).
 .B
-.IP <nombre>.err\-reset\ (bit, \ in)
-errores de reinicio (alarmas también conocido como estado de disparo y parada de emergencia). Reiniciar el VFD puede causar un retraso de 2 segundos hasta que se reinicie y Modbus vuelva a funcionar.
+.IP <name>.err\-reset\ (bit,\ in)
+reset errors (alarms a.k.a Trip and e-stop status). Resetting the VFD may cause a 2-second delay until it's rebooted and Modbus is up again.
 .B
-.IP <nombre>.estop\ (bit, \ in)
-ponga el VFD en estado de parada de emergencia. Ninguna operación es posible hasta que se borre con
+.IP <name>.estop\ (bit,\ in)
+put the VFD into emergency-stopped status. No operation possible until cleared with
 .I
 err\-reset
-o powercycling.
+or powercycling.
 .B
-.IP <nombre>.frequency\-command\ (float, \ out)
-frecuencia objetivo actual en HZ como se establece a través de la velocidad\-command (que está en RPM), desde el VFD
+.IP <name>.frequency\-command\ (float,\ out)
+current target frequency in HZ as set through speed\-command (which is in RPM), from the VFD
 .B
-.IP <nombre>.frequency\-out\ (float, \ out)
-frecuencia de salida actual del VFD
+.IP <name>.frequency\-out\ (float,\ out)
+current output frequency of the VFD
 .B
-.IP <nombre>.inverter\-load\-percentage\ (float, \ out)
-informe de carga actual de VFD
+.IP <name>.inverter\-load\-percentage\ (float,\ out)
+current load report from VFD
 .B
-.IP <nombre>.is\-e\-stopped\ (bit, \ out)
-el VFD está en estado de parada de emergencia (parpadea "E" en el panel). Utilizar
+.IP <name>.is\-e\-stopped\ (bit,\ out)
+the VFD is in emergency stop status (blinking "E" on panel). Use
 .I
 err\-reset
-para reiniciar el VFD y borrar el estado de e\-stop.
+to reboot the VFD and clear the e\-stop status.
 .B
-.IP <nombre>.is\-stopped\ (bit, \ out)
-verdadero cuando el VFD informa salida de 0 Hz
+.IP <name>.is\-stopped\ (bit,\ out)
+true when the VFD reports 0 Hz output
 .B
-.IP <nombre>.jog\-mode\ (bit, \ in)
-1 para ENCENDIDO y 0 para APAGADO, habilita el 'modo de avance' del VF-S11. El control de velocidad está deshabilitado y la frecuencia de salida está determinada por el registro F262 (preestablecido a 5Hz). Esto podría ser útil para la orientación del husillo.
+.IP <name>.jog\-mode\ (bit,\ in)
+1 for ON and 0 for OFF, enables the VF-S11 'jog mode'. Speed control is disabled, and the output frequency is determined by register F262 (preset to 5Hz). This might be useful for spindle orientation.
 .B
-.IP <nombre>.max\-rpm\ (float, \ R)
-límite de RPM real basado en la frecuencia máxima que puede generar el VFD y los valores de la placa de identificación del motor. Por ejemplo, si
-.I placa de identificación\-HZ
-es 50 y
-.I placa de identificación\-RPM_
-es 1410, pero el VFD puede generar hasta 80Hz, entonces
+.IP <name>.max\-rpm\ (float,\ R)
+actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values. For instance, if
+.I nameplate\-HZ
+is 50, and
+.I nameplate\-RPM_
+is 1410, but the VFD may generate up to 80Hz, then
 .I max\-rpm
-leería como 2256 (80 * 1410/50). El límite de frecuencia se lee desde el VFD al inicio.
-Para aumentar el límite de frecuencia superior, los parámetros UL y FH deben cambiarse en el panel.
-Consulte el manual VF\-S11 para obtener instrucciones sobre cómo configurar la frecuencia máxima.
+would read as 2256 (80*1410/50). The frequency limit is read from the VFD at startup.
+To increase the upper frequency limit, the UL and FH parameters must be changed on the panel.
+See the VF\-S11 manual for instructions how to set the maximum frequency.
 .B
-.IP <nombre>.modbus\-ok\ (bit, \ out)
-verdadero cuando la sesión Modbus se establece con éxito y las últimas 10 transacciones se devuelven sin error.
+.IP <name>.modbus\-ok\ (bit,\ out)
+true when the Modbus session is successfully established and the last 10 transactions returned without error.
 .B
-.IP <nombre>.motor\-RPM\ (flotante, \ out)
-valor actual estimado de RPM, desde el VFD
+.IP <name>.motor\-RPM\ (float,\ out)
+estimated current RPM value, from the VFD
 .B
-.IP <nombre>.output\-current\-percentage\ (float, \ out)
-de la VFD
+.IP <name>.output\-current\-percentage\ (float,\ out)
+from the VFD
 .B
-.IP <nombre>.output\-voltage\-percentage\ (float, \ out)
-de la VFD
+.IP <name>.output\-voltage\-percentage\ (float,\ out)
+from the VFD
 .B
-.IP <nombre>.output\-voltage \ (float, \ out)
-de la VFD
+.IP <name>.output\-voltage\ (float,\ out)
+from the VFD
 .B
-.IP <nombre>.velocidad\-comando \ (flotante, \ in)
-velocidad enviada a VFD en RPM. Es un error enviar una velocidad más rápida que las RPM máximas del motor establecidas en el VFD
+.IP <name>.speed\-command\ (float,\ in)
+speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD
 .B
-.IP <nombre>.spindle\-fwd\ (bit, \ in)
-1 para FWD y 0 para REV, enviado a VFD
+.IP <name>.spindle\-fwd\ (bit,\ in)
+1 for FWD and 0 for REV, sent to VFD
 .B
-.IP <nombre>.spindle\-on\ (bit, \ in)
-1 para ON y 0 para OFF enviado a VFD, solo encendido cuando se ejecuta
+.IP <name>.spindle\-on\ (bit,\ in)
+1 for ON and 0 for OFF sent to VFD, only on when running
 .B
-.IP <nombre>.spindle\-rev\ (bit, \ in)
-1 para ENCENDIDO y 0 para APAGADO, solo encendido cuando se ejecuta
-.B
-
-.IP <nombre>.max\-speed\ (bit, \ in)
-ignore el parámetro loop\-time y ejecute Modbus al máximo
-velocidad, a expensas de un mayor uso de la CPU. Uso sugerido
-durante el posicionamiento del husillo.
-.B
-.IP <nombre>.status\ (s32, \ out)
-Estado del variador del VFD (consulte el Manual de instrucciones de la función de comunicaciones TOSVERT VF-S11, registre FD01). Un mapa de bits.
-.B
-.IP <nombre>.trip\-code\ (s32, \ out)
-código de disparo si VF-S11 está en estado de disparo.
-.B
-.IP <nombre>.error\-count\ (s32, \ RW)
-número total de transacciones que devuelven un error Modbus
+.IP <name>.spindle\-rev\ (bit,\ in)
+1 for ON and 0 for OFF, only on when running
 .B
 
-.SH PARÁMETROS
+.IP <name>.max\-speed\ (bit,\ in)
+ignore the loop\-time parameter and run Modbus at maximum
+speed, at the expense of higher CPU usage. Suggested use
+during spindle positioning.
 .B
-.IP <nombre>.frequency\-limit\ (float, \ RO)
-Límite superior leído desde la configuración de VFD.
+.IP <name>.status\ (s32,\ out)
+Drive Status of the VFD (see the TOSVERT VF-S11 Communications Function Instruction Manual, register FD01). A bitmap.
 .B
-.IP <nombre>.loop\-time\ (float, \ RW)
-con qué frecuencia se sondea el Modbus (intervalo predeterminado 0.1 segundos)
+.IP <name>.trip\-code\ (s32,\ out)
+trip code if VF-S11 is in tripped state.
 .B
-.IP <nombre>.nameplate\-HZ\ (float, \ RW)
-Placa de identificación Hz del motor (por defecto 50). Se utiliza para calcular la frecuencia objetivo (junto con
-.I placa de identificación\-RPM
-) para un valor de RPM objetivo como lo indica la velocidad\-comando.
+.IP <name>.error\-count\ (s32,\ RW)
+total number of transactions returning a Modbus error
 .B
-.IP <name>.nameplate\-RPM\ (float, \ RW)
-RPM de la placa de identificación del motor (predeterminado 1410)
+
+.SH PARAMETERS
 .B
-.IP <nombre>.rpm\-limit\ (float, \ RW)
-límite suave de no exceder las RPM del motor (el valor predeterminado es
-.I placa de identificación\-RPM
-)
+.IP <name>.frequency\-limit\ (float,\ RO)
+upper limit read from VFD setup.
 .B
-.IP <nombre>.tolerance\ (float, \ RW)
-tolerancia de velocidad (por defecto 0.01) para determinar si el husillo está a velocidad (0.01 significa: la frecuencia de salida está dentro del 1% de la frecuencia objetivo)
+.IP <name>.loop\-time\ (float,\ RW)
+how often the Modbus is polled (default interval 0.1 seconds)
+.B
+.IP <name>.nameplate\-HZ\ (float,\ RW)
+Nameplate Hz of motor (default 50). Used to calculate target frequency (together with
+.I nameplate\-RPM
+) for a target RPM value as given by speed\-command.
+.B
+.IP <name>.nameplate\-RPM\ (float,\ RW)
+Nameplate RPM of motor (default 1410)
+.B
+.IP <name>.rpm\-limit\ (float,\ RW)
+do-not-exceed soft limit for motor RPM (defaults to
+.I nameplate\-RPM
+).
+.B
+.IP <name>.tolerance\ (float,\ RW)
+speed tolerance (default 0.01) for determining wether spindle is at speed (0.01 meaning: output frequency is within 1% of target frequency)
 
 
-.SH USO
-El controlador vfs11_vfd tiene prioridad sobre el control del panel mientras está habilitado (consulte
+.SH USAGE
+The vfs11_vfd driver takes precedence over panel control while it is enabled (see
 .I .enable
-pin), deshabilitando efectivamente el panel. Despejando el
+pin), effectively disabling the panel. Clearing the
 .I .enable
-pin vuelve a habilitar el panel. Los pines y parámetros aún se pueden configurar, pero no se escribirán en el VFD hasta que se establezca el pin .enable. Los parámetros operativos todavía se leen
-mientras el control del bus está desactivado.
+pin re-enableds the panel. Pins and parameters can still be set, but will not be written to the VFD untile the .enable pin is set. Operating parameters are still read
+while bus control is disabled.
 .P
-Salir del controlador vfs11_vfd de forma controlada liberará el VFD del bus y restaurará el control del panel.
+Exiting the vfs11_vfd driver in a controlled will release the VFD from the bus and restore panel control.
 
-Consulte el Manual de integradores de LinuxCNC para obtener más información. Para obtener una descripción detallada del registro de los VFD de Toshiba, consulte el
-"Manual de instrucciones de la función de comunicaciones TOSVERT VF-S11" (número de documento Toshiba E6581222)
-y el "Manual de instrucciones TOSVERT VF-S11" (número de documento Toshiba E6581158).
+See the LinuxCNC Integrators Manual for more information. For a detailed register description of the Toshiba VFD's, see the
+"TOSVERT VF-S11 Communications Function Instruction Manual" (Toshiba document number E6581222)
+and the "TOSVERT VF-S11 Instruction manual" (Toshiba document number E6581158).
 
 
-.SH AUTOR
-Michael Haberler; basado en gs2_vfd por Steve Padnos y John Thornton.
-.SH LICENCIA
+.SH AUTHOR
+Michael Haberler; based on gs2_vfd by Steve Padnos and John Thornton.
+.SH LICENSE
 GPL
-

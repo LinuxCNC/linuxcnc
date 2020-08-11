@@ -1,74 +1,76 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
-.TH hm2_bspi_setup_chan "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
-.SH NOMBRE
+.TH hm2_bspi_setup_chan "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
 
-hm2_bspi_setup_chan \- configura un canal bspi de Hostmot2
+hm2_bspi_setup_chan \- setup a Hostmot2 bspi channel
 
-.SH SINTAXIS
+.SH SYNTAX
 .nf
 .B #include <hostmot2-serial.h>
 .HP
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 int delay, int cpol, int cpha, int noclear, int noecho)
 
-.SH DESCRIPCIÓN
-\fBhm2_bspi_setup_chan\fR permite que un componente en tiempo real reclame y configure 
-un canal BSPI en una placa hostmot2 configurada previamente.
+.SH DESCRIPTION
+\fBhm2_bspi_setup_chan\fR allows a realtime component to claim and configure
+a BSPI channel on a previously configured hostmot2 board.
 
 .IP name
-Una cadena única dada al canal BSPI durante la configuración de hostmot2.
-Los nombres de los canales disponibles se imprimen a la salida estándar durante el proceso de 
-carga del controlador y toman la forma \fBhm2_\fIboard-name\fB.\fIboard-index\fB.bspi.\fIbspi-index\fR .
-Por ejemplo, el primer índice en la primera placa hm2_5i23 se llamaría hm2_5i23.0.bspi.0.
+A unique string given to the BSPI channel during hostmot2 setup.
+The names of the available
+channels are printed to standard output during the driver loading process and 
+take the form \fBhm2_\fIboard-name\fB.\fIboard-index\fB.bspi.\fIbspi-index\fR.
+For example, the first index on the first hm2_5i23 board would be called hm2_5i23.0.bspi.0.
 
 .IP chan
-Los canales están numerados del 0 al 15. El valor en las líneas chip-select se establece mediante cs y 
-no necesita coincidir con el número de canal.
+Channels are numbered 0 to 15.  The value on the chip-select lines is set by cs
+and need not match the channel number.
 
 .IP cs
-La(s) línea(s) chip-select para confirmar al acceder a este canal.
-BSPI admite 4 líneas de selección de chip, por lo que el rango válido para cs es 0-15.
+The chip select line(s) to assert when accessing this channel.
+BSPI supports 4 chip select lines, so the valid range for cs is 
+0-15.
 
 .IP bits
-establece la longitud de bits del paquete SPI. La longitud máxima soportada
-es de 64 bits pero esto abarcará dos entradas FIFO leídas y necesitará un manejo especial. 
-(los valores 32 e inferiores no requieren manejo especial)
+sets the bit-length of the SPI packet. The maximum supported length
+is 64 bits but this will span two read FIFO entries and will need special 
+handling. (values 32 and below require no special handling)
 
 .IP mhz
-establece la velocidad de comunicación del chip. El valor máximo para esto es
-la mitad de la frecuencia base FPGA, por ejemplo, con una 48MHz 5i23 la frecuencia SPI máxima 
-es de 24Mhz. Los valores superiores al máximo admitido serán redondeados hacia abajo silenciosamente.
+sets the chip communication rate. The maximum value for this is 
+half the FPGA base frequency, so for example with a 48MHz 5i23 the max SPI 
+frequency is 24Mhz. Values in excess of the max supported will be silently 
+rounded down.
 
 .IP delay
-establece el retardo válido de selección de chip (en nS)
+sets the chip select valid delay (in nS)
 
-.IP cpha\ y\ cpol
-Configura la fase del reloj y la polaridad (de acuerdo con la hoja de datos del dispositivo).
+.IP cpha\ and\ cpol
+Set the clock phase and polarity (according to the device datasheet). 
 
 .IP noclear
-controla si el bit de borrado de trama se establece después de la transferencia del búfer de 32 bits. 
-Este parámetro debe establecerse en 1 cuando la longitud de la trama es mayor de 32 bits y los 
-siguientes datos en el FIFO contienen los otros bits.
+controls whether the frame clear bit is set after the 32 bit buffer 
+transfer. This parameter should be set to 1 when the frame length is greater 
+than 32 bits and the next data in the FIFO contains the other bits.
 
 .IP noecho
-Se establece en 1 para dispositivos que no devuelven datos (como un DAC).
+Set to 1 for devices which do not return data (such as DACs).
 
 .IP samplelate
-Ajuste a 1 para muestrear los datos SPI recibidos 1/2 reloj SPI más tarde de lo normal.
-Esto es útil cuando las altas frecuencias de reloj o el aislamiento causan demoras significativas desde el reloj hasta los datos recibidos.
+Set to 1 to sample the received SPI data 1/2 SPI clock later than normal.
+This is useful when high clock rates or isolation cause significant delays from clock to received data.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Llame solo desde el código de usuario o de inicio/limpieza, no desde las tareas realtime.
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
 
-.SH VALOR DEVUELTO
-Devuelve 0 en caso de éxito y \-1 en caso de error.
+.SH RETURN VALUE
+Returns 0 on success and \-1 on failure.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBhm2_allocate_bspi_tram(3hm2)\fR,
 \fBhm2_bspi_set_read_function(3hm2)\fR,
 \fBhm2_bspi_set_write_function(3hm2)\fR,
 \fBhm2_bspi_write_chan(3hm2)\fR,
 \fBhm2_tram_add_bspi_frame(3hm2)\fR,
-Consulte src/hal/drivers mesa_7i65.comp para ver un ejemplo de uso.
-
+See src/hal/drivers mesa_7i65.comp for an example usage.

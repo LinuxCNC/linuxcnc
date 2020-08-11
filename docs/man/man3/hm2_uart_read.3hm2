@@ -1,32 +1,34 @@
-\ # Autor Andy Pugh
-\ # Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
-.TH hm2_uart_read "3hm2" "2012-05-23" "Documentación LinuxCNC" "Hostmot2"
-.SH NOMBRE
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_uart_read "3hm2" "2012-05-23" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
 
-hm2_uart_read \- lee datos de un búfer UART Hostmot2
+hm2_uart_read \- read data from a Hostmot2 UART buffer
 
-.SH SINTAXIS
+.SH SYNTAX
 .nf
 .B #include <hostmot2-serial.h>
 .HP
 int hm2_uart_read(char *name, unsigned char *data)
 
-.SH DESCRIPCIÓN
-\fBhm2_uart_read\fR lee datos desde la UART "name".
-"name" es una cadena única dada a cada UART durante la configuración de hostmot2. Los nombres de los canales 
-disponibles se imprimen en la salida estándar durante la carga del controlador y toman la forma:
-hm2_<nombre de la tarjeta>.<índice de la tarjeta>.uart.<índice> 
-Por ejemplo, hm2_5i23.0.uart.0
+.SH DESCRIPTION
+\fBhm2_uart_read\fR read data from the UART "name".
+"name" is a unique string given to each UART during hostmot2 setup. The names of 
+the available channels are printed to standard output during the driver loading 
+process and take the form:
+hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 
-Esta función lee un número variable de bytes del canal especificado. Debe usarse dentro de un componente HAL de tiempo real
-registrado con el controlador principal hostmot2 que utiliza la función hm2_uart_set_read_function en el codigo de configuración.
+This function reads a variable number of bytes from the the specified 
+channel.It should be used inside a realtime HAL component registered with the 
+main hostmot2 driver using the function hm2_uart_set_read_function in the setup
+code. 
 
-Tenga en cuenta que el FIFO de recepción de UART tiene solo 16 bytes de profundidad (el FIFO de transmisión tiene 64 bytes) y
-"data" debe tener al menos eso o se producirá un caos grande o indefinido.
+Note that the UART Receieve FIFO is only 16 bytes deep,(the transmit FIFO is 64 
+bytes) and "data" needs to be at least that large or undefined mayhem will ensue. 
 
-.SH VALOR DEVUELTO
-Devuelve el número de bytes leídos en caso de éxito y \-1 en caso de error.
+.SH RETURN VALUE
+Returns the number of bytes read on success and \-1 on failure.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 man hm2_uart_setup, man hm2_uart_send
-Vea src/hal/drivers mesa_uart.comp para un ejemplo de uso.
+See src/hal/drivers mesa_uart.comp for an example usage.

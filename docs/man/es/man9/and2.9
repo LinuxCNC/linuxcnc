@@ -1,0 +1,36 @@
+.TH AND2 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+and2 \- Two-input AND gate
+.SH SYNOPSIS
+.HP
+.B loadrt and2 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBand2.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B and2.\fIN\fB.in0\fR bit in \fR
+.TQ
+.B and2.\fIN\fB.in1\fR bit in \fR
+.TQ
+.B and2.\fIN\fB.out\fR bit out \fR
+\fBout\fR is computed from the value of \fBin0\fR and \fBin1\fR according to the following rule:
+.RS
+.TP
+\fBin0=TRUE in1=TRUE\fB
+\fBout=TRUE\fR
+.TP
+Otherwise,
+\fBout=FALSE\fR
+.RE
+.SH LICENSE
+
+GPL

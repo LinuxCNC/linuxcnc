@@ -1,0 +1,77 @@
+.TH HM2_7I43 "9" "2008-05-13" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.SH NOMBRE
+
+hm2_7i43 \- Controlador HAL LinuxCNC para la tarjeta Mesa Electronics 7i43 EPP Anything IO con firmware HostMot2.
+.SH SINOPSIS
+
+.HP
+.B loadrt hm2_7i43 [ioaddr=\fIN\fB[,\fIN\fB...]] [ioaddr_hi=\fIN\fB[,\fIN\fB...]] [epp_wide=\fIN\fB[,\fIN\fB...]] [config=\fI"str[,str...]"\fB] [debug_epp=\fIN\fB[,\fIN\fB...]]
+.RS 4
+.TP
+\fBioaddr\fR [predeterminado: 0 (parport0)]
+La dirección base del puerto paralelo.
+
+El controlador utiliza el número de direcciones/índices ioaddr proporcionados para
+determinar cuántas tarjetas buscar.
+.TP
+\fBioaddr_hi\fR [predeterminado: 0]
+La dirección secundaria del puerto paralelo, utilizada para configurar el modo EPP.
+0 significa usar ioaddr + 0x400.
+.TP
+\fBepp_wide\fR [predeterminado: 1]
+Ponga a cero para deshabilitar el "modo wide EPP". El modo "Wide" permite transferencias EPP de 16-32 bits, que pueden reducir el tiempo dedicado a las funciones de lectura y escritura. Sin embargo, esto puede no funcionar en todos los puertos paralelos EPP.
+.TP
+\fBconfig\fR [predeterminado: ""]
+Cadenas de configuración de HostMot2, descritas en la página de manual de hostmot2 (9).
+.TP
+\fBdebug_epp\fR [predeterminado: 0]
+¡Uso de desarrollador/depuración solamente! Habilita el registro de depuración de la mayoría de transferencias EPP.
+.RE
+.SH DESCRIPCIÓN
+
+hm2_7i43 es un controlador de dispositivo que interconecta la tarjeta Mesa 7i43 con
+el firmware HostMot2 al HAL LinuxCNC. Tanto las FPGA de 200K como de 400K son compatibles.
+
+El controlador habla con el 7i43 a través del puerto paralelo, no a través de USB. USB se puede usar para alimentar el 7i43, pero no para hablar con él. La comunicación USB con el 7i43 no será compatible en el corto plazo, ya que el USB tiene problemas en tiempo real.
+
+El controlador programa el FPGA de la tarjeta con firmware cuando registra
+la tarjeta con el controlador hostmot2. El firmware a cargar está especificado
+en el modparam \fBconfig\fR, como se describe en la página de manual hostmot2 (9),
+en la sección \fIconfig modparam\fR.
+
+.SH Configuración de puentes 
+
+Para enviar la configuración FPGA desde la PC, la tarjeta debe estar configurada
+para obtener su firmware desde el puerto EPP. Para hacer esto, los puentes W4 y W5
+deben estar hacia abajo, es decir, hacia el conector USB.
+
+La tarjeta debe estar configurada para encender si la interfaz USB está activa. Esto se hace colocando el puente W7 hacia arriba, es decir, lejos del borde
+de la tarjeta.
+.SH Comunicación con la tarjeta
+
+El 7i43 se comunica con la computadora LinuxCNC a través de EPP. Esto proporciona aproximadamente 1 MBps de rendimiento, y la latencia de comunicación es muy predecible y razonablemente baja.
+
+El puerto paralelo debe ser compatible con EPP 1.7 o EPP 1.9. Se prefiere EPP 1.9,
+pero EPP 1.7 también funcionará. El modo EPP del puerto paralelo es a veces
+una configuración en el BIOS.
+
+Tenga en cuenta que el popular "NetMOS" también conocido como "MosChip 9805" PCI parport cards \fBno funciona\fR. No cumplen con la especificación EPP y no se pueden usar de manera confiable con el 7i43. Tiene que encontrar otra tarjeta, lo siento.
+
+EPP es muy confiable bajo circunstancias normales, pero un mal cableado o cableado excesivamente largo puede causar tiempos de espera de comunicación.
+El controlador exporta un parámetro llamado hm2_7i43.<BoardNum>.io_error para
+informar a HAL de esta condición. Cuando el driver detecta un tiempo de espera de EPP, establece io_error en True y deja de comunicarse con la tarjeta 7i43.
+Establecer io_error en False hace que el controlador comience a intentar comunicarse con el 7i43 nuevamente.
+
+El acceso al bus EPP no es seguro para hilos: solo un hilo en tiempo real puede
+acceder al bus EPP.
+.SH VER TAMBIÉN
+
+hostmot2 (9)
+.SH LICENCIA
+
+GPL

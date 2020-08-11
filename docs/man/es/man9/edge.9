@@ -1,0 +1,45 @@
+.TH EDGE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+edge \- Edge detector
+.SH SYNOPSIS
+.HP
+.B loadrt edge [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBedge.\fIN\fB\fR
+Produce output pulses from input edges
+.SH PINS
+.TP
+.B edge.\fIN\fB.in\fR bit in \fR
+.TQ
+.B edge.\fIN\fB.out\fR bit out \fR
+Goes high when the desired edge is seen on 'in'
+.TP
+.B edge.\fIN\fB.out-invert\fR bit out \fR
+Goes low when the desired edge is seen on 'in'
+.SH PARAMETERS
+.TP
+.B edge.\fIN\fB.both\fR bit rw \fR(default: \fIFALSE\fR)
+If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge
+.TP
+.B edge.\fIN\fB.in-edge\fR bit rw \fR(default: \fITRUE\fR)
+If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising
+.TP
+.B edge.\fIN\fB.out-width-ns\fR s32 rw \fR(default: \fI0\fR)
+Time in nanoseconds of the output pulse
+.TP
+.B edge.\fIN\fB.time-left-ns\fR s32 r \fR
+Time left in this output pulse
+.TP
+.B edge.\fIN\fB.last-in\fR bit r \fR
+Previous input value
+.SH LICENSE
+
+GPL

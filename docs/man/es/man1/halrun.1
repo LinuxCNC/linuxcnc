@@ -1,0 +1,106 @@
+.\" Copyright (c) 2003 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH HALRUN "1" "2012-01-31" "Documentacion de LinuxCNC" "Manual HAL del usuario"
+.SH NOMBRE
+halrun \- manipula HAL de LinuxCNC desde la linea de comandos
+.SH SINOPSIS
+.B halrun \fI\-h\fR
+.PP
+.B halrun [\fI\-I\fR] [\fIhalcmd_opts\fR] [\fInombre_de_archivo[.hal|.tcl]\fR]
+.PP
+.B halrun \fI\-T\fR [\fIhalcmd_opts\fR] [\fInombre_de_archivo[.hal|.tcl]\fR]
+.PP
+.B halrun \fI\-U\fR
+.SH DESCRIPCION
+\fBhalrun\fR es un script de conveniencia que se utiliza para manipular la HAL (
+Capa de abstraccion Hardware) desde la linea de comando. Cuando se invoca, \fBhalrun\fR:
+
+    Configura el entorno en tiempo real.
+    Ejecuta un interprete de comandos (\fBhalcmd\fR o \fBhaltcl\fR).
+    Ejecuta una sesion interactiva (opcionalmente).
+    Destruye el entorno en tiempo real.
+
+    Si no se especifica ningun nombre de archivo, se inicia una sesion interactiva.
+    La sesion utilizara \fBhalcmd\fR(1) a menos que se especifique \-T en
+    en que caso se utilizara \fBhaltcl\fR(1).
+
+    Si se especifica un nombre de archivo y ni la opcion \-I ni la opcion \-T
+    estan incluidas, el nombre del archivo sera procesado por el interprete de comandos
+    correspondiente a la extension de nombre de archivo (\fBhalcmd\fR
+    o \fBhaltcl\fR). Despues del procesamiento, el entorno en tiempo real.
+    sera destruido.
+
+    Si se especifica un nombre de archivo y se incluye la opcion \-I o \-T,
+    el archivo es procesado por el interprete de comandos apropiado y
+    luego se inicia una sesion interactiva para \fBhalcmd\fR o
+    \fBhaltcl\fR de acuerdo con la opcion \-I o \-T.
+
+.SH OPCIONES
+.TP
+\fBhalcmd_opts\fR
+Cuando se especifica un archivo .hal, los \fBhalcmd_opts\fR son
+pasados a \fBhalcmd\fR. Consulte la pagina de manual de \fBhalcmd\fR(1).
+Cuando se especifica un archivo .tcl, las unicas opciones validas son:
+    \-i inifile
+    \-f nombre de archivo[.tcl|.hal] (alterna con la especificacion del archivo)
+.TP
+\fB\-I\fR
+Ejecutar una sesion interactiva de \fBhalcmd\fR
+.TP
+\fB\-T\fR
+Ejecutar una sesion interactiva de \fBhaltcl\fR.
+.TP
+\fB\-U\fR
+Forzar la salida del entorno en tiempo real. Libera el mutex HAL,
+solicita que se descarguen todos los componentes de HAL y detiene el sistema en tiempo real.
+\fB\-U\fR debe ser el unico argumento de la linea de comandos.
+.TP
+\fB\\-h\fR
+Mostrar una breve pantalla de ayuda y salir
+.SH EJEMPLOS
+.SH HISTORIA
+.SH ERRORES
+Ninguno conocido en este momento.
+.SH AUTOR
+Version original de John Kasunich, como parte del Proyecto de controlador de maquina mejorada LinuxCNC.
+Ahora incluye importantes aportaciones de varios miembros del proyecto.
+.SH COMUNICACION DE ERRORES
+Informar de errores a
+.URL http://sf.net/p/emc/bugs/ "LinuxCNC bug tracker".
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+Este es un software libre; ver las fuentes para condiciones de copia. No hay
+garantia; ni siquiera para COMERCIABILIDAD o APTITUD PARA UN PROPoSITO PARTICULAR.
+
+.SH "VER TAMBIEN"
+\fBhalcmd\fR(1), \fBhaltcl\fR(1)
+
+

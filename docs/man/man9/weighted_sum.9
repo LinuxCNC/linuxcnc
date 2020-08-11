@@ -1,32 +1,37 @@
-.TH WEIGHTED_SUM "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
-.SH NOMBRE
-weighted_sum \- convierte un grupo de bits en un entero
-.SH SINOPSIS
+.TH WEIGHTED_SUM "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.SH NAME
+weighted_sum \- convert a group of bits to an integer
+.SH SYNOPSIS
 .B loadrt weighted_sum wsum_sizes=\fIsize[,size,...]\fR
 .P
-Crea grupos de suma ponderada cada uno con el número dado de bits de entrada
+Creates weighted sum groups each with the given number of input bits
 (\fIsize\fR).
-.SH DESCRIPCIÓN
-Este componente es un "sumador ponderado": su salida es el offset más la suma del peso de cada bit de entrada TRUE. El valor predeterminado para cada peso es 2^n donde n es el número de bit. Esto da como resultado una conversión de binario a entero sin signo.
+.SH DESCRIPTION
+This component is a "weighted summer": Its output is the offset plus the sum of
+the weight of each TRUE input bit.  The default value for each weight is 2^n
+where n is the bit number.  This results in a binary to unsigned conversion.
 
-Hay un límite de 8 sumadores ponderados y cada uno puede tener hasta 16 bits de entrada.
-.SH FUNCIONES
+There is a limit of 8 weighted summers and each may have up to 16 input bits.
+.SH FUNCTIONS
 .TP
-.B process_wsums (requiere hilo de punto flotante)
-Lee todos los valores de entrada y actualiza todos los valores de salida.
-.SH PINES
+.B process_wsums (requires a floating point thread)
+Read all input values and update all output values.
+.SH PINS
 .TP
-.B wsum.\fIN\fB.bit.\fIM\fB.in\fR bit in
-La entrada\fIm\fR\-esima de sumador ponderado\fIn\fR.
+.B wsum.\fIN\fB.bit.\fIM\fB.in\fR bit in 
+The \fIm\fR'th input of weighted summer \fIn\fR.
 .TP
 .B wsum.\fIN\fB.hold\fR bit in
-Cuando es TRUE, la salida \fIsum\fR no cambia. Cuando es FALSE, la salida \fIsum\fR rastrea las entradas \fIbit\fR de acuerdo con los pesos y el offset.
+When TRUE, the \fIsum\fR output does not change.  When FALSE, the \fIsum\fR
+output tracks the \fIbit\fR inputs according to the weights and offset.
 .TP
-.B wsum.\fIN\fB.sum\fR s32 out
-La salida de la suma ponderada
+.B wsum.\fIN\fB.sum\fR signed out
+The output of the weighted summer
 .TP
-.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR s32 rw
-El peso de la entrada \fIm\fR\-esima de suma ponderada \fIn\fR. El valor predeterminado es 2^\fIm\fR.
+.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR signed rw
+The weight of the \fIm\fR'th input of weighted summer \fIn\fR.  The default
+value is 2^\fIm\fR.
 .TP
-.B wsum.\fIN\fB.offset\fR s32 rw
-El offset se agrega a los pesos correspondientes a todas las entradas TRUE para dar la suma final.
+.B wsum.\fIN\fB.offset\fR signed rw
+The offset is added to the weights corresponding to all TRUE inputs to give the
+final sum.

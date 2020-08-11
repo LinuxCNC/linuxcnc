@@ -19,18 +19,18 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH funct "3rtapi" "2014-06-28" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_bool.h \- Contenedores RTAPI para la funcionalidad del kernel de Linux
+rtapi_bool.h \- RTAPI wrappers for linux kernel functionality
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 #include <rtapi_bool.h>
-.SH DESCRIPCIÓN
-Incluye <stdbool.h> o <linux/types.h> según corresponda, para obtener
-declaraciones adecuadas de "bool", "true" y "false".
-.SH CONSIDERACIONES EN TIEMPO REAL
-Ninguno.
-.SH NOTAS
-También se permite en programas C++, donde incluirlo no tiene ningún efecto.
+.SH DESCRIPTION
+Includes either <stdbool.h> or <linux/types.h> as appropriate, to obtain
+suitable declarations of "bool", "true" and "false".
+.SH REALTIME CONSIDERATIONS
+None.
+.SH NOTES
+Also permitted in C++ programs, where including it has no effect.

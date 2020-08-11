@@ -1,34 +1,35 @@
-.TH rtapi_outb "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_outb "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_outb, rtapi_inb \- Realizar E/S de hardware
+rtapi_outb, rtapi_inb \- Perform hardware I/O
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 void rtapi_outb(unsigned char \fIbyte\fR, unsigned int \fIport\fR)
 .HP
 unsigned char rtapi_inb(unsigned int \fIport\fR)
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIport\fR
-La dirección del puerto de E/S
+The address of the I/O port
 .IP \fIbyte\fR
-El byte que se escribirá en el puerto.
+The byte to be written to the port
 
-.SH DESCRIPCIÓN
-\fBrtapi_outb\fR escribe un byte en un puerto de E/S hardware. \fBrtapi_inb\fR
-lee un byte de un puerto de E/S hardware.
+.SH DESCRIPTION
+\fBrtapi_outb\fR writes a byte to a hardware I/O port.  \fBrtapi_inb\fR
+reads a byte from a hardware I/O port.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real.
-No disponible en componentes de espacio de usuario.
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Not available in userspace components.
 
-.SH VALOR DEVUELTO
-\fBrtapi_inb\fR devuelve el byte leído del puerto de E/S dado
+.SH RETURN VALUE
+\fBrtapi_inb\fR returns the byte read from the given I/O port
 
-.SH NOTAS
-La dirección de E/S debe estar dentro de una región previamente asignada por
-\fBrtapi_request_region\fR. De lo contrario, otro módulo en tiempo real o el núcleo Linux podría intentar acceder a la región de E/S al mismo tiempo.
+.SH NOTES
+The I/O address should be within a region previously allocated by
+\fBrtapi_request_region\fR.  Otherwise, another real-time module or the Linux
+kernel might attempt to access the I/O region at the same time.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_region(3rtapi)\fR

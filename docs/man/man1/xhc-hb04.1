@@ -1,93 +1,93 @@
-.TH XHC-HB04 "1" "2015-03-06" "Documentación LinuxCNC" "Manual de usuario de HAL"
-.SH NOMBRE
-xhc\-hb04 \- Componente HAL de espacio de usuario para el colgante xhc-hb04.
+.TH XHC-HB04 "1" "2015-03-06" "LinuxCNC Documentation" "HAL User's Manual"
+.SH NAME
+xhc\-hb04 \- User-space HAL component for the xhc-hb04 pendant.
 
-.SH DESCRIPCIÓN
-El componente xhc-hb04 admite un colgante USB común que proporciona cierta
-cantidad de botones, un generador de pulso manual (mpg o jog wheel),
-y un interruptor selector para la rueda.
-.P
-Hay al menos dos versiones de hardware: una con 16 botones y
-otra, más común, con 18 botones. La información aquí contenida está basada
-en el dispositivo de 18 botones con el Código USB proveedor:producto 10CE:EB70.
-.P
-Además de los botones, el colgante proporciona una pantalla LCD para
-el multiplicador de tamaño de pasos (de un conjunto de valores enteros disponibles)
-, posición (absoluta y relativa, etiquetada MC y WC
-respectivamente), avance (ajuste de porcentaje y valor en unidades por
-minuto) y velocidad del husillo (ajuste de porcentaje y valor en
-revoluciones por minuto (RPM)). La pantalla está gestionada por un interruptor
-rotativo que selecciona uno de los cuatro ejes para el posicionamiento de la rueda,
-ajuste de alimentación, ajuste del husillo o OFF.
-.P
-La pantalla del colgante, su interruptor selector giratorio y 
-los nombres de los pines del componente usan designadores x, y, z, a. Mientras este arreglo presume
-una máquina configurada como XYZA, los pines se pueden asignar de forma independiente
-como se requiera en una configuración HAL.
+.SH DESCRIPTION
+The xhc-hb04 component supports a common USB pendant that provides a
+number of pushbuttons, a manual pulse generator (mpg or jog wheel),
+and a selector switch for the wheel.
+.PP
+There are at least two hardware versions -- one with 16 buttons and
+a more common one with 18 buttons.  The information herein is based
+on the 18 button device with a USB Vendor:Product code of 10CE:EB70.
+.PP
+In addition to buttons, the pendant provides an LCD display for
+the current stepsize multiplier (from a set of available integer
+values), position (absolute and relative, labeled MC and WC
+respectively), feedrate (override percent and value in units per
+minute), and spindle speed (override percent and value in
+revolutions per minute (RPM)).  The display is managed by a rotary
+switch that selects one of four axes for wheel positioning,
+feed override, spindle override, or OFF.
+.PP
+The pendant display, its rotary selector switch, and the component
+pin names use designators x,y,z,a.  While this arrangement presumes
+a machine configured as XYZA, the pins can be assigned independently
+as required in a HAL configuration.
 
 .SH UDEV
-El ejecutable xhc\-hb04 necesita permiso para leer el Dispositivo colgante USB.
-Las instalaciones de paquetes Debian (debs) manejan esto automáticamente
-pero las compilaciones Run-In-Place (RIP) pueden necesitar un archivo de reglas udev. Este archivo
-debe crearse (usando sudo y un editor de texto) como:
+The xhc\-hb04 executable needs permission for reading the pendant's
+USB device.  Debian package installs (debs) handle this automatically
+but Run-In-Place (RIP) builds may need a udev rules file.  This file
+should be created (using sudo and a text editor) as:
 
 .nf
-\fB/etc/udev/rules.d/99\-xhc\-hb04.rules\fR con una sola línea:
+\fB/etc/udev/rules.d/99\-xhc\-hb04.rules\fR with the single line:
 
 ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"
 .fi
 
-.SH Uso Independiente
-El programa xhc-hb04 se puede ejecutar desde la línea de comandos sin LinuxCNC
-para probar un colgante en modo de simulación. Este modo independiente se utiliza para
-identificar los códigos de botón producidos para cada botón y para verificar el
-conteo adecuado de la rueda de selección. Los códigos de botón identificados pueden ser
-usados para crear un \fBbutton\-cfg\-file\fR. Cuando un \fBbutton\-cfg\-file\fR
-existe, la operación del dispositivo se puede verificar utilizando la opción \-I para especificar
-el archivo.
+.SH Standalone Usage
+The xhc-hb04 program can be run from the command line without LinuxCNC
+to test a pendant in a simulation mode.  This standalone mode is used to
+identify the button codes produced for each button press and to verify
+proper counting of the jog wheel.  The identified button codes can be
+used to create a \fBbutton\-cfg\-file\fR.  When a \fBbutton\-cfg\-file\fR
+exists, pendant operation can be verified using the \-I option to specify
+the file.
 
-Uso:
+Usage:
 
-$ xhc\-hb04 [opciones]
+$ xhc\-hb04 [options]
 
-.SH Opciones
+.SH Options
 .TP
-\fB\-h\fR enumera las opciones de línea de comando y sale
+\fB\-h\fR    list command line options and exit
 .TP
-\fB\-I button\-cfg\-file\fR (vea a continuación el formato del archivo)
+\fB\-I button\-cfg\-file\fR (see below for file format)
 .TP
-\fB\-H\fR se ejecuta en modo HAL en tiempo real (el modo de simulación es el predeterminado)
+\fB\-H\fR    run in real-time HAL mode (simulation mode is default)
 .TP
-\fB\-x\fR espera la detección del colgante antes de crear pines HAL.
+\fB\-x\fR    wait for pendant detection before creating HAL pins.
 .TP
-\fB\-s n\fR n es una de las siguientes secuencias de tamaño de pasos
-.P
-      1: 1,10,100,1000 (predeterminado)
+\fB\-s n\fR  n is one of the following stepsize sequences
+.PP
+      1: 1,10,100,1000 (default)
       2: 1,5,10,20
       3: 1,10,100
       4: 1,5,10,20,50,100
       5: 1,10,50,100,1000
-      El tamaño de pasos seleccionado siempre se multiplica por 0.001
+      The stepsize selected is always multiplied by 0.001
 
-.SH Formato de archivo button\-cfg\-file
-Los archivos de configuración estándar se proporcionan en la distribución para
-configuraciones de botones conocidas:
+.SH button\-cfg\-file format
+Standard configuration files are provided in the distribution for
+known button configurations:
 .nf
    /usr/share/linuxcnc/hallib/xhc\-hb04\-layout1.cfg
    /usr/share/linuxcnc/hallib/xhc\-hb04\-layout2.cfg
-o para una compilación RIP:
+or for a RIP build:
    rip_base_dir/lib/hallib/xhc\-hb04\-layout1.cfg
    rip_base_dir/lib/hallib/xhc\-hb04\-layout2.cfg
 .fi
 
-layout1 describe el colgante de 16 botones,
-layout2 describe el colgante de 18 botones más común.
+layout1 describes the 16 button pendant,
+layout2 describes the more common 18 button pendant.
 
-El archivo de configuración de botones sigue el mismo formato que los archivos ini
-pero debe usar un sufijo de archivo .cfg.
+The button configuration file follows the same format as ini files
+but should use a file suffix of .cfg.
 
 .nf
-Formato de archivo:
+File format:
   [XHC\-HB04]
   BUTTON=X1:button\-thename1
   BUTTON=X2:button\-thename2
@@ -95,156 +95,156 @@ Formato de archivo:
   etc.
 .fi
 
-XN es el código reportado para presionar un botón y button\-thenameN
-es el nombre que se asignará al pin creado para el botón.
+XN is the code reported for a button press and button\-thenameN
+is the name to be assigned to the pin created for the button.
 
-.SH Uso Hal
-Use la opción \-H para especificar el modo HAL y otras opciones según sea necesario:
+.SH Hal Usage
+Use the \-H option to specify HAL mode and other options as required:
 
 \fIloadusr \-W \fR \fBxhc\-hb04\fR \fI\-H [Options]\fR
 
-Ejemplo:
+Example:
 \fIloadusr \-W \fR \fBxhc\-hb04\fR \fI\-H \-I path_to_cfg_file \-s 2\fR
 
-.SH Pines de entrada (control)
+.SH Input Pins (Control)
 .TP
-(bit in) \fIxhc\-hb04.stepsize\-up\fR Un pulso 1 en este pin cambia el
-paso al siguiente paso más alto en la secuencia de pasos especificada
-en el comando xhc\-hb04 (loadusr).
+(bit in) \fIxhc\-hb04.stepsize\-up\fR A 1 pulse on this pin changes the
+stepsize to the next higher stepsize in the stepsize sequence specified
+in the xhc\-hb04 (loadusr) command.
 .TP
-(bit in) \fIxhc\-hb04.stepsize\-down\fR Un pulso 1 en este pin cambia el
-paso al siguiente paso inferior en la secuencia de pasos especificada
-en el comando xhc\-hb04 (loadusr).
+(bit in) \fIxhc\-hb04.stepsize\-down\fR A 1 pulse on this pin changes the
+stepsize to the next lower stepsize in the stepsize sequence specified
+in the xhc\-hb04 (loadusr) command.
 
-.SH Pines de entrada (a la pantalla LCD colgante)
+.SH Input Pins (to the pendant LCD display)
 .TP
-(float) \fIxhc\-hb04.[xyza].pos\-absolute\fR Indicación de posición absoluta.
-(normalmente se conecta a: halui.axis.N.pos\-feedback). La pantalla LCD
-para pos\-absolute es un formato fijo con un signo, 4 dígitos numéricos y 3
-dígitos de fracción (+ XXXX.XXX), requieren: \-9999.999 <= valor <= 9999.999.
+(float in) \fIxhc\-hb04.[xyza].pos\-absolute\fR Absolule position display.
+(typically connect to: halui.axis.N.pos\-feedback). The LCD display
+for pos\-absolute is fixed format with a sign, 4 number digits and 3
+fraction digits (+XXXX.XXX), require: \-9999.999 <= value <= 9999.999.
 .TP
-(float) \fIxhc\-hb04.[xyza].pos\-relative\fR Visualización de posición relativa.
-(normalmente se conecta a: halui.axis.N.pos\-relative). La pantalla LCD
-para pos\-relative es un formato fijo con un signo, 4 dígitos numéricos y 3
-dígitos de fracción (+ XXXX.XXX), requieren:\-9999.999 <= valor <= 9999.999.
-
-.TP
-(float) \fIxhc\-hb04.feed\-override\fR Feed\-override value.
-El valor float se convierte en un entero de 16 bits y se multiplica por 100
-para mostrarse como porcentaje, requiere: 0 <= pinvalue <= 655
-(normalmente se conecta a: halui.feed\-override.value)
-.TP
-(float) \fIxhc\-hb04.feed\-value\fR Valor de alimentación actual (unidades/seg).
-El valor float se convierte en un entero de 16 bits y se multiplica por 60
-para mostrarse como unidades por minuto, requiere: 0 <= pinvalue <= 1092
-(65520 unidades por minuto) (normalmente se conecta a: motion.current\-vel)
+(float in) \fIxhc\-hb04.[xyza].pos\-relative\fR Relative position display.
+(typically connect to: halui.axis.N.pos\-relative). The LCD display
+for pos\-relative is fixed format with a sign, 4 number digits and 3
+fraction digits (+XXXX.XXX), require: \-9999.999 <= value <= 9999.999.
 
 .TP
-(float) \fIxhc\-hb04.spindle\-override\fR Spindle\-override value.
-El valor float se convierte en un entero de 16 bits y se multiplica por 100
-para que se muestre como porcentaje, requiere: 0 <= pinvalue <= 655)
-(normalmente se conecta a: halui.spindle\-override.value)
+(float in) \fIxhc\-hb04.feed\-override\fR Feed\-override value.
+The float value is converted to a 16 bit integer and multiplied by 100 in
+order to display as percent, require: 0 <= pinvalue <= 655
+(typically connect to: halui.feed\-override.value)
 .TP
-(float) \fIxhc\-hb04.spindle\-rps\fR Velocidad del cabezal en rps.
-(revoluciones por segundo). El valor float se convierte en un entero de 16 bits.
-y multiplicado por 60 para mostrarse como RPM,
-requiere: 0 <= pinvalue <= 1092 (65520 RPM) (normalmente se conecta a:
+(float in) \fIxhc\-hb04.feed\-value\fR Current Feed-value (units/sec).
+The float value is converted to a 16 bit integer and multiplied by 60 in
+order to display as units-per-minute, require: 0 <= pinvalue <= 1092
+(65520 units-per-minute) (typically connect to: motion.current\-vel)
+
+.TP
+(float in) \fIxhc\-hb04.spindle\-override\fR Spindle\-override value.
+The float value is converted to a 16 bit integer and multiplied by 100 in
+order to display as percent, require: 0 <= pinvalue <= 655)
+(typically connect to: halui.spindle\-override.value)
+.TP
+(float in) \fIxhc\-hb04.spindle\-rps\fR Spindle speed in rps.
+(revolutions per second).  The float value is converted to a 16 bit integer
+and multiplied by 60 in order to display as RPMs,
+require: 0 <= pinvalue <= 1092 (65520 RPM) (typically connect to:
 spindle.N.speed\-out\-rps\-abs)
 .TP
-(bit in) \fIxhc\-hb04.inch\-icon\fR Use el icono en pulgadas (el valor predeterminado es mm)
+(bit in) \fIxhc\-hb04.inch\-icon\fR Use inch icon (default is mm)
 
-.SH Pines de salida (estado)
+.SH Output Pins (Status)
 .TP
-(bit out) \fIxhc\-hb04.sleeping\fR Verdadero cuando el driver recibe un mensaje de
-colgante inactivo (durmiendo).
+(bit out) \fIxhc\-hb04.sleeping\fR True when the driver receives a pendant
+inactive (sleeping) message.
 .TP
-(bit out) \fIxhc\-hb04.jog.enable\-off\fR Verdadero cuando el interruptor rotativo selector 
-del colgante está en la posición de OFF o cuando el colgante está durmiendo.
+(bit out) \fIxhc\-hb04.jog.enable\-off\fR True when the pendant rotary
+selector switch is in the OFF position or when the pendant is sleeping.
 .TP
-(bit out) \fIxhc\-hb04.enable\-[xyza]\fR Verdadero cuando el interruptor selector rotativo
-del colgante está en la posición [xyza] y no duerme.
+(bit out) \fIxhc\-hb04.enable\-[xyza]\fR True when the pendant rotary
+selector switch is in the [xyza] position and not sleeping.
 .TP
-(bit out) \fIxhc\-hb04.enable\-spindle\-override\fR Verdadero cuando el interruptor rotativo selector 
-del colgante está en la posición de husillo y no está dormido.
-(normalmente se conecta a: halui.spindle\-override\-count\-enable)
+(bit out) \fIxhc\-hb04.enable\-spindle\-override\fR True when the pendant
+rotary selector switch is in the Spindle position and not sleeping.
+(typically connect to: halui.spindle\-override\-count\-enable)
 .TP
-(bit out) \fIxhc\-hb04.enable\-feed\-override\fR Verdadero cuando el interruptor rotativo selector 
-del colgante está en la posición de alimentación y no duerme.
-(normalmente se conecta a: halui.feed\-override\-count\-enable)
+(bit out) \fIxhc\-hb04.enable\-feed\-override\fR True when the pendant rotary
+selector switch is in the Feed position and not sleeping.
+(typically connect to: halui.feed\-override\-count\-enable)
 .TP
-(bit out) \fIxhc\-hb04.connected\fR Verdadero cuando la conexión al colgante
-se establece a través de la interfaz USB.
+(bit out) \fIxhc\-hb04.connected\fR True when connection to the pendant
+is established over the USB interface.
 .TP
-(bit out) \fIxhc\-hb04.require_pendant\fR Verdadero si el controlador comenzó con
-la opción \-x.
+(bit out) \fIxhc\-hb04.require_pendant\fR True if driver started with
+the \-x option.
 .TP
-(salida s32) \fIxhc\-hb04.stepsize\fR Tamaño de paso actual en la secuencia de pasos
-según lo controlado por los pines stepsize\-up y/o stepsize\-down.
+(s32 out) \fIxhc\-hb04.stepsize\fR Current stepsize in the stepsize sequence
+as controlled by the stepsize\-up and/or stepsize\-down pins.
 
-.SH Pines de salida (para jog usando axis.N.jog\-counts)
+.SH Output Pins (for jogging using axis.N.jog\-counts)
 .TP
-(salida s32) \fIxhc\-hb04.jog.counts\fR Número de recuentos de la rueda desde
-start\-up (50 cuentas por revolución de la rueda).
-(normalmente se conecta a axis.N.jog\-counts (el filtrado de paso bajo puede ser útil))
+(s32 out) \fIxhc\-hb04.jog.counts\fR Number of counts of the wheel since
+start\-up (50 counts per wheel revolution).
+(typically connect to axis.N.jog\-counts (lowpass filtering may be helpful))
 .TP
-(salida s32) \fIxhc\-hb04.jog.counts\-neg\fR El valor de
-xhc\-hb04.jog.counts multiplicado por \-1.
+(s32 out) \fIxhc\-hb04.jog.counts\-neg\fR The value of the
+xhc\-hb04.jog.counts multipled by \-1.
 .TP
-(float) \fIxhc\-hb04.jog.scale\fR El valor es el tamaño de paso actual
-multiplicado por 0.001.
-(normalmente se conecta a axis.N.jog\-scale)
+(float out) \fIxhc\-hb04.jog.scale\fR  Value is the current stepsize
+multipled by 0.001.
+(typically connect to axis.N.jog\-scale)
 
-.SH Experimental: Pines para jog halui plus/minus
-Estos pines proporcionan cierto soporte para no\-trivkins, jog en modo mundial.
+.SH Experimental: Pins for halui plus/minus jogging
+These pins provide some support for non\-trivkins, world mode jogging.
 .TP
-(float) \fIxhc\-hb04.jog.max\-velocity\fR Conéctese a halui.max\-velocity.value
+(float in) \fIxhc\-hb04.jog.max\-velocity\fR Connect to halui.max\-velocity.value
 .TP
-(float) \fIxhc\-hb04.jog.velocity\fR Conéctese a halui.jog\-speed
+(float out) \fIxhc\-hb04.jog.velocity\fR Connect to halui.jog\-speed
 .TP
-(bit out) \fIxhc\-hb04.jog.plus\-[xyza]\fR Conéctese a halui.jog.N.plus
+(bit out) \fIxhc\-hb04.jog.plus\-[xyza]\fR Connect to halui.jog.N.plus
 .TP
-(bit out) \fIxhc\-hb04.jog.minus\-[xyza]\fR Conéctese a halui.jog.N.minus
+(bit out) \fIxhc\-hb04.jog.minus\-[xyza]\fR Connect to halui.jog.N.minus
 .TP
-(float) \fIxhc\-hb04.jog.increment\fR Pin de depuración -- abs(delta_pos)
+(float out) \fIxhc\-hb04.jog.increment\fR Debug pin -- abs(delta_pos)
 
-.SH Pines de salida de botón (para layout2 de 18 botones)
-Los pines del tipo bit de salida son TRUE cuando se presiona el botón.
+.SH Button output pins (for the 18 button, layout2 pendant)
+The output bit type pins are TRUE when the button is pressed.
 
 .nf
-FILA 1
+ROW 1
     (bit out) xhc\-hb04.button\-reset
     (bit out) xhc\-hb04.button\-stop
 
-FILA 2
+ROW 2
     (bit out) xhc\-hb04.button\-goto\-zero
     (bit out) xhc\-hb04.button\-rewind
     (bit out) xhc\-hb04.button\-start\-pause
     (bit out) xhc\-hb04.button\-probe\-z
 
-FILA 3
+ROW 3
    (bit out) xhc\-hb04.button\-spindle
    (bit out) xhc\-hb04.button\-half
    (bit out) xhc\-hb04.button\-zero
    (bit out) xhc\-hb04.button\-safe\-z
 
-FILA 4
+ROW 4
    (bit out) xhc\-hb04.button\-home
    (bit out) xhc\-hb04.button\-macro\-1
    (bit out) xhc\-hb04.button\-macro\-2
    (bit out) xhc\-hb04.button\-macro\-3
 
-FILA 5
+ROW 5
    (bit out) xhc\-hb04.button\-step
    (bit out) xhc\-hb04.button\-mode
    (bit out) xhc\-hb04.button\-macro\-6
    (bit out) xhc\-hb04.button\-macro\-7
 .fi
 
-.SH Pines de botones sintetizados
-Se sintetizan botones adicionales para los botones denominados
-\fBzero\fR, \fBgoto\-zero\fR y \fBhalf\fR. Estos botones sintetizados
-están activos cuando se presiona el botón Y el selector\-interruptor
-se establece en el eje correspondiente [xyza].
+.SH Synthesized button pins
+Additional buttons are synthesized for buttons named
+\fBzero\fR, \fBgoto\-zero\fR, and \fBhalf\fR.  These synthesized
+buttons are active when the button is pressed AND the selector\-switch
+is set to the corresponding axis [xyza].
 
 .nf
    (bit out) xhc\-hb04.button\-zero\-[xyza]
@@ -252,62 +252,61 @@ se establece en el eje correspondiente [xyza].
    (bit out) xhc\-hb04.button\-half\-[xyza]
 .fi
 
-.SH DEPURACIÓN
-Para depurar la actividad USB, use la variable de entorno LIBUSB_DEBUG:
+.SH DEBUGGING
+For debugging USB activity, use environmental variable LIBUSB_DEBUG:
 .TP
 export LIBUSB_DEBUG=[2 | 3 | 4]; xhc\-hb04 [options]
 2:warning, 3:info, 4:debug
 
-.SH Configuraciones Sim 
-La distribución incluye varias configuraciones de simulación en
-el directorio:
+.SH Sim Configs
+The distribution includes several simulation configurations in
+the directory:
 .nf
    /usr/share/doc/linuxcnc/examples/sample\-configs/sim/axis/xhc\-hb04/
-o para una compilación RIP:
+or for a RIP build:
    rip_base_dir/configs/sim/axis/xhc\-hb04/
 .fi
-.P
-Estas configuraciones utilizan un script proporcionado por la distribución (xhc\-hb04.tcl)
-configurar el colgante y hacer las conexiones HAL necesarias de acuerdo
-a una serie de configuraciones de archivo ini. El script usa un
-Componente HAL adicional (xhc_hb04_util) para proporcionar una funcionalidad común e
-incluye soporte para un método estándar para el botón de pausa/inicio.
-.P
-Las configuraciones disponibles incluyen:
-  1) especifique el botón\-cfg\-file para layout1 o layout2
-  2) seleccionar ejes (hasta 4 ejes del conjunto de x y z a b c u v w)
-  3) implementar coeficientes de filtrado por eje
-  4) implementar aceleración por eje para jog mpg
-  5) implementar configuraciones de escala por eje
-  6) seleccionar modos de desplazamiento normal o basado en velocidad
-  7) seleccionar secuencia de pasos
-  8) opción para inicializar pin para icono de pantalla en pulgadas o mm
-  9) opción para requerir colgante en el inicio
-.P
-Las configuraciones sim ilustran conexiones de botones que:
-  1) conecta el botón stepsize\-up al pin de entrada de paso.
-  2) conecta los botones a los pines halui.*
-  3) conecta los botones a pines motion.*
-.P
-Se incluye otro script para monitorear el colgante e informar la pérdida
-de conectividad USB. Ver los archivos README y .txt en el anterior
-directorio de uso.
-.P
-\fBNota:\fR Las configuraciones sim utilizan la interfaz gráfica de usuario Axis pero los scripts
-estan disponible con cualquier configuración HAL o gui. Los mismos guiones pueden
-utilizarse para adaptar el xhc\-hb04 a las configuraciones existentes siempre que los pines
-halui, motion y axis.N no se soliciten en otro lugar.
-Las instrucciones se incluyen en el archivo README en el directorio mencionado anteriormente.
-.P
-Use halcmd para mostrar los pines y señales utilizados por xhc\-hb04.tcl
-guión:
+.PP
+These configurations use a distribution-provided script (xhc\-hb04.tcl)
+to configure the pendant and make necessary HAL connections according
+to a number of ini file settings.  The script uses an additional
+HAL component (xhc_hb04_util) to provide common functionality and
+includes support for a standard method for the start-pause button.
+.PP
+The settings available include:
+  1) specify button\-cfg\-file for standard layout1 or layout2
+  2) select axes (up to 4 axes from set of x y z a b c u v w)
+  3) implement per-axis filtering coeficients
+  4) implement per-axis acceleration for mpg jogging
+  5) implement per-axis scale settings
+  6) select normal or velocity based jog modes
+  7) select stepsize sequence
+  8) option to initialize pin for inch or mm display icon
+  9) option to require pendant on startup
+.PP
+The sim configs illustrate button connections that:
+  1) connect pendant stepsize\-up button to the step input pin.
+  2) connect buttons to halui.* pins
+  3) connect buttons to motion.* pins
+.PP
+Another script is included to monitor the pendant and report loss
+of USB connectivity.  See the README and .txt files in the above
+directory for usage.
+.PP
+\fBNote:\fR The sim configs use the axis gui but the scripts are
+available with any HAL configuration or gui.  The same scripts can
+be used to adapt the xhc\-hb04 to existing configurations provided that
+the halui, motion, and axis.N pins needed are not otherwise claimed.
+Instructions are included in README file in the directory named above.
+.PP
+Use halcmd to display the pins and signals used by the xhc\-hb04.tcl
+script:
 .nf
-  halcmd show pin xhc\-hb04		(mostrar todos los pines xhc\-hb04)
-  halcmd show pin pendant_util	(mostrar todos los pines pendant_util)
-  halcmd show sig pendant		(muestra todas las señales)
+  halcmd show pin xhc\-hb04       (show all xhc\-hb04 pins)
+  halcmd show pin pendant_util   (show all pendant_util pins)
+  halcmd show sig pendant:       (show all pendant signals)
 .fi
 
-.SH Autor
+.SH Author
 Frederick Rible (frible@teaser.fr)
-
 

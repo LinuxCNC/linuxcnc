@@ -1,9 +1,9 @@
 .\" Copyright (C) 2015 Jeff Epler
-.TH LinuxCNC "1" "2015-04-18" "Documentacion de LinuxCNC" ""
-.SH NOMBRE
-elbpcom \- Comunicacion con tarjetas Mesa ethernet
-.SH SINOPSIS
-Opciones comunes:
+.TH LinuxCNC "1" "2015-04-18" "LinuxCNC Documentation" ""
+.SH NAME
+elbpcom \- Communicate with Mesa ethernet cards
+.SH SYNOPSIS
+Common options:
 .RS
 .SY elbpcom
 .BI [\-\-ip= IP ]
@@ -11,53 +11,53 @@ Opciones comunes:
 .BI [\-\-timeout= TIMEOUT ]
 .RE
 
-Lectura de datos:
+Reading data:
 .RS
 .SY elbpcom
-.BI [ opciones\ comunes ]
+.BI [ common\ options ]
 .BI \-\-space= SPACE
 .B [\-\-info]
 .BI \-\-address= ADDRESS
 .BI \-\-read= LENGTH
 .RE
 
-Escritura de datos:
+Writing data:
 .RS
 .SY elbpcom
-.BI [ opciones\ comunes ]
+.BI [ common\ options ]
 .BI \-\-space= SPACE
 .BI \-\-address= ADDRESS
 .BI \-\-write= HEXDATA
 .RE
 
-Envio de paquetes arbitrarios:
+Sending arbitrary packets:
 .RS
 .SY elbpcom
-.BI [ opciones\ comunes ]
+.BI [ common\ options ]
 .I HEXDATA
 .RE
 
-.SH DESCRIPCION
-Lee o escribe datos de una tarjeta Ethernet de Mesa que use el protocolo LBP16,
-como la 7i80. Esto puede ser util para realizar ciertas tareas de bajo nivel.
+.SH DESCRIPTION
+Read or write data from a Mesa ethernet card that uses the LBP16 protocol,
+such as the 7i80.  This can be useful for performing certain low-level tasks.
 
-Para obtener mas informacion sobre el significado de cada espacio de direcciones,
-consulte la documentacion de la tarjeta. El uso incorrecto de esta utilidad puede
-tener efectos negativos, como cambiar la direccion IP de la placa o incluso da\[~n]ar
-el archivo de bits FPGA en la eeprom. Para algunas tareas, como actualizar archivos
-de bits FPGA y configurar direcciones IP,
+For more information about the meaning of each address space, see the card
+documentation.  Incorrect use of this utility can have negative effects such
+as changing the board's IP address or even corrupting the FPGA bitfile in
+the eeprom.  For some tasks, such as updating FPGA bitfiles and setting IP
+addresses,
 .BR mesaflash (1)
-es una herramienta mas apropiada.
+is a more appropriate tool.
 
-Si no se especifican, los valores por defecto son:
+If not specified, the default values are
 .RS
 .BI \-\-ip= 192.168.1.121
 .BI \-\-port= 27181
 .BI \-\-timeout= .2
 .RE 
 
-Este ejemplo demuestra la lectura de HOSTMOT2 identificando cadenas desde
-la IDROM en espacio 0:
+This example demonstrates reading the HOSTMOT2 identifying string from the
+IDROM in space 0:
 .RS
 .nf
 $ elbpcom \-\-space 0 \-\-address 0x104 \-\-read 8
@@ -66,10 +66,9 @@ $ elbpcom \-\-space 0 \-\-address 0x104 \-\-read 8
       HOSTMOT2
 .fi
 .RE
-Primero se muestra la solicitud en hexadecimal. Despues, la respuesta (si la hay)
-se muestra en hexadecimal. Finalmente, la respuesta se muestra en ASCII, con "."
-reemplazando cualquier caracter no ASCII. Esto es similar a las siguientes
-invocaciones de mesaflash:
+First the request is shown in hex.  Then the response (if any) is shown in hex.
+Finally, the response is shown in ASCII, with "." replacing any non-ASCII
+characters.  This is similar to the following invocations of mesaflash:
 .RS
 .nf
 $ ./mesaflash  \-\-device 7i80 \-\-rpo 0x104
@@ -78,13 +77,12 @@ $ ./mesaflash  \-\-device 7i80 \-\-rpo 0x108
 32544F4D
 .fi
 .RE
-Pero notese el diferente tratamiento de orden de bytes.
+but notice its different treatment of byte order.
 
 .SH SEE ALSO
 .BR mesaflash (1),
 .BR hostmot2 (9),
 .BR hm2_eth (9),
 .UR http://www.mesanet.com
-Documentacion de Mesa para tarjetas Anything I/O
+Mesa's documentation for the Anything I/O boards
 .UE .
-

@@ -1,0 +1,32 @@
+.TH CONV_S32_U32 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+conv_s32_u32 \- Convert a value from s32 to u32
+.SH SYNOPSIS
+.HP
+.B loadrt conv_s32_u32 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconv-s32-u32.\fIN\fB\fR
+Update 'out' based on 'in'
+.SH PINS
+.TP
+.B conv-s32-u32.\fIN\fB.in\fR s32 in \fR
+.TQ
+.B conv-s32-u32.\fIN\fB.out\fR u32 out \fR
+.TQ
+.B conv-s32-u32.\fIN\fB.out-of-range\fR bit out \fR
+TRUE when 'in' is not in the range of u32
+.SH PARAMETERS
+.TP
+.B conv-s32-u32.\fIN\fB.clamp\fR bit rw \fR
+If TRUE, then clamp to the range of u32.  If FALSE, then allow the value to "wrap around".
+.SH LICENSE
+
+GPL

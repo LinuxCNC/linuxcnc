@@ -1,39 +1,39 @@
-.TH rtapi_task_new "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_task_new "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_task_new \- crea una tarea en tiempo real
+rtapi_task_new \- create a realtime task
 
-.SH SINTAXIS 
+.SH SYNTAX
 .HP
 int rtapi_task_new(void (*\fItaskcode\fR)(void*), void *\fIarg\fR,
 	int \fIprio\fR, unsigned long \fIstacksize\fR, int \fIuses_fp\fR)
 .HP
 int rtapi_task_delete(int \fItask_id\fR)
 .HP
-.SH ARGUMENTOS 
+.SH  ARGUMENTS
 .IP \fItaskcode\fR
-Un puntero a la función que se llamará cuando se inicie la tarea
+A pointer to the function to be called when the task is started
 .IP \fIarg\fR
-Un argumento para pasar a la función \fItaskcode\fR cuando la tarea esta
-empezado
+An argument to be passed to the \fItaskcode\fR function when the task is
+started
 .IP \fIprio\fR
-Un valor de prioridad de tarea devuelto por \fBrtapi_prio_xxxx\fR
+A task priority value returned by \fBrtapi_prio_xxxx\fR
 .IP \fIuses_fp\fR
-Una bandera que le dice al sistema operativo si la tarea usa punto flotante o no.
+A flag that tells the OS whether the task uses floating point or not.
 .IP \fItask_id\fR
-Una ID de tarea devuelta por una llamada previa a \fBrtapi_task_new\fR
-.SH DESCRIPCIÓN
-\fBrtapi_task_new\fR crea pero no inicia una tarea en tiempo real. La tarea es
-creada en el estado "en pausa". Para iniciarla, llame a \fBrtapi_task_start\fR
-para tareas periódicas, o \fBrtapi_task_resume\fR para tareas de ejecución libre.
+A task ID returned by a previous call to \fBrtapi_task_new\fR
+.SH DESCRIPTION
+\fBrtapi_task_new\fR creates but does not start a realtime task.  The task is
+created in the "paused" state.  To start it, call either \fBrtapi_task_start\fR
+for periodic tasks, or \fBrtapi_task_resume\fR for free-running tasks.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Llame solo desde el código de inicio/limpieza, no desde tareas en tiempo real.
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.
 
-.SH VALOR DEVUELTO
-En caso de éxito, devuelve una ID de tarea entero positivo. Esta identificación se utiliza
-para todas las llamadas posteriores que necesitan actuar en la tarea. En caso de fracaso,
-devuelve un código de estado RTAPI.
+.SH RETURN VALUE
+On success, returns a positive integer task ID.  This ID is used
+for all subsequent calls that need to act on the task.  On failure,
+returns an RTAPI status code.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_prio(3rtapi)\fR, \fBrtapi_task_start(3rtapi)\fR, \fBrtapi_task_wait(3rtapi)\fR, \fBrtapi_task_resume(3rtapi)

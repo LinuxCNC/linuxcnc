@@ -1,0 +1,57 @@
+.TH MESA_7I65 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+mesa_7i65 \- Support for the Mesa 7i65 Octuple Servo Card
+.SH SYNOPSIS
+.HP
+.B loadrt mesa_7i65
+.SH DESCRIPTION
+
+The component takes parameters in the form of a comma-separated
+list of bspi (buffered SPI) instance names, for example:
+
+\fB loadrt mesa_7i65 bspi_chans=hm2_5i23.0.bspi.0, hm2_5i23.0.bspi.1\fR
+
+The BSPI instances are printed to the dmesg buffer during the Hostmot2 setup
+sequence, one for each bspi instance included in the bitfile loaded to each
+installed card during the Hostmot2 setup sequence. Type "dmesg" at the terminal
+prompt to view the output.
+.SH PINS
+.TP
+.B mesa-7i65.\fIN\fB.analogue.\fIM\fB.out\fR float in  (M=0..7) \fR
+Analogue output values. The value will be
+limited to a  -1.0 to +1.0 range
+.TP
+.B mesa-7i65.\fIN\fB.analogue.\fIM\fB.in\fR float out  (M=0..7) \fR
+Analogue outputs read by the 7i65 (in Volts)
+.TP
+.B mesa-7i65.\fIN\fB.digital.\fIM\fB.in\fR bit out  (M=0..3) \fR
+Miscellaneous Digital Inputs
+.TP
+.B mesa-7i65.\fIN\fB.enable.\fIM\fB.out\fR bit in  (M=0..7) \fR
+Amplifier-enable control pins
+.TP
+.B mesa-7i65.\fIN\fB.watchdog.has-bit\fR bit out \fR
+Indicates the status of the 7i65 Watchdog (which
+is separate from the FPGA card watchdog
+.SH PARAMETERS
+.TP
+.B mesa-7i65.\fIN\fB.scale-\fIM\fB\fR float rw  (M=0..7) \fR(default: \fI10\fR)
+Analogue output scale factor. For example if
+the scale is 7 then an input of 1.0 will give 7V on the output terminals
+.TP
+.B mesa-7i65.\fIN\fB.is-bipolar-\fIM\fB\fR bit rw  (M=0..7) \fR(default: \fI1\fR)
+Set this value to TRUE for a plus/minus
+"scale" output. Set to 0 for a 0-"scale" output
+.SH AUTHOR
+
+Andy Pugh / Cliff Blackburn
+.SH LICENSE
+
+GPL

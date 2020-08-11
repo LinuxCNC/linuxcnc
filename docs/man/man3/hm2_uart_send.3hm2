@@ -1,33 +1,34 @@
-\ # Autor Andy Pugh
-\ # Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
-.TH hm2_uart_send "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
-.SH NOMBRE
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_uart_send "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
+.SH NAME
 
-hm2_uart_send \- escribe datos en una UART Hostmot2 
+hm2_uart_send \- write data to a Hostmot2 UART
 
-.SH SINTAXIS
+.SH SYNTAX
 .nf
 .B #include <hostmot2-serial.h>
 .HP
 int hm2_uart_send(char* name,  unsigned char data[], int count)
 
-.SH DESCRIPCIÓN
-\fBhm2_uart_send\fR escribe 'count' bytes de datos en UART "name" desde el búfer
-'data'.
+.SH DESCRIPTION
+\fBhm2_uart_send\fR write 'count' bytes of data to the UART "name" from the 
+buffer 'data'. 
 
-La FIFO UART tiene 64 bytes de profundidad, los intentos de transmitir más de 64 bytes pueden tener efectos inesperados
+The UART FIFO is 64 bytes deep, attempts to transmit more than 64 bytes may have
+unexpected effects. 
 
-"name" es una cadena única dada a cada UART durante la configuración de hostmot2. Los nombres de los canales disponibles se imprimen en la salida estándar
-durante la carga del controlador y toman la forma:
-hm2_<nombre de la tarjeta>.<índice de la tarjeta>.uart.<índice> 
-Por ejemplo, hm2_5i23.0.uart.0
+"name" is a unique string given to each UART during hostmot2 setup. The names of 
+the available channels are printed to standard output during the driver loading 
+process and take the form:
+hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 
-Esta función realiza escrituras de datos en la UART especificada. Debe usarse
-dentro de una función en componente HAL de tiempo real o de espacio de usuario.
+This function performs writes of data to the specified UART.It should be used 
+inside a function in a realtime or userspace HAL component.
 
-.SH VALOR DEVUELTO
-Devuelve el número de bytes enviados en caso de éxito y \-1 en caso de error.
+.SH RETURN VALUE
+Returns the number of bytes sent on success and \-1 on failure.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 man hm2_uart_setup, man hm2_uart_read
-Vea src/hal/drivers mesa_uart.comp para un ejemplo de uso.
+See src/hal/drivers mesa_uart.comp for an example usage.

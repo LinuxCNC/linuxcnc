@@ -28,7 +28,7 @@ Usando NGCGUI o PYNGCGUI:
 * Se puede usar cualquier subrutina de código G de un solo archivo que se ajuste a las convenciones ngcgui
 * Se pueden usar cualquier programa gcmc (G code-meta-compiler) que se ajuste a las convenciones ngcgui para etiquetar variables (el ejecutable gcmc debe estar instalado por separado, ver: http://www.vagrearg.org/content/gcmc)
 
-[NOTA]
+[NOTE]
 NGCGUI y PYNGCGUI implementan las mismas funciones y ambas procesan archivos .ngc y .gcmc que se ajusten a algunas convenciones específicas de ngcgui. En este documento, el término 'NGCGUI' generalmente se refiere a cualquier aplicación.
 
 == Configuraciones de demostración
@@ -109,7 +109,7 @@ complete los espacios en blanco, presione 'Crear función' y luego, con las tecl
 Otras guis tendrán una funcionalidad similar pero los botones y nombres pueden ser diferentes.
 
 .Notas
-[NOTA]
+[NOTE]
 ===============================
 Las configuraciones de demostración crean páginas con pestañas solo para algunos ejemplos. Cualquier interfaz gráfica de usuario con una <<ngcgui-ini,pestaña personalizada>> puede abrir cualquiera de las subrutinas de bibliotecas de ejemplo o cualquier archivo de usuario si está en el path de la subrutina linuxCNC.
 
@@ -136,7 +136,7 @@ SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_fil
 USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles
 ----
 
-[NOTA]
+[NOTE]
 Estas son líneas largas (no continúan en varias líneas) que especifican los directorios utilizados en un path de búsqueda. Los nombres de directorio están separados por dos puntos (:). No hay espacio entre los nombres de directorio.
 
 Un usuario puede crear nuevos directorios para sus propias subrutinas y
@@ -197,7 +197,7 @@ Uso:
        [--quiet]                     (menos comentarios en outfile)
        [--noiframe]                  (predeterminado: el cuadro muestra la imagen)
 ----
-[NOTA]
+[NOTE]
 Como aplicación independiente, ngcgui maneja un único archivo de subrutina que
 se puede invocar varias veces. Se puede iniciar múltiples aplicaciones ngcgui independientes.
 
@@ -234,7 +234,7 @@ Notas:
          busque un linuxCNC en ejecución y use su inifile
 ----
     
-[NOTA]
+[NOTE]
 Como aplicación independiente, pyngcgui puede leer un archivo ini (o una aplicación linuxCNC ejecutandose) para crear páginas con pestañas para múltiples subarchivos.
 
 == Incrustar NGCGUI
@@ -247,7 +247,7 @@ Los siguientes elementos del archivo INI van en la sección [DISPLAY]. (Ver a co
 * 'TTT = truetype-tracer': nombre del programa truetype tracer (debe estar en la RUTA del usuario)
 * 'TTT_PREAMBLE = in_std.ngc' - Opcional, especifica el nombre del archivo para el preámbulo utilizado para subfiles ttt creados. (alternativo: mm_std.ngc)
 
-[NOTA]
+[NOTE]
 Los elementos opcionales del trazador truetype se utilizan para especificar una página de pestaña compatible con ngcgui que usa la aplicación truetype-tracer. La aplicación truetype-tracer debe ser instalada de forma independiente y ubicada en la RUTA del usuario.
  
 === Incrustar PYNGCGUI como una pestaña gladevcp en una GUI
@@ -260,13 +260,13 @@ EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui - invoca gladevcp
 EMBED_TAB_LOCATION = nombre_de_ubicación - donde se encuentra la página incrustada
 ....
 
-[NOTA]
+[NOTE]
 El especificador EMBED_TAB_LOCATION no se usa para la GUI Axis. Mientras
 Pyngcgui se puede incrustar en Axis, la integración es más completa cuando se usa
 ngcgui (usando TKPKG = Ngcgui 1.0). Para especificar EMBED_TAB_LOCATION para otras guis, vea enlace?sec:display-section,Sección DISPLAY>> del Capítulo de configuración INI
 .
 
-[NOTA]
+[NOTE]
   La gui front-end truetype tracer no está disponible actualmente para aplicaciones gladevcp.
 
 [[ngcgui-ini]]
@@ -338,7 +338,7 @@ PROGRAM_PREFIX    = ../../nc_files
 
 ----
 
-[NOTA]
+[NOTE]
 Lo anterior no es un INI Axis completo - los elementos que se muestran son aquellos
 utilizado por ngcgui. LinuxCNC requiere muchos elementos adicionales para tener un archivo INI completo.
 

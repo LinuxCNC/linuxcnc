@@ -19,12 +19,12 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH funct "3rtapi" "2014-06-28" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_list.h \- Contenedores RTAPI para funcionalidad del kernel de Linux
+rtapi_list.h \- RTAPI wrappers for linux kernel functionality
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 #include <rtapi_list.h>
 .HP
@@ -42,19 +42,18 @@ rtapi_list_for_each(pos, head) { ... }
 .HP
 rtapi_list_entry(ptr, type, member)
 
-.SH DESCRIPCIÓN
-En el espacio del kernel, cada identificador rtapi_xxx o RTAPI_XXX se asigna a la
-funcionalidad del núcleo subyacente, si está disponible.
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
 
-En el espacio de usuario o en núcleos donde no se proporciona la funcionalidad subyacente 
-por un núcleo, generalmente se proporciona otra implementación, posiblemente con una 
-reducción de funcionalidad. (Por ejemplo, la implementación del espacio de usuario para 
-rtapi_device_register siempre tiene éxito)
-.SH CONSIDERACIONES EN TIEMPO REAL
-Llame desde el código de inicio/limpieza y desde tareas en tiempo real. Estas funciones podran causar 
-excepciones de instrucciones ilegales en los componentes del espacio de usuario, así como en uspace 
-rtapi_app cuando no es setuid root.
-.SH VALOR DEVUELTO
-Como en Linux.
-.SH VER TAMBIÉN
-
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_device_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+Call from init/cleanup code and from realtime tasks.  These functions will
+cause illegal instruction exceptions in userspace components, as well as in
+uspace rtapi_app when it is not setuid root.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO

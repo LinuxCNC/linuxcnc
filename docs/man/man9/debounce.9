@@ -1,39 +1,44 @@
-.TH DEBOUNCE "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.TH DEBOUNCE "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
 .TP \\$1
 ..
 
-.SH NOMBRE
+.SH NAME
 
-debounce \- filtro para entradas digitales ruidosas
-.SH SINOPSIS
+debounce \- filter noisy digital inputs
+.SH SYNOPSIS
 .B loadrt debounce cfg=\fIsize[,size,...]\fB
 .P
-Crea grupos antirrebote con el número de filtros especificado por (\fIsize\fR).
-Cada filtro en el mismo grupo tiene la misma frecuencia de muestreo y retraso. Por ejemplo, cfg=2,3 crea dos grupos de filtros con 2 filtros en el primer grupo y 3
-filtros en el segundo grupo.
+Creates debounce groups with the number of filters specified by (\fIsize\fR).
+Every filter in the same group has the same sample rate and delay. For example
+cfg=2,3 creates two filter groups with 2 filters in the first group and 3
+filters in the second group.
 
-.SH DESCRIPCIÓN
-El filtro antirrebote funciona incrementando un contador cada vez que la entrada es verdadera, y decrementando el contador cuando es falsa. Si el contador disminuye a
-cero, la salida se establece como falsa y el contador ignora más decrementos. Si
-el contador aumenta hasta un umbral, la salida se establece como verdadera y el contador ignora más incrementos. Si el contador está entre cero y el umbral, la salida 
-conserva su estado anterior. El umbral determina la cantidad de filtrado; un umbral de 1 no filtra en absoluto, y un umbral de N requiere que haya una señal presente 
-en N muestras antes de que cambie el estado de la salida.
+.SH DESCRIPTION
+The debounce filter works by incrementing a counter whenever the input is true,
+and decrementing the counter when it is false.  If the counter decrements to
+zero, the output is set false and the counter ignores further decrements.  If
+the counter increments up to a threshold, the output is set true and the
+counter ignores further increments.  If the counter is between zero and the
+threshold, the output retains its previous state.  The threshold determines the
+amount of filtering: a threshold of 1 does no filtering at all, and a threshold
+of N requires a signal to be present for N samples before the output changes
+state.  
 
-.SH FUNCIONES
+.SH FUNCTIONS
 .TP
 .B debounce.\fIG\fR
-Muestrear todos los pines de entrada en el grupo G y actualizar los pines de salida.
-.SH PINES
+Sample all the input pins in group G and update the output pins.
+.SH PINS
 .TP
-.B debounce.\fIG \fB.\fIF\fB.in\fR bit in
-Pin de entrada F en el grupo G.
+.B debounce.\fIG\fB.\fIF\fB.in\fR bit in
+The F'th input pin in group G.  
 .TP
 .B debounce.\fIG\fB.\fIF\fB.out\fR bit out
-El F-esimo pin de salida en el grupo G. Refleja la última entrada "estable" vista en el pin de entrada correspondiente.
+The F'th output pin in group G.  Reflects the last "stable" input seen on the
+corresponding input pin.
 .TP
-.B debounce.\fIG\fB.delay\fR S32 rw
-Establece la cantidad de filtrado para todos los pines en el grupo G.
-
+.B debounce.\fIG\fB.delay\fR signed rw
+Sets the amount of filtering for all pins in group G.

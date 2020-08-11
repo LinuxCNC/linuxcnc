@@ -23,44 +23,42 @@
 .\"
 .\"
 .\"
-.TH AXIS "1"  "2007-04-01" "Documentacion de LinuxCNC" "The Enhanced Machine Controller"
-.SH NOMBRE
-axis \- Interface grafica de usuario para LinuxCNC
-.SH SINOPSIS
+.TH AXIS "1"  "2007-04-01" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+axis \- AXIS LinuxCNC Graphical User Interface
+.SH SYNOPSIS
 .B axis
-\fI\-ini\fR \fIFICHEROINI\fR
-.SH DESCRIPCION
-\fBaxis\fR es una de las interfaces graficas de usuario (GUI) para LinuxCNC 
-Se ejecuta usualmente desde un script.
-.SH OPCIONES
+\fI\-ini\fR \fIINIFILE\fR
+.SH DESCRIPTION
+\fBaxis\fR is one of the Graphical User Interfaces (GUI) for LinuxCNC 
+It gets run by the runscript usually.
+.SH OPTIONS
 .TP
-\fBFICHEROINI\fR
-el archivo ini es la pieza principal de una configuracion de LinuxCNC.
-No es toda la configuracion; hay otros archivos que lo acompa\[~n]an 
-(archivos NML, HAL, TBL, VAR, etc). Sin embargo, es el mas importante,
-porque es el archivo que mantiene la configuracion unida.
-Puede ajustar muchos parametros por si mismo, pero tambien le dice
-a \fBLinuxCNC\fR que otros archivos cargar y usar.
+\fBINIFILE\fR
+The ini file is the main piece of an LinuxCNC configuration. It is not the
+entire configuration; there are various other files that go with it
+(NML files, HAL files, TBL files, VAR files). It is, however, the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters itself, but it also tells
+\fBLinuxCNC\fR which other files to load and use.
 
-.SH "VEA TAMBIEN"
+.SH "SEE ALSO"
 \fBLinuxCNC(1)\fR
 
-Los manuales de LinuxCNC y HAL tienen mucha mas informacion disponible.
-.TP
-Puede encontrarlos en /usr/share/doc/linuxcnc/.
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
 
-.SH HISTORIA
+.SH HISTORY
 
 .SH BUGS
-En este momento, ninguno conocido.  
+None known at this time. 
 .PP
-.SH AUTOR
-Esta pagina man fue escrita por Alex Joni, como parte del proyecto LinuxCNC.
-.SH COMUNICACION DE BUGS
-Comunicar errores a alex_joni AT users DOT sourceforge DOT net
+.SH AUTHOR
+This man page written by Alex Joni, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT
 Copyright \(co 2007 Alex Joni.
 .br
-Este software es libre; vea las fuentes para las condiciones de copia. NO hay garantia;
-ni para COMERCIABILIDAD, ni para APTITUD PARA UN USO PARTICULAR
-
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

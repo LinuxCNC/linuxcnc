@@ -10,7 +10,7 @@
 == Introducción
 SilverDragon está construido con el marco QTVCP.
 Gran parte se basa en el excelente trabajo de otros en la comunidad LinuxCNC.
-[NOTA]
+[NOTE]
 SilverDragon y QtVcp son nuevos programas agregados a linuxcnc.
 Errores y rarezas son posibles. Por favor pruebe cuidadosamente cuando use un
 máquina peligrosa Envíe informes al foro o a la lista de correo.
@@ -235,7 +235,7 @@ Al ejecutar rutinas de sondeo, tenga mucho cuidado hasta que esté familiarizado
 con cómo funciona todo. Las rutinas de la sonda se ejecutan sin bloquear la GUI principal. Esto le da al operador la oportunidad
 para ver los DRO y detener la rutina en cualquier momento.
 
-[NOTA]
+[NOTE]
 El sondeo es muy implacable con los errores; asegúrese de verificar la configuración antes de usar.
 
 .qtdragon - Muestra de sonda
@@ -249,7 +249,7 @@ Se mostrará un cuadro de diálogo que permite preestablecer la dirección y la 
 La línea de inicio se indica en el cuadro LÍNEA, junto al botón INICIO DE CICLO. +
 La función Ejecutar desde línea se puede deshabilitar en la página de configuración.
 
-[NOTA]
+[NOTE]
 La ejecución de Linuxcnc no es muy fácil de usar. p.ej. No arranca el husillo ni confirma la herramienta adecuada.
 No maneja bien las subrutinas. Si se usa, es mejor comenzar con un movimiento rápido.
 

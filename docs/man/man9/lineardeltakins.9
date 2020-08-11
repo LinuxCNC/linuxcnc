@@ -1,35 +1,48 @@
-.TH LINEARDELTAKINS "9" "11/07/2013" "Documentación LinuxCNC" "Componente cinemático"
+.TH LINEARDELTAKINS "9" "2013-07-11" "LinuxCNC Documentation" "Kinematics Component"
 .de TQ
 .br
 .ns
-.TP \\ $ 1
+.TP \\$1
 ..
 
-.SH NOMBRE
+.SH NAME
 
-lineardeltakins \- Cinemática para un robot delta lineal
+lineardeltakins \- Kinematics for a linear delta robot
 
-.SH SINOPSIS
+.SH SYNOPSIS
 .HP
 .B loadrt lineardeltakins
 
-.SH CINEMÁTICA
-El modelo cinemático es apropiado para un diseño estilo rostock/kossel con tres articulaciones dispuestas en un triángulo equilátero. (0,0) es siempre el centro del volumen de trabajo. La articulación 0 está en (0, R) y las articulaciones posteriores están a 120 grados en sentido horario (tenga en cuenta que la articulación 0 no está en cero radianes). La longitud del brazo es L.
+.SH KINEMATICS
+The kinematics model is appropriate for a rostock/kossel-style design
+with three joints arranged in an equilateral triangle.  (0,0) is always
+the center of the working volume.  Joint 0 is at (0,R) and subsequent
+joints are 120 degrees clockwise (note that joint 0 is not at zero
+radians).  The length of the arm is L.
 
-Las articulaciones 0-2 son los carros lineales. Los ejes ABC y UVW pasan sin cambios en las articulaciones 3-8, de modo que, por ejemplo, A todavía se puede usar para controlar una extrusora.
+Joints 0-2 are the linear carriages.  Axes ABC and UVW are passed
+through unchanged in joints 3-8, so that e.g., A can still be used to
+control an extruder.
 
-.SH PINES
-.TP
+.SH PINS
+.TP 
 .B lineardeltakins.R\fR float in
-Diámetro efectivo de la plataforma.
+Effective diameter of the platform.
 
-R es diferente a la distancia desde el centro de la mesa hasta el centro de la correa/varilla lisa/extrusión sobre la que se montan las articulaciones. En el lenguaje delta RepRap, R es DELTA_RADIUS que se calcula como
+R is different than the distance from the center of the table to the
+center of the belt/smooth rod/extrusion that the joints ride on.  In
+RepRap delta parlance, R is DELTA_RADIUS which is computed as
 
 DELTA_SMOOTH_ROD_OFFSET - DELTA_EFFECTOR_OFFSET - DELTA_CARRIAGE_OFFSET.
 
 .TP
 .B lineardeltakins.L\fR float in
-Longitud de la varilla que conecta el carro al efector. En el lenguaje delta RepRap, L es DELTA_DIAGONAL_ROD
+Length of the rod connecting the carriage to the effector.  In RepRap
+delta parlance, L is DELTA_DIAGONAL_ROD
 
-.SH NOTAS
-Los valores R y L se pueden ajustar mientras se ejecuta LinuxCNC. Sin embargo, hacerlo mientras está en modo coordinado conducirá a un cambio de paso en la posición de la articulación, lo que generalmente provocará un error de seguimiento si está en modo de articulación con la máquina encendida.
+.SH NOTES
+The R and L values can be adjusted while LinuxCNC is running.  However,
+doing so while in coordinated mode will lead to a step change in joint
+position, which generally will trigger a following error if in joint
+mode with machine on.
+

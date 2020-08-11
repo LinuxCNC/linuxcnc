@@ -1,8 +1,8 @@
-.TH indocumentadas "3rtapi" "12-10-2006" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH undocumented "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-indocumentadas \- funciones no documentadas en RTAPI
+undocumented \- undocumented functions in RTAPI
 
-.SH VER TAMBIÉN
-El archivo de encabezado \fIrtapi.h\fR. La mayoría de las funciones rtapi tienen documentación
-en ese archivo
+.SH SEE ALSO
+The header file \fIrtapi.h\fR.  Most rtapi functions have documentation
+in that file.

@@ -19,12 +19,12 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH funct "3rtapi" "" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH funct "3rtapi" "" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_strlcpy \- Funciones de manipulación de cadenas RTAPI
+rtapi_strlcpy \- RTAPI string manipulation functions
 
-Sintaxis .SH
+.SH SYNTAX
 .HP
 #include <rtapi_string.h>
 .HP
@@ -33,26 +33,24 @@ size_t rtapi_strlcpy(char *dst, const char *src, size_t sz);
 size_t rtapi_strlcat(char *dst, const char *src, size_t sz);
 #define rtapi_strxcat(dst, src) ...
 
-.SH DESCRIPCIÓN
-rtapi_strlcpy copiará como máximo 'sz' caracteres de 'src' a 'dst'.
-Siempre deja 'dst' terminado en NUL, excepto si sz es 0.
+.SH DESCRIPTION
+rtapi_strlcpy will copy at most 'sz' chars from 'src' to 'dst'.
+Always leaves 'dst' NUL-terminated except if sz is 0.
 
-rtapi_strxcpy(dst, src) comprueba que dst es una matriz con un tamaño conocido,
-y llama a rtapi_strlcpy(dst, src, sizeof(dst)). Si no es una matriz
-con un tamaño conocido, es un error de sintaxis (¡posiblemente críptico!).
+rtapi_strxcpy(dst, src) checks that dst is an array with known size,
+and calls rtapi_strlcpy(dst, src, sizeof(dst)).  If it is not an array
+with a known size, it is a (possibly cryptic!) syntax error.
 
-rtapi_strlcat agregará caracteres desde 'src' a 'dst', deteniéndose cuando
-se alcanza el final de 'src' o 'dst' usa 'sz' bytes de almacenamiento, incluido el nul de prueba.
+rtapi_strlcat will append characters from 'src' to 'dst', stopping when
+the end of 'src' is reached, or 'dst' uses 'sz' bytes of storage including the trialing nul.
 
-rtapi_strxcat(dst, src) comprueba que dst es una matriz con un tamaño conocido,
-y llama a rtapi_strlcat(dst, src, sizeof(dst)). Si no es una matriz
-con un tamaño conocido, es un error de sintaxis (¡posiblemente críptico!).
+rtapi_strxcat(dst, src) checks that dst is an array with known size,
+and calls rtapi_strlcat(dst, src, sizeof(dst)).  If it is not an array
+with a known size, it is a (possibly cryptic!) syntax error.
 
-.SH VALOR DEVUELTO
-La longitud total de la cadena que strlcpy o strlcat intentó crear.
-Para strlcpy() eso significa la longitud de src. Si el valor de retorno es
-mayor o igual que sz, el resultado se trunca.
-.SH VER TAMBIÉN
+.SH RETURN VALUE
+The total length of the string strlcpy or strlcat tried to create.
+For strlcpy() that means the length of src.  If the return value is
+greater than or equal to sz, the result was truncated.
+.SH SEE ALSO
 strlcpy(3bsd), strlcat(3bsd)
-
-

@@ -19,61 +19,60 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH GLADEVCP "1"  "2010-12-20" "Documentacion de LinuxCNC" "The Enhanced Machine Controller"
-.SH NOMBRE
-gladevcp \- Panel de Control Virtual para LinuxCNC basado en widgets Glade, Gtk y HAL 
-.SH SINOPSIS
-\fBgladevcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fInombre-componente\fR] [\-u \fIhandler\fR] [\-U \fIopcionusuario\fR] [\-H \fIficheroHAL\fR] [\-d] \fImifichero.ui\fR
-.SH OPCIONES
+.TH GLADEVCP "1"  "2010-12-20" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+gladevcp \- Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets
+.SH SYNOPSIS
+\fBgladevcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fIcomponent-name\fR] [\-u \fIhandler\fR] [\-U \fIuseroption\fR] [\-H \fIhalfile\fR] [\-d] \fImyfile.ui\fR
+.SH OPTIONS
 .TP
 \fB\-g\fR \fIWxH+X+Y\fR
-Establecer la geometria inicial de la ventana raiz.
-Use 'WxH' para el tama\[~n]o, '+ X + Y' para la posicion, o 'WxH+X+Y' para ambos.
-Tama\[~n]o / posicion utilizan unidades de pixeles. La posicion esta referenciada desde la parte superior izquierda. 
+This sets the initial geometry of the root window.
+Use 'WxH' for just size, '+X+Y' for just position, or 'WxH+X+Y' for both.
+Size / position use pixel units. Position is referenced from top left. 
 .TP
-\fB\-c\fR \fInombre-componente\fR
-Use \fInombre-componente\fR como el nombre del componente HAL. Si el nombre del componente no se especifica, se usa
-el nombre base del fichero .ui. \fR
+\fB\-c\fR \fIcomponent-name\fR
+Use \fIcomponent-name\fR as the HAL component name.  If the component name is
+not specified, the basename of the ui file is used.\fR
 .TP
 \fB\-u\fR \fIhandler\fR
-Instruye a gladevcp para inspeccionar el script Python \fIhandler\fR para manejadores de eventos
-y los conecta a se\[~n]ales en el fichero .ui.\fR
+Instructs gladevcp to inspect the Python script \fIhandler\fR for event handlers,
+and connect them to signals in the ui file.\fR
 .TP
-\fB\-U\fR \fIopcionusuario\fR
-gladevcp colecciona todas las cadenas \fIopcionusuario\fR y las pasa al metodo del manejador init()
-como una lista de cadenas, sin mas inspeccion.\fR
+\fB\-U\fR \fIuseroption\fR
+gladevcp collects all \fIuseroption\fR strings and passes them to the handler init()
+method as a list of strings without further inspection.\fR
 .TP
 \fB\-x\fR \fIXID\fR
-Hace de una ventana \fIXID\fR existente la ventana padre de gladevcp, en lugar de crear una ventana
-nueva de nivel superior.\fR
+Reparent gladevcp into an existing window \fIXID\fR instead of
+creating a new top level window.\fR
 .TP
-\fB\-H\fR \fIficheroHAL\fR
-gladevcp ejecuta \fIficheroHAL\fR - una lista de comandos HAL - mediante \fIhalcmd \-c ficheroHAL\fR
-despues de la finalizacion del componente HAL.\fR
+\fB\-H\fR \fIhalfile\fR
+gladevcp runs \fIhalfile\fR - a list of HAL commands - by executing \fIhalcmd \-c halfile\fR
+after the HAL component is finalized.\fR
 
 .TP
 \fB\-d\fR
-activa la salida debug.
+enable debug output.
 
 .TP
 \fB\-R\fR \fIgtkrcfile\fR
-carga explicitamente un fichero gtkrc.\fR
+explicitly load a gtkrc file.\fR
 
 .TP
 \fB\-t\fR \fITHEME\fR
-Establece un tema gtk. El tema por defecto es \fIsystem\fR. Diferentes paneles pueden tener diferentes temas.
+set gtk theme. Default is \fIsystem\fR theme. Different panels can have different themes.
 
 .TP
 \fB\-m\fR \fIMAXIMUM\fR
-fuerza el maximizado de la ventana de panel. Junto con la opcion \fI\-g geometry\fR 
-puede mover el panel a un segundo monitor y forzarlo a usar toda la pantalla.
+force panel window to maxumize.  Together with the \fI\-g geometry\fR option 
+one can move the panel to a second monitor and force it to use all of the screen
 
 .TP
 \fB\-R\fR
-desactivar explicitamente la solucion para el error gtk que hace coincidir widgets y widget_class en el tema
-gtk y fallos de los archivos gtkrc. Normalmente no es necesario.
+explicitly deactivate workaround for a gtk bug which makes matches of widget and widget_class
+matches in gtk theme and gtkrc files fail. Normally not needed.
 
-.SH "VER TAMBIEN"
-\fIGladeVCP\fR en la documentacion de LinuxCNC para una descripcion de las capacidades de gladevcp
-y el conjunto de widgets HAL asociados, junto con ejemplos.
-
+.SH "SEE ALSO"
+\fIGladeVCP\fR in the LinuxCNC documentation for a description of gladevcp's capabilities
+and the associated HAL widget set, along with examples

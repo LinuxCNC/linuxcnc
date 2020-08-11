@@ -1,0 +1,31 @@
+.TH rtapi_app_exit "3rtapi" "2008-05-26" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+rtapi_app_exit \- Función proporcionada por el usuario para cerrar un componente
+
+.SH SINTAXIS
+.nf
+.B #include <rtapi_app.h>
+.HP
+.BI "void rtapi_app_exit(void) {" ... "}"
+.fi
+.SH ARGUMENTOS
+Ninguno
+
+.SH DESCRIPCIÓN
+El cuerpo de \fBrtapi_app_exit\fR, que es proporcionado por el autor del componente, generalmente 
+consiste en una llamada a rtapi_exit o hal_exit, precedida por otro código de apagado específico del componente.
+
+Este código se llama al descargar un componente que se inicializó correctamente
+(es decir, devolvió cero de su \fBrtapi_app_main\fR). No se llama cuando el componente no se inicializó con éxito.
+
+.SH CÓDIGO DEVUELTO
+Ninguno.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llamado automáticamente por la infraestructura rtapi en un contexto de inicialización (no tiempo real).
+
+.SH VER TAMBIÉN
+\fBrtapi_app_main(3rtapi)\fR,
+\fBrtapi_exit(3rtapi)\fR,
+\fBhal_exit(3hal)\fR

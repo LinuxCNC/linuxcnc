@@ -32,7 +32,7 @@ La configuracion de ejemplo 'sim/axis.ini' ya está configurada para usar AXIS c
  . Establezca el offset adecuado para cada eje haciendo jogging y usando la tecla Touch Off según sea necesario.
  . Ejecute el programa.
 
-[NOTA]
+[NOTE]
 Ejecutar el mismo programa de nuevo dependera de su configuración y requisitos.
 Es posible que deba cargar más material y establecer offsets o desplazarse y
 establecer un nuevo offset y luego ejecutar el programa de nuevo. Si la ubicacion del material es

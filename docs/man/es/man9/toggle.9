@@ -1,0 +1,31 @@
+.TH TOGGLE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+toggle \- 'push-on, push-off' from momentary pushbuttons
+.SH SYNOPSIS
+.HP
+.B loadrt toggle [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBtoggle.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B toggle.\fIN\fB.in\fR bit in \fR
+button input
+.TP
+.B toggle.\fIN\fB.out\fR bit io \fR
+on/off output
+.SH PARAMETERS
+.TP
+.B toggle.\fIN\fB.debounce\fR u32 rw \fR(default: \fI2\fR)
+debounce delay in periods
+.SH LICENSE
+
+GPL

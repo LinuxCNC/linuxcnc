@@ -1,0 +1,25 @@
+.TH GANTRYKINS "9" "" "Documentación LinuxCNC" "Módulo de cinemática"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+
+gantrykins \- \fBReempazado\fR por el módulo cinemático \fBtrivkins\fR de propósito general.
+
+Para especificar un pórtico con cinemática sin identidad, use trivkins con
+el conjunto de parámetros kinstype para KINEMATICS_BOTH. Ejemplo:
+
+.PP
+  loadrt trivkins coordinates=xyyz \fBkinstypes=BOTH\fR
+
+Para más información:
+
+$ man\-s 9 trivkins
+
+
+
+
+

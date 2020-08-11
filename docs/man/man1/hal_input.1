@@ -1,27 +1,26 @@
-.TH HAL_INPUT "1" "2007-02-25" "Documentacion de LinuxCNC" "Manual HAL de usuario"
+.TH HAL_INPUT "1" "2007-02-25" "LinuxCNC Documentation" "HAL User's Manual"
 .de TQ
 .br
 .ns
 .TP \\$1
 ..
-.SH NOMBRE
-hal_input \- controla los pines HAL con cualquier dispositivo de entrada de Linux, incluidos los dispositivos USB HID
-.SH SINOPSIS
+.SH NAME
+hal_input \- control HAL pins with any Linux input device, including USB HID devices
+.SH SYNOPSIS
 \fIloadusr\fR \fBhal_input\fR \fI[\-KRAL] inputspec ...\fR
-.SH DESCRIPCION
-hal_input es una interfaz entre HAL y cualquier dispositivo de entrada de Linux, incluido 
-dispositivos USB HID. Para cada dispositivo nombrado, \fBhal_input\fR crea los pines correspondientes
-a sus teclas, ejes absolutos, y leds. Sincroniza el dispositivo y los pines HAL a una tasa fija de
-aproximadamente 10 ms,
-.SH ESPECIFICACIONES DE ENTRADA
-\fIinputspec\fR puede estar en una de varias formas:
+.SH DESCRIPTION
+hal_input is an interface between HAL and any Linux input device, including USB
+HID devices.  For each device named, \fBhal_input\fR creates pins corresponding
+to its keys, absolute axes, and LEDs.  At a fixed rate of approximately 10ms,
+it synchronizes the device and the HAL pins.
+.SH INPUT SPECIFICATION
+The \fIinputspec\fR may be in one of several forms:
 .TP
-Una cadena \fIS\fR
-Se comparara una subcadena o un patron de estilo de shell con el "nombre"
-del dispositivo, el "phys" (que proporciona informacion sobre como está conectado),
-y el "id", que es una cadena con el formato "Bus = ... Vendor = ... Product = ...
-Version = ... ". Puede ver el nombre, el estado fisico y la identificacion de los dispositivos
-conectados ejecutando \fBless /proc/bus/input/devices\fR. Ejemplos:
+A string \fIS\fR
+A substring or shell-style pattern match will be tested against the "name"
+of the device, the "phys" (which gives information about how it is connected),
+and the "id", which is a string of the form "Bus=... Vendor=... Product=...
+Version=...".  You can view the name, phys, and id of attached devices by executing \fBless /proc/bus/input/devices\fR.  Examples:
 .RS 12
 .PD 0
 SpaceBall
@@ -31,58 +30,58 @@ SpaceBall
 serio*/input0
 .RE
 .PD
-.TP
-Un numero \fIN\fR
-Esto abre \fB /dev/input/event\fIN\fR. A excepcion de los dispositivos que estan siempre
-conectados al sistema, este numero puede cambiar durante los reinicios o cuando el dispositivo
-es removido. Por esta razon, no se recomienda usar un numero entero.
+.TP  
+A number \fIN\fR
+This opens \fB/dev/input/event\fIN\fR.  Except for devices that are always
+attached to the system, this number may change over reboots or when the device
+is removed.  For this reason, using an integer is not recommended.
 .PP
-Cuando varios dispositivos están identificados por la misma cadena, agregue "\fB:\fIN\fR" donde
-\fIN\fR es el indice del dispositivo deseado. Por ejemplo, si \fBMouse\fR
-coincide con \fBinput3\fR y con \fBinput10\fR, entonces \fBMouse\fR y \fBMouse:0\fR
-selecciona \fBinput3\fR. Especificando \fBmouse:1\fR selecciona\fRinput10\fR.
+When several devices are identified by the same string, add "\fB:\fIN\fR" where
+\fIN\fR is the index of the desired device.  For example, if \fBMouse\fR
+matches \fBinput3\fR and \fBinput10\fR, then \fBMouse\fR and \fBMouse:0\fR
+select \fBinput3\fR.  Specifying \fBmouse:1\fR selects \fRinput10\fR.
 .PP
-Para dispositivos que aparecen como entradas multiples en /dev/input, es probable que estos indices
-permanezcan igual cada vez. Para multiples dispositivos idénticos,
-es probable que los indices dependan del orden de insercion, pero permanezcan iguales en
-el reinicio, siempre que los dispositivos no se muevan a puertos diferentes o se desenchufen
-mientras se arranca la maquina.
+For devices that appear as multiple entries in /dev/input, these indices are
+likely to stay the same every time.  For multiple identical devices, these
+indices are likely to depend on the insertion order, but stay the same across
+reboots as long as the devices are not moved to different ports or unplugged
+while the machine is booted.
 .PP
-Si el primer caracter de \fIinputspec\fR es un "+", entonces \fBhal_input\fR
-solicita acceso exclusivo al dispositivo. Se utiliza l primer dispositivo que
-coincida con \fIinputspec\fR. Se puede usar cualquier numero de \fIinputspec\fRs.
+If the first character of the \fIinputspec\fR is a "+", then \fBhal_input\fR
+requests exclusive access to the device.  The first device matching an
+\fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
 .PP
-La opcion \fIsubset\fI puede preceder a cada \fIinputspec\fR. La opcion sunset
-comienza con un guion. Cada letra en la opcion subset especifica una carecteristica
-del dispositivo a \fBincluir\fR. Se excluyen las caracteristicas que no esten especificadas.
-Por ejemplo, para exportar los LED del teclado a HAL sin exportar teclas, use
+A \fIsubset option\fI may precede each \fIinputspec\fR.  The subset option
+begins with a dash.  Each letter in the subset option specifies a device
+feature to \fBinclude\fR.  Features that are not specified are excluded.
+For instance, to export keyboard LEDs to HAL without exporting keys, use
 .RS 12
 hal_input \-L \fIkeyboard\fR ...
 .RE
 
-.SH CARACTERISTICAS DEL DISPOSITIVO SOPORTADAS
+.SH DEVICE FEATURES SUPPORTED
 .IP \(bu 4
-EV_KEY (botones y teclas). Subset \-K
+EV_KEY (buttons and keys).  Subset \-K
 .IP \(bu 4
-EV_ABS (entradas analogicas absolutas). Subset \-A
+EV_ABS (absolute analog inputs).  Subset \-A
 .IP \(bu 4
-EV_REL (entradas analogicas relativas). Subset \-R
+EV_REL (relative analog inputs).  Subset \-R
 .IP \(bu 4
-EV_LED (salidas LED). Subset \-L
-.SH PINES Y PARAMETROS HAL
-.SS Para botones
+EV_LED (LED outputs).  Subset \-L
+.SH HAL PINS AND PARAMETERS
+.SS For buttons
 .TP
 .B input.\fIN\fB.btn\-\fIname\fR bit out
 .TQ
 .B input.\fIN\fB.btn\-\fIname\fB\-not\fR bit out
-Creado para cada boton en el dispositivo.
-.SS Para teclas
+Created for each button on the device.
+.SS For keys
 .TP
 .B input.\fIN\fB.key\-\fIname\fB
 .TQ
 .B input.\fIN\fB.key\-\fIname\fB\-not
-Creado para cada tecla en el dispositivo.
-.SS para ejes absolutos
+Created for each key on the device.
+.SS For absolute axes
 .TP
 .B input.\fIN\fB.abs\-\fIname\fB\-counts\fR s32 out
 .TQ
@@ -99,19 +98,16 @@ Creado para cada tecla en el dispositivo.
 .B input.\fIN\fB.abs\-\fIname\fB\-min\fR parameter s32 r
 .TQ
 .B input.\fIN\fB.abs\-\fIname\fB\-max\fR parameter s32 r
-Creado para cada eje absoluto en el dispositivo. Posiciones del dispositivo mas cercanas que
-\fBflat\fR a \fBoffset\fR se reportan como \fBoffset\fR en \fBcounts\fR, y
-\fBcounts\fR no cambia hasta que la posicion del dispositivo cambie al menos
-\fBfuzz\fR. La posicion se calcula como 
-
-\fBposition\fR = (\fBcounts\fR \-\fBoffset\fR) / \fBscale\fR
-
-El valor predeterminado de \fBscale\fR y \fBoffset\fR
-asigna el rango del eje reportado por el sistema operativo a [\-1,1].
-Los valores predeterminados de \fBfuzz\fR y \fBflat\fR son los informados por el operador del
-sistema. Los valores de \fBmin\fR y \fBmax\fR son los reportados por el
-sistema operativo.
-.SS para ejes relativos
+Created for each absolute axis on the device.  Device positions closer than
+\fBflat\fR to \fBoffset\fR are reported as \fBoffset\fR in \fBcounts\fR, and
+\fBcounts\fR does not change until the device position changes by at least
+\fBfuzz\fR.  The position is computed as \fBposition\fR = (\fBcounts\fR \-
+\fBoffset\fR) / \fBscale\fR.  The default value of \fBscale\fR and \fBoffset\fR
+map the range of the axis reported by the operating system to [\-1,1].  The
+default values of \fBfuzz\fR and \fBflat\fR are those reported by the operating
+system.  The values of \fBmin\fR and \fBmax\fR are those reported by the
+operating system.
+.SS For relative axes
 .TP
 .B input.\fIN\fB.rel\-\fIname\fB\-counts\fR s32 out
 .TQ
@@ -126,40 +122,39 @@ sistema operativo.
 .B input.\fIN\fB.rel\-\fIname\fB\-precision\fR parameter s32 rw
 .TQ
 .B input.\fIN\fB.rel\-\fIname\fB\-last\fR parameter s32 rw
-Creado para cada eje relativo en el dispositivo. Siempre que \fBreset\fR sea TRUE,
-\fBcounts\fR se restablece a cero independientemente de cualquier movimiento anterior o actual del eje.
-De lo contrario, \fBcounts\fR aumenta o disminuye de acuerdo con el movimiento del
-eje. \fBcounts\fR se divide por\fRposition \-scale\fR para dar \fBposition\fR.
-El valor predeterminado de \fBposition\fR es 1. Hay algunos dispositivos, en particular
-ruedas de desplazamiento, que devuelven valores con signo con resolucion menor de 32 bits.
-El valor predeterminado de \fBprecision\fR es 32. \fBprecision\fR se puede establecer en 8
-para un dispositivo que devuelve valores de 8 bits con signo, o cualquier otro valor de 1 a 32.
-\fBabsolute\fR, cuando se establece TRUE, ignora los eventos duplicados con el mismo valor.
-Esto permite que los dispositivos que repiten eventos sin ninguna accion del usuario funcionen.
-correctamente. \fBlast\fR muestra el valor de conteo mas reciente devuelto por el
-dispositivo, y se utiliza en la implementacion de \fBabsolute\fR.
-.SS para LEDs
+Created for each relative axis on the device.  As long as \fBreset\fR is true,
+\fBcounts\fR is reset to zero regardless of any past or current axis movement.
+Otherwise, \fBcounts\fR increases or decreases according to the motion of the
+axis.  \fBcounts\fR is divided by \fRposition\-scale\fR to give \fBposition\fR.
+The default value of \fBposition\fR is 1.  There are some devices, notably
+scroll wheels, which return signed values with less resolution than 32 bits.
+The default value of \fBprecision\fR is 32.  \fBprecision\fR can be set to 8
+for a device that returns signed 8 bit values, or any other value from 1 to 32.
+\fBabsolute\fR, when set true, ignores duplicate events with the same value.
+This allows for devices that repeat events without any user action to work
+correctly.  \fBlast\fR shows the most recent count value returned by the
+device, and is used in the implementation of \fBabsolute\fR.
+.SS For LEDs
 .TP
 .B input.\fIN\fB.led\-\fIname\fR bit out
 .TQ
 .B input.\fIN\fB.led\-\fIname\fB\-invert\fR parameter bit rw
-Creado para cada LED en el dispositivo.
-.SH PERMISOS Y UDEV
-Por defecto, los dispositivos de entrada pueden no ser accesibles para
-usuarios - \fBhal_input\fR requiere acceso de lectura y escritura, incluso si el dispositivo no tiene
-salidas.
+Created for each LED on the device.
+.SH PERMISSIONS AND UDEV
+By default, the input devices may not be accessible to regular
+users--\fBhal_input\fR requires read-write access, even if the device has no
+outputs.
 
-Las diferentes versiones de udev tienen sintaxis ligeramente diferentes e incompatibles.
-Por esta razon, no es posible que esta pagina de manual brinde informacion y ejemplo preciso.
+Different versions of udev have slightly different, incompatible syntaxes.  For
+this reason, it is not possible for this manual page to give an accurate
+example.  The
 .B udev(7)
-La pagina de manual documenta la sintaxis utilizada en su distribucion de Linux.
-Para verlo en un terminal, el comando es
+manual page documents the syntax used on your Linux distribution.
+To view it in a terminal, the command is
+.BR "man 7 udev" .
 
-.BR "man 7 udev".
-
-.SH ERRORES
-El estado inicial de las teclas, botones y ejes absolutos se informa erroneamente
-como FALSE o 0 hasta que se reciba un evento para esa tecla, boton o eje.
-.SH VER TAMBIEN
+.SH BUGS
+The initial state of keys, buttons, and absolute axes are erroneously reported
+as FALSE or 0 until an event is received for that key, button, or axis.
+.SH SEE ALSO
 \fBudev(8)\fR, \fBudev(7)\fR
-

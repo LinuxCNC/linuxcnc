@@ -411,7 +411,7 @@ Consulte el documento <<cha:gmoccapy,gmoccapy>> para obtener detalles sobre Gmoc
 * 'JOG_INVERT =' - para cada letra de eje, se invierte la dirección de jog. El valor predeterminado es "X" para tornos y
    en blanco en el resto.
 
-[NOTA]
+[NOTE]
 La configuración de 'JOG_AXES' y 'JOG_INVERT' se aplican al modo de jog universal por letra de eje de coordenadas
 y están vigentes mientras se encuentra en modo universal después de un recorrido homing exitoso. Cuando se opera en modo articulacion anterior al homing, las teclas de desplazamiento del teclado se asignan en una secuencia fija: izquierda/derecha: joint0, arriba/abajo: joint1, pg arriba/ pg abajo: joint2, corchete izquierdo/derecho: joint3
 
@@ -419,7 +419,7 @@ y están vigentes mientras se encuentra en modo universal después de un recorri
 * 'USER_COMMAND_FILE = mycommands.py' - El nombre de un archivo Python opcional, específico de configuración
    originado por la GUI Axis en lugar del archivo específico del usuario `~/.axisrc`.
 
-[NOTA]
+[NOTE]
 El siguiente elemento [DISPLAY] es utilizado únicamente por la interfaz TKLinuxCNC.
 
 * 'HELP_FILE = tklinucnc.txt' - Ruta al archivo de ayuda.
@@ -572,7 +572,7 @@ Se realiza una búsqueda para cada posible función definida por el usuario, tí
 +
 El primer ejecutable M1xx encontrado en la búsqueda se usa para cada M1xx.
 
-[NOTA]
+[NOTE]
 El número máximo de directorios USER_M_PATH se define en tiempo de compilación
  (predeterminado: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
@@ -603,10 +603,10 @@ elementos HAL de mayúsculas y minúsculas en comentarios estructurados como
 * 'OWORD_WARNONLY = 0' Predeterminado 0
 Advertir en lugar de error en caso de errores en las subrutinas O-word.
 
-[NOTA] Las seis opciones anteriores fueron controladas por la máscara de bits 'FEATURES'
+[NOTE] Las seis opciones anteriores fueron controladas por la máscara de bits 'FEATURES'
 en versiones de LinuxCNC anteriores a 2.8. Esta etiqueta INI ya no trabaja.
 
-[NOTA]
+[NOTE]
 [WIZARD]WIZARD_ROOT es una ruta de búsqueda válida pero el asistente no se ha implementado por completo
 y los resultados de su uso son impredecibles.
 
@@ -696,7 +696,7 @@ informar a stdout y en una ventana emergente gui:
 ----
     HALFILE = LIB:halcheck.tcl [nopopup]
 ----
-[NOTA]
+[NOTE]
 La línea LIB:halcheck.tcl debería ser el último [HAL]HALFILE.
 Especifique la opción 'nopopup' para suprimir el mensaje emergente y permitir el inicio inmediato.
 Las conexiones realizadas con un POSTGUI_HALFILE no serán chequeadas.
@@ -790,7 +790,7 @@ en el directorio para el archivo inifile, puede hacer referencia a los archivos 
 
 === [TRAJ] Sección
 
-[ADVERTENCIA]
+[WARNING]
 El nuevo Planificador de trayectoria (TP) está activado de forma predeterminada. +
 Si no tiene configuraciones TP en su sección [TRAJ] - LinuxCNC por defecto hace: +
 ARC_BLEND_ENABLE = 1 +
@@ -964,7 +964,7 @@ utilizado para máquinas con cinemática no trivial. En máquinas con cinemátic
 (fresadoras, tornos, varios tipos de pórtico) este valor se ignora.
 Nota: la configuración sim de hexapod requiere un valor distinto de cero para la coordenada Z.
 
-[ADVERTENCIA]
+[WARNING]
 LinuxCNC no conocerá sus límites de articulaciones cuando use 'NO_FORCE_HOMING = 1'.
 
 [[sec:kins-section]] (((Archivo INI, Sección KINS)))
@@ -1254,7 +1254,7 @@ interruptores Home y no tiene retroalimentación de posición, como en máquina 
 
 Estos parámetros son relevantes para las articulaciones controladas por servos.
 
-[ADVERTENCIA]
+[WARNING]
 Las siguientes son entradas de archivos INI personalizadas que puede encontrar en un archivo INI de muestra
 o un archivo generado por asistente. Estos no son utilizados por el software LinuxCNC.
 Solo están ahí para poner todas las configuraciones en un solo lugar. Para más información sobre
@@ -1440,7 +1440,7 @@ image::images/encoder-scale.png[align="center"]
 
 Estos parámetros son relevantes para las articulaciones controladas por steppers.
 
-[ADVERTENCIA]
+[WARNING]
 Las siguientes son entradas de archivos INI personalizadas que puede encontrar en un archivo INI de muestra
 o un archivo generado por el asistente. Estos no son utilizados por el software LinuxCNC.
 Solo están ahí para poner todas las configuraciones en un solo lugar. Para más información sobre

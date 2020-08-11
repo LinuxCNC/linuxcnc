@@ -19,37 +19,37 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH funct "3rtapi" "2014-06-28" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_byteorder.h \- Contenedores RTAPI para funcionalidad del kernel de Linux
+rtapi_byteorder.h \- RTAPI wrappers for linux kernel functionality
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 #include <rtapi_byteorder.h>
 .TP
 RTAPI_BIG_ENDIAN
-Definido a 1 si la plataforma es big-endian, 0 de lo contrario
+Defined to 1 if the platform is big-endian, 0 otherwise
 .TP
 RTAPI_LITTLE_ENDIAN
-Definido a 1 si la plataforma es little-endian, 0 de lo contrario
+Defined to 1 if the platform is little-endian, 0 otherwise
 .TP
 RTAPI_FLOAT_BIG_ENDIAN
-Definido en 1 si el valor de doble precisión de la plataforma es big-endian, 0 en caso contrario.
+Defined to 1 if the platform double-precision value is big-endian, 0 otherwise.
 
-.SH DESCRIPCIÓN
-En el espacio del kernel, cada identificador rtapi_xxx o RTAPI_XXX se asigna a la
-funcionalidad del núcleo subyacente, si está disponible.
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
 
-En el espacio de usuario o en núcleos donde no se proporciona la funcionalidad subyacente por un 
-núcleo, generalmente se proporciona otra implementación, posiblemente con una reducción de funcionalidad. 
-(Por ejemplo, la implementación del espacio de usuario para rtapi_byteorder_register siempre tiene éxito)
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_byteorder_register always succeeds)
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede usar en cualquier momento.
+.SH REALTIME CONSIDERATIONS
+May be used at any time.
 
-.SH VALOR DEVUELTO
-Como en Linux.
+.SH RETURN VALUE
+As in Linux.
 
-.SH VER TAMBIÉN
-
+.SH SEE ALSO

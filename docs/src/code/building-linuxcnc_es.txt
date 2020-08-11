@@ -228,7 +228,7 @@ desde su clon del repositorio git ejecutando esto:
 > cd ..
 -----
 
-[NOTA]
+[NOTE]
 =====
 El script `debian/configure` es diferente del script `src/configure`!
 

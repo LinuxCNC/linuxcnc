@@ -1,112 +1,112 @@
-.TH milltask 1 "30 de septiembre de 2014" "" "EMC Controlador de maquina mejorado"
-.SH NOMBRE
-\fBmilltask\fR \- Controlador de tareas de espacio de usuario para LinuxCNC
-.SH DESCRIPCION
+.TH milltask 1 "September 30, 2014" "" "The Enhanced Machine Controller"
+.SH NAME
+\fBmilltask\fR \- Userspace task controller for LinuxCNC
+.SH DESCRIPTION
 
-\fBmilltask\fR es un proceso interno de LinuxCNC. Generalmente no
-se invoca directamente, sino mediante una configuracion de archivo: \fB[TASK]TASK=milltask\fR.
-El proceso \fBmilltask\fR crea los pines HAL \fBini.*\fR enumerados a continuacion, que son
-propiedad del componente de usuario \fBinihal\fR. Estos pines pueden ser modificados
-mientras LinuxCnC se esta ejecutando para alterar los valores que normalmente se especifican
-en un inifile
+\fBmilltask\fR is an internal process of LinuxCNC.  It is generally not
+invoked directly but by an inifile setting: \fB[TASK]TASK=milltask\fR.
+The \fBmilltask\fR process creates the \fBini.*\fR hal pins listed below
+and owned by the \fBinihal\fR user component.  These pins may be modified
+while LinuxCnC is running to alter values that are typically specified
+in an inifile.
 
-Los pines \fBinihal\fR se \fBmuestrean\fR en cada ciclo de tareas, sin embargo, los comandos
-afectados por sus valores suelen utilizar el valor presente en el momento
-cuando se procesa el comando. Tales comandos incluyen todos los codigos manejados
-por el interprete (programas \fBGcode\fR y comandos \fBMDI\fR comandos) y comandos NML
-\fBjogging\fR emitidos por una GUI (incluida \fBhalui\fR).
-\fBEl volante de jogging\fR se implementa en el modulo de movimiento en tiempo real de forma que
-\fBinihal\fR los cambios en pines (por ejemplo, ini.*.max_velocity,
-ini.*.max_acceleration) puede ser tratados tan pronto como los valores alterados sean
-conocidos por el modulo de movimiento.
+The \fBinihal\fR pins are sampled in every task cycle, however, commands
+affected by their values typically use the value present at the time
+when the command is processed.  Such commands include all codes handled
+by the interpreter (\fBGcode\fR programs and \fBMDI\fR commands) and NML
+\fBjogging\fR commands issued by a GUI (including \fBhalui\fR).
+\fBWheel jogging\fR is implemented in the realtime motion module so
+\fBinihal\fR pin changes (e.g., ini.*.max_velocity,
+ini.*.max_acceleration) may be honored as soon as altered values are
+propagated to the motion module.
 
-.SH PINES
-.SS Pines por articulacion (N == numero de articulacion)
+.SH PINS
+.SS Per-joint pins (N == joint number)
 .TP
 \fBini.\fIN\fB.backlash
-Permite el ajuste de \fB[JOINT_\fIN\fB]BACKLASH
+Allows adjustment of \fB[JOINT_\fIN\fB]BACKLASH
 .TP
-\fBini.\fIN \fB.ferror
-Permite el ajuste de \fB[JOINT_\fIN\fB]FERROR
+\fBini.\fIN\fB.ferror
+Allows adjustment of \fB[JOINT_\fIN\fB]FERROR
 .TP
-\fBini.\fIN \fB.min_ferror
-Permite el ajuste de \fB[JOINT_\fIN\fB]MIN_FERROR
+\fBini.\fIN\fB.min_ferror
+Allows adjustment of \fB[JOINT_\fIN\fB]MIN_FERROR
 .TP
-\fBini.\fIN \fB.min_limit
-Permite el ajuste de \fB[JOINT_\fIN\fB]MIN_LIMIT
+\fBini.\fIN\fB.min_limit
+Allows adjustment of \fB[JOINT_\fIN\fB]MIN_LIMIT
 .TP
-\fBini.\fIN \fB.max_limit
-Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_LIMIT
+\fBini.\fIN\fB.max_limit
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_LIMIT
 .TP
-\fBini.\fIN \fB.max_velocity
-Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_VELOCITY
+\fBini.\fIN\fB.max_velocity
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_VELOCITY
 .TP
-\fBini.\fIN \fB.max_acceleration
-Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_ACCELERATION
+\fBini.\fIN\fB.max_acceleration
+Allows adjustment of \fB[JOINT_\fIN\fB]MAX_ACCELERATION
 .TP
-\fBini.\fIN \fB.home
-Permite el ajuste de \fB[JOINT_\fIN\fB]HOME
+\fBini.\fIN\fB.home
+Allows adjustment of \fB[JOINT_\fIN\fB]HOME
 .TP
-\fBini.\fIN \fB.home_offset
-Permite el ajuste de \fB[JOINT_\fIN\fB]HOME_OFFSET
+\fBini.\fIN\fB.home_offset
+Allows adjustment of \fB[JOINT_\fIN\fB]HOME_OFFSET
 .TP
-\fBini.\fIN \fB.home_offset
-Permite el ajuste de \fB[JOINT_\fIN\fB]HOME_SEQUENCE
+\fBini.\fIN\fB.home_offset
+Allows adjustment of \fB[JOINT_\fIN\fB]HOME_SEQUENCE
 
-.SS pines por eje (L == eje de la letra)
+.SS Per-axis pins (L == axis letter)
 .TP
-\fBini.\fIL \fB.min_limit
-Permite el ajuste de \fB[AXIS_\fIL\fB]MIN_LIMIT
+\fBini.\fIL\fB.min_limit
+Allows adjustment of \fB[AXIS_\fIL\fB]MIN_LIMIT
 .TP
-\fBini.\fIL \fB.max_limit
-Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_LIMIT
+\fBini.\fIL\fB.max_limit
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_LIMIT
 .TP
-\fBini.\fIL \fB.max_velocity
-Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_VELOCITY
+\fBini.\fIL\fB.max_velocity
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_VELOCITY
 .TP
-\fBini.\fIL \fB.max_acceleration
-Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_ACCELERATION
+\fBini.\fIL\fB.max_acceleration
+Allows adjustment of \fB[AXIS_\fIL\fB]MAX_ACCELERATION
 
-.SS Pines Globales
+.SS Global pins
 .TP
 \fBini.traj_default_acceleration
-Permite el ajuste de \fB[TRAJ]DEFAULT_ACCELERATION
+Allows adjustment of \fB[TRAJ]DEFAULT_ACCELERATION
 .TP
 \fBini.traj_default_velocity
-Permite el ajuste de \fB[TRAJ]DEFAULT_VELOCITY
+Allows adjustment of \fB[TRAJ]DEFAULT_VELOCITY
 .TP
 \fBini.traj_max_acceleration
-Permite el ajuste de \fB[TRAJ]MAX_ACCELERATION
+Allows adjustment of \fB[TRAJ]MAX_ACCELERATION
 .TP
 \fBini.traj_max_velocity
-Permite el ajuste de \fB[TRAJ]MAX_VELOCITY
+Allows adjustment of \fB[TRAJ]MAX_VELOCITY
 
-.SS Pines Globales (planificador de trayectoria arc_blend)
+.SS Global pins (arc_blend trajectory planner)
 .TP
 \fBini.traj_arc_blend_enable
-Permite el ajuste de \fB[TRAJ]ARC_BLEND_ENABLE
+Allows adjustment of \fB[TRAJ]ARC_BLEND_ENABLE
 .TP
 \fBini.traj_arc_blend_fallback_enable
-Permite el ajuste de \fB[TRAJ]ARC_BLEND_FALLBACK_ENABLE
+Allows adjustment of \fB[TRAJ]ARC_BLEND_FALLBACK_ENABLE
 .TP
 \fBini.traj_arc_blend_gap_cycles
-Permite el ajuste de \fB[TRAJ]ARC_OPTIMIZATION_DEPTH
+Allows adjustment of \fB[TRAJ]ARC_OPTIMIZATION_DEPTH
 .TP
 \fBini.traj_arc_blend_optimization_depth
-Permite el ajuste de \fB[TRAJ]ARC_BLEND_GAP_CYCLES
+Allows adjustment of \fB[TRAJ]ARC_BLEND_GAP_CYCLES
 .TP
 \fBini.traj_arc_blend_ramp_freq
-Permite el ajuste de \fB[TRAJ]ARC_BLEND_RAMP_FREQ
+Allows adjustment of \fB[TRAJ]ARC_BLEND_RAMP_FREQ
 
-.SH NOTAS
+.SH NOTES
 
-Los pines \fBinihal\fR no pueden vincularse o establecerse en un halfile que es
-especificado por un elemento inifile \fB[HAL]HALFILE\fR porque no se crean
-hasta que se inicie \fBmilltask\fR. Los valores de pines \fBinihal\fR pueden ser
-alterados por programas independientes de halcmd especificados por elementos
-\fB[APPLICATION]APP\fR o por GUIs que soportan un
+The \fBinihal\fR pins cannot be linked or set in a halfile that is
+specified by an inifile \fB[HAL]HALFILE\fR item because they are not created
+until \fBmilltask\fR is started.  The \fBinihal\fR pin values can be
+altered by independent halcmd programs specified by
+\fB[APPLICATION]APP\fR items or by GUIs that support a
 \fB[HAL]POSTGUI_HALFILE\fR.
 
-El archivo inifile no se actualiza automaticamente con los valores alterados por configuracionws de pines de
-\fBinihal\fR, pero se puede actualizar utilizando el programa de calibracion
-(emccalib.tcl) cuando se usa \fB[HAL]POSTGUI_HALFILE\fR.
+The inifile is not automatically updated with values altered by
+\fBinihal\fR pin settings  but can be updated using the calibration
+program (emccalib.tcl) when using a \fB[HAL]POSTGUI_HALFILE\fR.

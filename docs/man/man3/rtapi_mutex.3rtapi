@@ -1,9 +1,9 @@
-.TH rtapi_mutex "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_mutex "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_mutex \- Funciones relacionadas con Mutex
+rtapi_mutex \- Mutex-related functions
 
-.SH SINTAXIS
+.SH SYNTAX
 .B #include <rtapi_mutex.h>
 .sp
 .BI "int rtapi_mutex_try(unsigned long *" mutex ");"
@@ -12,27 +12,28 @@ rtapi_mutex \- Funciones relacionadas con Mutex
 .br
 .BI "int rtapi_mutex_give(unsigned long *" mutex ");"
 
-.SH ARGUMENTOS
-.IP \ fImutex\fR
-Un puntero al mutex.
+.SH  ARGUMENTS
+.IP \fImutex\fR
+A pointer to the mutex.
 
-.SH DESCRIPCIÓN
-\fBrtapi_mutex_try\fR realiza un intento sin bloqueo para obtener el mutex.
-Si el mutex está disponible, devuelve 0 y el mutex ya no está disponible.
-De lo contrario, devuelve un valor distinto de cero.
+.SH DESCRIPTION
+\fBrtapi_mutex_try\fR makes a non-blocking attempt to get the mutex.
+If the mutex is available, it returns 0, and the mutex is no longer available.
+Otherwise, it returns a nonzero value.
 
-\fBrtapi_mutex_get\fR bloquea hasta que el mutex esté disponible.
+\fBrtapi_mutex_get\fR blocks until the mutex is available.
 
-\fBrtapi_mutex_give\fR libera un mutex adquirido por \fBrtapi_mutex_try\fR o
+\fBrtapi_mutex_give\fR releases a mutex acquired by \fBrtapi_mutex_try\fR or
 \fBrtapi_mutex_get\fR.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-\fBrtapi_mutex_give\fR y \fBrtapi_mutex_try\fR pueden usarse en código inicio/limpieza, de usuario, y en tiempo real.
+.SH REALTIME CONSIDERATIONS
+\fBrtapi_mutex_give\fR and \fBrtapi_mutex_try\fR may be used from user,
+init/cleanup, and realtime code.
 
-\fBrtapi_mutex_get\fR no se puede usar desde el código en tiempo real.
+\fBrtapi_mutex_get\fR may not be used from realtime code.
 
-.SH VALOR DEVUELTO
-\fBrtapi_mutex_try\fR devuelve 0 si se reclamó el mutex y no cero
-en otro caso.
+.SH RETURN VALUE
+\fBrtapi_mutex_try\fR returns 0 for if the mutex was claimed, and nonzero
+otherwise.
 
-\fBrtapi_mutex_get\fR y \fBrtapi_mutex_gif\fR no tienen valor de retorno.
+\fBrtapi_mutex_get\fR and \fBrtapi_mutex_gif\fR have no return value.

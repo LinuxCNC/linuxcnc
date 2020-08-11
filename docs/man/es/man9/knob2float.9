@@ -1,0 +1,40 @@
+.TH KNOB2FLOAT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+knob2float \- Convert counts (probably from an encoder) to a float value
+.SH SYNOPSIS
+.HP
+.B loadrt knob2float [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBknob2float.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B knob2float.\fIN\fB.counts\fR s32 in \fR
+Counts
+.TP
+.B knob2float.\fIN\fB.enable\fR bit in \fR
+When TRUE, output is controlled by count, when FALSE, output is fixed
+.TP
+.B knob2float.\fIN\fB.scale\fR float in \fR
+Amount of output change per count
+.TP
+.B knob2float.\fIN\fB.out\fR float out \fR
+Output value
+.SH PARAMETERS
+.TP
+.B knob2float.\fIN\fB.max-out\fR float rw \fR(default: \fI1.0\fR)
+Maximum output value, further increases in count will be ignored
+.TP
+.B knob2float.\fIN\fB.min-out\fR float rw \fR(default: \fI0.0\fR)
+Minimum output value, further decreases in count will be ignored
+.SH LICENSE
+
+GPL

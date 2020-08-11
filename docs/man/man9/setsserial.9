@@ -1,36 +1,38 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
-.TH SETSERIAL "9" "2012-10-28" "Documentación LinuxCNC" "Componente HAL"
+.TH SETSERIAL "9" "2012-10-28" "LinuxCNC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
-.TP \\ $ 1
+.TP \\$1
 ..
 
-.SH NOMBRE
-setsserial - una utilidad para configurar los parámetros de Smart Serial NVRAM.
+.SH NAME
+setsserial - a utility for setting Smart Serial NVRAM parameters. 
 
-.B NOTA: esta utilidad bastante torpe ya no es necesaria, excepto para actualizar el nuevo firmware remoto smart-serial.
-Los parámetros remotos de smart-serial ahora se pueden configurar en el archivo HAL de la manera normal.
+.B NOTE: This rather clunky utility is no longer needed except for
+flashing new smart-serial remote firmware. Smart-serial remote
+parameters can now be set in the HAL file in the normal way.
 
-.SH SINOPSIS
+.SH SYNOPSIS
 .HP
 .B loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
-.SH FUNCIONES
+.SH FUNCTIONS
 .TP
-Ninguna
-.SH PINES
+None
+.SH PINS
 .TP
-Ninguna
-.SH USO
+None
+.SH USAGE
 
 loadrt setsserial cmd="{command} {parameter/device} {value/filename}"
 
-Los comandos disponibles son \fBset\fR y \fBflash\fR.
+Commands available are \fBset\fR and \fBflash\fR.
 
-Esta utilidad se debe usar en halcmd, sin LinuxCNC ejecutándose ni ejecutando hilos en tiempo real.
+This utility should be used under halcmd, without LinuxCNC running or any
+realtime threads running. 
 
-Una secuencia de comando típica sería:
+A typical command sequence would be:
 
  halrun
  loadrt hostmot2 use_serial_numbers=1
@@ -38,50 +40,73 @@ Una secuencia de comando típica sería:
  show param
  loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
  exit
+ 
+This example uses the option to have the hal pins and parameters labelled by 
+the serial number of the remote. This is not necessary but can reduce the scope
+for confusion. (The serial number is normally on a sticker on the device.) 
 
-Este ejemplo usa la opción de tener los pines y parámetros hal etiquetados con el número de serie del remoto. Esto no es necesario, pero puede reducir el margen de confusión. (El número de serie normalmente está en una etiqueta en el dispositivo).
+The next line loads the hm2_pci driver in the normal way. The hm2_7i43 driver
+should work equally well, as should any future 7i80 driver. 
+If the card has already been strted up and a firmware has been loaded, then 
+the config string may be omitted. 
 
-La siguiente línea carga el controlador hm2_pci de la manera normal. El controlador hm2_7i43 debería funcionar igual de bien, al igual que cualquier otro controlador 7i80 futuro.
-Si la tarjeta ya se ha instalado y se ha cargado un firmware, entonces se puede omitir la cadena de configuración.
+"show param" is optional, but provides a handy list of all the devices and 
+parameters. It also shows the current values of the parameters which can be 
+useful for determining scaling. u32 pin values are always shown in hex, but new
+values can be entered in decimal or hex. Use the Ox123ABC format to enter a hex
+value. 
 
-"show param" es opcional, pero proporciona una lista práctica de todos los dispositivos y parámetros. También muestra los valores actuales de los parámetros que pueden ser útiles para determinar la escala. Los valores de pin u32 siempre se muestran en hexadecimal, pero los valores nuevos se pueden ingresar en decimal o hexadecimal. Use el formato Ox123ABC para ingresar un valor hexadecimal.
+The next line invokes setsserial. This is run in a slightly strange way in order
+to have kernel-level access to a live Hostmot2 config. It is basically a 
+HAL module that always fails to load. This may lead to error messages being
+printed to the halcmd prompt. These can often be ignored. 
+All the real feedback is via the dmesg command. It is suggested to have a second
+terminal window open to run dmesg after each command. 
 
-La siguiente línea invoca setsserial. Esto se ejecuta de una manera un poco extraña para tener acceso a nivel de kernel a una configuración de Hostmot2 en vivo. Básicamente es un módulo HAL que siempre falla su carga. Esto puede provocar que se impriman mensajes de error en el indicador de halcmd. Estos a menudo pueden ser ignorados.
-Todos los comentarios reales son a través del comando dmesg. Se sugiere tener una segunda ventana de terminal abierta para ejecutar dmesg después de cada comando.
+On exiting there will typically be a further error message related to the driver
+failing to unload setsserial. This can be ignored.
 
-Al salir, normalmente habrá otro mensaje de error relacionado con la falla del controlador al descargar setsserial. Esto puede ser ignorado.
+The parameter changes will not show up until the drivers are reloaded.
+//TODO// Add a "get" command to avoid this problem. 
 
-Los cambios de parámetros no se mostrarán hasta que se vuelvan a cargar los controladores.
-//TODO// Agregar un comando "get" para evitar este problema.
+.B Flashing Firmware
+To flash new firmware to an FPGA card such as the 5i25 or 5i20 the "mesaflash" 
+utility should be used. Setsserial is only useful for changing/updating the
+firmare on smart-serial remote such as the 8i20. 
+The firmware should be placed somewhere in the /lib/firmware/hm2 tree, where the
+Linux firmware loading macros can find it. 
 
-.B Flasheo del Firmware
-Para actualizar el nuevo firmware a una tarjeta FPGA, como la 5i25 o 5i20, se debe utilizar la utilidad "mesaflash". setsserial solo es útil para cambiar/actualizar el firmare en un control remoto smart-serial como el 8i20.
-El firmware debe colocarse en algún lugar del árbol /lib/firmware/hm2, donde las macros de carga de firmware de Linux pueden encontrarlo.
+The flashing routine operates in a realtime thread, and can only send prompts
+to the user through the kernel log (dmesg). It is most convenient to open two
+terminal windows, one for command entry and one to monitor progress. 
 
-La rutina de flasheo opera en un hilo en tiempo real, y solo puede enviar mensajes al usuario a través del registro del núcleo (dmesg). Es más conveniente abrir dos ventanas de terminal, una para la entrada de comandos y otra para monitorear el progreso.
-
-En la primera terminal ingrese
+In the first terminal enter
 
 tail \-f /var/log/kern.log
 
-Este terminal ahora mostrará información de estado.
+This terminal will now display status information.
 
-La segunda ventana se usará para ingresar los comandos. Es importante que LinuxCNC y/o HAL no estén cargados cuando se inicia el proceso.
-Para actualizar el nuevo firmware es necesario mover un puente en la unidad remota smart-serial y cambiar la comunicación a una velocidad de transmisión más lenta.
+The second window will be used to enter the commands. It is important that
+LinuxCNC and/or HAL are not already loaded when the process is started.  
+To flash new firmware it is necessary to move a jumper on the smart-serial
+remote drive and to switch smart-serial communication to a slower baudrate.  
 
-Una secuencia de comando típica es entonces:
+A typical command sequence is then
  halrun
  loadrt hostmot2 sserial_baudrate=115200
  loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
  loadrt setsserial cmd="flash hm2_5i23.0.8i20.0.1 hm2/8i20/8i20T.BIN"
  exit
+ 
+It is not necessary (or useful) to specify a config string in a system using the
+5i25 or 6i25 cards. 
 
-No es necesario (o útil) especificar una cadena de configuración en un sistema usando las tarjetas 5i25 o 6i25.
+Note that it is necessary to exit halrun and unload the realtime environment
+before flashing the next card (exit)
 
-Tenga en cuenta que es necesario salir de Halrun y descargar el entorno en tiempo real antes de flashear la próxima tarjeta (exit)
+The correct sserial channel name to use can be seen in the dmesg output in the
+feedback terminal after the loadrt hm2_pci step of the sequence. 
 
-El nombre de canal sserial correcto para usar se puede ver en la salida dmesg en el terminal de retroalimentación después del paso loadrt hm2_pci de la secuencia.
-
-.SH LICENCIA
+.SH LICENSE
 
 GPL

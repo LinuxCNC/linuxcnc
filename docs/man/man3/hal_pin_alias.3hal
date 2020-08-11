@@ -1,32 +1,32 @@
-.TH hal_pin_alias "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
-.SH NOMBRE
+.TH hal_pin_alias "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
 
-hal_pin_alias \ - crea un nombre alternativo para un pin
+hal_pin_alias \- create an alternate name for a pin
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 int
 .BR hal_pin_alias "(const char *" original_name ", const char *" alias );
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIoriginal_name\fR
-El nombre original del pin.
+The original name of the pin
 
 .IP \fIalias\fR
-El nombre alternativo que puede usarse para referirse al pin, o NULL para eliminar
-cualquier nombre alternativo
+The alternate name that may be used to refer to the pin, or NULL to remove
+any alternate name.
 
-.SH DESCRIPCIÓN
-Un pin puede tener dos nombres: el nombre original (el que se pasó a una funcion
-\fBhal_pin_new\fR) y un alias.
+.SH DESCRIPTION
+A pin may have two names: the original name (the one that was passed to a
+\fBhal_pin_new\fR function) and an alias.
 
-Por lo general, los alias son para conveniencia de los usuarios y deben crearse
-y destruirse a través de halcmd. Sin embargo, en algunos casos es sensato crear
-alias directamente en un componente. Estos casos incluyen el caso donde un pin es
-renombrado, para preservar la compatibilidad con versiones anteriores.
+Usually, aliases are for the convenience of users and should be created
+and destroyed via halcmd.  However, in some cases it is sensible to create
+aliases directly in a component.  These cases include the case where a pin is
+renamed, to preserve compatibility with old versions.
 
-.SH VALOR DEVUELTO
-Devuelve un código de estado HAL.
+.SH RETURN VALUE
+Returns a HAL status code.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 .BR hal_param_alias (3)

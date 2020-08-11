@@ -1,9 +1,9 @@
-.TH rtapi_print "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_print "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_print, rtapi_print_msg \- imprimir mensajes de diagnóstico
+rtapi_print, rtapi_print_msg \- print diagnostic messages
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
 
@@ -16,40 +16,44 @@ typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\f
 void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
 .HP
 rtapi_msg_handler_t \fBrtapi_get_msg_handler\fR(void);
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIlevel\fR
-el nivel del mensaje: uno de \fBRTAPI_MSG_ERR\fR, \fBRTAPI_MSG_WARN\fR, \fBRTAPI_MSG_INFO\fR o \fBRTAPI_MSG_DBG\fR.
+A message level: One of \fBRTAPI_MSG_ERR\fR,
+\fBRTAPI_MSG_WARN\fR, \fBRTAPI_MSG_INFO\fR, or \fBRTAPI_MSG_DBG\fR.
 
 .IP \fIhandler\fR
-Una función para llamar desde \fBrtapi_print\fR o \fBrtapi_print_msg\fR para
-dar salida al mensaje.
+A function to call from \fBrtapi_print\fR or \fBrtapi_print_msg\fR to
+actually output the message.
 
 .IP \fIfmt,\ ...\fR
-Otros argumentos son para \fIrtapi_vsnprintf(3rtapi)\fR.
+Other arguments are as for \fIrtapi_vsnprintf(3rtapi)\fR.
 
-.SH DESCRIPCIÓN
-\fBrtapi_print\fR y \fBrtapi_print_msg\fR actuan como funciones printf de C estándar, excepto que son
-soportadas un conjunto reducido de operaciones de formateo . En particular, no se admite el formato de valores long long, y
-el formateo de valores de punto flotante tiene un comportamiento diferente al de printf estándar.
+.SH DESCRIPTION
+\fBrtapi_print\fR and \fBrtapi_print_msg\fR work like the standard C
+printf functions, except that a reduced set of formatting operations are
+supported.  Notably, formatting long-long values is not supported, and
+formatting floating-point values has different behavior than standard printf.
 
-Dependiendo del RTOS, el valor predeterminado puede ser imprimir el mensaje en stdout, stderr, un registro de kernel, etc. 
-En el código RTAPI, la acción puede ser cambiada por una llamada a \fBrtapi_set_msg_handler\fR. 
-Un argumento \fBNULL\fR para \fBrtapi_set_msg_handler\fR restaura el controlador predeterminado.
-\fBrtapi_msg_get_handler\fR devuelve el controlador actual. Cuando el mensaje vino de \fBrtapi_print\fR, \fIlevel\fR es RTAPI_MSG_ALL.
+Depending on the RTOS, the default may be to print the message to stdout,
+stderr, a kernel log, etc.   In RTAPI code, the action may be changed by
+a call to \fBrtapi_set_msg_handler\fR.  A \fBNULL\fR argument to
+\fBrtapi_set_msg_handler\fR restores the default handler.
+\fBrtapi_msg_get_handler\fR returns the current handler.  When the
+message came from \fBrtapi_print\fR, \fIlevel\fR is RTAPI_MSG_ALL.
 
-\fBrtapi_print_msg\fR funciona como \fRrtapi_print\fR pero solo imprime si
-\fIlevel\fR es menor o igual que el nivel de mensaje actual.
+\fBrtapi_print_msg\fR works like \fRrtapi_print\fR but only prints if
+\fIlevel\fR is less than or equal to the current message level.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-\fBrtapi_print\fR y \fBrtapi_print_msg\fR se pueden llamar desde código de usuario,
-init/cleanup y código en tiempo real. \fBrtapi_get_msg_handler\fR y
-\fBrtapi_set_msg_handler\fR se puede llamar desde init/cleanup en tiempo real. Un controlador de mensajes pasado 
-a \fBrtapi_set_msg_handler\fR solo puede llamar a funciones que se pueden llamar desde código en tiempo real.
+.SH REALTIME CONSIDERATIONS
+\fBrtapi_print\fR and \fBrtapi_print_msg\fR May be called from user,
+init/cleanup, and realtime code.  \fBrtapi_get_msg_handler\fR and
+\fBrtapi_set_msg_handler\fR may be called from realtime init/cleanup
+code.  A message handler passed to \fBrtapi_set_msg_handler\fR may only
+call functions that can be called from realtime code.
 
-.SH VALOR DEVUELTO
-Ninguno.
+.SH RETURN VALUE
+None.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_set_msg_level(3rtapi)\fR, \fBrtapi_get_msg_level(3rtapi)\fR,
 \fBrtapi_vsnprintf(3rtapi)\fR
-

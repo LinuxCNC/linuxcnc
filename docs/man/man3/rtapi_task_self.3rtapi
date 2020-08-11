@@ -1,21 +1,21 @@
-.TH rtapi_task_self "3rtapi" "18/04/2015" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_task_self "3rtapi" "2015-04-18" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_task_self \- Recuperar ID de la tarea actual
+rtapi_task_self \- Retrieve ID of current task
 
-.SH Sintaxis 
+.SH SYNTAX
 .HP
 void rtapi_task_self()
 
-.SH DESCRIPCIÓN
-\fBrtapi_task_self\fR recupera la tarea actual, o \-EINVAL si no está en una
-tarea en tiempo real (por ejemplo, en el código de inicio o apagado).
+.SH DESCRIPTION
+\fBrtapi_task_self\fR retrieves the current task, or \-EINVAL if not in a
+realtime task (e.g., in startup or shutdown code).
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede llamar desde el código de inicio/limpieza y desde dentro de las tareas en tiempo real.
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code, and from within realtime tasks.
 
-.SH VALOR DEVUELTO
-El número de tarea devuelto previamente por \fBrtapi_task_new\fR o \-EINVAL.
+.SH RETURN VALUE
+The task number previously returned by \fBrtapi_task_new\fR or \-EINVAL.
 
-.SH VER TAMBIÉN
-\fBrtapi_task_new (3rtapi)\fR
+.SH SEE ALSO
+\fBrtapi_task_new(3rtapi)\fR

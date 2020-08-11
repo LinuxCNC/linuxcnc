@@ -1,21 +1,21 @@
-.TH rtapi_task_wait "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_task_wait "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_task_wait \- suspender la ejecución de esta tarea periódica
+rtapi_task_wait \- suspend execution of this periodic task
 
-.SH Sintaxis 
+.SH SYNTAX
 .HP
 void rtapi_task_wait()
 
-.SH DESCRIPCIÓN
-\fBrtapi_task_wait\fR suspende la ejecución de la tarea actual hasta el próximo
-período. La tarea debe ser periódica. Si no, el resultado es indefinido.
+.SH DESCRIPTION
+\fBrtapi_task_wait\fR suspends execution of the current task until the next
+period.  The task must be periodic.  If not, the result is undefined.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Llame solo desde una tarea periódica en tiempo real
+.SH REALTIME CONSIDERATIONS
+Call only from within a periodic realtime task
 
-.SH VALOR DEVUELTO
-Ninguno
+.SH RETURN VALUE
+None
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_task_start(3rtapi)\fR, \fBrtapi_task_pause(3rtapi)\fR

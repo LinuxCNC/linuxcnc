@@ -19,21 +19,21 @@
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
-.TH PYVCP "1" "2007-04-01" "Documentación LinuxCNC" "El controlador de máquina mejorado"
-.SH NOMBRE
-pyvcp \- Panel de control virtual para LinuxCNC
-.SH SINOPSIS
+.TH PYVCP "1"  "2007-04-01" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+pyvcp \- Virtual Control Panel for LinuxCNC
+.SH SYNOPSIS
 \fBpyvcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fIcomponent\-name\fR] \fImyfile.xml\fR
-.SH OPCIONES
+.SH OPTIONS
 .TP
-\fB\-g\fR \fIWxH + X + Y\fR
-Esto establece la geometría inicial de la ventana raíz.
-Use 'WxH' solo para el tamaño, '+ X + Y' para solo la posición, o 'WxH + X + Y' para ambos.
-El tamaño/posición utiliza unidades de píxeles. Se hace referencia a la posición desde la parte superior izquierda.
+\fB\-g\fR \fIWxH+X+Y\fR
+This sets the initial geometry of the root window.
+Use 'WxH' for just size, '+X+Y' for just position, or 'WxH+X+Y' for both.
+Size / position use pixel units. Position is referenced from top left. 
 .TP
-\fB\-c\fR\fIcomponent-name\fR
-Use \fIcomponent-name\fR como el nombre del componente HAL. Si el nombre del componente no es
-especificado, se utiliza el nombre base del archivo xml. \fR
-.SH "VER TAMBIÉN"
-\fIPython Virtual Control Panel\fR en la documentación de LinuxCNC para obtener una descripción de
-sintaxis xml, junto con ejemplos
+\fB\-c\fR \fIcomponent-name\fR
+Use \fIcomponent-name\fR as the HAL component name.  If the component name is
+not specified, the basename of the xml file is used.\fR
+.SH "SEE ALSO"
+\fIPython Virtual Control Panel\fR in the LinuxCNC documentation for a description of the
+xml syntax, along with examples

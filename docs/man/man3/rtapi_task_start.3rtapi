@@ -1,25 +1,25 @@
-.TH rtapi_task_start "3rtapi" "12-10-2006" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_task_start "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_task_start \- inicia una tarea en tiempo real en modo periódico
+rtapi_task_start \- start a realtime task in periodic mode
 
-.SH Sintaxis 
+.SH SYNTAX
 .HP
 int rtapi_task_start(int \fItask_id\fR, unsigned long \fIperiod_nsec\fR)
-.SH ARGUMENTOS 
+.SH  ARGUMENTS
 .IP \fItask_id\fR
-Una ID de tarea devuelta por una llamada previa a \fBrtapi_task_new\fR
+A task ID returned by a previous call to \fBrtapi_task_new\fR
 .IP \fIperiod_nsec\fR
-El período de reloj en nanosegundos entre iteraciones de una tarea periódica.
-.SH DESCRIPCIÓN
-\fBrtapi_task_start\fR inicia una tarea en modo periódico. La tarea debe estar en el
- estado \fIpaused\fR.
+The clock period in nanoseconds between iterations of a periodic task
+.SH DESCRIPTION
+\fBrtapi_task_start\fR starts a task in periodic mode.  The task must be in the
+\fIpaused\fR state.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Llamar solo desde el código de inicio/limpieza, no desde tareas en tiempo real.
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.
 
-.SH VALOR DEVUELTO
-Devuelve un código de estado RTAPI.
+.SH RETURN VALUE
+Returns an RTAPI status code.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 \fBrtapi_task_new(3rtapi)\fR, \fBrtapi_task_pause(3rtapi)\fR, \fBrtapi_task_resume(3rtapi)

@@ -1,0 +1,39 @@
+.TH TOGGLE2NIST "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+toggle2nist \- toggle button to nist logic
+.SH SYNOPSIS
+.HP
+.B loadrt toggle2nist [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+toggle2nist can be used with a momentary push button connected to a
+toggle component to control a device that has separate on and off inputs
+and has an is-on output. 
+If in changes states via the toggle output
+  If is-on is true then on is false and off is true. 
+  If is-on is false the on true and off is false.
+
+.SH FUNCTIONS
+.TP
+\fBtoggle2nist.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B toggle2nist.\fIN\fB.in\fR bit in \fR
+.TQ
+.B toggle2nist.\fIN\fB.is-on\fR bit in \fR
+.TQ
+.B toggle2nist.\fIN\fB.on\fR bit out \fR
+.TQ
+.B toggle2nist.\fIN\fB.off\fR bit out \fR
+.SH LICENSE
+
+GPL

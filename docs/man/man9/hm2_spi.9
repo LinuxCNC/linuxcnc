@@ -18,70 +18,70 @@
 .\" You should have received a copy of the GNU General Public
 .\" License along with this manual; if not, write to the Free
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
-.\" USA.	
-.TH HM2_SPI "9" "2008-05-13" "Documentación LinuxCNC" "Componente HAL"
+.\" USA.
+.TH HM2_SPI "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
 .de TQ
 .br
 .ns
 .TP \\$1
 ..
 
-.SH NOMBRE
+.SH NAME
 
-hm2_spi\- Controlador HAL LinuxCNC para las tarjetas Mesa Electronics SPI Anything IO, con firmware HostMot2.
-.SH SINOPSIS
+hm2_spi \- LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
+.SH SYNOPSIS
 
 .HP
-.B loadrt hm2_spi [config = \fI "str [, str ...]" \fB] [spidev_path = ruta [, ruta ...] \fB] [spidev_rate = \fIrate [, rate ...] \fB ]
+.B loadrt hm2_spi [config=\fI"str[,str...]"\fB] [spidev_path=path[,path...]\fB] [spidev_rate=\fIrate[,rate...]\fB]
 .RS 4
 .TP
-\fBconfig\fR [predeterminado: ""]
-Cadenas de configuración de HostMot2, descritas en la página de manual de hostmot2 (9).
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the hostmot2(9) manpage.
 .TP
-\fBspidev_path\fR [predeterminado: "/dev/spidev1.0"]
-La ruta al nodo del dispositivo spi, un dispositivo especial de caracteres en / dev
+\fBspidev_path\fR [default: "/dev/spidev1.0"]
+The path to the spi device node, a character special device in /dev
 .TP
-\fBspidev_rate\fR [predeterminado: 24000]
-La velocidad deseada del reloj SPI en kHz. Si el reloj exacto especificado no es
-disponible, se usa un reloj inferior. Debido a las deficiencias en la API spidev, es
-Hal no puede informar el reloj real utilizado.
-.SH DESCRIPCIÓN
+\fBspidev_rate\fR [default: 24000]
+The desired rate of the SPI clock in kHz.  If the exact specified clock is not
+available, a lower clock is used.  Due to shortcomings in the spidev API, it is
+not possible for hal to report the actual clock used.
+.SH DESCRIPTION
 
-hm2_spi es un controlador de dispositivo que interactúa con el SPI de Mesa
-Basó cualquier tarjeta de E / S (con el firmware HostMot2) en LinuxCNC
-HAL
+hm2_spi is a device driver that interfaces Mesa's SPI
+based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
+HAL.
 
-Las tarjetas compatibles son: 7I90HD.
+The supported boards are: 7I90HD.
 
-La tarjeta debe tener un firmware compatible cargado en la tarjeta por el
-programa mesaflash (1).
+The board must have a compatible firmware loaded on the board by the
+mesaflash(1) program.
 
-hm2_spi solo está disponible cuando linuxcnc está configurado con "uspace" en tiempo real.
+hm2_spi is only available when linuxcnc is configured with "uspace" realtime.
 
-.SH CONFIGURACIÓN DE INTERFAZ
+.SH INTERFACE CONFIGURATION
 
-Es posible que un bus SPI conecte varios dispositivos; en esto
-configuración, un dispositivo maestro tiene varias líneas de selección de chip. Con el fin de satisfacer
-fechas límite en tiempo real, hm2_spi debe usarse en una interfaz SPI dedicada, no
-compartido con otros esclavos.
+It is possible for one SPI bus to connect several devices; in this
+configuration, a master device has several chip select lines.  In order to meet
+realtime deadlines,  hm2_spi should be used on a dedicated SPI interface not
+shared with any other slaves.
 
-.SH RENDIMIENTO EN TIEMPO REAL DE LOS CONDUCTORES LINUX SPIDEV
+.SH REALTIME PERFORMANCE OF LINUX SPIDEV DRIVERS
 
-A partir del kernel 3.8, la mayoría o todos los controladores SPI del kernel no alcanzan el alto
-tasa de respuesta en tiempo real requerida para una configuración típica de linuxcnc. los
-el controlador se probó con una versión modificada del controlador spi\-s3c64xx SPI en el
-Plataforma Odroid U3. El núcleo parcheado reside
+As of kernel 3.8, most or all kernel SPI drivers do not achieve the high
+realtime response rate required for a typical linuxcnc configuration.  The
+driver was tested with a modified version of the spi\-s3c64xx SPI driver on the
+Odroid U3 platform.  The patched kernel resides
 .UR https://github.com/jepler/odroid\-linux/tree/odroid\-3.8.13\-rt
-en github
-.UE.
+on github
+.UE .
 
-.SH TARIFAS DE RELOJ SPI
-El reloj SPI máximo del 7i90 está documentado como 50MHz. Otros elementos de
-La ruta de datos entre HAL y el 7i90 puede imponer otras limitaciones.
+.SH SPI CLOCK RATES
+The maximum SPI clock of the 7i90 is documented as 50MHz.  Other elements of
+the data path between HAL and the 7i90 may impose other limitations.
 
-.SH VER TAMBIÉN
+.SH SEE ALSO
 
-hostmot2 (9)
-.SH LICENCIA
+hostmot2(9)
+.SH LICENSE
 
 GPL

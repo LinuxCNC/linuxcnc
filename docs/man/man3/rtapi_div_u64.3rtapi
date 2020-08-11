@@ -13,12 +13,12 @@
 \" You should have received a copy of the GNU General Public License
 \" along with this program; if not, write to the Free Software
 \" Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-.TH rtapi_div_u64 "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
-.SH NOMBRE
+.TH rtapi_div_u64 "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
 
-rtapi_div_u64 \- división sin signo de un número de 64 bits por un número de 32 bits
+rtapi_div_u64 \- unsigned division of a 64-bit number by a 32-bit number
 
-.SH SINTAXIS
+.SH SYNTAX
 .HP
 __u64 rtapi_div_u64_rem(__u64 \fIdividend\fR, __u32 \fIdivisor\fR, __u32 *\fIremainder\fR)
 .HP
@@ -28,29 +28,30 @@ __s64 rtapi_div_s64(__s64 \fIdividend\fR, __s32 \fIdivisor\fR)
 .HP
 __s64 rtapi_div_s64_rem(__s64 \fIdividend\fR, __s32 \fIdivisor\fR, __s32 *\fIremainder\fR)
 
-.SH ARGUMENTOS
+.SH  ARGUMENTS
 .IP \fIdividend\fR
-El valor a dividir
+The value to be divided
 .IP \fIdivisor\fR
-El valor entre el que dividir
+The value to divide by
 .IP \fIremainder\fR
-Puntero a la ubicación para almacenar el resto. Esto no puede ser un puntero NULL.
-Si no desea el resto, llame a \fBrtapi_div_u64\fR o \fBrtapi_div_s64\fR.
+Pointer to the location to store the remainder.  This may not be a NULL
+pointer.  If the remainder is not desired, call \fBrtapi_div_u64\fR or
+\fBrtapi_div_s64\fR.
 
-.SH DESCRIPCIÓN
-Realiza la división de enteros (y opcionalmente calcula el resto) con un dividendo de 64 bits y un divisor de 32 bits.
+.SH DESCRIPTION
+Perform integer division (and optionally compute the remainder) with a 64-bit dividend and 32-bit divisor.
 
-.SH VALOR DEVUELTO
-El resultado de la división entera de \fIdividendo / divisor\fR. En versiones con el argumento \fIremainder\fR, el resto se almacena en la ubicación señalada.
+.SH RETURN VALUE
+The result of integer division of \fIdividend / divisor\fR.  In versions with the \fIremainder\fR argument, the remainder is stored in the pointed-to location.
 
-.SH NOTAS
-Si el resultado de la división no cabe en el tipo de retorno, el resultado es
-indefinido
+.SH NOTES
+If the result of the division does not fit in the return type, the result is
+undefined.
 
-Esta función existe porque en el espacio del núcleo el uso del operador de división
-en un tipo de 64 bits puede conducir a un símbolo indefinido como __umoddi3 cuando el módulo es cargado.
+This function exists because in kernel space the use of the division operator
+on a 64-bit type can lead to an undefined symbol such as __umoddi3 when the
+module is loaded.
 
-.SH CONSIDERACIONES EN TIEMPO REAL
-Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real. Disponible en componentes de espacio de usuario.
-
-
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Available in userspace components.
