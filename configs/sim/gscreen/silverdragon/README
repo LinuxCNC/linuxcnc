@@ -1,6 +1,6 @@
-Esta es una pantalla de operador basada en gscreen para enrutadores/fresadoras.
-Fue diseñado por un usuario, Jim (persei8 en el foro) para su enrutador personal y cedido al
-proyecto linuxcnc.
+This is a gscreen based operator screen for router/mills.
+This was designed by a user, Jim (persei8 on the forum) for his personal router and given back to 
+the linuxcnc project.
 
-Este es un ejemplo de máquina simulada: será necesaria alguna adaptación de los archivos.
+This is a simulated machine example - some adaption of files wil be required.
 

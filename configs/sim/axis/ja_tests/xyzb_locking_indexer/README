@@ -1,31 +1,27 @@
-El directorio TEMPORAL xyzb contiene ejemplos ini de xyzb simplificados 
-e independientes para testear:
+The TEMPORARY xyzb directory contains standalone, simplified xyzb ini examples
+to test:
 
-  a) jogging con volante para las configuraciones de cinematica 
-     IDENTITY donde los pines hal para jogging de articulaciones 
-     y ejes están conectados entre sí.
-  b) letras de eje omitidas
-  c) letras de eje duplicadas (ref: algunas configuraciones de 
-     pórtico)
-  d) indexador con bloqueo en AXIS_B (el número de articulacion 
-     depende de la configuración)
-  e) establecer automáticamente el modo teleop después de homing
+  a) wheel jogging for IDENTITY kins configs where the hal pins
+     for joints and axes jogging  are connected together
+  b) omitted axis letters
+  c) duplicated axis letters (ref: some gantry configs do this)
+  d) locking indexer on AXIS_B (the joint number depends on the configuration
+  e) automatically set mode to teleop after homing
 
-Las configuraciones inician aplicaciones adicionales:
- 1) Gui sim_pin para demostrar jogging de volante para 
-    articulaciones y ejes
-     Señal j:x es jog-count para el eje X y articulación 0
-     Señal j:y es jog-count para eje Y y articulación 1
-     Señal j:z es jog-count para el eje Z y articulación 2
-     Señal j:b es jog-count para el eje b y la articulación 3
- 2) aplicación halshow para mostrar los pines hal relevantes
+The configs start additional applications:
+ 1) sim_pin gui to demonstrate wheel jogging for joints and axes
+     Signal j:x is jog-counts for  axis x AND joint 0
+     Signal j:y is jog-counts for  axis y AND joint 1
+     Signal j:z is jog-counts for  axis z AND joint 2
+     Signal j:b is jog-counts for  axis b AND joint 3
+ 2) halshow app to show relevant hal pins
 
-xyzb.ini	Trivkins con letra de eje omitido (a)
-xyyzb.ini	Trivkins con letra de eje omitido (a)
-                               y letra de eje duplicado (y)
-                               y teleop auto después de homing
+xyzb.ini   trivkins with ommitted axis letter (a)
+xyyzb.ini  trivkins with ommitted axis letter (a)
+                                   and  duplicated axis letter (y)
+                                   and  auto teleop after homing
 
-xyyzb.ini usa la opción kinstype de trivkins
-para establecer el tipo de cinemática en KINEMATICS_BOTH 
-para demostrar jogging y teleop jogging.
+The xyyzb.ini uses the trivkins kinstype option
+to set the kinematics type to KINEMATICS_BOTH to demonstrate
+jogging and teleop jogging.
 

@@ -1,17 +1,18 @@
-Esta es una simulación de un torno de 2 husillos para demostrar el parche de husillo múltiple.
+This is a simulation of a 2-spindle lathe to demonstrate the multispindle patch.
 
-Se admiten hasta 8 cabezales, establecidos por [TRAJ]SPINDLES en el INI y un
-modparam num_spindles en motmod. Estos _deben_ estár de acuerdo entre sí.
+up to 8 spindles are supported, set by [TRAJ]SPINDLES in the INI and a
+num_spindles modparam to motmod. These _must_ agree with each other.
 
-La mayoría de los comandos relacionados con el husillo tienen ahora una palabra "$" adicional para decir
-a qué husillo aplicarlos.
+Most spindle-related commands now take an extra "$" word to say which spindle
+to apply them to.
 
-Ejemplos
+Examples
 
-S1000 $1: ajuste la velocidad del husillo 1 a 1000
-M3 S100 $0: ajuste la velocidad del husillo 0 a 100
+S1000 $1 - set the speed of spindle 1 to 1000
+M3 S100 $0 - set the speed of spindle 0 to 100
 
-G33 X10 K1.5 $1 - realizar un movimiento sincronizado con el husillo 1.
-G33.2 Z-1 K1 $0 - roscado rígido sincronizado con el husillo 0.
+G33 X10 K1.5 $1 - make a move synchronised to spindle 1.
+G33.2 Z-1 K1 $0 - rigid tap synchronised to spindle 0.
 
-M51 P0 $6 - deshabilitar la anulación de velocidad en el husillo 6. M48 y M49 funcionan en todos los husillos.
+M51 P0 $6 - disable speed override on spindle 6. M48 and M49 operate on all.
+

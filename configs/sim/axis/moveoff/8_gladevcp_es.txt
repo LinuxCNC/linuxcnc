@@ -1,0 +1,38 @@
+Demo Moveoff - controles externos con panel gladevcp
+                La pantalla moveoff_gui está deshabilitada
+-------------------------------------------------- -
+Opciones de Moveoff_gui:
+(Nota: moveoff_gui se usa en el modo -no_display)
+
+  onpause - compensa cuando el programa está en pausa
+  external - controles externos en panel de pyvcp
+
+Componente Moveoff instalado y conectado usando:
+
+  [HAL]HALFILE = LIB:hookup_moveoff.tcl
+
+Para información adicional:
+
+   man moveoff ------ componente de movimiento
+   man moveoff_gui --- GUI de muestra de moveoff
+
+-------------------------------------------------- -
+Uso de demostración:
+ 1) Inicie linuxcnc usando la configuración 8_gladevcp.
+ 2) <F1> (eliminar ESTOP)
+ 3) <F2> (enciende la máquina)
+ 4) <HOME> (home todos los ejes)
+ 5) <R> (Ejecuta el programa)
+ 6) <P> (Pausa el programa)
+ 7) Configure halscope en modo ROLL y luego habilite las compensaciones
+    con el botón Habilitar compensaciones.
+ 8) Cambie los controles deslizantes de desplazamiento x, y, z y observe
+    en halscope
+ 9) Desmarque el botón Habilitar compensaciones para eliminar
+    compensa y permite la reanudación del programa.
+10) Repita los pasos 6) a 9) pero modifique el punto de referencia
+    retroceder con el botón Habilitar retroceso.
+
+-------------------------------------------------- -
+Las instrucciones se proporcionan en el archivo moveoff_display_8.inc
+para probar con la gui gscreen.

@@ -1,27 +1,26 @@
-Muestra como pueden redefinirse los códigos  T, M6, M61, S, F y opcionalmente su comportamiento en el procedimiento de remapeo.
+This shows how the builtin T,M6,M61,S,F codes can be redefined, optionally by referring to the builtin behaviour in the remap procedure.
 
-La colección de prólogos y epílogos en python-stdglue pretende ser un conjunto repetitivo de pegamento Python que cubre la mayoría de los casos de uso. Normalmente no debería necesitar tocar ninguno de estos.
+The collection of prologs and epilogs in python-stdglue is intended to be a boilerplate set of Python glue which covers most use cases. Normally you shouldnt need to touch any of these.
 
-Las rutinas de reasignación ngc en nc_subroutines se han configurado para:
+The ngc remap routines in nc_subroutines have been set up to:
 
-mostrar los 'parámetros expuestos' con una declaración de depuración
+show the 'exposed parameters' with a debug statement
 
-consultar los códigos incorporados dentro del procedimiento de reasignación, de modo que el efecto de ejecución sea el mismo que no reasignar ese código (es decir, el resultado de la reasignación es idempotente)
+refer to the builtin codes within the remap procedure, such that execution effect is the same as not remapping that code (i.e. the remap result is idempotent)
 
-trabajar con los prólogos y epílogos de stdglue
+to work with the stdglue prologs and epilogs
 
-Los 'parámetros expuestos' son variables locales en el procedimiento de reasignación que pueden leerse y modificarse; el epílogo recogerá cualquier cambio y lo utilizará para confirmar el resultado
+'exposed parameters' are local variables in the remap procedure which can be read, and changed - any changes will be picked up by the epilog and used to commit the result
 
 
-Tenga en cuenta que el uso de M61 requiere iocontrol-v2 ya que el soporte de número de herramienta establecido en iocontrol está roto.
+Note that using M61 requires iocontrol-v2 as set tool number support in iocontrol is broken.
 
-actualizacion:
+update:
 
-Añadidas reasignaciones y extensión de M0, M1, M60 .
-Ver también hilo:
+Remapping and extending of M0,M1,M60 added.
+See also thread:
   http://linuxcnc.org/index.php/english/component/kunena/?func=view&catid=38&id=17637&limit=6#17637
 
 -mah
-
 
 

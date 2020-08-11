@@ -1,1 +1,1 @@
-Configuración para el conjunto de placas PPMC de Pico Systems. Esta configuración incluye conexiones de movimiento y un conjunto de IO para manejar Estop dentro de HAL. La configuración de IO en ppmc_io.hal SÍ incluye conexiones de señal para algún manejo de señal similar a bridgeportio.
+A configuration for the PPMC board set from Pico systems.  This configuration includes motion connections and an IO set for handling estop within HAL.  The IO configuration in ppmc_io.hal DOES include signal connections for some bridgeportio like signal handling.

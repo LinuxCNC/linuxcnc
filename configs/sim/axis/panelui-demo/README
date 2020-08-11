@@ -1,30 +1,31 @@
-Esta es una configuración simulada para demostrar el componente panelui.
+This is a simulated configuration to demonstrate the panelui component.
 
-Este ejemplo muestra:
-jogging rápido, selección de eje en MPG, selección de velocidad de jog en MPG y botones de control del husillo.
-Los botones del husillo lo encenderán en la dirección deseada (si está apagado) o si ya está encendido,
-aumentarán o disminuirán la velocidad.
-cambiando el archivo panelui.ini se pueden cambiar los efectos de los botones.
+This example shows:
+rapid jogging, MPG axis selection, MPG jog rate selection and spindle control buttons.
+The spindle on buttons will turn the spindle on in the desired direction (if off) or if already on,
+will increase or decrease the speed.
+by changing the panelui.ini file one can change the effects of the buttons.
 
-Panelui permite al integrador conectar un panel de operador, ya sea en software o hardware, a un
-sistema solo-HAL o linuxcnc completo.
+Panelui allows an integrator to connect an operator panel, whether in software or hardware to a
+ HAL only or full linuxcnc systems.
 
-Permite diferentes estilos de botones que incluyen:
+It allows different styles of buttons including:
 
-momentáneo
-    -La salida verdadera o el comando 'true' solo se da cuando se presiona y se mantiene
-    -La salida falsa o el comando 'false' solo se dan cuando se liberan
-palanca
-    -La salida verdadera o el comando 'true' solo se da en la primera posicion
-    -La salida falsa o el comando 'false' solo se dan en la segunda posicion
+momentary
+    -true output or 'true' command is only given when pushed and held
+    -False output or 'false' command is only given when released
+toggle
+    -true output or 'true' command is only given on first push
+    -False output or 'false' command is only given on second push
 radio
-    -cada botón puede tener su propio conjunto de pines/comandos similares a los botones de palanca
-    -tiene una asociación de grupo con sus propios pines/comandos que cambian dependiendo de qué
-       botón del grupo está activo.
+    -each button can have its own set of pins/commands similar to toggle buttons
+    -has a group association with it's own pins/commands that changes depending on which
+        button in the group is active.
 
-Hay varios comandos incorporados disponibles, que permiten presionar un botón para controlar linuxcnc,
-tales como control de husillo, máquina encendida, comandos MDI arbitrarios, etc.
+There are a number of built in commands available, that allow a button press to control linuxcnc.
+such as spindle control, machine on, arbrtrary MDI commands etc.
 
-Al agregar un archivo de controlador escrito en python, se podrían agregar comandos arbitrarios o modificar los existentes.
+By adding a handler file written in python, one could add any arbitrary commands or modify the existing ones.
 
-Panelui se configura utilizando un archivo de texto de estilo INI que se colocaría en la carpeta de configuración.
+Panelui is configured using an INI style text file that would be placed in the config folder.
+

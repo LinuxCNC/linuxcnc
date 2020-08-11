@@ -1,13 +1,12 @@
-Configuración de Gecko_540B3 para una máquina de 3 ejes XYZ.
+Gecko_540B3 configuration for a 3 axis machine with X Y Z axes.
 
-Para utilizar la bomba de carga en un G540, su período base debe establecerse en 50.000 o menos. De lo contrario, desactive la función de bomba de carga.
+To use the charge pump on a G540 your base period must be set to 50,000 or lower. Otherwise disable the charge pump feature.
 
-Se incluye el archivo XML del Asistente de Stepconf para que pueda abrirlo y personalizar la configuración para que se adapte a su máquina. Después de instalar esta configuración, mueva el archivo Gecko_540B3.stepconf al directorio de configuraciones, luego ejecute el Asistente de Stepconf y seleccione Modificar una configuración ya creada con este programa.
+The Stepconf Wizard XML file is included so you can open it up and customize the configuration to suit your machine. After installing this configuration move the Gecko_540B3.stepconf file to the configs directory, then run the Stepconf Wizard and select Modify a configuration already created with this program.
 
-Ejecute la prueba de latencia para determinar su jitter máximo y úselo en el Asistente Stepconf.
+Run the latency test to determine your max jitter and enter that in the Stepconf Wizard.
 
-Establezca los límites de los ejes y las relaciones para cada uno.
+Set the axis limits, gearing for each axis.
 
-Personalice según sea necesario para adaptarse a su máquina.
-
+Customize as needed to suit your machine.
 

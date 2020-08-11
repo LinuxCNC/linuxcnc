@@ -1,47 +1,48 @@
-Demo Moveoff - retracción fija en un solo eje (Z)
+Moveoff demo -- fixed retract on single axis (Z)
 
 Demo:
-  1) Inicie linuxcnc usando la configuración 6_zretract
-  2) Un panel pyvpcp incluye un botón de verificación
-     para habilitar offsets fijos en pausa del programa.
-  3) Iniciar programa
-  4) Pausa de programa
-  5) Una pantalla moveoff_gui (sin controles)
-     aparece mostrando el offset Z actual. Si el
-     botón de verificación se configuró para habilitar offsets,
-     se aplicarán de inmediato. Si el
-     el botón de verificación no se configuró, habilite el botón de verificación
-     para aplicar el offset.
-  6) Cambie el botón de verificación a APAGADO para
-     eliminar el offset fijo y reanude el programa.
-  7) El offset fijo se eliminará después de
-     un retraso para permitir la reactivación del husillo.
-     Normalmente, el husillo estaría
-     apagado durante la duración del pin aplicado mv.offset.
-     El retraso permite que el husillo se reanude
-     a su velocidad.
-  8) Cambie el interruptor sim_pin external_enable a
-     1 (ON) para permitir offsets en la siguiente pausa
-     de programa - o déjelo apagado para requerir su
-     activación en la próxima pausa del programa.
+  1) Start linuxcnc using the 6_zretract config
+  2) A pyvpcp panel includes a checkbutton
+     to enable fixed offsets on program
+     pause.
+  3) Start program
+  4) Pause program
+  5) A moveoff_gui display (with no controls) will
+     appear showing the current Z offset.  If the
+     checkbtton was set to enable offsets, the
+     offset will be applied immediately.  If the
+     checkbutton was not set, enable the checkbutton
+     to apply the offset.
+  6) Toggle the checkbutton to OFF to
+     remove the fixed offset and resume the program.
+  7) The fixed offset will be removed after
+     a delay to allow for spindle reactivation.
+     Typically, the spindle would be gated
+     off for the duration the mv.offset-applied pin.
+     The delay allows time for the spindle to resume
+     speed.
+  8) Toggle the sim_pin external_enable switch to
+     1 (ON) to allow offsetting at the next program
+     pause -- or leave it OFF to require its
+     activation on the next program pause.
 
-El archivo ini establece:
-  1) cantidad compensada y su velocidad y aceleración
-  2) estado de la señal de habilitación externa en la parada
-  3) intervalo de demora de autoresume
-  4) ubicación y tamaño de la pantalla moveoff_gui
+The ini file sets:
+  1) offset amount and its velocity and acceleration
+  2) state of the external-enable signal at starup
+  3) autoresume delay interval
+  4) location and size of the moveoff_gui display
 
--------------------------------------------------- -
-Opciones de Moveoff_gui:
+----------------------------------------------------
+Moveoff_gui options:
 
-  onpause - compensa cuando el programa está en pausa
-  local - controles locales
+  onpause  -- offsets when program paused
+  local    -- local controls
 
-Componente Moveoff instalado y conectado usando:
+Moveoff component installed and connected using:
 
   [HAL]HALFILE = LIB:hookup_moveoff.tcl
 
-Para información adicional:
+For additional info:
 
-   man moveoff ------ componente de movimiento
-   man moveoff_gui --- GUI de muestra de moveoff    
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui       

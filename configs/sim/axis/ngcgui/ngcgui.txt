@@ -1,1 +1,1 @@
-ngcgui -- ejemplo completo
+ngcgui -- comprehensive example

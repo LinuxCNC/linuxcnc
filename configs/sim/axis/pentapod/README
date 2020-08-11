@@ -1,25 +1,25 @@
-La configuración de la máquina de pentápodos es un conjunto de archivos que conforman un pentápodo LinuxCNC básico.
+The pentapod machine configuration is a set of files that makes up a basic LinuxCNC pentapod.
 
-Encienda la máquina, active la parada de emergencia y la alimentación de la máquina, presione el botón Home Todo, cambie al modo mundial ($) y podrá mover el efector en coordenadas mundiales.
+Start the machine, toggle E-Stop and Machine power, press Home all button, switch to world mode ($) and you can move the effector in world coordinates.
 
 
 pentapod.ini
 ---------------
-Archivo de configuración para un pentápodo general.
-Si cambia la ubicación de HOME en TRAJ, asegúrese de cambiar también las ubicaciones HOME apropiadas de los EJES, y asegúrese de que la posición coincida (cuando se ejecuta a través de la cinemática).
+Config file for a general pentapod.
+If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
 
 kinematics.hal
 --------------
-Define las coordenadas de las articulaciones base y efectoras.
+Defines base and effector joints coordinates.
 
 basic_sim.tcl
 --------------
-Define articulaciones simuladas, no hay hardware real conectado en esta configuración.
+Defines simulated joints, no real hardware attached in this config.
 
 panel.xml
 ---------
-Agrega un panel PyVCP.
+Adds PyVCP panel.
 
 pentapod_postgui.hal
 ------------------
-Agrega valores de articulaciones y número de iteraciones al panel PyVCP.
+Adds joints values and iterations number to PyVCP panel.

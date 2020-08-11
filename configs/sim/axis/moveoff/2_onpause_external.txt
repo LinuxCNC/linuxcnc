@@ -1,19 +1,19 @@
-Demo Moveoff
+Moveoff demo
 
-Opciones de Moveoff_gui:
+Moveoff_gui options:
 
-  onpause - offsets cuando el programa está en pausa
-  externo - controles externos (simulados)
+  onpause  -- offsets when program paused
+  external -- external controls (simulated)
 
-Componente Moveoff instalado y conectado usando:
+Moveoff component installed and connected using:
 
   [HAL]HALFILE = LIB:hookup_moveoff.tcl
 
-Controles externos habilitados con conexiones en:
+External controls enabled with connections in:
 
   [HAL]HALFILE = LIB:moveoff_external.hal
 
-Controles externos simulados con sim_pin:
+External controls simulated with sim_pin:
 
   external_enable
   external_backtrack_en
@@ -21,26 +21,26 @@ Controles externos simulados con sim_pin:
   external_offset_1
   external_offset_2
 
-Para obtener información adicional, consulte las páginas de manual:
+For additional info, see the manpages:
 
-   man sim_pin ------- utilidad para configurar pines
-   man moveoff ------- componente de movimiento
-   man moveoff_gui --- GUI de muestra de moveoff
+   man sim_pin  ------ utility for setting pins
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui
 
--------------------------------------------------- -
-Uso de demostración:
- 1) Inicie linuxcnc usando la configuración 2_onpause_external.
-    (configure todos los botones sim_pin en el modo Alternar):
- 2) Establezca halscope en modo ROLL
- 3) <F1> (ESTOP off)
- 4) <F2> (máquina on)
- 5) <HOME> (home todos los ejes)
- 6) <R> (Ejecuta el programa)
- 7) <P> (Pausar el programa)
- 8) Habilite offsets con el botón external_enable
- 9) Cambia los offsets x, y, z (exernal_offset_0,1,2)
-    y observar en halscope
-10) Elimine offset con el botón external_enable
-    y permita la reanudación del programa.
-11) Repita los pasos 6) a 9) pero modifique el punto de referencia
-    retroceder con el botón external_backtrack_en.
+----------------------------------------------------
+Demo usage:
+ 1) Start linuxcnc using the 2_onpause_external config.
+    (set all sim_pin buttons to Toggle mode):
+ 2) Set halscope to ROLL mode
+ 3) <F1>   (remove ESTOP)
+ 4) <F2>   (turn on machine)
+ 5) <HOME> (home all axes)
+ 6) <R>    (Run the program)
+ 7) <P>    (Pause the program)
+ 8) Enable offsets with the external_enable button
+ 9) Change the x,y,z offsets (exernal_offset_0,1,2)
+    and observe on halscope
+10) Remove offsets with the external_enable button
+    and allow program resumption.
+11) Repeat steps 6) thru 9) but alter waypoint
+    backtracking with the external_backtrack_en button.

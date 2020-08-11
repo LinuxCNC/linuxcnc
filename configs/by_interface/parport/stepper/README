@@ -1,28 +1,28 @@
-Esta configuración está destinada a máquinas "paso a paso" básicas.
-Puede tener un conexionado estándar (estilo LinuxCNC) o un conexionado xylotex, incluyendo uno de los dos archivos .hal. Podrá hacer uno nuevo que se adapte a su propio cableado personalizado.
+This configuration step is intended for basic stepper machines.
+You can have either standard pinout (LinuxCNC style) or xylotex pinout, by including either one of those 2 .hal files. Certainly you could make a new one which would suit your own custom cabling.
 
-Hay 3 archivos ini. Uno es para configuraciones en pulgadas (stepper_in.ini) y otro para configuraciones métricas (stepper_mm.ini). Además, hay uno (sim_inch.ini) que no envia pasos al puerto paralelo sino al altavoz del PC. De esa manera puede "escuchar" si está funcionando bien.
+There are 3 ini files, one for inch setups (stepper_in.ini) and one for metric setups (stepper_mm.ini). Additionally there is one (sim_inch.ini) which doesn't output steps to the parport but to the PC speaker. That way you can "hear" if it's running OK.
 
-Descripción detallada:
+Detailed description:
 
-* archivos ini
+* ini files
 
-- stepper_inch.ini - configuración para máquina paso a paso en pulgadas.
+-- stepper_inch.ini - inch setup for a stepper machine
 
-- stepper_mm.ini - configuración para máquina paso a paso métrica.
+-- stepper_mm.ini - metric setup for a stepper machine
 
-- sim_inch.ini - configuración en pulgadas con pasos dirigidos al altavoz del PC en lugar de a un puerto paralelo.
+-- sim_inch.ini - inch setup with steps routed to the PC speaker instead of parport
 
-* archivos nml
+* nml files
 
-- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
+-- it uses a default nml file (found in configs/common/linuxcnc.nml)
 
-* archivos hal
+* hal files
 
-- utiliza un archivo hal para pasos predeterminado (configs/common/core_stepper.hal)
+-- it uses a default stepper hal file (configs/common/core_stepper.hal)
 
-- standard_pinout.hal - incluir en el ini para obtener un conexionado estándar.
+-- standard_pinout.hal - include this from the ini to get you a standard pinout
 
-- xylotex_pinout.hal: incluir en el ini para obtener un conexionado xylotex (por ejemplo, step/dir invertido)
+-- xylotex_pinout.hal -  include this from the ini to get you a xylotex pinout (e.g. step/dir are inverted)
 
-- sim_pinout.hal - incluir en su ini para llevar las señales step/dir al altavoz del PC, no al puerto paralelo.
+-- sim_pinout.hal - include this in your ini to route step/dir signals to the PC speaker not parport

@@ -1,11 +1,10 @@
-Este ejemplo de un cambiador de herramientas rack intenta una transliteración del parche de cambiador de herramientas de micges.
+This example of a racktoolchanger attempts a transliteration of micges racktoolchanger patch.
 
-Esto supone un número de herramienta == número de ranura; el número de bolsillo en tool.tbl se ignora actualmente.
+This assumes tool number == pocket number; the pocket number in the tool.tbl is currently ignored.
 
-Ver http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?RackToolChanger.
+See http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?RackToolChanger .
 
 NB:
 
-No entiendo completamente el significado de los pines involucrados, dwell y los movimientos.
-Esto NO ha sido probado en una máquina real. Úselo como punto de partida para su propia experimentación.
+I dont fully understand the meanings of the pins involved, and the dwell and moves.  This has NOT been tested on a real machine. Use as starting point for your own experimentation.
 

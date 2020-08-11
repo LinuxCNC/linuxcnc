@@ -1,15 +1,15 @@
-Gscreen es una pantalla de operador personalizable para LinuxCNC.
-Construido con python, GLADE, y GTK
+Gscreen is a customizable operator screen for LinuxCNC.
+Built with python, GLADE, and GTK
 
-Utilizable con pantallas táctiles o un mouse.
-Estos .ini muestran el aspecto nativo de Gscreen.
+Usable with touchscreens or a mouse.
+These show the native look of Gscreen.
 
 gscreen.ini
-   -Pantalla de fresado imperial,
-   -incluye paneles opcionales de gladevcp
+  -Imperial milling screen,
+  -includes optionnal gladevcp panels
 
 gscreen_lathe.ini
-   -Torno básico imperial.
+  -Imperial basic lathe
 
 gscreen_mm.ini
-   - Pantalla de fresado métrico.
+  -Metric milling screen

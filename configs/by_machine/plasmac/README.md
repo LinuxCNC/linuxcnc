@@ -1,7 +1,7 @@
 # plasmac
 
-Una configuración LinuxCNC para corte por plasma.
+A LinuxCNC configuration for plasma cutting.
 
-Incorpora el componente HAL plasmac.
+Incorporating the plasmac HAL component.
 
-Configuraciones GUI para Axis y Gmoccapy.
+GUI configurations for both Axis and Gmoccapy.

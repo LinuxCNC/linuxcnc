@@ -1,8 +1,5 @@
-Demo_mazak es un conjunto complejo de controladores HAL. Incluyen la tarjeta de movimiento Motenc-Lite, una tarjeta parport PMDX y una tarjeta IO ISA de propósito general. 
-Esta configuración se usa para la Mazak V5 de Cardinal Engineering y se incluye aquí como un ejemplo de una manera de distribuir las habilidades HAL en varios dispositivos.
+Demo_mazak is a complex set of HAL drivers.  These include the Motenc-Lite motion card, a PMDX parport card, and a general purpose ISA slot IO card.  This setup is used for the Mazak V5 at Cardinal Engineering and is included here as an example of a way to spread HAL abilities across a number of devices.
 
-Esta demostración incluye un ejemplo del uso de un puerto paralelo para leer un codificador de volante. Trae ClassicLadder para manejar la mayor parte de la lógica de la 
-máquina para el cambio de velocidades y herramientas.
+This demo includes an example of using a parallel port to read a handwheel encoder.  It brings in ClassicLadder to handle most of the machine logic for gear and tool change.
 
-No espere poder ejecutar esto tal como está a menos que tenga un conjunto de hardware coincidente. Sin el conjunto exacto de dispositivos, aún puede estudiar los archivos hal 
-para ver como se logran muchas de estas cosas.
+Don't expect to be able to run this as is unless you have a matching set of hardware.  Without the exact set of devices you can still study the hal files to see how many of these things are accomplished.

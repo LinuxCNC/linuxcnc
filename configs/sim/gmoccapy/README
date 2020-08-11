@@ -1,13 +1,16 @@
-Esta es una simulación de una fresadora con ejes XYZ y también un torno.
+This is a simulation of an XYZ axis mill 
+and also a lathe.
 
-Esta pantalla se basa en el diseño de moccagui, una GUI codificada en FreePascal.
+This screen is based of the design of moccagui, an GUI coded in FreePascal.
 
-gmoccapy utiliza Python en su lugar.
+gmoccapy is using Python instead.
 
-gmoccapy está diseñado para brindar la sensación de los controles industriales a los usuarios de LinuxCNC.
-La mayoría de los controles se pueden usar con una pantalla táctil y son accesibles a través de
-pines hal, por lo que se puede utilizar hardware real.
+gmoccapy is designed to bring the feel of industrial controls to LinuxCNC users,
+most controls can be used with a touch screen and also most are accesible through
+hal pins, so real hardware can be used.
 
-Siéntase libre de enviar cualquier comentario a
+Feel free to send any comment to
 
 gmoccapy@web.de
+
+

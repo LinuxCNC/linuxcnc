@@ -1,10 +1,10 @@
-Aplicaciones demo gladevcp:
+gladevcp demo apps:
 
-Aplicaciones:
+Apps:
   glade-manual
   gladevcp-test
 
-Directorios:
+Directories:
   animated-backdrop
   by-widget
   class-callback

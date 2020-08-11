@@ -1,7 +1,7 @@
-touchy.ini: una interfaz gráfica de usuario con pantalla táctil
+touchy.ini -- a touchscreen gui
 
-Botones externos requeridos:
+External buttons required:
    touchy.cycle-start
    touchy.abort
 
-Jogwheel externo recomendado
+External Jogwheel recommended

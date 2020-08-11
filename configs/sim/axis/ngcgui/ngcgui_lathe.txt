@@ -1,1 +1,1 @@
-Ejemplo ngcgui con subrutinas para torno
+ngcgui example with lathe subroutines

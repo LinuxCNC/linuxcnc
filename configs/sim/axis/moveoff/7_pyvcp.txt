@@ -1,35 +1,34 @@
-Demo Moveoff - controles externos con panel pvyvcp
-                La pantalla moveoff_gui está deshabilitada
--------------------------------------------------- -
-Opciones de Moveoff_gui:
-(Nota: moveoff_gui se usa en el modo -no_display)
+Moveoff demo -- external controls with pvyvcp panel
+                moveoff_gui display disabled
+----------------------------------------------------
+Moveoff_gui options:
+(Note: the moveoff_gui is used in the -no_display mode)
 
-  onpause - compensa cuando el programa está en pausa
-  external - controles externos en panel de pyvcp
+  onpause  -- offsets when program paused
+  external -- external controls in pyvcp panel
 
-Componente Moveoff instalado y conectado usando:
+Moveoff component installed and connected using:
 
   [HAL]HALFILE = LIB:hookup_moveoff.tcl
 
-Para información adicional:
+For additional info:
 
-   man moveoff ------ componente de movimiento
-   man moveoff_gui --- GUI de muestra de moveoff
+   man moveoff  ------ moveoff component
+   man moveoff_gui --- moveoff sample gui
 
--------------------------------------------------- -
-Uso de demostración:
- 1) Inicie linuxcnc usando la configuración 7_pyvcp.
- 2) <F1> (eliminar ESTOP)
- 3) <F2> (enciende la máquina)
- 4) <HOME> (inicio todos los ejes)
- 5) <R> (Ejecuta el programa)
- 6) <P> (Pausa el programa)
- 7) Configure halscope en modo ROLL y luego habilite las compensaciones
-    con el botón Habilitar compensaciones.
- 8) Cambie los controles deslizantes de desplazamiento x, y, z y observe
-    en halscope
- 9) Desmarque el botón Habilitar compensaciones para eliminar
-    compensa y permite la reanudación del programa.
-10) Repita los pasos 6) a 9) pero modifique el punto de referencia
-    retroceder con el botón Habilitar retroceso.
-
+----------------------------------------------------
+Demo usage:
+ 1) Start linuxcnc using the 7_pyvcp config.
+ 2) <F1>   (remove ESTOP)
+ 3) <F2>   (turn on machine)
+ 4) <HOME> (home all axes)
+ 5) <R>    (Run the program)
+ 6) <P>    (Pause the program)
+ 7) Set halscope to ROLL mode and then enable offsets
+    with the Enable Offsets checkbutton.
+ 8) Change the x,y,z offsets sliders and observe
+    on halscope
+ 9) Uncheck the Enable Offsets checkbutton to remove
+    offsets and allow program resumption.
+10) Repeat steps 6) thru 9) but alter waypoint
+    backtracking with the Enable Backtrack checkbutton.

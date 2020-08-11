@@ -1,0 +1,7 @@
+Configuración para una máquina de corte por plasma tipo pórtico que utiliza motores paso a paso.
+
+La configuración incluye un sistema de control de altura de la antorcha que debe ser compatible con los sistemas de SoundLogic, CandCNC o Bob Campbell.
+
+Los pinouts paso a paso y límite son compatibles con las placas Breakout Combo de Bob Campbell. Esta configuración es idéntica a la de plasma-thc, excepto que todas las señales de entrada/salida son simuladas.
+
+No se olvide de poner en home el simulador antes de ejecutar un programa; debe estar en home antes de comenzar, de lo contrario habrá errores de límite.

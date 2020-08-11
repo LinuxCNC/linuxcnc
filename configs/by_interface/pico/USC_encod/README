@@ -1,2 +1,1 @@
-Configuración para la tarjeta Universal Stepper de los sistemas Pico. Esta configuración incluye conexiones de movimiento y un conjunto de E/S para manejar Estop dentro de HAL. Los parámetros del archivo ini INPUT_SCALE son para los recuentos de codificador/unidad de usuario, OUTPUT_SCALE es la escala para los pasos de driver por unidad de usuario (que puede ser diferente).
- 
+A configuration for the Universal Stepper card from Pico systems.  This configuration includes motion connections and an IO set for handling estop within HAL.  ini file parameters INPUT_SCALE are for the encoder counts/user unit, OUTPUT_SCALE is the scaling for the drive steps per user unit (which can be different).

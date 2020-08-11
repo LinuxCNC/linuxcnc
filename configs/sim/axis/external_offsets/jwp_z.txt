@@ -2,15 +2,15 @@ jwp_z.ini
 
 Usage:
   1) Estop OFF       (F1)
-  2) Máquina ON      (F2)
-  3) HOME Todo       (Ctrl-Home)
-  4) Correr programa (R)
-  5) pausa inicial:
-     ajuste z offset (+Incr/-Decr)
-  6) Reanudar        (S)
-  7) Pausa           (P)
-     ajuste z offset (+Incr/-Decr)
-  8) Reanudar          (R)
-  9) Pausa final
-     volver offset a zero (+Incr/-Decr)
-     o borrar
+  2) Machine ON      (F2)
+  3) HOME All        (Ctrl-Home)
+  4) Run program     (R)
+  5) initial pause:
+     adjust z offset (+Incr/-Decr)
+  6) Resume          (S)
+  7) Pause           (P)
+     adjust z offset (+Incr/-Decr)
+  8) Resume          (R)
+  9) Final pause
+     return offset to zero (+Incr/-Decr)
+     or Clear

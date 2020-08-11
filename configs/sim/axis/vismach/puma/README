@@ -1,6 +1,5 @@
-puma_cube.ini: archivo de configuración para un robot tipo PUMA que utiliza los módulos de cinemática pumakins específicos de puma. Esta configuración proporciona un archivo gcode de inicio ([DISPLAY]OPEN)FILE) que establece las compensaciones de coordenadas utilizables para trazar un contorno de un cubo. La velocidad, la aceleración y los límites de posición se configuran con valores grande para su comodidad y no son representativos de una máquina real.
+puma_cube.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins.  This configuration provides a startup gcode file ([DISPLAY]OPEN)FILE) that sets usable coordinate offsets to trace a cube outline.  Velocity, acceleration and positional limits are set large for convenience and are not representative of a real machine.
 
-puma.ini: archivo de configuración para un robot tipo PUMA que utiliza el módulo de cinemática pumakins específico de puma ($ man pumakins). No se fuerzan los límites posicionales. El usuario debe configurar las compensaciones de coordenadas del sistema.
+puma.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins ($ man pumakins).   Positional limits are not enforced.  System coordinate offsets need to be set by user.
 
-puma560.ini: archivo de configuración para un robot tipo PUMA 560 que utiliza la cinemática en serie generalizada del módulo de genserkins ($ man genserkins). Genserkins usa una solución interactiva para la cinemática inversa y puede requerir que las ubicaciones de 
-[JOINT_n]HOME sean consistentes con la configuración de [TRAJ]HOME.
+puma560.ini -- Config file for a PUMA 560 type robot using the generalized serial kinematics of the genserkins module ($ man genserkins).  Genserkins uses an interative solution for inverse kinematics and may require that [JOINT_n]HOME locations are consistent with [TRAJ]HOME settings.

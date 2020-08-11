@@ -1,32 +1,32 @@
-moveoff.comp es un método 'solo de Hal' para proporcionar offsets hasta en nueve ejes (x, y, z, a, b, c, u, v, w).
+moveoff.comp is a 'Hal-only' method for providing offsets for up to nine axes (x,y,z,a,b,c,u,v,w).
 
-El componente moveoff.comp proporciona límites mínimos, máximos, de velocidad y de aceleración para cada eje (similar al componente limit3).
+The moveoff.comp component provides min, max, velocity, and acceleration limits for each axis (similar to the limit3 component).
 
-Vea la página del manual para más información:
+See the manpage for more informaion:
 
   $ man moveoff
 
-Las configuraciones de demostración muestran:
+The demonstration configs show:
 
   o moveoff_gui
-    una gui simple
+    a simple gui
 
   o hookup_moveoff.tcl
-    un script para conectar un componente moveoff
+    a script to connect a moveoff component
 
   o moveoff.halscope
-    configuraciones de halscope para ilustrar el movimiento
-    (GUIs para no mostrar offsets de movimientos solo de Hal)
+    halscope configs to illustrate movement
+    (GUI's to not show Hal-only offset movements)
 
-Configuraciones de demostración:
+Demonstration configs:
 
-   demostración      modo         control
-  ---------------- --------  ------------------
-1 onpause_local    en pausa  local
-2 onpause_external en pausa  externo (simulado)
-3 always_local     siempre   local
-4 siempre_externo  siempre   externo (simulado)
-5 no_gui           NA        NA
-6 zretract         en pausa  panel pyvcp
-7 pyvcp            en pausa  panel pyvcp
-8 gladevcp         en pausa  panel gladevcp
+  demonstration    mode    controls
+  ---------------- ------- -------------------- 
+1 onpause_local    onpause local
+2 onpause_external onpause external (simulated)
+3 always_local     always  local
+4 always_external  always  external (simulated)
+5 no_gui           NA      NA
+6 zretract         onpause pyvcp panel
+7 pyvcp            onpause pyvcp panel
+8 gladevcp         onpause gladevcp panel

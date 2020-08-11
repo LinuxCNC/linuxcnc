@@ -1,1 +1,1 @@
-ngcgui -- ejemplo simple de subrutinas
+ngcgui -- simple example subroutines

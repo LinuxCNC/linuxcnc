@@ -1,12 +1,12 @@
-Esta es una simulación de un cortador de plasma XYZ (con unidades métricas).
+This is a simulation of an XYZ plasma cutter (with metric units).
 
-El propósito principal de esto es mostrar las posibilidades que ofrece gscreen/gmoccapy para diseñar pantallas personalizadas.
+The main purpose of this is to show the posibilities offered by gscreen / gmoccapy to design custom screens.
 
-Este diseño especial se ha hecho para controlar cortadores de plasma, Marius ha realizado muchos trabajos.
+This special layout has been made to control plasma cutters, many work has be done by Marius.
 
-El refrigerante original y los marcos del eje están ocultos, también el marco de información de la herramienta y la etiqueta de velocidad del eje en el marco activo de gcode están ocultos.
+The original coolant and spindle frames are hidden, also the tool info frame and the spindle speed label in active gcode frame is hidden.
 
-Siéntase libre de enviar cualquier comentario a:
+Feel free to send any comment to:
 
 gmoccapy@web.de
 

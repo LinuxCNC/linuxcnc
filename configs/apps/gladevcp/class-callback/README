@@ -1,19 +1,19 @@
-ejemplo con métodos de clase callback
--------------------------------------
+example with callback class methods
+-----------------------------------
 
-Se muestra cómo utilizar los métodos de clase como devoluciones de llamada.
+This shows how to use class methods as callbacks.
 
-Nota:
+Note:
 
-Hay dos definiciones de clase en este ejemplo. Ambas están instanciadas. OtherClass, alrededor de la línea 84 durante
-la importacion, y HandlerClass por la función get_handlers().
+There are two class definitions in this example. Both are instantiated - OtherClass around line 84 during
+import, and HandlerClass by the get_handlers() function.
 
-HandlerClass.__init__() muestra cómo definir un pin hal que no está asociado a ningún widget HAL.
+HandlerClass.__init__() shows how to define a hal pin which is not associated to any HAL widget.
 
-Al pasar el builder se habilita la referencia a cualquier widget en el árbol (vea, por ejemplo, la línea 33).
+Passing the builder enables referring to any widget in the tree (see for instance line 33).
 
-Además, se muestra una devolución de llamada de temporizador lento (1 segundo) que actualiza 'valor' del pin HAL.
-Este pin esta vinculado al widget de barra horizontal hal_hbar a través de class_callback.hal.
+Also, a slow (1-second) timer callback is shown which updates the 'value' HAL pin - this pin is
+linked to the hal_hbar Horizontal Bar widget through class_callback.hal.
 ------------------------------------------
-Para ejecutar de forma independiente:
+To run independently:
 $  gladevcp -u class_callback.py -H class_callback.hal class_callback.ui

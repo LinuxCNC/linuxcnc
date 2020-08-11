@@ -1,9 +1,9 @@
-info: crea un archivo con información sobre LinuxCNC y elementos importantes del sistema.
+info: Create a file with information about LinuxCNC and important system items.
 
-El archivo se crea en /tmp y es adecuado para su publicación como ayuda para diagnosticar problemas.
+The file is created in /tmp and is suitable for posting for aid in diagnosing problems.
 
-Nombre de archivo: /tmp/linuxcnc.info
+Filename: /tmp/linuxcnc.info
 
-El editor especificado por $VISUAL se utilizará para abrir el archivo.
-Si $VISUAL no está establecido, se intentarán otros editores comunes.
+The editor specified by $VISUAL will be used to open the file.
+If $VISUAL is not set, other common editors will be tried.
 

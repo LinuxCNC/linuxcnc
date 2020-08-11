@@ -1,33 +1,33 @@
-Esta configuración está diseñada para servomáquinas que ejecutan las tarjetas Motenc-100 o Motenc-Lite de Vitalsystems (www.vsi99.com).
+This configuration is intended for servo machines running the Vitalsystems (www.vsi99.com) Motenc-100 or Motenc-Lite card.
 
-Puede tener un pinout estándar, o puede hacer uno nuevo que se adapte a su propio cableado personalizado. Los cambios se realizan en HAL (la capa de abstracción de hardware), que es muy flexible (lea más sobre esto en http://wiki.linuxcnc.org/)
+You can either have a standard pinout, or you could make a new one which would suit your own custom cabling. The changes are done in HAL (the Hardware Abstraction Layer), which is very flexible (read more about it at http://wiki.linuxcnc.org/)
 
-La configuración estándar supone una tarjeta instalada con el puente de identificación de la placa establecido en 0. Si obtiene errores, intente ajustar el puente.
+The standard configuration assumes a card installed with the board id jumper set at 0. If you get errors, try to adjust the jumper.
 
-Se admiten varias tarjetas leyendo la configuración del puente de id de la placa y utilizándolas como <boardId> en los nombres de HAL exportados. Hay dos puentes en J3 de la placa motenc-100 que se definen como la identificación de la placa. La instalación de un puente hace que el bit correspondiente se lea como cero. Dado que hay dos puentes de identificación de placa, se admiten hasta cuatro tarjetas. El uso de la identificación de la placa permite que la configuración sea independiente de la ranura PCI en la que está conectada la tarjeta.
+Multiple cards are supported by reading the board id jumper settings and using them as the <boardId> in the exported HAL names. There are two jumpers on J3 of the motenc-100 board that are defined as the board id. Installing a jumper causes the corresponding bit to read as zero. Since there are two board id jumpers, up to four cards are supported. Using the board id allows the configuration to be independent of which PCI slot the card is plugged into.
 
-Descripción detallada:
+Detailed description:
 
-* archivos nml
+* nml files
 
-- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
+-- it uses a default nml file (found in configs/common/linuxcnc.nml)
 
-* archivos hal
+* hal files
 
-- utiliza un archivo de servo hal predeterminado (configs/common/core_servo.hal)
+-- it uses a default servo hal file (configs/common/core_servo.hal)
 
-- motenc_motion.hal: archivo hal principal para Motenc. Carga el controlador motenc y configura enlaces específicos de movimiento, está bastante bien comentado, por lo que debería ser fácil de leer/modificar.
+-- motenc_motion.hal - this is the main hal file for the Motenc, it loads the motenc driver and sets up motion specific links, it is fairly well commented, so it should be easy to read / modify.
 
-- motenc_io.hal - segundo archivo hal para Motenc. Configura enlaces específicos de E/S (como el número de pin donde está el interruptor de límite X o donde está conectado el pin de inicio del husillo), está bastante bien comentado, así que debería ser fácil de leer/modificar. Esta configuración de servo es principalmente para máquinas serias, por lo que el ESTOP realmente debe planificarse/implementarse correctamente (eso significa usar una cadena ESTOP externa, dejar que LinuxCNC lo sepa y dejar que LinuxCNC también interrumpa la cadena externa).
+-- motenc_io.hal - this is the second hal file for the Motenc, it configures IO specific links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let LinuxCNC know about it, and let LinuxCNC interrupt the external chain too).
 
-Lea más sobre esto en la wiki en http://wiki.linuxcnc.org/
+Read more about this in the wiki at http://wiki.linuxcnc.org/
 
-* archivos adicionales
+* additional files
 
-- motenc.tbl: archivo de tabla de herramientas. Contiene definiciones de las herramientas utilizadas, junto con los tamaños de las herramientas para la compensación (longitud y diámetro de la herramienta)
+-- motenc.tbl - this is the tool table file, and it holds definitions for the tools used, along with tool sizes for compensation (tool length & tool diameter)
 
-- motenc.var: archivo de variables. El intérprete utiliza este archivo para guardar variables internas cuando LinuxCNC se cierra y las vuelve a leer en el próximo inicio.
+-- motenc.var - the variables file. This file is used by the interpreter to save internal variables when LinuxCNC shuts down, and rereads them on the next startup.
 
-Se puede encontrar más información específica en la wiki de LinuxCNC:
+Further specific information can be found in the LinuxCNC wiki:
 http://wiki.linuxcnc.org/
 

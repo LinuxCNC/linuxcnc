@@ -1,12 +1,12 @@
-Mesa Rotatoria/Inclinable (trt) Configuraciones Sim
+Table Rotary/Tilting (trt) Sim configs
 
 xyzac-trt
 xyzbc-trt
 
-Fichero ejemplo ngc:
+Example ngc files:
   examples/boat-xyzac.ngc (!!! TOUCHOFF table Z to -13.25 !!!)
   examples/boat-xyzbc.ngc (!!! TOUCHOFF table Z to - 8.30 !!!)
 
-Fichero ejemplo ngc (compatibles con subrutinas ngcgui):
+Example ngc files (ngcgui compatible subroutines):
   examples/test-xyzac.ngc
   examples/test-xyzbc.ngc

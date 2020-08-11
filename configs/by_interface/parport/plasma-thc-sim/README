@@ -1,7 +1,7 @@
-Configuración para una máquina de corte por plasma tipo pórtico que utiliza motores paso a paso.
+This is a config for a gantry style plasma cutting machine using stepper motors.
 
-La configuración incluye un sistema de control de altura de la antorcha que debe ser compatible con los sistemas de SoundLogic, CandCNC o Bob Campbell.
+The configuration includes a Torch Height Control system which should be compatible with systems from SoundLogic, CandCNC and Bob Campbell.
 
-Los pinouts paso a paso y límite son compatibles con las placas Breakout Combo de Bob Campbell. Esta configuración es idéntica a la de plasma-thc, excepto que todas las señales de entrada/salida son simuladas.
+The stepper and limit pinouts are compatible with Breakout Combo boards from Bob Campbell. This configuration is identical to plasma-thc except all input/output signals are simulated.
 
-No se olvide de poner en home el simulador antes de ejecutar un programa; debe estar en home antes de comenzar, de lo contrario habrá errores de límite.
+Don't forget to home the simulator before running a program, it needs to home before starting, otherwise there will be limit errors

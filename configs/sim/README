@@ -1,5 +1,5 @@
-Las configuraciones Sim permiten ejecutar LinuxCNC sin hardware especial de forma simulada.
+Sim configurations make it possible to run LinuxCNC without special hardware on a simulated basis.
 
-LinuxCNC admite múltiples guis y existen múltiples ejemplos de las guis más populares.
+LinuxCNC supports multiple guis and there are multiple examples for the most popular guis.
 
-Las configuraciones sim están diseñadas para ejecutarse sin requisitos de hardware especiales
+The sim configurations are meant to run with no special hardware requirements

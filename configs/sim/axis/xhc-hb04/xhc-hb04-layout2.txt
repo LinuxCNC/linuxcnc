@@ -1,6 +1,6 @@
 xhc-hb04-layout2
 
-18 botones:
+18 buttons:
 
 ---------------------------------------
 |RESET   |Stop       |                |
@@ -22,19 +22,18 @@ xhc-hb04-layout2
 |                                Feed |
 ---------------------------------------
 
-Códigos de botón definidos en LIB:xhc-hb04-layout2.cfg
+Button codes defined in LIB:xhc-hb04-layout2.cfg
 
-El botón Start/Pause se puede conectar para un comportamiento estándar con:
+The Start/Pause button can be connected for standard behavior with:
   [XHC_HB04_BUTTON]start-pause = std_start_pause
 
-El botón STEP normalmente está conectado con:
+The STEP button is normally connected with:
   [XHC_HB04_BUTTON]step = xhc-hb04.stepsize-up
 
-Los otros botones se pueden conectar a los pines hal, típicamente pines provistos de halui.
+The other buttons can be connected to hal pins -- typically halui provided pins.
 
-Los comandos MDI se pueden ejecutar usando los pines halui.mdi-command-nn definidos en el archivo ini con entradas como: [HALUI]MDI_COMMAND = mdi_command 
+MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with entries like: [HALUI]MDI_COMMAND = mdi_command 
 
-El interruptor giratorio selecciona el eje, spindle.0 o ajuste de velocidad para el control mediante la rueda.
+The rotary switch selects the axis, spindle.0, or feedoverride for control by the jogwheel.
 
-Las posiciones del interruptor (xyza) se pueden definir para cualquier eje disponible (xyzc, por ejemplo).
-
+The switch positions (xyza) can be defined to any available axis (xyzc for instance).

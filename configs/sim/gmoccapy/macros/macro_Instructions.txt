@@ -1,44 +1,44 @@
-Esto son pequeñas instrucciones para incluir macros en gmoccapy.
+This is a small instruction to include macros in gmoccapy.
 
-En su archivo INI necesita introducir una sección llamada [MACROS]
-y para cada macro no quieres incluir una línea como esta:
+In your INI File you need to introduce a section called [MACROS]
+and for every macro you wan't to include one line like so:
 
 MACRO = jog_around
-o
+or 
 MACRO = increment xinc yinc
 
-donde xinc e yinc son marcadores de posición
+where xinc and yinc are place holders
 
-Durante la ejecución de la macro, se le pedirá que ingrese los valores.
+During excecution of the macro, you will be asked to enter the values. 
 
-¡Puedes introducir 9 macros!
-Si ingresa más macros, solo los primeros 9 aparecerán con el botón en gmoccapy.
+You are allowed to introduce 9 macros! 
+If you enter more macros, only the first 9 will apear with button in gmoccapy.
 
-En la sección [RS274NGC] es posible que desee dar una ruta a sus macros de esta manera:
+In the [RS274NGC] section you may want to give a path to your macros like so:
 
 [RS274NGC]
-SUBROUTINE_PATH = nc_files/subroutines
+SUBROUTINE_PATH = nc_files/subroutines 
 
-o coloca sus macros en la carpeta nc_files.
+or you place your macros in the nc_files folder.
 
-Cada macro debe tener su propio archivo en una de las carpetas mencionadas y son subrutinas normales, por lo que deben comenzar con:
+Each macro must have it's own file in one of the mentioned folders and they are normal subroutines, so the must begin with:
 
-O <jog_around> sub
+O<jog_around> sub
 
-y terminar con
+and end with
 
-O <jog_around> endsub
+O<jog_around> endsub
 M2
 
-El nombre del archivo debe ser jog_around.ngc.
-Una macro debe contener al menos un movimiento de eje.
+The name of the file must be jog_around.ngc.
+And an macro must contain at least one movement of one axis.
 
-¡El nombre de macro en el archivo INI debe ser el mismo que el nombre del archivo y el subtítulo debe tener también el mismo nombre (distingue entre mayúsculas y minúsculas)!
+macro name in INI file have to be the same as the file name and the sub must have also the same name (case sensitive!)!
 
-TEN CUIDADO:
-En este paso de desarrollo, las macros solo se pueden interrumpir presionando el botón de apagado de la máquina o el botón de salida de emergencia. ¡Comprobaré cómo hacer esto más seguro!
+BE CARFULL:
+At this development step, the macros can only be interupted by pressing the machine off button or the emergency exit button! I will check how to make this more secure! 
 
-Espero que esto ayude.
+Hope this does help.
 
 Norbert
 

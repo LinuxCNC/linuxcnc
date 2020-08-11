@@ -1,4 +1,1 @@
-Configuración para la placa de control universal PWM de los sistemas Pico.
-Esta configuración incluye conexiones de movimiento y un conjunto de IO para manejar Estop dentro de HAL.
-La configuración de E/S en univpwm_io.hal no incluye conexiones de manejo de señales del tipo bridgeportio.
-Esta versión aprovecha la nueva función UPC de estimación de velocidad para proporcionar un movimiento más suave, especialmente del funcionamiento del término D del componente PID. 
+A configuration for the Universal PWM COntroller board from Pico systems.  This configuration includes motion connections and an IO set for handling estop within HAL.  The IO configuration in univpwm_io.hal does not include signal connections for other bridgeportio like signal handling.  This version takes advantage of the new UPC feature of velocity estimation to provide smoother motion, especially the functioning of the D term of the PID component.

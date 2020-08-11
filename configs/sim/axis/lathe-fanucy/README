@@ -1,10 +1,10 @@
-Un ejemplo de combinación de la idea de offset compuesto G43.2 con la reasignación para crear
-un intercambiador de herramientas de tipo Fanuc.
+An example of combining the G43.2 compound offset idea with remapping to create
+a toolchange similar to Fanuc. 
 
-T1 = selecciona y carga la herramienta 1, y aplica el offset base para la herramienta 1
-T0101 = selecciona y carga la herramienta 1 y aplica offset 1 y 10001
-T0201 = selecciona y carga la herramienta 1 y apliaca offset 1 y 10002
+T1 = select and load tool 1, and apply the base offset for tool 1
+T0101 = select and load tool 1 and apply offsets 1 and 10001
+T0201 = select and load tool 1 and apply offsets 1 and 10002
 
-Esto podría no coincidir exactamente con Fanuc, pero el comportamiento es fácil de cambiar
-editando toolchange.ngc
+This might not exactly match Fanuc, but the behaviour is easy to change
+by editing toolchange.ngc
 

@@ -1,9 +1,9 @@
-La configuración de orient.ini ayuda a explorar el comando M19 y su efecto en varios pines HAL.
+The orient.ini configuration helps exploring the M19 command and its effect on various HAL pins.
 
-Tenga en cuenta el valor ORIENT_OFFSET en orient.ini que se agrega a la palabra R.
+Note the ORIENT_OFFSET value in orient.ini which is added to the R word.
 
 
-Correrlo y ejecutar en MDI:
+run, and execute in MDI:
 
 M19
 
@@ -13,7 +13,7 @@ M19 R45 P1
 
 S500 M3
 
-Confirme una solicitud de orientación del husillo presionando el botón husillo-orientado.
+Acknowledge an spindle-orient request by pushing the spindle-is-oriented button.
 
 -mah
 

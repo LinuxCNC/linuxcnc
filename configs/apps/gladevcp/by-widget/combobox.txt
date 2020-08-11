@@ -1,17 +1,17 @@
-ejemplos de combobox:
+combobox examples:
 
 combobox
 combobox_manual_list
 
-Vea esto para aprender acerca de Glade y ComboBox: http://www.youtube.com/watch?v=Z5_F-rW2cL8
+watch this to learn about Glade and ComboBox: http://www.youtube.com/watch?v=Z5_F-rW2cL8
 
 ------------------------------------------
-Para ejecutar de forma independiente:
+To run independently:
 $ gladevcp -u combobox.py combobox.ui
 
-combobox_manual_list.* son archivos de ejemplo para construir listas desplegables sobre la marcha.
+combobox_manual_list.* are example files for constructing dropdown lists on the fly.
 
-correr como:
+run as:
 $ gladevcp -u combobox_manual_list.py combobox_manual_list.ui
 
 Michael Haberler 12/2010

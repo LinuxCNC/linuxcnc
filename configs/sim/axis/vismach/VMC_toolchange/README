@@ -1,19 +1,20 @@
-Esta es una configuración del simulador Vismach diseñada para probar configuraciones de cambiador de herramientas
-El modelo Vismach combinado con el archivo sim_vmc.hal presenta tres ejes
-con interruptores home y límite, un carrusel con salidas tanto de código gray como de pulso/índice (encoder de cuadratura),
-una barra de bloqueo y un tirante.
-Hay dos configuraciones alternativas, una para codificación del carrusel en código gray y otra en pulso/índice.
-Tenga en cuenta que el componente de carrusel también admite sensores binarios e individuales.
+This is a Vismach simulator config intended for testing out tool-changer configurations
+The Vismach model combined with the sim_vmc.hal file features three axes
+with home and limit switches, a carousel with both gray-code and pulse/index outputs, 
+a locking bar and a power drawbar. 
+There are two alternative configs, one demonstrating gray-code carousel coding and the other demonstrating
+pulse/index.
+Note that the carousel component also supports straight-binary and individual sensors. 
 
-El VMC "virtual" es creado por el archivo sim_vmc.hal y define las siguientes señales
-,usadas en otros archivos HAL
+The "virtual" VMC is created by the sim_vmc.hal file and defines the following signals
+that my be used in the other HAL files
 
-Posiciones de ejes
+Axis positions
 x-pos
 y-pos
 z-pos
 
-Límites de ejes
+Axis limits
 x-pos-lim
 x-neg-lim
 y-pos-lim
@@ -21,32 +22,34 @@ y-neg-llm
 z-pos-lim
 z-neg-lim
 
-Husillo Simulado
-spindle-cmd - ajusta la velocidad del husillo en rpm; negativo para retroceso
-spindle-pos - posición simulada del husillo (revs)
-spindle-vel - velocidad del husillo simulada
+Simulated Spindle
+spindle-cmd - set spindle speed in rpm, negative for reverse
+spindle-pos - the simulated spindle position (revs)
+spindle-vel - the simulated spindle speed out
 
-Brazo cambiador de herramientas
-arm-act - acciona el brazo
-arm-in - brazo en switch límite
-arm-out - brazo fuera del switch límite
+Toolchanger arm
+arm-act - actuate the arm
+arm-in - arm in limit swith
+arm-out - arm out limit switch
 
-Bloqueo del carrusel
-car-lock - activar el bloqueo
-car-locked - carrusel bloqueado
-car-unlocked - carrusel desbloqueado
+Carousel lock
+car-lock - activate the lock
+car-locked
+car-unlocked - limit switches
 
-Barra de tiro
-tool-release - liberar herramienta
-tool-released - herramienta liberada
-tool-locked - herramienta bloqueada
+Drawbar
+tool-release
+tool-released
+tool-locked
 
-Carrusel
-car-fwd girar hacia la derecha
-car-rev girar en sentido antihorario
+Carousel
+car-fwd rotate clockwise
+car-rev rotate anticlockwise
 bit0
 bit1
 bit2
 bit3
-bit4 - Posición de carrusel codificada en gray
+bit4 - Gray-coded carousel position 
+
+
 

@@ -1,10 +1,10 @@
-demo hal-histogram demo
+hal-histogram demo
 
-Gui Axis gui que lanza dos aplicaciones hal-histogram para los pines:
+Axis gui that starts two hal-histogram applications for pins:
   motion-command-handler.time
   halui.axis.x.pos-commanded
 
-Generalmente, el programa hal-histogram debe correr desde la linea de comandos.
+More typically, the program hal-histogram would be run from the command line.
 
-Para uso, vea:
+For usage:
 $ hal-histogram --help
