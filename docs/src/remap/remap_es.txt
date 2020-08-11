@@ -851,7 +851,7 @@ Esto significa que los pines iocontrol correspondientes no tienen ninguna funci�
 más. Por lo tanto, configuramos iocontrol para reconocer inmediatamente un
 cambio, de esta manera:
 
-[sorce,{hal}]
+[source,{hal}]
 ---------------------------------------------------------------------
 # puenteo de señales de cambio al reasignar M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

@@ -710,7 +710,7 @@ desea establecer como valor del control deslizante
 ambos pines, ya que las influencias entre los dos no han sido probadas. Diferentes
 deslizadores pueden estar conectados a uno u otro tipo de conexión hal.
 
-[IMPORTANTE] Tenga en cuenta que la velocidad de jog depende del estado del botón tortuga,
+[IMPORTANT] Tenga en cuenta que la velocidad de jog depende del estado del botón tortuga,
 con diferentes escalas deslizantes dependiendo del modo (tortuga o conejo).
 Por favor, eche un vistazo también a <<gmoccapy:jog-velocity,velocidades jog y pin hal jog-tortuga>> para más
 detalles

@@ -255,7 +255,7 @@ Muchas tarjetas PCI no son compatibles con el protocolo EPP correcto.
 
 La frecuencia base PDM PWM y 3PWM establece el equilibrio entre rizado y linealidad. Si usa tarjetas hijas Mesa, los documentos para la placa deben dar recomendaciones.
 
-[IMPORTANTE]
+[IMPORTANT]
 Es importante seguir esto para evitar daños y obtener el mejor rendimiento.
 
 ....
