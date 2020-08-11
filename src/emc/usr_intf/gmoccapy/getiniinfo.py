@@ -146,9 +146,12 @@ class GetIniInfo:
                 print("Fount double letter ", double_axis_letter)
 
         if self.get_joints() == len(coordinates):
-            count = 0
+            prev_double_axis_leter = ""
             for joint, axisletter in enumerate(coordinates):
                 if axisletter in double_axis_letter:
+                    if axisletter != prev_double_axis_leter:
+                        count = 0
+                        prev_double_axis_leter = axisletter
                     axisletter = axisletter + str(count)
                     count += 1
                 joint_axis_dic[joint] = axisletter
