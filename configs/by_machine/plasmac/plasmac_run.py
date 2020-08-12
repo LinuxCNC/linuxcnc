@@ -537,7 +537,7 @@ class HandlerClass:
         self.builder.get_object('thc-enable').set_active(1)
         self.builder.get_object('use-auto-volts').set_active(1)
         self.builder.get_object('mesh-enable').set_active(0)
-        self.builder.get_object('mesh-ignore-ok').set_active(0)
+        self.builder.get_object('ignore-arc-ok').set_active(0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('kerf-width').set_digits(2)
             self.builder.get_object('kerf-width-adj').configure(0.5,0,5,0.01,0,0)
@@ -590,8 +590,8 @@ class HandlerClass:
 
     def load_config_file(self):
         for item in widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)):
-            # we don't set mesh mode
-            if item != 'mesh-enable':
+            # we don't save mesh mode or ignore arc ok
+            if item not in ['mesh-enable', 'ignore-arc-ok']:
                 self.configDict[item] = '0'
         self.configDict['thc-mode'] = '0'
         convertFile = False
@@ -623,6 +623,8 @@ class HandlerClass:
             except:
                 self.dialog_error('Configuration Error', 'The plasmac configuration file, {} is invalid ***'.format(self.configFile))
                 print('*** plasmac configuration file, {} is invalid ***'.format(self.configFile))
+            self.builder.get_object('mesh-enable').set_active(0)
+            self.builder.get_object('ignore-arc-ok').set_active(0)
             for item in self.configDict:
                 if item == 'material':
                     self.builder.get_object(item).set_active(0)
@@ -663,7 +665,7 @@ class HandlerClass:
             with open(self.configFile, 'w') as f_out:
                 f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
                 for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number' or key == 'mesh-mode':
+                    if key == 'material-number' or key in ['mesh-mode', 'ignore-arc-ok']:
                         pass
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                         self.builder.get_object(key).update()
@@ -840,7 +842,7 @@ class HandlerClass:
         self.materialFileDict[active][13] = self.builder.get_object('cut-mode').get_value()
 
     def periodic(self):
-        if self.builder.get_object('mesh-enable').get_active() or hal.get_value('plasmac:mesh-enable-1'):
+        if self.builder.get_object('mesh-enable').get_active() or hal.get_value('plasmac:ignore-arc-ok-0') or hal.get_value('plasmac:ignore-arc-ok-1'):
             self.halcomp['thc-enable-out'] = False
             self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
             self.builder.get_object('thc-enable').set_sensitive(False)
@@ -970,12 +972,12 @@ class HandlerClass:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
                             self.builder.get_object('cut-amps').set_range(hal.get_value('pmx485.current_min'), hal.get_value('pmx485.current_max'))
                     self.pmx485Connected = True
-                if (hal.get_value('plasmac.mesh-enable-0') or hal.get_value('plasmac.mesh-enable-1')) and not self.meshMode:
+                if hal.get_value('plasmac.mesh-enable') and not self.meshMode:
                     self.oldCutMode = self.builder.get_object('cut-mode').get_value()
                     self.builder.get_object('cut-mode').set_value(2)
                     self.builder.get_object('cut-mode').set_sensitive(False)
                     self.meshMode = True
-                elif not hal.get_value('plasmac.mesh-enable-0') and not hal.get_value('plasmac.mesh-enable-1') and self.meshMode:
+                elif not hal.get_value('plasmac.mesh-enable') and self.meshMode:
                     self.builder.get_object('cut-mode').set_value(self.oldCutMode)
                     self.builder.get_object('cut-mode').set_sensitive(True)
                     self.meshMode = False
@@ -1216,7 +1218,7 @@ class HandlerClass:
                                 'ohmic-probe-enable', 'powermax-enable', \
                                 'thc-mode', 'use-auto-volts', \
                                 'x-single-cut', 'y-single-cut', \
-                                'mesh-enable', 'mesh-ignore-ok']
+                                'mesh-enable', 'ignore-arc-ok']
         self.materialWidgets = ['cut-amps', 'cut-feed-rate',\
                                 'cut-height', 'cut-mode', \
                                 'cut-volts', 'gas-pressure', \

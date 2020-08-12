@@ -712,13 +712,13 @@ NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status
 |Start Cut|Press to commence a single cut.
 |===
 
-[underline]*Mesh Cutting*
+[underline]*Cutting Mode*
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Enable|Enable mesh mode for cutting expanded metal.
-|Ignore OK|Don't require Arc OK to start cut in mesh mode.
+|Mesh Mode|Enable mesh mode for cutting expanded metal.
+|Ignore Arc OK|Don't require Arc OK to start a cut and ignore loss of Arc OK during a cut.
 |===
 
 [underline]*Powermax Comms*
@@ -1413,19 +1413,33 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 
 Expanded metal is able to be cut provided your machine has a pilot arc torch and it is capable of constant pilot arc mode.
 
-Mesh mode disables torch height control and also ignores a lost Arc OK signal. It can be selected by:
-
-. The Mesh Mode checkbutton in the Run Panel.
-. HAL pin motion.digital-out-01 from G-Code.
-
-----
-M62 P1 or M64 P1 (enable mesh mode)
-M63 P1 or M65 P1 (disable mesh mode)
-----
-
-It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore OK checkbutton on the Run Panel. This has no effect if Mesh Mode is not selected.
+Mesh mode disables torch height control and also ignores a lost Arc OK signal during a cut. It can be selected by checking the Mesh Mode checkbutton in the Run Panel.
 
 If you have <<pm_comms, RS485>> communications enabled with a Hypertherm Powermax plasma cutter then selecting mesh mode will disable the Cut Mode spinbutton in the Run Panel and it will select cut mode 2 (CPA). When mesh mode is disabled then the Cut Mode spinbutton will be re-enabled and the original cut mode will be restored.
+
+It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore Arc OK checkbutton on the Run Panel.
+
+You can enable/disable this mode at any time during a job.
+
+[[ignore-ok]]
+
+=== Ignore Arc OK
+
+Ignore Arc OK mode disables torch height control, will begin a cut without requiring an Arc OK signal and also ignores a lost Arc OK signal during a cut.
+
+This mode can be selected by:
+
+. checking the Ignore Arc OK checkbutton in the Run Panel. +
+. setting HAL pin motion.digital-out-01 to 1 from G-Code.
+
+----
+M62 P1 or M64 P1 (enable Ignore Arc OK)
+M63 P1 or M65 P1 (disable Ignore Arc OK)
+----
+
+This mode may also be used in conjunction with Mesh Mode if you don't require the Arc OK signal to begin the cut.
+
+You can enable/disable this mode at any time during a job.
 
 [[shape-library]]
 
@@ -2572,10 +2586,10 @@ continue hole path for overcut
    |#<oclength> = n (use the same units system as the rest of the G-Code file)
 |Specify <<cut-types, pierce-only>> mode
    |#<pierce-only> = n (0=normal cut mode, 1=pierce only mode)
-|Enable <<mesh-mode, Mesh Mode>>
+|Enable <<ignore-ok, Ignore Arc OK>>
    |M62 P1 (synchronised with motion) +
     M64 P1 (immediate)
-|Disable <<mesh-mode, Mesh Mode>>
+|Disable <<ignore-ok, Ignore Arc OK>>
    |M63 P1 (synchronised with motion) +
     M65 P1 (immediate)
 |Create or edit materials. +

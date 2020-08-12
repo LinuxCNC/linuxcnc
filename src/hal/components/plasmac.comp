@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.159 - 2020 Aug 10
+0.160 - 2020 Aug 12
 
 .I SUMMARY:
 .br
@@ -61,9 +61,9 @@ pin in  bit     homed                       "machine is homed";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
-pin in  bit     mesh_ignore_ok              "don't require arc ok for mesh mode";
-pin in  bit     mesh_enable_0               "enable mesh cutting mode input 0";
-pin in  bit     mesh_enable_1               "enable mesh cutting mode input 0";
+pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
+pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
+pin in  bit     mesh_enable                 "enable mesh cutting mode";
 pin in  s32     mode                        "operating mode";
 pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
@@ -468,7 +468,7 @@ FUNCTION(_) {
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
                 state = MAX_HEIGHT;
-            }else if(state > ARC_OK && !arc_ok_out && torch_enable && !torch_off && !(mesh_enable_0 || mesh_enable_1)){ ;
+            }else if(state > ARC_OK && !arc_ok_out && torch_enable && !torch_off && !(mesh_enable || ignore_arc_ok_0 || ignore_arc_ok_1)){ ;
                 torch_on = FALSE;
                 program_pause = TRUE;
                 stop_type = PAUSE;
@@ -918,7 +918,7 @@ FUNCTION(_) {
                 restart_timer = restart_delay;
                 arc_starts += 1;
                 state = TORCH_ON;
-            }else if((arc_ok_out || (mesh_ignore_ok && (mesh_enable_0 || mesh_enable_1))) && tool != SPOTTING){
+            }else if((arc_ok_out || ignore_arc_ok_0 || ignore_arc_ok_1) && tool != SPOTTING){
                     pierce_timer = pierce_delay;
                     state = PIERCE_DELAY;
             }
@@ -987,7 +987,7 @@ FUNCTION(_) {
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
              * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
              * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
-            if(torch_on && !mesh_enable_0 && ! mesh_enable_1){
+            if(torch_on && !mesh_enable && ! ignore_arc_ok_0 && !ignore_arc_ok_1){
                 /* thc control by arc voltage */
                 if(mode < 2){
                     thc_delay_timer -= fperiod;
