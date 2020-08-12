@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:componentes hal]]
+[[cha:componentes-hal]]
 
 = Componentes HAL
 

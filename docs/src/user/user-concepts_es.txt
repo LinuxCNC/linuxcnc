@@ -204,7 +204,7 @@ cada uno.
 
 La forma en la que se aplica la velocidad de alimentación depende de si un eje 
 involucrado con el movimiento es un eje giratorio. Lea y comprenda la sección
-<<sec:cnc-machine-overview,Velocidad de Avance>> si tiene un eje giratorio o un 
+<<cha:cnc-machine-overview,Velocidad de Avance>> si tiene un eje giratorio o un 
 torno.
 
 === Offset del radio de la herramienta
@@ -230,8 +230,7 @@ el archivo ini.
 
 Si desea desviarse del comportamiento predeterminado, o desea usar el interfaz
 Mini, necesitará configurar la opción NO_FORCE_HOMING = 1 en la sección [TRAJ] de su 
-archivo ini. Se puede obtener más información sobre homing en <<sec:homing-
-configuration,Velocidad de Avance>>.
+archivo ini. Se puede obtener más información sobre homing en <<cha:homing-configuration,Velocidad de Avance>>.
 
 == Cambios de herramientas
 

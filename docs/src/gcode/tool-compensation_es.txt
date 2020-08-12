@@ -1,6 +1,6 @@
 ﻿:lang:es
 
-[[cha: herramienta-compensación]]
+[[cha:herramienta-compensación]]
 
 = Compensación de herramientas
 
