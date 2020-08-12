@@ -90,7 +90,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.9"
+_RELEASE = " 3.0.9.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -502,6 +502,7 @@ class gmoccapy(object):
         if self.lathe_mode:
             # we do need to know also if we have a backtool lathe
             self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
+
         # check if the user want actual or commanded for the DRO
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
         # the given Jog Increments
@@ -525,11 +526,6 @@ class gmoccapy(object):
         self.min_ang_vel = self.get_ini_info.get_min_ang_jog_vel()
         self.default_ang_vel = self.get_ini_info.get_default_ang_jog_vel()
         self.max_ang_vel = self.get_ini_info.get_max_ang_jog_vel()
-
-        print("***********************************************************")
-        print(self.min_ang_vel, self.default_ang_vel, self.max_ang_vel)
-        print("***********************************************************")
-
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
@@ -1350,19 +1346,14 @@ class gmoccapy(object):
         # but we have to show this one
         self.widgets.rbt_view_y2.show()
 
-        # we check the preferences, on purpose with the default p value
-        # if we recieve a p, that mean first start, otherwise we get y or Y2
-        view = self.prefs.getpref("view", "p", str)
+        if self.backtool_lathe:
+            view = "y2"
+        else:
+            view = "y"
+        self.prefs.putpref("view", view)
 
-        if view == "p":
-            if self.backtool_lathe:
-                view = "y2"
-            else:
-                view = "y"
-            self.prefs.putpref("view", view)
-
-        self.widgets.gremlin.set_property("view", view)
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
+        self.widgets.gremlin.set_property("view", view)
 
         self._switch_to_g7(False)
 
