@@ -35,11 +35,6 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
          QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
             QFileDialog, QFrame, QLabel
-try:
-    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
-except ImportError as e:
-    LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
-    sys.exit(1)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -57,6 +52,12 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# load this after Logging set up so we get a nice dialog.
+try:
+    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
+except ImportError as e:
+    LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
+    sys.exit(1)
 
 ##############################################################
 # Simple custom lexer for Gcode
