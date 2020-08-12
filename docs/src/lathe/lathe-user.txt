@@ -184,7 +184,7 @@ For more information see the <<gcode:g76,G76>> Section.
 .Constant Surface Speed
 CSS or Constant Surface Speed uses the machine X origin modified by the tool X
 offset to compute the spindle speed in RPM. CSS will track changes in tool
-offsets. The X <<sec.machine-corrdinate-system,machine origin>> should be when
+offsets. The X <<sec.machine-coordinate-system,machine origin>> should be when
 the reference tool (the one with zero offset) is at the center of rotation.
 For more information see the <<gcode:g96-g97,G96>> Section.
 

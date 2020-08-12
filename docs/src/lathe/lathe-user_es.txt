@@ -175,7 +175,7 @@ la herramienta se utilize en su programa.
 
 El movimiento sincronizado del husillo requiere un codificador de cuadratura conectado
 al husillo con un pulso índice por revolución. Ver
-la página man de motion y el <<cha:Spindle-control, Ejemplo de Control de Husillo>> para más
+la página man de motion y el <<cha:spindle-control, Ejemplo de Control de Husillo>> para más
 información.
 
 .Roscado
@@ -185,7 +185,7 @@ Para obtener más información, consulte la sección <<gcode:g76, G76>>.
 .Velocidad constante de superficie
 CSS (Constant Surface Speed) ​​utiliza el origen de la máquina X modificado por el offset X de la herramienta
 para calcular la velocidad del husillo en RPM. CSS hará un seguimiento de los cambios en los offsets de herramienta.
-El <<sec.machine-corrdinate-system,origen maquina>> X debe ser donde
+El <<sec.machine-coordinate-system,origen maquina>> X debe ser donde
 la herramienta de referencia (la que tiene cero desplazamiento) está en el centro de rotación.
 Para obtener más información, consulte la sección <<gcode:g96-g97, G96>>.
 
