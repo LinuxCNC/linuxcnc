@@ -221,7 +221,7 @@ It is also recommended that even if you intend to use ohmic probing as your prim
 
 Recommended settings for the Z axis are:
 
-* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.0157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
+* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
 * Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
 * Z HOME should be just below the maximum limit
 
@@ -355,7 +355,7 @@ Open the Config Panel and ensure every one of these settings suits your machine.
 
 See <<config-panel, Config Panel>>
 
-. axis Z MIMIMUM_LIMIT should be set below the slats by the amount of float switch travel plus a small 'bit' for tolerance. Say your float switch moves 4mm (0.0157") before the switch activates then you should set the Z axis minimum limit to 5mm (0.096) below the lowest slat position.
+. axis Z MIMIMUM_LIMIT should be set below the slats by the amount of float switch travel plus a small 'bit' for tolerance. Say your float switch moves 4mm (0.157") before the switch activates then you should set the Z axis minimum limit to 5mm (0.096) below the lowest slat position.
 
 . axis Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel, it must not be lower than Z HOME_OFFSET but does not need to be at the top of travel.
 
@@ -712,13 +712,13 @@ NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status
 |Start Cut|Press to commence a single cut.
 |===
 
-[underline]*Mesh Cutting*
+[underline]*Cutting Mode*
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Enable|Enable mesh mode for cutting expanded metal.
-|Ignore OK|Don't require Arc OK to start cut in mesh mode.
+|Mesh Mode|Enable mesh mode for cutting expanded metal.
+|Ignore Arc OK|Don't require Arc OK to start a cut and ignore loss of Arc OK during a cut.
 |===
 
 [underline]*Powermax Comms*
@@ -1051,8 +1051,8 @@ Formatting rules are:
 - The beginning of the magic comment must be *(o=*
 - The equals sign must immediately follow each parameter with no space
 - The above mandatory parameters must be in the magic comment (*nu* and *na* are not required for option 0)
-- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 are in the G-Code file then only the first one found will be used and the others will have a warning reported.
-
+- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 are in the G-Code file then only the last one found will be used.
+- If option 0 is required as well as other option 1 and/or option 2 then option 0 must be the last one in the G-Code file.
 A complete example is:
 
 ----
@@ -1180,7 +1180,7 @@ If using a custom user button then the GUI will automatically reload the file wh
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 PlasmaC can utilise G-Code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you do not have a PP or your PP does not support these methods then PlasmaC can automatically adapt the G-Code to suit. This automatic mode is disabled by default.
 
@@ -1253,7 +1253,7 @@ M2 (end job)
 
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62* or *M64*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the PlasmaC G-Code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.0157"). This distance may be specified by adding #<oclength> = n to the G-Code file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding #<oclength> = n to the G-Code file.
 
 * *M62 P3* will turn the torch off (synchronised with motion)
 * *M63 P3* will allow the torch to be turned on (synchronised with motion)
@@ -1287,21 +1287,26 @@ M2 (end job)
 
 PlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Overcut*.
 
-The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following commands:
+The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following command:
 
-* #<m_diameter> = nn - To set a diameter in metric measurments
-* #<i_diameter> = nn - To set a diameter in imperial measurements
+* #<h_diameter> = nn - To set a diameter in the same units system as the rest of the G-Code file.
+
+The default velocity for PlasmaC small holes is 60% of the current feed rate.  It is possible to change this value with the following command:
+
+* #<h_velocity> = nn - to set the percentage of the current feed rate required.
 
 PlasmaC hole sensing is enabled/disabled by setting the following G-Code parameter. It is disabled by default.
 
-* #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of *CutFeedRate*.
+* #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
 * #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path.
+* #<holes> = 3 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
+* #<holes> = 4 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path.
 
 [underline]*Arc Dwell*
 
 Hold motion for a time by setting *Pause At End* in the Cut Parameters frame of the <<run-panel, Run Panel>>
 
-* #<holes> = 1 to allow velocity reduction.
+Specify #<holes> = 1 to allow velocity reduction.
 
 Sample code:
 
@@ -1322,9 +1327,11 @@ M2 (end job)
 
 [underline]*Overcut*
 
-* #<holes> = 2 to allow velocity reduction and overcut.
+The default overcut length for PlasmaC hole sensing is 4mm (0.157").  It is possible to change this value with the following command:
 
-* #<oclength> = n to specify an overcut length different, if this parameter is not specified the default is 4mm (0.0157").
+* #<oclength> = n to specify an overcut length  in the same units system as the rest of the G-Code filedifferent, if this parameter is not specified the default is 4mm (0.157").
+
+Specify #<holes> = 2 to allow velocity reduction and overcut.
 
 Sample code:
 
@@ -1344,9 +1351,7 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file. +
-It is OK to have multiple and mixed #<holes> commands in a G-Code file.
-
+NOTE: It is OK to have multiple and mixed hole commands in a G-Code file.
 
 === Single Cut
 
@@ -1408,19 +1413,34 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 
 Expanded metal is able to be cut provided your machine has a pilot arc torch and it is capable of constant pilot arc mode.
 
-Mesh mode disables torch height control and also ignores a lost Arc OK signal. It can be selected by:
-
-. The Mesh Mode checkbutton in the Run Panel.
-. HAL pin motion.digital-out-01 from G-Code.
-
-----
-M62 P1 or M64 P1 (enable mesh mode)
-M63 P1 or M65 P1 (disable mesh mode)
-----
-
-It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore OK checkbutton on the Run Panel. This has no effect if Mesh Mode is not selected.
+Mesh mode disables torch height control and also ignores a lost Arc OK signal during a cut. It can be selected by checking the Mesh Mode checkbutton in the Run Panel.
 
 If you have <<pm_comms, RS485>> communications enabled with a Hypertherm Powermax plasma cutter then selecting mesh mode will disable the Cut Mode spinbutton in the Run Panel and it will select cut mode 2 (CPA). When mesh mode is disabled then the Cut Mode spinbutton will be re-enabled and the original cut mode will be restored.
+
+It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore Arc OK checkbutton on the Run Panel.
+
+You can enable/disable this mode at any time during a job.
+
+[[ignore-ok]]
+
+=== Ignore Arc OK
+
+Ignore Arc OK mode disables torch height control, will begin a cut without requiring an Arc OK signal and also ignores a lost Arc OK signal during a cut.
+
+This mode can be selected by:
+
+. checking the Ignore Arc OK checkbutton in the Run Panel. +
+. setting HAL pin motion.digital-out-01 to 1 from G-Code.
+
+----
+M62 P1 or M64 P1 (enable Ignore Arc OK)
+M63 P1 or M65 P1 (disable Ignore Arc OK)
+----
+
+This mode may also be used in conjunction with Mesh Mode if you don't require the Arc OK signal to begin the cut.
+
+You can enable/disable this mode at any time during a job.
+
 [[shape-library]]
 
 == Conversational Shape Library
@@ -2538,26 +2558,38 @@ On line help and support are available from the https://forum.linuxcnc.org/plasm
     *Note that M62 through M68 are invalid while cutter compensation is on*
 |Cut <<hole-cutting, holes>> at 60% feed rate
    |#<holes> = 1 +
-    for holes less than 32mm (1.25") diameter
+    for holes less than 32mm (1.26") diameter
 |Cut <<hole-cutting, holes>> at 60% feed rate, +
 turn torch off at hole end, + 
 continue hole path for overcut
    |#<holes> = 2 +
-    for holes less than 32mm (1.25") diameter
+    for holes less than 32mm (1.26") diameter
+    overcut length = 4mm (0.157")
+|Cut <<hole-cutting, holes>> and arcs at 60% feed rate
+   |#<holes> = 3 +
+    for holes less than 32mm (1.26") diameter +
+    for arcs less than 16mm (0.63") radius
+|Cut <<hole-cutting, holes>> and arcs at 60% feed rate, +
+turn torch off at hole end, + 
+continue hole path for overcut
+   |#<holes> = 4 +
+    for holes less than 32mm (1.26") diameter +
+    for arcs less than 16mm (0.63") radius +
     overcut length = 4mm (0.157")
 |Specify <<hole-cutting, hole>> diameter for +
-#<holes> = 1 and +
-#<holes> = 2
-   |#<m_diameter> = nn (metric) +
-    #<i_diameter> = nn (imperial)
+#<holes> = 1 ~ 4
+   |#<h_diameter> = n (use the same units system as the rest of the G-Code file)
+|Specify <<hole-cutting, hole>> velocity for +
+#<holes> = 1 ~ 4
+   |#<h_velocity> = n (set the percentage of the current feed rate)
 |Specify <<overcut, overcut>> length
-   |#<oclength> = n
+   |#<oclength> = n (use the same units system as the rest of the G-Code file)
 |Specify <<cut-types, pierce-only>> mode
    |#<pierce-only> = n (0=normal cut mode, 1=pierce only mode)
-|Enable <<mesh-mode, Mesh Mode>>
+|Enable <<ignore-ok, Ignore Arc OK>>
    |M62 P1 (synchronised with motion) +
     M64 P1 (immediate)
-|Disable <<mesh-mode, Mesh Mode>>
+|Disable <<ignore-ok, Ignore Arc OK>>
    |M63 P1 (synchronised with motion) +
     M65 P1 (immediate)
 |Create or edit materials. +

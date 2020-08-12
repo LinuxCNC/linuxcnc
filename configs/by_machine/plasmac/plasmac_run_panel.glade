@@ -1095,14 +1095,13 @@ turn off to use cut volts from parameters</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="GtkLabel" id="label5">
-                                <property name="width_request">72</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">enable expanded metal cutting by disabling THC and ignoring Arc-OK after motion starts</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Enable</property>
+                                <property name="label" translatable="yes">Mesh Mode</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -1138,7 +1137,6 @@ turn off to use cut volts from parameters</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label7">
-                                <property name="width_request">102</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -1146,7 +1144,7 @@ turn off to use cut volts from parameters</property>
 only used if mesh-mode is enabled</property>
                                 <property name="xalign">1</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Ignore OK</property>
+                                <property name="label" translatable="yes">Ignore ArcOK</property>
                               </object>
                               <packing>
                                 <property name="left_attach">3</property>
@@ -1155,7 +1153,7 @@ only used if mesh-mode is enabled</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="HAL_CheckButton" id="mesh-ignore-ok">
+                              <object class="HAL_CheckButton" id="ignore-arc-ok">
                                 <property name="width_request">20</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -1179,7 +1177,7 @@ only used if mesh-mode is enabled</property>
                       <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Mesh Cutting&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Cutting Mode&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
                     </child>
