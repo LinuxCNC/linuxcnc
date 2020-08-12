@@ -98,6 +98,24 @@ communication, not ASCII.
 Consult the Huanyang instruction manual for details on using the face
 plate to program the VFDs registers, and alternative values for the
 above registers.
+.PP
+Access to devices such as /dev/ttyUSB0 is restricted to members of the
+"dialout" group. If you see error messages such as
+.br
+.B open: Permission denied
+.br
+.B ERROR Can't open the device /dev/ttyUSB0 (errno 13)
+.br
+Check your groups membership with the command
+.br
+.B groups
+.br
+Then add your user to the dialout group with
+.br
+.B sudo addgroup your-username dialout
+.br
+You will need to log out and back in again for this to take effect.
+
 .SH OPTIONS
 .B
 .IP \-d,\ \-\-device\ <path>
