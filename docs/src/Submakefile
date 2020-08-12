@@ -51,7 +51,7 @@ DOC_SRCS_EN := \
 	config/lathe-config.txt \
 	config/moveoff.txt \
 	config/pncconf.txt \
-	config/python-interface_es.txt \
+	config/python-interface.txt \
 	config/stepconf.txt \
 	config/stepper-diagnostics.txt \
 	config/stepper.txt \
@@ -303,6 +303,7 @@ DOC_SRCS_ES := \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \
 	motion/tweaking-steppers_es.txt \
+        plasma/plasmac-user-guide_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	remap/remap_es.txt \
 	user/starting-linuxcnc_es.txt \

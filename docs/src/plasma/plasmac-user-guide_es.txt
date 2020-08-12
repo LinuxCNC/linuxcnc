@@ -1,5 +1,5 @@
+:lang: es
 [[cha:plasmac-user-guide]]
-
 = PlasmaC User Guide
 :toc:
 :toclevels: 5
@@ -2588,7 +2588,17 @@ options: +
 
 === RS485 Connections
 
-image::images/plasmac_rs485_connections.png[width=75%]
+Hypertherm Powermax 125:
+
+image::images/plasmac_rs485_pmx.png[]
+
+Sunnix SER5037A PCI Card with breakout board:
+
+image::images/plasmac_rs485_sunnix.png[]
+
+Dtech DT-5019 USB to RS485 converter adapter:
+
+image::images/plasmac_rs485_dtech.png[]
 
 [[reed-arc-ok]]
 
