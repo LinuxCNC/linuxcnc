@@ -74,7 +74,7 @@ include::gui/gscreen_es.txt[]
 
 include::gui/tklinuxcnc_es.txt[]
 
-// include::plasma/plasmac-user-guide_es.txt[]
+include::plasma/plasmac-user-guide_es.txt[]
 
 :leveloffset: 1
 
