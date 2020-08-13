@@ -32,8 +32,8 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "config.h"
-#include <locale.h>
+/* #include "config.h"
+#include <locale.h> */
 #include <libintl.h>
 #define _(x) gettext(x)
 
