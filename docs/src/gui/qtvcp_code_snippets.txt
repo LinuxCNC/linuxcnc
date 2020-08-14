@@ -462,3 +462,153 @@ Now we build the function to actually update out QProgressBar when STATUS update
         self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
         self.w.rpm_bar.setValue(abs(data))
 ----
+
+== external control with ZMQ messaging reading
+
+Sometimes you want to control the screen with a separate program. +
+Qtvcp can automatically set up ZMQ messaging to send and/or receive remote messages. +
+It uses ZMQ's publish/subscribe pattern of messages. +
+As always consider security before letting programs interface though messaging. +
+In the screenoptions widget, you can select the property 'use_receive_zmq_option' +
+You could also set this property directly in the handler file (as in this sample). +
+We assume the screenoption widget is called 'screen_options' in designer: +
+
+[source,python]
+----
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        # directly select ZMQ message receiving
+        self.w.screen_options.setProperty('use_receive_zmq_option',True)
+----
+
+This allows an external program to call functions in the handler file. +
+Let's add a specific function for testing. +
+You will need to run linuxcnc from a terminal to see the printed text. +
+
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+    def test_zmq_function(self, arg1, arg2):
+        print 'zmq test function called:',arg1, arg2
+----
+
+Here is a sample program to call a function. +
+It alternates between two data sets every second. +
+Run this in a separate terminal from linuxcnc to see the sent messages. +
+
+[source,python]
+----
+#!/usr/bin/env python
+from time import sleep
+
+import zmq
+import json
+
+context = zmq.Context()
+socket = context.socket(zmq.PUB)
+socket.bind("tcp://127.0.0.1:5690")
+topic = b'Qtvcp'
+
+# prebuild message 1
+# makes a dict of function to call plus any arguments
+x = {
+  "FUNCTION": "test_zmq_function",
+  "ARGS": [True,200]
+}
+# convert to json object
+m1 = json.dumps(x)
+
+# prebuild message 2
+x = {
+  "FUNCTION": "test_zmq_function",
+  "ARGS": [False,0],
+}
+# convert to json object
+m2 = json.dumps(x)
+
+if __name__ == '__main__':
+    while True:
+        print 'send message 1'
+        socket.send_multipart([topic, bytes((m1).encode('utf-8'))])
+        sleep(ms(1000))
+
+        print 'send message 2'
+        socket.send_multipart([topic, bytes((m2).encode('utf-8'))])
+        sleep(ms(1000))
+----
+Note the line 'x = {"FUNCTION": "test_zmq_function", "ARGS": [True,200]}' sets +
+the function to call and the arguments to send to that function. +
+you will need to know the signature of the function you wish to call. +
+Also note that the message is converted to a json object. +
+This is because ZMQ sends byte messages not python objects. +
+json converts python to bytes and will be converted back when received. +
+
+== external control with ZMQ messaging writing
+
+You also my want to communicate with a separate program from the screen. +
+Qtvcp can automatically set up ZMQ messaging to send and/or receive remote messages. +
+It uses ZMQ's publish/subscribe pattern of messages. +
+As always consider security before letting programs interface though messaging. +
+In the screenoptions widget, you can select the property 'use_send_zmq_message' +
+You could also set this property directly in the handler file (as in this sample). +
+We assume the screenoption widget is called 'screen_options' in designer: +
+
+[source,python]
+----
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        # directly select ZMQ message sending
+        self.w.screen_options.setProperty('use_send_zmq_option',True)
+----
+
+This allows sending messages to a separate program. +
+The message sent will depend on what the external program is expecting. +
+Let's add a specific function for testing. +
+You will need to run linuxcnc from a terminal to see the printed text. +
+We assume the screenoption widget is called 'screen_options' in designer: +
+You need to add something to call this function, such as a button click. +
+
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+    def send_zmq_message(self):
+        # This could be any python object json can convert
+        message = {"name": "John", "age": 30}
+        self.w.screen_options.send_zmq_message(message)
+----
+
+Here is a sample program that will receive the message and print it to the terminal. +
+
+[source,python]
+----
+import zmq
+import json
+
+# ZeroMQ Context
+context = zmq.Context()
+
+# Define the socket using the "Context"
+sock = context.socket(zmq.SUB)
+
+# Define subscription and messages with topic to accept.
+topic = "" # all topics
+sock.setsockopt(zmq.SUBSCRIBE, topic)
+sock.connect("tcp://127.0.0.1:5690")
+
+while True:
+    topic, message = sock.recv_multipart()
+    print '{} sent message:{}'.format(topic,json.loads(message))
+
+----
