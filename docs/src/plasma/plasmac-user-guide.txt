@@ -595,7 +595,8 @@ NOTE: Probe Height is the height above the minimum Z axis limit.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
-|Height Per Volt|0,1,2|The distance the torch would need to move to change the arc voltage by one volt.
+|Height Per Volt|0,1,2|The distance the torch would need to move to change the arc voltage by one volt. +
+                       Used for manual height change only.
 |OK High Volts|0|High voltage threshold for Arc OK.
 |OK Low Volts|0|Low voltage threshold for Arc OK.
 |===

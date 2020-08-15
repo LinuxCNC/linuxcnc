@@ -81,7 +81,7 @@ class wizards:
                         f_out.write('origin=False\n')
                         f_out.write('lead-in=0.16\n')
                         f_out.write('lead-out=0\n')
-                        f_out.write('hole-diameter=1.25\n')
+                        f_out.write('hole-diameter=1.26\n')
                     else:
                         f_out.write('preamble=G21 G64P0.1 {}\n'.format(ambles))
                         f_out.write('postamble=G21 G64P0.1 {}\n'.format(ambles))
@@ -90,6 +90,10 @@ class wizards:
                         f_out.write('lead-out=0\n')
                         f_out.write('hole-diameter=32\n')
                     f_out.write('hole-speed=60\n')
+                    f_out.write('window-width=890\n')
+                    f_out.write('window-height=582\n')
+                    f_out.write('grid-size=0\n'.)
+                    f_out.write('font-size=9\n'.)
             except:
                 self.dialog_error('Error opening {}'.format(self.configFile))
 
