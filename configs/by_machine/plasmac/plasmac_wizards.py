@@ -92,8 +92,8 @@ class wizards:
                     f_out.write('hole-speed=60\n')
                     f_out.write('window-width=890\n')
                     f_out.write('window-height=582\n')
-                    f_out.write('grid-size=0\n'.)
-                    f_out.write('font-size=9\n'.)
+                    f_out.write('grid-size=0\n')
+                    f_out.write('font-size=9\n')
             except:
                 self.dialog_error('Error opening {}'.format(self.configFile))
 
