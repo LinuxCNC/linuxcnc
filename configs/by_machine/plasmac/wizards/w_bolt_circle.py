@@ -312,14 +312,14 @@ class bolt_circle_wiz:
         self.parent.entries.attach(self.cAEntry, 3, 4, 9, 10)
         preview = gtk.Button('Preview')
         preview.connect('pressed', self.bolt_circle_preview)
-        self.parent.entries.attach(preview, 0, 1, 13, 14)
+        self.parent.entries.attach(preview, 0, 1, 12, 13)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
         self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
-        self.parent.entries.attach(self.add, 2, 3, 13, 14)
+        self.parent.entries.attach(self.add, 2, 3, 12, 13)
         undo = gtk.Button('Undo')
         undo.connect('pressed', self.parent.undo_shape, self.add)
-        self.parent.entries.attach(undo, 4, 5, 13, 14)
+        self.parent.entries.attach(undo, 4, 5, 12, 13)
         pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 filename='./wizards/images/bolt-circle.png', 
                 width=240, 

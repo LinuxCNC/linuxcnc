@@ -107,6 +107,18 @@ class main_wiz:
         if button:
             button.set_sensitive(False)
 
+    def enable_buttons(self):
+        self.new.set_sensitive(True)
+        self.save.set_sensitive(True)
+        self.settings.set_sensitive(True)
+        self.send.set_sensitive(True)
+
+    def disable_buttons(self):
+        self.new.set_sensitive(False)
+        self.save.set_sensitive(False)
+        self.settings.set_sensitive(False)
+        self.send.set_sensitive(False)
+
     def on_new_clicked(self, widget):
         outNgc = open(self.fNgc, 'w')
         outNgc.write('(new wizard)\nM2\n')
@@ -144,61 +156,73 @@ class main_wiz:
             shutil.copyfile(self.fNgc, fileName)
 
     def on_settings_clicked(self, widget):
+        self.disable_buttons()
         reload(w_settings)
         settings = w_settings.settings_wiz()
         settings.settings_show(self)
 
     def on_line_clicked(self, widget):
+        self.enable_buttons()
         reload(w_line)
         line = w_line.line_wiz()
         line.line_show(self)
 
     def on_circle_clicked(self, widget):
+        self.enable_buttons()
         reload(w_circle)
         circle = w_circle.circle_wiz()
         circle.circle_show(self)
 
     def on_triangle_clicked(self, widget):
+        self.enable_buttons()
         reload(w_triangle)
         triangle = w_triangle.triangle_wiz()
         triangle.triangle_show(self)
 
     def on_rectangle_clicked(self, widget):
+        self.enable_buttons()
         reload(w_rectangle)
         rectangle = w_rectangle.rectangle_wiz()
         rectangle.rectangle_show(self)
 
     def on_polygon_clicked(self, widget):
+        self.enable_buttons()
         reload(w_polygon)
         polygon = w_polygon.polygon_wiz()
         polygon.polygon_show(self)
 
     def on_bolt_circle_clicked(self, widget):
+        self.enable_buttons()
         reload(w_bolt_circle)
         bolt_circle = w_bolt_circle.bolt_circle_wiz()
         bolt_circle.bolt_circle_show(self)
 
     def on_slot_clicked(self, widget):
+        self.enable_buttons()
         reload(w_slot)
         slot = w_slot.slot_wiz()
         slot.slot_show(self)
 
     def on_star_clicked(self, widget):
+        self.enable_buttons()
         reload(w_star)
         star = w_star.star_wiz()
         star.star_show(self)
 
     def on_gusset_clicked(self, widget):
+        self.enable_buttons()
         reload(w_gusset)
         gusset = w_gusset.gusset_wiz()
         gusset.gusset_show(self)
 
     def on_sector_clicked(self, widget):
+        self.enable_buttons()
         reload(w_sector)
         sector = w_sector.sector_wiz()
         sector.sector_show(self)
 
     def on_rotate_clicked(self, widget):
+        self.enable_buttons()
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new wizard)' in line:
@@ -209,6 +233,7 @@ class main_wiz:
         rotate.rotate_show(self)
 
     def on_array_clicked(self, widget):
+        self.enable_buttons()
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new wizard)' in line:
@@ -253,14 +278,14 @@ class main_wiz:
                 print('Error deleting temp files')
 
     def resize_window(self, w, h):
-        self.W.resize(w, h)
         if h > 800:
             self.rowSpace = 8
         elif h > 700:
             self.rowSpace = 4
         else:
             self.rowSpace = 2
-        print('resized window to: {}'.format(self.W.get_size()))
+        self.W.resize(w, h)
+#        print('0 resized window to: {}'.format(self.W.get_size()))
 
     def main_show(self):
         self.W = gtk.Dialog('PlasmaC Conversational',
@@ -320,13 +345,17 @@ class main_wiz:
                 buttons[bunames.index(wizard)].set_image(image)
             top.add(buttons[bunames.index(wizard)])
         right.add(self.preview)
-        self.entries = gtk.Table(15, 5, True)
-        self.entries.set_row_spacings(6)
+        self.entries = gtk.Table(1, 1, True)
+        self.entries.set_row_spacings(self.rowSpace)
         self.left.pack_start(self.entries, expand = False, fill = True)
-        spaceLabel = gtk.Label()
-        self.left.pack_start(spaceLabel, expand = True, fill = True)
+        spaceFrame = gtk.Frame()
+        spaceFrame.set_shadow_type(gtk.SHADOW_NONE)
+        self.left.pack_start(spaceFrame, expand = True, fill = True)
+        self.button_frame = gtk.Frame()
+        self.button_frame.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        self.left.pack_start(self.button_frame, expand = False, fill = True)
         self.button_box = gtk.Table(1, 5, True)
-        self.left.pack_start(self.button_box, expand = False, fill = True)
+        self.button_frame.add(self.button_box)
         bLabel1 = gtk.Label()
         bLabel1.set_width_chars(9)
         self.button_box.attach(bLabel1, 0, 1, 0, 1)
@@ -345,49 +374,55 @@ class main_wiz:
         self.send = gtk.Button('Send')
         self.send.connect('clicked', self.on_send_clicked)
         self.button_box.attach(self.send, 4, 5, 0, 1)
-        wWidth = wHeight = gSize = 0
+        if self.scale == 1:
+         unitCode = ['21', '0.25', 32]
+        else:
+         unitCode = ['20', '0.004', 1.26]
+        self.preamble = 'G{} G64P{} G40 G49 G80 G90 G92.1 G94 G97'.format(unitCode[0], unitCode[1])
+        self.postamble = 'G{} G64P{} G40 G49 G80 G90 G92.1 G94 G97'.format(unitCode[0], unitCode[1])
+        self.origin = False
+        self.leadin = 0
+        self.leadout = 0
+        self.holeRadius = unitCode[2] / 2.0
+        self.holeSpeed = 60.0
+        wWidth = 890
+        wHeight = 582
+        gSize = 0
+        fSize = '9'
         if os.path.exists(self.configFile):
             f_in = open(self.configFile, 'r')
-            self.preamble = self.postamble = ''
-            self.origin = False
-            self.leadIn = self.leadOut = '0'
-            self.holeRadius = 0
-            self.holeSpeed = 100
-            for line in f_in:
-                if line.startswith('preamble'):
-                    self.preamble = line.strip().split('=')[1]
-                elif line.startswith('postamble'):
-                    self.postamble = line.strip().split('=')[1]
-                elif line.startswith('origin') and line.strip().split('=')[1] == 'True':
-                    self.origin = True
-                elif line.startswith('lead-in'):
-                    self.leadIn = line.strip().split('=')[1]
-                elif line.startswith('lead-out'):
-                    self.leadOut = line.strip().split('=')[1]
-                elif line.startswith('hole-diameter'):
-                    self.holeRadius = float(line.strip().split('=')[1]) / 2
-                elif line.startswith('hole-speed'):
-                    self.holeSpeed = float(line.strip().split('=')[1])
-                elif line.startswith('window-width'):
-                    try:
+            try:
+                for line in f_in:
+                    if line.startswith('preamble'):
+                        self.preamble = line.strip().split('=')[1]
+                    elif line.startswith('postamble'):
+                        self.postamble = line.strip().split('=')[1]
+                    elif line.startswith('origin') and line.strip().split('=')[1] == 'True':
+                        self.origin = True
+                    elif line.startswith('lead-in'):
+                        self.leadIn = line.strip().split('=')[1]
+                    elif line.startswith('lead-out'):
+                        self.leadOut = line.strip().split('=')[1]
+                    elif line.startswith('hole-diameter'):
+                        self.holeRadius = float(line.strip().split('=')[1]) / 2
+                    elif line.startswith('hole-speed'):
+                        self.holeSpeed = float(line.strip().split('=')[1])
+                    elif line.startswith('window-width'):
                         wWidth = int(line.strip().split('=')[1])
-                    except:
-                        wWidth = 0
-                elif line.startswith('window-height'):
-                    try:
+                    elif line.startswith('window-height'):
                         wHeight = int(line.strip().split('=')[1])
-                    except:
-                        wHeight = 0
-                elif line.startswith('grid-size'):
-                    try:
+                    elif line.startswith('grid-size'):
                         # glcanon has a reversed scale to just about everything else... :(
                         gSize = float(line.strip().split('=')[1]) * (0.03937000787402 / self.scale)
-                    except:
-                        gSize = 0
+                    elif line.startswith('font-size'):
+                        fSize = line.strip().split('=')[1]
+            except:
+                print('Using default wizard settings')
         if wWidth and wHeight:
             self.resize_window(wWidth, wHeight)
         if gSize:
             self.preview.grid_size = gSize
+        gtk.settings_get_default().set_property('gtk-font-name', 'sans {}'.format(fSize))
         self.W.show_all()
         self.s.poll()
         if self.s.file:
