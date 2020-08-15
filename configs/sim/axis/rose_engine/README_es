@@ -1,0 +1,10 @@
+rose_engine.ini: demo de motor Rose
+
+Demuestra la cinematica de un motor Rose
+
+(man 9 rosekins)
+
+joint_0 lineal, transversal
+joint_1 lineal, longitudinal
+joint_2 rotativa, husillo (angulo acumalativo)
+

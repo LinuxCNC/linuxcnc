@@ -1,0 +1,28 @@
+.TH MULT2 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+mult2 \- Product of two inputs
+.SH SYNOPSIS
+.HP
+.B loadrt mult2 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmult2.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B mult2.\fIN\fB.in0\fR float in \fR
+.TQ
+.B mult2.\fIN\fB.in1\fR float in \fR
+.TQ
+.B mult2.\fIN\fB.out\fR float out \fR
+out = in0 * in1
+.SH LICENSE
+
+GPL

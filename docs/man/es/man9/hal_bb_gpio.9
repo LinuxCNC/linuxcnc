@@ -1,0 +1,62 @@
+.TH hal_bb_gpio "9" "" "Documentación LinuxCNC" "Componente HAL"
+.SH NOMBRE
+
+hal_bb_gpio \- Controlador para pines GPIO beaglebone
+
+.SH SINOPSIS
+.HP
+.B loadrt hal_bb_gpio \fIuser_leds=#,...\fR \fIinput_pins=#,...\fR \fIoutput_pins=#,...\fB
+
+.SH LEDS DE USUARIO
+El parámetro de loadrt \fIuser_leds\fR controla qué LED están disponibles para HAL.
+Rango válido: 0..3. Estos LED están al lado del conector ethernet y los números linuxcnc coinciden con la serigrafía en Beaglebone Black. Empíricamente, estos parecen ser OR con cualquier función asignada al LED en Linux.
+
+.SS PINS
+.TP
+\fBbb_gpio.userled\fIN\fR bit in
+.TQ
+\fBbb_gpio.userled\fIN\fB-invert\fR bit in
+El LED asociado se enciende si \fBuserled\fIN\fR xor \fBuserled\fIN\fR-invert\fB
+es verdad.
+
+.SH PINES DE ENTRADA
+El parámetro de loadrt \fIinput_pins\fR controla qué pines físicos de E/S estan
+disponible para HAL como pines de entrada. La numeración es "800+N" para el pin N en el conector P8 y "900+N" para el pin N en el conector P9. Por ejemplo, "803"
+significa conector P8 pin 3, que también se describe en la documentación de BeagleBone como "gpmc_ad6".
+
+La especificación de pines que de otro modo están en uso por el sistema puede tener indeseables efectos secundarios, como el bloqueo de rtapi_app o de todo el sistema.
+
+.SS PINS
+.TP
+\fBbb_gpio.p\fIN \fB.in-\fINN\fR bit out
+.TQ
+\fBbb_gpio.p\fIN\fB.in-\fINN\fB-invert\fR bit in
+\fBin-\fINN\fR es una instantánea del valor del pin físico correspondiente XOR 
+el valor del pin \fBin-\fINN\fB-invert\fR correspondiente.
+
+.SH PINES DE SALIDA
+El parámetro de loadrt \fIinput_pins\fR controla qué pines físicos de E/S estan
+disponible para HAL como pines de entrada. La numeración es "800+N" para el pin N en conector P8 y "900+N" para el pin N en el conector P9.
+
+La especificación de pines que de otro modo están en uso por el sistema puede tener indeseables efectos secundarios, como el bloqueo de rtapi_app o de todo el sistema.
+
+.SS PINS
+.TP
+\fBbb_gpio.p\fIN\fB.out-\fINN\fR bit out
+.TQ
+\fBbb_gpio.p\fIN\fB.out-\fINN\fB-invert\fR bit in
+El pin físico correspondiente se acciona con el resultado de \fBin-\fINN\fR xor \fBin-\fINN\fB-invert\fR.
+
+.SH PARÁMETROS
+Ninguno
+
+.SH FUNCIONES
+.TP
+.B bb_gpio.read
+Actualizar pines HAL de pines físicos
+.TP
+.B bb_gpio.write
+Actualizar pines físicos de pines HAL
+
+.SH LICENCIA
+GPL

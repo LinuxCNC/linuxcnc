@@ -1,0 +1,37 @@
+:lang: es
+
+[[cha:starting-linuxcnc]]
+
+= Iniciando LinuxCNC
+
+== Ejecutando LinuxCNC
+
+LinuxCNC se inicia con el archivo script 'linuxcnc'.
+
+----
+linuxcnc [opciones] [<ini-file>]
+----
+
+.Opciones de script linuxcnc
+* '-v' = verbose - imprime información mientras funciona
+* '-d' = hace eco de los comandos del script en la pantalla para detectar fallos 
+
+Si al script 'linuxcnc' se le pasa un archivo .ini como argumento, lo lee y se inicia
+LinuxCNC. La sección [HAL] del archivo .ini especifica el orden de carga de archivos HAL,
+si se usa más de uno. Una vez que se cargan los archivos HAL=xxx.hal,
+se carga la GUI y luego se carga el archivo POSTGUI=.xxx.hal. Si se han creado objetos PyVCP o
+GladeVCP con pines HAL, debe usar el archivo HAL postgui para hacer cualquier
+conexion a esos pines. Consulte la sección <<sec:hal-section,[HAL]>> de la configuración INI para más información.
+
+[[sub:selector-de-configuración]]
+
+=== Selector de configuracion
+
+Si no se pasa ningún archivo .ini al script linuxcnc, se carga el selector de configuración
+para que pueda elegir y guardar una configuración de ejemplo. Una vez que una configuración
+de ejemplo se ha guardado, se puede modificar para adaptarse a su aplicación.
+Los archivos de configuración se guardan en el directorio linuxcnc/configs.
+
+.Selector de configuración
+
+image::images/configuration-selector_es.png[align="center", alt="Selector de configuración de LinuxCNC"]

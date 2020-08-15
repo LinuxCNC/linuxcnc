@@ -1,0 +1,59 @@
+.TH parport "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_parport \- acceso portable a puertos paralelos estilo PC
+
+.SH SINTAXIS
+.HP
+#include "hal_parport.h"
+.HP
+int \fBhal_parport_get\fR(int \fIcomp_id\fR, hal_parport_t *\fIport\fR, unsigned short \fIbase\fR, unsigned short \fIbase_hi\fR, unsigned int \fImodes\fR)
+.HP
+void \fBhal_parport_release\fR(hal_parport_t *\fIport\fR)
+.SH  ARGUMENTOS
+.IP \fIcomp_id\fR
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+.IP \fIport\fR
+Un puntero a una estructura hal_parport_t
+.IP \fIbase\fR
+La dirección base del puerto (si puerto >= 16) o el número de puerto de Linux (si puerto <16)
+.IP \fIbase_hi\fR
+La dirección "alta" del puerto (ubicación de los registros ECP), 0 para usar una
+dirección alta probada, o \-1 para deshabilitar la dirección alta
+.IP \fImodes\fR
+Avisa al driver de los modos de puerto deseados, desde <linux/parport.h>. Si un
+puerto detectado por Linux no proporciona los modos solicitados, se imprime una advertencia
+con rtapi_print_msg. Esto no hace que la solicitud de puerto falle, porque
+desafortunadamente, muchos sistemas que tienen parports EPP que funcionan no se detectan como
+tales por Linux.
+.SH DESCRIPCIÓN
+\fBhal_parport_get\fR asigna un puerto paralelo para uso exclusivo de
+componente hal llamado. El puerto debe liberarse con \fBhal_parport_release\fR
+antes de que el componente salga con \fBhal_exit\fR.
+.SH SONDEO DE DIRECCIÓN ALTA 
+Si el puerto es un puerto paralelo conocido por Linux, y Linux detectó una dirección alta
+de E/S, se utiliza este valor. De lo contrario, se usara base+0x400 si no está registrada
+por cualquier dispositivo. De lo contrario, no se utiliza ninguna dirección. Si no se detecta una dirección alta,
+port\-> base_hi es 0.
+.SH ESTRUCTURA PARPORT
+.in +4n
+.nf
+typedef struct
+{
+    unsigned short base;
+    unsigned short base_hi;
+    .... // mas campos
+} hal_parport_t;
+.fi
+.in
+.SH VALOR DEVUELTO
+\fBhal_parport_get\ devuelve un código de estado HAL. En caso de éxito, \fIport\fR es
+completado con información sobre el puerto asignado. En caso de fallo, los contenidos
+de \fIport\ fR no están definidos, excepto que es seguro (pero no obligatorio) pasar
+este puerto a \fBhal_parport_release\fR.
+
+\fBhal_parport_release\fR no devuelve un valor. Siempre tiene éxito.
+.SH NOTAS
+En nuevo código, se prefiere el uso de rtapi_parport a hal_parport.
+
+

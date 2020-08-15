@@ -1,0 +1,9 @@
+Configuraciones básicas de pórticos con pasos utilizando gantrykins.
+
+gantry no tiene interruptores home
+
+Esta configuración es una configuración basada en pasos para un tipo de dispositivo de pórtico que utiliza motores independientes en el eje Y. Cuando se inicia esta configuración, estará en modo articulación y cada eje se puede mover de forma independiente. Esto le permite cuadrar el pórtico para que coincida con las marcas y luego hacer home de cada articulación. Una vez que se complete esto, cambia al modo universal antes de intentar mover el pórtico.
+
+gantry-hs tiene interruptores home para cada junta
+
+Esta configuración es como gantry.ini con la adición de interruptores home. El homing se realiza en modo articulación. Es muy importante que los pórticos establezcan las posiciones iniciales de los interruptores home antes del primer homing para que lleguen a los interruptores en un momento muy similar. Para eliminar cualquier desviación del pórtico ajuste la compensación del home de una articulación. Después de homing, cambia al modo universal.

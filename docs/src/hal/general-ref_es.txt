@@ -1,0 +1,158 @@
+:lang: es
+[[cha:general-reference]]
+
+=Referencia general
+
+==Convenciones Generales de Nomenclatura
+
+Unas convenciones de nombres consistentes harán que HAL sea mucho más fácil de usar. Por
+ejemplo, si cada controlador de encoder proporciona el mismo conjunto de pines y
+se los nombró de la misma manera, sería fácil cambiar de un tipo de
+controlador de encoder a otro. Desafortunadamente, al igual que muchos proyectos de código abierto,
+HAL es una combinación de cosas que fueron diseñadas, y cosas que
+simplemente evolucionaron. Como resultado, hay muchas inconsistencias. Esta
+sección intenta abordar ese problema definiendo algunas convenciones,
+pero probablemente pasará un tiempo antes de que todos los módulos se conviertan para
+seguirlas.
+
+Halcmd y otras utilidades HAL de bajo nivel tratan los nombres HAL como
+entidades simples, sin estructura interna. Sin embargo, la mayoría de los módulos sí tienen
+alguna estructura implícita. Por ejemplo, una tarjeta proporciona varios
+bloques funcionales, cada bloque puede tener varios canales, y cada
+canal tiene uno o más pines. Resulta asi en una estructura que
+se asemeja a un árbol de directorios. Aunque halcmd no reconoce
+estructuras de árbol, la elección adecuada de las convenciones de nomenclatura dejará agrupar
+elementos relacionados (ya que ordena los nombres). Además, 
+las herramientas de más alto nivel se pueden diseñarse para reconocer dicha estructura, si los nombres
+proporcionan la información necesaria. Para hacer eso, todos los componentes HAL deberían
+seguir estas reglas:
+
+ - Los puntos (".") separan niveles de la jerarquia.
+   Esto es análogo a la barra inclinada ("/") en un nombre de archivo.
+ - Los guiones ("-") separan palabras o campos en el mismo nivel de la jerarquia.
+ - Los componentes HAL no deben usar guiones bajos o "mezcla de casos".
+ - Use solo letras minúsculas y números en los nombres.
+
+==Convenciones de nombres de controladores de hardware
+
+===Nombres de pines/parámetros
+
+Los controladores de hardware deben usar cinco campos (en tres niveles) para formar un
+pin o nombre del parámetro, de la siguiente manera:
+
++*<nombre-dispositivo>.<dispositivo-num>.<tipo-io>.<chan-num>.<nombre-específico>*+
+
+Los campos individuales son:
+
+<nombre-dispositivo>::
+     El dispositivo con el que el controlador está diseñado trabajar. Esto es
+    a menudo una placa de interfaz de algún tipo, pero hay otras
+    posibilidades.
+
+<dispositivo-num>::
+     Es posible instalar más de una placa servo, puerto paralelo,
+    u otro dispositivo de hardware en una computadora. El número de dispositivo identifica un
+    dispositivo específico. Los números de dispositivo comienzan en 0 y se incrementan.
+
+<tipo-io>::
+      La mayoría de los dispositivos proporcionan más de un tipo de E/S. Incluso el simple
+    puerto paralelo tiene entradas digitales y salidas digitales. Tarjetas mas complejas
+    pueden tener entradas y salidas digitales, contadores de encoder, generadores pwm o
+    de impulsos de pasos, convertidores analógico a digital y/o digital a analógico
+     u otras capacidades únicas. El tipo de E/S se usa para
+    identificar el tipo de E/S al que está asociado un pin o parámetro.
+    Idealmente, los controladores que implementan el mismo tipo de E/S, incluso si son para
+    dispositivos muy diferentes, deberían proporcionar un conjunto consistente de pines y
+    parámetros, y un comportamiento idéntico. Por ejemplo, todas las entradas digitales
+    debería comportarse de la misma manera desde el interior del HAL, independientemente del
+    dispositivo.
+
+<chan-num>::
+      Prácticamente todos los dispositivos de E/S tienen múltiples canales, y el número
+    de canal identifica a cada uno de ellos. Como los números de dispositivo, los números de canal
+    comienzan en cero y se incrementan.footnote:[Una excepción a la
+    regla "los números de los canales comienzan en cero" es
+    el puerto paralelo. Sus pines HAL están numerados con el número de pin correspondiente
+    en el conector DB-25. Esto es conveniente para el cableado, pero
+    inconsistente con otros controladores. Existe cierto debate sobre si esto
+    es un error o una característica.]
+    Si hay más de un dispositivo instalado, los números de canal en
+    dispositivos adicionales comienzan desde cero. Si es posible tener un
+    número de canal mayor que 9, los números de canal deben ser dos
+    dígitos, con un cero a la izquierda en números menores a 10 para preservar
+    la ordenacion. Algunos módulos tienen pines y/o parámetros que afectan a más
+    de un canal. Por ejemplo, un generador de PWM podría tener cuatro canales
+    con cuatro entradas independientes de "ciclo de trabajo", pero un solo parámetro 
+    "frecuencia" que controla los cuatro canales (debido a limitaciones hardware).
+    El parámetro de frecuencia debe usar "0-3" como número de canal.
+
+<nombre-específico>::
+      Un canal de E/S individual puede tener solo un pin HAL asociado
+    con el, pero la mayoría tiene más de uno. Por ejemplo, una entrada digital tiene
+    dos pines, uno es el estado del pin físico, el otro es la misma
+    cosa pero invertida. Eso le permite al configurador elegir entre entradas activas
+    bajas  y activas altas. Para la mayoría de los tipos-io, hay un conjunto estándar
+    de pines y parámetros, (denominada "interfaz canónica") que
+    el driver debería implementar. Las interfaces canónicas se describen en
+    el capítulo <<cha:canonical-device-interfaces,Interfaces canonicos de dispositivos>>
+
+.Ejemplos
+
+motenc.0.encoder.2.position::
+      - Salida de posición del tercer canal (2) de encoder en la primera (0)
+    tarjeta Motenc.
+
+stg.0.din.03.in::
+      - Estado de la cuarta entrada digital (03) en la primera (0) tarjeta Servo-to-Go.
+
+ppmc.0.pwm.00-03.frequency::
+     - Frecuencia de portadora utilizada para los canales PWM 0 a 3 (cuatro canales) en la 
+    primera (0) placa ppmc Pico Systems.
+
+===Nombres de funciones
+
+Los controladores de hardware generalmente solo tienen dos tipos de funciones HAL, unas
+que lee el hardware y actualiza los pines HAL, y otras que escriben en el
+hardware utilizando datos de pines HAL. Deben nombrarse de la siguiente manera:
+
++*<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write*+ 
+
+<device-name>::
+     El mismo que se use para pines y parámetros.
+
+<device-num>::
+     El dispositivo específico al que accederá la función.
+
+<io-type>::
+      Opcional. Una función puede acceder a todas las E/S de una placa, o puede
+    acceder solo a cierto tipo. Por ejemplo, puede haber distintas
+    funciones para leer contadores de encoder y leer E/S digitales. Si tales
+    funciones independientes existen, el campo <io-type> identifica el tipo de
+    E/S a la que acceden. Si una sola función lee todas las E/S provistas por
+    la tarjeta, <io-type> no se utiliza.
+    footnote:[Nota para los programadores de controladores: NO implemente por separado
+    funciones para diferentes tipos de E/S a menos que sean interrupibles y puedan
+    trabajar en hilos independientes. Si se interrumpe una lectura de encoder, se leen
+    entradas digitales, y luego se reanudar la lectura, causará problemas.
+    Implemente una función única que haga todo.]
+
+<chan-num-range>::
+    Opcional. Se usa solo si la E/S <io-type> se divide en grupos y
+    se accede por diferentes funciones.
+
+read|write::
+     Indica si la función lee el hardware o escribe en él.
+
+.Ejemplos
+
+motenc.0.encoder.read::
+     - lee todos los codificadores en la primera placa motenc.
+
+generic8255.0.din.09-15.read::
+      - lee el segundo puerto de 8 bits en el primera placa genérica basada en 8255
+    de E/S digital.
+
+ppmc.0.write::
+      - escribe todas las salidas (generadores de pasos, pwm, DAC y digitales) en
+    la primera placa Pico Systems ppmc.
+

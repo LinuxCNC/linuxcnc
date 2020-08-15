@@ -1,0 +1,25 @@
+.TH CONV_S32_FLOAT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+conv_s32_float \- Convert a value from s32 to float
+.SH SYNOPSIS
+.HP
+.B loadrt conv_s32_float [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconv-s32-float.\fIN\fB\fR (requires a floating-point thread)
+Update 'out' based on 'in'
+.SH PINS
+.TP
+.B conv-s32-float.\fIN\fB.in\fR s32 in \fR
+.TQ
+.B conv-s32-float.\fIN\fB.out\fR float out \fR
+.SH LICENSE
+
+GPL

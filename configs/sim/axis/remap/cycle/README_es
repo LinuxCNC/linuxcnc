@@ -1,0 +1,43 @@
+Muestra de cómo se pueden hacer ciclos a partir de subrutinas O-word o directamente codificadas en Python.
+
+# Suponga que G84.2 se reasigna a Python g842; así en la sección ini [RS274NGC]:
+# REMAP=G84.2 argspec=xyzqp python=g842 modalgroup=1
+# #
+# entonces, ejecutando
+# #
+# G84.2 x1 y1 (línea1)
+# x3 y3       (línea2)
+# y5          (línea3)
+# ...
+# #
+# se ejecutará como:
+# * G84.2 x1 y1
+# G84.2 x3 y3
+# G84.2 x3 y5
+# #
+# hasta que se borre el movimiento con G80 o se ejecute algún otro movimiento.
+# #
+# Esto permite escribir ciclos en Python, o como procedimientos de Oword; en el
+# último caso, self.motion_mode debe establecerse en el epílogo Python.
+# #
+
+Y lo mismo para un procedimiento de Oword:
+
+# un ciclo con un sub de Oword
+#REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=g843_prolog ngc=g843 epilog=g843_epilog
+
+Los ejemplos solo muestran los parámetros de los que se alimentan, y no hacen nada útil; "capte la idea".
+Los parámetros sticky se manejan correctamente.
+
+Uso:
+
+linuxcnc cycle.ini
+
+pulsa ejecutar y ver qué ocurre.
+
+Para entender cómo encajan las cosas:
+
+- vea las instrucciones REMAP en cycle.ini
+- python/remap.py contiene el pegamento Python
+- nc_subroutines/g843.ngc es un ejemplo 'cuerpo de ciclo'
+

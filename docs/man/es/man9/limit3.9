@@ -1,0 +1,47 @@
+.TH LIMIT3 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+limit3 \- Follow input signal while obeying limits
+.SH SYNOPSIS
+Limit the output signal to fall between min and max, limit its slew
+rate to less than maxv per second, and limit its second derivative to
+less than maxa per second squared.  When the signal is a position,
+this means that the position, velocity, and acceleration are limited.
+.SH FUNCTIONS
+.TP
+\fBlimit3.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B limit3.\fIN\fB.in\fR float in \fR
+.TQ
+.B limit3.\fIN\fB.enable\fR bit in \fR(default: \fI1\fR)
+1: out follows in, 0: out returns to 0 (always per constraints)
+.TP
+.B limit3.\fIN\fB.out\fR float out \fR
+.TQ
+.B limit3.\fIN\fB.load\fR bit in \fR(default: \fI0\fR)
+When TRUE, immediately set \fBout\fB to \fBin\fR, ignoring maxv
+and maxa
+.TP
+.B limit3.\fIN\fB.min\fR float in \fR(default: \fI-1e20\fR)
+.TQ
+.B limit3.\fIN\fB.max\fR float in \fR(default: \fI1e20\fR)
+.TQ
+.B limit3.\fIN\fB.maxv\fR float in \fR(default: \fI1e20\fR)
+.TQ
+.B limit3.\fIN\fB.maxa\fR float in \fR(default: \fI1e20\fR)
+.TQ
+.B limit3.\fIN\fB.smooth-steps\fR u32 in \fR(default: \fI2\fR)
+Smooth out acceleration this many periods before reaching input or
+max/min limit.  Higher values avoid oscillation, but will accelerate
+slightly more slowly.
+.SH LICENSE
+
+GPL

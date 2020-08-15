@@ -1,0 +1,300 @@
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.TH KINS "9" "2014-12-22" "Documentación LinuxCNC" "Módulos cinemáticos"
+.SH NOMBRE
+kins \- definiciones cinemáticas para LinuxCNC
+.SH SINOPSIS
+.B loadrt trivkins (uso para la mayoría de las máquinas cartesianas)
+.PP
+.B loadrt corexykins
+.PP
+.B loadrt genhexkins
+.PP
+.B loadrt genserkins
+.PP
+.B loadrt lineardeltakins (ver página de manual separada)
+.PP
+.B loadrt maxkins
+.PP
+.B loadrt pentakins
+.PP
+.B loadrt pumakins
+.PP
+.B loadrt rosekins
+.PP
+.B loadrt rotarydeltakins
+.PP
+.B loadrt rotatekins
+.PP
+.B loadrt scarakins
+.PP
+.B carga trípodes trípode
+.PP
+.B loadrt xyzac\-trt\-kins
+.PP
+.B loadrt xyzbc\-trt\-kins
+.PP
+.B loadrt 5axiskins
+.PP
+
+.SH DESCRIPCIÓN
+En lugar de exportar pines y funciones HAL, estos componentes proporcionan las definiciones cinemáticas directas e inversas para LinuxCNC.
+
+.SS trivkins \- cinemática trivial generalizada
+Los números de articulación se asignan secuencialmente de acuerdo con las letras de eje especificadas con el parámetro \fBcoordinates=\fR.
+
+Si se omite el parámetro coordinates=, se asignan números de articulación \fBsecuencialmente\fR a cada letra de eje conocida ("xyzabcuvw").
+
+.TP
+Ejemplo: loadrt\fBtrivkins\fR
+.TP
+Asigna todas las letras de los ejes a números de articulación en secuencia:
+.PP
+   x==articulación0, y==articulación1, z==articulación2
+   a==articulación3, b==articulación4, c==articulación5
+   u==articulación6, v==articulación7, w==articulación8
+
+.TQ
+Ejemplo: loadrt\fBtrivkins coordinates= xyz\fR
+.TQ
+Asignaciones: x==articulación0, y==articulación1, z==articulación2
+
+.TQ
+Ejemplo: loadrt\fBtrivkins coordinates=xz\fR
+.TQ
+Asigna: x==articulación0, z==articulación1
+
+.TQ
+Ejemplo: loadrt\fBtrivkins coordinates=xyzy\fR
+.TQ
+Asignaciones: x==articulación0, y0==articulación1, z==articulación2, y1==articulación3
+
+
+.PP
+El tipo de cinemática predeterminado es\fBKINEMATICS_IDENTITY\fR. Las GUIs puede proporcionar características especiales para configuraciones que utilizan este tipo de cinemática predeterminada. Por ejemplo, la GUI Axis maneja automáticamente las operaciones de modo de articulación y mundial para que las distinciones entre las articulaciones y los ejes no sean visibles para el operador.
+Esto es factible ya que existe una correspondencia exacta entre un número articulación y su letra de eje correspondiente.
+
+.TQ
+El tipo de cinemática se puede establecer con el parámetro \fBkinstype=\fR:
+
+.TQ
+  kinstype=\fB1\fR para KINEMATICS_IDENTITY (predeterminado si kinstype = omitido)
+.TQ
+  kinstype=[\fBb\fR|\fBB\fR] para KINEMATICS_BOTH
+.TQ
+  kinstype=[\fBf\fR|\fBF\fR] para KINEMATICS_FORWARD_ONLY
+.TQ
+  kinstype=[\fBi\fR|\fBI\fR] para KINEMATICS_INVERSE_ONLY
+
+.TP
+Ejemplo: loadrt \fBtrivkins coordinates=xyz kinstype=b\fR
+
+.PP
+Use kinstype=\fBB\fR (KINEMATICS_BOTH) para configuraciones que necesitan mover articulaciones de forma independiente (modo articulación) o como movimientos coordinados (teleop) en coordenadas mundiales.
+
+Cuando se usa la GUI Axis con KINEMATICS_BOTH, la tecla '\fB$\fR' se usa para alternar entre los modos de articulación y teleop (mundial).
+
+.PP
+Se puede usar una letra de eje más de una vez (\fBduplicadas\fR) para asignar múltiples articulaciones a una sola letra de coordenadas de eje.
+
+.TQ
+Ejemplo: coordinates=\fBxyyzw\fR kinstype=\fBB\fR
+.TQ
+Asigna: x==articulación0, y==articulación1\fBAND\fR articulación2, z==articulación3, w==articulación4
+
+.PP
+El ejemplo anterior ilustra una configuración de pórtico que usa letras de coordenadas \fBduplicadas\fR para indicar que dos articulaciones (articulación1 y articulación2) mueven un solo eje (y). El uso de kinstype=\fBB\fR permite alternar la configuración entre los modos de operación articulación y mundial. Las opciones de configuración de referencia están disponibles para sincronizar el movimiento de referencia final para las articulaciones seleccionadas; consulte la documentación de\fConfiguracion Homing\fR.
+
+\fBNOTES\fR para coordenadas \fBduplicadas\fR:
+
+Cuando se utilizan letras de coordenadas \fBduplicadas\fR, la especificación KINEMATICS_BOTH (kinstype=\fBB\fR) permite que una interfaz gráfica de usuario admita el offset de cada articulación individual en \fBModo articulación\fR.
+Se requiere \fBprecaución\fR en máquinas en las que el movimiento de una sola articulación (en un articulación especificada por una letra de coordenada \fBduplicada\fR) puede conducir a daños del pórtico u otros resultados no deseados.
+Cuando se omite el parámetro kinstype=, la operación por defecto es KINEMATICS_IDENTITY (kinstype=\fB1\fR) y una interfaz gráfica de usuario puede permitir jog en función de una letra de coordenada de eje seleccionada (o mediante una tecla del teclado) antes de completar el recorrido y la máquina aún en\fBModo articulación\fR. La articulación seleccionada dependerá de la implementación de la interfaz gráfica de usuario, pero normalmente solo se moverá una de las múltiples articulaciones del conjunto. En consecuencia, se recomienda especificar KINEMATICS_BOTH, ya que permite el soporte para un jog independiente e inequívoco de cada articulación individual.
+Las máquinas que implementan el recorrido de referencia para todas las articulaciones (incluidas las disposiciones para sincronizar el movimiento de referencia final para múltiples articulaciones) pueden conectarse al arranque de la máquina y cambiar automáticamente al modo\fBmundial\fR donde está disponible el jogging por coordenadas.
+
+.SS corexykins \- Cinematica CoreXY
+.TP
+X = 0.5*(JOINT_0 + JOINT_1)
+.TQ
+Y = 0.5*(JOINT_0 \- JOINT_1)
+.TQ
+Z = JOINT_2
+.TP
+[KINS]JOINTS= debe especificar 3 o más articulaciones (máximo 9)
+.TP
+Si está habilitado por el número de [KINS]JOINTS= especificado, JOINT_3,4,5,6,7,8 corresponde a las coordenadas A, B, C, U, V, W respectivamente.
+
+
+.SS genhexkins\- Cinemática Hexápodo
+Da seis grados de libertad en posición y orientación (XYZABC). La ubicación de las articulaciones de la base y la plataforma está definida por los parámetros hal. La iteración cinemática hacia adelante está controlada por pines hal.
+.TP
+.B genhexkins.base.\fIN\fB.x
+.TQ
+.B genhexkins.base.\fIN\fB.y
+.TQ
+.B genhexkins.base.\fIN\fB.z
+.TQ
+.B genhexkins.platform.\fIN\fB.x
+.TQ
+.B genhexkins.platform.\fIN\fB.y
+.TQ
+.B genhexkins.platform.\fIN\fB.z
+Parámetros que describen las coordenadas de la articulación\fIN-sima\fR.
+.TQ
+.B genhexkins.spindle\-offset
+Se agregó a todas las articulaciones las coordenadas Z para cambiar el origen de la máquina.
+Facilita el ajuste de la posición del husillo.
+.TQ
+.B genhexkins.base\-n.\fIN\fB.x
+.TQ
+.B genhexkins.base\-n.\fIN\fB.y
+.TQ
+.B genhexkins.base\-n.\fIN\fB.z
+.TQ
+.B genhexkins.platform\-n.\fIN\fB.x
+.TQ
+.B genhexkins.platform\-n.\fIN\fB.y
+.TQ
+.B genhexkins.platform\-n.\fIN\fB.z
+Parámetros que describen los vectores unitarios del eje de la articulación \fIN-sima\fR. Se utiliza para calcular la corrección de la longitud del corredizo para articulaciones cardánicas y actuadores no cautivos.
+.TQ
+.B genhexkins.screw\-lead
+Paso del tornillo del corredizo del actuador, positivo para roscas a derecha.
+El valor predeterminado es 0 (corrección de longitud deshabilitada).
+.TQ
+.B genhexkins.correction.\fIN\fB
+Valores actuales de corrección de la longitud del corredizo para actuadores no cautivos con articulaciones cardánicas.
+.B genhexkins.convergence\-criterion
+Valor mínimo de error que finaliza las iteraciones con una solución convergente.
+.TQ
+.B genhexkins.limit\-iterations
+Límite de iteraciones, si las iteraciones excedidas se detienen sin convergencia.
+.TQ
+.B genhexkins.max\-error
+Valor de error máximo, si las iteraciones excedidas se detienen sin convergencia.
+.TQ
+.B genhexkins.last\-iterations
+Número de iteraciones empleadas para la última solución de cinemática directa.
+.TQ
+.B genhexkins.max\-iterations
+Número máximo de iteraciones empleadas para una solución convergente durante la sesión actual.
+.TQ
+.B genhexkins.tool\-offset
+offset TCP desde el origen de la plataforma a lo largo de Z para implementar la función RTCP. Para
+evitar saltos de articulaciones cambie el offset de la herramienta solo cuando la plataforma no está inclinada.
+
+.SS genserkins \- cinemática serial generalizada
+Cinemática que puede modelar un manipulador general de eslabones en serie con hasta 6 articulaciones angulares.
+
+La cinemática utiliza la definición de Denavit-Hartenberg para la articulación y los eslabones. Las definiciones de DH son las utilizadas por John J Craig en "Introducción a la robótica: mecánica y control". Los parámetros para el manipulador se definen mediante pines hal .
+Tenga en cuenta que esto utiliza una convención a veces conocida como "Parámetros DH modificados" y esto debe tenerse en cuenta al configurar el sistema.
+https://w.wiki/NcY
+.TP
+.B genserkins.A\-\fIN
+.TQ
+.B genserkins.ALPHA\-\fIN
+.TQ
+.B genserkins.D\-\fIN
+Parámetros que describen la geometría de la articulación\fIN-esima\fRth.
+
+.SS maxkins\- Ejemplo de cinemática de 5 ejes
+Cinemática de fresadora de mesa de 5 ejes de Chris Radek llamada 'max' con cabezal basculante (eje B) y giratorio horizontal montado en la mesa (eje C). Proporciona movimiento UVW en el sistema de coordenadas girado. El archivo fuente, maxkins.c, puede ser un punto de partida útil para otros sistemas de 5 ejes.
+
+.SS pentakins \- Cinematica Pentapod
+Da cinco grados de libertad en posición y orientación (XYZAB). La ubicación de la base y las articulaciones efectoras está definida por los parámetros hal. La iteración cinemática hacia adelante está controlada por pines hal.
+.TP
+.B pentakins.base.\fIN\fB.x
+.TQ
+.B pentakins.base.\fIN\fB.y
+.TQ
+.B pentakins.base.\fIN\fB.z
+.TQ
+.B pentakins.effector.\fIN\fB.r
+.TQ
+.B pentakins.effector.\fIN\fB.z
+Parámetros que describen el radio de la articulación efectora\fIN\fR-esima y la posición axial.
+.TQ
+.B pentakins.convergence\-criterion
+Valor mínimo de error que finaliza las iteraciones con una solución convergente.
+.TQ
+.B pentakins.limit\-iterations
+Límite de iteraciones, si las iteraciones excedidas se detienen sin convergencia.
+.TQ
+.B pentakins.max\-error
+Valor de error máximo, si las iteraciones excedidas se detienen sin convergencia.
+.TQ
+.B pentakins.last\-iterations
+Número de iteraciones gastadas para la última solución de cinemática directa.
+.TQ
+.B pentakins.max\-iterations
+Número máximo de iteraciones gastadas para una solución convergente durante la sesión actual.
+.TQ
+.B pentakins.tool\-offset
+offset TCP desde el origen del efector a lo largo de Z para implementar la función RTCP. Para evitar el salto de las articulaciones, cambie la herramienta de offset solo cuando la plataforma no esté inclinada.
+
+.SS pumakins \- cinemática para robots con tipo puma
+Cinemática para un robot estilo puma con 6 articulaciones
+.TP
+.B pumakins.A2
+.TQ
+.B pumakins.A3
+.TQ
+.B pumakins.D3
+.TQ
+.B pumakins.D4
+Describen la geometría del robot.
+
+.SS rosekins \- cinemática para un motor rose usando una articulación transversal, longitudinal y rotativa (3 articulaciones)
+
+.SS rotarydeltakins \- cinemática para una máquina rotatoria delta. Robot rotatorio delta (3 articulaciones)
+
+.SS rotatekins \- Cinemática rotada
+Los ejes X e Y se giran 45 grados en comparación con las articulaciones 0 y 1.
+
+.SS scarakins \- cinemática para robots tipo SCARA
+.TP
+.B scarakins.D1
+Distancia vertical desde el plano del suelo al centro del brazo interno.
+.TP
+.B scarakins.D2
+Distancia horizontal entre el eje de la articulación [0] y el eje de la articulación [1], es decir, la longitud del brazo interno.
+.TP
+.B scarakins.D3
+Distancia vertical desde el centro del brazo interno al centro del brazo externo. Puede ser positivo o negativo dependiendo de la estructura del robot.
+.TP
+.B scarakins.D4
+Distancia horizontal entre el eje de la articulación [1] y el eje de la articulación [2], es decir, La longitud del brazo externo.
+.TP
+.B scarakins.D5
+Distancia vertical desde el efector final hasta la punta de herramientas. Positivo significa que la punta de herramientas esta más baja que el efector final, y es el caso normal.
+.TP
+.B scarakins.D6
+Distancia horizontal desde la línea central del efector final (y las articulaciones de los ejes 2 y 3) y la punta de herramientas. Cero significa que la punta de herramientas está en la línea central. Los valores distintos de cero deben ser positivos, si son negativos, introducen un offset de 180 grados en el valor de la articulación [3].
+
+.SS tripodkins \- Cinemática de trípode
+Las articulaciones representan la distancia del punto controlado desde tres ubicaciones predefinidas (los motores), dando tres grados de libertad en posición (XYZ)
+.TP
+.B tripodkins.Bx
+.TQ
+.B tripodkins.Cx
+.TQ
+.B tripodkins.Cy
+La ubicación de los tres motores es (0,0), (Bx, 0) y (Cx, Cy)
+
+.SS xyzac\-trt\-kins \- Fresadora de 5 ejes (mesa giratoria/basculante)
+Mesa inclinable (A) y giratoria horizontal montada en la mesa © (5 articulaciones). La asignación de articulación predeterminada es X: 0, Y: 1, Z: 2, A: 3, C: 4.
+El mapeo de articulación se puede alterar con el parámetro de coordenadas de la misma manera que lo admite trivkins.
+
+.SS xyzbc\-trt\-kins \- Fresa de 5 ejes (mesa giratoria / basculante)
+Mesa basculante (B) y giratoria horizontal montada en la mesa (eje C) (5 articulaciones). La asignación de articulación predeterminada es X: 0, Y: 1, Z: 2, A: 3, C: 4.
+El mapeo de articulación se puede alterar con el parámetro de coordenadas de la misma manera que lo admite trivkins.
+
+.SS 5axiskins \- fresadora de puente de 5 ejes
+XYZBC (5 articulaciones)
+
+.SH VER TAMBIÉN
+Sección\fIKinematics\fR en la documentación de LinuxCNC

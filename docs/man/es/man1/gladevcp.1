@@ -1,0 +1,79 @@
+.\" Copyright (c) 2007 Michael Haberler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH GLADEVCP "1"  "2010-12-20" "Documentacion de LinuxCNC" "The Enhanced Machine Controller"
+.SH NOMBRE
+gladevcp \- Panel de Control Virtual para LinuxCNC basado en widgets Glade, Gtk y HAL 
+.SH SINOPSIS
+\fBgladevcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fInombre-componente\fR] [\-u \fIhandler\fR] [\-U \fIopcionusuario\fR] [\-H \fIficheroHAL\fR] [\-d] \fImifichero.ui\fR
+.SH OPCIONES
+.TP
+\fB\-g\fR \fIWxH+X+Y\fR
+Establecer la geometria inicial de la ventana raiz.
+Use 'WxH' para el tama\[~n]o, '+ X + Y' para la posicion, o 'WxH+X+Y' para ambos.
+Tama\[~n]o / posicion utilizan unidades de pixeles. La posicion esta referenciada desde la parte superior izquierda. 
+.TP
+\fB\-c\fR \fInombre-componente\fR
+Use \fInombre-componente\fR como el nombre del componente HAL. Si el nombre del componente no se especifica, se usa
+el nombre base del fichero .ui. \fR
+.TP
+\fB\-u\fR \fIhandler\fR
+Instruye a gladevcp para inspeccionar el script Python \fIhandler\fR para manejadores de eventos
+y los conecta a se\[~n]ales en el fichero .ui.\fR
+.TP
+\fB\-U\fR \fIopcionusuario\fR
+gladevcp colecciona todas las cadenas \fIopcionusuario\fR y las pasa al metodo del manejador init()
+como una lista de cadenas, sin mas inspeccion.\fR
+.TP
+\fB\-x\fR \fIXID\fR
+Hace de una ventana \fIXID\fR existente la ventana padre de gladevcp, en lugar de crear una ventana
+nueva de nivel superior.\fR
+.TP
+\fB\-H\fR \fIficheroHAL\fR
+gladevcp ejecuta \fIficheroHAL\fR - una lista de comandos HAL - mediante \fIhalcmd \-c ficheroHAL\fR
+despues de la finalizacion del componente HAL.\fR
+
+.TP
+\fB\-d\fR
+activa la salida debug.
+
+.TP
+\fB\-R\fR \fIgtkrcfile\fR
+carga explicitamente un fichero gtkrc.\fR
+
+.TP
+\fB\-t\fR \fITHEME\fR
+Establece un tema gtk. El tema por defecto es \fIsystem\fR. Diferentes paneles pueden tener diferentes temas.
+
+.TP
+\fB\-m\fR \fIMAXIMUM\fR
+fuerza el maximizado de la ventana de panel. Junto con la opcion \fI\-g geometry\fR 
+puede mover el panel a un segundo monitor y forzarlo a usar toda la pantalla.
+
+.TP
+\fB\-R\fR
+desactivar explicitamente la solucion para el error gtk que hace coincidir widgets y widget_class en el tema
+gtk y fallos de los archivos gtkrc. Normalmente no es necesario.
+
+.SH "VER TAMBIEN"
+\fIGladeVCP\fR en la documentacion de LinuxCNC para una descripcion de las capacidades de gladevcp
+y el conjunto de widgets HAL asociados, junto con ejemplos.
+

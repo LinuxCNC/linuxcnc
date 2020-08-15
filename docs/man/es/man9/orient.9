@@ -1,0 +1,94 @@
+.TH ORIENT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+orient \- Provide a PID command input for orientation mode based on current spindle position, target angle and orient mode
+.SH SYNOPSIS
+.HP
+.B loadrt orient [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+This component is designed to support a spindle orientation PID loop by providing a 
+command value, and fit with the motion spindle-orient support pins to support the M19 code.
+
+The spindle is assumed to have stopped in an arbitrary position. The spindle
+encoder position is linked to the  \fBposition\fR pin.
+The  current value of the position pin is sampled on a positive edge on the \fBenable\fR pin, and 
+\fBcommand\fR is computed and set as follows: floor(number of 
+full spindle revolutions 
+in the \fBposition\fR sampled on positive edge) 
+plus \fBangle\fR/360 (the fractional revolution) +1/-1/0 depending on \fBmode\fR.
+
+The \fBmode\fR pin is interpreted as follows:
+
+0: the spindle rotates in the direction with the lesser angle, 
+which may be clockwise or counterclockwise.
+
+1: the spindle rotates always rotates clockwise to the new angle.
+
+2: the spindle rotates always rotates counterclockwise to the new angle.
+ 
+
+.SH HAL USAGE
+
+On \fBspindle.N.orient\fR disconnect the spindle control and connect to the orient-pid 
+loop:
+
+loadrt orient names=orient
+.br
+loadrt pid names=orient-pid
+.br
+net orient-angle spindle.N.orient-angle orient.angle
+.br
+net orient-mode spindle.N.orient-mode orient.mode
+.br
+net orient-enable spindle.N.orient orient.enable orient-pid.enable
+.br
+net spindle-in-pos orient.is-oriented spindle.N.is-oriented
+.br
+net spindle-pos encoder.position orient.position orient-pid.feedback
+.br
+net orient-command orient.command orient-pid.command
+.br
+
+.SH FUNCTIONS
+.TP
+\fBorient.\fIN\fB\fR (requires a floating-point thread)
+Update \fBcommand\fR based on \fBenable\fR, \fBposition\fR, \fBmode\fR and \fBangle\fR.
+.SH PINS
+.TP
+.B orient.\fIN\fB.enable\fR bit in \fR
+enable angular output for orientation mode
+.TP
+.B orient.\fIN\fB.mode\fR s32 in \fR
+0: rotate - shortest move; 1: always rotate clockwise; 2: always rotate counterclockwise
+.TP
+.B orient.\fIN\fB.position\fR float in \fR
+spindle position input, unit 1 rev
+.TP
+.B orient.\fIN\fB.angle\fR float in \fR
+orient target position in degrees, 0 <= angle < 360
+.TP
+.B orient.\fIN\fB.command\fR float out \fR
+target spindle position, input to PID command
+.TP
+.B orient.\fIN\fB.poserr\fR float out \fR
+in degrees - aid for PID tuning
+.TP
+.B orient.\fIN\fB.is-oriented\fR bit out \fR
+This pin goes high when poserr < tolerance. Use to drive spindle.N.is-oriented
+.TP
+.B orient.\fIN\fB.tolerance\fR float in \fR(default: \fI0.5\fR)
+The tolerance in degrees for considering the align completed
+.SH AUTHOR
+
+Michael Haberler
+.SH LICENSE
+
+GPL

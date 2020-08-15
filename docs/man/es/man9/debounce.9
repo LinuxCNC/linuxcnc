@@ -1,0 +1,39 @@
+.TH DEBOUNCE "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+
+debounce \- filtro para entradas digitales ruidosas
+.SH SINOPSIS
+.B loadrt debounce cfg=\fIsize[,size,...]\fB
+.P
+Crea grupos antirrebote con el número de filtros especificado por (\fIsize\fR).
+Cada filtro en el mismo grupo tiene la misma frecuencia de muestreo y retraso. Por ejemplo, cfg=2,3 crea dos grupos de filtros con 2 filtros en el primer grupo y 3
+filtros en el segundo grupo.
+
+.SH DESCRIPCIÓN
+El filtro antirrebote funciona incrementando un contador cada vez que la entrada es verdadera, y decrementando el contador cuando es falsa. Si el contador disminuye a
+cero, la salida se establece como falsa y el contador ignora más decrementos. Si
+el contador aumenta hasta un umbral, la salida se establece como verdadera y el contador ignora más incrementos. Si el contador está entre cero y el umbral, la salida 
+conserva su estado anterior. El umbral determina la cantidad de filtrado; un umbral de 1 no filtra en absoluto, y un umbral de N requiere que haya una señal presente 
+en N muestras antes de que cambie el estado de la salida.
+
+.SH FUNCIONES
+.TP
+.B debounce.\fIG\fR
+Muestrear todos los pines de entrada en el grupo G y actualizar los pines de salida.
+.SH PINES
+.TP
+.B debounce.\fIG \fB.\fIF\fB.in\fR bit in
+Pin de entrada F en el grupo G.
+.TP
+.B debounce.\fIG\fB.\fIF\fB.out\fR bit out
+El F-esimo pin de salida en el grupo G. Refleja la última entrada "estable" vista en el pin de entrada correspondiente.
+.TP
+.B debounce.\fIG\fB.delay\fR S32 rw
+Establece la cantidad de filtrado para todos los pines en el grupo G.
+

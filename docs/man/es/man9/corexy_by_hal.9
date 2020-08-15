@@ -1,0 +1,79 @@
+.TH COREXY_BY_HAL "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+corexy_by_hal
+.SH SYNOPSIS
+.HP
+.B loadrt corexy_by_hal [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+Implement \fBCoreXY\fR forward and inverse transformations
+\fBin HAL\fR.  This component provides an alternative
+method for implementing \fBCoreXY\fR kinematics.
+
+In the INI file, use:
+
+\fB[KINS]KINEMATICS=trivkins coordinates=xyz kinstype=both\fR
+
+This component accepts two joint (\fBj0,j1\fR) motor
+position commands for a trivkins coordinates=xyz configuration
+and computes equivalent \fBCoreXY\fR motor commands for
+two motors identified as \fBalpha,beta\fR.  Similarly,
+the component accepts feedback values for the
+\fBalpha,beta\fR motor controllers and converts to
+equivalent joint (\fBj0,j1\fR) motor position feedback values.
+
+Notes:
+
+1) Using \fBtrivkins\fR with this module allows home switches
+to trigger according to the \fBCartesian x,y\fR positions
+
+2) Joint pin names are based on \fBcoordinates=xyz\fR and
+the corresponding joint number assignments used by
+\fBtrivkins\fR so \fBj0==x, j1==y\fR
+(man trivkins for more information)
+
+3) \fBCoreXY\fR kinematics can also be implemented using
+the kinematics module named \fBcorexykins\fR with home
+switches triggered by the \fB j0,j1 motor\fR positions.
+(man kins for more information)
+
+.SH FUNCTIONS
+.TP
+\fBcorexy-by-hal.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B corexy-by-hal.\fIN\fB.alpha-fb\fR float in \fR
+typ: feedback from alpha motor controller
+.TP
+.B corexy-by-hal.\fIN\fB.beta-fb\fR float in \fR
+typ: feedback from beta  motor controller
+.TP
+.B corexy-by-hal.\fIN\fB.j0-motor-pos-cmd\fR float in \fR
+typ: from joint.0.motor-pos-cmd
+.TP
+.B corexy-by-hal.\fIN\fB.j1-motor-pos-cmd\fR float in \fR
+typ: from joint.1.motor-pos-cmd
+.TP
+.B corexy-by-hal.\fIN\fB.j0-motor-pos-fb\fR float out \fR
+typ: to joint.0.motor-pos-fb
+.TP
+.B corexy-by-hal.\fIN\fB.j1-motor-pos-fb\fR float out \fR
+typ: to joint.1.motor-pos-fb
+.TP
+.B corexy-by-hal.\fIN\fB.alpha-cmd\fR float out \fR
+typ: command to alpha motor
+.TP
+.B corexy-by-hal.\fIN\fB.beta-cmd\fR float out \fR
+typ: command to beta ts motor
+.SH LICENSE
+
+GPL

@@ -1,0 +1,15 @@
+Este es un código de ejemplo reasignado para demostrar cómo se puede controlar el anticipador del intérprete.
+
+Vea también este hilo del foro:
+  http://www.linuxcnc.org/index.php/english/forum/10-advanced-configuration/25994-abort-msg-in-o-sub?start=12#28355
+
+
+Relacionado:
+
+consulte 'Modo de búsqueda anticipada G103', página 152,
+
+Referencia de software PMAC-NC2 Pro2, Delta Tau Systems Inc
+
+http://www.deltatau.com/manuals/pdfs/PMAC-NC%20PRO2.pdf?id=634701792253582640
+
+

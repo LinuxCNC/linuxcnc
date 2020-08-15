@@ -1,0 +1,236 @@
+.TH SIM_PARPORT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sim_parport \- A component to simulate the pins of the hal_parport component
+.SH SYNOPSIS
+.HP
+.B loadrt sim_parport [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+Sim_parport is used to replace the pins of a real parport without changing
+any of the pins names in the rest of the config.
+.br
+It has pass-through pins (ending in \-fake) that allows connecting to other components.
+
+eg pin\-02\-in     will follow     pin\-02\-in\-fake 's logic.
+.br
+pin_01_out\-fake     will follow    pin_01_out (possibly modified by pin_01_out\-invert)
+
+It creates all possible pins of both 'in' and 'out' options of the hal_parport component.
+.br
+This allows using other hardware I/O in place of the parport (without having to change the rest of the config)
+.br
+or simulating hardware such as limit switches.
+.br
+it's primary use is in Stepconf for building simulated configs.
+.br
+You must use the names= option to have the right pin names.
+.br
+eg. names=parport.0,parport.1
+.br
+The read and write functions pass the logic from pins to fake pins or vice vera
+.br
+The reset function is a no operation.
+ 
+
+.SH FUNCTIONS
+.TP
+\fBsim-parport.\fIN\fB.read\fR
+
+.TP
+\fBsim-parport.\fIN\fB.write\fR
+
+.TP
+\fBsim-parport.\fIN\fB.reset\fR
+
+.SH PINS
+.TP
+.B sim-parport.\fIN\fB.pin-01-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-14-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-16-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-17-out\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-01-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-14-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-16-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-17-out-fake\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-10-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-11-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-12-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-13-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-15-in\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-10-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-11-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-12-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-13-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-15-in-fake\fR bit in \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-10-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-11-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-12-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-13-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-15-in-not\fR bit out \fR
+.TQ
+.B sim-parport.\fIN\fB.reset-time\fR float in \fR
+.SH PARAMETERS
+.TP
+.B sim-parport.\fIN\fB.pin-01-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-14-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-16-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-17-out-invert\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-01-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-02-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-03-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-04-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-05-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-06-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-07-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-08-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-09-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-14-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-16-out-reset\fR bit rw \fR
+.TQ
+.B sim-parport.\fIN\fB.pin-17-out-reset\fR bit rw \fR
+.SH AUTHOR
+
+Chris Morley
+.SH LICENSE
+
+GPL

@@ -1,0 +1,27 @@
+.TH SAMPLE_HOLD "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sample_hold \- Sample and Hold
+.SH SYNOPSIS
+.HP
+.B loadrt sample_hold [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsample-hold.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B sample-hold.\fIN\fB.in\fR s32 in \fR
+.TQ
+.B sample-hold.\fIN\fB.hold\fR bit in \fR
+.TQ
+.B sample-hold.\fIN\fB.out\fR s32 out \fR
+.SH LICENSE
+
+GPL

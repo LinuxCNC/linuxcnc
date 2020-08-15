@@ -1,0 +1,85 @@
+.TH rtapi_module_param "3rtapi" "12-10-2006" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_module_param \- Especificación de parámetros de módulo
+
+.SH SINTAXIS
+.HP
+RTAPI_MP_INT(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_LONG(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_STRING(\fIvar\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_INT(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_LONG(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+RTAPI_MP_ARRAY_STRING(\fIvar\fR, \fInum\fR, \fIdescription\fR)
+
+.HP
+MODULE_LICENSE(\fIlicense\fR)
+
+.HP
+MODULE_AUTHOR(\fIauthor\fR)
+
+.HP
+MODULE_DESCRIPTION(\fIdescription\fR)
+
+.HP
+EXPORT_FUNCTION(\fIfunction\fR)
+
+.SH ARGUMENTOS
+.IP \fIvar\fR
+La variable donde se debe almacenar el parámetro.
+.IP \fIdescription\fR
+Una breve descripción del parámetro o módulo.
+.IP \fInum\fR
+El número máximo de valores para un parámetro array
+.IP \fIlicense\fR
+La licencia del módulo, por ejemplo "GPL"
+.IP \fIauthor\fR
+El autor del módulo.
+.IP \fIfunction\fR
+El puntero a la función que se va a exportar.
+
+.SH DESCRIPCIÓN
+Estas macros son formas portátiles de declarar los parámetros de módulos del núcleo. 
+Deben utilizarse en el ámbito global y no irán seguidos de un punto y coma de terminacion. 
+Deben usarse después de que se haya definido la variable o función asociada.
+
+.SH NOTAS
+EXPORT_FUNCTION hace que un símbolo esté disponible para un componente que se cargue posteriormente. 
+No está relacionado con las funciones hal, que se describen en hal_export_funct(3hal)
+
+.SH Interpretación de cadenas de licencia
+
+\fBMODULE_LICENSE\fR sigue la definición de cadenas de licencia del núcleo. Notablemente, "GPL" 
+indica "GNU General Public License v2 \fIo posterior\fR". (énfasis nuestro).
+
+.IP \fB"GPL"\fR
+GNU General Public License v2 or later
+.IP \fB"GPL\ v2"\fR
+GNU General Public License v2
+.IP \fB"GPL\ and\ additional\ rights"\fR
+GNU General Public License v2 rights and more
+.IP \fB"Dual\ BSD/GPL"\fR
+GNU General Public License v2 or BSD license choice
+.IP \fB"Dual\ MIT/GPL"\fR
+GNU General Public License v2 or MIT license choice
+.IP \fB"Dual\ MPL/GPL"\fR
+GNU General Public License v2 or Mozilla license choice
+.IP \fB"Proprietary"\fR
+Productos no libres
+.P
+Todavía es una buena práctica incluir un bloque de licencia que indique al autor,
+fecha de copyright y exención de responsabilidad de la garantía según lo recomendado por la GNU GPL.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+No disponible en el código de espacio de usuario.
+

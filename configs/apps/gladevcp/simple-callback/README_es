@@ -1,0 +1,10 @@
+Ejemplo que demuestra una devolución de llamada simple definida por el usuario
+------------------------------------------------------------------------------
+
+callback.py define la función on_button_press() que está conectada al árbol de widgets como un controlador de eventos.
+Consulte la pestaña Signals de glade para hal_button1 sobre cómo se hace referencia.
+
+------------------------------------------
+Para ejecutar de forma independiente:
+
+$ gladevcp  -u simplecallback.py simplecallback.ui

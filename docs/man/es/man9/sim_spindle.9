@@ -1,0 +1,38 @@
+.TH SIM_SPINDLE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sim_spindle \- Simulated spindle with index pulse
+.SH SYNOPSIS
+.HP
+.B loadrt sim_spindle [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsim-spindle.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B sim-spindle.\fIN\fB.velocity-cmd\fR float in \fR
+Commanded speed
+.TP
+.B sim-spindle.\fIN\fB.position-fb\fR float out \fR
+Feedback position, in revolutions
+.TP
+.B sim-spindle.\fIN\fB.index-enable\fR bit io \fR
+Reset \fBposition-fb\fP to 0 at the next full rotation
+.SH PARAMETERS
+.TP
+.B sim-spindle.\fIN\fB.scale\fR float rw \fR(default: \fI1.0\fR)
+factor applied to \fBvelocity-cmd\fP.
+
+The result of '\fBvelocity-cmd\fP * \fBscale\fP' be in revolutions per second.
+For example, if \fBvelocity-cmd\fP is in revolutions/minute, \fBscale\fP should be set to 1/60 or 0.016666667.
+
+.SH LICENSE
+
+GPL

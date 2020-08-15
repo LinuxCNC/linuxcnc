@@ -1,0 +1,30 @@
+.TH HYPOT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hypot \- Three-input hypotenuse (Euclidean distance) calculator
+.SH SYNOPSIS
+.HP
+.B loadrt hypot [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBhypot.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B hypot.\fIN\fB.in0\fR float in \fR
+.TQ
+.B hypot.\fIN\fB.in1\fR float in \fR
+.TQ
+.B hypot.\fIN\fB.in2\fR float in \fR
+.TQ
+.B hypot.\fIN\fB.out\fR float out \fR
+out = sqrt(in0^2 + in1^2 + in2^2)
+.SH LICENSE
+
+GPL

@@ -1,0 +1,117 @@
+:lang: es
+
+[[cha:rs274ngc-programs]]
+
+= Diferencias RS274/NGC
+
+== Cambios desde RS274/NGC
+
+.Diferencias que cambian el significado de los programas RS274/NGC
+
+Ubicación después de un cambio de herramienta::
+
+En LinuxCNC, la máquina no vuelve a su posición original
+después de un cambio de herramienta. Este cambio se realizó porque la nueva herramienta
+podría ser más larga que la herramienta anterior y, por lo tanto, el movimiento a la 
+posición original de la máquina podría dejar la punta de la herramienta demasiado baja.
+
+Los parámetros de offset están en unidades de archivo ini::
+
+En LinuxCNC, los valores almacenados en parámetros para las ubicaciones home G28 y G30,
+, los sistemas de coordenadas P1 ... P9 y el desplazamiento G92 son
+en "unidades de archivo ini". Este cambio se realizó porque de lo contrario el
+significado de una ubicación cambiaba dependiendo de si estaba activo G20 o G21
+cuando G28, G30, G10 L2 o G92.3 se programa.
+
+Las longitudes/diámetros de la tabla de herramientas están en unidades de archivo ini::
+
+En LinuxCNC, las longitudes de herramienta (compensaciones) y diámetros en la herramienta
+la tabla se especifica solo en unidades de archivo ini. Este cambio fue hecho
+porque de lo contrario la longitud de una herramienta y su diámetro
+cambiaban con G20 o G21 al iniciar
+los modos G43, G41, G42. Esto hizo imposible ejecutar el código G en
+unidades no nativas de la máquina, incluso cuando el código G era simple y
+bien formado (comenzando con G20 o G21, y sin cambió de unidades
+durante todo el programa), sin cambiar la tabla de herramientas.
+
+G84, G87 no implementado::
+
+G84 y G87 no se implementan actualmente, pero se pueden agregar a un
+lanzamiento futuro de LinuxCNC.
+
+G28, G30 con palabras de eje::
+
+Cuando G28 o G30 se programan con solo algunas palabras de eje presentes,
+LinuxCNC solo mueve los ejes nombrados. Esto es común en otros controles de máquinas.
+Para mover algunos ejes a un punto intermedio y luego
+mover todos los ejes al punto predefinido, escriba dos líneas de código G:
++
+G0 X- Y- (ejes para mover al punto intermedio) G28 (mover todos los ejes
+al punto predefinido)
+
+== Adiciones a RS274/NGC
+
+.Diferencias que no cambian el significado de los programas RS274 / NGC
+
+Códigos de roscado G33, G76 ::
+
+Estos códigos no están definidos en RS274/NGC.
+
+G38.2::
+
+La punta de la sonda no se retrae después de un movimiento G38.2. Este
+movimiento de retracción puede agregarse en una versión futura de LinuxCNC.
+
+G38.3 ... G38.5::
+
+Estos códigos no están definidos en RS274/NGC
+
+O-codes::
+
+Estos códigos no están definidos en RS274/NGC
+
+M50 ... M53 ajustes ::
+
+Estos códigos no están definidos en RS274/NGC
+
+M61..M66::
+
+Estos códigos no están definidos en RS274/NGC
+
+G43, G43.1::
+
+'Longitudes de herramienta negativas'
++
+La especificación RS274 / NGC dice "se espera que" todas las longitudes de herramienta
+sean positivas. Sin embargo, G43 funciona para longitudes de herramienta negativas.
++
+'Herramientas de torno'
++
+La compensación de longitud de herramienta G43 puede compensar la herramienta tanto en la X
+y la Z. Esta característica es principalmente útil en tornos.
++
+'Longitudes de herramientas dinámicas'
++
+LinuxCNC permite la especificación de una longitud de herramienta calculada a través de G43.1 I K.
+
+G41.1, G42.1::
+
+LinuxCNC permite la especificación de un diámetro de herramienta y, si está en modo torno,
+orientación en el código G. El formato es G41.1 / G42.1 D L,
+donde D es el diámetro y L (si se especifica) es la orientación de la herramienta de torno.
+
+G43 sin palabra H::
+
+En ngc, esto no está permitido. En LinuxCNC, establece compensaciones de longitud para
+la herramienta cargada actualmente. Si no hay una herramienta cargada actualmente, es
+un error. Este cambio se realizó para que el usuario no tenga que
+especificar el número de herramienta en dos lugares para cada cambio de herramienta, y
+porque es consistente con la forma en que funciona G41/G42 cuando la palabra D
+no está especificada
+
+Ejes U, V y W::
+
+LinuxCNC permite máquinas con hasta 9 ejes definiendo un conjunto adicional
+de 3 ejes lineales conocidos como U, V y W
+
+

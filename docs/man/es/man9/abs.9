@@ -1,0 +1,36 @@
+.TH ABS "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+abs \- Compute the absolute value and sign of the input signal
+.SH SYNOPSIS
+.HP
+.B loadrt abs [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBabs.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B abs.\fIN\fB.in\fR float in \fR
+Analog input value
+.TP
+.B abs.\fIN\fB.out\fR float out \fR
+Analog output value, always positive
+.TP
+.B abs.\fIN\fB.sign\fR bit out \fR
+Sign of input, false for positive, true for negative
+.TP
+.B abs.\fIN\fB.is-positive\fR bit out \fR
+TRUE if input is positive, FALSE if input is 0 or negative
+.TP
+.B abs.\fIN\fB.is-negative\fR bit out \fR
+TRUE if input is negative, FALSE if input is 0 or positive
+.SH LICENSE
+
+GPL

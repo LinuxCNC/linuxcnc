@@ -1,0 +1,49 @@
+.TH CLARKE2 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+clarke2 \- Two input version of Clarke transform
+.SH SYNOPSIS
+.HP
+.B loadrt clarke2 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system.
+.P
+\fBclarke2\fR implements
+a special case of the Clarke transform, which only needs two of the
+three input phases.  In a three wire three phase system, the sum of the
+three phase currents or voltages must always be zero.  As a result only
+two of the three are needed to completely define the current or voltage.
+\fBclarke2\fR assumes that the sum is zero, so it only uses phases A and
+B of the input.  Since the H (homopolar) output will always be zero in
+this case, it is not generated.
+.SH FUNCTIONS
+.TP
+\fBclarke2.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B clarke2.\fIN\fB.a\fR float in \fR
+.TQ
+.B clarke2.\fIN\fB.b\fR float in \fR
+first two phases of three phase input
+.TP
+.B clarke2.\fIN\fB.x\fR float out \fR
+.TQ
+.B clarke2.\fIN\fB.y\fR float out \fR
+cartesian components of output
+.SH SEE ALSO
+
+\fBclarke3\fR for the general case, \fBclarkeinv\fR for
+the inverse transform.
+.SH LICENSE
+
+GPL

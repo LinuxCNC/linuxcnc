@@ -1,0 +1,40 @@
+.TH ROSEKINS "9" "Documentación LinuxCNC" "Componente cinemático"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+
+rosekins \- Cinemática para un motor Rose
+
+.SH SINOPSIS
+.HP
+.B loadrt rosekins
+
+.SH CINEMÁTICA
+   joint_0 linear, transverse   (perpendicular al husillo)
+   joint_1 linear, longitudinal (paralela a la identidad del husillo a z)
+   joint_2 rotary, spindle      (sujeción del trabajo, no sujeción de herramienta, p. ej.
+                                 no un husillo de alta velocidad)
+
+
+.SH PINES
+.TP
+.B rosekins.revolutions\fR float out
+Recuento de cruces del eje X negativo. Los cruces en sentido horario aumentan las revoluciones en 1, los cruces en sentido antihorario las disminuyen en 1
+
+.TP
+.B rosekins.theta_degrees\fR float out
+Valor principal para arctan(Y/X)
+
+.TP
+.B rosekins.bigtheta_degrees\fR float out
+Ángulo acumulado (theta + revoluciones * 360)
+
+.SH NOTAS
+
+Theta es el valor principal de arctan(Y/X). Los valores del ángulo Joint_2 no se limitan a los valores principales de arctan(Y / X) sino que se acumulan continuamente a medida que se gira el husillo. Se proporcionan pines Hal para el valor principal y un recuento del número de revoluciones.
+
+El movimiento transversal es exactamente perpendicular al husillo. En un motor rose tradicional, el movimiento transversal se crea \'balanceando\' el cabezal sobre un pivote. Una longitud de pivote típica combinada con la cantidad limitada de recorrido X en una máquina real hacen que la aproximación perpendicular sea un modelo razonable.

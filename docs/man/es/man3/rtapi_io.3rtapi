@@ -1,0 +1,56 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH funct "3rtapi" "2014-06-28" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_io.h \- Contenedores RTAPI para funcionalidad del kernel de Linux
+
+.SH SINTAXIS
+.HP
+#include <rtapi_io.h>
+.HP
+unsigned char rtapi_inb(unsigned short int port);
+.HP
+unsigned short rtapi_inw(unsigned short int port);
+.HP
+unsigned int rtapi_inl(unsigned short int port);
+.HP
+unsigned void rtapi_inb(unsigned char value, unsigned short int port);
+.HP
+unsigned void rtapi_inw(unsigned short value, unsigned short int port);
+.HP
+unsigned void rtapi_inl(unsigned int value, unsigned short int port);
+
+.SH DESCRIPCIÓN
+En el espacio del kernel, cada identificador rtapi_xxx o RTAPI_XXX se asigna a la
+funcionalidad del núcleo subyacente, si está disponible.
+
+En el espacio de usuario o en núcleos donde no se proporciona la funcionalidad subyacente 
+por un núcleo, generalmente se proporciona otra implementación, posiblemente con una reducción de funcionalidad. 
+(Por ejemplo, la implementación del espacio de usuario para rtapi_device_register siempre tiene éxito)
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame desde el código de inicio/limpieza y desde tareas en tiempo real. Estas funciones pueden causar excepciones 
+de instrucciones ilegales en los componentes de espacio de usuario, así como en uspace rtapi_app cuando no es setuid root.
+.SH VALOR DEVUELTO
+Como en Linux.
+.SH VER TAMBIÉN
+

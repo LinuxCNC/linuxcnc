@@ -1,0 +1,129 @@
+.TH THCUD "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+thcud \- Torch Height Control Up/Down Input
+.SH SYNOPSIS
+.HP
+.B loadrt thcud
+.SH DESCRIPTION
+
+
+Torch Height Control
+This THC takes either an up or a down input from a THC
+
+If enabled and torch is on and X + Y velocity is within tolerance of set speed
+allow the THC to offset the Z axis as needed to maintain voltage.
+
+If enabled and torch is off and the Z axis is moving up remove any correction
+at a rate not to exceed the rate of movement of the Z axis.
+
+If enabled and torch is off and there is no correction 
+pass the Z position and feed back untouched.
+
+If not enabled pass the Z position and feed back untouched.
+
+Typical Physical Connections using a Parallel Port
+.br
+Parallel Pin 12 <= THC controller Plasma Up
+.br
+Parallel Pin 13 <= THC controller Plasma Down
+.br
+Parallel Pin 15  <= Plasma Torch Arc Ok Signal
+.br
+Parallel Pin 16 => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+.br
+net torch-up thcud.torch-up <= parport.0.pin-12-in
+.br
+net torch-down thcud.torch-down <= parport.0.pin-13-in
+.br
+net torch-on spindle.0.on => parport.0.pin-16-out (start the arc)
+.br
+net arc-ok thcud.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+HAL Motion Connections
+.br
+net requested-vel thcud.requested-vel <= motion.requested-vel
+.br
+net current-vel thcud.current-vel <= motion.current-vel
+
+Pyvcp Connections
+In the xml file you need something like:
+
+  <pyvcp>
+  <checkbutton>
+    <text>"THC Enable"</text>
+    <halpin>"thc-enable"</halpin>
+  </checkbutton>
+  </pyvcp>
+
+Connect the Pyvcp pins in the postgui.hal file like this:
+
+net thc-enable thcud.enable <= pyvcp.thc-enable
+
+
+
+.SH FUNCTIONS
+.TP
+\fBthcud\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B thcud.torch-up\fR bit in \fR
+Connect to an input pin
+.TP
+.B thcud.torch-down\fR bit in \fR
+Connect to input pin
+.TP
+.B thcud.current-vel\fR float in \fR
+Connect to motion.current-vel
+.TP
+.B thcud.requested-vel\fR float in \fR
+Connect to motion.requested-vel
+.TP
+.B thcud.torch-on\fR bit in \fR
+Connect to spindle.N.on
+.TP
+.B thcud.arc-ok\fR bit in \fR
+Arc Ok from Plasma Torch
+.TP
+.B thcud.enable\fR bit in \fR
+Enable the THC, if not enabled Z position is passed through
+.TP
+.B thcud.z-pos-in\fR float in \fR
+Z Motor Position Command in from axis.n.motor-pos-cmd
+.TP
+.B thcud.z-pos-out\fR float out \fR
+Z Motor Position Command Out
+.TP
+.B thcud.z-fb-out\fR float out \fR
+Z Position Feedback to Axis
+.TP
+.B thcud.cur-offset\fR float out \fR
+The Current Offset
+.TP
+.B thcud.vel-status\fR bit out \fR
+When the THC thinks we are at requested speed
+.TP
+.B thcud.removing-offset\fR bit out \fR
+Pin for testing
+.SH PARAMETERS
+.TP
+.B thcud.velocity-tol\fR float rw \fR
+The deviation percent from planned velocity
+.TP
+.B thcud.correction-vel\fR float rw \fR
+The Velocity to move Z to correct
+.SH AUTHOR
+
+John Thornton
+.SH LICENSE
+
+GPLv2 or greater

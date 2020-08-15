@@ -1,0 +1,69 @@
+.TH ENCODER_RATIO "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+encoder_ratio\- engranaje electrónico para sincronizar dos ejes
+.SH SINOPSIS
+\fBloadrt encoder_ratio [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
+.SH DESCRIPCIÓN
+\fBencoder_ratio\fR se puede utilizar para sincronizar dos ejes (como un "engranaje electrónico"). Cuenta los pulsos del encoder de ambos ejes en el software, y produce un valor de error que se puede usar con un bucle PID para hacer que el encoder esclavo siga al encoder maestro con una relación específica.
+
+Este módulo admite hasta ocho pares de ejes. El número de pares lo establece el
+parámetro de módulo \fBnum_chan\fR. Alternativamente, especifique \fBnames=\fR y nombres únicos separado por comas.
+.P
+Los especificadores \fBnum_chan=\fR y \fBnames=\fR son mutuamente excluyentes.
+Si no se especifica \fBnum_chan=\fR ni \fBnames=\fR, el valor predeterminado es uno.
+
+
+.SH FUNCIONES
+.TP
+.B encoder\-ratio.sample
+Lee todos los pines de entrada. Debe llamarse al doble de la tasa de conteo máxima deseada.
+.TP
+.B encoder\-ratio.update (usa punto flotante)
+Actualiza todos los pines de salida. Se puede llamar desde un hilo más lento.
+
+.SH NOMBRES
+Los nombres de pines y parámetros tienen el prefijo:
+  \fBencoder\-ratio.N.\fR for N=0,1,...,num\-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+El formato \fBencoder\-ratio.N.\fR se muestra en las siguientes descripciones.
+
+.SH PINES
+
+.TP
+.B encoder\-ratio.\fIN\fB.master\-A\fR bit in
+.TQ
+.B encoder\-ratio.\fIN\fB.master\-B\fR bit in
+.TQ
+.B encoder\-ratio.\fIN\fB.slave\-A\fR bit in
+.TQ
+.B encoder\-ratio.\fIN\fB.slave\-B\fR bit in
+Los canales de encoder de los ejes maestro y esclavo.
+.TP
+.B encoder\-ratio.\fIN\fB.enable\fR bit in
+Cuando el pin de habilitación es FALSE, el pin de error simplemente informa posición del eje esclavo, en revoluciones. Como tal, normalmente estaría conectado al pin de retroalimentación de un bloque PID para el control de bucle cerrado del eje esclavo.
+Normalmente, la entrada de comando del bloque PID se deja desconectada (cero), por lo que el eje esclavo simplemente se queda quieto. Sin embargo, cuando la entrada de habilitación se vuelve TRUE, el pin de error se convierte en la posición esclava menos la posición maestra escalada. El factor de escala es la relación de dientes maestros a dientes esclavos. A medida que el maestro se mueve, el error se vuelve distinto de cero y el bucle PID conducirá al eje esclavo para rastrear al maestro.
+.TP
+.B encoder\-ratio.\fIN\fB.error\fR float out
+Error en la posición del esclavo (en revoluciones)
+.SH PARÁMETROS
+.TP
+.B encoder\-ratio.N.master\-ppr\fR unsigned rw
+.TQ
+.B encoder\-ratio.N.slave\-ppr\fR unsigned rw
+Número de pulsos por revolución de los ejes maestro y esclavo
+.TP
+.B encoder\-ratio.N.master\-teeth\fR unsigned rw
+.TQ
+.B encoder\-ratio.N.slave\-teeth\fR unsigned rw
+Número de "dientes" en los engranajes maestro y esclavo.
+
+.SH VER TAMBIÉN
+\fBencoder (9)\fR

@@ -1,0 +1,62 @@
+.TH AXISTEST "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+axistest \- Used to allow testing of an axis. Used IN PNCconf
+.SH SYNOPSIS
+.HP
+.B loadrt axistest [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBaxistest.\fIN\fB.update\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B axistest.\fIN\fB.jog-minus\fR bit in \fR
+Drive TRUE to jog the axis in its minus direction
+.TP
+.B axistest.\fIN\fB.jog-plus\fR bit in \fR
+Drive TRUE to jog the axis in its positive direction
+.TP
+.B axistest.\fIN\fB.run\fR bit in \fR
+Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile
+.TP
+.B axistest.\fIN\fB.maxvel\fR float in \fR
+Maximum velocity
+.TP
+.B axistest.\fIN\fB.amplitude\fR float in \fR
+Approximate amplitude of positions to command during 'run'
+.TP
+.B axistest.\fIN\fB.dir\fR s32 in \fR
+Direction from central point to test: 0 = both, 1 = positive, 2 = negative
+.TP
+.B axistest.\fIN\fB.position-cmd\fR float out \fR
+.TQ
+.B axistest.\fIN\fB.position-fb\fR float in \fR
+.TQ
+.B axistest.\fIN\fB.running\fR bit out \fR
+.TQ
+.B axistest.\fIN\fB.run-target\fR float out \fR
+.TQ
+.B axistest.\fIN\fB.run-start\fR float out \fR
+.TQ
+.B axistest.\fIN\fB.run-low\fR float out \fR
+.TQ
+.B axistest.\fIN\fB.run-high\fR float out \fR
+.TQ
+.B axistest.\fIN\fB.pause\fR s32 in \fR(default: \fI0\fR)
+pause time for each end of run in seconds
+.SH PARAMETERS
+.TP
+.B axistest.\fIN\fB.epsilon\fR float rw \fR(default: \fI.001\fR)
+.TQ
+.B axistest.\fIN\fB.elapsed\fR float r \fR
+Current value of the internal timer
+.SH LICENSE
+
+GPL

@@ -1,0 +1,42 @@
+.TH WCOMP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+wcomp \- Window comparator
+.SH SYNOPSIS
+.HP
+.B loadrt wcomp [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBwcomp.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B wcomp.\fIN\fB.in\fR float in \fR
+Value being compared
+.TP
+.B wcomp.\fIN\fB.min\fR float in \fR
+Low boundary for comparison
+.TP
+.B wcomp.\fIN\fB.max\fR float in \fR
+High boundary for comparison
+.TP
+.B wcomp.\fIN\fB.out\fR bit out \fR
+True if \fBin\fR is strictly between \fBmin\fR and \fBmax\fR
+.TP
+.B wcomp.\fIN\fB.under\fR bit out \fR
+True if \fBin\fR is less than or equal to \fBmin\fR
+.TP
+.B wcomp.\fIN\fB.over\fR bit out \fR
+True if \fBin\fR is greater than or equal to \fBmax\fR
+.SH NOTES
+
+If \fBmax\fR <= \fBmin\fR then the behavior is undefined.
+.SH LICENSE
+
+GPL

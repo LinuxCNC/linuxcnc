@@ -1,0 +1,22 @@
+.TH rtapi_exit "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_exit \- Apaga RTAPI
+
+.SH SINTAXIS
+.HP
+int rtapi_exit (int \fImodule_id\fR)
+
+.SH ARGUMENTOS
+.IP \fImodule_id\fR
+Un identificador de módulo rtapi devuelto por una llamada anterior a \fBrtapi_init\fR.
+
+.SH DESCRIPCIÓN
+\fBrtapi_exit\fR cierra y limpia RTAPI. Debe ser llamado antes de salir por cualquier módulo que haya llamado a \fBrtapi_init\fR.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el usuario o el código de inicio/limpieza, no desde las tareas de real time.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado RTAPI.
+
