@@ -512,6 +512,9 @@ class HandlerClass:
 """ %(filename,os.path.join(self.PATH.IMAGEDIR,'lcnc_swoop.png'))
         self.web_view.setHtml(self.html)
 
+    def add_alarm(self, message):
+        STATUS.emit('update-machine-log', message, 'TIME')
+
     #####################
     # KEY BINDING CALLS #
     #####################
