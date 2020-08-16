@@ -1,25 +1,35 @@
 ; MACROCOMMAND=X,SFM,DOC,Z,Tool Number,Radius,Front Outside,Front Inside,Back Outside
 ; MACRODEFAULTS=1,300,.5,1,.1,.015,true,false,false
 ; MACROSVG=LatheMacro.svg,3
-; O<radius> call [${radius.x-f}] [${radius.sf-f}] [0.5] [0][${radius.z-f}] [${radius.tool-s}] [0] [${radius.rad-f}] [${radius.fo}] [${radius.fi}] [${radius.bo}] 
+
+; O<radius> call [${radius.x-f}] [${radius.sf-f}] [0.5] [0][${radius.z-f}] [${radius.tool-s}] [0] [${radius.rad-f}] [${radius.fo}] [${radius.fi}] [${radius.bo}]
+
 O<radius> sub
+
+O107 IF [#<_imperial>]
+    (MSG, IMPERIAL ON)
+    #1 = [#1 * 25.4]; X
+    #2 = [#2 * 3.28]; surface speed
+    #3 = [#3 * 25.4]; doc
+    #4 = [#4 * 25.4]; Z
+    #6 = [#6 * 25.4]; radius
+O107  ENDIF
+
+M73 ; save/restore codes
 
 G8 ; Lathe radius Mode
 G18 ; XZ Plane
-;G21 ; Metric Units
+G21 ; Metric Units
 G90 ; Absolute Distance
 
 
-M6 T#6 G43
-
-(MSG, Press Cycle Start To Start Radius Macro)
-m0
+T#6 G43
 
 #1 = [#1 / 2] ; because of radius mode
 #14 = [#<_x>] (starting X)
 #13 = [#<_z>] (starting Z)
 
-G96 D2500 S#2 ; Constant Surface Speed Mode
+G96 D1500 S#2 ; Constant Surface Speed Mode
 M3
 g95 F0.1 ; Feed-Per-Rev Mode
 
@@ -73,4 +83,3 @@ O101 endif
 G7
 O<radius> endsub
 m2
-%

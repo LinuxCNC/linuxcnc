@@ -13,6 +13,16 @@
 
 O<drill> sub
 
+O107 IF [#<_imperial>]
+    (MSG, IMPERIAL ON)
+    #1 = [#1 * 25.4]
+    #2 = [#2 * 3.28]
+    #3 = [#3 * 25.4]
+    #4 = [#4 * 25.4]
+    #6 = [#6 * 25.4]
+    #7 = [#7 * 25.4]
+O107  ENDIF
+
 (MSG, Press Cycle Start To start Drilling Macro)
 m0
 
@@ -20,7 +30,7 @@ M73 ; save state, restore on exit
 
 G7 ; diameter mode
 G17 ; XY Plane
-;G21 ; Metric Units don't change units!
+G21 ; Metric Units don't change units!
 G90 ; Absolute Distance
 
 #13 = #<_z> (starting Z)
@@ -36,8 +46,8 @@ O51 ELSE
 O51 ENDIF
 
 G97 S#10 ; Constant RPM mode
-m3 ;Start Spindle
-g95 F#4 ; Feed-Per-Rev Mode
+M3 ;Start Spindle
+G95 F#4 ; Feed-Per-Rev Mode
 
 g4p1 ; Wait to reach speed
 

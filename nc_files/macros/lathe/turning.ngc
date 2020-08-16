@@ -1,8 +1,8 @@
 ; MACROCOMMAND=Finish Diameter,SFM,DOC,FPR,Finish Length,Radius,Angle,Tool Number
 ; MACRODEFAULTS=1,500,.02,.007,-2,0,0,1
 ; MACROSVG=LatheMacro.svg,0,11
-; O<turning> call [${turn.x-f}] [${turn.sf-f}] [${turn.cut-f}] [${turn.feed-f}] [${turn.z-f}] [${turn.rad-f}] [${turn.angle-f}] [${turn.tool-s}] 
-O<turning> sub
+
+; O<turning> call [${turn.x-f}] [${turn.sf-f}] [${turn.cut-f}] [${turn.feed-f}] [${turn.z-f}] [${turn.rad-f}] [${turn.angle-f}] [${turn.tool-s}]
 
 ; #1 finish diameter
 ; #2 speed
@@ -12,18 +12,29 @@ O<turning> sub
 ; #6 radius
 ; #7 angle
 ; #8 tool number
+;Turning
 
-G73
+O<turning> sub
+
+O107 IF [#<_imperial>]
+    (MSG, IMPERIAL ON)
+    #1 = [#1 * 25.4]
+    #2 = [#2 * 3.28]
+    #3 = [#3 * 25.4]
+    #4 = [#4 * 25.4]
+    #5 = [#5 * 25.4]
+    #6 = [#6 * 25.4]
+O107  ENDIF
+
+M73 ;save/restore codes
+
 G8 ; Radius mode (easier maths)
 G18 ; XZ Plane
-;G20 ; Inch Units - don't change units!
+G21 ; Metric Units
 G90 ; Absolute Distance
 G91.1 ; but not for arcs
 
-M6 T#8 G43
-
-(debug, Press Cycle Start To Start Turning Macro finish rad #1 start  cut#3 rad #14 start length #13 finish length #5)
-m0
+T#8 G43
 
 #1 = [#1 / 2] ; because of radius mode
 #14 = [#<_x>] (starting X)
@@ -35,7 +46,7 @@ m0
 #23 = [#5 + #6 - #20]
 #24 = [[#13 - #23] * TAN[#7]]
 
-G96 D2500 S#2 ; Constant Surface Speed Mode
+G96 D1500 S#2 ; Constant Surface Speed Mode
 m3 ;Start Spindle
 g95 F#4 ; Feed-Per-Rev Mode
 
