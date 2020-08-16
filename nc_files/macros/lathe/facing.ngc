@@ -32,7 +32,7 @@ G18 ; XZ Plane
 G21 ; Metric Units
 G90 ; Absolute Distance
 
- T#7 G43
+M6 T#7 G43
 
 O10 IF [#6 NE 0]
    (MSG, Angled facing isn't supported yet)
