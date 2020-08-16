@@ -7985,10 +7985,10 @@ TO FILE</string>
                         <string>LOAD</string>
                        </property>
                        <property name="python_command_option" stdset="0">
-                        <bool>true</bool>
+                        <bool>false</bool>
                        </property>
                        <property name="true_python_cmd_string" stdset="0">
-                        <string>INSTANCE.filemanager.load()</string>
+                        <string/>
                        </property>
                        <property name="false_python_cmd_string" stdset="0">
                         <string/>
@@ -8413,8 +8413,8 @@ TO FILE</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
-     <y>105</y>
+     <x>1471</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>1431</x>
@@ -8429,8 +8429,8 @@ TO FILE</string>
    <slot>percentLoaded()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>68</y>
+     <x>633</x>
+     <y>-117</y>
     </hint>
     <hint type="destinationlabel">
      <x>617</x>
@@ -8477,8 +8477,8 @@ TO FILE</string>
    <slot>btn_clear_alarms_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
-     <y>376</y>
+     <x>1029</x>
+     <y>507</y>
     </hint>
     <hint type="destinationlabel">
      <x>1020</x>
@@ -8493,8 +8493,8 @@ TO FILE</string>
    <slot>btn_save_alarms_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
-     <y>376</y>
+     <x>1029</x>
+     <y>599</y>
     </hint>
     <hint type="destinationlabel">
      <x>978</x>
@@ -8509,8 +8509,8 @@ TO FILE</string>
    <slot>btn_start_macro_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>983</x>
-     <y>576</y>
+     <x>996</x>
+     <y>667</y>
     </hint>
     <hint type="destinationlabel">
      <x>1001</x>
@@ -8525,8 +8525,8 @@ TO FILE</string>
    <slot>slow_jog_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>922</x>
-     <y>215</y>
+     <x>926</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>927</x>
@@ -8550,6 +8550,22 @@ TO FILE</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btn_file_load</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_load_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1397</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1330</x>
+     <y>-14</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>btn_m61_clicked()</slot>
@@ -8561,5 +8577,6 @@ TO FILE</string>
   <slot>btn_rezet_clicked()</slot>
   <slot>slow_jog_clicked()</slot>
   <slot>btn_gcode_edit_clicked()</slot>
+  <slot>btn_load_file_clicked()</slot>
  </slots>
 </ui>
