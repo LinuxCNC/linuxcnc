@@ -23,7 +23,7 @@ G21 ; Metric Units
 G90 ; Absolute Distance
 
 
-T#6 G43
+M6 T#6 G43
 
 #1 = [#1 / 2] ; because of radius mode
 #14 = [#<_x>] (starting X)

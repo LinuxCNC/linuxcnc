@@ -34,7 +34,7 @@ G18 ; XZ Plane
 G21 ; Metric Units
 G90 ; Absolute Distance
 
- T#5 G43
+M6 T#5 G43
 
 #1 = [#1 / 2] ; because of radius mode
 
