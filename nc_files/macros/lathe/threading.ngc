@@ -1,0 +1,76 @@
+; MACROCOMMAND=Thread X, SFM, Tool Number, Pitch, Z, Internal, External
+; MACRODEFAULTS=1,300,1,.015,1,False,true
+; MACROSVG=LatheMacro.svg,5
+
+; O<threading>call [${thread.x-f}] [${thread.sf-f}] [${thread.tool-s}] [${thread.pitch-f}] [${thread.z-f}] [${thread.internal}] [${thread.external}]
+; #1=thread.x
+; #2=thread.sf
+; #3=thread.tool-s
+; #4=thread.pitch-f
+; #5=thread.z-f
+; #6=thread.internal
+; #7=thread.external
+
+;threading
+
+O<threading> sub
+
+O107 IF [#<_imperial>]
+    (MSG, IMPERIAL ON)
+    #1 = [#1 * 25.4] ; start X
+    #2 = [#2 * 3.28] ; surface speed
+    #4 = [#4 * 25.4] ; pitch
+    #5 = [#5 * 25.4] ; z finish
+O107  ENDIF
+
+G7 ; Lathe Diameter Mode
+G18 ; XZ Plane
+G21 ; Metric Units
+G90 ; Absolute Distance
+
+
+M6 T#3 G43
+
+#14 = [#<_x> * 2] (starting X)
+#13 = #<_z> (starting Z)
+
+G96 D200 S#2 ; Constant Surface Speed Mode
+M3
+g95 F0.1 ; Feed-Per-Rev Mode
+
+g4p1 ; Wait to reach speed
+
+;Threading
+        O51 IF [#6 GT 0.5]
+		#<OD> = [#1]
+		#<ID> = [#1 - 1.3 * #4]
+		;g1X [#<ID> - 1] ;thread truncation
+		;g0 Z #13
+		;g1 X #<ID>
+		;g1 Z #5
+		G0 X[#<ID> - 1]
+		g0 Z #13
+		#3 = [#4 * 1.3]
+        (debug, INTERNAL Threading thread dia-#1 start-#13 finish-#5 Pitch-#4 Depth-#3)
+		g1X [#<ID> - 1]
+ 		g76 p#4 z#5 i1 j0.2 k#3 h3 r1.5 q29.5 e0 l0
+		
+        O51 ELSE
+		#<OD> = [#1 - 0.108 * #4]
+		#<ID> = [#1 - 1.0825 * #4]
+		(debug, EXTERNAL Threading OD = #<OD> ID = #<ID>)
+		#3 = [#4 * 1.0825]
+		g1X [#<OD> + 1] ;final thread truncation
+		g0 z#13
+		g1 X #<OD>
+		g1 Z #5
+		G0 X[#<OD> +1]
+		G0 Z #13
+ 		g76 p#4 z#5 i-1 j0.2 k#3 h3 r1.5 q29.5 e0 l0
+		
+        O51 ENDIF
+	G0 Z #13
+	m5
+O<threading> endsub
+
+M2

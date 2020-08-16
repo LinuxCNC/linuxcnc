@@ -1,0 +1,43 @@
+.TH hal_create_thread "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_create_thread \- Crea un hilo HAL
+
+.SH SINTAXIS
+.HP
+int hal_create_thread(const char *\fIname\fR, unsigned long \fIperiod\fR, int \fIuses_fp\fR)
+
+.HP
+int hal_thread_delete(const char *\fIname\fR)
+
+.SH  ARGUMENTOS
+.IP \fIname\fR
+El nombre del hilo.
+
+.IP \fIperiod\fR
+El intervalo, en nanosegundos, entre iteraciones del hilo
+
+.IP \fIuses_fp\fR
+Debe ser distinto de cero si en el hilo se adjunta una función que utiliza coma flotante
+
+
+.SH DESCRIPCION
+\fBhal_create_thread\fR establece un hilo en tiempo real que
+ejecutar una o más funciones HAL periódicamente.
+
+Todos los períodos de los hilos se redondean a múltiplos enteros del período del temporizador
+hardware, y el período de este se basa en el primer hilo creado. Los hilos
+debe crearse en orden, del más rápido al más lento. HAL asigna
+prioridades decrecientes para los hilos que se crean más tarde, por lo que crearlos
+de los más rápidos a los más lentos da lugar a una tasa monotonica de prioridad de planificacion.
+
+\fBhal_delete_thread\fR elimina un hilo creado previamente.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de inicio en tiempo real, no desde el espacio de usuario o el código en tiempo real.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH VER TAMBIÉN
+\fBhal_export_funct(3hal)\fR

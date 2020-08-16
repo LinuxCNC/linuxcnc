@@ -1,0 +1,553 @@
+:lang: es
+
+[[cha:basic-hal-reference]]
+
+= Referencia básica HAL
+
+Este documento proporciona una referencia de los conceptos básicos de HAL.
+
+[[sec:hal-commands]]
+== Comandos HAL
+
+Se puede encontrar información más detallada en la página del manual de 'halcmd'; ejecutar
+'man halcmd' en una ventana de terminal.
+
+Para ver la configuración de HAL y verificar el estado de los pines y parámetros,
+use la ventana de configuración de HAL en el menú 'Máquina' en AXIS. Para ver
+el estado de un pin, abra la pestaña 'Ver' y haga clic en cada pin de su interés,
+que se agregará a la ventana de observación.
+
+.Ventana de configuración HAL
+
+image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Window"]
+
+=== loadrt
+
+El comando 'loadrt' carga componentes HAL en tiempo real. 
+Las funciones de los componentes de tiempo real deben agregarse a un hilo para ejecutarse a la
+velocidad de ese hilo. No puede cargar un componente de espacio de usuario en el
+espacio de tiempo real.
+
+Sintaxis y ejemplo:
+
+----
+loadrt <componente> <opciones>
+
+loadrt mux4 count=1
+----
+
+=== addf
+
+Sintaxis y ejemplo:
+
+----
+addf <función> <thread>
+
+addf mux4.0 servo-thread
+----
+
+Agrega la función 'funct' al hilo 'thread'. El valor predeterminado es agregar la función
+en el orden en que están en el archivo. Si se especifica 'posición', agrega la función
+en ese punto del hilo. Una posición negativa significa posición con respecto
+al final del hilo. Por ejemplo, '1' es al inicio del hilo, '-1' es al final de
+el hilo, '-3' es la tercera desde el final.
+
+Es importante cargar algunas funciones en un orden determinado, como por ejemplo las 
+funciones de lectura y escritura de puerto paralelo. El nombre de la función suele ser el nombre del componente
+más un número. En el siguiente ejemplo se carga el componente 'or2' y 'show function'
+muestra el nombre de la función or2
+
+----
+$ halrun
+halcmd: loadrt or2
+halcmd: show function
+Exported Functions:
+Owner   CodeAddr  Arg       FP   Users  Name
+ 00004  f8bc5000  f8f950c8  NO       0   or2.0
+----
+
+Debe agregar una función de un componente HAL en tiempo real a un hilo
+para que la función se ejecute a la velocidad del hilo.
+
+Por lo general hay dos hilos, como se muestra en este ejemplo. Algunos componentes usan
+punto flotante matemático y se debe agregar a un hilo que admita punto flotante. 
+La columna 'FP' indica si la matemática de coma flotante es compatible con ese hilo.
+
+----
+$ halrun
+halcmd: loadrt motmod base_period_nsec=55555 servo_period_nsec=1000000 num_joints=3
+halcmd: show thread
+Realtime Threads:
+     Period  FP     Name               (     Time, Max-Time )
+     995976  YES          servo-thread (        0,        0 )
+      55332  NO            base-thread (        0,        0 )
+----
+
+ - base-thread (el hilo de alta velocidad): este hilo maneja elementos que
+   necesita una respuesta rápida, como hacer pulsos de paso o leer y escribir
+   del/al puerto paralelo. No es compatible con matemática de coma flotante.
+ - servo-thread (el hilo de baja velocidad): este hilo maneja los elementos que
+   puede tolerar una respuesta más lenta, como el controlador de movimiento, ClassicLadder,
+   y el controlador de comandos de movimiento. Admite matemáticas de coma flotante.
+
+=== loadusr
+
+Sintaxis y ejemplos:
+
+----
+loadusr <componente> <opciones>
+
+loadusr halui
+
+loadusr -Wn spindle gs2_vfd -n spindle
+----
+Esto ultimo significa:
+'loadusr espera la carga del componente spindle, que es un componente gs2_vfd, nombrado como spindle'
+
+El comando 'loadusr' carga un componente HAL en espacio de usuario. Los programas en
+espacio de usuario tienen sus propios procesos separados que, opcionalmente, se comunican
+con otros componentes HAL a través de pines y parámetros. No puede cargar componentes 
+de tiempo real en el espacio de usuario.
+
+Las banderas pueden ser una o más de las siguientes:
+
+[horizontal]
+-W:: Esperar a que el componente esté listo. Se supone que el componente
+    tienen el mismo nombre que el primer argumento del comando.
+
+-Wn<nombre>:: Esperar al componente, que tendrá el <nombre> dado.
+    Esto solo se aplica si el componente tiene una opción de nombre.
+
+-w:: Esperar a que el programa termine.
+
+-i:: Ignorar el valor de retorno del programa (con -w).
+
+-n:: Nombrar un componente cuando es una opción válida para ese componente.
+
+[[sub:net]] (((net)))
+
+=== net
+
+Sintaxis y ejemplo:
+----
+net nombre-señal nombre-pin <flecha opcional> <segundo nombre-pin opcional>
+
+net home-x joint.0.home-sw-in <= parport.0.pin-11-in
+----
+
+El comando 'net' crea una 'conexión' entre una señal y uno
+o más pines. Si la señal no existe, 'net' crea la nueva señal, evitando el uso del comando 'newsig'. Las flechas de dirección opcionales
+'<​=', '=​>' y '<​​=​>' sirven para que sea más fácil seguir la lógica al leer
+una línea de comando 'net', pero no son utilizadas por el propio comando. Las flechas de dirección
+debe estar separadas por un espacio de los nombres de los pines.
+
+En el ejemplo, 'home-x' es el nombre de la señal, 'joint.0.home-sw-in' es un
+pin 'Dirección IN', '<​=' es la flecha de dirección opcional, y
+'parport.0.pin-11-in' es un pin 'Dirección OUT'. Esto puede parecer confuso pero
+las etiquetas de entrada y salida para un pin de puerto paralelo indican la forma física en la
+que el pin funciona, no como se maneja en HAL.
+
+Se puede conectar un pin a una señal, si obedece las siguientes reglas:
+
+* Un pin IN siempre se puede conectar a una señal.
+* Un pin IO se puede conectar si no hay un pin OUT conectado a la señal.
+* Un pin OUT se puede conectar solo si no hay otros pines OUT o IO en la señal
+
+El mismo 'nombre-señal' se puede usar en múltiples comandos 'net' para conectar
+pines adicionales, siempre que se obedezcan las reglas anteriores.
+
+.Dirección de señal
+
+image::images/signal-direction.png[align="center", alt="Dirección de señal"]
+
+El siguiente ejemplo muestra la señal xStep, siendo la fuente 
+stepgen.0.out, y con dos lectores, parport.0.pin-02-out y
+parport.0.pin-08-out. Básicamente, el valor de stepgen.0.out se envía a
+la señal xStep y ese valor se envía a parport.0.pin-02-out
+y parport.0.pin-08-out.
+
+----
+#   señal     fuente            destino1             destino2
+net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
+----
+
+Dado que la señal xStep ya contiene el valor de stepgen.0.out (la
+fuente) puede usar la misma señal nuevamente para enviar el valor a otro
+lector. Para hacer esto, simplemente use la señal, con los nuevos lectores, en otra
+línea.
+
+----
+net xStep => parport.0.pin-02-out
+----
+
+.Pines I/O
+
+Un pin de E/S, como encoder.N.index-enable, se puede leer o establecer tal como lo permita el componente.
+
+=== setp
+
+Sintaxis y un ejemplo:
+
+----
+setp <nombre-pin/parámetro> <valor>
+
+setp parport.0.pin-08-out TRUE
+----
+
+El comando 'setp' establece el valor de un pin o parámetro.
+Los valores validos dependerán del tipo de pin o parámetro. Es un error
+si los tipos de datos no coinciden.
+
+Algunos componentes tienen parámetros que deben establecerse antes de su uso.
+Los parámetros se pueden configurar antes de usarse o mientras se ejecuta el componente, según sea necesario. No puede
+usar 'setp' en un pin que está conectado a una señal.
+
+=== sets
+
+El comando 'sets' establece el valor de una señal.
+
+Sintaxis y un ejemplo:
+
+----
+sets <nombre-señal> <valor>
+
+net mysignal and2.0.in0 pyvcp.my-led
+
+sets mysignal 1
+----
+
+Es un error si:
+
+* El nombre de la señal no existe
+* La señal ya tiene un escritor
+* El valor no es el tipo correcto para la señal
+
+=== unlinkp
+
+El comando 'unlinkp' desvincula un pin de la señal conectada. Si no
+se conectó el pin a una señal antes de ejecutar el comando, no sucede nada. No es necesario el nombre de la señal; el
+pin quedara aislado de cualquier señal.
+El comando 'unlinkp' es útil para la resolución de problemas.
+
+Sintaxis y ejemplo:
+
+----
+unlinkp <nombre-pin>
+
+unlinkp parport.0.pin-02-out
+----
+
+=== Comandos obsoletos
+
+Los siguientes comandos están desaconsejados y pueden eliminarse en futuras
+versiones. Cualquier nueva configuración debe usar el comando <<sub:net,'net'>>.
+Estos comandos están incluidos para que las configuraciones más antiguas sigan funcionando.
+
+.linksp
+
+El comando 'linksp' crea una 'conexión' entre una señal y un
+pin.
+
+Sintaxis y un ejemplo:
+
+----
+linksp <nombre-señal> <nombre-pin>
+linksp X-step parport.0.pin-02-out
+----
+
+El comando 'net' ha reemplazado al comando 'linksp'.
+
+.linkps
+
+El comando 'linkps' crea una 'conexión' entre un pin y una
+señal. Es lo mismo que linksp pero los argumentos están invertidos.
+
+Sintaxis y un ejemplo:
+
+----
+linkps <nombre-pin> <nombre-señal>
+
+linkps parport.0.pin-02-out X-Step
+----
+
+El comando 'net' ha reemplazado el comando 'linkps'.
+
+.newsig
+
+el comando 'newsig' crea una nueva señal HAL con el nombre <signame>
+y el tipo de datos <tipo>. El tipo debe ser 'bit', 's32', 'u32' o
+'float'. Es un error si 'signame' ya existe.
+
+Sintaxis y un ejemplo:
+
+----
+newsig <signame> <tipo>
+
+newsig Xstep bit
+----
+
+Se puede encontrar más información en el manual de HAL o en las páginas man de
+halrun.
+
+[[sec:hal-data]]
+
+== Datos HAL
+
+=== Bit (((Bit)))
+
+Un valor de bit puede estar activado o desactivado.
+
+ - valores de bit = true o 1 y false o 0 (True, TRUE, true, son todos válidos)
+
+=== Float (((Float)))
+
+Un "float" es un número de punto flotante. En otras palabras, el punto decimal
+puede moverse según sea necesario.
+
+ - valores de float = un valor de punto flotante de 64 bits, con aproximadamente 53 bits de
+   resolución y más de 1000 bits de rango dinámico.
+
+Para obtener más información sobre los números de punto flotante, consulte:
+
+http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floating_point]
+
+=== s32 (((s32)))
+
+Un número 's32' es un número entero que puede tener un valor negativo o positivo.
+
+ - valores de s32 = números enteros de -2147483648 a 2147483647
+
+=== u32 (((u32)))
+
+Un número 'u32' es un número entero que es positivo solamente.
+
+ - valores u32 = números enteros de 0 a 4294967295
+
+== Archivos HAL
+
+Si utilizó el Asistente de configuración de Steppers para generar su configuración,
+tendrá hasta tres archivos HAL en su directorio de configuración.
+
+ - mi-mill.hal (si ha llamado a su configuración 'mi-mill') Este archivo será cargado el
+   primero y no debe cambiarse si usó el Asistente de configuración de Stepper.
+ - custom.hal Este archivo se carga a continuación y antes de que se cargue la GUI. En él
+   se ponen los comandos HAL personalizados que se quieren cargar antes de que sea cargada
+   la GUI.
+ - custom_postgui.hal Este archivo se carga después de que se cargue la GUI. Es
+   donde se colocan los comandos HAL personalizados que desea cargar después de
+   la carga de la GUI. Cualquier comando HAL que use widgets pyVCP debe ser
+   colocado aquí.
+
+== Componentes HAL
+
+A cada componente HAL, cuando es creado, se le agregan automáticamente dos parámetros. 
+Estos parámetros permiten monitorizar el tiempo de ejecución de un componente.
+
++.time+(((tiempo)))
+
++.tmax+(((tmax)))
+
+'time' es la cantidad de ciclos de CPU necesarios para ejecutar la función.
+
+'tmax' es la cantidad máxima de ciclos de CPU necesarios para ejecutar la
+función. 'tmax' es un parámetro de lectura/escritura para que el usuario pueda configurarlo a 0
+para deshacerse de la primera inicialización en la ejecución de la función.
+
+== Componentes lógicos
+
+HAL contiene varios componentes lógicos en tiempo real. Un componentes lógico
+sigue una 'tabla de verdad' que indica cuál es el resultado para cualquier entrada dada.
+Normalmente, son manipuladores de bits y siguen la lógica eléctrica de tablas de verdad de puertas lógicas.
+
+=== and2
+
+El componente 'and2' es una puerta 'and' de dos entradas. La tabla de verdad que sigue
+muestra el resultado en función de cada combinación de entrada.
+
+Sintaxis
+
+----
+and2 [count=N] | [nombres=nombre1[, nombre2 ...]]
+----
+
+Funciones
+
+    and2.n
+
+Pines
+
+    and2.N.in0 (bit, in)
+    and2.N.in1 (bit, in)
+    and2.N.out (bit, out)
+
+Tabla de verdad
+
+[width="40%", options="header"]
+|========================================
+|in0 | in1 | out
+|False | False | False
+|True | False | False
+|False | True | False
+|True | True | True
+|========================================
+
+=== not
+
+El componente 'not' es un inversor.
+
+Sintaxis
+
+----
+not [count=n] | [nombres=nombre1[,nombre2...]]
+----
+
+Funciones
+
+    not.all
+    not.n
+
+Pines
+
+    not.n.in (bit, in)
+    not.n.out (bit, out)
+
+Tabla de verdad
+
+[width="30%", options="header"]
+|========================================
+|in | out
+|True | False
+|False | True
+|========================================
+
+=== or2
+
+El componente 'or2' es una puerta OR de dos entradas.
+
+Sintaxis
+
+----
+or2 [count=n] | [nombres=nombre1[,nombre2...]]
+----
+
+Funciones
+
++or2.n+
+
+Pines
+
+    or2.n.in0 (bit, in)
+    or2.n.in1 (bit, in)
+    or2.n.out (bit, out)
+
+Tabla de verdad
+
+[width="40%", options="header"]
+|========================================
+|in0 | in1 | out
+|True | False | True
+|True | True | True
+|False | True | True
+|False | False | False
+|========================================
+
+=== xor2
+
+El componente 'xor2' es una puerta XOR de dos entradas (O exclusivo).
+
+Sintaxis
+
+----
+xor2 [count=n] | [nombres=nombre1[,nombre2...]]
+----
+
+Funciones
+
+    xor2.n
+
+Pines
+
+    xor2.n.in0 (bit, in)
+    xor2.n.in1 (bit, in)
+    xor2.n.out (bit, out)
+
+Tabla de verdad
+
+[width="40%", options="header"]
+|========================================
+|in0 | in1 | out
+|True | False | True
+|True | True | False
+|False | True | True
+|False | False | False
+|========================================
+
+=== Ejemplos de lógica
+
+Ejemplo 'and2' que conecta dos entradas a una salida.
+
+----
+loadrt and2 count=1
+
+addf and2.0 servo-thread
+
+net my-sigin1 and2.0.in0 <= parport.0.pin-11-in
+
+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
+
+net both-on parport.0.pin-14-out <= and2.0.out
+----
+
+En el ejemplo anterior, se carga una sola copia (count=1) de and2 en el espacio de tiempo real
+y se agrega (addf) al hilo servo. Despues, el pin 11 del puerto paralelo es
+conectado al bit 0 de la puerta and2.0 y el pin 12 se conecta al
+bit 1 de la puerta and2.0. Por último, se conecta el bit de salida del componente (and2.0.out)
+al pin 14 del puerto paralelo. Para ello se crea y usa la señal both-on. Entonces, siguiendo la tabla de verdad para and2, si el pin 11
+y el pin 12 están encendidos, el pin de salida 14 estará encendido.
+
+== Componentes de conversión
+
+=== weighted_sum
+
+'weighted_sum' convierte un grupo de bits en un entero. La
+conversión es la suma de los "pesos" de los bits que valen 1, mas cualquier
+offset. El peso del bit m-ésimo es 2^m. Esto es similar a un binario
+codificado en decimal pero con más opciones. El bit 'hold' (retención) detiene el procesamiento;
+si la entrada cambia, la 'suma' no cambia.
+
+La siguiente sintaxis se usa para cargar el componente weighted_sum.
+
+----
+loadrt weighted_sum wsum_sizes=tamaño[,tamaño,...]
+----
+
+Crea grupos de suma ponderada, cada uno con la cantidad dada de bits de entrada (size).
+
+Para actualizar 'weighted_sum' se necesita adjuntar la funcion 'process_wsums' a un hilo.
+
+----
+addf process_wsums servo-thread
+----
+
+Esta funcion actualiza el componente weighted_sum.
+
+En el siguiente ejemplo, recortado de la ventana HAL Configuration en
+Axis, Los bits '0' y '2' son verdaderos y no hay offset. El 'peso'
+del bit 0 es 1 y el 'peso' del bit 2 es 4, por lo que la suma es 5.
+
+.suma ponderada
+-----------------------------------------------------------
+Component Pins: 
+Owner   Type  Dir         Value  Name
+    10  bit   In           TRUE  wsum.0.bit.0.in
+    10  s32   I/O             1  wsum.0.bit.0.weight
+    10  bit   In          FALSE  wsum.0.bit.1.in
+    10  s32   I/O             2  wsum.0.bit.1.weight
+    10  bit   In           TRUE  wsum.0.bit.2.in
+    10  s32   I/O             4  wsum.0.bit.2.weight
+    10  bit   In          FALSE  wsum.0.bit.3.in
+    10  s32   I/O             8  wsum.0.bit.3.weight
+    10  bit   In          FALSE  wsum.0.hold
+    10  s32   I/O             0  wsum.0.offset
+    10  s32   Out             5  wsum.0.sum
+-----------------------------------------------------------

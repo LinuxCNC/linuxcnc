@@ -1,116 +1,115 @@
-Basic description
------------------
-From the top level directory, switch to the source directory:
+Descripción básica
+------------------
+Desde el directorio de nivel superior, cambie al directorio de fuentes:
 
 cd src
 
-In the source directory, build LinuxCNC:
+En el directorio de fuentes, compile LinuxCNC:
 
-./autogen.sh  (this builds the configure script)
-./configure [--with-realtime=uspace|/usr/rtai...]
+./autogen.sh (esto construye el script de configuración)
+./configure [--with-realtime = uspace | /usr/rtai ...]
 make clean
 make
 sudo make setuid
 
-to run the software go back to the top level directory, and issue:
+para ejecutar el software, regrese al directorio de nivel superior y ordene:
 
 source scripts/rip-environment
 linuxcnc
 
 
-Detailed description
-====================
+Descripción detallada
+=====================
 
-Run-time script
-===============
+Script de tiempo de ejecución
+=============================
 
-The runtime script is called linuxcnc, thus allowing you on an installed
-to just type 'linuxcnc' and get it running.  On a run-in-place system
-(e.g. the one you just got out of git), the runscript is scripts/linuxcnc.
-When you just checked out a fresh copy of LinuxCNC, you'll see there is no
-'scripts/linuxcnc', just a 'scripts/linuxcnc.in'.  By running configure
-that one will get changed to 'scripts/linuxcnc'. configure will also
-replace some default values for your system (folders, paths, etc).
+El script de tiempo de ejecución se llama linuxcnc, lo que le permite escribir simplemente 
+'linuxcnc' en una instalacion para hacerlo funcionar. En un sistema de ejecución in situ (RIP)
+(por ejemplo, el que acaba de obtener de git), el script de ejecución es scripts/linuxcnc.
+Cuando compruebe una copia nueva de LinuxCNC, verá que no hay
+'scripts/linuxcnc', solo 'scripts/linuxcnc.in'. Al ejecutar configure
+este ultimo será cambiado a 'scripts/linuxcnc'. configure también
+reemplaza algunos valores predeterminados para su sistema (carpetas, rutas, etc.).
 
 
-Configure script
-================
+Script configure
+=================
 
-   The `configure' shell script attempts to guess correct values for
-various system-dependent variables used during compilation.  It uses
-those values to create a `Makefile.inc' file.
-Finally, it creates a shell script `config.status' that you can run 
-in the future to recreate the current configuration, a file
-`config.cache' that saves the results of its tests to speed up
-reconfiguring, and a file `config.log' containing compiler output
-(useful mainly for debugging `configure').
+   El script de shell `configure 'intenta adivinar los valores correctos de
+varias variables dependientes del sistema utilizadas durante la compilación. Usa
+esos valores para crear un archivo `Makefile.inc '.
+Finalmente, crea un script de shell `config.status' que puede ejecutar
+en el futuro para recrear la configuración actual, un archivo
+`config.cache' que guarda los resultados de sus pruebas para acelerar la
+reconfiguración, y un archivo `config.log' que contiene la salida del compilador
+(útil principalmente para depurar `configure').
 
-   The file `configure.ac' is used to create `configure' by a program
-called `autoconf'.  You only need `configure.ac' if you want to change
-it or regenerate `configure' using a newer version of `autoconf'.
+   El archivo `configure.ac' se usa para crear `configure' mediante un programa
+llamado `autoconf'. Solo necesita `configure.ac' si desea cambiar
+o regenerar `configure' usando una versión más reciente de `autoconf'.
 
-The simplest way to compile this package is:
+La forma más sencilla de compilar este paquete es:
 
-  1. `cd' to the directory containing the package's source code and type
-     `./configure' to configure the package for your system.  If you're
-     using `csh' on an old version of System V, you might need to type
-     `sh ./configure' instead to prevent `csh' from trying to execute
-     `configure' itself.
+  1. `cd' al directorio que contiene el código fuente del paquete y teclee
+     `./configure' para configurar el paquete para su sistema. Si esta
+     usando `csh' en una versión anterior de System V, es posible que necesite escribir
+     `sh ./configure' en su lugar para evitar que `csh' intente ejecutar
+     `configure' en sí mismo.
 
-     Running `configure' takes awhile.  While running, it prints some
-     messages telling which features it is checking for.
+     Ejecutar `configure' toma un tiempo. Mientras se ejecuta, imprime algunos
+     mensajes que dicen qué características está buscando.
 
-  2. Type `make' to compile the package.
+  2. Escriba `make' para compilar el paquete.
 
-  3. Type `scripts/linuxcnc` to test the software.
+  3. Escriba `scripts/linuxcnc` para probar el software.
   
 
-Optional Features
-=================
-   LinuxCNC can operate hardware only if a real time system has been
-installed. Either RT-PREEMPT or RTAI. If you don't have any installed,
-you cannot run LinuxCNC to control any machines. Please install one
-of the RT patches (refer to the documentation of the project on how to
-achieve that).
+Características opcionales
+==========================
+   LinuxCNC puede operar hardware solo si ha sido instalado un sistema de 
+tiempo real. Ya sea RT-PREEMPT o RTAI. Si no tiene ninguno instalado,
+no puede ejecutar LinuxCNC para controlar ninguna máquina. Por favor instale uno
+de los parches RT (consulte la documentación del proyecto sobre cómo
+lograr eso).
 
-    However, it is possible to test LinuxCNC without a realtime system. This is 
-possible using a simulator mode, which doesn't allow hardware control. This is
-an alternate mode of `uspace` realtime.
+    Sin embargo, es posible probar LinuxCNC sin un sistema en tiempo real. Esto es
+posible utilizando un modo simulador, que no permite el control del hardware. Este es
+un modo alternativo de `uspace` en tiempo real.
 
-    To specify RT-PREEMPT or non-realtime, use --with-realtime=uspace.
-Otherwise, use --with-realtime=[location where rtai is installed].
+    Para especificar RT-PREEMPT o no-tiempo-real, use --with-realtime=uspace.
+De lo contrario, use --with-realtime=[ubicación donde rtai está instalado].
 
-If you don't want to generate the documentation from source:
-  --disable-build-documentation          Do not build documentation automatically
+Si no desea generar la documentación desde las fuentes:
+  --disable-build-documentation        No compila documentación automáticamente
 
-configure also accepts other arguments. Use --help to view the list.
+configure también acepta otros argumentos. Use --help para ver la lista.
 
 
-Operation Controls
-==================
+Controles de operación
+======================
 
-   `configure' recognizes the following options to control how it
-operates.
+   `configure' reconoce las siguientes opciones para controlar cómo
+opera.
 
 `--cache-file=FILE'
-     Use and save the results of the tests in FILE instead of
-     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
-     debugging `configure'.
+     Utilizar y guardar los resultados de las pruebas en FILE en lugar de en
+     `./config.cache'. Para depuración de `configure', haga FILE como `/dev/null 'para 
+     deshabilitar el almacenamiento en caché, 
 
-`--help'
-     Print a summary of the options to `configure', and exit.
+`--help '
+     Imprime un resumen de las opciones de 'configure' y sale.
 
-`--quiet'
-`--silent'
-`-q'
-     Do not print messages saying which checks are being made.  To
-     suppress all normal output, redirect it to `/dev/null' (any error
-     messages will still be shown).
+`--quiet '
+`--silent '
+`-q '
+     No imprime mensajes que indiquen qué chequeos se están realizando. Para
+     suprimir toda la salida normal, redirigirla a `/dev/null' (cualquier mensaje
+     de error se mostrara todavia).
 
-`--srcdir=DIR'
-     Look for the package's source code in directory DIR.  Usually
-     `configure' can determine that directory automatically.
+`--srcdir=DIR '
+     Buscar el código fuente del paquete en el directorio DIR. Generalmente
+     `configure' puede determinar ese directorio automáticamente.
 
-`--version'
-     Print the version of Autoconf used to generate the `configure'
-     script, and exit.
+`--version '
+     Imprimir la versión de Autoconf utilizada para generar el script`configure' y sale.

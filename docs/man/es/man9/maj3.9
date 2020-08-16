@@ -1,0 +1,32 @@
+.TH MAJ3 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+maj3 \- Compute the majority of 3 inputs
+.SH SYNOPSIS
+.HP
+.B loadrt maj3 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmaj3.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B maj3.\fIN\fB.in1\fR bit in \fR
+.TQ
+.B maj3.\fIN\fB.in2\fR bit in \fR
+.TQ
+.B maj3.\fIN\fB.in3\fR bit in \fR
+.TQ
+.B maj3.\fIN\fB.out\fR bit out \fR
+.SH PARAMETERS
+.TP
+.B maj3.\fIN\fB.invert\fR bit rw \fR
+.SH LICENSE
+
+GPL

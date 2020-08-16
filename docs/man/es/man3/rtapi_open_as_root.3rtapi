@@ -1,0 +1,37 @@
+q.TH rtapi_open_as_root "3rtapi" "" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_open_as_root \- Abre un archivo con privilegio "root"
+
+.SH SINTAXIS
+.nf
+.B #include <rtapi.h>
+.HP
+.BI "int rtapi_open_as_root(const char " *filename ", int " "flags)"
+.fi
+.SH ARGUMENTOS
+.IP \fIfilename\fR
+El nombre del archivo a abrir, como en \fBopen(2)\fR. Tenga en cuenta que rtapi no tiene un "directorio actual" bien 
+definido, por lo que esta debería ser una ruta absoluta, pero esto no es obligatorio.
+.IP \fIflags\fR
+Las banderas open, como en \fBopen(2)\fR. Nunca debe incluir bits que abren o crean archivos (por ejemplo, O_CREAT, O_APPEND, etc.) 
+ya que esta API no está destinada a crear o escribir archivos, aunque esto no se fuerza.
+
+.SH DESCRIPCIÓN
+En tiempo real "uspace", los privilegios de root se eliminan siempre que sea posible. Esta API activa temporalmente los privilegios 
+de root para abrir un archivo y los desactiva antes de regresar. Esto puede ser útil, por ejemplo, al acceder a nodos de 
+dispositivo o E/S mapeadas en memoria.
+
+En el caso de dispositivos PCI en sistemas x86 y x86-64, es preferible el estilo Linux de Interfaces PCI proporcionadas en \fB<rtapi_pci.h>\fR.
+
+.SH VALOR DEVUELTO
+En caso de éxito, se abre el descriptor de archivo no negativo. Si el llamador no lo cierra, permanece abierto hasta que se sale de rtapi_app.
+
+En caso de fallo, un valor errno negativo.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde codigo de inicio del tiempo real en tiempo real "uspace".
+
+.SH VER TAMBIÉN
+\fBopen(2)\fR, \fBrtapi_pci(3)\fR
+

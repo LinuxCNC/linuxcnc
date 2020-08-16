@@ -1,0 +1,33 @@
+.TH rtapi_clock_set_period "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_clock_set_period \- establece el intervalo de tiempo básico para tareas en tiempo real
+
+.SH SINTAXIS
+.HP
+rtapi_clock_set_period (long int \fInsec\fR)
+
+.SH ARGUMENTOS
+.IP \fInsec\fB
+El intervalo de tiempo básico deseado para tareas en tiempo real.
+
+.SH DESCRIPCIÓN
+\fBrtapi_clock_set_period\fR establece el intervalo de tiempo básico para las tareas en tiempo real.
+Todas las tareas periódicas se ejecutarán en un múltiplo entero de este período. La primera llamada 
+a \fBrtapi_clock_set_period\fR con \fInsec\fR mayor que cero inicia el reloj, usando \fInsec\fR como 
+el período del reloj en nano-segundos. Debido a limitaciones de hardware y RTOS, el período real 
+puede no ser exactamente el pedido. En caso de éxito, la función devolverá el período de reloj real si
+está disponible, de lo contrario, devuelve el período solicitado. Si el período solicitado está fuera 
+de los límites impuestos por el hardware o RTOS, devuelve \fB\-EINVAL\fR y no inicia el reloj.
+Una vez que se inicia el reloj,llamadas posteriores con un valor distinto de cero en \fInsec\fR 
+devuelven \fB\-EINVAL\fR y no tienen efecto. Llamar a \fBrtapi_clock_set_period\fR con \fInsec\fR 
+establecido en cero consulta el reloj, devolviendo el período actual del reloj, o cero si el reloj no 
+se ha iniciado todavía.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de inicio/limpieza, no desde tareas en tiempo real. Esta
+función no está disponible desde el código de usuario (no en tiempo real).
+
+.SH VALOR DEVUELTO
+El período real proporcionado por el RTOS, que puede ser diferente al
+período solicitado, o un código de estado RTAPI.

@@ -1,0 +1,99 @@
+.TH HISTOBINS "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+histobins \- histogram bins utility for scripts/hal-histogram
+.SH SYNOPSIS
+
+Usage:
+  Read availablebins pin for the number of bins available.
+  Set the minvalue, binsize, and nbins pins.
+    Ensure nbins <= availablebins
+    For nbins = N, the bins are numbered: 0 ... N\-1 
+  Iterate:
+    Set index pin to a bin number: 0 <= index < nbins.
+    Read check pin and verify that check pin == index pin.
+    Read outputs: binvalue, pextra, nextra pins.
+         (binvalue is count for the indexed bin)
+         (pextra   is count for all inputs > maxvalue)
+         (nextra   is count for all bins   < minvalue)
+
+ If index is out of range (index < 0 or index > maxbinnumber)
+ then binvalue == \-1.
+ The input-error pin is set when input rules are violated
+ and updates cease.
+ The reset pin may be used to restart.
+ The input used is selected based on pintype:
+   pintype  inputpin
+   -------  -----------
+         0  input
+         1  input-s32
+         2  input-u32
+         3  input-bit
+ Additional output statistics pins:
+   input-min
+   input-max
+   nsamples
+   variance
+   mean
+ The method input pin selects an alternate variance calculation.
+
+Maintainers note: hardcoded for MAXBINNUMBER==200
+
+.SH FUNCTIONS
+.TP
+\fBhistobins.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B histobins.\fIN\fB.pintype\fR u32 in \fR
+.TQ
+.B histobins.\fIN\fB.input\fR float in \fR
+.TQ
+.B histobins.\fIN\fB.input-s32\fR s32 in \fR
+.TQ
+.B histobins.\fIN\fB.input-u32\fR u32 in \fR
+.TQ
+.B histobins.\fIN\fB.input-bit\fR bit in \fR
+.TQ
+.B histobins.\fIN\fB.nbins\fR u32 in \fR(default: \fI20\fR)
+.TQ
+.B histobins.\fIN\fB.binsize\fR float in \fR(default: \fI1\fR)
+.TQ
+.B histobins.\fIN\fB.minvalue\fR float in \fR(default: \fI0\fR)
+.TQ
+.B histobins.\fIN\fB.index\fR s32 in \fR
+.TQ
+.B histobins.\fIN\fB.check\fR s32 out \fR
+.TQ
+.B histobins.\fIN\fB.reset\fR bit in \fR
+.TQ
+.B histobins.\fIN\fB.method\fR bit in \fR
+.TQ
+.B histobins.\fIN\fB.input-error\fR bit out \fR
+.TQ
+.B histobins.\fIN\fB.binvalue\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.pextra\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.nextra\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.input-min\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.input-max\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.nsamples\fR u32 out \fR
+.TQ
+.B histobins.\fIN\fB.variance\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.mean\fR float out \fR
+.TQ
+.B histobins.\fIN\fB.availablebins\fR s32 out \fR(default: \fI200\fR)
+.SH LICENSE
+
+GPL

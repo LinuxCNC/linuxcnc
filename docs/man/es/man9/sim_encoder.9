@@ -1,0 +1,67 @@
+.TH SIM_ENCODER "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+sim_encoder \- codificador de cuadratura simulado
+.SH SINOPSIS
+\fBloadrt sim_encoder [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2 ...\fB]]
+
+
+
+.SH DESCRIPCIÓN
+\fBsim_encoder\fR puede generar señales en cuadratura como si fueran de un codificador.
+También genera un pulso de índice una vez por revolución. Se utiliza principalmente para pruebas y simulación, para reemplazar hardware que puede no estar disponible.
+Tiene una frecuencia máxima limitada, al igual que todos los generadores de pulso basados en software.
+
+.P
+\fBsim_encoder\fR admite un máximo de ocho canales. El número de canales realmente cargados se establece mediante el argumento \fBnum_chan =\fR cuando se carga el módulo. Alternativamente, especifique \fBnames =\fR y nombres únicos separados por comas.
+
+.P
+Los especificadores \fBnum_chan =\fR y \fBnames =\fR son mutuamente excluyentes.
+Si no se especifica \fBnum_chan =\fR ni \fBnames =\fR, el valor predeterminado es uno.
+
+.SH FUNCIONES
+.TP
+\fBsim\-encoder.make\-pulses\fR (no de punto flotante)
+Genera los pulsos de cuadratura e índice reales. Se debe llamar con la mayor frecuencia posible, para maximizar la tasa de conteo y minimizar la fluctuación de fase.
+Funciona en todos los canales a la vez.
+.TP
+\fBsim\-encoder.update\-speed\fR (usa punto flotante)
+Lee el comando \fBspeed\fR y otros parámetros y convierte los datos en un formato que pueda ser utilizado por \fBmake\-pulses\fR. Los cambios surten efecto solo cuando se ejecuta \fBupdate\-speed\fR. Se puede (y se debe) llamar con menos frecuencia que \fBmake\-pulses\fR. Funciona en todos los canales a la vez.
+
+.SH NOMBRADO
+Los nombres de pines y parámetros tienen el prefijo:
+  \fBsim\-encoder.N.\fR para N=0,1, ..., num\-1 cuando se usa \fBnum_chan=num\fR
+  \fBnameN.\fR para nameN=name1, name2, ... cuando se usa \fBnames=name1, name2, ...\fR
+
+El formato \fBsim\-encoder.N.\fR se muestra en las siguientes descripciones.
+
+
+.SH PINES
+
+.TP
+\fBsim\-encoder.\fIN\fB.phase\-A\fR bit out
+Una de las salidas en cuadratura.
+.TP
+\fBsim\-encoder.\fIN\fB.phase\-B\fR bit out
+La otra salida en cuadratura.
+.TP
+\fBsim\-encoder.\fIN\fB.phase\-Z\fR bit out
+El pulso índice.
+.TP
+\fBsim\-encoder.\fIN\fB.speed\fR float in
+La velocidad deseada del codificador, en unidades de usuario por segundo. Esto se divide por \fBscale\fR, y el resultado se usa como la velocidad del codificador en revoluciones por segundo.
+
+.SH PARÁMETROS
+.TP
+\fBsim\-encoder.\fIN\fB.ppr\fR u32 rw
+Los pulsos por revolución del codificador simulado. Tenga en cuenta que esto es pulsos, no cuenta, por revolución. Cada pulso o ciclo del codificador da como resultado cuatro recuentos, porque se cuenta cada borde.
+El valor predeterminado es 100 ppr, o 400 cuentas por revolución.
+.TP
+\fBsim\-encoder.\fIN\fB.scale\fR float rw
+Factor de escala para la entrada \fBspeed\fR. El valor de \fBspeed\fR se divide por \fBscale\fR para obtener la velocidad real del codificador en revoluciones por segundo.
+Por ejemplo, si \fBscale\fR está configurado en 60, entonces \fBspeed\fR está en revoluciones por minuto (RPM) en lugar de revoluciones por segundo. El valor predeterminado es 1.00.

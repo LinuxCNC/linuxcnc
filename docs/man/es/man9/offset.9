@@ -1,0 +1,39 @@
+.TH OFFSET "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+offset \- Adds an offset to an input, and subtracts it from the feedback value
+.SH SYNOPSIS
+.HP
+.B loadrt offset [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBoffset.\fIN\fB.update-output\fR (requires a floating-point thread)
+Updated the output value by adding the offset to the input
+.TP
+\fBoffset.\fIN\fB.update-feedback\fR (requires a floating-point thread)
+Update the feedback value by subtracting the offset from the feedback
+.SH PINS
+.TP
+.B offset.\fIN\fB.offset\fR float in \fR
+The offset value
+.TP
+.B offset.\fIN\fB.in\fR float in \fR
+The input value
+.TP
+.B offset.\fIN\fB.out\fR float out \fR
+The output value
+.TP
+.B offset.\fIN\fB.fb-in\fR float in \fR
+The feedback input value
+.TP
+.B offset.\fIN\fB.fb-out\fR float out \fR
+The feedback output value
+.SH LICENSE
+
+GPL

@@ -1,0 +1,34 @@
+.TH rtapi_outb "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_outb, rtapi_inb \- Realizar E/S de hardware
+
+.SH SINTAXIS
+.HP
+void rtapi_outb(unsigned char \fIbyte\fR, unsigned int \fIport\fR)
+.HP
+unsigned char rtapi_inb(unsigned int \fIport\fR)
+
+.SH ARGUMENTOS
+.IP \fIport\fR
+La dirección del puerto de E/S
+.IP \fIbyte\fR
+El byte que se escribirá en el puerto.
+
+.SH DESCRIPCIÓN
+\fBrtapi_outb\fR escribe un byte en un puerto de E/S hardware. \fBrtapi_inb\fR
+lee un byte de un puerto de E/S hardware.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real.
+No disponible en componentes de espacio de usuario.
+
+.SH VALOR DEVUELTO
+\fBrtapi_inb\fR devuelve el byte leído del puerto de E/S dado
+
+.SH NOTAS
+La dirección de E/S debe estar dentro de una región previamente asignada por
+\fBrtapi_request_region\fR. De lo contrario, otro módulo en tiempo real o el núcleo Linux podría intentar acceder a la región de E/S al mismo tiempo.
+
+.SH VER TAMBIÉN
+\fBrtapi_region(3rtapi)\fR

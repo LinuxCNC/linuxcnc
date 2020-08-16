@@ -1,0 +1,90 @@
+.\" Copyright (C) 2015 Jeff Epler
+.TH LinuxCNC "1" "2015-04-18" "Documentacion de LinuxCNC" ""
+.SH NOMBRE
+elbpcom \- Comunicacion con tarjetas Mesa ethernet
+.SH SINOPSIS
+Opciones comunes:
+.RS
+.SY elbpcom
+.BI [\-\-ip= IP ]
+.BI [\-\-port= PORT ]
+.BI [\-\-timeout= TIMEOUT ]
+.RE
+
+Lectura de datos:
+.RS
+.SY elbpcom
+.BI [ opciones\ comunes ]
+.BI \-\-space= SPACE
+.B [\-\-info]
+.BI \-\-address= ADDRESS
+.BI \-\-read= LENGTH
+.RE
+
+Escritura de datos:
+.RS
+.SY elbpcom
+.BI [ opciones\ comunes ]
+.BI \-\-space= SPACE
+.BI \-\-address= ADDRESS
+.BI \-\-write= HEXDATA
+.RE
+
+Envio de paquetes arbitrarios:
+.RS
+.SY elbpcom
+.BI [ opciones\ comunes ]
+.I HEXDATA
+.RE
+
+.SH DESCRIPCION
+Lee o escribe datos de una tarjeta Ethernet de Mesa que use el protocolo LBP16,
+como la 7i80. Esto puede ser util para realizar ciertas tareas de bajo nivel.
+
+Para obtener mas informacion sobre el significado de cada espacio de direcciones,
+consulte la documentacion de la tarjeta. El uso incorrecto de esta utilidad puede
+tener efectos negativos, como cambiar la direccion IP de la placa o incluso da\[~n]ar
+el archivo de bits FPGA en la eeprom. Para algunas tareas, como actualizar archivos
+de bits FPGA y configurar direcciones IP,
+.BR mesaflash (1)
+es una herramienta mas apropiada.
+
+Si no se especifican, los valores por defecto son:
+.RS
+.BI \-\-ip= 192.168.1.121
+.BI \-\-port= 27181
+.BI \-\-timeout= .2
+.RE 
+
+Este ejemplo demuestra la lectura de HOSTMOT2 identificando cadenas desde
+la IDROM en espacio 0:
+.RS
+.nf
+$ elbpcom \-\-space 0 \-\-address 0x104 \-\-read 8
+> 82420401
+< 484f53544d4f5432
+      HOSTMOT2
+.fi
+.RE
+Primero se muestra la solicitud en hexadecimal. Despues, la respuesta (si la hay)
+se muestra en hexadecimal. Finalmente, la respuesta se muestra en ASCII, con "."
+reemplazando cualquier caracter no ASCII. Esto es similar a las siguientes
+invocaciones de mesaflash:
+.RS
+.nf
+$ ./mesaflash  \-\-device 7i80 \-\-rpo 0x104
+54534F48
+$ ./mesaflash  \-\-device 7i80 \-\-rpo 0x108
+32544F4D
+.fi
+.RE
+Pero notese el diferente tratamiento de orden de bytes.
+
+.SH SEE ALSO
+.BR mesaflash (1),
+.BR hostmot2 (9),
+.BR hm2_eth (9),
+.UR http://www.mesanet.com
+Documentacion de Mesa para tarjetas Anything I/O
+.UE .
+

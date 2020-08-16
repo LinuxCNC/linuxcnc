@@ -1,0 +1,33 @@
+.TH rtapi_region "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_region \- funciones para administrar regiones de memoria de E/S
+
+.SH SINTAXIS
+.HP
+  void *rtapi_request_region(unsigned long \fIbase\fR, unsigned long int \fIsize\fR, const char *\fIname\fR)
+
+.HP
+  void rtapi_release_region(unsigned long \fIbase\fR, unsigned long int \fIsize\fR)
+
+.SH ARGUMENTOS
+.IP \fIbase\fR
+La dirección base de la región de E/S
+
+.IP \fIsize\fR
+El tamaño de la región de E/S
+
+.IP \fIname\fR
+El nombre que se mostrará en /proc/ioports
+
+.SH DESCRIPCIÓN
+\fBrtapi_request_region\fR reserva \fIsize\fR bytes de la memoria de E/S a partir de \fIbase\fR.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Solo se puede llamar desde el código de limpieza/inicio en tiempo real.
+
+.SH VALOR DEVUELTO
+\fBrtapi_request_region\fR devuelve NULL si la asignación falla y un valor no NULL
+en caso contrario.
+
+\fBrtapi_release_region\fR no tiene valor de retorno.

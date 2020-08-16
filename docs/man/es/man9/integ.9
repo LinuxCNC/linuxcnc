@@ -1,0 +1,35 @@
+.TH INTEG "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+integ \- Integrator with gain pin and windup limits
+.SH SYNOPSIS
+.HP
+.B loadrt integ [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBinteg.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B integ.\fIN\fB.in\fR float in \fR
+.TQ
+.B integ.\fIN\fB.gain\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B integ.\fIN\fB.out\fR float out \fR
+The discrete integral of 'gain * in' since 'reset' was deasserted
+.TP
+.B integ.\fIN\fB.reset\fR bit in \fR
+When asserted, set out to 0
+.TP
+.B integ.\fIN\fB.max\fR float in \fR(default: \fI1e20\fR)
+.TQ
+.B integ.\fIN\fB.min\fR float in \fR(default: \fI-1e20\fR)
+.SH LICENSE
+
+GPL

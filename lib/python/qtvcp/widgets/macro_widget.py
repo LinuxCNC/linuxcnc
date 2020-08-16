@@ -121,6 +121,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # id names for what dialog we want launched
         self.load_dialog_code = 'LOAD'
         self.save_dialog_code = 'SAVE'
+        self._request_name = 'CALCULATOR'
 
         self.stack = QtWidgets.QStackedWidget()
 
@@ -196,6 +197,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 for i, tName in enumerate(tabName):
                     # make a widget that is added to the stack
                     w = TouchInputWidget()
+                    w.touch_interface.callDialog = self.getNumbers
                     hbox = QtWidgets.QHBoxLayout(w)
                     #hbox.addStretch(1)
                     vbox = QtWidgets.QVBoxLayout()
@@ -505,6 +507,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def setTitle(self, string):
         self.setWindowTitle(string)
 
+    # get numeric data
+    def getNumbers(self,widget,ktype):
+        mess = {'NAME':self._request_name,'ID':'%s__macro',
+                'PRELOAD':float(widget.text()),
+            'TITLE':'Macro Entry Calculator','WIDGET':widget}
+        STATUS.emit('dialog-request', mess)
+
     # request the system to pop a load path picker dialog
     # do this so the system is consistant and things like dialog
     # placement are done.
@@ -537,6 +546,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             code = bool(message.get('ID') == '%s__'% self.objectName())
             if path and code:
                 self.saveReturn(path)
+        elif message.get('NAME') == self._request_name:
+            num = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__macro')
+            widget = message.get('WIDGET')
+            if code and widget is not None:
+                if num is not None:
+                    widget.setText(str(num))
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]

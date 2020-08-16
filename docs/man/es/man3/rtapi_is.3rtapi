@@ -1,0 +1,50 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH rtapi_is "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_is \- detalles de la configuración de rtapi
+
+.SH SINTAXIS
+.HP
+int rtapi_is_kernelspace()
+.HP
+int rtapi_is_realtime()
+
+.SH DESCRIPCIÓN
+\fBrtapi_is_kernelspace()\fR devuelve distinto de cero cuando los módulos rtapi se ejecutan en el espacio del kernel (por ejemplo, bajo rtai) y cero cuando se
+ejecuta en el espacio de usuario (p. ej., bajo uspace).
+
+\fBrtapi_is_realtime()\fR devuelve distinto de cero cuando es capaz de ejecutarse con garantías de tiempo real. Para rtai, esto siempre devuelve un valor 
+distinto de cero (pero en realidad la carga de los módulos en tiempo real fallarán si no se ejecutan bajo el kernel apropiado). Para uspace, 
+esto devuelve un valor distinto de cero cuando el núcleo en ejecución indica que es capaz de rendimiento en tiempo real. 
+Si \fBrtapi_app\fR no es setuid root, esto devuelve un valor distinto de cero
+a pesar de que \fBrtapi_app\fR no podrá obtener la programación en tiempo real o
+acceso al hardware; por ejemplo, intentar \fBloadrt\fR un controlador de hardware fallará.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el espacio de usuario o desde el código de configuración en tiempo real.
+\fBrtapi_is_realtime()\fR puede realizar E/S del sistema de archivos.
+
+.SH VALOR DEVUELTO
+Cero para falso, distinto de cero para verdadero.
+

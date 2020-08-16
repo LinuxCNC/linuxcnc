@@ -1,0 +1,221 @@
+.TH SIM_AXIS_HARDWARE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sim_axis_hardware \- A component to simulate home and limit switches
+.SH SYNOPSIS
+.HP
+.B loadrt sim_axis_hardware [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+This component creates simulated home and limit switches based on the current position.
+.br
+It currently can supply simulation for X,Y,Z,U,V and A axes.
+
+
+.SH FUNCTIONS
+.TP
+\fBsim-axis-hardware.\fIN\fB.update\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B sim-axis-hardware.\fIN\fB.Xcurrent-pos\fR float in \fR
+The current position on the axis - eg connect to joint.0.motor-pos-fb
+.TP
+.B sim-axis-hardware.\fIN\fB.Ycurrent-pos\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zcurrent-pos\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Acurrent-pos\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ucurrent-pos\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vcurrent-pos\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xhomesw-pos\fR float in \fR(default: \fI1\fR)
+The position of the home switch
+.TP
+.B sim-axis-hardware.\fIN\fB.Yhomesw-pos\fR float in \fR(default: \fI1\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zhomesw-pos\fR float in \fR(default: \fI1\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ahomesw-pos\fR float in \fR(default: \fI1\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uhomesw-pos\fR float in \fR(default: \fI1\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vhomesw-pos\fR float in \fR(default: \fI1\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xmaxsw-upper\fR float in \fR
+The upper range of the maximum limit switch, above this is false.
+.TP
+.B sim-axis-hardware.\fIN\fB.Ymaxsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zmaxsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Amaxsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Umaxsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vmaxsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xmaxsw-lower\fR float in \fR
+The lower range of the maximum limit switch, below this is false.
+.TP
+.B sim-axis-hardware.\fIN\fB.Ymaxsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zmaxsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Amaxsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Umaxsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vmaxsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xminsw-upper\fR float in \fR
+The upper range of the minimum limit switch, above this is false.
+.TP
+.B sim-axis-hardware.\fIN\fB.Yminsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zminsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Aminsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uminsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vminsw-upper\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xminsw-lower\fR float in \fR
+The lower range of the minimum limit switch, below this is false.
+.TP
+.B sim-axis-hardware.\fIN\fB.Yminsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zminsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Aminsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uminsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vminsw-lower\fR float in \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xhomesw-hyst\fR float in \fR(default: \fI.02\fR)
+range that home switch will be true +- half this to the home position
+.TP
+.B sim-axis-hardware.\fIN\fB.Yhomesw-hyst\fR float in \fR(default: \fI.02\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zhomesw-hyst\fR float in \fR(default: \fI.02\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ahomesw-hyst\fR float in \fR(default: \fI.02\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uhomesw-hyst\fR float in \fR(default: \fI.02\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vhomesw-hyst\fR float in \fR(default: \fI.02\fR)
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xhomesw-out\fR bit out \fR
+ Home switch for the X axis
+.TP
+.B sim-axis-hardware.\fIN\fB.Yhomesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zhomesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ahomesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uhomesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vhomesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.homesw-all\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xmaxsw-out\fR bit out \fR
+Max limit switch
+.TP
+.B sim-axis-hardware.\fIN\fB.Xminsw-out\fR bit out \fR
+min limit switch
+.TP
+.B sim-axis-hardware.\fIN\fB.Xbothsw-out\fR bit out \fR
+True for both max and min limit switch
+.TP
+.B sim-axis-hardware.\fIN\fB.Ymaxsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Yminsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ybothsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zmaxsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zminsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zbothsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Amaxsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Aminsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Abothsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Umaxsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uminsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ubothsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vmaxsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vminsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vbothsw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.limitsw-all\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.limitsw-homesw-all\fR bit out \fR
+True for all limits and all home.
+.TP
+.B sim-axis-hardware.\fIN\fB.Xmaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Xbothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ymaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Yminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ybothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zmaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Zbothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Amaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Aminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Abothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Umaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Uminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Ubothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vmaxsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vminsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.Vbothsw-homesw-out\fR bit out \fR
+.TQ
+.B sim-axis-hardware.\fIN\fB.limit-offset\fR float in \fR(default: \fI.01\fR)
+how much the limit switches are offset from inputed position. added to max, subracted from min
+.SH AUTHOR
+
+Chris Morley
+.SH LICENSE
+
+GPL

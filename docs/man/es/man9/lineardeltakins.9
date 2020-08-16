@@ -1,0 +1,35 @@
+.TH LINEARDELTAKINS "9" "11/07/2013" "Documentación LinuxCNC" "Componente cinemático"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+
+lineardeltakins \- Cinemática para un robot delta lineal
+
+.SH SINOPSIS
+.HP
+.B loadrt lineardeltakins
+
+.SH CINEMÁTICA
+El modelo cinemático es apropiado para un diseño estilo rostock/kossel con tres articulaciones dispuestas en un triángulo equilátero. (0,0) es siempre el centro del volumen de trabajo. La articulación 0 está en (0, R) y las articulaciones posteriores están a 120 grados en sentido horario (tenga en cuenta que la articulación 0 no está en cero radianes). La longitud del brazo es L.
+
+Las articulaciones 0-2 son los carros lineales. Los ejes ABC y UVW pasan sin cambios en las articulaciones 3-8, de modo que, por ejemplo, A todavía se puede usar para controlar una extrusora.
+
+.SH PINES
+.TP
+.B lineardeltakins.R\fR float in
+Diámetro efectivo de la plataforma.
+
+R es diferente a la distancia desde el centro de la mesa hasta el centro de la correa/varilla lisa/extrusión sobre la que se montan las articulaciones. En el lenguaje delta RepRap, R es DELTA_RADIUS que se calcula como
+
+DELTA_SMOOTH_ROD_OFFSET - DELTA_EFFECTOR_OFFSET - DELTA_CARRIAGE_OFFSET.
+
+.TP
+.B lineardeltakins.L\fR float in
+Longitud de la varilla que conecta el carro al efector. En el lenguaje delta RepRap, L es DELTA_DIAGONAL_ROD
+
+.SH NOTAS
+Los valores R y L se pueden ajustar mientras se ejecuta LinuxCNC. Sin embargo, hacerlo mientras está en modo coordinado conducirá a un cambio de paso en la posición de la articulación, lo que generalmente provocará un error de seguimiento si está en modo de articulación con la máquina encendida.

@@ -314,7 +314,6 @@ class HandlerClass:
         self.btn_gcode_edit_clicked(False)
 
     def set_active_mode(self, mode, index):
-        #print mode,index
         def update(widget):
             for key, value in self.activeWidgetDict.iteritems():
                 #print mode,key,value
@@ -366,18 +365,34 @@ class HandlerClass:
             else:
                 self.w.widgetswitcher.setCurrentIndex(2)
                 update('workoffsetsPage')
+            return # don't change the mode
         elif mode == 'graphics':
-            cur = self.w.mainLeftStack.currentIndex()
-            if cur == 0: # gcode
+            if self.current_mode[0] == 'program': # gcode
                 if self.w.widgetswitcher.get_current_number() == 0:
-                    self.w.widgetswitcher.show_default()
-                    self.w.mainLeftStack.setCurrentIndex(2)
+                    self.w.widgetswitcher.show_id_widget(1)
+                    self.w.mainLeftStack.setCurrentIndex(0) # program
                 elif self.w.widgetswitcher.get_current_number() == 1:
                     self.w.widgetswitcher.show_default()
+                    self.w.mainLeftStack.setCurrentIndex(2)
+            elif self.current_mode[0] == 'setup':# setup
+                if self.w.mainLeftStack.currentIndex() == 2:
+                    self.w.mainLeftStack.setCurrentIndex(1)
+                    self.w.widgetswitcher.setCurrentIndex(3)# setup
+                # show graphics
+                else:
+                    self.w.mainLeftStack.setCurrentIndex(2)
+                    self.w.widgetswitcher.setCurrentIndex(3)# setup
+            elif self.current_mode[0] == 'mdi':# mdi
+                # hide graphics
+                if self.w.mainLeftStack.currentIndex() == 2:
                     self.w.mainLeftStack.setCurrentIndex(0)
-            elif cur == 2:
-                self.w.mainLeftStack.setCurrentIndex(0)
-                self.w.widgetswitcher.show_id_widget(1)
+                    self.w.widgetswitcher.setCurrentIndex(4)# setup mdi
+                # show graphics
+                else:
+                    self.w.widgetswitcher.show_default()
+                    self.w.mainLeftStack.setCurrentIndex(2)
+                    self.w.widgetswitcher.setCurrentIndex(4)# setup mdi
+            return # don;t change the mode
         else:
             print ('mode/index not recognized')
             return
@@ -496,6 +511,9 @@ class HandlerClass:
 </html>
 """ %(filename,os.path.join(self.PATH.IMAGEDIR,'lcnc_swoop.png'))
         self.web_view.setHtml(self.html)
+
+    def add_alarm(self, message):
+        STATUS.emit('update-machine-log', message, 'TIME')
 
     #####################
     # KEY BINDING CALLS #

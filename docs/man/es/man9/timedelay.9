@@ -1,0 +1,41 @@
+.TH TIMEDELAY "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+timedelay \- The equivalent of a time-delay relay
+.SH SYNOPSIS
+.HP
+.B loadrt timedelay [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBtimedelay.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B timedelay.\fIN\fB.in\fR bit in \fR
+.TQ
+.B timedelay.\fIN\fB.out\fR bit out \fR
+Follows the value of \fBin\fR after applying the delays
+\fBon-delay\fR and \fBoff-delay\fR.
+.TP
+.B timedelay.\fIN\fB.on-delay\fR float in \fR(default: \fI0.5\fR)
+The time, in seconds, for which \fBin\fR must be
+\fBtrue\fR before \fBout\fR becomes \fBtrue\fR
+.TP
+.B timedelay.\fIN\fB.off-delay\fR float in \fR(default: \fI0.5\fR)
+The time, in seconds, for which \fBin\fR must be
+\fBfalse\fR before \fBout\fR becomes \fBfalse\fR
+.TP
+.B timedelay.\fIN\fB.elapsed\fR float out \fR
+Current value of the internal timer
+.SH AUTHOR
+
+Jeff Epler, based on works by Stephen Wille Padnos and John Kasunich
+.SH LICENSE
+
+GPL

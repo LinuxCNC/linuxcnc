@@ -38,7 +38,7 @@ cscope.*
 oprofile*
 *.log
 position.txt
-*.9
+# *.9
 *.glade.h
 # Ignore test results
 *.result

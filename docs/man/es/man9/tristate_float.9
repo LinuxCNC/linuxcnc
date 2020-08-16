@@ -1,0 +1,30 @@
+.TH TRISTATE_FLOAT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+tristate_float \- Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics
+.SH SYNOPSIS
+.HP
+.B loadrt tristate_float [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBtristate-float.\fIN\fB\fR (requires a floating-point thread)
+If \fBenable\fR is TRUE, copy \fBin\fR to \fBout\fR.
+.SH PINS
+.TP
+.B tristate-float.\fIN\fB.in\fR float in \fR
+Input value
+.TP
+.B tristate-float.\fIN\fB.out\fR float io \fR
+Output value
+.TP
+.B tristate-float.\fIN\fB.enable\fR bit in \fR
+When TRUE, copy in to out
+.SH LICENSE
+
+GPL

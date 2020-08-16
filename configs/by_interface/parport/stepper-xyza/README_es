@@ -1,0 +1,20 @@
+Esta configuración está destinado a máquinas paso a paso básicas con una mesa giratoria.
+
+Puede tener un conexionado estándar (estilo LinuxCNC); mire en stepper/ para ver un ejemplo del 'estándar xylotex'. Podría hacer uno nuevo que se adapte a su propio cableado personalizado.
+
+Descripción detallada:
+
+* archivos ini
+
+- inch.ini - configuración en pulgadas para una máquina paso a paso
+
+* archivos nml
+
+- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
+
+* archivos hal
+
+- utiliza un archivo hal de pasos predeterminado (configs/common/core_stepper.hal)
+
+- standard_pinout.hal - incluya esto desde el ini para obtener un conexionado estándar
+

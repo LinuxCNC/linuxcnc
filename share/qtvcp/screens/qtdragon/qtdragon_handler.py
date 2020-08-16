@@ -815,6 +815,9 @@ class HandlerClass:
             self.add_status('Keyboard shortcuts are disabled')
             return False
 
+    def add_alarm(self, message):
+        STATUS.emit('update-machine-log', message, 'TIME')
+
     #####################
     # KEY BINDING CALLS #
     #####################

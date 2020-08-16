@@ -1,0 +1,30 @@
+.TH MINMAX "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+minmax \- Track the minimum and maximum values of the input to the outputs
+.SH SYNOPSIS
+.HP
+.B loadrt minmax [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBminmax.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B minmax.\fIN\fB.in\fR float in \fR
+.TQ
+.B minmax.\fIN\fB.reset\fR bit in \fR
+When reset is asserted, 'in' is copied to the outputs
+.TP
+.B minmax.\fIN\fB.max\fR float out \fR
+.TQ
+.B minmax.\fIN\fB.min\fR float out \fR
+.SH LICENSE
+
+GPL

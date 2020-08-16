@@ -1,0 +1,403 @@
+﻿:lang: es
+
+= Glosario
+
+Lista de términos y su significado. Algunos términos tienen un significado
+general y varios significados adicionales para usuarios, instaladores y
+desarrolladores.
+
+Alimentación (feed)::
+     (((alimentación))) Movimiento relativamente lento y controlado de la herramienta, utilizado
+    al hacer un corte. También se conoce como avance.
+
+Archivo ini::
+     (((INI))) Un archivo de texto que contiene la mayor parte de la información
+    que configura LinuxCNC para una máquina en particular.
+
+Articulacion::
+     (((Joint))) Punto o puntos de un par cinemático donde quedan restringidos algunos grados de libertad de uno de los eslabones del par sobre el otro eslabón. Las articulaciones mas típicas son la cilíndrica, la rotula y la guía corredera.
+
+AXIS (GUI)::
+     (((GUI))) Una de las interfaces gráficas de usuario disponibles para los usuarios de
+    LinuxCNC. Presenta un uso moderno de menús y botones de mouse mientras
+    automatiza y oculta algunos de los controles LinuxCNC más tradicionales. Es
+    la única interfaz de código abierto que muestra toda la ruta de la herramienta tan
+    pronto como se abre un archivo de código numérico.
+
+Backlash::
+     (((backlash))) La cantidad de "juego" o movimiento perdido que
+    ocurre cuando se invierte la dirección en un tornillo de avance u otro sistema mecánico
+    de transmisión de movimiento. Puede ser el resultado de tuercas demasiado sueltas en sus
+    tornillos de avance, deslizamiento en las correas, holgura de cables, "wind-up" en
+    acoplamientos, y otros lugares donde el sistema mecánico no esta "ajustado".
+    La holgura dará lugar a un movimiento impreciso o, en el caso de movimiento
+    causado por fuerzas externas (piense que la herramienta de corte tira de la pieza de trabajo),
+    el resultado puede ser herramientas de corte rotas. Esto puede suceder por
+    el aumento repentino en la carga del cortador cuando la pieza de trabajo es
+    arrastrada a través de la distancia de backlash por la herramienta de corte.
+
+Cinemática::
+     (((cinemática))) La relación de posición entre las
+    coordenadas universales y las coordenadas de articulación de una máquina. Hay dos tipos de
+    cinemática. La cinemática directa se usa para calcular coordenadas universales
+    desde coordenadas de articulaciones. La cinemática inversa se usa para exactamente lo opuesto.
+    Tenga en cuenta que la cinemática no tiene en cuenta las fuerzas,
+    momentos etc. en la máquina. Es solo para posicionamiento.
+
+Coordenadas de articulación::
+     (((coordenadas de articulación))) Especifican los ángulos
+    entre las articulaciones individuales de la máquina. Ver también Cinemática
+
+Coordenadas universales::
+     (((coordenadas universales))) Este es el marco de referencia absoluto
+    Da coordenadas en términos de un marco de referencia fijo
+    que se asigna a algún punto (generalmente la base) de la
+    máquina.
+
+Comp::
+     (((comp))) Una herramienta software utilizada para construir, compilar e instalar componentes
+    HAL en LinuxCNC.
+
+Compensaciones (offsets)::
+     (((offsets)))
+    Una cantidad arbitraria, agregada al valor de algo para hacerlo
+    igual a algún otro valor deseado. Por ejemplo, los programas gcode se
+    escriben a menudo alrededor de algún punto conveniente, como X0, Y0.
+    Las compensaciones del montaje se pueden usar para cambiar el punto de ejecución real
+    de ese programa gcode para adaptarse adecuadamente a la verdadera ubicación
+    de las mordazas o fijaciones de otro tipo.
+    Los desplazamientos de herramienta se pueden usar para cambiar la longitud "no corregida"
+    de una herramienta para obtener la longitud real de esa herramienta.
+
+Compensación del Backlash::
+     (((compensación del backlash))) Cualquier técnica que intente reducir
+    el efecto del backlash sin realmente eliminarlo del sistema mecánico.
+    Esto generalmente se hace en el software del controlador. Esto puede
+    corregir el lugar final de la pieza en movimiento pero falla para
+    resolver problemas relacionados con los cambios de dirección mientras hay movimiento (piense en
+    la interpolación circular) y el movimiento que se produce cuando las fuerzas externas
+    (piense que la herramienta de corte tira de la pieza de trabajo) es la fuente del
+    movimiento.
+
+CNC::
+     (((CNC))) Computer Numerical Control. El término general utilizado para
+    referirse al control por computadora de una maquina. En lugar de un operador humano
+    girando volantes para mover una herramienta de corte, CNC usa una computadora y motores
+    para mover la herramienta, en función de un programa de pieza.
+
+Configuración (como nombre)::
+     Un directorio que contiene un conjunto de archivos de configuración.
+    Las configuraciones personalizadas se guardan normalmente en el directorio
+    de usuario home/linuxcnc/configs.
+    Estos archivos incluyen el archivo INI tradicional de LinuxCNC y archivos HAL.
+    Una configuración también puede contener varios archivos generales que
+    describen herramientas, parámetros y conexiones NML.
+
+Configuración (como verbo)::
+     La tarea de configurar LinuxCNC para que coincida con el hardware en una
+    máquina en particular.
+
+DRO::
+     (((DRO))) Una lector digital es un sistema de dispositivos de medición de posición
+    montados sobre una máquina herramienta, que están conectados a una
+    pantalla numérica que muestra la posición actual de la herramienta con respecto a
+    alguna posición de referencia.
+    Los DRO son muy populares en las máquinas herramienta manuales porque
+    miden la posición verdadera de la herramienta sin juego, incluso si la máquina
+    tiene tornillos Acme con holgura.
+    Algunos DRO usan codificadores lineales de cuadratura para llevar la información de posición
+    de la máquina, y algunos otras usan métodos similares a resolvers giratorios.
+
+EDM::
+     (((EDM))) EDM es un método para eliminar metal en condiciones difíciles, difíciles de
+    máquinar o metales duros, o donde las herramientas rotatorias no podrían
+    producir la forma deseada de una manera rentable. Un excelente
+    ejemplo es la matriz de un punzón rectangular, donde se desean esquinas internas agudas.
+    Las operaciones de fresado no pueden dar ángulos internos agudos con
+    herramientas de diámetro finito. Una máquina EDM 'wire' puede hacer esquinas internas
+    con un radio solo un poco más grande que el radio del hilo. Un 
+    EDM de electrodo sumergido puede hacer esquinas internas con un radio solo un poco más grande
+    que el radio en la esquina del electrodo.
+
+Eje::
+     (((eje))) Una de las partes movibles de la máquina, controladas por computadora. 
+    Para una fresadora vertical típica, la mesa es el eje X, el
+    el carro transversal es el eje Y, y el cabezal es el eje Z. Los ejes angulares,
+    como mesas giratorias, se conocen como A, B y C. Adicionalmente,
+    los ejes lineales relativos a la herramienta se llaman U, V y W
+    respectivamente.
+
+EMC::
+     (((EMC))) Controlador de máquina mejorado (Enhanced Machine Controller). Inicialmente un
+    proyecto NIST. Renombrado a LinuxCNC en 2012.
+
+EMCIO ::
+     (((EMCIO))) El módulo dentro de LinuxCNC que maneja E/S 
+    de propósito general, sin relación con el movimiento real de los ejes.
+
+EMCMOT::
+     (((EMCMOT))) El módulo dentro de LinuxCNC que maneja
+    el movimiento real de la herramienta de corte. Se ejecuta como un programa en tiempo real
+    y controla directamente los motores.
+
+Encoder::
+     (((codificador))) Un dispositivo para medir la posición. Usualmente un
+    dispositivo mecánico-óptico, que emite una señal de cuadratura.
+    La señal puede ser contada por hardware especial, o directamente por puerto paralelo
+    con LinuxCNC.
+
+Entero con signo::
+     ((((Entero con signo))) Un número entero que puede tener un valor positivo o
+    negativo. En HAL se lo conoce como s32. (Un entero de 32 bits
+    con signo tiene un rango utilizable de -2,147,483,647 a +2,147,483,647.)
+
+Entero sin signo::
+     ((((Entero sin signo))) Un número entero que no tiene signo. En HAL
+    se lo conoce como u32. (Un entero de 32 bits sin signo tiene un rango útil de
+    cero a 4,294,967,296.)
+
+Error de seguimiento::
+         (((Error de seguimiento))) La diferencia entre valores de la señal de retroalimentación con la señal ordenada para
+         verificar que el motor está siguiendo el comando. Hay un límite ajustable del error permitido durante un
+         movimiento. Cuando se excede el límite, se crea una condición de error que informa un error en este límite.
+
+Ganancia FF::
+         Mientras que las ganancias P-I-D son reactivas (son función del error que ya ha ocurrido) las ganancias FF (o  
+         Feed-Forward o en avance) son proactivas. Las ganancias de avance, que incluyen avance de velocidad y avance de
+         aceleración, preceden a los comandos necesarios para lograr un error cero y los inyectan en el bucle de control.
+
+Gmoccapy (GUI)::
+     (((GUI))) Interface de usuario gráfica disponible para los usuarios de
+    LinuxCNC. Presenta el uso y la sensación de un control industrial y puede
+    ser utilizado con pantalla táctil, mouse y teclado. Admite pestañas incrustadas y
+    mensajes de usuario manejados ​​por hal. Ofrece muchos recursos para ser controlados con
+    hardware. Gmoccapy es altamente configurable.
+
+G-Code::
+     (((G-Code))) Término genérico utilizado para referirse a la parte común de la mayoría
+    de lenguajes de programación de piezas. Hay varios dialectos de código G.
+    LinuxCNC usa RS274/NGC.
+
+GUI::
+    (((GUI))) Interfaz gráfica de usuario.
+    General;;
+         Un tipo de interfaz que permite las comunicaciones entre una computadora
+        y un ser humano (en la mayoría de los casos) a través de la manipulación de iconos y otros
+        elementos (widgets) en una pantalla de computadora.
+    
+    LinuxCNC;;
+         Una aplicación que presenta una pantalla gráfica al operador de la máquina,
+        que permite su manipulación, y el correspondiente
+        programa de control.
+
+HAL::
+     (((HAL))) Capa de abstracción de hardware. Al más alto
+    nivel, es simplemente una manera de disponer de una serie de
+    bloques de construcción que se cargarán e interconectarán para ensamblar un sistema complejo.
+    Muchos de los componentes básicos son controladores para dispositivos de hardware.
+    Sin embargo, HAL puede hacer más que configurar controladores de hardware.
+
+Home::
+     (((home))) Una ubicación específica en el entorno de trabajo de la máquina
+    que se usa para asegurar que tanto la computadora como la máquina están de acuerdo
+    sobre la posición de la herramienta.
+
+Homing::
+     (((homing))) Acción de definicion de la posición home.
+
+Husillo::
+     (((husillo))) La parte de una máquina herramienta que gira
+    para hacer el corte. En una fresadora o taladro, el husillo sostiene la
+    herramienta para cortar. En un torno, el husillo sostiene la pieza de trabajo.
+
+Instancia::
+     (((Instance))) Una instancia es un objeto software real creado en
+    tiempo de ejecución. En la jerga de los programadores, el objeto Lassie es una instancia de la
+    clase perro
+
+Jog::
+     (((jog))) Mover manualmente un eje de una máquina. El Jogging mueve
+    los ejes una cantidad fija para cada pulsación de tecla, o mueve los ejes a una
+    velocidad constante siempre que mantenga presionada la tecla. En modo manual,
+    la velocidad de desplazamiento se puede establecer desde la interfaz gráfica.
+
+kernel-space::
+     Ver tiempo real.
+
+Lubricación::
+     Operación de aporte de lubricante a las partes móviles en fricción de una maquina.
+     
+Máquina de medición de coordenadas::
+     (((máquina de medición de coordenadas))) Una máquina de medición de coordenadas es
+    utilizada para hacer muchas mediciones precisas en piezas. Estas máquinas pueden ser
+    usadas para crear datos CAD para piezas donde no se pueden encontrar los planos, cuando
+    un prototipo hecho a mano debe ser digitalizado para la fabricación de moldes, o para verificar
+    la precisión de las piezas mecanizadas o moldeadas.
+
+MDI::
+     (((MDI))) Entrada de datos manual. Este es un modo de operación donde
+    el controlador ejecuta líneas únicas de código G a medida que son introducidas por el
+    operador.
+
+Motor paso a paso::
+     (((motor paso a paso))) Un tipo de motor que gira
+    pasos fijos. Al contar los pasos, es posible determinar la distancia
+    que el motor ha hecho recorrer. Si la carga excede la capacidad de par del
+    motor, omitirá uno o más pasos, causando errores de posición.
+
+Movimiento transversal (Traverse Move)::
+     (((Movimiento transversal))) Un movimiento en línea recta desde un punto de inicio hasta
+    un punto final.
+
+NIST::
+     (((NIST))) Instituto Nacional de Estándares y Tecnología.
+    Una agencia del Departamento de Comercio de Estados Unidos.
+
+NML::
+     (((NML))) Neutral Message Language; proporciona un mecanismo para
+     manejar múltiples tipos de mensajes en el mismo buffer así como
+     simplifica la interfaz para codificar y descodificar almacenamientos intermedios en formato
+     neutral y su mecanismo de configuración.
+
+Número de punto flotante::
+    Un número que tiene un punto decimal. (12.300). En HAL se lo conoce como float.
+
+Offset::
+    Ver Compensaciones
+    
+Par cinemático ::
+    Conjunto de dos sólidos rígidos, unidos de forma que permite ciertos movimientos relativos y restringe otros.
+
+Pncconf::
+    Asistente de configuración de tarjetas Mesa
+
+Programa de pieza::
+     (((Programa de pieza))) Una descripción de una pieza,
+    en un lenguaje que el controlador puede entender. Para LinuxCNC,
+    ese lenguaje es RS-274/NGC, comúnmente conocido como código G.
+
+Python::
+     Lenguaje de programación de propósito general y muy alto nivel. Utilizado en LinuxCNC
+    para la GUI AXIS, la herramienta de configuración Stepconf y programación de varios scripts de códigos G.
+
+Rápid::
+     (((rápido))) Movimiento rápido, posiblemente menos preciso, de la herramienta.
+    Comúnmente utilizado para moverse entre cortes. Si la herramienta se encuentra con la pieza de trabajo
+    o la fijación de la misma durante un rápid, ¡algo va mal!. El desastre queda asegurado.
+
+Reajuste (override) de avance::
+     (((reajuste de avance))) Un cambio manual, controlado por el operador,
+    en la velocidad a la que la herramienta se mueve durante el corte. A menudo solía
+    permitir que el operador ajustase a herramientas que están algo embotadas, o
+    cualquier otra cosa que requiera que la velocidad de alimentación sea "retocada".
+
+Reajuste de la velocidad del husillo::
+     Un cambio manual controlado por el operador en la velocidad a la que la herramienta
+    gira durante el corte. A menudo se usa para permitir que el operador ajuste
+    el "chatter" causado por los dientes del cortador. El reajuste de velocidad del husillo asume
+    que el software LinuxCNC ha sido configurado para controlar la velocidad del husillo.
+
+Refrigerante::
+    Fluido destinado a la extracción del calor producido durante el corte
+
+Retroalimentación (feedback)::
+     (((retroalimentación))) Un método (por ejemplo, señales de encoder en cuadratura)
+    mediante el cual LinuxCNC recibe información sobre la posición de los motores
+
+RS-274/NGC::
+     (((RS274NGC))) El nombre formal del dialecto
+    utilizado por los programas de piezas de LinuxCNC.
+
+RTAI::
+     (((RTAI))) Interfaz de aplicaciones en tiempo real. Consulte en
+    https://www.rtai.org/[https://www.rtai.org/], una de las extensiones en tiempo real
+    para Linux que LinuxCNC puede usar para lograr un rendimiento en tiempo real.
+
+RTAPI::
+     (((RTAPI))) Una interfaz portátil para sistemas operativos en tiempo real
+    incluyendo pthreads RTAI y POSIX (como PREEMPT-RT) con extensiones en tiempo real.
+
+RTLINUX::
+    (((RTLINUX))) Ver
+    https://en.wikipedia.org/wiki/RTLinux[https://en.wikipedia.org/wiki/RTLinux],
+    una antigua extensión en tiempo real para Linux que LinuxCNC solía usar para
+    lograr un rendimiento en tiempo real. Obsoleto; reemplazado por RTAI.
+
+Servo Loop::
+     (((loop))) Un lazo de control utilizado para controlar la posición o
+    velocidad de un motor equipado con un dispositivo de retroalimentación.
+
+Servo motor::
+     (((servo motor))) Generalmente, cualquier motor que use
+    retroalimentación de detección de errores para corregir la posición de un actuador.
+    Además, un motor que está especialmente diseñado para proporcionar mejores
+    rendimientos en tales aplicaciones.
+
+Stepconf::
+     Un asistente de configuración de LinuxCNC. Puede manejar muchas
+    máquinas basadas en comandos de movimiento de paso y dirección. Escribe una 
+    configuración completa después de que el usuario responda algunas preguntas sobre la computadora
+    y la máquina en la que LinuxCNC se ejecutará.
+
+TASK::
+     (((TASK))) El módulo dentro de LinuxCNC que coordina
+    la ejecución general e interpreta el programa de pieza.
+
+Tcl/Tk::
+     (((Tk))) Un juego de herramientas de widgets gráficos y lenguaje de scripting
+    con el que fueron escritos varias de las GUI de LinuxCNCs y asistentes de selección.
+
+Tiempo real::
+    (((tiempo real))) Software que está destinado a cumplir
+    plazos de tiempo muy estrictos. En Linux, para cumplir estos
+    requisitos es necesario instalar un kernel en tiempo real, como
+    RTAI (o PREEMPT-RT), y construir el software para ejecutarse en el ambiente especial de tiempo real.
+    Por esta razón, el software en tiempo real se ejecuta en espacio kernel.
+
+Tornillo Acme::
+     (((tornillo acme))) Un tipo de tornillo de avance que usa la 
+    forma de filete Acme. Los filetes Acme tienen una fricción y desgaste algo menores que los
+    filetes triangulares simples, pero los tornillos de bola son aún mejores. La mayoría de las
+    máquinas herramientas manuales usan tornillos acme.
+
+Tornillo de avance ::
+     (((tornillo de avance))) Un tornillo girado por un motor para
+    mover una mesa u otra parte de una máquina. Los tornillos suelen ser
+    tornillos de bola o tornillos acme, aunque se pueden usar roscados triangulares convencionales
+    en tornillos donde la precisión y la larga duración no son tan importantes como
+    el bajo costo.
+
+Tornillo de bolas::
+     (((tornillo de bola))) Un tipo de tornillo de avance que usa pequeñas
+    bolas de acero endurecido entre la tuerca y el tornillo para reducir la fricción.
+    Los tornillos de bolas tienen muy baja fricción y backlash, pero generalmente son bastante
+    caros.
+
+Tuerca de bolas::
+     (((tuerca de bolas))) Una tuerca especial diseñada para usarse con
+    tornillos de bolas. Contiene un pasaje interno para recircular las bolas
+    de un extremo del tornillo al otro.
+
+Unidades::
+    (((unidades))) Consulte "Unidades de máquina", "Unidades de visualización" o "Unidades de programa".
+
+Unidades de máquina::
+     (((unidades de máquina))) Las unidades lineales y angulares utilizadas para configuración de la máquina.
+    Estas unidades se especifican y usan en el archivo ini.
+    Los pines HAL y los parámetros generalmente también están en unidades de máquina.
+
+Unidades de programa::
+    (((unidades de programa))) Las unidades lineales y angulares utilizadas en un programa de pieza.
+    Las unidades lineales de programa no tienen que ser las mismas que las unidades de máquina.
+    Ver G20 y G21 para más información. Las unidades angulares de programa son siempre grados.
+
+Unidades de visualización::
+     (((unidades de visualización))) Las unidades lineales y angulares utilizadas para mostrar en 
+    monitor.
+
+Velocidad de alimentación ::
+     (((velocidad de avance))) La velocidad a la que se produce un movimiento de corte.
+    En el modo automático o mdi, la velocidad de avance se ordena usando una palabra F.
+    F10 significaría diez unidades máquina por minuto.
+
+

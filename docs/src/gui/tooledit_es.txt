@@ -1,0 +1,99 @@
+:lang: es
+[[cha:tooledit-gui]]
+
+= GUI del Editor de Herramientas 
+
+== Descripción general
+
+.Tabla de herramientas
+image::images/tooledit.png[align="center", width="640", alt="GUI del Editor de Herramientas - Descripción general"]
+
+El programa 'tooledit' puede actualizar el archivo de la tabla de herramientas con
+los cambios editados usando el botón Guardar Archivo. El botón Guardar Archivo
+actualiza el archivo del sistema pero se requiere una acción separada para
+actualizar los datos de la tabla de herramientas utilizados por una instancia de LinuxCNC en ejecución.
+Con la GUI Axis, tanto el archivo como los datos de la tabla de herramientas actuales
+utilizado por LinuxCNC se puede actualizar con el botón ReloadTable.
+Este botón está habilitado solo cuando la máquina está encendida e inactiva.
+
+== Ordenación por columnas
+
+La visualización de la tabla de herramientas se puede ordenar por cualquier columna en forma ascendente
+haciendo clic en el encabezado de la columna. Un segundo clic hace la clasificacion
+en orden descendente. La clasificación de columnas requiere que la máquina
+se configure con la versión tcl mayor o igual a la 8.5.
+
+.Clasificacion segun DIAM
+image::images/tooledit-sort.png[align="center", alt="GUI del Editor de Herramientas - Ordenación por columnas"]
+
+Dependiendo de otras aplicaciones instaladas en el sistema, puede ser
+necesario habilitar tcl/tk8.5 con los comandos:
+----
+sudo update-alternative --config tclsh # selecciona la opción para tclsh8.5
+sudo update-alternative --config wish  # selecciona la opción para wish8.5
+----
+
+== Selección de columnas
+Por defecto, el programa 'tooledit' mostrará todas las posibles
+columnas de parámetros de la tabla de herramientas. Dado que pocas máquinas utilizan todos los
+parámetros, las columnas mostradas pueden ser limitadas con el siguiente ajuste de archivo ini:
+
+
+
+Sintaxis en archivo .INI
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit column_name column_name ...
+----
+
+.Ejemplo para columnas Z y DIAM
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit Z DIAM
+----
+
+image::images/tooledit-columns.png[align="center", alt="GUI del Editor de Herramientas - Selección de columnas"]
+
+== Uso independiente
+El programa 'tooledit' también se puede invocar como un programa independiente.
+Por ejemplo, si el programa está en la ruta de acceso del usuario, escribiendo
+'tooledit' se mostrará la sintaxis de uso:
+
+----
+Uso:
+       tooledit nombre de archivo
+       tooledit [column_1 ... column_n] nombre de archivo
+
+Los nombres de columna permitidos son: x y z a b c u v w diam front back orien
+----
+
+Para sincronizar 'tooledit' independiente con un LinuxCNC en ejecución,
+el nombre de archivo debe ser el mismo que el especificado en [EMCIO]TOOL_TABLE del archivo ini de LinuxCNC.
+
+Cuando se usa el programa 'tooledit' mientras se está ejecutando LinuxCNC,
+la ejecución de comandos gcode u otros programas pueden alterar el archivo de tabla de herramientas.
+Los cambios de archivos son detectados por 'tooledit' y se muestra un mensaje:
+
+  Advertencia: Archivo modificado por otro proceso
+
+La pantalla de la tabla de herramientas 'tooledit' se puede actualizar para leer el
+archivo modificado con el botón Releer.
+
+La tabla de herramientas se especifica en el archivo ini con una entrada:
+
+  [EMCIO]TOOL_TABLE = tool_table_filename
+
+El archivo de la tabla de herramientas se puede editar con cualquier editor de texto simple (no
+un procesador de textos).
+
+La gui Axis puede usar opcionalmente una configuración de archivo ini para especificar el programa editor de herramientas
+
+
+  [DISPLAY]TOOL_EDITOR = path_to_editor_programa
+
+Por defecto, se usa el programa llamado 'tooledit'. Este editor
+es compatible con todos los parámetros de la tabla de herramientas, permite la adición y eliminación
+de entradas de herramientas, y realiza una serie de verificaciones de validez en
+valores paramétricos.
+
+

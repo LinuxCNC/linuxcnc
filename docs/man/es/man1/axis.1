@@ -1,0 +1,66 @@
+.\" Copyright (c) 2007 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH AXIS "1"  "2007-04-01" "Documentacion de LinuxCNC" "The Enhanced Machine Controller"
+.SH NOMBRE
+axis \- Interface grafica de usuario para LinuxCNC
+.SH SINOPSIS
+.B axis
+\fI\-ini\fR \fIFICHEROINI\fR
+.SH DESCRIPCION
+\fBaxis\fR es una de las interfaces graficas de usuario (GUI) para LinuxCNC 
+Se ejecuta usualmente desde un script.
+.SH OPCIONES
+.TP
+\fBFICHEROINI\fR
+el archivo ini es la pieza principal de una configuracion de LinuxCNC.
+No es toda la configuracion; hay otros archivos que lo acompa\[~n]an 
+(archivos NML, HAL, TBL, VAR, etc). Sin embargo, es el mas importante,
+porque es el archivo que mantiene la configuracion unida.
+Puede ajustar muchos parametros por si mismo, pero tambien le dice
+a \fBLinuxCNC\fR que otros archivos cargar y usar.
+
+.SH "VEA TAMBIEN"
+\fBLinuxCNC(1)\fR
+
+Los manuales de LinuxCNC y HAL tienen mucha mas informacion disponible.
+.TP
+Puede encontrarlos en /usr/share/doc/linuxcnc/.
+
+.SH HISTORIA
+
+.SH BUGS
+En este momento, ninguno conocido.  
+.PP
+.SH AUTOR
+Esta pagina man fue escrita por Alex Joni, como parte del proyecto LinuxCNC.
+.SH COMUNICACION DE BUGS
+Comunicar errores a alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2007 Alex Joni.
+.br
+Este software es libre; vea las fuentes para las condiciones de copia. NO hay garantia;
+ni para COMERCIABILIDAD, ni para APTITUD PARA UN USO PARTICULAR
+

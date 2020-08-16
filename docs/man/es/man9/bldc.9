@@ -1,0 +1,469 @@
+.TH BLDC "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+bldc \- BLDC and AC-servo control component 
+.SH SYNOPSIS
+.HP
+.B loadrt bldc personality=\fIP\fB
+.SH DESCRIPTION
+
+
+This component is designed as an interface between the most common forms of
+three-phase motor feedback devices and the corresponding types of drive. However
+there is no requirement that the motor and drive should necessarily be of
+inherently compatible types.
+.SH SYNOPSIS
+(ignore the auto-generated SYNOPSIS above)
+.SH
+.HP
+.B loadrt bldc cfg=qi6,aH\fB
+Each instance of the component is defined by a group of letters describing the
+input and output types. A comma separates individual instances of the component.
+.SH Tags
+Input type definitions are all lower-case.
+
+\fBn\fR No motor feedback. This mode could be used to drive AC
+induction motors, but is also potentially useful for creating free-running motor
+simulators for drive testing.
+
+\fBh\fR Hall sensor input. Brushless DC motors (electronically commutated
+permanent magnet 3-phase motors) typically use a set of three Hall sensors to
+measure the angular position of the rotor. A lower-case \fBh\fR in the cfg
+string indicates that these should be used.
+
+\fBa\fR Absolute encoder input. (Also possibly used by some forms of Resolver
+conversion hardware). The presence of this tag over-rides all other inputs. Note
+that the component still requires to be be connected to the \fBrawcounts\fR
+encoder pin to prevent loss of commutation on index-reset.
+
+\fBq\fR Incremental (quadrature) encoder input. If this input is used then
+the rotor will need to be homed before the motor can be run.
+
+\fBi\fR Use the index of an incremental encoder as a home reference.
+
+\fBf\fR Use a 4-bit Gray-scale patttern to determine rotor alignment. This
+scheme is only used on the Fanuc "Red Cap" motors. This mode could be used to
+control one of these motors using a non-Fanuc drive.
+
+Output type descriptions are all upper-case.
+
+\fBDefaults\fR The component will always calculate rotor angle, phase angle
+and the absolute value of the input \fBvalue\fR for interfacing with drives
+such as the Mesa 8i20. It will also default to three individual, bipolar phase
+output values if no other output type modifiers are used.
+
+\fBB\fR Bit level outputs. Either 3 or 6 logic-level outputs indicating which
+high or low gate drivers on an external drive should be used.
+
+\fB6\fR Create 6 rather than the default 3 outputs. In the case of numeric
+value outputs these are separate positive and negative drive amplitudes. Both
+have positive magnitude.
+
+\fBH\fR Emulated Hall sensor output. This mode can be used to control a drive
+which expects 3x Hall signals, or to convert between a motor with one hall
+pattern and a drive which expects a different one.
+
+\fBF\fR Emulated Fanuc Red Cap Gray-code encoder output. This mode might be
+used to drive a non-Fanuc motor using a Fanuc drive intended for the "Red-Cap"
+motors.
+
+\fBT\fR Force Trapezoidal mode.
+
+.SH OPERATING MODES
+The component can control a drive in either Trapezoidal or Sinusoidal mode, but
+will always default to sinusoidal if the input and output modes allow it. This
+can be over-ridden by the \fBT\fR tag. Sinusoidal commutation is significantly
+smoother (trapezoidal commutation induces 13% torque ripple).
+
+.SH ROTOR HOMING.
+To use an encoder for commutation a reference 0-degrees point must be found.
+The component uses the convention that motor zero is the point that an unloaded
+motor aligns to with a positive voltage on the A (or U) terminal and the B & C
+(or V and W) terminals connected together and to \-ve voltage. There will be
+two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
+functionally equivalent as far as driving the motor is concerned.
+If the motor has Hall sensors then the motor can be started in trapezoidal
+commutation mode, and will switch to sinusoidal commutation when an alignment is
+found. If the mode is \fBqh\fR then the first Hall state-transition will be
+used. If the mode is \fBqhi\fR then the encoder index will be used. This
+gives a more accurate homing position if the distance in encoder counts between
+motor zero and encoder index is known. To force homing to the Hall edges instead
+simply omit the \fBi\fR.
+
+Motors without Hall sensors may be homed in synchronous/direct mode.
+The better of these options is to home to the encoder zero using the \fBiq\fR
+config parameter. When the \fBinit\fR pin goes high the motor will rotate (in
+a direction determined by the \fBrev\fR pin) until the encoder indicates an
+index-latch (the servo thread runs too slowly to rely on detecting an encoder
+index directly).
+If there is no encoder index or its location relative to motor zero can not be
+found, then an alternative is to use \fImagnetic\fR homing using the \fBq\fR
+config. In this mode the motor will go through an alignment sequence ending at
+motor zero when the init pin goes high It will then set the final position as
+motor zero. Unfortunately the motor is rather \fIspringy\fR in this mode and
+so alignment is likely to be fairly sensitive to load.
+
+.SH FUNCTIONS
+.TP
+\fBbldc.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B bldc.\fIN\fB.hall1\fR bit in  [if personality & 0x01] \fR
+Hall sensor signal 1
+.TP
+.B bldc.\fIN\fB.hall2\fR bit in  [if personality & 0x01] \fR
+Hall sensor signal 2
+.TP
+.B bldc.\fIN\fB.hall3\fR bit in  [if personality & 0x01] \fR
+Hall sensor signal 3
+.TP
+.B bldc.\fIN\fB.hall-error\fR bit out  [if personality & 0x01] \fR
+Indicates that the selected hall
+pattern gives inconsistent rotor position data. This can be due to the pattern
+being wrong for the motor, or one or more sensors being unconnected or broken.
+A consistent pattern is not neceesarily valid, but an inconsistent one can never
+be valid.
+.TP
+.B bldc.\fIN\fB.C1\fR bit in  [if ( personality & 0x10 )] \fR
+Fanuc Gray-code bit 0 input
+.TP
+.B bldc.\fIN\fB.C2\fR bit in  [if ( personality & 0x10 )] \fR
+Fanuc Gray-code bit 1 input
+.TP
+.B bldc.\fIN\fB.C4\fR bit in  [if ( personality & 0x10 )] \fR
+Fanuc Gray-code bit 2 input
+.TP
+.B bldc.\fIN\fB.C8\fR bit in  [if ( personality & 0x10 )] \fR
+Fanuc Gray-code bit 3 input
+.TP
+.B bldc.\fIN\fB.value\fR float in \fR
+PWM master amplitude input
+.TP
+.B bldc.\fIN\fB.lead-angle\fR float in  [if personality & 0x06] \fR(default: \fI90\fR)
+The phase lead between the electrical vector and the rotor position in degrees
+.TP
+.B bldc.\fIN\fB.rev\fR bit in \fR
+Set this pin true to reverse the motor. Negative PWM amplitudes will also
+reverse the motor and there will generally be a Hall pattern that runs the motor
+in each direction too.
+.TP
+.B bldc.\fIN\fB.frequency\fR float in  [if ( personality & 0x0F ) == 0] \fR
+Frequency input for motors
+with no feedback at all, or those with only an index (which is ignored)
+.TP
+.B bldc.\fIN\fB.initvalue\fR float in  [if personality & 0x04] \fR(default: \fI0.2\fR)
+The current to be used for
+the homing sequence in applications where an incremental encoder is used with no
+hall-sensor feedback
+.TP
+.B bldc.\fIN\fB.rawcounts\fR s32 in  [if personality & 0x06] \fR(default: \fI0\fR)
+Encoder counts input. This must be linked to the encoder rawcounts pin or
+encoder index resets will cause the motor commutation to fail
+.TP
+.B bldc.\fIN\fB.index-enable\fR bit io  [if personality & 0x08] \fR
+This pin should be connected to
+the associated encoder index-enable pin to zero the encoder when it passes index
+This is only used indicate to the bldc control component that an index has been
+seen
+.TP
+.B bldc.\fIN\fB.init\fR bit in  [if ( personality & 0x05 ) == 4] \fR
+A rising edge on this pin starts the motor alignment sequence. This pin
+should be connected in such a way that the motors re-align any time that
+encoder monitoring has been interrupted. Typically this will only be at machine
+power-off.
+The alignment process involves powering the motor phases in such a way as to
+put the motor in a known position. The encoder counts are then stored in the
+\fBoffset\fP parameter. The alignment process will tend to cause a following
+error if it is triggered while the axis is enabled, so should be set before the
+matching axis.N.enable pin. The complementary \fBinit-done\fP pin can be used
+to handle the required sequencing.
+
+Both pins can be ignored if the encoder offset is known explicitly, such as is
+the case with an absolute encoder. In that case the \fBoffset\fP parameter
+can be set directly in the HAL file
+.TP
+.B bldc.\fIN\fB.init-done\fR bit out  [if ( personality & 0x05 ) == 4] \fR(default: \fI0\fR)
+Indicates homing sequence complete
+.TP
+.B bldc.\fIN\fB.A-value\fR float out  [if ( personality & 0xF00 ) == 0] \fR
+Output amplitude for phase A
+.TP
+.B bldc.\fIN\fB.B-value\fR float out  [if ( personality & 0xF00 ) == 0] \fR
+Output amplitude for phase B
+.TP
+.B bldc.\fIN\fB.C-value\fR float out  [if ( personality & 0xF00 ) == 0] \fR
+Output amplitude for phase C
+.TP
+.B bldc.\fIN\fB.A-on\fR bit out  [if ( personality & 0xF00 ) == 0x100] \fR
+Output bit for phase A
+.TP
+.B bldc.\fIN\fB.B-on\fR bit out  [if ( personality & 0xF00 ) == 0x100] \fR
+Output bit for phase B
+.TP
+.B bldc.\fIN\fB.C-on\fR bit out  [if ( personality & 0xF00 ) == 0x100] \fR
+Output bit for phase C
+.TP
+.B bldc.\fIN\fB.A-high\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+High-side driver for phase A
+.TP
+.B bldc.\fIN\fB.B-high\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+High-side driver for phase B
+.TP
+.B bldc.\fIN\fB.C-high\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+High-side driver for phase C
+.TP
+.B bldc.\fIN\fB.A-low\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+Low-side driver for phase A
+.TP
+.B bldc.\fIN\fB.B-low\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+Low-side driver for phase B
+.TP
+.B bldc.\fIN\fB.C-low\fR float out  [if ( personality & 0xF00 ) == 0x200] \fR
+Low-side driver for phase C
+.TP
+.B bldc.\fIN\fB.A-high-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+High-side driver for phase A
+.TP
+.B bldc.\fIN\fB.B-high-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+High-side driver for phase B
+.TP
+.B bldc.\fIN\fB.C-high-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+High-side driver for phase C
+.TP
+.B bldc.\fIN\fB.A-low-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+Low-side driver for phase A
+.TP
+.B bldc.\fIN\fB.B-low-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+Low-side driver for phase B
+.TP
+.B bldc.\fIN\fB.C-low-on\fR bit out  [if ( personality & 0xF00 ) == 0x300] \fR
+Low-side driver for phase C
+.TP
+.B bldc.\fIN\fB.hall1-out\fR bit out  [if ( personality & 0x400 )] \fR
+Hall 1 output
+.TP
+.B bldc.\fIN\fB.hall2-out\fR bit out  [if ( personality & 0x400 )] \fR
+Hall 2 output
+.TP
+.B bldc.\fIN\fB.hall3-out\fR bit out  [if ( personality & 0x400 )] \fR
+Hall 3 output
+.TP
+.B bldc.\fIN\fB.C1-out\fR bit out  [if ( personality & 0x800 )] \fR
+Fanuc Gray-code bit 0 output
+.TP
+.B bldc.\fIN\fB.C2-out\fR bit out  [if ( personality & 0x800 )] \fR
+Fanuc Gray-code bit 1 output
+.TP
+.B bldc.\fIN\fB.C4-out\fR bit out  [if ( personality & 0x800 )] \fR
+Fanuc Gray-code bit 2 output
+.TP
+.B bldc.\fIN\fB.C8-out\fR bit out  [if ( personality & 0x800 )] \fR
+Fanuc Gray-code bit 3 output
+.TP
+.B bldc.\fIN\fB.phase-angle\fR float out \fR(default: \fI0\fR)
+Phase angle including lead/lag angle after encoder zeroing etc. Useful for
+angle/current drives. This value has a range of 0 to 1 and measures electrical
+revolutions. It will have two zeros for a 4 pole motor, three for a 6-pole etc
+.TP
+.B bldc.\fIN\fB.rotor-angle\fR float out \fR(default: \fI0\fR)
+Rotor angle after encoder zeroing etc. Useful for angle/current drives which
+add their own phase offset such as the 8i20. This value has a range of 0 to 1
+and measures electrical revolutions. It will have two zeros for a 4 pole motor,
+three for a 6-pole etc
+.TP
+.B bldc.\fIN\fB.out\fR float out \fR
+Current output, including the effect of the dir pin and the alignment sequence
+.TP
+.B bldc.\fIN\fB.out-dir\fR bit out \fR
+Direction output, high if /fBvalue/fR is negative XOR /fBrev/fR is true.
+.TP
+.B bldc.\fIN\fB.out-abs\fR float out \fR
+Absolute value of the input value
+.SH PARAMETERS
+.TP
+.B bldc.\fIN\fB.in-type\fR s32 r \fR(default: \fI-1\fR)
+state machine output, will probably hide after debug
+.TP
+.B bldc.\fIN\fB.out-type\fR s32 r \fR(default: \fI-1\fR)
+state machine output, will probably hide after debug
+.TP
+.B bldc.\fIN\fB.scale\fR s32 rw  [if personality & 0x06] \fR(default: \fI512\fR)
+The number of encoder counts per rotor revolution.
+.TP
+.B bldc.\fIN\fB.poles\fR s32 rw  [if personality & 0x06] \fR(default: \fI4\fR)
+The number of motor poles. The encoder scale will be divided by this value
+to determine the number of encoder counts per electrical revolution
+.TP
+.B bldc.\fIN\fB.encoder-offset\fR s32 rw  [if personality & 0x0A] \fR(default: \fI0\fR)
+The offset, in encoder counts, between the motor electrical zero and the
+encoder zero modulo the number of counts per electrical revolution
+.TP
+.B bldc.\fIN\fB.offset-measured\fR s32 r  [if personality & 0x04] \fR(default: \fI0\fR)
+The encoder offset measured by the homing sequence (in certain modes)
+.TP
+.B bldc.\fIN\fB.drive-offset\fR float rw \fR(default: \fI0\fR)
+The angle, in degrees,
+applied to the commanded angle by the drive in degrees. This value is only used
+during the homing sequence of drives with incremental encoder feedback. It is
+used to back-calculate from commanded angle to actual phase angle. It is only
+relevant to drives which expect rotor-angle input rather than phase-angle
+demand. Should be 0 for most drives. 
+.TP
+.B bldc.\fIN\fB.output-pattern\fR u32 rw  [if personality & 0x400] \fR(default: \fI25\fR)
+Commutation pattern to be output in Hall Signal translation mode. See the
+description of /fBpattern/fR for details
+.TP
+.B bldc.\fIN\fB.pattern\fR u32 rw  [if personality & 0x01] \fR(default: \fI25\fR)
+Commutation pattern to use, from 0 to 47. Default is type 25.
+Every plausible combination is included. The table shows the excitation pattern
+along the top, and the pattern code on the left hand side. The table entries
+are the hall patterns in H1, H2, H3 order.
+Common patterns are:
+0 (30 degree commutation) and 26, its reverse.
+17 (120 degree).
+18 (alternate 60 degree).
+21 (300 degree, Bodine).
+22 (240 degree).
+25 (60 degree commutation).
+
+Note that a number of incorrect commutations will have non-zero net torque
+which might look as if they work, but don't really.
+
+If your motor lacks documentation it might be worth trying every pattern.
+
+.ie '\*[.T]'html' \{\
+.HTML \
+<STYLE> \
+#pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \
+#pattern TH { text-align: center; padding-left: .5ex; padding-right: .5ex } \
+#pattern TD.W { text-align: right; } \
+</STYLE> \
+<TABLE ID="pattern" STYLE="border: 1px solid black; border-collapse: collapse"> \
+<COL SPAN=7 STYLE="margin: .2ex"><COL SPAN=1 STYLE="border-left: 1px solid black"> \
+<TR><TD>&nbsp;<TH COLSPAN=6 CLASS=W>Phases, Source - Sink \
+<TR><TH CLASS=W>pat<TH CLASS=W>B-A<TH CLASS=W>C-A<TH CLASS=W>C-B<TH CLASS=W>A-B<TH CLASS=W>A-C<TH CLASS=W>B-C \
+<TR><TH>0<TD>000<TD>001<TD>011<TD>111<TD>110<TD>100 \
+<TR><TH>1<TD>001<TD>000<TD>010<TD>110<TD>111<TD>101 \
+<TR><TH>2<TD>000<TD>010<TD>011<TD>111<TD>101<TD>100 \
+<TR><TH>3<TD>001<TD>011<TD>010<TD>110<TD>100<TD>101 \
+<TR><TH>4<TD>010<TD>011<TD>001<TD>101<TD>100<TD>110 \
+<TR><TH>5<TD>011<TD>010<TD>000<TD>100<TD>101<TD>111 \
+<TR><TH>6<TD>010<TD>000<TD>001<TD>101<TD>111<TD>110 \
+<TR><TH>7<TD>011<TD>001<TD>000<TD>100<TD>110<TD>111 \
+<TR><TH>8<TD>000<TD>001<TD>101<TD>111<TD>110<TD>010 \
+<TR><TH>9<TD>001<TD>000<TD>100<TD>110<TD>111<TD>011 \
+<TR><TH>10<TD>000<TD>010<TD>110<TD>111<TD>101<TD>001 \
+<TR><TH>11<TD>001<TD>011<TD>111<TD>110<TD>100<TD>000 \
+<TR><TH>12<TD>010<TD>011<TD>111<TD>101<TD>100<TD>000 \
+<TR><TH>13<TD>011<TD>010<TD>110<TD>100<TD>101<TD>001 \
+<TR><TH>14<TD>010<TD>000<TD>100<TD>101<TD>111<TD>011 \
+<TR><TH>15<TD>011<TD>001<TD>101<TD>100<TD>110<TD>010 \
+<TR><TH>16<TD>000<TD>100<TD>101<TD>111<TD>011<TD>010 \
+<TR><TH>17<TD>001<TD>101<TD>100<TD>110<TD>010<TD>011 \
+<TR><TH>18<TD>000<TD>100<TD>110<TD>111<TD>011<TD>001 \
+<TR><TH>19<TD>001<TD>101<TD>111<TD>110<TD>010<TD>000 \
+<TR><TH>20<TD>010<TD>110<TD>111<TD>101<TD>001<TD>000 \
+<TR><TH>21<TD>011<TD>111<TD>110<TD>100<TD>000<TD>001 \
+<TR><TH>22<TD>010<TD>110<TD>100<TD>101<TD>001<TD>011 \
+<TR><TH>23<TD>011<TD>111<TD>101<TD>100<TD>000<TD>010 \
+<TR><TH>24<TD>100<TD>101<TD>111<TD>011<TD>010<TD>000 \
+<TR><TH>25<TD>101<TD>100<TD>110<TD>010<TD>011<TD>001 \
+<TR><TH>26<TD>100<TD>110<TD>111<TD>011<TD>001<TD>000 \
+<TR><TH>27<TD>101<TD>111<TD>110<TD>010<TD>000<TD>001 \
+<TR><TH>28<TD>110<TD>111<TD>101<TD>001<TD>000<TD>010 \
+<TR><TH>29<TD>111<TD>110<TD>100<TD>000<TD>001<TD>011 \
+<TR><TH>30<TD>110<TD>100<TD>101<TD>001<TD>011<TD>010 \
+<TR><TH>31<TD>111<TD>101<TD>100<TD>000<TD>010<TD>011 \
+<TR><TH>32<TD>100<TD>101<TD>001<TD>011<TD>010<TD>110 \
+<TR><TH>33<TD>101<TD>100<TD>000<TD>010<TD>011<TD>111 \
+<TR><TH>34<TD>100<TD>110<TD>010<TD>011<TD>001<TD>101 \
+<TR><TH>35<TD>101<TD>111<TD>011<TD>010<TD>000<TD>100 \
+<TR><TH>36<TD>110<TD>111<TD>011<TD>001<TD>000<TD>100 \
+<TR><TH>37<TD>111<TD>110<TD>010<TD>000<TD>001<TD>101 \
+<TR><TH>38<TD>110<TD>100<TD>000<TD>001<TD>011<TD>111 \
+<TR><TH>39<TD>111<TD>101<TD>001<TD>000<TD>010<TD>110 \
+<TR><TH>40<TD>100<TD>000<TD>001<TD>011<TD>111<TD>110 \
+<TR><TH>41<TD>101<TD>001<TD>000<TD>010<TD>110<TD>111 \
+<TR><TH>42<TD>100<TD>000<TD>010<TD>011<TD>111<TD>101 \
+<TR><TH>43<TD>101<TD>001<TD>011<TD>010<TD>110<TD>100 \
+<TR><TH>44<TD>110<TD>010<TD>011<TD>001<TD>101<TD>100 \
+<TR><TH>45<TD>111<TD>011<TD>010<TD>000<TD>100<TD>101 \
+<TR><TH>46<TD>110<TD>010<TD>000<TD>001<TD>101<TD>111 \
+<TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \
+</TABLE>
+\}
+.el \{\
+
+.TS
+box tab(;);
+cb s s s s s s
+cb|cb cb cb cb cb cb
+c | c  c  c  c c r.
+Phases, Source - Sink
+_
+pat;B-A;C-A;C-B;A-B;A-C;B-C
+_
+0;000;001;011;111;110;100
+1;001;000;010;110;111;101
+2;000;010;011;111;101;100
+3;001;011;010;110;100;101
+4;010;011;001;101;100;110
+5;011;010;000;100;101;111
+6;010;000;001;101;111;110
+7;011;001;000;100;110;111
+8;000;001;101;111;110;010
+9;001;000;100;110;111;011
+10;000;010;110;111;101;001
+11;001;011;111;110;100;000
+12;010;011;111;101;100;000
+13;011;010;110;100;101;001
+14;010;000;100;101;111;011
+15;011;001;101;100;110;010
+16;000;100;101;111;011;010
+17;001;101;100;110;010;011
+18;000;100;110;111;011;001
+19;001;101;111;110;010;000
+20;010;110;111;101;001;000
+21;011;111;110;100;000;001
+22;010;110;100;101;001;011
+23;011;111;101;100;000;010
+24;100;101;111;011;010;000
+25;101;100;110;010;011;001
+26;100;110;111;011;001;000
+27;101;111;110;010;000;001
+28;110;111;101;001;000;010
+29;111;110;100;000;001;011
+30;110;100;101;001;011;010
+31;111;101;100;000;010;011
+32;100;101;001;011;010;110
+33;101;100;000;010;011;111
+34;100;110;010;011;001;101
+35;101;111;011;010;000;100
+36;110;111;011;001;000;100
+37;111;110;010;000;001;101
+38;110;100;000;001;011;111
+39;111;101;001;000;010;110
+40;100;000;001;011;111;110
+41;101;001;000;010;110;111
+42;100;000;010;011;111;101
+43;101;001;011;010;110;100
+44;110;010;011;001;101;100
+45;111;011;010;000;100;101
+46;110;010;000;001;101;111
+47;111;011;001;000;100;110
+.TE
+\}
+
+.SH AUTHOR
+
+Andy Pugh
+.SH LICENSE
+
+GPL
