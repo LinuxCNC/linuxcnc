@@ -1,4 +1,4 @@
-linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
+linuxcnc (1:2.8.0~pre2) buster; urgency=low
 
   * Finally merge "Joints Axes". Joints and cartesian axes are no longer
     treated as the same thing, making control of robots and non-trivial
@@ -55,6 +55,7 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * add a driver for the Huanyang GT series VFD
   * mitsub_vfd -add a driver for Mitsubishi VFDs
   * xhc_whb04b-6: New HAL driver for the xhc-whb04b-6 pendant
+  * bldc_hall and bldc_sine removed, use bldc
 
   * rtapi: add a halcmd command to set the messaging level
   * Touchy: Allow re-homing and unhoming in JA systems.
@@ -114,10 +115,10 @@ linuxcnc (1:2.8.0~pre1.5970.gc1cbb001a) buster; urgency=low
   * docs: document AXIS's foam mode
   * configs: foam: this has no locking indexer
 
-
- -- andypugh <andy@bodgesoc.org>  Sun, 12 Jul 2020 20:29:54 +0100
+ -- andypugh <andy@bodgesoc.org>  Sun, 16 Aug 2020 19:47:54 +0100
 
 linuxcnc (1:2.8.0~pre1) rosa; urgency=low
+
   * New external axis offsets
   * New support for Mesa 7i96 ethernet card
   * New experimental QT based VCP
@@ -127,6 +128,8 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * Back tool lathe support in axis and gmoccapy
   * Seperate joint and axis limits for non trivial kins machines
   * bldc_hall removed: use bldc
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
 
 linuxcnc (1:2.7.15) unstable; urgency=medium
 
