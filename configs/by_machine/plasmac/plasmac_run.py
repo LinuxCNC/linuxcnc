@@ -492,6 +492,9 @@ class HandlerClass:
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
 
     def on_single_cut_pressed(self, widget):
+        self.builder.get_object('single-cut').set_sensitive(False)
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.builder.get_object('x-single-cut').update()
         self.builder.get_object('y-single-cut').update()
         x = self.builder.get_object('x-single-cut').get_value()
@@ -500,14 +503,11 @@ class HandlerClass:
             self.s.poll()
             if not self.s.estop and self.s.enabled and self.s.homed.count(1) == self.s.joints and self.s.interp_state == linuxcnc.INTERP_IDLE:
                 self.c.mode(linuxcnc.MODE_MDI)
-                self.c.wait_complete()
                 self.c.mdi('M3 $0 S1')
                 self.c.mdi('G91')
                 self.c.mdi('G1 X{} Y{} F#<_hal[plasmac.cut-feed-rate]>'.format(x, y))
-                self.c.wait_complete()
                 self.c.mdi('G90')
                 self.c.mdi('M5')
-                self.c.wait_complete()
                 self.c.mdi('M30')
             else:
                 print('current mode prevents a single cut')
