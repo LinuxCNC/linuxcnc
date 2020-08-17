@@ -1,150 +1,143 @@
-LÉAME para autores de documentos
+README for Document Writers
 
-Agregar archivos:
------------------
-Para agregar un archivo a los documentos, se deben actualizar Submakefile, docs.xml e index.tmpl.
+Adding files:
+-------------
+The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
 
-docs.xml se usa para crear los botones "anterior" y "siguiente" en la parte superior de cada documento html individual.
-En general, los documentos debe coincidir con el orden de index.tmpl
+docs.xml is used to create the "previous" and "next" buttons at the top of each individual html document. 
+it should generally match the order of the index.tmpl
 
-Notas sobre la documentación de LinuxCNC:
------------------------------------------
-El archivo makefile principal de LinuxCNC puede construir opcionalmente la documentación y
-otros archivos en este árbol de directorios. Utilice --enable-build-documentation cuando
-invoque src/configure, y ejecute make desde ../src
+Notes on LinuxCNC documentation:
+----------------------------
+The main LinuxCNC makefile can optionally build the documentation and
+other files in this directory tree.  Use --enable-build-documentation when
+invoking src/configure, and run make from src
 
-Notas sobre los dibujos:
-------------------------
+Notes about drawings:
+---------------------
+Many of the documents include drawings.  Most of them were originally
+created using EasyCad, a non-free Windows app, then exported to .eps files
+and included in the the docs.  The original 'source' files (EasyCad .FC7
+format) were not usable on a free system.  To fix this problem, all of
+the source files have been converted to .dxf files, and added to git.
+The .dxf files can be edited with multiple CAD packages, and serve as the
+'source' files for future changes to the drawings.  They can be converted
+from .dxf to postscript (not .eps) using Qcad, which is available as an 
+ubuntu package (and I believe also available for debian).
 
--N.T. Muchos de los inconvenientes que aqui se comentan estan superados en las versiones
-actuales de los correspondientes programas.N.T.-
+Unfortunately, EasyCad (and AutoCad) support a number of entities 
+that Qcad does not import properly.  Including some that were used 
+in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero 
+width lines, and dashed lines.  Qcad renders filled circles as 
+hollow, it renders all lines the same width, and it renders dashed 
+lines as solid, unless you tell it to do otherwise.  All of these 
+things make the drawings less attractive, but are somewhat 
+acceptable.  However, Qcad doesn't import filled arrowheads at all, 
+which seriously hurts the drawings.  So EasyCad was used to convert 
+the arrowheads to hollow before exporting them.  Hollow arrowheads 
+don't look as nice as solid ones, but at least they are visible.
 
-Muchos de los documentos incluyen dibujos. La mayoría de ellos fueron creados
-originalmente con EasyCad, una aplicación de Windows no gratuita, y luego exportados a archivos .eps
-e incluido en los documentos. Los archivos originales 'fuente' (formato EasyCad .FC7)
-no se podían usar en un sistema gratuito. Para solucionar este problema, todos
-los archivos fuente se han convertido a archivos .dxf y se han agregado a git.
-Los archivos .dxf pueden editarse con diferentes paquetes CAD y servir como
-archivos 'fuente' para futuros cambios en los dibujos. Se pueden convertir
-de .dxf a postscript (no .eps) usando Qcad, que está disponible como
-paquete ubuntu (y creo que también está disponible para debian).
+Once exported, the arrowheads lose their relationship with the line they 
+are on, and and need to be moved and/or rotated manually if the line is 
+moved.  I believe that even if they were imported back into EasyCad, the
+line/arrow connection would remain broken. New lines with 
+arrowheads can be created in Qcad with the 'leader' dimension tool.
 
-Desafortunadamente, EasyCad (y AutoCad) admiten varias entidades
-que Qcad no importa correctamente, incluyendo algunos que fueron utilizados
-en los dibujos de LinuxCNC; círculos rellenos, puntas de flecha rellenas, 
-líneas de ancho no nulos y líneas discontinuas. Qcad representa círculos rellenos como
-huecos, hace que todas las líneas tengan el mismo ancho, y se hace lineas de puntos
-como sólidas, a menos que le diga que haga lo contrario. Todos estas
-cosas hacen que los dibujos sean menos atractivos, pero son aceptables.
-Sin embargo, Qcad no importa puntas de flecha rellenas en absoluto,
-lo que daña seriamente los dibujos. Así que se usó EasyCad para convertir
-las puntas de flecha a huecas antes de exportarlas. Las puntas de flecha huecas
-no se ven tan bonitas como las sólidas, pero al menos son visibles.
+Because the original EPS files with filled lines and circles, wide lines,
+and dashed lines look so much nicer, they will remain in git and should
+probably be used for the documents, however if they become inaccurate
+because of changes in the software, we will have to edit the DXF files,
+generate postscript, and use the less pretty but factually corrrect 
+images.
 
-Una vez exportadas, las puntas de flecha pierden su relación con la línea correspondiente
-y deben moverse y/o girarse manualmente si la línea se ha
-movido. Creo que incluso si fueran importados de nuevo a EasyCad,
-la conexión línea/flecha permanecería rota. Nuevas líneas con
-las puntas de flecha se pueden crear en Qcad con la herramienta de dimensión 'líder'.
+Since Qcad itself is a GUI application, the dxf to postscript conversion
+involves going clicky clicky, and can't be automated and made part of the
+makefile.  Also, not everyone will have Qcad installed on their system.
+Therefore, we will store both the DXF files and the resulting postscript
+files in git, and the normal documentation build process will use the
+postscript files only.  If/when the dxf files are edited, they will need
+to be converted to postscript manually. The conversion procedure is as
+follows:
 
-Debido a que los archivos EPS originales con líneas llenas y círculos, líneas anchas,
-y las líneas punteadas se ven mucho mejor, permanecerán en git y probablemente deberían
-usarse para los documentos. Sin embargo, si se vuelven inexactos
-debido a cambios en el software, tendremos que editar los archivos DXF,
-generar postscript, y usar imágenes menos bonitas pero correctas.
+start qcad
+File->Open-> choose dxf file
+drawing appears in window
+Edit->CurrentDrawingPreferences->Paper
+set paper size to "letter", set orientation to "landscape" or "portrait"
+  depending on the aspect ratio of the drawing
+File->PrintPreview
+click the "fit to page" button on the toolbar (last button on the right at
+  least on version 2.0.4.0 of qcad)
+File->Print
+  select "print to file"
+  set the path to point to the same directory as the source .dxf file
+  set the name to be the same as the source file, but .ps instead of .dxf
+  click OK
 
-Dado que Qcad en sí es una aplicación GUI, la conversión dxf a postscript
-implica hacer clicks en ventanas, y no se puede automatizar y formar parte de
-makefile. Además, no todos tendrán Qcad instalado en su sistema.
-Por lo tanto, almacenaremos los archivos DXF y los archivos postscript resultante
-en git, y el proceso normal de creación de documentación usará
-archivos postscript solamente. La edicion de archivos dxf necesitará
-la conversion manual a PostScript. El procedimiento de conversión es como
-sigue:
+The makers of Qcad also have a GPL'ed format converter called vec2web,
+which can do dxf to postscript conversion from the command line.  It
+is not available as a precompiled package, but is available in source
+form from http://www.ribbonsoft.com/vec2web.html
 
-comenzar qcad
-Archivo-> Abrir-> elegir archivo dxf
-el dibujo aparece en la ventana
-Editar-> CurrentDrawingPreferences-> Paper
-establecer el tamaño del papel a "carta", establecer la orientación a "paisaje" o "retrato"
-  dependiendo de la relación de aspecto del dibujo
-Archivo->  Vista Previa Impresion
-haga clic en el botón "ajustar a la página" en la barra de herramientas (último botón a la derecha en
-  menos en la versión 2.0.4.0 de qcad)
-Archivo-> Imprimir
-  seleccionar "imprimir en archivo"
-  establecer la ruta para que apunte al mismo directorio que el archivo .dxf fuente
-  establecer el nombre como el mismo que el archivo de origen, pero .ps en lugar de .dxf
-  haga clic en Aceptar
+vec2web depends on qt3 development packages for compilation, so it should 
+not be a dependency for building the LinuxCNC docs.  But if configure can
+detect it, it would be nice to automate conversion from dxf to ps for those
+systems where vec2web is installed.
 
-Los fabricantes de Qcad también tienen un convertidor de formato GPL llamado vec2web,
-que puede hacer la conversión dxf a postscript desde la línea de comando. Esto
-no está disponible como un paquete precompilado, pero está disponible en http://www.ribbonsoft.com/vec2web.html
-
-vec2web depende de los paquetes de desarrollo qt3 para la compilación, por lo que no debería
-ser una dependencia para construir los documentos de LinuxCNC. Pero si configure puede
-detectarlo, sería bueno automatizar la conversión de dxf a ps para aquellos
-sistemas donde está instalado vec2web.
-
-Para construir vec2web, ejecutar apt-get install qt3-dev-tools
-El archivo tar de vec2web contiene un script de compilación, pero antes de ejecutarlo
-debe configurar $QTDIR para que apunte a la instalación de QT3; en mi caso fue
+To build vec2web, I had to apt-get install qt3-dev-tools
+The vec2web tarball contains a build script, but before you run it you
+must set $QTDIR to point at your QT3 installation - in my case it was
   export QTDIR=/usr/share/qt3
-A continuación, ejecutar el script de compilación:
+Then run the build script:
   ./build_vec2web.sh
-No hay un paso de instalación, el ejecutable se descarga en el directorio de compilación.
-Tampoco hay una página man, pero al ejecutarla sin argumentos imprime las siguiente
-instrucciones de uso:
+There is no install step, the executable gets dumped in the build directory.
+There is also no man page, but running it with no args prints the following
+usage instructions:
 
+Usage: vec2web <input file> <output file> [options]
+Where options are:
+        -x #      maximum x size for the output bitmap in pixel
+        -y #      maximum y size for the output bitmap in pixel
+        -b        black/white instead of using colors
+        -o [l|p]  orientation for PS output (landscape or portrait)
+        -s ..     page size for PS output (A4, A5)
 
-Uso: vec2web <archivo de entrada> <archivo de salida> [opciones]
-Donde las opciones son:
-        -x # 	tamaño x máximo para el mapa de bits de salida en píxeles
-        -y # 	tamaño máximo y para el mapa de bits de salida en píxeles
-        -b 	negro/blanco en lugar de usar colores
-        -o [l|p]orientación para salida PS (horizontal o vertical)
-        -s ..	tamaño de página para salida PS (A4, A5)
-								
-p.ej. vec2web drawing.dxf drawing.png
-        convierte drawing.dxf en un gráfico .png
+e.g. vec2web drawing.dxf drawing.png
+        converts drawing.dxf to a portable network graphic
 
+My initial attempts to use vec2web resulted in the graphical parts of the
+drawing being converted, but all text was lost.  I don't know if vec2web is
+worth spending much more time on, however, it _is_ GPL, and it includes a
+library for reading DXF files which might be a worthwhile thing to the 
+Linux CNC community.
 
-Mis intentos iniciales de usar vec2web dieron como resultado la conversion de
-las partes gráficas del dibujo, pero todo el texto se perdió. No sé si 
-vale la pena pasar mucho más tiempo con vec2web, sin embargo, es GPL e incluye una
-biblioteca para leer archivos DXF que podría ser una cosa que vale la pena a la
-comunidad LinuxCNC.
-
-Dibujos de QCad
+Drawings from QCad
 -------------------
-Guardar como .dxf en el mismo directorio que la imagen
-Establecer grosor de línea a 0.50 mm
-Exportar imagen con resolución 480 x 480 Auto .png
+Save as .dxf to same directory as the image
+Set line thickness to 0.50mm
+Export image as 480 x 480 Resolution Auto .png
 
 
-Cómo agregar un nuevo idioma de traducción
+How to add a new translation language
 -------------------------------------
 
-Agregue los archivos de origen asciidoc que contendrán su nueva traducción.
-Por lo general, eso significa copiar los archivos de idioma de uno de los idiomas
-existentes, probablemente inglés ya que suele ser el más actualizado.
+Add the asciidoc source files that will contain your new translation.
+Usually that means copying the language files for one of the existing
+languages, probably English since that's usually the most up to date.
 
-Agregue los archivos nuevos al lugar correcto en docs/src/Submakefile, para asegurar
-que se construirán.
+Add the new files to the proper place in docs/src/Submakefile, to ensure
+they'll get built.
 
-Edite debian/control.in para agregar el nuevo paquete linuxcnc-doc-$NEWLANG. 
-Agregue el nuevo paquete de documentos a la lista "or" de la línea Recommends del
-paquete linuxcnc/linuxcnc-sim.
-N.T. Actualmente, control.in esta dividido en control.top.in y control.bottom.in, siendo
-este ultimo el que contiene los parrafos Package:
+Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
+Add the new doc package to the or-list of the Recommends line of the
+linuxcnc/linuxcnc-sim package.
 
-Agregue el nuevo idioma a la lista en la variable DOCS_PACKAGES en debian/configure.
-Si hay un paquete texlive-lang-$NEWLANGUAGE para su nuevo idioma,
-agréguelo a todas las líneas EXTRA_BUILD apropiadas en debian/configure.
-N.T La variable que contiene los texlive-lang-$NEWLANGUAGE es DOC_DEPENDS
+Add the new language to the DOCS_PACKAGES variable in debian/configure.
+If there is a texlive-lang-$NEWLANGUAGE package for your new language,
+add it to all the appropriate EXTRA_BUILD lines in debian/configure.
 
-Agregue el archivo 'linuxcnc-doc-$NEWLANG.files.in' al nuevo paquete, probablemente
-copiando y editando "debian/linuxcnc-doc-en.files.in".
+Add the 'linuxcnc-doc-$NEWLANG.files.in' file for the new package, probably
+by copying and editing "debian/linuxcnc-doc-en.files.in".
 
-¡Pruebe a construir los paquetes y verifiquelos!
+Test build the packages and verify!
 

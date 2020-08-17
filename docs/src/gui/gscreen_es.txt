@@ -386,7 +386,7 @@ self.update_filepath(self, obj, path):
 When linuxcnc loads a new file, Gstat will send a callback message to the funciton 'update_filepath'. +
 In this example whe update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file. +
 
-==== Teclas de Jogging
+=== Teclas de Jogging
 
 No hay widgets especiales para hacer jogging con botones de pantalla, así que debemos hacerlo con el código de Python. +
 Bajo la función connect_signals agregue este código: +

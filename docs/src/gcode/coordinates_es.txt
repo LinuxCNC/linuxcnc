@@ -1,6 +1,6 @@
 :lang: es
 
-﻿= Sistemas de coordenadas
+= Sistemas de coordenadas
 
 [[cha:coordinate-system]]
 

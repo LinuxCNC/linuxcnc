@@ -1,5 +1,4 @@
 = Core Components
-= Core Components
 
 [[cha:core-components]]
 
