@@ -535,7 +535,9 @@ FUNCTION(_) {
     switch(state){
         case IDLE:
             xy_offset_enable = FALSE;
-            z_offset_enable = FALSE;
+            if(fabs(z_offset_current) - z_offset_counts < 0.000001){
+                z_offset_enable = FALSE;
+            }
             if(probe_inhibit && !float_switch && !breakaway && !ohmic_detected){
                 probe_inhibit = FALSE;
             }else if(!probe_inhibit){
