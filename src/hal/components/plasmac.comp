@@ -364,7 +364,7 @@ FUNCTION(_) {
     thc_enabled = (thc_enable && !thc_disable ? 1:0);
 
     /* set THC status */
-    thc_active = (state == CUT) && target_volts && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
+    thc_active = (state == CUT) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
 
     /* set ohmic probe state */
     ohmic_detected = ohmic_probe && ohmic_probe_enable;
