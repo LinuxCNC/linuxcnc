@@ -6,7 +6,7 @@
 
 Vea también la página man 'motion(9)'.
 
-[[sec: motion]]
+[[sec:motion]]
 == Motion (motmod)
 
 Los siguientes pines y parámetros son creados por el módulo 'motmod' en tiempo real.
