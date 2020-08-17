@@ -37,10 +37,12 @@ linuxcnc (1:2.8.0~pre2) buster; urgency=low
   * stepconf - various improvements
   * pncconf - many improvements
 
+  * Much enlarged new Spanish language translations
   * it.po: New Italian translation file.
   * Improve German translation
   * Add international support for classicladder
-  * added Chinese translations for some docs
+  * Added Chinese translations for some docs
+  * Some new French translations
 
   * Mesa 7i96 support added
   * RPi4 fixes and Mesa 7C80/7C81 board additions
