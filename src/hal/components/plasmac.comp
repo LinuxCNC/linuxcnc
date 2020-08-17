@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.161 - 2020 Aug 15
+0.162 - 2020 Aug 17
 
 .I SUMMARY:
 .br
@@ -306,7 +306,6 @@ FUNCTION(_) {
     if(!initialized && units_per_mm){
         offset_scale = units_per_mm * fperiod;
         velocity_scale = 1 / units_per_mm / 60;
-        z_offset_enable = TRUE;
         adaptive_feed = 1;
         initialized = TRUE;
         probe_force_val = 5;
@@ -536,6 +535,7 @@ FUNCTION(_) {
     switch(state){
         case IDLE:
             xy_offset_enable = FALSE;
+            z_offset_enable = FALSE;
             if(probe_inhibit && !float_switch && !breakaway && !ohmic_detected){
                 probe_inhibit = FALSE;
             }else if(!probe_inhibit){
@@ -655,6 +655,7 @@ FUNCTION(_) {
             }
             break;
         case PROBE_HEIGHT:
+            z_offset_enable = TRUE;
             /* move to probe height at setup speed */
             if(probe_testing && !probe_test){
                 state = PROBE_TEST;
@@ -680,6 +681,7 @@ FUNCTION(_) {
             }
             break;
         case PROBE_DOWN:
+            z_offset_enable = TRUE;
             /* probe down to top of stock at probe speed, then push a little further for good contact */
             feed_hold = TRUE;
             if(probe_testing && !probe_test){
@@ -740,6 +742,7 @@ FUNCTION(_) {
             }
             break;
         case PROBE_UP:
+            z_offset_enable = TRUE;
             /* probe up at minimum speed to find top of stock */
             if(probe_testing && !probe_test){
                 state = PROBE_TEST;
@@ -807,6 +810,7 @@ FUNCTION(_) {
             }
             break;
         case ZERO_HEIGHT:
+            z_offset_enable = TRUE;
             probe_required = FALSE;
             if(probe_testing && !probe_test){
                 state = PROBE_TEST;
@@ -824,6 +828,7 @@ FUNCTION(_) {
             }
             break;
         case PIERCE_HEIGHT:
+            z_offset_enable = TRUE;
             /* move up to pierce height */
             if(probe_testing && !probe_test){
                 state = PROBE_TEST;
@@ -934,6 +939,7 @@ FUNCTION(_) {
             }
             break;
         case PUDDLE_JUMP:
+            z_offset_enable = TRUE;
             /* move to puddle_jump height */
             feed_hold = TRUE;
             if(z_offset_counts - setup_velocity > puddle_jump_target){
@@ -954,6 +960,7 @@ FUNCTION(_) {
             }
             break;
         case CUT_HEIGHT:
+            z_offset_enable = TRUE;
             /* move to cut height */
             feed_hold = TRUE;
             if(z_offset_counts - setup_velocity > cut_target){
@@ -982,6 +989,7 @@ FUNCTION(_) {
             if(program_is_idle && !cutting_start){
                 state = IDLE;
             }
+            z_offset_enable = TRUE;
             /* while cutting and it is not a dry run and mesh mode is not enabled:
              * if thc is enabled then vary the torch height to keep the arc voltage constant
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
@@ -1186,6 +1194,7 @@ FUNCTION(_) {
             }
             break;
         case SAFE_HEIGHT:
+            z_offset_enable = TRUE;
             /* move to safe height */
             feed_hold = TRUE;
             if(!torch_off_timer || !torch_on){
@@ -1209,6 +1218,7 @@ FUNCTION(_) {
             }
             break;
         case MAX_HEIGHT:
+            z_offset_enable = TRUE;
             /* move to maximum height */
             feed_hold = TRUE;
             cornerlock_is_locked = FALSE;
@@ -1251,6 +1261,7 @@ FUNCTION(_) {
                 paused_motion = FALSE;
                 adaptive_feed = 1;
                 if(program_is_idle){
+                    z_offset_enable = TRUE;
                     first_cut_finished = FALSE;
                     if(z_offset_counts - setup_velocity > 0){
                         z_offset_counts -= setup_velocity;
@@ -1330,6 +1341,7 @@ FUNCTION(_) {
             }
             break;
         case PROBE_TEST:
+            z_offset_enable = TRUE;
             /* wait here until probe_test input released */
             if(!probe_test){
                 probe_testing = FALSE;
