@@ -50,6 +50,7 @@ class wizards:
         self.builder.get_object('button10').connect('realize', self.set_style)
         self.initialized = True
         self.filter = './plasmac/plasmac_gcode.py'
+        self.wizardButton = self.builder.get_object('wizard-b')
         gobject.timeout_add(100, self.periodic)
 
     def set_theme(self):
@@ -109,9 +110,10 @@ class wizards:
         md.destroy()
 
     def on_wizard_b_clicked(self, widget):
+        self.wizardButton.set_sensitive(False)
         reload(w_main)
         main_wiz = w_main.main_wiz()
-        error = main_wiz.main_show()
+        error = main_wiz.main_show(self)
         if error:
             self.dialog_error('Error in conversational dialog')
 

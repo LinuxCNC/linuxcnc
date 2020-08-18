@@ -526,7 +526,7 @@ class line_wiz:
 
     def add_shape_to_file(self, event):
         self.gcodeSave = self.gcodeLine
-        self.parent.add_shape_to_file(None, self.add)
+        self.parent.add_shape_to_file(self.add, None, None, None)
         self.add_segment = 0
         self.line_type_changed(self.lType)
 

@@ -76,6 +76,7 @@ class main_wiz:
     def periodic(self):
         # exit if linuxcnc not running
         if not hal.component_exists('plasmac_run'):
+            self.parent.wizardButton.set_sensitive(True)
             self.W.destroy()
         return True
 
@@ -102,8 +103,14 @@ class main_wiz:
             if button:
                 button.set_sensitive(False)
 
-    def add_shape_to_file(self, event, button):
+    def add_shape_to_file(self, button, xS, yS, oS):
         shutil.copyfile(self.fNgc, self.fNgcBkp)
+        if xS is not None:
+            self.xSaved = xS
+        if yS is not None:
+            self.ySaved = yS
+        if oS is not None:
+            self.oSaved = oS
         if button:
             button.set_sensitive(False)
 
@@ -261,12 +268,15 @@ class main_wiz:
             self.c.program_open(self.fNgc)
         else:
             print('Unknown GUI in .ini file')
+        self.parent.wizardButton.set_sensitive(True)
         self.W.destroy()
 
     def on_quit_clicked(self, widget):
+        self.parent.wizardButton.set_sensitive(True)
         self.W.destroy()
 
     def on_delete_event(self, window, event):
+        self.parent.wizardButton.set_sensitive(True)
         self.W.destroy()
 
     def remove_temp_files(self):
@@ -287,7 +297,8 @@ class main_wiz:
         self.W.resize(w, h)
 #        print('0 resized window to: {}'.format(self.W.get_size()))
 
-    def main_show(self):
+    def main_show(self, parent):
+        self.parent = parent
         self.W = gtk.Dialog('PlasmaC Conversational',
                        None,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -438,6 +449,9 @@ class main_wiz:
         self.s.poll()
         self.xOrigin = float(self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0])
         self.yOrigin = float(self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1])
+        self.xSaved = '0.000'
+        self.ySaved = '0.000'
+        self.oSaved = self.origin
         self.on_line_clicked(None)
         response = self.W.run()
 

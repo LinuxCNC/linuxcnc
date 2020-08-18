@@ -174,6 +174,9 @@ class polygon_wiz:
             self.offset.set_sensitive(True)
         self.parent.entry_changed(widget)
 
+    def add_shape_to_file(self, button):
+        self.parent.add_shape_to_file(self.add, self.xSEntry.get_text(), self.ySEntry.get_text(), self.centre.get_active())
+
     def polygon_show(self, parent):
         self.parent = parent
         self.parent.entries.set_row_spacings(self.parent.rowSpace - 2)
@@ -278,7 +281,7 @@ class polygon_wiz:
         self.parent.entries.attach(preview, 0, 1, 12, 13)
         self.add = gtk.Button('Add')
         self.add.set_sensitive(False)
-        self.add.connect('pressed', self.parent.add_shape_to_file, self.add)
+        self.add.connect('pressed', self.add_shape_to_file)
         self.parent.entries.attach(self.add, 2, 3, 12, 13)
         undo = gtk.Button('Undo')
         undo.connect('pressed', self.parent.undo_shape, self.add)
@@ -290,14 +293,14 @@ class polygon_wiz:
         image = gtk.Image()
         image.set_from_pixbuf(pixbuf)
         self.parent.entries.attach(image, 2, 5, 1, 9)
-        if self.parent.origin:
+        if self.parent.oSaved:
             self.centre.set_active(1)
         else:
             self.bLeft.set_active(1)
         self.liEntry.set_text(self.parent.leadIn)
         self.loEntry.set_text(self.parent.leadOut)
-        self.xSEntry.set_text('{:0.3f}'.format(0))
-        self.ySEntry.set_text('{:0.3f}'.format(0))
+        self.xSEntry.set_text('{}'.format(self.parent.xSaved))
+        self.ySEntry.set_text('{}'.format(self.parent.ySaved))
         if not self.liEntry.get_text() or float(self.liEntry.get_text()) == 0:
             self.offset.set_sensitive(False)
         self.parent.undo_shape(None, self.add)
