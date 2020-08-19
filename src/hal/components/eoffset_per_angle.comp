@@ -145,11 +145,12 @@ FUNCTION(_) {
     struct ofunc_data* dptr = &data;
 #define STATE dptr->thestate
 
-    int    kfactor = 1;
+    int    kfactor;
     ofunc* thefunc;
 
     run_ct++;
     state_dbg = STATE;
+    kfactor = k;
     if (k == 0) {kfactor = 10000;}
     kreciprocal = 1/((float)kfactor);
 
