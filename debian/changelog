@@ -1,4 +1,4 @@
-linuxcnc (1:2.8.0~pre2) buster; urgency=low
+linuxcnc (1:2.8.0~pre3) buster; urgency=low
 
   * Finally merge "Joints Axes". Joints and cartesian axes are no longer
     treated as the same thing, making control of robots and non-trivial
