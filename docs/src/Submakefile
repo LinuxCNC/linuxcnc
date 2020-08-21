@@ -19,6 +19,12 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
 	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
+        $(wildcard $(DOC_DIR)/man/es/man1/*.1) \
+	$(wildcard $(DOC_DIR)/man/es/man3/*.3*) \
+	$(wildcard $(DOC_DIR)/man/es/man9/*.9) \
+        $(wildcard $(DOC_DIR)/man/fr/man1/*.1) \
+	$(wildcard $(DOC_DIR)/man/fr/man3/*.3*) \
+	$(wildcard $(DOC_DIR)/man/fr/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
 ../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.in config.status
