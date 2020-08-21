@@ -571,6 +571,16 @@ resulting value is shown as a number.
 
 image::images/touchoff.png[align="center", alt="Touch Off"]
 
+.Tool Touch Off
+
+By pressing the 'Tool Touch Off' button the tool length and offsets of
+the currently loaded tool will be changed so that the current tool tip
+position matches the entered coordinate.
+
+.Tool Touch Off
+
+image::images/tooltouchoff.png[align="center", alt="Touch Off"]
+
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture' 
 options in the Machine menu.
 
