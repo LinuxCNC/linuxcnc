@@ -65,7 +65,7 @@ class StyleSheetEditor(QDialog):
             LOG.critical(e)
         self.styleSheetCombo.setFixedWidth(200)
 
-        self.setWindowTitle('Style SHeet Editor Dialog');
+        self.setWindowTitle('Style Sheet Editor Dialog');
         self.parent = parent
         if PATH:
             self.setPath()
@@ -136,6 +136,7 @@ class StyleSheetEditor(QDialog):
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
+        self.parent.setStyleSheet("")
         if self.tabWidget.currentIndex() == 0:
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
             if WIDGETS.PREFS_:
