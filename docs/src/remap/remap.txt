@@ -133,6 +133,47 @@ Defining a code involves the following steps:
 - decide if and how results are handled
 - decide about the execution sequencing.
 
+=== Builtin Remaps
+There are currently two complete python-only remaps that are available in stdglue.py. +
+
+* ignore_m6
+* index_lathe_tool_with_wear
+
+These are meant for use with lathe. +
+lathes don't use M6 to index the tools, they use the T command. +
+This remap also adds wear offsets to the tool offset. +
+ie. T201 would index to tool 2 (with tool 2's tool offset) and adds wear offset 1. +
+In the tool table, tools numbers above 10000 are wear offsets. +
+ie in the tool table, tool 10001 would be wear offset 1. +
+
+Here is what you need in the INI to use them:
+
+[source,{ini}]
+----
+[RS274NGC]
+REMAP=T python=index_lathe_tool_with_wear
+REMAP=M6 python=ignore_m6
+
+[PYTHON]
+# where to find the Python code:
+
+# code specific for this configuration  
+PATH_PREPEND=./
+
+# generic support code - make sure this actually points to python-stdglue
+PATH_APPEND=../../nc_files/remap_lib/python-stdglue/
+
+# import the following Python module
+TOPLEVEL=toplevel.py
+
+# the higher the more verbose tracing of the Python plugin
+LOG_LEVEL = 0
+----
+
+You must also add the required python file in your configuration folder. +
+
+<<remap:upgrading-an-existing,Upgrade an existing configuration>>
+
 === Picking a code
 
 Note that currently only a few existing codes may be redefined,
@@ -582,6 +623,8 @@ def involute(self, **words):
 The examples described so far can be found in
 'configs/sim/axis/remap/getting-started' with complete working
 configurations.
+
+[[remap:upgrading-an-existing]]
 
 == Upgrading an existing configuration for remapping
 
