@@ -685,7 +685,7 @@ del botón en la terminal. +
 
 <<cha:qtvcp-widgets,widgets QtVCP >>
 
-<<cha:qtvcp-libraries,bibliotecas QtVCP >>
+qtvcp-libraries,bibliotecas QtVCP
 
 <<cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP >>
 
