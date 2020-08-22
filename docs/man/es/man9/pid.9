@@ -83,7 +83,13 @@ Término de retroalimentación de primer orden. Produce una contribución a la s
 Término de retroalimentación de segundo orden. Produce una contribución a la salida que es \fBFF2\fR multiplicada por la segunda derivada del valor ordenado. Para los bucles de posición, la contribución es proporcional a la aceleración y puede usarse para compensar la inercia. Para los bucles de velocidad, la contribución es proporcional al jerk (aceleracion de la aceleracion), y generalmente debe dejarse en cero.
 .TP
 \fBpid.\fIN\fB.FF3\fR float in
-Término de retroalimentación de tercer orden. Produce una contribución a la salida que es\fBFF3\fR multiplicada por la tercera derivada del valor ordenado. Para los bucles de posición, la contribución es proporcional al jerk, y se puede utilizar para compensar errores residuales durante la aceleración. Para los bucles de velocidad, la contribución es proporcional al snap ( o jounce), y generalmente debe dejarse en cero. Ver https://en.wikipedia.org/wiki/Fourth,_fifth,_and_sixth_derivatives_of_position
+Término de retroalimentación de tercer orden. Produce una contribución a
+la salida que es\fBFF3\fR multiplicada por la tercera derivada del valor
+ordenado. Para los bucles de posición, la contribución es proporcional
+al jerk, y se puede utilizar para compensar errores residuales durante
+la aceleración. Para los bucles de velocidad, la contribución es proporcional
+al snap ( o jounce), y generalmente debe dejarse en cero. Ver https://w.wiki/a8N
+
 .TP
 \fBpid.\fIN\fB.deadband\fR float in
 Define un rango de error "aceptable". Si el valor absoluto de \fBerror\fR es menor que \fBdeadband\fR, se tratará como si el error fuera cero.
@@ -113,7 +119,7 @@ Límite en la tercera derivada del comando. La tercera derivada de comando utili
 \fBpid.\fIN\fB.saturated\fR bit out
 Cuando es TRUE, la salida PID actual está saturada. Es decir,
 .RS 12
-\fBoutput\fR = \(+ -\fBmaxoutput\fR.
+\fBoutput\fR = \(+- \fBmaxoutput\fR.
 .RE
 .TP
 \fBpid.\fIN\fB.saturated\-s\fR float out

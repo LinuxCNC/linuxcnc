@@ -58,13 +58,13 @@ La ventana de AXIS contiene los siguientes elementos:
  los códigos G modales en vigor.
 * 'Feed Override' - que le permite escalar la velocidad de los movimientos programados.
  El máximo predeterminado es 120% y se puede configurar a un valor diferente
- en el archivo ini. Consulte la enlace?sec:display-section, Sección de visualización>> del
+ en el archivo ini. Consulte la <<sec:display-section, Sección de visualización>> del
  archivo INI para más información.
 * 'Spindle Override' - que le permite
  escalar la velocidad del husillo hacia arriba o hacia abajo.
 * 'Jog Speed' - que te permite configurar la velocidad de jog
  dentro de los límites establecidos en el archivo ini. Ver la
- enlace?sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
+ <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
 * 'Velocidad máxima' - que le permite restringir la velocidad máxima de todos
  los movimientos programados (excepto movimiento sincronizados del husillo).
 * Una zona de visualización de texto que muestra el G-Code cargado.
@@ -77,19 +77,19 @@ La ventana de AXIS contiene los siguientes elementos:
 
 Algunos elementos del menú pueden estar en gris dependiendo de cómo tenga su
 archivo .ini configurado. Para más información sobre configuración vea el
-enlace?cha:ini-configuration,Capítulo INI.
+<<cha:ini-configuration,Capítulo INI.
 
 .Menú Archivo
 
 * 'Abrir ...'- abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
     ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
-    Consulte la enlace?sec:filter-section,sección FILTRO>> de la configuración INI
+    Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
     para más información.
 
 * 'Archivos recientes'- muestra una lista de los archivos abiertos recientemente.
 
 * 'Editar ...'- abre el archivo de código G actual para editarlo si tienes un editor
-    configurado en su archivo ini. Consulte la sección enlace?sec:display-section,sección DISPLAY>>
+    configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
     para obtener más información sobre la especificación del editor a usar.
 
 * 'Recargar'- vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
@@ -109,7 +109,7 @@ enlace?cha:ini-configuration,Capítulo INI.
 * 'Recargar tabla de herramientas': después de editar la tabla de herramientas, debe volve a cargarla.
 
 * 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
-   aquí. Vea el capítulo enlace?cha:classicladder,Classicladder
+   aquí. Vea el capítulo <<cha:classicladder,Classicladder
    para más información.
 
 * 'Salir' - Termina la sesión actual de LinuxCNC.
@@ -182,14 +182,14 @@ No use 'Ejecutar desde la línea seleccionada' si su programa de código g conti
 ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
 modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
 la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
-Consulte enlace?gcode:g10-l10,G10 L10 en el capítulo de código G.
+Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
 
 * 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
 es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
 ('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
 ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
 de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
-las coordenadas relativas son 0. Consulte enlace?gcode:g10-l11,G10 L11 en el capítulo de códigos G.
+las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
 
 .Menú Ver 
 
@@ -502,7 +502,7 @@ la máquina se moverá exactamente la distancia mostrada
 cada vez que se hace clic en el botón o se presiona la tecla.
 Por defecto, los valores disponibles son '0.1000, 0.0100, 0.0010, 0.0001'
 
-Consulte la enlace?sec:display-section, sección DISPLAY para obtener más información sobre la configuración
+Consulte la <<sec:display-section, sección DISPLAY para obtener más información sobre la configuración
 los incrementos.
 
 
@@ -522,7 +522,7 @@ configuración, el botón 'Home' establecerá la posición actual del eje selecc
 como la posición absoluta 0 para ese eje y
 activara el bit 'is-homed' para ese eje.
 
-Consulte el enlace?cha:homing-configuration,Capítulo de configuración de Homing para obtener más información.
+Consulte el <<cha:homing-configuration,Capítulo de configuración de Homing para obtener más información.
 
 .Touch Off
 
@@ -942,15 +942,15 @@ y sujeto a cambios durante el ciclo de desarrollo.
 Las opciones de menú Archivo > Editar ... y Archivo > Editar tabla de herramientas ... estaran
 disponible después de definir el editor en la sección ini [DISPLAY].
 Los valores útiles incluyen EDITOR=gedit y EDITOR=gnome-terminal -e vim.
-Para obtener más información, consulte la sección enlace?sec:display,Sección display>>
+Para obtener más información, consulte la sección <<sec:display-section,Sección display>>
 del capítulo de Configuración INI.
 
 === Panel de control virtual
 
 AXIS puede mostrar un panel de control virtual personalizado en la zona derecha.
 Puede programar botones, indicadores, pantallas de datos y más cosas.
-Para más información, consulte los capitulos enlace?cha:pyvcp,PyVCP y
-enlace?cha:glade-vcp,GladeVCP.
+Para más información, consulte los capitulos <<cha:pyvcp,PyVCP y
+<<cha:glade-vcp,GladeVCP.
 
 [[axis:preview-control]]
 

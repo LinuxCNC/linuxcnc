@@ -144,7 +144,7 @@ DOC_SRCS_EN := \
 	ladder/ladder-intro.txt \
 	lathe/lathe-user.txt \
 	motion/kinematics.txt \
-    motion/dh-parameters.txt \
+	motion/dh-parameters.txt \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
@@ -278,11 +278,19 @@ DOC_SRCS_ES := \
 	getting-started/system-requirements_es.txt \
 	getting-started/updating-linuxcnc_es.txt \
 	gui/axis_es.txt \
+	gui/gladevcp_es.txt \
 	gui/gmoccapy_es.txt \
 	gui/gscreen_es.txt \
+	gui/halui_es.txt \
 	gui/ngcgui_es.txt\
+	gui/pyvcp_es.txt \
+	gui/pyvcp-examples_es.txt \
 	gui/qtdragon_es.txt \
 	gui/qtvcp_es.txt \
+	gui/qtvcp_widgets.txt \
+	gui/qtvcp_custom_widgets.txt \
+	gui/qtvcp_code_snippets.txt \
+	gui/qtvcp_development.txt \
 	gui/tooledit_es.txt \
 	gui/touchy_es.txt \
 	hal/basic-hal_es.txt \
@@ -303,8 +311,9 @@ DOC_SRCS_ES := \
 	hal/twopass_es.txt \
 	install/latency-test_es.txt \
 	lathe/lathe-user_es.txt \
+	ladder/classic-ladder.txt \
 	motion/kinematics_es.txt \
-    motion/dh-parameters_es.txt \
+	motion/dh-parameters_es.txt \
 	motion/5-axis-kinematics_es.txt \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \

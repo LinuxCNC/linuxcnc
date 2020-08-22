@@ -138,7 +138,7 @@ M5 $2
 Si se omite $, entonces el comportamiento es exactamente el normal para una
 máquina de un solo husillo
 
-Está bien usar 'M3' o 'M4' si la velocidad del husillo enlace?sec:set-spindle-speed,S>>
+Está bien usar 'M3' o 'M4' si la velocidad del husillo <<sec:set-spindle-speed,S>>
 se establece a cero. Si se hace esto, 
 (o si el interruptor de ajuste de velocidad está habilitado y configurado en cero),
 el husillo no comenzará a girar.
@@ -164,7 +164,7 @@ la sección <<sec:manual-tool-change,Cambio Manual de Herramienta>>.
 
 Para cambiar una herramienta en el husillo por la
 herramienta seleccionada más recientemente (usando una palabra T - vea la Sección
-enlace?sec:select-tool, Seleccionar Herramienta>>), programar 'M6'.
+<<sec:select-tool, Seleccionar Herramienta>>), programar 'M6'.
 Cuando se completa el cambio de herramienta:
 
 * El husillo se detendrá.
@@ -298,7 +298,7 @@ y el movimiento se ejecutará a la velocidad de avance programada.
                    Mientras está deshabilitado, el ajuste de velocidad del husillo no tendrá
                    influencia, y la velocidad del husillo tendrá la
                    programada por el valor especificado de la palabra S
-                   (descrito en la seccion enlace?sec:set-spindle-speed,velocidad del husillo​​>>).
+                   (descrito en la seccion <<sec:set-spindle-speed,velocidad del husillo​​>>).
 
 [[mcode:m52]]
 == M52 Control de alimentación adaptable
@@ -367,7 +367,7 @@ Es un error si:
 
 La palabra P varía de 0 a un valor predeterminado de 3. Si es necesario, el
 número de E/S se puede aumentar utilizando el parámetro num_dio al cargar
-el controlador de movimiento. Vea la enlace?sec:motion, Sección de movimiento>> para más
+el controlador de movimiento. Vea la <<sec:motion, Sección de movimiento>> para más
 información.
 
 Los comandos M62 y M63 se pondrán en cola. Comandos posteriores referentes
@@ -424,7 +424,7 @@ las entradas no se controlan en tiempo real y, por lo tanto, no se deben utiliza
 aplicaciones de tiempo crítico.
 
 El número de E/S se puede aumentar utilizando el parámetro num_dio o num_aio
-al cargar el controlador de movimiento. Vea la enlace?sec:motion,Sección de movimiento>>
+al cargar el controlador de movimiento. Vea la <<sec:motion,Sección de movimiento>>
 para más información.
 
 [NOTE]
@@ -454,7 +454,7 @@ programar un código G de movimiento (G0, G1, etc.) justo después de M67. Las f
 son las mismas que las de M62-63.
 
 El número de E/S se puede aumentar utilizando el parámetro num_dio o num_aio
-al cargar el controlador de movimiento. Vea la enlace?sec:motion,Sección de movimiento>> para
+al cargar el controlador de movimiento. Vea la <<sec:motion,Sección de movimiento>> para
 más información.
 
 [NOTE]
@@ -477,7 +477,7 @@ controlador. No están sincronizados con el movimiento, y harán
 romper la mezcla. M68 funciona igual que M64-65.
 
 El número de E/S se puede aumentar utilizando el parámetro num_dio o num_aio
-al cargar el controlador de movimiento. Vea la enlace?sec:motion,Sección de movimiento >> para
+al cargar el controlador de movimiento. Vea la <<sec:motion,Sección de movimiento >> para
 más información.
 
 [NOTE]
@@ -659,7 +659,7 @@ m2
 == M98 y M99 ==
 
 El intérprete admite programas principales y subprogramas de estilo Fanuc con
-códigos 'M98' y 'M99'. Ver enlace?ocode:fanuc-style-programs, Programas estilo Fanuc>>.
+códigos 'M98' y 'M99'. Ver <<ocode:fanuc-style-programs, Programas estilo Fanuc>>.
 
 === Restauración selectiva del estado modal
 

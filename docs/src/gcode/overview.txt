@@ -402,7 +402,7 @@ is written.
 
 * '1-30' Subroutine local parameters of call arguments. These parameters are
   local to the subroutine. Volatile. See also the chapter on
-  enlace?cha:o-codes,O-Codes>>.
+  <<cha:o-codes,O-Codes>>.
 
 === Named Parameters
 
@@ -463,7 +463,7 @@ The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
 program with if-then-else statements. Note that new
-enlace?remap:adding-predefined-named-parameters,predefined named parameters>>
+<<remap:adding-predefined-named-parameters,predefined named parameters>>
 can be added easily without changes to the source code.
 
 * '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
@@ -690,7 +690,7 @@ can be added easily without changes to the source code.
 [[gcode:ini-hal-params]]
 
 == HAL pins and INI values
-If enabled in the enlace?gcode:ini-features, INI file>> G-code has access
+If enabled in the <<gcode:ini-features, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
 
 * '#<_ini[section]name>' Returns the value of the corresponding item in
@@ -1107,7 +1107,7 @@ A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
 NOTE: Inline comments on O words should not be used see the O Code
-enlace?ocode:comments, comments>> section for more information.
+<<ocode:comments, comments>> section for more information.
 
 [[gcode:messages]]
 == Messages
@@ -1193,7 +1193,7 @@ will be converted to '#<namedparameter>'.
 == File Requirements
 
 A G code file must contain one or more lines of G code and be terminated
-with a enlace?mcode:m2-m30,Program End>>. Any G code past the program end
+with a <<mcode:m2-m30,Program End>>. Any G code past the program end
 is not evaluated. 
 
 If a program end code is not used a pair of percent signs '%' with the first

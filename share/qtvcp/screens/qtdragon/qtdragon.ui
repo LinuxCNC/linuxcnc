@@ -13468,7 +13468,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>07:02:58 PM</string>
+                  <string>04:16:46 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13726,7 +13726,7 @@ ALL</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../configs/sim/qtvcp_screens/Virtual Keyboard/qtdragon.qrc"/>
+  <include location="qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>

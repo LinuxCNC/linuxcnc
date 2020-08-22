@@ -25,7 +25,7 @@ la seguridad adicional de los límites soft no es suficiente.
 == Prerrequisitos
 Homing se basa en algunos supuestos fundamentales de la máquina. +
 
-* Las direcciones negativa y positiva se basan en enlace?sec:Machine-Configurations,Movimientos de la herramienta>> que puede ser diferentes +
+* Las direcciones negativa y positiva se basan en  <<sec:Machine-Configurations,Movimientos de la herramienta>> que puede ser diferentes +
 del movimiento real de la máquina. Es decir, en una fresadora, la mesa se mueve en lugar de la herramienta.
 * Todo está referenciado desde el origen G53, cero de la máquina. El origen puede estar en cualquier lugar (incluso fuera de donde puede moverse) +
 * El origen cero de la máquina G53 está típicamente dentro del área de límites soft, pero no necesariamente. +

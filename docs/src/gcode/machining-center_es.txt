@@ -152,7 +152,7 @@ La velocidad a la que se mueve el punto controlado es, nominalmente, la
 velocidad estable que puede establecer el usuario. En el intérprete, la tasa de alimentación
 se interpreta de la siguiente manera (a menos que los modos 'alimentacion inversa al tiempo' o 'alimentacion
 por revolución' se esten utilizando, en cuyo caso, consulte la Sección
-enlace?gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
+<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 
  . Si X,Y o Z se mueven, F está en unidades por minuto en el
    sistema cartesiano XYZ, y todos los demás ejes (ABCUVW) se mueven para arrancar y
@@ -186,7 +186,7 @@ unidades específicas. La velocidad del husillo se mide en revoluciones por minu
 Las posiciones de los ejes de rotación se miden en grados. La velocidad de alimentación
 se expresan en unidades de longitud actual por minuto, o grados por
 minuto, o unidades de longitud por revolución del husillo, como se describe en la Sección
-enlace?gcode:g93-g94-g95, G93 G94 G95>>.
+<<gcode:g93-g94-g95, G93 G94 G95>>.
 
 === Posicion actual
 
@@ -230,7 +230,7 @@ sigue la ruta programada lo más exactamente posible, ralentizandose o deteniend
 si es necesario en las esquinas agudas del camino. En modo continuo,
 las esquinas de la ruta pueden ser redondeadas ligeramente para que la velocidad de alimentación pueda
 mantenerse actualizada (pero no más que la tolerancia, si se ha especificado). Ver las
-secciones enlace?gcode:g61-g61.1,G61/G61.1 y enlace?gcode:g64,G64>>.
+secciones <<gcode:g61>>,G61/G61.1>> y <<gcode:g64,G64>>.
 
 == Interaccion del interprete con los interruptores
 
@@ -348,6 +348,6 @@ Formato de archivo de parámetros
 | 5162 | 0.0 | G28 Home Y
 |=====================================
 
-Vea la sección enlace?gcode:parameters,Parametros para más información.
+Vea la sección <<gcode:parameters,Parametros para más información.
 
 

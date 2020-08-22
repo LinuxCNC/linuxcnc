@@ -12,7 +12,7 @@ LinuxCNC es un conjunto de aplicaciones altamente personalizables para el contro
 En esencia, LinuxCNC consta de varios componentes clave que se integran para formar un sistema completo:
 
 * una interfaz gráfica de usuario (GUI), que forma la interfaz básica entre el operador, el software y la máquina CNC en sí misma;
-* una <<cha:hal-introduction,capa de abstracción de hardware (HAL), que proporciona un método para vincular las diversas señales virtuales internas generadas y recibidas por LinuxCNC con el mundo exterior.
+* una <<cha:hal-introduction,capa de abstracción de hardware (HAL)>>, que proporciona un método para vincular las diversas señales virtuales internas generadas y recibidas por LinuxCNC con el mundo exterior.
 * controladores de alto nivel que coordinan la generación y ejecución del control de movimiento de la máquina CNC, es decir,el controlador de movimiento (EMCMOT), el controlador de entrada/salida discretas (EMCIO) y el ejecutor de tareas (EMCTASK).
 
 La siguiente ilustración es un diagrama de bloques simple que muestra una fresadora típica CNC de 3 ejes con motores paso a paso:
@@ -51,24 +51,24 @@ Al guardar la nueva configuración con el asistente, se sobrescribirá el archiv
 Una interfaz gráfica de usuario es la parte del LinuxCNC con la que interactúa el operador de la máquina herramienta.
 LinuxCNC viene con varios tipos de interfaces de usuario que se pueden elegir al editar ciertos campos contenidos en el <<cha:ini-configuration,archivo INI:
 
-<<cha:axis-gui,'Axis', es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
+<<cha:axis-gui,'Axis'>>, es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
 
 image::../gui/images/axis_es.png[align="center", alt="Axis, interfaz GUI de teclado estándar"]
 
 
-<<cha:touchy-gui,'Touchy' es una GUI para usar con pantalla táctil:
+<<cha:touchy-gui,'Touchy'>> es una GUI para usar con pantalla táctil:
 
 image::../gui/images/touchy_es.png[align="center", alt="Touchy, una GUI para usar con pantalla táctil"]
 
-<<cha:gscreen,'Gscreen'>>, una GUI de pantalla táctil configurable por el usuario:
+<<cha:gscreen,'Gscreen'>> una GUI de pantalla táctil configurable por el usuario:
 
 image::../gui/images/gscreen-mill.png[align="center", alt="Gscreen, una GUI de pantalla táctil configurable"]
 
-<<cha:gmoccapy,'GMOCCAPY', una GUI de pantalla táctil basada en Gscreen. GMOCCAPY también está diseñada para funcionar tambien en aplicaciones donde el teclado y el mouse son los métodos preferidos para controlar la GUI:
+<<cha:gmoccapy,'GMOCCAPY'>> una GUI de pantalla táctil basada en Gscreen. GMOCCAPY también está diseñada para funcionar tambien en aplicaciones donde el teclado y el mouse son los métodos preferidos para controlar la GUI:
 
 image::../gui/images/gmoccapy_3_axis.png[align="center", alt="gmoccapy, una GUI de pantalla táctil basada en Gscreen"]
 
-<<cha:ngcgui,'NGCGUI', una GUI de subrutinas que proporciona una programación de código G, de tipo asistente. NGCGUI puede ejecutarse como un programa independiente o incrustado en otra GUI como una serie de pestañas. La siguiente captura de pantalla muestra a NGCGUI incrustado en Axis:
+<<cha:ngcgui,'NGCGUI'>> una GUI de subrutinas que proporciona una programación de código G, de tipo asistente. NGCGUI puede ejecutarse como un programa independiente o incrustado en otra GUI como una serie de pestañas. La siguiente captura de pantalla muestra a NGCGUI incrustado en Axis:
 
 image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, una GUI de subrutinas que proporciona una programación de código G tipo asistente"]
 
@@ -76,11 +76,11 @@ image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, una GUI de subrutin
 
 Como se mencionó anteriormente, muchas de las GUI de LinuxCNC pueden ser personalizadas por el usuario. Esto se puede hacer para agregar indicadores, salidas de lectores, interruptores o controles deslizantes a la apariencia básica de una de las GUI para aumentar su flexibilidad o funcionalidad. Se ofrecen dos estilos de Paneles de Control Virtual en LinuxCNC:
 
-<<cha:pyvcp,'PyVCP', un panel de control virtual basado en Python que se puede agregar a la GUI Axis. PyVCP utiliza solo señales virtuales contenidas dentro de la capa de abstracción de hardware HAL, como el indicador de velocidad del husillo o la señal de salida de Parada de Emergencia, y tiene una apariencia sencilla, sin lujos. Esto lo hace una excelente opción si el usuario desea agregar un Panel de Control Virtual con un mínimo esfuerzo.
+<<cha:pyvcp,'PyVCP'>> un panel de control virtual basado en Python que se puede agregar a la GUI Axis. PyVCP utiliza solo señales virtuales contenidas dentro de la capa de abstracción de hardware HAL, como el indicador de velocidad del husillo o la señal de salida de Parada de Emergencia, y tiene una apariencia sencilla, sin lujos. Esto lo hace una excelente opción si el usuario desea agregar un Panel de Control Virtual con un mínimo esfuerzo.
 
 image::../gui/images/axis-pyvcp.png[align="center", alt="PyVCP en Axis"]
 
-<<cha:glade-vcp,'GladeVCP', un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
+<<cha:glade-vcp,'GladeVCP'>> un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
 
 image::../gui/images/axis-gladevcp.png[align="center", alt="GladeVCP con Axis"]
 

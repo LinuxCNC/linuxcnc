@@ -67,7 +67,7 @@ El ciclo de trabajo máximo. Un valor de 1.0 corresponde al 100%. Esto puede ser
 El ciclo de trabajo mínimo. Un valor de 1.0 corresponde al 100%. Tenga en cuenta que cuando el generador pwm está desactivado, las salidas son constantemente bajas, independientemente de la configuración de \fBmin\-dc\fR.
 .TP
 \fBpwmgen.\fIN\fB.scale\fR float io
-.TQ
+.TP
 \fBpwmgen.\fIN\fB.offset\fR float io
 Estos parámetros proporcionan una escala y un offset desde el pin \fBvalue\fR al ciclo de trabajo real. El ciclo de trabajo se calcula de acuerdo con \fIdc = (valor / escala) + offset\fR, donde 1.0 significa 100%.
 .TP
