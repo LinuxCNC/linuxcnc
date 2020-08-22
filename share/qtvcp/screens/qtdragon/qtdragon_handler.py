@@ -65,7 +65,7 @@ class HandlerClass:
         self.lineedit_list = ["work_height", "touch_height", "sensor_height",
                               "laser_x", "laser_y", "sensor_x", "sensor_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
-        self.onoff_list = ["frame_program", "frame_dro"]
+        self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
@@ -120,6 +120,8 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
+        self.w.filemanager.list.setAlternatingRowColors(False)
+        self.w.filemanager_usb.list.setAlternatingRowColors(False)
 
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
@@ -248,9 +250,9 @@ class HandlerClass:
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
         if isinstance(receiver, QtWidgets.QLineEdit):
             if not receiver.isReadOnly():
-                self.w.btn_keyboard.setChecked(True)
+                self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QTableView):
-            self.w.btn_keyboard.setChecked(True)
+            self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QCommonStyle):
             return
     
@@ -368,6 +370,7 @@ class HandlerClass:
             self.add_status("Loaded file {}".format(filename))
             self.w.progressBar.setValue(0)
             self.last_loaded_program = filename
+            self.w.lbl_runtime.setText("00:00:00")
         else:
             self.add_status("Filename not valid")
 
@@ -461,7 +464,6 @@ class HandlerClass:
         if index is None: return
         self.w.main_tab_widget.setCurrentIndex(index)
         if index == TAB_MAIN:
-            self.w.btn_keyboard.setChecked(False)
             self.w.stackedWidget.setCurrentIndex(0)
         elif index == TAB_FILE:
             self.w.stackedWidget.setCurrentIndex(1)
@@ -690,10 +692,8 @@ class HandlerClass:
 
     # settings tab
     def chk_use_virtual_changed(self, state):
-        if state:
-            self.w.btn_keyboard.show()
-        else:
-            self.w.btn_keyboard.hide()
+        if not state:
+            self.w.stackedWidget_dro.setCurrentIndex(0)
 
     #####################
     # GENERAL FUNCTIONS #
@@ -780,15 +780,11 @@ class HandlerClass:
             self.w[widget].setEnabled(state)
         if state is True:
             self.w.jogging_frame.show()
-            if self.w.chk_use_virtual.isChecked():
-                self.w.btn_keyboard.show()
         else:
             self.w.jogging_frame.hide()
-            self.w.btn_main.setChecked(True)
-            self.w.btn_keyboard.setChecked(False)
-            self.w.btn_keyboard.hide()
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.stackedWidget.setCurrentIndex(0)
+        self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         if state:
@@ -843,35 +839,35 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 2, -1, shift)
     
     def on_keycall_APOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 3, 1, shift, False)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 3, -1, shift, False)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
