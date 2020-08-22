@@ -683,14 +683,14 @@ del botón en la terminal. +
 
 === Más información
 
-enlace?cha: widgets qtvcp, widgets QtVCP >>
+<<cha:qtvcp-widgets,widgets QtVCP >>
 
-enlace?cha: bibliotecas qtvcp, bibliotecas QtVCP >>
+<<cha:qtvcp-libraries,bibliotecas QtVCP >>
 
-enlace?cha: qtvcp-code, fragmentos de código de archivo del controlador QtVCP >>
+<<cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP >>
 
-enlace?cha: qtvcp-development, QtVCP Development >>
+<<cha:qtvcp-development,QtVCP Development >>
 
-enlace?cha: qtvcp-custom-widgets, QtVCP Custom Designer Widgets >>
+<<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets >>
 
 

@@ -162,7 +162,7 @@ guiar al lector a través del archivo.
 Hay un par de operaciones que se ejecutan cuando se ejecuta/interpreta
 standard_pinout.hal:
 
-* El controlador Parport se carga (ver el enlace?cha:parport,Capítulo Parport >>
+* El controlador Parport se carga (ver el <<cha:parport,Capítulo Parport>>
    para más detalles)
 * Las funciones de lectura y escritura del controlador parport se asignan al hilo base
    footnote:[el subproceso más rápido en la configuración de LinuxCNC, generalmente 

@@ -308,7 +308,7 @@ Las descripciones de las interfaces se encuentran en la sección Interfaces del 
 
 [NOTE]
 GladeVCP utiliza los siguientes elementos [DISPLAY], consulte la sección
-enlace?gladevcp:embeding-tab,incrustando una pestaña>> del Capítulo GladeVCP.
+<<gladevcp:embeding-tab,incrustando una pestaña>> del Capítulo GladeVCP.
 
 * 'EMBED_TAB_NAME=Demo GladeVCP'
 
@@ -362,11 +362,11 @@ Consulte el documento <<cha:gmoccapy,gmoccapy>> para obtener detalles sobre Gmoc
     tiene un editor integrado.
 
 * 'PYVCP = /filename.xml' - el archivo de descripción del panel PyVCP. Ver el
-    enlace?cha:pyvcp,Capítulo PyVCP>> para más información.
+    <<cha:pyvcp,Capítulo PyVCP>> para más información.
 
 * 'PYVCP_POSITION = BOTTOM' - la ubicación del panel PyVCP en la interfaz de usuario AXIS.
     Si se omite esta variable, el panel pasará por defecto al lado derecho. La unica alternativa valida
-    es BOTTOM. Vea el enlace?cha:pyvcp,Capítulo PyVCP>> para más información.
+    es BOTTOM. Vea el <<cha:pyvcp,Capítulo PyVCP>> para más información.
 
 * 'LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno" con una vista superior y con Radio y Diámetro en el DRO.
 
@@ -611,10 +611,10 @@ en versiones de LinuxCNC anteriores a 2.8. Esta etiqueta INI ya no trabaja.
 y los resultados de su uso son impredecibles.
 
 * 'REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure'
-Vea el capítulo enlace?cha:remap, Remap Extender G-Code >> para más detalles.
+Vea el capítulo  <<cha:remap, Remap Extender G-Code >> para más detalles.
 
 * 'ON_ABORT_COMMAND = O <on_abort> call'
-Vea el capítulo enlace?cha:remap,Remap- Extender G-Code>> para más detalles.
+Vea el capítulo <<cha:remap,Remap- Extender G-Code>> para más detalles.
 
 [[sec:emcmot-section]] (((Archivo INI, Sección EMCMOT)))
 
@@ -623,7 +623,7 @@ Vea el capítulo enlace?cha:remap,Remap- Extender G-Code>> para más detalles.
 Esta sección es una sección personalizada y LinuxCNC no la utiliza directamente. Muchas
 configuraciones utilizan valores de esta sección para cargar el controlador de movimiento.
 Para obtener más información sobre el controlador de movimiento, consulte
-la sección enlace?sec:motion,Motion>>.
+la sección <<sec:motion,Motion>>.
 
 * 'EMCMOT = motmod' - el nombre del controlador de movimiento generalmente se usa aquí.
 
@@ -673,7 +673,7 @@ la sección enlace?sec:motion,Motion>>.
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Ejecuta el archivo tcl 'texample.tcl'
     al inicio con arg1, arg2, etc. como ::argv list. Los archivos con un sufijo .tcl son
     procesados como se indica arriba, pero usan haltcl para procesado. Vea el capitulo
-    enlace?cha:haltcl,HALTCL>> para más información.
+    <<cha:haltcl,HALTCL>> para más información.
 
 * 'HALFILE = LIB:sys_example.hal' - Ejecuta el archivo de la biblioteca de sistema 'sys_example.hal'
     al inicio.
@@ -735,10 +735,10 @@ Para obtener más información, consulte el capítulo <<cha:hal-twopass,Hal TWOP
   para usarlos. Las GUI que admiten halfiles postgui incluyen Touchy, Axis, Gscreen y
   gmoccapy.
 
-  Vea la sección enlace?sec:pyvcp-with-axis,pyVCP con Axis>> para más información.
+  Vea la sección <<sec:pyvcp-with-axis,pyVCP con Axis>> para más información.
 
 * 'HALUI = halui' - agrega los pines de la interfaz de usuario de HAL. Para más información, ver
-   el capítulo enlace?cha:hal-user-interface,Interfaz de usuario HAL>>.
+   el capítulo <<cha:hal-user-interface,Interfaz de usuario HAL>>.
 
 [[sec:halui-section]](((Archivo INI, Sección HALUI)))
 
@@ -1032,7 +1032,7 @@ pines Hal de entrada para compensaciones de eje externas:
 'axis.<letter>.eoffset-count'
 'axis.<letter>.eoffset-scale'
 
-Consulte el capítulo: enlace?cha:external-offsets,'Offsets Externos de Ejes'>> para
+Consulte el capítulo: <<cha:external-offsets,'Offsets Externos de Ejes'>> para
 información de su uso.
 
 [[sec:joint-section]](((Archivo INI, Sección CONJUNTA)))
@@ -1091,7 +1091,7 @@ MAX_ACCELERATION para la articulación. La compensación de Backlash excesiva pu
 sacudidas en el eje a medida que cambia de dirección. Si se especifica  un COMP_FILE para un
 eje, BACKLASH no se utiliza.
 
-// agregar un enlace a unidades de máquina
+// agregar un << a unidades de máquina
 
 * 'COMP_FILE = file.extension' -
     (((Compensation))) El archivo de compensación consiste en un mapa de información de posición
@@ -1175,7 +1175,7 @@ Indica que la articulación se utiliza como indexador con bloqueo.
 .Homing
 
 Estos parámetros están relacionados con Homing; para una mejor explicación lea el Capítulo
-enlace?cha:homing-configuration,Configuración Homing>>.
+<<cha:homing-configuration,Configuración Homing>>.
 
 * 'HOME = 0.0' -
 La posición a la que irá la articulación al finalizar la secuencia homing.
@@ -1243,7 +1243,7 @@ función "Home Todo". Se puede homear más de una articulación al mismo tiempo
 especificando el mismo número de secuencia para más de una articulación.
 Se utiliza un número de secuencia negativa para diferir el movimiento final para
 todas las articulaciones que tienen ese número de secuencia (negativo o positivo).
-Para obtener información adicional, consulte: enlace?sec:homing-section, SECUENCIA HOME>>
+Para obtener información adicional, consulte: <<sec:homing-section, SECUENCIA HOME>>
 
 * 'VOLATILE_HOME = 0' -
 Cuando se habilita (se establece en 1), esta articulación no se homeara si 

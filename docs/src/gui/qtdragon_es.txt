@@ -23,7 +23,7 @@ image::images/silverdragon.png["QTDragon Router",scale="25%"]
 Si su configuración no está configurada actualmente para usar SilverDragon,
 puede cambiarlo editando el archivo INI. +
 En la sección '[DISPLAY]' cambie la línea 'DISPLAY' para que lea: +
-enlace?sec:display-section,Sección de visualización >>
+<<sec:display-section,Sección de visualización >>
 [source,{ini}]
 ----
 [DISPLAY]
@@ -51,7 +51,7 @@ LOG_FILE = qtdragon.log
 
 Para que las rutinas básicas de la sonda funcionen, SUBROUTINE_PATH debe establecerse correctamente. +
 (Su ruta puede ser diferente a esta muestra) +
-enlace?sec: sección rs274ngc, sección RS274ngc >>
+<<sec:rs274ngc-section, sección RS274ngc >>
 [source,{ini}]
 ----
 [RS274NGC]

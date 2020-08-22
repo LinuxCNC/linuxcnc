@@ -291,6 +291,8 @@ eliminarlos.
 Ahora debe estar en el origen de la máquina X0 Y0 Z0 y el sistema de coordenadas 
 relativo debe ser el mismo que el sistema de coordenadas de máquina.
 
+[[sec:Machine-Configurations]]
+
 == Configuraciones de la maquina
 
 El siguiente diagrama muestra una fresadora típica que muestra la dirección del 

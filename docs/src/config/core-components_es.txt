@@ -394,7 +394,7 @@ iocontrol - acepta comandos de E/S NML, interactúa con HAL en el espacio de usu
 
 Las señales se activan y desactivan en el espacio de usuario. Si tiene
 requisitos de tiempo estrictos o simplemente necesita más E/S, considere usar el tiempo real
-I/O sincronizado proporcionado por enlace?sec:motion,motion>> en su lugar.
+I/O sincronizado proporcionado por <<sec:motion,motion>> en su lugar.
 
 === Pines (((iocontrol (pins HAL))))
 

@@ -76,7 +76,7 @@ image::images/halshow-3.png[align="center",alt="Show Menu"]
 
 Al hacer clic en el nombre de un nodo, "Components" por ejemplo,
 mostrara (en la pestaña "SHOW") todos los contenidos HAL sobre 
-ese nodo. La Figura enlace?cap:halshow-layout>> muestra una lista exactamente como la
+ese nodo. La Figura <<cap:halshow-layout>> muestra una lista exactamente como la
 veria si hace clic en el nombre de "Components" mientras ejecuta, por ejemplo, una
 tarjeta servo Mesa m5i20 estándar. La información en pantalla es exactamente como
 la que se muestran en las herramientas tradicionales de análisis de HAL basadas en texto. La ventaja

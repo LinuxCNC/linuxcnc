@@ -57,7 +57,7 @@ para un ejemplo del formato de tabla de herramientas de torno.
 El número máximo de entradas en la tabla de herramientas es 1000.
 El número máximo de herramienta y de ranura es 99999.
 
-enlace?cha:tooledit-gui,Tool Editor>> o un editor de texto se pueden usar para editar la
+<<cha:tooledit-gui,Tool Editor>> o un editor de texto se pueden usar para editar la
 tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a cargar la tabla en la GUI
 
 === Formato de tabla de herramientas
@@ -185,7 +185,7 @@ El comentario debe ir precedido de un punto y coma.
 
 LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
 y 'ubicación fija'. Información sobre la configuración de un cambiador de herramientas LinuxCNC
-está en la enlace?sec:emcio-section,Sección EMCIO>> del capítulo INI.
+está en la <<sec:emcio-section,Sección EMCIO>> del capítulo INI.
 
 .Cambiador de herramientas manual
 

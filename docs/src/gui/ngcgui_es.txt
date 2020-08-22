@@ -263,7 +263,7 @@ EMBED_TAB_LOCATION = nombre_de_ubicación - donde se encuentra la página incrus
 [NOTE]
 El especificador EMBED_TAB_LOCATION no se usa para la GUI Axis. Mientras
 Pyngcgui se puede incrustar en Axis, la integración es más completa cuando se usa
-ngcgui (usando TKPKG = Ngcgui 1.0). Para especificar EMBED_TAB_LOCATION para otras guis, vea enlace?sec:display-section,Sección DISPLAY>> del Capítulo de configuración INI
+ngcgui (usando TKPKG = Ngcgui 1.0). Para especificar EMBED_TAB_LOCATION para otras guis, vea <<sec:display-section,Sección DISPLAY>> del Capítulo de configuración INI
 .
 
 [NOTE]
@@ -440,7 +440,7 @@ Nota:     Las entradas: EMBED_TAB_NAME, EMBED_TAB_COMMAND, EMBED_TAB_LOCATION
 
 Elemento: [DISPLAY]EMBED_TAB_COMMAND = nombre del programa seguido de argumentos
 Ejemplo:  [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
-Nota:     Para aplicaciones gladevcp, vea el enlace?cha:glade-vcp,Capítulo GladeVCP>>
+Nota:     Para aplicaciones gladevcp, vea el <<cha:glade-vcp,Capítulo GladeVCP>>
 
 Elemento: [DISPLAY]EMBED_TAB_LOCATION = nombre_de_ubicación
 Ejemplo:  [DISPLAY]EMBED_TAB_LOCATION = notebook_main
@@ -540,7 +540,7 @@ Nota:     Opcional, cada directorio se incluirá cuando se invoque gcmc
 === Requisitos de subrutina de Gcode de un solo archivo (.ngc)
 
 Un subfile compatible con NGCGUI contiene una única definición de subrutina. El nombre de la subrutina debe ser el mismo que el nombre del archivo (sin incluir el sufijo .ngc). LinuxCNC admite subrutinas con nombre o numeradas, pero solo las subrutinas con nombre son compatibles con NGCGUI. Para más información ver el
-Capítulo enlace?cha:o-codes,códigos O>>.
+Capítulo <<cha:o-codes,códigos O>>.
 
 La primera línea sin comentarios debe ser una declaración sub.
 La última línea sin comentarios debe ser una declaración endsub.

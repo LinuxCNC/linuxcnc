@@ -1110,7 +1110,7 @@ archivo de tabla de herramientas
 
 LinuxCNC admite dos tipos de hardware de cambiador de herramientas,
 llamados _nonrandom_ y _random_. La entrada ini
-enlace?-section,[EMCIO]RANDOM_TOOLCHANGER controla cuál de
+<<-section,[EMCIO]RANDOM_TOOLCHANGER controla cuál de
 estos tipos de hardware es con el que LinuxCNC considera que está conectado.
 
 
@@ -1272,7 +1272,7 @@ luego guarda la tabla de herramientas.
 
 . De vuelta en interp, +settings->current_pocket+ se le asigna la nueva
 herramienta desde +settings->selected_pocket+ (establecido por +Txxx+). Los parámetros numerados
-relevantes (enlace?sub:numbered-parameters, #5400- #5413) son
+relevantes (<<sub:numbered-parameters, #5400- #5413) son
 actualizados con la nueva información de herramienta de la ranura 0 (husillo).
 
 

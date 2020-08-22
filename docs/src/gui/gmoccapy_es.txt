@@ -866,7 +866,7 @@ red gmoccapy-pin gmoccapy.messages.pin
 ----
 
 Para obtener más información sobre los archivos HAL y el comando net, consulte la
-enlace?cha:basic-hal-reference, referencia HAL básica>>.
+<<cha:basic-hal-reference, referencia HAL básica>>.
 
 === Pines de realimentación del husillo
 

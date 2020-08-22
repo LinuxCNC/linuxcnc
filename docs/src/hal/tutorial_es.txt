@@ -91,7 +91,7 @@ no como comandos shell.
 
 Para el primer ejemplo, usaremos un componente HAL llamado 'siggen',
 que es un generador de señal simple. Una descripción completa del
-componente 'siggen' se puede encontrar en la sección enlace?sec:siggen,Siggen>> de
+componente 'siggen' se puede encontrar en la sección <<sec:siggen,Siggen>> de
 este manual. Es un componente en tiempo real, implementado como un módulo kernel de Linux. Para
 cargar 'siggen' use el comando HAL 'loadrt'.
 
@@ -105,7 +105,7 @@ halcmd: loadrt siggen
 Ahora que el módulo está cargado, es hora de ver 'halcmd', la
 herramienta de línea de comandos utilizada para configurar HAL. Este tutorial
 introduce algunas características halcmd. Para una descripción más completa pruebe
-'man halcmd', o vea la referencia en la sección enlace?sec:hal-commands,Hal Commands>>
+'man halcmd', o vea la referencia en la sección <<sec:hal-commands,Hal Commands>>
 de este documento. La primera función halcmd a ver es el comando 'show'. Este comando muestra información
 sobre el estado actual de HAL. Para mostrar todos los componentes instalados:
 

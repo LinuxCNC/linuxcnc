@@ -53,7 +53,7 @@ sobre los parámetros del variador.
 * P9.02 (Protocolo de comunicación) debe establecerse en "Modo Modbus RTU,
    8 bits de datos, sin paridad, 2 bits de parada ", 03
 
-Un panel PyVCP basado en este ejemplo está enlace?gs2-rpm-meter,aqui>>.
+Un panel PyVCP basado en este ejemplo está <<gs2-rpm-meter,aqui>>.
 
 
 

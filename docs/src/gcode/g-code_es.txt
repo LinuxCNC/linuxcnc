@@ -139,10 +139,10 @@ G90 (establecer modo de distancia absoluta)
 G0 X1 Y-2.3 (movimiento lineal rápido desde la ubicación actual a X1 Y-2.3)
 M2 (final del programa)
 ----
-* Consulte las secciones <<gcode:g90-g91, G90>> y enlace?mcode:m2-m30, M2>> para obtener más información.
+* Consulte las secciones <<gcode:g90-g91, G90>> y <<mcode:m2-m30, M2>> para obtener más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección enlace?sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53, G53>> para obtener más información.
@@ -164,7 +164,7 @@ Es un error si:
 G1 ejes
 -------------------
 
-Para movimiento lineal (línea recta) a enlace?sec:set-feed-rate,velocidad de avance>> programada
+Para movimiento lineal (línea recta) a <<sec:set-feed-rate,velocidad de avance>> programada
 (para cortar o no), programe 'G1 'ejes'', donde todas las palabras de eje son
 opcionales. 'G1' es opcional si el modo de movimiento actual es 'G1'. Esto
 produce movimiento coordinado al punto de destino a la tasa de alimentación actual (o más lenta).
@@ -177,11 +177,11 @@ Z-2.3 (movimiento lineal a la misma velocidad de avance desde la posición actua
 Z1 F25 (movimiento lineal a una velocidad de avance de 25 desde la posición actual a Z1)
 M2 (final del programa)
 ----
-* Consulte las secciones <<gcode:g90-g91,G90>> , enlace?sec:set-feed-rate,F>> y enlace?mcode:m2-m30,M2>>
+* Consulte las secciones <<gcode:g90-g91,G90>> , <<sec:set-feed-rate,F>> y <<mcode:m2-m30,M2>>
 para más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección enlace?sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53,G53>> para obtener más información.
@@ -204,7 +204,7 @@ G2 o G3 offsets|R- <P-> (círculos completos)
 
 Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido horario) 
 o 'G3' (arco en sentido antihorario) a la
-enlace?sec:set-feed-rate,velocidad de avance>> actual. La dirección (CW, CCW) se ve desde
+<<sec:set-feed-rate,velocidad de avance>> actual. La dirección (CW, CCW) se ve desde
 extremo positivo del eje sobre el cual ocurre el movimiento circular.
 
 El eje del círculo o hélice debe ser paralelo al
@@ -235,7 +235,7 @@ comienze y termine cuando el movimiento XYZ comienza y termina.
 Las líneas de este tipo casi nunca se programan.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección enlace?sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
 
 El centro del arco es absoluto o relativo según lo establecido por <<gcode:g90.1-g91.1,G90.1
 o G91.1>> respectivamente.
@@ -318,7 +318,7 @@ G2 o G3 <Y- Z- X- J- K- P->
 
 Es un error si:
 
-* No se establece la velocidad de avance con la palabra enlace?sec:set-feed-rate,F>>.
+* No se establece la velocidad de avance con la palabra <<sec:set-feed-rate,F>>.
 
 * No hay offsets programados.
 
@@ -762,7 +762,7 @@ G10 L10 P1 Z1.5 (establecer la posición actual para Z en 1.5)
 G43 (vuelve a cargar las compensaciones de longitud de herramienta de la tabla de herramientas modificada)
 M2 (final del programa)
 ----
-* Consulte las secciones enlace?sec:select-tool,T>> , enlace?mcode:m6,M6>> y 
+* Consulte las secciones <<sec:select-tool,T>> , <<mcode:m6,M6>> y 
   <<gcode:g43, G43>>/<<gcode:g43.1,G43.1>>  para más información.
 
 Es un error si:
@@ -869,7 +869,7 @@ de cada archivo de código G.
 Solo use G28 cuando su máquina esté en una posición repetible y
 la posición G28 deseada se ha almacenado con G28.1.
 
-G28 usa los valores almacenados en los enlace?sub:numbered-parameters,parámetros>>
+G28 usa los valores almacenados en los <<sub:numbered-parameters,parámetros>>
 5161-5169 como el punto final X Y Z A B C U V W a donde moverse.
 Los valores de los parametros son coordenadas máquina 'absolutas' en las 'unidades' de máquina nativas
 especificadas en el archivo ini. Todos los ejes definidos en el archivo ini se moverán cuando
@@ -904,7 +904,7 @@ Use G30 solo cuando su máquina esté en una posición repetible y
 la posición G30 deseada se ha almacenado con G30.1.
 
 G30 funciona igual que G28 pero usa los valores almacenados en los
-enlace?sub:numbered-parameters,parámetros>> 5181-5189 como punto final X Y Z A B C U V W
+<<sub:numbered-parameters,parámetros>> 5181-5189 como punto final X Y Z A B C U V W
 a donde moverse. Los valores de los parámetros son coordenadas máquina 'absolutas'
 en las 'unidades' de máquina nativas especificadas en el archivo ini.
 Todos los ejes definidos en el archivo ini se moverán cuando se emita un G30. Si no
@@ -993,7 +993,7 @@ G0 X1.25 (movimiento rápido herramienta fuera del trabajo)
 Z0.1 (movimiento rápido a la posición Z inicial)
 M2 (final del programa)
 ----
-* Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y enlace?mcode:m2-m30,M2>> para obtener más información.
+* Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 Es un error si:
 
@@ -1054,7 +1054,7 @@ S100 M3 (encender el husillo, 100 RPM)
 G33.1 Z-0.750 K0.05 (roscado rígido de 20 TPI de 0.750 de profundidad)
 M2 (final del programa)
 ----
-* Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y enlace?mcode:m2-m30,M2>> para obtener más información.
+* Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 Es un error si:
 
@@ -1093,7 +1093,7 @@ La herramienta en el eje debe ser una sonda o contactar un interruptor de sonda.
 
 En respuesta a este comando, la máquina mueve el punto controlado
 (que debe estar en el centro de la bola de la sonda) en línea recta al
-enlace?actual:set-feed-rate,avance>> actual hacia el punto programado.
+<<sec:set-feed-rate,avance>> actual hacia el punto programado.
 En el modo de alimentación de tiempo inverso, la velocidad de alimentación será tal que todo el movimiento
 desde el punto actual hasta el punto programado tomara el tiempo especificado.
 El movimiento se detiene (dentro de los límites de aceleración de la máquina)
@@ -1114,7 +1114,7 @@ Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá
 'filename.txt' y almacenará las coordenadas
 XYZABCUVW de cada sonda recta exitosa en ella.
 El archivo debe cerrarse con '(PROBECLOSE)'. Para más información
-vea la  sección enlace?gcode:comments,comentarios>>.
+vea la  sección <<gcode:comments,comentarios>>.
 
 Se incluye un archivo de ejemplo 'smartprobe.ngc' (en el directorio de ejemplos)
 para demostrar el uso de movimientos de sonda para registrar en un archivo las coordenadas de una pieza.
@@ -1143,7 +1143,7 @@ G40 (desactivar compensación)
 G0 X1.6 (movimiento lineal más largo que el diámetro actual de la fresa)
 M2 (final del programa)
 ----
-Consulte las secciones <<gcode:g0,G0>> y enlace?mcode:m2-m30,M2>> para obtener más información.
+Consulte las secciones <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 Es un error si:
 
@@ -1171,7 +1171,7 @@ redundante y no necesita ser suministrada), pero puede ser cualquier número de 
 [NOTE]
 'G41/G42 D0' es un poco especial. Su comportamiento es diferente en
 máquinas de cambio de herramientas aleatorio y no aleatorio
-(vea la sección enlace?mcode:m6,Cambio de herramienta>>). En no aleatorio,
+(vea la sección <<mcode:m6,Cambio de herramienta>>). En no aleatorio,
 'G41/G42 D0' aplica el TLO de la herramienta actualmente
 en el husillo, o un TLO de 0 si no hay herramienta en el husillo.
 En máquinas de cambio de herramienta aleatorio, 'G41/G42 D0' aplica el TLO de la herramienta T0 definida
@@ -1194,7 +1194,7 @@ La compensación del cortador se puede realizar si el plano XY o el plano XZ est
 Los comandos de usuario M100-M199 están permitidos cuando la compensación de cortador está activada.
 
 El comportamiento del centro de mecanizado cuando la compensación del cortador
-está activada se describe en la sección enlace?sec:cutter-compensation,Compensación de cortador>>
+está activada se describe en la sección <<sec:cutter-compensation,Compensación de cortador>>
 junto con ejemplos de código.
 
 Es un error si:
@@ -1246,7 +1246,7 @@ el punto final de ese eje será la ubicación compensada.
 [NOTE]
 'G43 H0' es un poco especial. Su comportamiento es diferente en
 máquinas de cambio de herramientas aleatorio y máquinas de cambio no aleatorio (ver la sección
-enlace?sec:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
+<<sec:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
 'G43 H0' aplica el TLO de la herramienta actualmente en el husillo,
 o un TLO de 0 si no hay herramienta. En máquinas con cambiador de herramientas aleatorio,
 'G43 H0' aplica el TLO de la herramienta T0 definida en la tabla de herramientas
@@ -1286,7 +1286,7 @@ T1 M6 G43 (carga herramienta 1 y offset de longitud de herramienta, Z está en 0
 G43.1 Z0.250 (offset actual de la herramienta en 0.250, DRO ahora muestra Z1.250)
 M2 (final del programa)
 ----
-* Consulte las secciones <<gcode:g90-g91, G90>> , enlace?sec:select-tool,T>> y enlace?mcode:m6,M6>>
+* Consulte las secciones <<gcode:g90-g91, G90>> , <<sec:select-tool,T>> y <<mcode:m6,M6>>
 para más información.
 
 Es un error si:
@@ -1456,7 +1456,7 @@ entre velocidad y precisión. La tolerancia P significa que la ruta real
 no se apartará más de P- del punto final programado. La velocidad
 se reducirá si es necesario para mantener el camino. Además, cuando se
 active G64 P- Q- , se enciende 'nive cam'; cuando hay
-una serie de alimentación lineal XYZ se mueve al mismo enlace?sec:set-feed-rate,feed rate>>
+una serie de alimentación lineal XYZ se mueve al mismo <<sec:set-feed-rate,feed rate>>
 que están a menos de Q- lejos de ser colineales, se colapsan en un
 movimiento lineal único. En G2 / G3 se mueve en el plano G17 (XY) cuando el máximo
 La desviación de un arco de una línea recta es menor que el G64 P-
@@ -1603,7 +1603,7 @@ Este ciclo toma un número Q que representa un incremento 'delta' a lo largo del
 ** Si la posición Z actual está por debajo de la posición R, el eje Z hace un
 <<gcode:g0,movimiento rápido>> a la posición R.
 ** Moverse a las coordenadas X Y
-. Mueve el eje Z solo a enlace?sec:set-feed-rate,avance>> actual hacia abajo
+. Mueve el eje Z solo a <<sec:set-feed-rate,avance>> actual hacia abajo
 la cantidad delta o hacia la posición Z, lo que sea menos profundo.
 . Rápido elevandose un poco.
 . Repite los pasos 2 y 3 hasta alcanzar la posición Z en el paso 2.
@@ -1713,7 +1713,7 @@ hilo. Para un programa de conicidad de 45 grados, E igual que K
 * 'L-' - Especifica qué extremos del hilo tendran conicidad. Programar 'L0' para no
 cono (predeterminado), 'L1' para el cono de entrada, 'L2' para el cono de salida o 'L3'
 tanto para entradas y salidas cónicas. Las entradas cónicas se detendrán en la línea guia para
-sincronizar con el pulso de índice y luego moverse a enlace?sec:set-feed-rate,avance>>
+sincronizar con el pulso de índice y luego moverse a <<sec:set-feed-rate,avance>>
 en el comienzo del cono. Sin entrada cónica, la herramienta hará un rapido a la 
 profundidad de corte, luego sincronizara y comenzara el corte.
 
@@ -2027,7 +2027,7 @@ El ciclo funciona de la siguiente manera:
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
 
-. Mover el eje Z al enlace?sec:set-feed-rate,avance>> actual a la posición Z
+. Mover el eje Z al <<sec:set-feed-rate,avance>> actual a la posición Z
 .
 
 . El eje Z hace un <<gcode:g0,movimiento rápido>> para despejar Z.
@@ -2058,7 +2058,7 @@ Se realizan los siguientes movimientos:
 
 . un movimiento rápido paralelo al eje Z hacia (Z2.8).
 
-. movimiento paralelo al eje Z al enlace?sec:set-feed-rate,avance>> actual a (Z1.5)
+. movimiento paralelo al eje Z al <<sec:set-feed-rate,avance>> actual a (Z1.5)
 
 . Un movimiento rápido paralelo al eje Z a (Z3)
 
@@ -2087,7 +2087,7 @@ La primera repetición consiste en 3 movimientos.
 
 . un <<gcode:g0,movimiento rápido>> paralelo al plano XY a (X5, Y7)
 
-. movimiento paralelo al eje Z a enlace?sec:set-feed-rate,avance>> hacia (Z4.2)
+. movimiento paralelo al eje Z a <<sec:set-feed-rate,avance>> hacia (Z4.2)
 
 . Un movimiento rápido paralelo al eje Z a (X5, Y7, Z4.8)
 
@@ -2167,7 +2167,7 @@ el agujero.
 
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
-. Mueve el eje Z a enlace?sec:set-feed-rate,velocidad de avance>> a la posición Z.
+. Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
 . Espera P segundos.
 . El eje Z hace un <<gcode:g0,movimiento rápido>> para despejar Z.
 
@@ -2193,7 +2193,7 @@ al G98/99 en efecto. G83 funciona igual que G81 con la adición de retracciones 
 
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
-. Mueve el eje Z a enlace?sec:set-feed-rate,velocidad de avance>> hacia abajo la cantidad
+. Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> hacia abajo la cantidad
 delta o a la posición Z, lo que sea menos profundo.
 . Movimiento rápido de regreso al plano de retracción especificado por la palabra R.
 . Movimiento rápido hacia abajo hasta el fondo del agujero actual, retrocediendo un poco.
@@ -2248,7 +2248,7 @@ para taladrar o fresar.
 
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
-. Mueve el eje Z a enlace?sec:set-feed-rate,velocidad de avance>> a la posición Z.
+. Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
 . Retrae el eje Z a velocidad de avance actual al plano R si es más bajo
 que la Z inicial.
 . Retrae a la velocidad transversal para despejar Z.
@@ -2266,7 +2266,7 @@ segundos de parada.
 
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
-. Mueve el eje Z a enlace?sec:set-feed-rate,velocidad de avance>> a la posición Z.
+. Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
 . Espera P segundos.
 . Detiene el giro del husillo seleccionado (elegido por el parámetro $).
 . El eje Z hace un <<gcode:g0,movimiento rápido>> para despejar Z.
@@ -2299,7 +2299,7 @@ que especifica el número de segundos de parada (Dwell).
 
 . Movimiento preliminar, como se describe en la sección
 <<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
-. Mover el eje Z solo a enlace?sec:set-feed-rate,avance>> actual a la posición Z.
+. Mover el eje Z solo a <<sec:set-feed-rate,avance>> actual a la posición Z.
 . Espera de P segundos.
 . Retraer el eje Z a velocidad de avance actual para despejar Z.
 
@@ -2363,7 +2363,7 @@ punto controlado actual, en el sistema de coordenadas actualmente activo,
 se convierte en el valor especificado. Todos los orígenes de sistema de coordenadas.
 (G53-G59.3) se compensan esta misma distancia.
 
-'G92' utiliza los valores almacenados en los enlace?sub:numbered-parameters,parámetros>>
+'G92' utiliza los valores almacenados en los <<sub:numbered-parameters,parámetros>>
 5211-5219 como los valores de offset X Y Z A B C U V W para cada eje.
 Los valores de los parámetros son coordenadas de máquina 'absolutas'
 en las 'unidades' nativas de máquina  como se especificó en el archivo ini.
@@ -2398,13 +2398,13 @@ El comando 'G52' también se puede usar para cambiar este offset; ver la secció
 Consulte la sección <<cha:coordinate-system,Sistema de coordenadas>> para obtener un
 resumen de los sistemas de coordenadas.
 
-Consulte la sección enlace?gcode:parameters,parámetros>> para obtener más información.
+Consulte la sección <<gcode:parameters,parámetros>> para obtener más información.
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Restablecer compensaciones G92
 
-* 'G92.1' - apaga las compensaciones G92 y restablece enlace?sub:parámetros numerados, parámetros>> 5211 - 5219 a cero.
-* 'G92.2' - apaga las compensaciones de G92 pero mantén enlace?sub:parámetros numerados, parámetros>> 5211 - 5219 disponibles.
+* 'G92.1' - apaga las compensaciones G92 y restablece <<sub:numbered-parameters, parámetros>> 5211 - 5219 a cero.
+* 'G92.2' - apaga las compensaciones de G92 pero mantén <<sub:numbered-parameters, parámetros>> 5211 - 5219 disponibles.
 
 [NOTE]
 G92.1 solo borra las compensaciones G92, para cambiar las compensaciones del sistema de coordenadas G53-G59.3

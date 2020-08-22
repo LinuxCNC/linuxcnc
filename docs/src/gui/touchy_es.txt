@@ -28,7 +28,7 @@ conectar sus controles. Touchy ejecuta los comandos HAL en este archivo
 después de que haya hecho disponibles sus propios pines para la conexión.
 
 Para obtener más información sobre los archivos HAL y el comando net, consulte el
-enlace?cha:basic-hal-reference,Referencia básica de HAL>>.
+<<cha:basic-hal-reference,Referencia básica de HAL>>.
 
 Touchy tiene varios pines de salida que deben conectarse al
 controlador de movimiento para controlar el jogging de volante:

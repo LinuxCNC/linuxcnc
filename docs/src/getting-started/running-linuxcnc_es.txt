@@ -41,7 +41,7 @@ El selector de configuración ofrece una selección de configuraciones organizad
 
 ** 'apps' - aplicaciones que no requieren iniciar linuxcnc pero pueden ser
    útiles para pruebas o aplicaciones como <<cha:pyvcp,PyVCP o
-   <<cha:glade-vcp,GladeVCP.
+   <<cha:glade-vcp,GladeVCP.>>
 
 ** 'attic' - Configuraciones obsoletas o históricas.
 

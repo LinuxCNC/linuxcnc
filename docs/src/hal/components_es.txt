@@ -51,7 +51,7 @@ motion:: (((motion))) Acepta comandos de movimiento NML e interactúa con HAL en
 axis:: (((axis))) Acepta comandos de movimiento NML e interactúa con HAL en tiempo real.
 
 classicladder:: (((classicladder))) Software PLC en tiempo real basado en lógica de escalera.
-Consulte el capítulo enlace?cha:classicladder,ClassicLadder>> para obtener más información.
+Consulte el capítulo <<cha:classicladder,ClassicLadder>> para obtener más información.
 
 gladevcp:: (((gladevcp))) Muestra paneles de control virtuales construidos con GTK/Glade.
 
@@ -96,7 +96,7 @@ constant:: (((constant))) Use un parámetro para establecer el valor de un pin.
 sum2:: (((sum2))) Suma de dos entradas (cada una con una ganancia) y un desplazamiento.
 
 counter:: (((counter))) Cuenta los pulsos de entrada (obsoleto).
-Utilice el componente enlace?sec:encoder,encoder>>.
+Utilice el componente <<sec:encoder,encoder>>.
 
 updown:: (((updown))) Cuenta hacia arriba o hacia abajo, con límites opcionales y comportamiento envolvente.
 

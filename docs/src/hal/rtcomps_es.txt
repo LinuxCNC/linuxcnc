@@ -101,7 +101,7 @@ del tipo de paso y el tipo de control seleccionado:
 * '(float) stepgen.<chan>.stepspace' - Espacio mínimo entre dos
    pulsos de paso (tipos de pasos 0 y 1 solamente), en nanosegundos. Establecer a 0 
    para habilitar la función stepgen 'doublefreq'. Para usar 'doublefreq' la
-   enlace?sub:parport-functions, funcion reset parport>> debe estar habilitada.
+   <<sub:parport-functions, funcion reset parport>> debe estar habilitada.
 * '(float) stepgen.<chan>.dirsetup' - Tiempo mínimo desde un cambio de dirección
    hasta el comienzo del siguiente pulso de paso (pasos tipo 0 solamente), en nanosegundos.
 * '(float) stepgen.<chan>.dirhold' - Tiempo mínimo desde el final de un
@@ -145,7 +145,7 @@ bajara automáticamente, y si es cero, permanecerá en cero, pero la frecuencia 
 podra ser aún limitada
 
 Al usar el controlador de puerto paralelo, la frecuencia de pasos se puede duplicar usando
-la función enlace?sub:parport-functions, parport reset>> junto con la 
+la función <<sub:parport-functions, parport reset>> junto con la 
 configuración 'doublefreq' de stepgen.
 
 .Temporizado de Paso y Dirección

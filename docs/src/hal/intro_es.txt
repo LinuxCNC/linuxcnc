@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:hal-introducción]]
+[[cha:hal-introduction]]
 
 = Introducción a HAL
 
@@ -100,7 +100,7 @@ cambios según sea necesario.
 
 Este documento está dirigido a personas que ya saben cómo hacer este tipo
 de integración de sistemas hardware, pero que no saben cómo conectar el
-hardware a LinuxCNC. Vea la sección enlace?sec:halui-remote-start,Ejemplo de Arranque remoto>> en
+hardware a LinuxCNC. Vea la sección <<sec:halui-remote-start,Ejemplo de Arranque remoto>> en
 la documentación de Ejemplos UI HAL.
 
 image::images/remote-start.png[alt="Ejemplo de inicio remoto"]
@@ -267,17 +267,17 @@ halui::
 === Componentes internos
 
 stepgen::
-     Generador software de impulsos de pasos, con lazo de posición. Ver la sección enlace?rtcomps-es:stepgen,stepgen>>
+     Generador software de impulsos de pasos, con lazo de posición. Ver la sección <<sec:stepgen,stepgen>>
 
 encoder::
-     Contador codificador basado en software. Ver la sección enlace?rtcomps-es:encoder,encoder>>
+     Contador codificador basado en software. Ver la sección  <<sec:encoder,encoder>>
 
 pid::
-     Bucle de control Proporcional/Integral/Derivativo. Ver la sección enlace?rtcomps-es:pid,pid>>
+     Bucle de control Proporcional/Integral/Derivativo. Ver la sección <<sec:pid,pid>>
 
 siggen::
      Un generador de ondas seno/coseno/triángular/cuadrada para pruebas.
-     Ver la sección enlace?rtcomps-es:siggen,siggen>>
+     Ver la sección <<sec:siggen,siggen>>
 
 supply::
      una fuente simple para pruebas(((supply)))
@@ -313,17 +313,17 @@ hal_vti ::
 
 Halcmd::
     (((halcmd))) Herramienta de línea de comandos para configuración y ajuste. Ver
-    sección <enlace?tools-es:halcmd,halcmd>>
+    sección <<sec:halcmd,halcmd>>
 
 halgui::
     Herramienta GUI para configuración y ajuste (aún no implementada).
 
 halmeter::
-    (((halmeter))) Un práctico multímetro para señales HAL. Ver la sección enlace?tools-es:halmeter,halmeter>>.
+    (((halmeter))) Un práctico multímetro para señales HAL. Ver la sección <<sec:halmeter,halmeter>>.
 
 halscope::
     (((halscope))) Un osciloscopio de almacenamiento digital completo para señales HAL.
-    Ver la sección enlace?tools-es:halscope,halscope>>.
+    Ver la sección <<sec:halscope,halscope>>.
 
 Cada uno de estos bloques de construcción se describe en detalle en capítulos posteriores.
 

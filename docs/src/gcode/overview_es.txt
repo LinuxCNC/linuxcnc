@@ -393,7 +393,7 @@ El archivo original se guarda como un archivo de respaldo cuando se escribe el n
 
 * '1-30' Parámetros locales de argumentos  de llamada de subrutina. Estos parámetros son
   locales a la subrutina. Volátil. Ver también el capítulo sobre
-  enlace?cha:o-codes,códigos O>>.
+  <<cha:o-codes,códigos O>>.
 
 === Parametros con nombre
 
@@ -454,7 +454,7 @@ Los siguientes parámetros globales con nombre, de solo lectura, están disponib
 acceder al estado interno del intérprete y al estado de la máquina. Pueden
 ser usados en expresiones arbitrarias, por ejemplo para controlar el flujo de
 programa con sentencias if-then-else. Tenga en cuenta que un nuevo
-enlace?remap:adding-predefined-named-parameters,parámetro con nombre predefinido>>
+<<remap:adding-predefined-named-parameters,parámetro con nombre predefinido>>
 se puede agregar fácilmente, sin cambios en el código .ngc.
 
 * '#<_vmajor>' - Versión principal del paquete. Si la versión actual fuera 2.5.2, devolvería 2.5.
@@ -668,7 +668,7 @@ Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
 [[gcode:ini-hal-params]]
 
 == Pines HAL y valores INI
-Si está habilitado en el enlace?gcode:ini-features,archivo INI>> G-code tiene acceso
+Si está habilitado en el <<gcode:ini-features,archivo INI>> G-code tiene acceso
 a los valores de las entradas del archivo INI y a los pines HAL.
 
 * '#<_ini[section]name>' Devuelve el valor del elemento correspondiente en el archivo INI.
@@ -1074,7 +1074,7 @@ Un comentario introducido por un punto y coma es, por definición, el último co
 en esa línea, y siempre se interpretará para la sintaxis activa de comentarios.
 
 NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección del Código O
-enlace?ocode:comments,comentarios>>  para más información.
+<<ocode:comments,comentarios>>  para más información.
 
 [[gcode:messages]]
 == Mensajes
@@ -1160,7 +1160,7 @@ se convertirá en '# <parametroconnombre>'.
 == Requisitos de archivos
 
 Un archivo de código G debe contener una o más líneas de código G y debe terminarse
-con un enlace?mcode:m2-m30,Final de Programa>>. Cualquier código G pasado el final del programa
+con un <<mcode:m2-m30,Final de Programa>>. Cualquier código G pasado el final del programa
 no se evalúa.
 
 Si no se usa un código de finalización de programa, se utilizarán un par de signos de porcentaje '%' con el primer
