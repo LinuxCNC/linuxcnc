@@ -101,16 +101,16 @@ realtime. See below for the linuxcnc version to install.
 [options="header"]
 |====
 | Platform                | apt source line
-| Debian Stretch          | `deb http://linuxcnc.org buster 2.8-rtpreempt`
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
 | Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
 | Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
 | Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
 | Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
-| Debian buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
-| Debian Jessie - RTAI    | `deb http://linuxcnc.org buster base 2.8-rtt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.7.png[align="left", alt="Setting apt sources"]
+image::images/upgrading-to-2.8.png[align="left", alt="Setting apt sources"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -170,7 +170,7 @@ to find the name of your OS.
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       stretch
+Codename:       buster
 ----
 
 Pick the OS from the list then pick the major version you want like
@@ -180,7 +180,7 @@ Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
 binary-i386 for 32 bit, binary-armhf for RaspBerry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc_2.7.4.46.g5954dcf_i386.deb'. (choose the latest by date)
+'linuxcnc-uspace_2.8.0_amd64.deb'. (choose the latest by date)
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
 'linuxcnc_2.8.0.deb' then open a terminal and install it with the
