@@ -36,7 +36,7 @@ linuxcnc (1:2.8.0~pre3) buster; urgency=low
   * QTvcp: New QT-based VCP framework
   * QTdragon, QTlathe, QTtouchy, QTscreen - new GUIs based on QTVP
   * Silverdragon: New gscreen based GUI
-  * plasmac: New full-featured Plasma cutter cotroller
+  * plasmac: New full-featured Plasma cutter controller
   * Back tool lathe support in axis and gmoccapy
   * Many Axis improvements
   * Many Gmoccapy improvements

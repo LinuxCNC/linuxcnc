@@ -59,13 +59,17 @@ Codename:       wheezy
 
 [options="header"]
 |====
-| Platform       | apt source line
-| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
-| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
-| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
+| Platform                | apt source line
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.7.png[align="left", alt="Setting apt sources"]
+image::images/upgrading-to-2.8.png[align="left", alt="Setting apt sources"]
 
 * 单击 `添加源（Add Source）`，然后在软件源窗口中单击关闭。
   如果它弹出一个窗口，通知您有关可用软件的信息已过期，
@@ -108,7 +112,7 @@ Debian Wheezy和Ubuntu Lucid都使用Synaptic软件包管理器。
 
 需要在没有网络连接的情况下进行更新，您需要下载deb，
 然后使用dpkg安装它。每次更新时，buildbot都会构建新的Deb，
-并将其存放在http://buildbot.linuxcnc.org/dists/
+并将其存放在http://linuxcnc.org/dists/
 
 您必须从上面的链接中从上至下翻找，以找到适合您的安装的deb。
 打开 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]，
@@ -117,7 +121,7 @@ Debian Wheezy和Ubuntu Lucid都使用Synaptic软件包管理器。
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       wheezy
+Codename:       buster
 ----
 
 从列表中选择操作系统，然后选择所需的主要版本，
@@ -125,12 +129,12 @@ Codename:       wheezy
 
 接下来，选择32位（i386）或者64位（amd64）的计算机类型。
 
-接下来，从列表底部选择所需的版本，例如'linuxcnc_2.7.4.46.g5954dcf_i386.deb'。
-下载deb并将其复制到您的主目录。您可以使用文件管理器将文件重命名为更短的名字（如linuxcnc_2.7.4.deb），
-然后打开终端，并使用软件包管理器安装命令'sudo dpkg -i linuxcnc_2.7.4.deb'安装
+接下来，从列表底部选择所需的版本，例如'linuxcnc-uspace_2.8.0_amd64.deb'。
+下载deb并将其复制到您的主目录。您可以使用文件管理器将文件重命名为更短的名字（如linuxcnc_2.8.0.deb），
+然后打开终端，并使用软件包管理器安装命令'sudo dpkg -i linuxcnc_2.8.0.deb'安装
 
 ----
-sudo dpkg -i linuxcnc_2.7.4.deb
+sudo dpkg -i linuxcnc_2.8.0.deb
 ----
 
 == 更新配置文件（对于2.8.x）

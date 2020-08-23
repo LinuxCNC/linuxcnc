@@ -1,6 +1,6 @@
 ﻿:lversion: {sys: cat ../VERSION}
 Manual del Desarrollador V{lversion}, {localdate}
-=========================================
+=================================================
 
 :ascii-ids:
 :lang: es

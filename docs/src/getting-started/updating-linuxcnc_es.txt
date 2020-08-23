@@ -6,7 +6,7 @@
 = Actualizando LinuxCNC
 
 Actualizar LinuxCNCa una nueva versión menor (es decir, a una nueva versión en
-la misma serie estable, por ejemplo de 2.7.0 a 2.7.1) con su PC conectado a
+la misma serie estable, por ejemplo de 2.8.0 a 2.8.1) con su PC conectado a
 internet es un proceso automático. Verá un mensaje de actualización después del
 lanzamiento de una version menor nueva, junto con otras actualizaciones de software.
 Si no tiene internet en su PC vea <<getting-started:update-no-network,actualizando sin red>>
@@ -14,7 +14,7 @@ Si no tiene internet en su PC vea <<getting-started:update-no-network,actualizan
 == Actualizar a la nueva versión
 
 Esta sección describe cómo actualizar LinuxCNC de la versión 2.7 a la
-nueva versión. Se supone que tiene una instalación 2.7 existente que
+nueva 2.8.x versión. Se supone que tiene una instalación 2.7 existente que
 quiere actualizar.
 
 Para actualizar LinuxCNC desde una versión anterior a 2.7, primero debe
@@ -84,13 +84,17 @@ o Ubuntu Lucid.
 
 [options="header"]
 |====
-| Plataforma     | linea de fuentes apt
-| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
-| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
-| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
+| Platform                | apt source line
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.7.png[align="left", alt="Configurando las fuentes de apt"]
+image::images/upgrading-to-2.8.png[align="left", alt="Configurando las fuentes de apt"]
 
 * Haga clic en `Agregar fuente`, luego` Cerrar` en la ventana de Fuentes de software.
   Si aparece una ventana que le dice que la información sobre
@@ -148,7 +152,7 @@ para encontrar el nombre de su sistema operativo. Deberia ser algo como:
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:wheezy
+Codename: buster
 ----
 
 Elija el sistema operativo de la lista y luego elija la versión principal que desea, como 2.7-rt para
@@ -157,13 +161,13 @@ en tiempo real o 2.7-sim solo para el simulador.
 A continuación, elija el tipo de computadora que tenga; i386 para 32 bits o amd64 para 64 bits.
 
 A continuación, elija la versión que desee de la parte inferior de la lista como
-'linuxcnc_2.7.4.46.g5954dcf_i386.deb'. Descargue el deb y cópielo a su
+'linuxcnc-uspace_2.8.0_amd64.deb'. Descargue el deb y cópielo a su
 directorio de usuario. Puede cambiar el nombre del archivo a algo un poco más corto con el
-administrador de archivos, como 'linuxcnc_2.7.4.deb'. Luego abra un terminal e instálelo con el
+administrador de archivos, como 'linuxcnc_2.8.0.deb'. Luego abra un terminal e instálelo con el
 gestor de paquetes con este comando
 
 ----
-sudo dpkg -i linuxcnc_2.7.4.deb
+sudo dpkg -i linuxcnc_2.8.0.deb
 ----
 
 == Actualización de archivos de configuración (para 2.8.x)

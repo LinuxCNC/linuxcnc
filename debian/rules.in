@@ -87,6 +87,8 @@ ifneq "$(enable_build_documentation)" ""
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
+	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual_es.pdf \
+		debian/tmp/usr/share/doc/linuxcnc-dev/
 endif
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html

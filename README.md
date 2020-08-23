@@ -1,25 +1,30 @@
 # LinuxCNC
 
-LinuxCNC controla máquinas CNC. Puede manejar fresadoras, tornos, impresoras 3D, cortadores láser, cortadores de plasma, brazos de robot, hexápodos y otras. http://linuxcnc.org/
+LinuxCNC controls CNC machines. It can drive milling machines, lathes, 3d printers, laser cutters, plasma cutters, robot arms, hexapods, and more. http://linuxcnc.org/
 
-# DESCARGO DE RESPONSABILIDAD
+# DISCLAIMER
 
-** LOS AUTORES DE ESTE SOFTWARE NO ACEPTAN ABSOLUTAMENTE NINGUNA RESPONSABILIDAD POR NINGÚN DAÑO O PÉRDIDA RESULTANTE DE SU USO. **
+**THE AUTHORS OF THIS SOFTWARE ACCEPT ABSOLUTELY NO LIABILITY FOR ANY
+HARM OR LOSS RESULTING FROM ITS USE.**
 
-** ES _EXTREMADAMENTE_ IMPRUDENTE CONFIAR LA SEGURIDAD SOLO AL SOFTWARE. **
+**IT IS _EXTREMELY_ UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.**
 
-** Cualquier maquinaria capaz de dañar a las personas debe tener prevista la desconexion completa de energía de todos los motores, etc., antes de que las personas entren en cualquier área peligrosa.
+**Any machinery capable of harming persons must have provisions for
+completely removing power from all motors, etc, before persons enter
+any danger area.**
 
-** Toda la maquinaria debe estar diseñada para cumplir con las normas y códigos de seguridad locales y nacionales, y los autores de este software no pueden, y no lo hacen, asumir cualquier responsabilidad derivada de dicho cumplimiento. **
+**All machinery must be designed to comply with local and national
+safety codes, and the authors of this software can not, and do not,
+take any responsibility for such compliance.**
 
 
-Este software se lanza bajo licencia GPLv2, con algunas partes bajo LGPL. Vea el archivo COPYING para más detalles.
+This software is released under the GPLv2, with some parts under the LGPL.
+See the file COPYING for more details.
 
-La traduccion al español de este software queda adherida a este descargo y a las licencias GPLv2 y partes LGPL. 
 
+# The Build Process
 
-# El proceso de construcción
-
-Consulte el archivo 'docs/src/code/building-linuxcnc.txt' para obtener información sobre cómo construir y ejecutar el software, o vea:
+Refer to the file 'docs/src/code/building-linuxcnc.txt' for information
+about building and running the software, or look here:
 
 http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
