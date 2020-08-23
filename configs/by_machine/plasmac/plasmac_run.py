@@ -139,7 +139,20 @@ class HandlerClass:
         t_number = 0
         t_name = 'Default'
         self.materialName = t_name
-        inDict = {}
+        inDict = {'kerf-width':0.0,
+                  'thc-enable':False,
+                  'pierce-height':0.0,
+                  'pierce-delay':0.0,
+                  'puddle-jump-height':0.0,
+                  'puddle-jump-delay':0.0,
+                  'cut-height':0.0,
+                  'cut-feed-rate':0.0,
+                  'cut-amps':0.0,
+                  'cut-volts':0.0,
+                  'pause-at-end':0.0,
+                  'gas-pressure':0.0,
+                  'cut-mode':0.0,
+                 }
         with open(self.configFile) as inFile:
             for line in inFile:
                 if '=' in line:
@@ -638,9 +651,9 @@ class HandlerClass:
                         self.builder.get_object(item).set_value(float(self.configDict.get(item)))
                     else:
                         if self.i.find('PLASMAC', 'PM_PORT'):
-                                print('*** {} missing from {}'.format(item,self.configFile))
-                        elif not item in ['gas-pressure', 'cut-mode']:
                             print('*** {} missing from {}'.format(item,self.configFile))
+                        elif not item in ['gas-pressure', 'cut-mode']:
+                            print('*** {} missing from {}'.format(item ,self.configFile))
                 elif isinstance(self.builder.get_object(item), gladevcp.hal_widgets.HAL_CheckButton):
                     if item in tmpDict:
                         # keep pmx485 alive if it was on when reload pressed
@@ -745,8 +758,8 @@ class HandlerClass:
                         outFile.write('{}=thc-off\n'.format(key))
             elif key in inDict:
                 outFile.write('{}={}\n'.format(key, inDict[key]))
-            else:
-                print '*** cannot save unknown parameter:', key
+#            else:
+#                print '*** cannot save unknown parameter:', key
         outFile.close()
         if mode == 'material':
             self.set_saved_material()
@@ -1161,13 +1174,16 @@ class HandlerClass:
             iniFile = os.environ['INI_FILE_NAME']
             iniPath = os.path.dirname(iniFile)
             try:
-                basePath = os.path.realpath(os.path.dirname(os.readlink('{}/plasmac'.format(iniPath))))
+                basePath = os.path.realpath(os.path.dirname('{}/plasmac'.format(iniPath)))
             except:
                 try:
-                    basePath = os.path.realpath(os.path.dirname(os.readlink('{}/M190'.format(iniPath))))
+                    basePath = os.path.realpath(os.path.dirname(os.readlink('{}/plasmac'.format(iniPath))))
                 except:
-                    print('\nlink to plasmac source files cannot be found\n')
-                    sys.exit(0)
+                    try:
+                        basePath = os.path.realpath(os.path.dirname(os.readlink('{}/M190'.format(iniPath))))
+                    except:
+                        print('\nlink to plasmac source files cannot be found\n')
+                        sys.exit(0)
             cmd = '{}/configurator.py'.format(basePath)
             os.execv(cmd,[cmd, 'upgrade', iniFile])
             sys.exit(0)
