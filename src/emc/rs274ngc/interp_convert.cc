@@ -4256,6 +4256,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   // convert_control_functions()
   CHKS((block->m_modes[4] == 99 && settings->call_level > 0),
         (_("Bug:  Reached convert_stop() from M99 as subprogram return")));
+
+
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
   } else if (block->m_modes[4] == 60) {
@@ -4271,9 +4273,24 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     loop_to_beginning(settings);  // return control to beginning of file
     FINISH();  // Output any final linked segments
     return INTERP_EXECUTE_FINISH;  // tell task to issue any queued commands
+
+
+
+
   } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30) ||
             (block->m_modes[4] == 99 && !_setup.loop_on_main_m99)
-            ) {   /* reset stuff here */
+            ) {
+
+
+if (IS_USER_MCODE(block,settings,4) &&
+      STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4) &&
+      ONCE_M4)  {
+        printf("*remap conversion-%d*\n",block->m_modes[4]);
+      return convert_remapped_code(block, settings, STEP_MGROUP4, 'm',
+				   block->m_modes[4]);}
+
+        printf("*no remap conversion-%d*\n",block->m_modes[4]);
+/* reset stuff here */
 
 /*1*/
     settings->current_x += settings->origin_offset_x;

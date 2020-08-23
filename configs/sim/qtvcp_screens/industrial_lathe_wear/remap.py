@@ -22,4 +22,23 @@
 # ignore_m6()
 
 from stdglue import *
+from emccanon import MESSAGE
+COUNT = 0
 
+def ignore_m6(self,**words):
+    MESSAGE("remapped m6")
+    try:
+        return INTERP_OK
+    except Exception, e:
+        return "Ignore M6 failed: %s" % (e)
+
+def m2_remap(self, **words): # in remap module
+    print self.remap_level
+    global COUNT
+    COUNT +=1
+    print 'run count:{}'.format(COUNT)
+
+    #MESSAGE("remapped m2")
+    self.execute("m2")
+    #emccanon.PROGRAM_END()
+    return INTERP_OK

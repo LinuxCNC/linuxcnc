@@ -731,13 +731,16 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 
 	if (remap_in_progress("M0") ||
 	    remap_in_progress("M1") ||
+        remap_in_progress("M2") ||
 	    remap_in_progress("M60"))  { // detect recursion case
 
 	    // these require real work.
-	    // remap_in_progress("M2") ||
+	    //remap_in_progress("M2") ||
 	    // remap_in_progress("M60")
+        printf("*---builtin -------%d*\n",block->m_modes[4]);
 	    CONTROLLING_BLOCK(*settings).builtin_used = true;
 	} else {
+        printf("*---remappped -------%d*\n",block->m_modes[4]);
 	    block->remappings.insert(STEP_MGROUP4);
 	}
     }

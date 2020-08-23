@@ -603,6 +603,7 @@ int read_inputs(setup_pointer settings);
      (m == 61) ||					\
      (m == 0) ||					\
      (m == 1) ||					\
+     (m == 2) ||					\
      (m == 60) ||					\
      (m == 62) ||					\
      (m == 63) ||					\

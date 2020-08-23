@@ -498,7 +498,7 @@ struct block_struct
 #define TODO(step) (block->breadcrumbs[step] == 0)
 #define ONCE(step) (TODO(step) ? TICKOFF(step),1 : 0)
 #define ONCE_M(step) (TODO(STEP_M_ ## step) ? TICKOFF(STEP_M_ ## step),1 : 0)
-
+#define ONCE_M4 (TODO(STEP_MGROUP4) ? TICKOFF(STEP_MGROUP4),1 : 0)
 
     // there might be several remapped items in a block, but at any point
     // in time there's only one excuting
