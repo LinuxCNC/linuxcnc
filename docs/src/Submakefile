@@ -364,6 +364,7 @@ PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, \
 PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started_es.pdf \
 	LinuxCNC_Documentation_es.pdf \
+	LinuxCNC_Developer_Manual_es.pdf \
 	)
 
 PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
@@ -466,6 +467,8 @@ $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
