@@ -852,7 +852,9 @@ def user_live_update():
     # set buttons state
     for n in range(1,6):
         if 'change-consumables' in iniButtonCode[n]:
-            if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.stop-type-out') > 1:
+            if hal.get_value('halui.program.is-paused') and \
+               hal.get_value('plasmac.stop-type-out') > 1 and not \
+               hal.get_value('plasmac.cut-recovering'):
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
                 w(fbuttons + '.button' + str(n),'configure','-state','disabled')
@@ -870,7 +872,9 @@ def user_live_update():
         w(ftorch + '.torch-button','configure','-state','normal')
     else:
         w(ftorch + '.torch-button','configure','-state','disabled')
-    if hal.get_value('halui.program.is-paused')  or hal.get_value('plasmac.paused-motion-speed'):
+    if (hal.get_value('halui.program.is-paused') or \
+       hal.get_value('plasmac.paused-motion-speed')) and \
+       not hal.get_value('plasmac.cut-recovery'):
         if orientation == 'portrait':
             w(fpausedmotion + '.reverse','configure','-state','normal')
             w(fpausedmotion + '.forward','configure','-state','normal')

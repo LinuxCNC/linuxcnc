@@ -845,6 +845,8 @@ When reversing, motion will stop when it reaches a spindle on command.
 
 When forwarding, motion can continue until the end of the path.
 
+For advanced recovery from a failed cut see <<cut-recovery, cut recovery>>.
+
 [underline]*Height Change*
 
 Each press of Raise or Lower will change the height of the torch by the value set in Height Per Volt in the Arc frame of the Config Panel. Reset will cancel any height override.
@@ -865,7 +867,7 @@ image::images/plasmac_stats.png[width=60%]
 
 This provides a conversational shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
 
-It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to load a G-Code program and have an image displayed on the button.
+It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to use the <<cut-recovery, cut-recovery>> function and load a G-Code program. They can also display a custom image on the button.
 
 See <<shape-library, conversational shape library>> for shape usage.
  
@@ -1442,6 +1444,22 @@ This mode may also be used in conjunction with Mesh Mode if you don't require th
 
 You can enable/disable this mode at any time during a job.
 
+[[cut-recovery]]
+
+== Cut Recovery
+
+image::images/plasmac_cut_recovery.png[width=40%]
+
+This dialog box feature allows the torch to be moved away from the cut path during a <<paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. This function is only available from a user-programmed button in the Extras panel and is only valid while motion is paused.
+
+It is generally preferable to make torch position adjustments from the point at which paused motion occurred, however if moving along the cut path is necessary prior to setting the new start point, the user may use the paused motion controls (Rev, Fwd, and a jog-speed slider) at the top of the dialog box. Once the user is satisfied with the positioning of the torch along the cut path, moving off the cut path is achieved by pressing the direction buttons. Each press of the direction button will move the torch a distance equivalent to the kerf width of the currently selected material.
+
+Once the torch has been moved off the cut path by using the direction buttons, the paused motion controls (Rev, Fwd, and a jog-speed slider) at the top of the dialog box will be disabled.
+
+Pressing Cancel (or the X in the title bar) will cause the torch to move back to where it was positioned prior to moving the torch with the direction buttons and the dialog box will close.
+
+Once the torch position is satisfactory, press Resume Cut or the GUI’s Resume button (Pause symbol) and the cut will resume from the new position. The dialog box will close when the torch returns to the original paused motion location.
+
 [[shape-library]]
 
 == Conversational Shape Library
@@ -1985,7 +2003,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can <<button-load, Load>> a G-Code program.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can run the special function <<button-recovery, cut-recovery>>, <<button-load, load a G-Code>> program or display a custom image.
 
 [[button-cmds]]
 
@@ -2081,6 +2099,16 @@ There are three methods to return to the previous coordinates:
 - Press the button again and the torch will return and the machine will wait for a resume command.
 - Resume the program which causes the torch to return then the program will begin running.
 - Stop the program which causes the torch to return then the program will abort.
+
+[[button-recovery]]
+
+[underline]*Cut Recovery*
+
+----
+BUTTON_n_CODE = cut-recovery
+----
+
+This brings up the <<cut-recovery, cut recovery>> dialog which allows the torch to move away from the cut to find a good piece of material to restart the cut from. This function is only available from the Extras panel and is only valid while paused.
 
 [[button-load]]
 

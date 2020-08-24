@@ -37,6 +37,30 @@
                       <placeholder/>
                     </child>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkButton" id="wizard-b">
                         <property name="label" translatable="yes">Conversational</property>
                         <property name="visible">True</property>
@@ -91,7 +115,7 @@
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 15
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -107,7 +131,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 16
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -125,7 +149,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 17
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -143,7 +167,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 18
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -161,7 +185,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 19
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -179,7 +203,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 10
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                     </child>
@@ -191,7 +215,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 11
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -207,7 +231,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 12
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -223,7 +247,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 13
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
@@ -239,7 +263,7 @@ configured from the ini file</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">user button 14
 configured from the ini file</property>
-                        <signal name="pressed" handler="on_button_clicked" swapped="no"/>
+                        <signal name="pressed" handler="on_button_pressed" swapped="no"/>
                         <signal name="released" handler="on_button_released" swapped="no"/>
                       </object>
                       <packing>
