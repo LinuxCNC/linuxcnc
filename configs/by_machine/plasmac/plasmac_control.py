@@ -45,7 +45,9 @@ class HandlerClass:
             self.builder.get_object('torch-pulse-start').set_sensitive(True)
         else:
             self.builder.get_object('torch-pulse-start').set_sensitive(False)
-        if hal.get_value('halui.program.is-paused') or hal.get_value('plasmac.paused-motion-speed'):
+        if (hal.get_value('halui.program.is-paused') or \
+           hal.get_value('plasmac.paused-motion-speed')) and \
+           not hal.get_value('plasmac.cut-recovery'):
             self.builder.get_object('forward').set_sensitive(True)
             self.builder.get_object('reverse').set_sensitive(True)
         else:

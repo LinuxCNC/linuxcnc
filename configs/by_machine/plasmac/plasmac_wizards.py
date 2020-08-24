@@ -32,6 +32,7 @@ from subprocess import Popen, PIPE
 
 sys.path.append('./wizards')
 import w_main
+import w_cut_recovery
 
 class wizards:
 
@@ -44,6 +45,7 @@ class wizards:
         self.prefFile = self.i.find('EMC', 'MACHINE') + '.pref'
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_wizards.cfg'
+        self.cutRecovering = False
         self.check_settings()
         self.set_theme()
         self.button_setup()
@@ -157,11 +159,17 @@ class wizards:
             except:
                 print('Could not load image for custom user button #{}'.format(button))
 
-    def on_button_clicked(self, button):
+    def on_button_pressed(self, button):
         bNum = int(button.get_name().split('button')[1])
         commands = self.iniButtonCode[bNum]
         if not commands: return
-        if 'change-consumables' in commands.lower():
+        if 'cut-recovery' in commands.lower() and hal.get_value('halui.program.is-paused') and \
+           not hal.get_value('plasmac.cut-recovery') and not hal.get_value('plasmac.cut-recovering'):
+            cut_wiz = w_cut_recovery.recovery()
+            error = cut_wiz.create_widgets()
+            if error:
+                self.dialog_error('Error in cut recovery dialog')
+        elif 'change-consumables' in commands.lower():
             self.consumable_change_setup()
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
                 hal.set_p('plasmac.consumable-change', '0')
@@ -327,62 +335,73 @@ class wizards:
         self.s.poll()
         isIdleHomed = True
         isIdleOn = True
-        if hal.get_value('halui.program.is-idle') and hal.get_value('halui.machine.is-on'):
-            if hal.get_value('plasmac.arc-ok-out'):
-                isIdleOn = False
-            for joint in range(0,int(self.i.find('KINS','JOINTS'))):
-                    if not self.s.homed[joint]:
-                        isIdleHomed = False
-                        break
-        else:
-            isIdleHomed = False
-            isIdleOn = False 
-        for n in range(10,20):
-            if 'load' in self.iniButtonCode[n]:
-                pass
-            elif 'change-consumables' in self.iniButtonCode[n]:
-                if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.stop-type-out') > 1:
-                    self.builder.get_object('button' + str(n)).set_sensitive(True)
-                else:
-                    self.builder.get_object('button' + str(n)).set_sensitive(False)
-            elif 'ohmic-test' in self.iniButtonCode[n]:
-                if isIdleOn or hal.get_value('halui.program.is-paused'):
-                    self.builder.get_object('button' + str(n)).set_sensitive(True)
-                else:
-                    self.builder.get_object('button' + str(n)).set_sensitive(False)
-            elif not 'cut-type' in self.iniButtonCode[n] and not self.iniButtonCode[n].startswith('%'):
-                if isIdleHomed:
-                    self.builder.get_object('button' + str(n)).set_sensitive(True)
-                else:
-                    self.builder.get_object('button' + str(n)).set_sensitive(False)
-    # decrement probe timer if active
-        if self.probeTimer:
-            if hal.get_value('plasmac.probe-test-error') and not self.probePressed:
-                self.probeTimer = 0
-            elif time.time() >= self.probeStart + 1:
-                self.probeStart += 1
-                self.probeTimer -= 1
-                self.probeButton.set_label(str(int(self.probeTimer)))
-                self.probeButton.set_style(self.buttonRed)
-            if not self.probeTimer and not self.probePressed:
-                hal.set_p('plasmac.probe-test','0')
-                self.probeButton.set_label(self.probeText)
-                self.probeButton.set_style(self.buttonPlain)
-        if self.gui == 'gmoccapy':
-            if self.inFile and self.inFile != self.s.file:
-                if not 'PlaSmaC' in self.s.file or 'PlaSmaC0' in self.s.file:
-                    self.builder.get_object(self.cutButton).set_style(self.buttonPlain)
-                    self.builder.get_object(self.cutButton).set_label('Pierce & Cut')
-                    self.cutType = 0
-                elif 'PlaSmaC1' in self.s.file:
-                    self.builder.get_object(self.cutButton).set_style(self.buttonOrange)
-                    self.builder.get_object(self.cutButton).set_label('Pierce Only')
-                    self.cutType = 1
-        if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
-            hal.set_p('plasmac.consumable-change', '0')
-            hal.set_p('plasmac.x-offset', '0')
-            hal.set_p('plasmac.y-offset', '0')
-            hal.set_p('plasmac.xy-feed-rate', '0')
+        if hal.component_exists('halui'):
+            if hal.get_value('plasmac:program-is-idle'):
+                hal.set_p('plasmac.cut-recovery', '0')
+            if hal.get_value('halui.machine.is-on'):
+                if hal.get_value('plasmac.arc-ok-out'):
+                    isIdleOn = False
+                for joint in range(0,int(self.i.find('KINS','JOINTS'))):
+                        if not self.s.homed[joint]:
+                            isIdleHomed = False
+                            break
+            else:
+                isIdleHomed = False
+                isIdleOn = False 
+            for n in range(10,20):
+                if 'load' in self.iniButtonCode[n]:
+                    pass
+                elif 'change-consumables' in self.iniButtonCode[n]:
+                    if hal.get_value('halui.program.is-paused') and \
+                       hal.get_value('plasmac.stop-type-out') > 1 and \
+                       not hal.get_value('plasmac.cut-recovering'):
+                        self.builder.get_object('button' + str(n)).set_sensitive(True)
+                    else:
+                        self.builder.get_object('button' + str(n)).set_sensitive(False)
+                elif 'cut-recovery' in self.iniButtonCode[n]:
+                    if hal.get_value('halui.program.is-paused') and hal.get_value('plasmac.motion-type') > 1 and \
+                       not hal.get_value('plasmac.consumable-changing'):
+                        self.builder.get_object('button' + str(n)).set_sensitive(True)
+                    else:
+                        self.builder.get_object('button' + str(n)).set_sensitive(False)
+                elif 'ohmic-test' in self.iniButtonCode[n]:
+                    if isIdleOn or hal.get_value('halui.program.is-paused'):
+                        self.builder.get_object('button' + str(n)).set_sensitive(True)
+                    else:
+                        self.builder.get_object('button' + str(n)).set_sensitive(False)
+                elif not 'cut-type' in self.iniButtonCode[n] and not self.iniButtonCode[n].startswith('%'):
+                    if isIdleHomed:
+                        self.builder.get_object('button' + str(n)).set_sensitive(True)
+                    else:
+                        self.builder.get_object('button' + str(n)).set_sensitive(False)
+            # decrement probe timer if active
+            if self.probeTimer:
+                if hal.get_value('plasmac.probe-test-error') and not self.probePressed:
+                    self.probeTimer = 0
+                elif time.time() >= self.probeStart + 1:
+                    self.probeStart += 1
+                    self.probeTimer -= 1
+                    self.probeButton.set_label(str(int(self.probeTimer)))
+                    self.probeButton.set_style(self.buttonRed)
+                if not self.probeTimer and not self.probePressed:
+                    hal.set_p('plasmac.probe-test','0')
+                    self.probeButton.set_label(self.probeText)
+                    self.probeButton.set_style(self.buttonPlain)
+            if self.gui == 'gmoccapy':
+                if self.inFile and self.inFile != self.s.file:
+                    if not 'PlaSmaC' in self.s.file or 'PlaSmaC0' in self.s.file:
+                        self.builder.get_object(self.cutButton).set_style(self.buttonPlain)
+                        self.builder.get_object(self.cutButton).set_label('Pierce & Cut')
+                        self.cutType = 0
+                    elif 'PlaSmaC1' in self.s.file:
+                        self.builder.get_object(self.cutButton).set_style(self.buttonOrange)
+                        self.builder.get_object(self.cutButton).set_label('Pierce Only')
+                        self.cutType = 1
+            if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
+                hal.set_p('plasmac.consumable-change', '0')
+                hal.set_p('plasmac.x-offset', '0')
+                hal.set_p('plasmac.y-offset', '0')
+                hal.set_p('plasmac.xy-feed-rate', '0')
         return True
 
 def get_handlers(halcomp,builder,useropts):
