@@ -1467,9 +1467,9 @@ class configurator:
         return True
 
     def write_postgui_hal_file(self):
-        # create a postgui.hal file if not already present
-        if not os.path.exists('{}/postgui.hal'.format(self.configDir)):
-            with open('{}/postgui.hal'.format(self.configDir), 'w') as outFile:
+        # create a postgui.tcl HAL file if not already present
+        if not os.path.exists('{}/postgui.tcl'.format(self.configDir)):
+            with open('{}/postgui.tcl'.format(self.configDir), 'w') as outFile:
                 outFile.write(\
                     '# Keep your post GUI customisations here to prevent them from being overwritten\n'\
                     '# by updates or pncconf/stepconf changes.\n\n'\
@@ -1518,10 +1518,10 @@ class configurator:
             'HALFILE = {0}{1}\n'\
             '# the plasmac component connections\n'\
             'HALFILE = ./plasmac/plasmac.tcl\n'\
-            '# the plasmac machine connections\n'\
+            '# the plasma machine  and custom connections\n'\
             'HALFILE = {0}_connections.hal\n'\
             '# use this for customisation after GUI has loaded\n'\
-            'POSTGUI_HALFILE = postgui.hal\n'\
+            'POSTGUI_HALFILE = postgui.tcl\n'\
             '# required\n'\
             'HALUI = halui\n'\
             '\n'\
