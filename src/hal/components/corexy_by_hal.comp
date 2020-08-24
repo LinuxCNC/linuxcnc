@@ -1,5 +1,5 @@
 // Based on a forum posting by nbremond
-component corexy_by_hal;
+component corexy_by_hal "CoreXY kinematics";
 
 pin in float  alpha_fb"typ: feedback from alpha motor controller";
 pin in float  beta_fb "typ: feedback from beta  motor controller";
