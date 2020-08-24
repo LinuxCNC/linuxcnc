@@ -279,7 +279,7 @@ be set to the nominal frequency of the thread in which the PLL is running and
 wil not normally need to be changed. 
 .TP
 (float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.phase\-error\-us
-Indicates the phase eror of the DPLL. If the number cycles by a large amount 
+Indicates the phase error of the DPLL. If the number cycles by a large amount 
 it is likely that the PLL has failed to achieve lock and adjustments will need
 to be made. 
 .TP
@@ -468,7 +468,7 @@ are non-zero then the HAL pin will be "true".
 HAL pin will be "true" if all bits in the field are zero. 
 .TP
 u: (Unsigned)
-  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpeted as an
+  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpreted as an
 unsigned integer then scaled such that the pin value will equal the scalemax 
 parameter value when all bits are high. (for example if the field is 8 bits 
 wide and the scalmax parameter was 20 then a value of 255 would return 20, and
@@ -859,7 +859,7 @@ settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
 times of 23 uS (25 \- (2X 1 uS), 1 uS per edge).
 The value is specified in nS and defaults to a rather conservative 5000nS. Setting
 this parameter to too low a value could be both expensive and dangerous as if both
-gates are open at the same time there is effectively a short circuit accross the
+gates are open at the same time there is effectively a short circuit across the
 supply.
 
 .TP
