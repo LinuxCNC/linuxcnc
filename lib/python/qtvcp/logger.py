@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # QTVcp Logging Module
 # Provides a consistent and easy to use logging facility.  Log messages printed
@@ -26,7 +26,7 @@ from linuxcnc import ini
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Our custom colorizing formatter for the terminal handler
-from lib.colored_formatter import ColoredFormatter
+from qtvcp.qtvcplib.colored_formatter import ColoredFormatter
 
 
 # Global name of the base logger
@@ -73,6 +73,7 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG):
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     cf = ColoredFormatter(TERM_FORMAT)
+
     ch.setFormatter(cf)
     base_log.addHandler(ch)
 

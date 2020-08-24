@@ -160,7 +160,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         row = new.row()
         col = new.column()
         data = self.tablemodel.data(new)
-        print 'Entered data:', data, row,col
+        print('Entered data:{} {},{}'.format(data, row, col))
         # now update linuxcnc to the change
         try:
             if STATUS.is_status_valid():

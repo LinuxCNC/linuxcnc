@@ -61,20 +61,25 @@ class RoundButton(ActionButton):
 
     def setImagePath(self, data):
         self.pixmap = data
+
     def getImagePath(self):
         return self.pixmap
+
     def resetImagePath(self):
         self.pixmap
 
     def setFalseImagePath(self, data):
         self.false_pixmap = data
+
     def getFalseImagePath(self):
         return self.false_pixmap
+
     def resetFalseImagePath(self):
         self.false_pixmap
 
     image_path = QtCore.pyqtProperty(QtGui.QPixmap, getImagePath, setImagePath, resetImagePath)
     false_image_path = QtCore.pyqtProperty(QtGui.QPixmap, getFalseImagePath, setFalseImagePath, resetFalseImagePath)
+
 
 # for testing without editor:
 def main():
@@ -84,6 +89,8 @@ def main():
     widget = RoundButton()
     widget.show()
     sys.exit(app.exec_())
+
+
 if __name__ == "__main__":
     main()
 

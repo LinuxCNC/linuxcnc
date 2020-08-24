@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 #
 # Qtvcp Widgets
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -36,7 +36,7 @@ LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
-    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LOG.setLevel(logger.ERROR)  # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
@@ -226,7 +226,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
                     else:
                         try:
-                            print self[tName][1][1]
+                            print(self[tName][1][1])
                             imgpath = os.path.join(path, self[tName][1][1])
                         except:
                             imgpath = os.path.join(path, img_info[0])

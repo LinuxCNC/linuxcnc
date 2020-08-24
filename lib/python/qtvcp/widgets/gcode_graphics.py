@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2016 Chris Morley
@@ -163,12 +163,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         LOG.debug('reload the display: {}'.format(self._reload_filename))
         try:
             self.load(self._reload_filename)
-            STATUS.emit('graphics-gcode-properties',self.gcode_properties)
-        except:
-            print 'error', self._reload_filename
+            STATUS.emit('graphics-gcode-properties', self.gcode_properties)
+        except Exception as e:
+            print('Exception in reloadfile(),\n File: {}, Error: {}'.format(self._reload_filename, e))
             pass
-
-
 
     ####################################################
     # functions that override qt5_graphics
@@ -212,8 +210,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setview(self, view):
         self.current_view = view
         self.set_view(view)
+
     def getview(self):
         return self.current_view
+
     def resetview(self):
         self.set_view('p')
     _view = pyqtProperty(str, getview, setview, resetview)
@@ -222,6 +222,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setdro(self, state):
         self.enable_dro = state
         self.updateGL()
+
     def getdro(self):
         return self.enable_dro
     _dro = pyqtProperty(bool, getdro, setdro)
@@ -230,6 +231,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setdtg(self, state):
         self.show_dtg = state
         self.updateGL()
+
     def getdtg(self):
         return self.show_dtg
     _dtg = pyqtProperty(bool, getdtg, setdtg)
@@ -238,6 +240,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setmetric(self, state):
         self.metric_units = state
         self.updateGL()
+
     def getmetric(self):
         return self.metric_units
     _metric = pyqtProperty(bool, getmetric, setmetric)
@@ -246,8 +249,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setoverlay(self, overlay):
         self.show_overlay = overlay
         self.updateGL()
+
     def getoverlay(self):
         return self.show_overlay
+
     def resetoverlay(self):
         self.show_overlay(False)
     _overlay = pyqtProperty(bool, getoverlay, setoverlay, resetoverlay)
@@ -256,28 +261,33 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setShowOffsets(self, state):
         self.show_offsets = state
         self.updateGL()
+
     def getShowOffsets(self):
         return self.show_offsets
     _offsets = pyqtProperty(bool, getShowOffsets, setShowOffsets)
 
     def getOverlayColor(self):
         return self._overlayColor
+
     def setOverlayColor(self, value):
         self._overlayColor = value
         self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
+
     def resetOverlayColor(self):
         self._overlayColor = QColor(0, 0, .75, 150)
     overlay_color = pyqtProperty(QColor, getOverlayColor, setOverlayColor, resetOverlayColor)
 
     def getBackgroundColor(self):
         return self._backgroundColor
+
     def setBackgroundColor(self, value):
         self._backgroundColor = value
         #print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
         self.gradient_color1 = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
+
     def resetBackgroundColor(self):
         self._backgroundColor = QColor(0, 0, 0, 0)
         self.gradient_color1 = QColor(0, 0, 0, 0)
@@ -291,13 +301,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setGradientBackground(self, state):
         self.use_gradient_background = state
         self.updateGL()
+
     def getGradientBackground(self):
         return self.use_gradient_background
     _use_gradient_background = pyqtProperty(bool, getGradientBackground, setGradientBackground)
 
+
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
-
 if __name__ == "__main__":
 
     import sys

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp camview
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -40,8 +40,6 @@ try:
 except:
     LOG.error('Qtvcp Error with camview - is python-opencv installed?')
     LIB_GOOD = False
-
-
 
 
 class CamView(QtWidgets.QWidget, _HalWidgetBase):

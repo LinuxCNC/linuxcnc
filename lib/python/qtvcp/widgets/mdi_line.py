@@ -21,7 +21,7 @@ from PyQt5.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
-from qtvcp.lib.aux_program_loader import Aux_program_loader
+from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -100,6 +100,7 @@ class MDI(QLineEdit):
         LOG.debug('down')
         STATUS.emit('move-text-linedown')
 
+
 class MDILine(MDI):
     def __init__(self, parent=None):
         super(MDILine, self).__init__(parent)
@@ -127,13 +128,16 @@ class MDILine(MDI):
 
     def set_soft_keyboard(self, data):
         self.soft_keyboard = data
+
     def get_soft_keyboard(self):
         return self.soft_keyboard
+
     def reset_soft_keyboard(self):
         self.soft_keyboard = True
 
     # designer will show these properties in this order:
     soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+
 
 # for testing without editor:
 def main():
@@ -143,5 +147,7 @@ def main():
     widget = MDILine()
     widget.show()
     sys.exit(app.exec_())
+
+
 if __name__ == "__main__":
     main()

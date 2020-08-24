@@ -25,7 +25,7 @@ import linuxcnc
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.simple_widgets import Indicated_PushButton
 from qtvcp.core import Status, Action, Info
-from qtvcp.lib.aux_program_loader import Aux_program_loader
+from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -41,6 +41,7 @@ LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -493,7 +494,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 try:
                     ACTION.SET_GRAPHICS_VIEW(self.view_type)
                 except Exception as e:
-                    print e
+                    print("Exception in Action:viewChange{}".format(e))
                     pass
         elif True in (self.spindle_fwd, self.spindle_rev):
             if self.spindle_fwd:
@@ -676,7 +677,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             text = '''%s deg''' % str(self.jog_incr_angle)
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
-    def setText(self,data):
+    def setText(self, data):
         #print 'set text:',data, self._designer_running
         if self._designer_running:
             #print 'update'
@@ -687,6 +688,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         if self._designer_block_signal: return
         tmpl = lambda s: str(self._textTemplate) % s
         self.setText(tmpl(data))
+
     def _set_alt_text(self, data):
         if self._designer_block_signal: return
         tmpl = lambda s: str(self._alt_textTemplate) % s
@@ -726,8 +728,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.estop = data
         if data:
             self._toggle_properties('estop')
+
     def get_estop(self):
         return self.estop
+
     def reset_estop(self):
         self.estop = False
 
@@ -735,8 +739,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.machine_on = data
         if data:
             self._toggle_properties('machine_on')
+
     def get_machine_on(self):
         return self.machine_on
+
     def reset_machine_on(self):
         self.machine_on = False
 
@@ -744,8 +750,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.home = data
         if data:
             self._toggle_properties('home')
+
     def get_home(self):
         return self.home
+
     def reset_home(self):
         self.home = False
 
@@ -753,8 +761,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.unhome = data
         if data:
             self._toggle_properties('unhome')
+
     def get_unhome(self):
         return self.unhome
+
     def reset_unhome(self):
         self.unhome = False
 
@@ -762,8 +772,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.home_select = data
         if data:
             self._toggle_properties('home_select')
+
     def get_home_select(self):
         return self.home_select
+
     def reset_home_select(self):
         self.home_select = False
 
@@ -771,18 +783,21 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.unhome_select = data
         if data:
             self._toggle_properties('unhome_select')
+
     def get_unhome_select(self):
         return self.unhome_select
+
     def reset_unhome_select(self):
         self.unhome_select = False
-
 
     def set_zero_axis(self, data):
         self.zero_axis = data
         if data:
             self._toggle_properties('zero_axis')
+
     def get_zero_axis(self):
         return self.zero_axis
+
     def reset_zero_axis(self):
         self.zero_axis = False
 
@@ -790,8 +805,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.zero_g5x = data
         if data:
             self._toggle_properties('zero_g5x')
+
     def get_zero_g5x(self):
         return self.zero_g5x
+
     def reset_zero_g5x(self):
         self.zero_g5x = False
 
@@ -799,8 +816,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.zero_g92 = data
         if data:
             self._toggle_properties('zero_g92')
+
     def get_zero_g92(self):
         return self.zero_g92
+
     def reset_zero_g92(self):
         self.zero_g92 = False
 
@@ -808,8 +827,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.zero_zrot = data
         if data:
             self._toggle_properties('zero_zrot')
+
     def get_zero_zrot(self):
         return self.zero_zrot
+
     def reset_zero_zrot(self):
         self.zero_zrot = False
 
@@ -817,8 +838,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.load_dialog = data
         if data:
             self._toggle_properties('load_dialog')
+
     def get_load_dialog(self):
         return self.load_dialog
+
     def reset_load_dialog(self):
         self.load_dialog = False
 
@@ -826,8 +849,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.macro_dialog = data
         if data:
             self._toggle_properties('macro_dialog')
+
     def get_macro_dialog(self):
         return self.macro_dialog
+
     def reset_macro_dialog(self):
         self.macro_dialog = False
 
@@ -835,8 +860,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.origin_offset_dialog = data
         if data:
             self._toggle_properties('origin_offset_dialog')
+
     def get_origin_offset_dialog(self):
         return self.origin_offset_dialog
+
     def reset_origin_offset_dialog(self):
         self.origin_offset_dialog = False
 
@@ -844,8 +871,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.tool_offset_dialog = data
         if data:
             self._toggle_properties('tool_offset_dialog')
+
     def get_tool_offset_dialog(self):
         return self.tool_offset_dialog
+
     def reset_tool_offset_dialog(self):
         self.tool_offset_dialog = False
 
@@ -853,8 +882,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.camview_dialog = data
         if data:
             self._toggle_properties('camview_dialog')
+
     def get_camview_dialog(self):
         return self.camview_dialog
+
     def reset_camview_dialog(self):
         self.camview_dialog = False
 
@@ -862,8 +893,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_joint_pos = data
         if data:
             self._toggle_properties('jog_joint_pos')
+
     def get_jog_joint_pos(self):
         return self.jog_joint_pos
+
     def reset_jog_joint_pos(self):
         self.jog_joint_pos = False
 
@@ -871,8 +904,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_joint_neg = data
         if data:
             self._toggle_properties('jog_joint_neg')
+
     def get_jog_joint_neg(self):
         return self.jog_joint_neg
+
     def reset_jog_joint_neg(self):
         self.jog_joint_neg = False
 
@@ -880,8 +915,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_selected_pos = data
         if data:
             self._toggle_properties('jog_selected_pos')
+
     def get_jog_selected_pos(self):
         return self.jog_selected_pos
+
     def reset_jog_selected_pos(self):
         self.jog_selected_pos = False
 
@@ -889,8 +926,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_selected_neg = data
         if data:
             self._toggle_properties('jog_selected_neg')
+
     def get_jog_selected_neg(self):
         return self.jog_selected_neg
+
     def reset_jog_selected_neg(self):
         self.jog_selected_neg = False
 
@@ -898,8 +937,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.run = data
         if data:
             self._toggle_properties('run')
+
     def get_run(self):
         return self.run
+
     def reset_run(self):
         self.run = False
 
@@ -907,8 +948,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.run_from_status = data
         if data:
             self._toggle_properties('run_from_status')
+
     def get_run_from_status(self):
         return self.run_from_status
+
     def reset_run_from_status(self):
         self.run_from_status = False
 
@@ -916,18 +959,21 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.run_from_slot = data
         if data:
             self._toggle_properties('run_from_slot')
+
     def get_run_from_slot(self):
         return self.run_from_slot
+
     def reset_run_from_slot(self):
         self.run_from_slot = False
-
 
     def set_abort(self, data):
         self.abort = data
         if data:
             self._toggle_properties('abort')
+
     def get_abort(self):
         return self.abort
+
     def reset_abort(self):
         self.abort = False
 
@@ -935,8 +981,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.pause = data
         if data:
             self._toggle_properties('pause')
+
     def get_pause(self):
         return self.pause
+
     def reset_pause(self):
         self.pause = False
 
@@ -944,8 +992,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.step = data
         if data:
             self._toggle_properties('step')
+
     def get_step(self):
         return self.step
+
     def reset_step(self):
         self.step = False
 
@@ -953,8 +1003,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_halmeter = data
         if data:
             self._toggle_properties('launch_halmeter')
+
     def get_launch_halmeter(self):
         return self.launch_halmeter
+
     def reset_launch_halmeter(self):
         self.launch_halmeter = False
 
@@ -962,8 +1014,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_status = data
         if data:
             self._toggle_properties('launch_status')
+
     def get_launch_status(self):
         return self.launch_status
+
     def reset_launch_status(self):
         self.launch_status = False
 
@@ -971,8 +1025,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_halshow = data
         if data:
             self._toggle_properties('launch_halshow')
+
     def get_launch_halshow(self):
         return self.launch_halshow
+
     def reset_launch_halshow(self):
         self.launch_halshow = False
 
@@ -980,8 +1036,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_halscope = data
         if data:
             self._toggle_properties('launch_halscope')
+
     def get_launch_halscope(self):
         return self.launch_halscope
+
     def reset_launch_halscope(self):
         self.launch_halscope = False
 
@@ -989,8 +1047,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_calibration = data
         if data:
             self._toggle_properties('launch_calibration')
+
     def get_launch_calibration(self):
         return self.launch_calibration
+
     def reset_launch_calibration(self):
         self.launch_calibration = False
 
@@ -998,8 +1058,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.auto = data
         if data:
             self._toggle_properties('auto')
+
     def get_auto(self):
         return self.auto
+
     def reset_auto(self):
         self.auto = False
 
@@ -1007,8 +1069,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.mdi = data
         if data:
             self._toggle_properties('mdi')
+
     def get_mdi(self):
         return self.mdi
+
     def reset_mdi(self):
         self.mdi = False
 
@@ -1016,23 +1080,29 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.manual = data
         if data:
             self._toggle_properties('manual')
+
     def get_manual(self):
         return self.manual
+
     def reset_manual(self):
         self.manual = False
 
     def set_joint(self, data):
         self.joint = data
+
     def get_joint(self):
         return self.joint
+
     def reset_joint(self):
         self.joint = -1
 
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
             self.axis = data.upper()
+
     def get_axis(self):
         return self.axis
+
     def reset_axis(self):
         self.axis = 'X'
 
@@ -1040,8 +1110,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_incr = data
         if data:
             self._toggle_properties('jog_incr')
+
     def get_jog_incr(self):
         return self.jog_incr
+
     def reset_jog_incr(self):
         self.jog_incr = False
 
@@ -1049,8 +1121,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_rate = data
         if data:
             self._toggle_properties('jog_rate')
+
     def get_jog_rate(self):
         return self.jog_rate
+
     def reset_jog_rate(self):
         self.jog_rate = False
 
@@ -1058,8 +1132,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.feed_over = data
         if data:
             self._toggle_properties('feed_over')
+
     def get_feed_over(self):
         return self.feed_over
+
     def reset_feed_over(self):
         self.feed_over = False
 
@@ -1067,8 +1143,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.rapid_over = data
         if data:
             self._toggle_properties('rapid_over')
+
     def get_rapid_over(self):
         return self.rapid_over
+
     def reset_rapid_over(self):
         self.rapid_over = False
 
@@ -1076,8 +1154,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.max_velocity_over = data
         if data:
             self._toggle_properties('max_velocity_over')
+
     def get_max_velocity_over(self):
         return self.max_velocity_over
+
     def reset_max_velocity_over(self):
         self.max_velocity_over = False
 
@@ -1085,8 +1165,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_over = data
         if data:
             self._toggle_properties('spindle_over')
+
     def get_spindle_over(self):
         return self.spindle_over
+
     def reset_spindle_over(self):
         self.spindle_over = False
 
@@ -1094,8 +1176,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_fwd = data
         if data:
             self._toggle_properties('spindle_fwd')
+
     def get_spindle_fwd(self):
         return self.spindle_fwd
+
     def reset_spindle_fwd(self):
         self.spindle_fwd = False
 
@@ -1103,8 +1187,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_rev = data
         if data:
             self._toggle_properties('spindle_rev')
+
     def get_spindle_rev(self):
         return self.spindle_rev
+
     def reset_spindle_rev(self):
         self.spindle_rev = False
 
@@ -1112,8 +1198,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_stop = data
         if data:
             self._toggle_properties('spindle_stop')
+
     def get_spindle_stop(self):
         return self.spindle_stop
+
     def reset_spindle_stop(self):
         self.spindle_stop = False
 
@@ -1121,8 +1209,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_up = data
         if data:
             self._toggle_properties('spindle_up')
+
     def get_spindle_up(self):
         return self.spindle_up
+
     def reset_spindle_up(self):
         self.spindle_up = False
 
@@ -1130,15 +1220,19 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.spindle_down = data
         if data:
             self._toggle_properties('spindle_down')
+
     def get_spindle_down(self):
         return self.spindle_down
+
     def reset_spindle_down(self):
         self.spindle_down = False
 
     def set_toggle_float(self, data):
         self.toggle_float = data
+
     def get_toggle_float(self):
         return self.toggle_float
+
     def reset_toggle_float(self):
         self.toggle_float = False
 
@@ -1146,8 +1240,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.limits_override = data
         if data:
             self._toggle_properties('limits_override')
+
     def get_limits_override(self):
         return self.limits_override
+
     def reset_limits_override(self):
         self.limits_override = False
 
@@ -1155,8 +1251,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.flood = data
         if data:
             self._toggle_properties('flood')
+
     def get_flood(self):
         return self.flood
+
     def reset_flood(self):
         self.flood = False
 
@@ -1164,8 +1262,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.mist = data
         if data:
             self._toggle_properties('mist')
+
     def get_mist(self):
         return self.mist
+
     def reset_mist(self):
         self.mist = False
 
@@ -1173,8 +1273,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.block_delete = data
         if data:
             self._toggle_properties('block_delete')
+
     def get_block_delete(self):
         return self.block_delete
+
     def reset_block_delete(self):
         self.block_delete = False
 
@@ -1182,8 +1284,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.optional_stop = data
         if data:
             self._toggle_properties('optional_stop')
+
     def get_optional_stop(self):
         return self.optional_stop
+
     def reset_optional_stop(self):
         self.optional_stop = False
 
@@ -1191,8 +1295,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.mdi_command = data
         if data:
             self._toggle_properties('mdi_command')
+
     def get_mdi_command(self):
         return self.mdi_command
+
     def reset_mdi_command(self):
         self.mdi_command = False
 
@@ -1200,8 +1306,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.ini_mdi_command = data
         if data:
             self._toggle_properties('ini_mdi_command')
+
     def get_ini_mdi_command(self):
         return self.ini_mdi_command
+
     def reset_ini_mdi_command(self):
         self.ini_mdi_command = False
 
@@ -1209,8 +1317,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_absolute = data
         if data:
             self._toggle_properties('dro_absolute')
+
     def get_dro_absolute(self):
         return self.dro_absolute
+
     def reset_dro_absolute(self):
         self.dro_absolute = False
 
@@ -1218,8 +1328,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_relative = data
         if data:
             self._toggle_properties('dro_relative')
+
     def get_dro_relative(self):
         return self.dro_relative
+
     def reset_dro_relative(self):
         self.dro_relative = False
 
@@ -1227,8 +1339,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_dtg = data
         if data:
             self._toggle_properties('dro_dtg')
+
     def get_dro_dtg(self):
         return self.dro_dtg
+
     def reset_dro_dtg(self):
         self.dro_dtg = False
 
@@ -1236,8 +1350,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.exit = data
         if data:
             self._toggle_properties('exit')
+
     def get_exit(self):
         return self.exit
+
     def reset_exit(self):
         self.exit = False
 
@@ -1245,44 +1361,56 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.machine_log_dialog = data
         if data:
             self._toggle_properties('machine_log_dialog')
+
     def get_machine_log_dialog(self):
         return self.machine_log_dialog
+
     def reset_machine_log_dialog(self):
         self.machine_log_dialog = False
 
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
+
     def get_incr_imperial(self):
         return self.jog_incr_imperial
+
     def reset_incr_imperial(self):
         self.jog_incr_imperial = 0.010
 
     def set_incr_mm(self, data):
         self.jog_incr_mm = data
+
     def get_incr_mm(self):
         return self.jog_incr_mm
+
     def reset_incr_mm(self):
         self.jog_incr_mm = 0.025
 
     def set_incr_angle(self, data):
         self.jog_incr_angle = data
+
     def get_incr_angle(self):
         return self.jog_incr_angle
+
     def reset_incr_angle(self):
         self.jog_incr_angle = -1
 
     def set_float(self, data):
         self.float = data
+
     def get_float(self):
         return self.float
+
     def reset_float(self):
         self.float = 100.0
 
     def set_float_alt(self, data):
         self.float_alt = data
+
     def get_float_alt(self):
         return self.float_alt
+
     def reset_float_alt(self):
         self.float_alt = 100.0
 
@@ -1290,8 +1418,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.view_change = data
         if data:
             self._toggle_properties('view_change')
+
     def get_view_change(self):
         return self.view_change
+
     def reset_view_change(self):
         self.view_change = False
 
@@ -1302,22 +1432,28 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     'rotate-cw','rotate-ccw','reload'):
             data = 'p'
         self.view_type = data
+
     def get_view_type(self):
         return self.view_type
+
     def reset_view_type(self):
         self.view_type = 'p'
 
     def set_command_text(self, data):
         self.command_text = data
+
     def get_command_text(self):
         return self.command_text
+
     def reset_command_text(self):
         self.command_text = ''
 
     def set_ini_mdi_num(self, data):
         self.ini_mdi_num = data
+
     def get_ini_mdi_num(self):
         return self.ini_mdi_num
+
     def reset_ini_mdi_num(self):
         self.ini_mdi_num = 0
 
@@ -1388,10 +1524,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def set_template_label(self, data):
         self.template_label = data
+
     def get_template_label(self):
         return self.template_label
+
     def reset_template_label(self):
         self.template_label = False
+
     template_label_option = QtCore.pyqtProperty(bool, get_template_label, set_template_label, reset_template_label)
 
     # NON BOOL
@@ -1412,6 +1551,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def get_textTemplate(self):
         return self._textTemplate
+
     def reset_textTemplate(self):
         self._textTemplate = '%1.3f in'
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
@@ -1430,8 +1570,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 if __name__ == "__main__":
 

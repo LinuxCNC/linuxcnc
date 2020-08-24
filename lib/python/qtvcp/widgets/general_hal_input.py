@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -32,6 +32,7 @@ LOG = logger.getLogger(__name__)
 ################################################################
 class GeneralHALInput(QWidget, _HalWidgetBase):
     hal_pin_changed = pyqtSignal([int], [float], [bool])
+
     def __init__(self, parent=None):
         super(GeneralHALInput, self).__init__(parent)
         self.istate = False

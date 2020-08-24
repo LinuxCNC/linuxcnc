@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #   Copyright (c) 2017 Kurt Jacobson
 
@@ -52,7 +52,7 @@ MAPPING = {
 
 # Returns `text` warped in ASCII escape codes to produce `color`
 def COLORIZE(text, color=None):
-    seq = COLORS.get(color, 37) # default to white
+    seq = COLORS.get(color, 37)  # default to white
     return '{0}{1}m{2}{3}'.format(PREFIX, seq, text, SUFFIX)
 
 
@@ -109,9 +109,7 @@ class ColoredFormatter(Formatter):
         return plain_msg, color_msg
 
 
-
 # ----------------------- E X A M P L E -----------------------
-
 if __name__ == '__main__':
 
     import logging
@@ -143,7 +141,7 @@ if __name__ == '__main__':
 
     # Example exception logging
     try:
-        print False + "True"
+        print(False + "True")
     except Exception as e:
         log.debug('That did not work!', exc_info=e)
 

@@ -89,7 +89,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # so far this is not needed
     def currentChanged(self,c,p):
         dir_path = self.model.filePath(c)
-        print '-> ',dir_path
+        print('-> {}'.format(dir_path))
 
     def updateDirectoryView(self, path):
         self.list.setRootIndex(self.model.setRootPath(path))

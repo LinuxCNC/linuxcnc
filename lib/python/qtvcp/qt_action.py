@@ -7,7 +7,7 @@ import linuxcnc
 import hal
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -70,7 +70,7 @@ class _Lcnc_Action(object):
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
                 for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
-                    print j, num, len(INFO.JOINT_SEQUENCE_LIST)
+                    print("{}{}{}".format(j, num, len(INFO.JOINT_SEQUENCE_LIST)))
                     # at the end so all homed
                     if num == length -1:
                         self.home_all_warning_flag = False
@@ -237,7 +237,7 @@ class _Lcnc_Action(object):
             outfile.write(source)
             STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
-            print e
+            print("Exception in Save_Program{}".format(e))
             STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
             try:
@@ -719,8 +719,8 @@ class FilterProgram:
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
 
-# For testing purposes
 
+# For testing purposes
 if __name__ == "__main__":
 
     from qtvcp.core import Action
@@ -728,7 +728,7 @@ if __name__ == "__main__":
 
     # print status caught errors
     def mess(error,text):
-        print 'STATUS caught:',text
+        print('STATUS caught:', text)
 
     STATUS.connect("error", lambda w, n, d: mess(n,d))
 

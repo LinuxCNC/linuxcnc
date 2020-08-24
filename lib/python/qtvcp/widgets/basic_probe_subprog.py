@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp basic probe
 #
 # Copyright (c) 2020  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -24,6 +24,7 @@ from qtvcp.core import Action
 # STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
 ACTION = Action()
+
 
 class BasicSubprog(QObject):
     def __init__(self):
@@ -80,8 +81,10 @@ class BasicSubprog(QObject):
 ########################################
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 ####################################
 # Testing

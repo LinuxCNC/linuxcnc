@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #    Gcode display / edit widget for QT_VCP
 #    Copyright 2016 Chris Morley
@@ -635,13 +635,15 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def caseCall(self):
         self.case()
+
     def case(self):
-        self.isCaseSensitive -=1
-        self.isCaseSensitive *=-1
-        print self.isCaseSensitive
+        self.isCaseSensitive -= 1
+        self.isCaseSensitive *= -1
+        print(self.isCaseSensitive)
 
     def exitCall(self):
         self.exit()
+
     def exit(self):
         if self.editor.isModified():
             result = self.killCheck()
@@ -650,6 +652,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def findCall(self):
         self.find()
+
     def find(self):
         self.editor.search(str(self.searchText.text()),
                              re=False, case=self.isCaseSensitive,
@@ -657,17 +660,20 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def gcodeLexerCall(self):
         self.gcodeLexer()
+
     def gcodeLexer(self):
         self.editor.set_gcode_lexer()
 
     def nextCall(self):
         self.next()
+
     def next(self):
         self.editor.search(str(self.searchText.text()),False)
         self.editor.search_Next()
 
     def newCall(self):
         self.new()
+
     def new(self):
         if self.editor.isModified():
             result = self.killCheck()
@@ -676,31 +682,38 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def openCall(self):
         self.open()
+
     def open(self):
         self.getFileName()
+
     def openReturn(self,f):
         ACTION.OPEN_PROGRAM(f)
         self.editor.setModified(False)
 
     def pythonLexerCall(self):
         self.pythonLexer()
+
     def pythonLexer(self):
         self.editor.set_python_lexer()
 
     def redoCall(self):
         self.redo()
+
     def redo(self):
         self.editor.redo()
 
     def replaceCall(self):
         self.replace()
+
     def replace(self):
         self.editor.replace_text(str(self.replaceText.text()))
 
     def saveCall(self):
         self.save()
+
     def save(self):
         self.getSaveFileName()
+
     def saveReturn(self, fname):
         ACTION.SAVE_PROGRAM(self.editor.text(), fname)
         self.editor.setModified(False)
@@ -708,6 +721,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def undoCall(self):
         self.undo()
+
     def undo(self):
         self.editor.undo()
 
@@ -787,8 +801,10 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     # These adjust the self.editor instance
     def set_auto_show_mdi(self, data):
         self.editor.auto_show_mdi = data
+
     def get_auto_show_mdi(self):
         return self.editor.auto_show_mdi
+
     def reset_auto_show_mdi(self):
         self.editor.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
@@ -797,11 +813,14 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     # auto_show_manual status
     def set_auto_show_manual(self, data):
         self.editor.auto_show_manual = data
+
     def get_auto_show_manual(self):
         return self.editor.auto_show_manual
+
     def reset_auto_show_manual(self):
         self.editor.auto_show_manual = True
     auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
+
 
 # for direct testing
 if __name__ == "__main__":

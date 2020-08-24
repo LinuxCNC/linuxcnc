@@ -43,7 +43,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.setWindowTitle("PyQt5 editor test example") 
 
         lay = QVBoxLayout()
-        lay.setContentsMargins(0,0,0,0)
+        lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(lay)
 
         self.list = QListView()

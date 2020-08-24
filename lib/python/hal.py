@@ -30,6 +30,7 @@ KeyboardInterrupt exception will be raised.
 import _hal
 from _hal import *
 
+
 class _ItemWrap(object):
     def __new__(cls, item):
         if not isinstance(item, _hal.item):
@@ -51,17 +52,20 @@ class _ItemWrap(object):
 
     value = property(lambda s: s._item.get(), lambda s,v: s._item.set(v))
 
+
 class Pin(_ItemWrap):
     def __init__(self, item):
         _ItemWrap.__init__(self, item)
         if not item.is_pin():
             raise TypeError("Must be constructed from pin object")
 
+
 class Param(_ItemWrap):
     def __init__(self, item):
         _ItemWrap.__init__(self, item)
         if item.is_pin():
             raise TypeError("Must be constructed from param object")
+
 
 class component(_hal.component):
     def newpin(self, *a, **kw): return Pin(_hal.component.newpin(self, *a, **kw))

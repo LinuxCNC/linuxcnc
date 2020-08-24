@@ -19,7 +19,7 @@ import os
 import sys
 
 # Set up logging
-import logger
+from . import logger
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -28,6 +28,7 @@ LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 # LIBDIR is the path to qtvcp python files
 # DATADIR is where the standarad UI files are
 # IMAGEDIR is for icons
+
 class _PStat(object):
     def __init__(self):
         # only initialize once for all instances
@@ -35,7 +36,7 @@ class _PStat(object):
             return
         self.__class__._instanceNum += 1
 
-    def set_paths(self, filename='dummy', isscreen = False):
+    def set_paths(self, filename='dummy', isscreen=False):
         self.PREFS_FILENAME = None
         self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp basic probe
 #
 # Copyright (c) 2020  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -31,6 +31,7 @@ LOG = logger.getLogger(__name__)
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'basic_probe_subprog.py'))
 CONFIG_DIR = os.getcwd()
+
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -213,7 +214,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
-        message ='ERROR {},{} \n'.format(kind,text)
+        message ='ERROR {},{} \n'.format(kind, text)
         self.proc.writeData(message)
 
 # Main button handler routines

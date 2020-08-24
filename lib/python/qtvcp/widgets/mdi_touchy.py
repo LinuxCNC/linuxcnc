@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -31,6 +31,7 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
+
 
 class mdi:
     def __init__(self):

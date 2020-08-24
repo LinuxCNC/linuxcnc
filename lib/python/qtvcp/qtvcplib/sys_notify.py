@@ -225,18 +225,21 @@ class Notification(object):
 
 def onHelp(n, action):
     assert(action == "help"), "Action was not help!"
-    print "You clicked Help action"
+    print("You clicked Help action")
     n.close()
+
 
 def onIgnore(n, action, data):
     assert(action == "ignore"), "Action was not ignore!"
-    print "You clicked Ignore action"
-    print "Passed user data was: ", data
+    print("You clicked Ignore action")
+    print("Passed user data was: ", data)
     n.close()
 
+
 def onClose(n):
-    print "Notification closed"
+    print("Notification closed")
     app.quit()
+
 
 if __name__ == "__main__":
     import sys

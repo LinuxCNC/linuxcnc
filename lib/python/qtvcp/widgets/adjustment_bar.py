@@ -22,7 +22,7 @@ from PyQt5.QtGui import QColor, QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
-from qtvcp.lib.aux_program_loader import Aux_program_loader
+from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -227,7 +227,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
-            print int(INFO.MAX_ANGULAR_JOG_VEL)
+            print(int(INFO.MAX_ANGULAR_JOG_VEL))
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
         elif self.maxv:
             STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))

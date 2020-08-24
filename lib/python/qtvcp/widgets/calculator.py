@@ -103,7 +103,7 @@ class Calculator(QDialog):
         for i in range(1, Calculator.NumDigitButtons):
             row = ((9 - i) / 3) + 2
             column = ((i - 1) % 3) + 1
-            mainLayout.addWidget(self.digitButtons[i], row, column)
+            mainLayout.addWidget(self.digitButtons[i], int(row), column)
 
         mainLayout.addWidget(self.digitButtons[0], 5, 1)
         mainLayout.addWidget(self.pointButton, 5, 2)
@@ -160,7 +160,7 @@ class Calculator(QDialog):
         clickedButton = self.sender()
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
-
+        result = None
         if clickedOperator == "Sqrt":
             if operand < 0.0:
                 self.abortOperation()
@@ -270,26 +270,26 @@ class Calculator(QDialog):
 
     def axisClicked(self):
         conversion = {'X':0, 'Y':1, "Z":2, 'A':3, "B":4, "C":5, 'U':6, 'V':7, 'W':8}
-        digitValue = 0.0
+        digit_value = 0.0
         try:
-            p,relp,dtg = STATUS.get_position()
+            p, relp, dtg = STATUS.get_position()
             text = self.axisButton.text()
             for let in INFO.AVAILABLE_AXES:
                 if let in text:
-                    digitValue =  round(relp[conversion[let]],5)
-                    text = text.replace('%s'%let,'%s'%digitValue)
+                    digit_value = round(relp[conversion[let]],5)
+                    text = text.replace('%s'%let,'%s'%digit_value)
         except Exception as e:
-            print e
+            print("Exception in axisClicked(): {}".format(e))
             return
 
-        if self.display.text() == '0' and digitValue == 0.0:
+        if self.display.text() == '0' and digit_value == 0.0:
             return
 
         if self.waitingForOperand:
             self.display.clear()
             self.waitingForOperand = False
 
-        self.display.setText(self.display.text() + str(digitValue))
+        self.display.setText(self.display.text() + str(digit_value))
 
     def axisTriggered(self, data):
         self.axisButton.setText('Axis {}'.format(data))
@@ -383,12 +383,12 @@ class Calculator(QDialog):
 
     def getDisplay(self):
         try:
-            print self.display.text()
+            print(self.display.text())
             a = int(self.display.text())
         except Exception as e:
             self.display.setText('0')
-            print e
-        print self.display.text()
+            print("Exception in getDisplay(): {}".format(e))
+        print(self.display.text())
         return self.display.text()
 
     def calculate(self, rightOperand, pendingOperator):

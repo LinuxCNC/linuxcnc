@@ -9,7 +9,7 @@ import sys
     # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
 from qtvcp.core import Status
-from qtvcp.lib import sys_notify
+from qtvcp.qtvcplib import sys_notify
 
 # Set up logging
 from qtvcp import logger
@@ -153,14 +153,14 @@ class Notify:
         n.close()
 
     def OnClicked(self, n, signal_text):
-        print '1: ' + str(n)
-        print '2: ' + str(signal_text)
+        print('1: ' + str(n))
+        print('2: ' + str(signal_text))
         n.close()
 
     def action_callback(self, *args, **kwds):
-        print '\nAll recorded messages:'
+        print('\nAll recorded messages:')
         for num,i in enumerate(self.alarmpage):
-            print num,i
+            print("{}{}".format(num,i))
 
     # pop up last five critical errors
     def last5_callback(self, n, signal_text):
@@ -227,8 +227,8 @@ class Notify:
                     self.lastnum = 0
 
     def external_close(self):
-        for num,i in enumerate(self.alarmpage):
-            print num, i
+        for num, i in enumerate(self.alarmpage):
+            print("{} {}".format(num, i))
         if self.critical_message is not None:
             n = self.critical_message
             n.body =''
@@ -240,11 +240,11 @@ class Notify:
     # update the system alarm page, if there is one
     # this should be sent to STATUS message I think?
     def add_alarm_entry(self, mobject, message):
-        if message == None:message = ''
+        if message is not None: message = ''
         try:
-            self.alarmpage.append((mobject,message))
-        except:
-            pass
+            self.alarmpage.append((mobject, message))
+        except Exception as e:
+            print("Exception in add_alarm_entry: {}".format(e))
 
     # close any remaining messages when we shutdown qtvcp
     def cleanup(self, w):

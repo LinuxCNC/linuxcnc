@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -32,6 +32,7 @@ import rs274.glcanon
 gobject.threads_init()
 
 # Set up logging
+
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
@@ -243,7 +244,7 @@ class PyApp(gtk.Plug):
 class Graphics(QWidget):
     def __init__(self, parent = None):
         super(Graphics, self).__init__(parent)
-        self.pygtk = PyApp(0l)
+        self.pygtk = PyApp(0)
         self.gremlin = self.pygtk.gremlin
         # run GTK in a separate thread
         try:
@@ -320,10 +321,10 @@ class Graphics(QWidget):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtGui import QApplication
 
     app = QApplication(sys.argv)
     widget = Graphics()
-    widget.sizeHint(300,300)
+    widget.sizeHint(300, 300)
     widget.show()
     sys.exit(app.exec_())

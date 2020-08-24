@@ -1,0 +1,72 @@
+.TH FILTER_KALMAN "9" "2020-08-24" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+filter_kalman \- Unidimensional Kalman filter, also known as linear quadratic estimation (LQE)
+.SH SYNOPSIS
+.HP
+.B loadrt filter_kalman [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+Useful for reducing input signal noise (e.g. from the voltage or temperature sensor).
+
+More information can be found at https://en.wikipedia.org/wiki/Kalman_filter.
+
+Adjusting \fBQr\fR and \fBQk\fR covariances:
+
+Default values of \fBRk\fR and \fBQk\fR are given for informational purpose only. The nature of the
+filter requires the parameters to be individually computed.
+
+One of the possible and quite practical method (probably far from being the best) of
+estimating the \fBRk\fR covariance is to collect the raw data from the sensor by
+either asserting the \fBdebug\fR pin or using \fBhalscope\fR and then compute the covariance
+using \fBcov()\fR function from \fBOctave\fR package. Ready to use script can be found at
+https://github.com/dwrobel/TrivialKalmanFilter/blob/master/examples/DS18B20Test/covariance.m.
+
+Adjusting \fBQk\fR covariance mostly depends on the required response time of the filter.
+There is a relationship between \fBQk\fR and response time of the filter that the lower
+the \fBQk\fR covariance is the slower the response of the filter is.
+
+Common practice is also to conservatively set \fBRk\fR and \fBQk\fR slightly larger then computed
+ones to get robustness.
+
+.SH FUNCTIONS
+.TP
+\fBfilter-kalman.\fIN\fB\fR (requires a floating-point thread)
+Update \fBxk-out\fR based on \fBzk\fR input.
+.SH PINS
+.TP
+.B filter-kalman.\fIN\fB.debug\fR bit in \fR(default: \fIFALSE\fR)
+When asserted, prints out measured and estimated values.
+.TP
+.B filter-kalman.\fIN\fB.passthrough\fR bit in \fR(default: \fIFALSE\fR)
+When asserted, copies measured value into estimated value.
+.TP
+.B filter-kalman.\fIN\fB.reset\fR bit in \fR(default: \fIFALSE\fR)
+When asserted, resets filter to its initial state and returns 0 as an estimated value (\fBreset\fR pin
+has higher priority than \fBpassthrough\fR pin).
+.TP
+.B filter-kalman.\fIN\fB.zk\fR float in \fR
+Measured value.
+.TP
+.B filter-kalman.\fIN\fB.xk-out\fR float out \fR
+Estimated value.
+.SH PARAMETERS
+.TP
+.B filter-kalman.\fIN\fB.Rk\fR float rw \fR(default: \fI1.17549e-38\fR)
+Estimation of the noise covariances (process).
+.TP
+.B filter-kalman.\fIN\fB.Qk\fR float rw \fR(default: \fI1.17549e-38\fR)
+Estimation of the noise covariances (observation).
+.SH AUTHOR
+
+Dmian Wrobel <dwrobel@ertelnet.rybnik.pl>
+.SH LICENSE
+
+GPL-2.0-or-later
