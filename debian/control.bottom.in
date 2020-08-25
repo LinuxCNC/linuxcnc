@@ -12,7 +12,6 @@ Recommends: linuxcnc-doc-en | linuxcnc-doc,
     gstreamer1.0-tools,
     python-espeak,
     espeak,
-    python-gst-1.0 | python-gst0.10,
     pyqt5-dev-tools,
     @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
