@@ -745,7 +745,7 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
   * build: make failure copying images an error
   * packaging: interface with udev better
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 12 July 2016 21:47:18 -0600
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 12 Jul 2016 21:47:18 -0600
 
 linuxcnc (1:2.7.4) unstable; urgency=medium
 
