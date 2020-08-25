@@ -150,10 +150,14 @@ class GcodeLexer(QsciLexerCustom):
             set_style = self.setStyling
             self.startStyling(start, 0x1f)
 
+            length = len(source.splitlines(True))
+            idx = 0
             # scintilla always asks to style whole lines
             for line in source.splitlines(True):
-                print(line)
-                # length = len(line)
+                # Prevent out of bounds accessing
+                idx += 1
+                if idx >= length - 2:
+                    return
                 graymode = False
                 is_msg = (b'msg' in line.lower() or b'debug' in line.lower())
                 for char in str(line):
@@ -415,6 +419,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.last_line = line
 
     def emit_percent(self, percent):
+        """Not Implemented yet"""
         pass
 
     def run_stopped(self):
@@ -515,7 +520,6 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
         # add menubar actions
         ################################
-
         # Create new action
         newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)        
         newAction.setShortcut('Ctrl+N')
@@ -663,9 +667,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.find()
 
     def find(self):
-        self.editor.search(str(self.searchText.text()),
-                             re=False, case=self.isCaseSensitive,
-                             word=False, wrap=False, fwd=True)
+        self.editor.search(str(self.searchText.text()), re=False, case=self.isCaseSensitive, word=False, wrap=False, fwd=True)
 
     def gcodeLexerCall(self):
         self.gcodeLexer()
@@ -738,9 +740,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         # name the top and bottom frames so it's easier to style
-        self.bottomMenu.setObjectName('%sBottomButtonFrame'% self.objectName())
-        self.topMenu.setObjectName('%sTopButtonFrame'% self.objectName())
-        self.editor.setObjectName('{}_display'.format( self.objectName()))
+        self.bottomMenu.setObjectName('%sBottomButtonFrame' % self.objectName())
+        self.topMenu.setObjectName('%sTopButtonFrame' % self.objectName())
+        self.editor.setObjectName('{}_display'.format(self.objectName()))
 
     def editMode(self):
         self.topMenu.show()
