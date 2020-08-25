@@ -40,15 +40,15 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG)  # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 ##############################################
 # Container class
 ##############################################
-class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
+class GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent=None):
-        super( GCodeGraphics, self).__init__(parent)
+        super(GCodeGraphics, self).__init__(parent)
 
         self.colors['overlay_background'] = (0.0, 0.0, 0.0)  # blue
         self._overlayColor = QColor(0, 0, 0, 0)
@@ -58,8 +58,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self.use_gradient_background = False
         # color1 is the bottom color that blends up to color2
-        self.gradient_color1 = (0.,0,.5)
-        self.gradient_color2 = (0,.0, 0)
+        self.gradient_color1 = (0., 0, .5)
+        self.gradient_color2 = (0, .0, 0)
 
         self.show_overlay = False  # no DRO or DRO overlay
         self._reload_filename = None
@@ -83,29 +83,29 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'zoom-out':
             self.zoomout()
         elif v == 'pan-down':
-            self.recordMouse(0,0)
-            self.translateOrRotate(0,self._view_incr)
+            self.recordMouse(0, 0)
+            self.translateOrRotate(0, self._view_incr)
         elif v == 'pan-up':
-            self.recordMouse(0,0)
-            self.translateOrRotate(0,-self._view_incr)
+            self.recordMouse(0, 0)
+            self.translateOrRotate(0, -self._view_incr)
         elif v == 'pan-right':
-            self.recordMouse(0,0)
-            self.translateOrRotate(self._view_incr,0)
+            self.recordMouse(0, 0)
+            self.translateOrRotate(self._view_incr, 0)
         elif v == 'pan-left':
-            self.recordMouse(0,0)
-            self.translateOrRotate(-self._view_incr,0)
+            self.recordMouse(0, 0)
+            self.translateOrRotate(-self._view_incr, 0)
         elif v == 'rotate-ccw':
-            self.recordMouse(0,0)
-            self.rotateOrTranslate(self._view_incr,0)
+            self.recordMouse(0, 0)
+            self.rotateOrTranslate(self._view_incr, 0)
         elif v == 'rotate-cw':
-            self.recordMouse(0,0)
-            self.rotateOrTranslate(-self._view_incr,0)
+            self.recordMouse(0, 0)
+            self.rotateOrTranslate(-self._view_incr, 0)
         elif v == 'rotate-up':
-            self.recordMouse(0,0)
-            self.rotateOrTranslate(0,self._view_incr)
+            self.recordMouse(0, 0)
+            self.rotateOrTranslate(0, self._view_incr)
         elif v == 'rotate-down':
-            self.recordMouse(0,0)
-            self.rotateOrTranslate(0,-self._view_incr)
+            self.recordMouse(0, 0)
+            self.rotateOrTranslate(0, -self._view_incr)
         elif v == 'overlay-offsets-on':
             self.setShowOffsets(True)
         elif v == 'overlay-offsets-off':
@@ -115,9 +115,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'overlay-dro-off':
             self.setdro(False)
         elif v == 'pan-view':
-            self.panView(args.get('X'),args.get('Y'))
+            self.panView(args.get('X'), args.get('Y'))
         elif v == 'rotate-view':
-            self.rotateView(args.get('X'),args.get('Y'))
+            self.rotateView(args.get('X'), args.get('Y'))
         elif v == 'grid-size':
             self.grid_size = args.get('SIZE')
             self.updateGL()
@@ -136,7 +136,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         LOG.debug('load the display: {}'.format(fname))
         self._reload_filename = fname
         self.load(fname)
-        STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+        STATUS.emit('graphics-gcode-properties', self.gcode_properties)
         # reset the current view to standard calculated zoom and position
         self.set_current_view()
 
@@ -145,7 +145,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.updateGL()
 
     def set_spindle_speed(self, w, rate):
-        if rate < 1: rate = 1
+        if rate < 1:
+            rate = 1
         self.spindle_speed = rate
 
     def set_view(self, value):
@@ -186,9 +187,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.emit('graphics-line-selected', line)
 
     def select_fire(self):
-        if self.inhibit_selection: return
-        if STATUS.is_auto_running(): return
-        if not self.select_primed: return
+        if self.inhibit_selection:
+            return
+        if STATUS.is_auto_running():
+            return
+        if not self.select_primed:
+            return
         x, y = self.select_primed
         self.select_primed = None
         self.select(x, y)
@@ -198,8 +202,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         return
 
     def emit_percent(self, f):
-        super( GCodeGraphics, self).emit_percent(f)
-        STATUS.emit('graphics-loading-progress',f)
+        super(GCodeGraphics, self).emit_percent(f)
+        STATUS.emit('graphics-loading-progress', f)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -283,7 +287,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def setBackgroundColor(self, value):
         self._backgroundColor = value
-        #print value.getRgbF()
+        # print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
         self.gradient_color1 = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()

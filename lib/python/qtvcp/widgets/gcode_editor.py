@@ -59,6 +59,7 @@ except ImportError as e:
     LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
     sys.exit(1)
 
+
 ##############################################################
 # Simple custom lexer for Gcode
 ##############################################################
@@ -72,8 +73,8 @@ class GcodeLexer(QsciLexerCustom):
             3: 'Assignment',
             4: 'Value',
             }
-        for key, value in self._styles.iteritems():
-            setattr(self, value, key)
+        for key in self._styles:
+            setattr(self, self._styles[key], key)
         font = QFont()
         font.setFamily('Courier')
         font.setFixedPitch(True)
@@ -149,24 +150,25 @@ class GcodeLexer(QsciLexerCustom):
 
         # scintilla always asks to style whole lines
         for line in source.splitlines(True):
-            #print line
+            print(line)
             length = len(line)
             graymode = False
-            msg = ('msg' in line.lower() or 'debug' in line.lower())
+            is_msg = (b'msg' in line.lower() or b'debug' in line.lower())
             for char in str(line):
-                #print char
-                if char == ('('):
+                # print char
+                if char == '(':
                     graymode = True
                     set_style(1, self.Comment)
                     continue
-                elif char == (')'):
+                elif char == ')':
                     graymode = False
                     set_style(1, self.Comment)
                     continue
                 elif graymode:
-                    if (msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u')):
+                    if is_msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u'):
                         set_style(1, self.Assignment)
-                        if char == ',': msg = False
+                        if char == ',':
+                            is_msg = False
                     else:
                         set_style(1, self.Comment)
                     continue

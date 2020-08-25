@@ -26,9 +26,9 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
-#BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-#LOCALEDIR = os.path.join(BASE, "share", "locale")
-#locale.setlocale(locale.LC_ALL, '')
+# BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+# LOCALEDIR = os.path.join(BASE, "share", "locale")
+# locale.setlocale(locale.LC_ALL, '')
 
 # Instiniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -70,9 +70,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         STATUS.connect('user-system-changed', self._convert_system)
-        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        for num, let in conversion.iteritems():
-            if let in (INFO.AVAILABLE_AXES):
+        conversion = {0: "X", 1: "Y", 2: "Z", 3: "A", 4: "B", 5: "C", 6: "U", 7: "V", 8: "W"}
+        for num in conversion:
+            if conversion[num] in INFO.AVAILABLE_AXES:
                 continue
             self.hideColumn(num)
 
@@ -82,11 +82,12 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     def currentTool(self, data):
         self.current_tool = data
+
     def metricMode(self, state):
         self.metric_display = state
 
     def createTable(self):
-        # create blank taple array
+        # create blank table array
         self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 'Absolute Position'],
                           [None, None, 2, None, None, None, None, None, None, 'Rotational Offsets'],
                           [0, 0, 3, 0, 0, 0, 0, 0, 0, 'G92 Offsets'],
@@ -110,7 +111,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.tablemodel = MyTableModel(self.tabledata, header, vheader, self)
         self.setModel(self.tablemodel)
         self.clicked.connect(self.showSelection)
-        #self.dataChanged.connect(self.selection_changed)
+        # self.dataChanged.connect(self.selection_changed)
 
         # set the minimum size
         self.setMinimumSize(100, 100)
@@ -131,7 +132,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     def showSelection(self, item):
         cellContent = item.data()
-        #text = cellContent.toPyObject()  # test
+        # text = cellContent.toPyObject()  # test
         text = cellContent
         LOG.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
         sf = "You clicked on {}".format(text)
@@ -143,10 +144,11 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     # Reload the offsets into display
     def reload_offsets(self):
         g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = self.read_file()
-        if g54 is None: return
+        if g54 is None:
+            return
 
         # fake if linuxcnc is not running
-        if STATUS.is_status_valid() == False:
+        if not STATUS.is_status_valid():
             self.current_system = "G54"
 
         # Get the offsets arrays and convert the units if the display
@@ -179,7 +181,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         degree_tmpl = "%11.2f"
 
-        # fill each row of the liststore fron the offsets arrays
+        # fill each row of the list store from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:
@@ -254,8 +256,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
-                qualified = float(data)
-                #qualified = float(locale.atof(data))
+            qualified = float(data)
+            # qualified = float(locale.atof(data))
         except Exception as e:
             LOG.exception(e)
         # now update linuxcnc to the change
@@ -266,7 +268,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                     ACTION.CALL_MDI("G10 L2 P0 %s %10.4f" % (self.axisletters[col], qualified))
                 elif row == 1:  # rotational
                     if col == 2:  # Z axis only
-                        ACTION.CALL_MDI("G10 L2 P0 R %10.4f" % (qualified))
+                        ACTION.CALL_MDI("G10 L2 P0 R %10.4f" % qualified)
                 elif row == 2:  # G92 offset
                     ACTION.CALL_MDI("G92 %s %10.4f" % (self.axisletters[col], qualified))
                 elif row == 3:  # Tool
@@ -326,7 +328,6 @@ class MyTableModel(QAbstractTableModel):
             return QVariant(self.arraydata[index.row()][index.column()])
         return QVariant()
 
-
     def flags(self, index):
         if not index.isValid():
             return None
@@ -376,6 +377,7 @@ class MyTableModel(QAbstractTableModel):
         if order == Qt.DescendingOrder:
             self.arraydata.reverse()
         self.emit(SIGNAL("layoutChanged()"))
+
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

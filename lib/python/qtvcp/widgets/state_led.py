@@ -110,9 +110,9 @@ class StateLED(LED):
             STATUS.connect('actual-spindle-speed-changed',lambda w, speed: self.spindle_actual_changed(speed))
 
     def _flip_state(self, data):
-            if self.invert_state:
-                data = not data
-            self.change_state(data)
+        if self.invert_state:
+            data = not data
+        self.change_state(data)
 
     def change_state(self, state):
         super(StateLED, self).change_state(state)
@@ -213,8 +213,10 @@ class StateLED(LED):
     # invert status
     def set_invert_state(self, data):
         self.invert_state = data
+
     def get_invert_state(self):
         return self.invert_state
+
     def reset_invert_state(self):
         self.invert_state = False
 
@@ -223,8 +225,10 @@ class StateLED(LED):
         self.is_paused = data
         if data:
             self._toggle_properties('is_paused')
+
     def get_is_paused(self):
         return self.is_paused
+
     def reset_is_paused(self):
         self.is_paused = False
 
@@ -233,8 +237,10 @@ class StateLED(LED):
         self.is_estopped = data
         if data:
             self._toggle_properties('is_estopped')
+
     def get_is_estopped(self):
         return self.is_estopped
+
     def reset_is_estopped(self):
         self.is_estopped = False
 
@@ -243,8 +249,10 @@ class StateLED(LED):
         self.is_on = data
         if data:
             self._toggle_properties('is_on')
+
     def get_is_on(self):
         return self.is_on
+
     def reset_is_on(self):
         self.is_on = False
 
@@ -253,8 +261,10 @@ class StateLED(LED):
         self.is_idle = data
         if data:
             self._toggle_properties('is_idle')
+
     def get_is_idle(self):
         return self.is_idle
+
     def reset_is_idle(self):
         self.is_idle = False
 
@@ -263,8 +273,10 @@ class StateLED(LED):
         self.is_homed = data
         if data:
             self._toggle_properties('is_homed')
+
     def get_is_homed(self):
         return self.is_homed
+
     def reset_is_homed(self):
         self.is_homed = False
 
@@ -273,8 +285,10 @@ class StateLED(LED):
         self.is_flood = data
         if data:
             self._toggle_properties('is_flood')
+
     def get_is_flood(self):
         return self.is_flood
+
     def reset_is_flood(self):
         self.is_flood = False
 
@@ -283,8 +297,10 @@ class StateLED(LED):
         self.is_mist = data
         if data:
             self._toggle_properties('is_mist')
+
     def get_is_mist(self):
         return self.is_mist
+
     def reset_is_mist(self):
         self.is_mist = False
 
@@ -293,8 +309,10 @@ class StateLED(LED):
         self.is_block_delete = data
         if data:
             self._toggle_properties('is_block_delete')
+
     def get_is_block_delete(self):
         return self.is_block_delete
+
     def reset_is_block_delete(self):
         self.is_block_delete = False
 
@@ -303,8 +321,10 @@ class StateLED(LED):
         self.is_optional_stop = data
         if data:
             self._toggle_properties('is_optional_stop')
+
     def get_is_optional_stop(self):
         return self.is_optional_stop
+
     def reset_is_optional_stop(self):
         self.is_optional_stop = False
 
@@ -313,8 +333,10 @@ class StateLED(LED):
         self.is_joint_homed = data
         if data:
             self._toggle_properties('is_joint_homed')
+
     def get_is_joint_homed(self):
         return self.is_joint_homed
+
     def reset_is_joint_homed(self):
         self.is_joint_homed = False
 
@@ -323,8 +345,10 @@ class StateLED(LED):
         self.is_limits_overridden = data
         if data:
             self._toggle_properties('is_limits_overridden')
+
     def get_is_limits_overridden(self):
         return self.is_limits_overridden
+
     def reset_is_limits_overridden(self):
         self.is_limits_overridden = False
 
@@ -335,6 +359,7 @@ class StateLED(LED):
             self._toggle_properties('is_manual')
     def get_is_manual(self):
         return self.is_manual
+
     def reset_is_manual(self):
         self.is_manual = False
 
@@ -343,8 +368,10 @@ class StateLED(LED):
         self.is_mdi = data
         if data:
             self._toggle_properties('is_mdi')
+
     def get_is_mdi(self):
         return self.is_mdi
+
     def reset_is_mdi(self):
         self.is_mdi = False
 
@@ -353,8 +380,10 @@ class StateLED(LED):
         self.is_auto = data
         if data:
             self._toggle_properties('is_auto')
+
     def get_is_auto(self):
         return self.is_auto
+
     def reset_is_auto(self):
         self.is_auto = False
 
@@ -363,8 +392,10 @@ class StateLED(LED):
         self.is_spindle_stopped = data
         if data:
             self._toggle_properties('is_spindle_stopped')
+
     def get_is_spindle_stopped(self):
         return self.is_spindle_stopped
+
     def reset_is_spindle_stopped(self):
         self.is_spindle_stopped = False
 
@@ -375,6 +406,7 @@ class StateLED(LED):
             self._toggle_properties('is_spindle_fwd')
     def get_is_spindle_fwd(self):
         return self.is_spindle_fwd
+
     def reset_is_spindle_fwd(self):
         self.is_spindle_fwd = False
 
@@ -385,6 +417,7 @@ class StateLED(LED):
             self._toggle_properties('is_spindle_rev')
     def get_is_spindle_rev(self):
         return self.is_spindle_rev
+
     def reset_is_spindle_rev(self):
         self.is_spindle_rev = False
 
@@ -395,6 +428,7 @@ class StateLED(LED):
             self._toggle_properties('is_spindle_at_speed')
     def get_is_spindle_at_speed(self):
         return self.is_spindle_at_speed
+
     def reset_is_spindle_at_speed(self):
         self.is_spindle_at_speed = False
 
@@ -403,8 +437,10 @@ class StateLED(LED):
     # machine_joint_number status
     def set_joint_number(self, data):
         self.joint_number = data
+
     def get_joint_number(self):
         return self.joint_number
+
     def reset_joint_number(self):
         self.joint_number = 0
 
@@ -437,13 +473,15 @@ class StateLED(LED):
     # boilder code
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtGui import QApplication
     app = QApplication(sys.argv)
     led = StateLED()
     led.show()

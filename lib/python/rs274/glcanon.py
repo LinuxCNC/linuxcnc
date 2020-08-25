@@ -27,8 +27,10 @@ import os
 import re
 from functools import reduce
 
+
 def minmax(*args):
     return min(*args), max(*args)
+
 
 allhomedicon = array.array('B',
         [0x00, 0x00,
@@ -77,8 +79,10 @@ limiticon = array.array('B',
          255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
            0,   0,    0, 0])
 
+
 class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
+
     def __init__(self, colors, geometry, is_foam=0):
         # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
         self.traverse = []; self.traverse_append = self.traverse.append
@@ -132,11 +136,14 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if arg.startswith("AXIS,"):
             parts = arg.split(",")
             command = parts[1]
-            if command == "stop": raise KeyboardInterrupt
-            if command == "hide": self.suppress += 1
-            if command == "show": self.suppress -= 1
+            if command == "stop":
+                raise KeyboardInterrupt
+            if command == "hide":
+                self.suppress += 1
+            if command == "show":
+                self.suppress -= 1
             if command == "XY_Z_POS": 
-                if len(parts) > 2 :
+                if len(parts) > 2:
                     try:
                         self.foam_z = float(parts[2])
                         if 210 in self.state.gcodes:
@@ -201,6 +208,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                 self.min_extents_notool[0], self.min_extents_notool[1], min_z
             self.max_extents_notool = \
                 self.max_extents_notool[0], self.max_extents_notool[1], max_z
+
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
@@ -237,7 +245,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l += [self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8]]
         self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
-#        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
+        # self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, [self.xo, self.yo, self.zo]))
 
     def arc_feed(self, *args):
@@ -412,6 +420,7 @@ class GlCanonDraw:
         'axis_y': (1.00, 0.20, 0.20),
         'grid': (0.15, 0.15, 0.15),
     }
+
     def __init__(self, s, lp, g=None):
         self.stat = s
         self.lp = lp

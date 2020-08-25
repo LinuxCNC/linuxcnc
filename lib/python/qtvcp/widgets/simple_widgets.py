@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp simple widgets
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -15,7 +15,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, _HalToggleBase, _HalSensitiveBase
-from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
+from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status
 from functools import partial
 import hal
