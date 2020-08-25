@@ -311,6 +311,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
         printf("*Nope----------------------------------------%d*\n",block->m_modes[4]);
 	  status = convert_stop(block, settings);
       }
+    printf("*returned status:-----------exit-=%d-----ok=%d---------------------=%d\n",INTERP_EXIT,INTERP_OK,status);
     if (status == INTERP_EXIT) {
 	return(INTERP_EXIT);
     }

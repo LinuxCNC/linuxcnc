@@ -4282,14 +4282,16 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {
 
 
-if (IS_USER_MCODE(block,settings,4) &&
-      STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4) &&
-      ONCE_M4)  {
-        printf("*remap conversion-%d*\n",block->m_modes[4]);
-      return convert_remapped_code(block, settings, STEP_MGROUP4, 'm',
-				   block->m_modes[4]);}
-
-        printf("*no remap conversion-%d*\n",block->m_modes[4]);
+            if (IS_USER_MCODE(block,settings,4) &&
+                STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4) &&
+                ONCE_M4)  {
+                    printf("*remap conversion-%d*\n",block->m_modes[4]);
+                    return convert_remapped_code(block, settings, STEP_MGROUP4, 'm',
+				        block->m_modes[4]);
+            }else{
+                CONTROLLING_BLOCK(*settings).builtin_used = !STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4);
+                printf("*no remap conversion-%d*\n",block->m_modes[4]);
+            }
 /* reset stuff here */
 
 /*1*/
