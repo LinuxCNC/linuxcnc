@@ -51,7 +51,7 @@ Before tearing down the realtime environment, run an interactive halcmd.
 \fBhalrun\fR only.  If \fB\-I\fR is used, it must precede all other
 commandline arguments.
 .TP
-\fB\\-f\fR [\fIfile\fR]
+\fB\-f\fR [\fIfile\fR]
 Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
@@ -60,17 +60,17 @@ instead.  If \fIfile\fR is not specified, take input from
 Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
 below.
 .TP
-\fB\\-k\fR
+\fB\-k\fR
 Keep going after failed command(s).  The default is to stop
 and return failure if any command fails.
 .TP
-\fB\\-q\fR
+\fB\-q\fR
 display errors only (default)
 .TP
-\fB\\-Q\fR
+\fB\-Q\fR
 display nothing, execute commands silently
 .TP
-\fB\\-s\fR
+\fB\-s\fR
 Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
 shown.  Also, module names will be printed instead of ID codes in pin, param, and funct
 listings.  Threads are printed on a single line, with the thread period, FP usage and
@@ -82,13 +82,13 @@ a list of pins connected to the signal, showing both the direction and the pin n
 Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
 while holding the HAL mutex.
 .TP
-\fB\\-v\fR
+\fB\-v\fR
 display results of each command
 .TP
-\fB\\-V\fR
+\fB\-V\fR
 display lots of debugging junk
 .TP
-\fB\\-h\fR [\fIcommand\fR]
+\fB\-h\fR [\fIcommand\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
 .SH COMMANDS
 Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
