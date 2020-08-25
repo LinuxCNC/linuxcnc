@@ -8,5 +8,5 @@ X-GNOME-DocPath=
 Terminal=false
 Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
-Categories=X-CNC-DOC;
+Categories=Science;X-CNC-DOC;
 Keywords=cnc;linuxcnc;

@@ -8,5 +8,5 @@ Terminal=false
 Name=G-Code Quick Reference - FR
 Comment=Quick reference for G, M and O codes in LinuxCNC
 StartupNotify=false
-Categories=X-CNC-REF;
+Categories=Science;X-CNC-REF;
 Keywords=cnc;linuxcnc;

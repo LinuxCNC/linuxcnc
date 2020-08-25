@@ -9,4 +9,4 @@ Terminal=false
 Name=Latency Test
 Comment=Determine your machine's latency
 StartupNotify=false
-Categories=X-CNC;
+Categories=Science;X-CNC;
