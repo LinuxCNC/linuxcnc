@@ -33,8 +33,8 @@ import os
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
-         QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
-            QFileDialog, QFrame, QLabel
+         QVBoxLayout, QToolBar, QGroupBox, QLineEdit, QHBoxLayout, QMessageBox, \
+         QFrame, QLabel
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -50,7 +50,7 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # load this after Logging set up so we get a nice dialog.
 try:
@@ -114,78 +114,82 @@ class GcodeLexer(QsciLexerCustom):
         return QsciLexerCustom.defaultColor(self, style)
 
     def styleText(self, start, end):
-        editor = self.editor()
-        if editor is None:
-            return
+        try:
+            editor = self.editor()
+            if editor is None:
+                return
 
-        # scintilla works with encoded bytes, not decoded characters.
-        # this matters if the source contains non-ascii characters and
-        # a multi-byte encoding is used (e.g. utf-8)
-        source = ''
-        if end > editor.length():
-            end = editor.length()
-        if end > start:
-            if sys.hexversion >= 0x02060000:
-                # faster when styling big files, but needs python 2.6
-                source = bytearray(end - start)
-                editor.SendScintilla(
-                    editor.SCI_GETTEXTRANGE, start, end, source)
-            else:
-                source = unicode(editor.text()).encode('utf-8')[start:end]
-        if not source:
-            return
-
-        # the line index will also be needed to implement folding
-        index = editor.SendScintilla(editor.SCI_LINEFROMPOSITION, start)
-        if index > 0:
-            # the previous state may be needed for multi-line styling
-            pos = editor.SendScintilla(
-                      editor.SCI_GETLINEENDPOSITION, index - 1)
-            state = editor.SendScintilla(editor.SCI_GETSTYLEAT, pos)
-        else:
-            state = self.Default
-
-        set_style = self.setStyling
-        self.startStyling(start, 0x1f)
-
-        # scintilla always asks to style whole lines
-        for line in source.splitlines(True):
-            print(line)
-            length = len(line)
-            graymode = False
-            is_msg = (b'msg' in line.lower() or b'debug' in line.lower())
-            for char in str(line):
-                # print char
-                if char == '(':
-                    graymode = True
-                    set_style(1, self.Comment)
-                    continue
-                elif char == ')':
-                    graymode = False
-                    set_style(1, self.Comment)
-                    continue
-                elif graymode:
-                    if is_msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u'):
-                        set_style(1, self.Assignment)
-                        if char == ',':
-                            is_msg = False
-                    else:
-                        set_style(1, self.Comment)
-                    continue
-                elif char in ('%', '<', '>', '#', '='):
-                    state = self.Assignment
-                elif char in ('[', ']'):
-                    state = self.Value
-                elif char.isalpha():
-                    state = self.Key
-                elif char.isdigit():
-                    state = self.Default
+            # scintilla works with encoded bytes, not decoded characters.
+            # this matters if the source contains non-ascii characters and
+            # a multi-byte encoding is used (e.g. utf-8)
+            source = ''
+            if end > editor.length():
+                end = editor.length()
+            if end > start:
+                if sys.hexversion >= 0x02060000:
+                    # faster when styling big files, but needs python 2.6
+                    source = bytearray(end - start)
+                    editor.SendScintilla(
+                        editor.SCI_GETTEXTRANGE, start, end, source)
                 else:
-                    state = self.Default
-                set_style(1, state)
+                    source = editor.text().encode('utf-8')[start:end]
+            if not source:
+                return
 
-            # folding implementation goes here
-            index += 1
+            # the line index will also be needed to implement folding
+
+            index = editor.SendScintilla(editor.SCI_LINEFROMPOSITION, start)
+            if index > 0:
+                # the previous state may be needed for multi-line styling
+                pos = editor.SendScintilla(
+                          editor.SCI_GETLINEENDPOSITION, index - 1)
+                state = editor.SendScintilla(editor.SCI_GETSTYLEAT, pos)
+            else:
+                state = self.Default
+
+            set_style = self.setStyling
+            self.startStyling(start, 0x1f)
+
+            # scintilla always asks to style whole lines
+            for line in source.splitlines(True):
+                print(line)
+                # length = len(line)
+                graymode = False
+                is_msg = (b'msg' in line.lower() or b'debug' in line.lower())
+                for char in str(line):
+                    # print(char)
+                    if char == '(':
+                        graymode = True
+                        set_style(1, self.Comment)
+                        continue
+                    elif char == ')':
+                        graymode = False
+                        set_style(1, self.Comment)
+                        continue
+                    elif graymode:
+                        if is_msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u'):
+                            set_style(1, self.Assignment)
+                            if char == ',':
+                                is_msg = False
+                        else:
+                            set_style(1, self.Comment)
+                        continue
+                    elif char in ('%', '<', '>', '#', '='):
+                        state = self.Assignment
+                    elif char in ('[', ']'):
+                        state = self.Value
+                    elif char.isalpha():
+                        state = self.Key
+                    elif char.isdigit():
+                        state = self.Default
+                    else:
+                        state = self.Default
+                    set_style(1, state)
+
+                # folding implementation goes here
+                index += 1
+        except Exception as e:
+            print("Exception here. {}".format(e))
 
 
 ##########################################################
@@ -216,7 +220,7 @@ class EditorBase(QsciScintilla):
         self.setMarginSensitivity(1, False)
         # setting marker margin width to zero make the marker highlight line
         self.setMarginWidth(1, 0)
-        #self.matginClicked.connect(self.on_margin_clicked)
+        # self.matginClicked.connect(self.on_margin_clicked)
         self.markerDefine(QsciScintilla.Background,
                           self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffe4e4"),
@@ -237,8 +241,8 @@ class EditorBase(QsciScintilla):
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
         # here: http://www.scintilla.org/ScintillaDoc.html)
-        #self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTH,700)
+        # self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTH, 700)
         self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTHTRACKING)
 
         # default gray background
@@ -285,8 +289,9 @@ class EditorBase(QsciScintilla):
         try:
             fp = os.path.expanduser(filepath)
             self.setText(open(fp).read())
-        except:
+        except Exception as e:
             LOG.error('File path is not valid: {}'.format(filepath))
+            LOG.error(e)
             self.setText('')
             return
         self.ensureCursorVisible()
@@ -300,12 +305,13 @@ class EditorBase(QsciScintilla):
     def replace_text(self, text):
         self.replace(text)
 
-    def search(self, text, re = False,case= False, word=False, wrap= False, fwd=True):
+    def search(self, text, re=False, case=False, word=False, wrap=False, fwd=True):
         self.findFirst(text, re, case, word, wrap, fwd)
 
     def search_Next(self):
         self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
         self.findNext()
+
 
 ##########################################################
 # Gcode display widget (intended read-only)
@@ -344,15 +350,13 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
 
-
-
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
         else:
             self._last_filename = filename
         self.load_text(filename)
-        #self.zoomTo(6)
+        # self.zoomTo(6)
         self.setCursorPosition(0, 0)
         self.setModified(False)
 
@@ -366,9 +370,9 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_mdi(self, w):
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
-        #print 'font point size', self.font().pointSize()
-        #self.zoomTo(10)
-        #print 'font point size', self.font().pointSize()
+        # print 'font point size', self.font().pointSize()
+        # self.zoomTo(10)
+        # print 'font point size', self.font().pointSize()
         self.setCursorPosition(self.lines(), 0)
 
     # With the auto_show__mdi option, MDI history is shown
@@ -390,11 +394,10 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 self.ensureCursorVisible()
                 self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
                 return
-            except:
+            except Exception as e:
                 LOG.error('File path is not valid: {}'.format(filename))
+                print(e)
         self.setText('')
-
-
 
     def highlight_line(self, w, line):
         if STATUS.is_auto_running():
@@ -421,7 +424,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         STATUS.emit('gcode-line-selected', line)
 
     def line_changed(self, line, index):
-        #LOG.debug('Line changed: {}'.format(line))
+        # LOG.debug('Line changed: {}'.format(line))
         if STATUS.is_auto_running() is False:
             self.markerDeleteAll(-1)
             if STATUS.is_mdi_mode():
@@ -446,7 +449,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         line, col = self.getCursorPosition()
         line = line + jump
         LOG.debug(line)
-        if line <0:
+        if line < 0:
             line = 0
         elif line > self.lines():
             line = self.lines()
@@ -457,8 +460,10 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     # auto_show_mdi status
     def set_auto_show_mdi(self, data):
         self.auto_show_mdi = data
+
     def get_auto_show_mdi(self):
         return self.auto_show_mdi
+
     def reset_auto_show_mdi(self):
         self.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
@@ -467,16 +472,18 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     # auto_show_manual status
     def set_auto_show_manual(self, data):
         self.auto_show_manual = data
+
     def get_auto_show_manual(self):
         return self.auto_show_manual
+
     def reset_auto_show_manual(self):
         self.auto_show_manual = True
     auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
+
 #############################################
 # For Editing Gcode
 #############################################
-
 class GcodeEditor(QWidget, _HalWidgetBase):
     percentDone = pyqtSignal(int)
 
@@ -484,7 +491,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         super(GcodeEditor, self).__init__(parent)
         self.load_dialog_code = 'LOAD'
         self.save_dialog_code = 'SAVE'
-        STATUS.connect('general',self.returnFromDialog)
+        STATUS.connect('general', self.returnFromDialog)
 
         self.isCaseSensitive = 0
 
@@ -492,7 +499,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.setWindowTitle("PyQt5 editor test example") 
 
         lay = QVBoxLayout()
-        lay.setContentsMargins(0,0,0,0)
+        lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(lay)
 
         # make editor
@@ -658,7 +665,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def find(self):
         self.editor.search(str(self.searchText.text()),
                              re=False, case=self.isCaseSensitive,
-                             word=False, wrap= False, fwd=True)
+                             word=False, wrap=False, fwd=True)
 
     def gcodeLexerCall(self):
         self.gcodeLexer()
@@ -670,7 +677,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.next()
 
     def next(self):
-        self.editor.search(str(self.searchText.text()),False)
+        self.editor.search(str(self.searchText.text()), False)
         self.editor.search_Next()
 
     def newCall(self):
@@ -688,7 +695,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def open(self):
         self.getFileName()
 
-    def openReturn(self,f):
+    def openReturn(self, f):
         ACTION.OPEN_PROGRAM(f)
         self.editor.setModified(False)
 
@@ -746,12 +753,12 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.setReadOnly(True)
 
     def getFileName(self):
-        mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
+        mess = {'NAME': self.load_dialog_code, 'ID': '%s__' % self.objectName(),
             'TITLE':'Load Editor'}
         STATUS.emit('dialog-request', mess)
 
     def getSaveFileName(self):
-        mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
+        mess = {'NAME': self.save_dialog_code, 'ID': '%s__' % self.objectName(),
             'TITLE':'Save Editor'}
         STATUS.emit('dialog-request', mess)
 
@@ -759,12 +766,12 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def returnFromDialog(self, w, message):
         if message.get('NAME') == self.load_dialog_code:
             path = message.get('RETURN')
-            code = bool(message.get('ID') == '%s__'% self.objectName())
+            code = bool(message.get('ID') == '%s__' % self.objectName())
             if path and code:
                 self.openReturn(path)
         elif message.get('NAME') == self.save_dialog_code:
             path = message.get('RETURN')
-            code = bool(message.get('ID') == '%s__'% self.objectName())
+            code = bool(message.get('ID') == '%s__' % self.objectName())
             if path and code:
                 self.saveReturn(path)
 
@@ -795,7 +802,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def get_line(self):
         return self.editor.getCursorPosition()[0] +1
 
-    def set_margin_width(self,width):
+    def set_margin_width(self, width):
         self.editor.set_margin_width(width)
 
     # designer recognized getter/setters
@@ -830,10 +837,10 @@ if __name__ == "__main__":
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     w = GcodeEditor()
     w.editMode()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit(app.exec_())
 
 

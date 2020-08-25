@@ -9,7 +9,7 @@ import sys
     # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
 from qtvcp.core import Status
-from qtvcp.qtvcplib import sys_notify
+from qtvcp.lib import sys_notify
 
 # Set up logging
 from qtvcp import logger

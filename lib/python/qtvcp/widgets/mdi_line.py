@@ -21,7 +21,7 @@ from PyQt5.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
-from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference

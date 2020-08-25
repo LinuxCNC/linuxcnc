@@ -33,7 +33,7 @@ from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.machine_log import MachineLog
-from qtvcp.qtvcplib.notify import Notify
+from qtvcp.lib.notify import Notify
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
 

@@ -22,7 +22,7 @@ from PyQt5.QtGui import QColor, QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
-from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference

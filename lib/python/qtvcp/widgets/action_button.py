@@ -25,7 +25,7 @@ import linuxcnc
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.simple_widgets import Indicated_PushButton
 from qtvcp.core import Status, Action, Info
-from qtvcp.qtvcplib.aux_program_loader import Aux_program_loader
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instantiate the libraries with global reference

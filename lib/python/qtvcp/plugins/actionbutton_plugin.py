@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import sip
+# import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
                 QPyDesignerTaskMenuExtension, QExtensionFactory, \
@@ -18,6 +18,7 @@ Q_TYPEID = {
     'QDesignerTaskMenuExtension': 'org.qt-project.Qt.Designer.TaskMenu',
     'QDesignerMemberSheetExtension': 'org.qt-project.Qt.Designer.MemberSheet'
 }
+
 
 ####################################
 # ActionBUTTON
@@ -87,6 +88,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.action_button"
 
+
 class TreeComboBox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
         super(TreeComboBox, self).__init__(parent)
@@ -121,36 +123,38 @@ class TreeComboBox(QtWidgets.QComboBox):
         self.setRootModelIndex(index.parent())
         self.setCurrentIndex(index.row())
 
-    def eventFilter(self, object, event):
-        if event.type() == QtCore.QEvent.MouseButtonPress and object is self.view().viewport():
+    def eventFilter(self, e_object, event):
+        if event.type() == QtCore.QEvent.MouseButtonPress and e_object is self.view().viewport():
             index = self.view().indexAt(event.pos())
-            #print index.parent(),index.row(),index.column(),index.data(),index.data(QtCore.Qt.UserRole + 1)
-            #print self.view().isExpanded(self.view().currentIndex())
-            #if self.itemAt(event.pos()) is None
+            # print index.parent(),index.row(),index.column(),index.data(),index.data(QtCore.Qt.UserRole + 1)
+            # print self.view().isExpanded(self.view().currentIndex())
+            # if self.itemAt(event.pos()) is None
             self.__skip_next_hide = not self.view().visualRect(index).contains(event.pos())
         return False
 
     def addItems(self, parent, elements):
         for text, value, children in elements:
             item = QtGui.QStandardItem(text)
-            item.setData(value[0], role = QtCore.Qt.UserRole + 1)
-            item.setData(value[1], role = QtCore.Qt.UserRole + 2)
+            item.setData(value[0], role=QtCore.Qt.UserRole + 1)
+            item.setData(value[1], role=QtCore.Qt.UserRole + 2)
             parent.appendRow(item)
             if children:
                 self.addItems(item, children)
 
-    def select(self,nodeNum,row):
-        #print 'select:', nodeNum, row
+    def select(self, nodeNum, row):
+        # print 'select:', nodeNum, row
         # select last row
-        newIndex = self.model().index(nodeNum,0)
+        newIndex = self.model().index(nodeNum, 0)
         self.setRootModelIndex(newIndex)
-        self.setCurrentIndex (row)
+        self.setCurrentIndex(row)
 
     # hacky work around
     def updateLastPick(self, pick):
         self._last_pick = pick
+
     def getLastPick(self):
         return self._last_pick
+
 
 class ActionButtonDialog(QtWidgets.QDialog):
     def __init__(self, widget, parent = None):
@@ -269,22 +273,22 @@ class ActionButtonDialog(QtWidgets.QDialog):
                   ('MDI Commands From INI',['ini_mdi_command', 512], []) )
         node_none = (('Unused',['unused', 0], []),)
 
-        parent_node = [ ('Unset', [None,None], node_none),
-                    ('MACHINE CONTROL',[None, None], node_1),
-                    ('JOGGING CONTROLS',[None, None], node_2),
-                    ('DIALOG LAUNCH',[None, None], node_3),
-                    ('LAUNCH PROGRAMS',[None, None], node_4),
-                    ('MODE SETTING',[None, None], node_5),
-                    ('OVERRIDE SETTING',[None, None], node_6),
-                    ('SPINDLE CONTROLS',[None, None], node_7),
-                    ('DRO CONTROL',[None, None], node_8),
-                    ('GRAPHIC CONTROLS',[None, None], node_9),
-                    ('MDI',[None, None], node_10) ]
+        parent_node = [ ('Unset', [None, None], node_none),
+                    ('MACHINE CONTROL', [None, None], node_1),
+                    ('JOGGING CONTROLS', [None, None], node_2),
+                    ('DIALOG LAUNCH', [None, None], node_3),
+                    ('LAUNCH PROGRAMS', [None, None], node_4),
+                    ('MODE SETTING', [None, None], node_5),
+                    ('OVERRIDE SETTING', [None, None], node_6),
+                    ('SPINDLE CONTROLS', [None, None], node_7),
+                    ('DRO CONTROL', [None, None], node_8),
+                    ('GRAPHIC CONTROLS', [None, None], node_9),
+                    ('MDI', [None, None], node_10) ]
 
         self.combo.addItems(model,parent_node)
         self.combo.setModel(model)
-        #self.combo.view().hideColumn (1)
-        #self.combo.resize(300, 30)
+        # self.combo.view().hideColumn (1)
+        # self.combo.resize(300, 30)
         self.combo.activated.connect(self.selectionChanged)
 
         layout = QtWidgets.QVBoxLayout()
@@ -298,10 +302,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # Joint number selection
         self.ud1 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Joint/axis number')
         self.JNumSpinBox = QtWidgets.QSpinBox()
-        self.JNumSpinBox.setRange(-1,8)
+        self.JNumSpinBox.setRange(-1, 8)
         self.JNumSpinBox.setValue(self.widget.joint_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -407,14 +411,14 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # View
         self.ud128 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Graphics View')
         self.viewComboBox = QtWidgets.QComboBox()
         flag = 0
-        for num, i in enumerate(('P','X','Y','Y2','Z','Z2','Clear',
-            'zoom-in','zoom-out','pan-up','pan-down','pan-left',
-            'pan-right','rotate-up','rotate-down','rotate-cw',
-            'rotate-ccw','reload')):
+        for num, i in enumerate(('P', 'X','Y', 'Y2', 'Z', 'Z2', 'Clear',
+            'zoom-in', 'zoom-out', 'pan-up', 'pan-down', 'pan-left',
+            'pan-right', 'rotate-up', 'rotate-down', 'rotate-cw',
+            'rotate-ccw', 'reload')):
             if self.widget.view_type.lower() == i.lower():
                 flag = num
             self.viewComboBox.addItem(i)
@@ -446,7 +450,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         label = QtWidgets.QLabel('MDI Command from INI File')
         self.MDISpinBox = QtWidgets.QSpinBox()
         self.MDISpinBox.setRange(0,50)
-        #self.MDISpinBox.setValue(self.widget.INI_MDI_number)
+        # self.MDISpinBox.setValue(self.widget.INI_MDI_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.MDISpinBox)
@@ -457,9 +461,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # text template edit box
         self.ud1024 = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
-        vbox.setContentsMargins(0,0,0,0)
+        vbox.setContentsMargins(0, 0, 0, 0)
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Template Label Option')
         self.textTemplateCheckBox = QtWidgets.QCheckBox()
         self.textTemplateCheckBox.setChecked(self.widget.template_label)
@@ -494,16 +498,16 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # widget[cdata[1][0]] will tell us the widgets property state
         # eg widget.estop or widget.machine_on
         flag = False
-        #print parent_node
+        # print parent_node
         for pnum, pdata in enumerate(parent_node):
-            #print pnum,pdata[0]
+            # print pnum,pdata[0]
             if pnum == 0: continue
             if pdata[0]:
                 for cnum, cdata in enumerate(pdata[2]):
-                    #print 'child,state:',cdata[1][0],self.widget[cdata[1][0]]
+                    # print 'child,state:',cdata[1][0],self.widget[cdata[1][0]]
                     if self.widget[cdata[1][0]]:
                         flag = True
-                        #print 'found index:',pnum,cnum
+                        # print 'found index:',pnum,cnum
                         break
             if flag:
                 break
@@ -513,20 +517,20 @@ class ActionButtonDialog(QtWidgets.QDialog):
             #print 'selected property,related data code:',winPropertyName
             self.combo.updateLastPick(winPropertyName)
         else:
-            self.combo.select(0,0)
+            self.combo.select(0, 0)
 
-    def selectionChanged(self,i):
-        winPropertyName = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
-        userDataCode = self.combo.itemData(i,role = QtCore.Qt.UserRole + 2)
-        #print 'selected property,related data code:',winPropertyName,userDataCode,i
+    def selectionChanged(self, i):
+        winPropertyName = self.combo.itemData(i, role=QtCore.Qt.UserRole + 1)
+        userDataCode = self.combo.itemData(i, role=QtCore.Qt.UserRole + 2)
+        # print 'selected property,related data code:',winPropertyName,userDataCode,i
         self.combo.updateLastPick(winPropertyName)
         if winPropertyName is None:
-            #collapsed = self.combo.view().isExpanded(self.combo.view().currentIndex())
-            #if collapsed: return True
+            # collapsed = self.combo.view().isExpanded(self.combo.view().currentIndex())
+            # if collapsed: return True
             return True
         if not userDataCode is None:
-            for i in (1,2,4,8,16,32,64,128,256,512,1024):
-                widg = self['ud%s'% i]
+            for i in (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024):
+                widg = self['ud%s' % i]
                 if userDataCode & i:
                     widg.show()
                 else:
@@ -563,7 +567,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.addWidget(self.indicatorCheckBox)
         self.indicatorO.setLayout(hbox)
         layout.addWidget(self.indicatorO)
-        #self.indicatorO.hide()
+        # self.indicatorO.hide()
 
         # HAL pin LED option
         self.halP = QtWidgets.QWidget()
@@ -603,7 +607,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # Invert Status LED option
         self.invertStatus = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Invert Status LED State')
         self.invertCheckBox = QtWidgets.QCheckBox()
         self.invertCheckBox.setChecked(self.widget._invert_status)
@@ -613,12 +617,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.addWidget(self.invertCheckBox)
         self.invertStatus.setLayout(hbox)
         layout.addWidget(self.invertStatus)
-        #self.invertStatus.hide()
+        # self.invertStatus.hide()
 
         # status watch combo box
         self.watch = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Watch Status:')
         self.statusCombo = QtWidgets.QComboBox()
         flag = 0
@@ -653,7 +657,6 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.jnum)
         self.jnum.hide()
 
-
         line = QtWidgets.QFrame()
         line.setFrameShape(QtWidgets.QFrame.HLine)
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -662,14 +665,14 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # Shape selection
         self.shape = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Shape Selection')
         self.shapeCombo = QtWidgets.QComboBox()
         self.shapeCombo.activated.connect(self.onSetOptions)
-        self.shapeCombo.addItem('Triangle',0)
-        self.shapeCombo.addItem('Circle',1)
-        self.shapeCombo.addItem('TopBar',2)
-        self.shapeCombo.addItem('SideBar',3)
+        self.shapeCombo.addItem('Triangle', 0)
+        self.shapeCombo.addItem('Circle', 1)
+        self.shapeCombo.addItem('TopBar', 2)
+        self.shapeCombo.addItem('SideBar', 3)
         self.shapeCombo.setCurrentIndex(self.widget._shape)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -681,10 +684,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # Round indicator diameter
         self.diam = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('Round Diamter')
         self.diamSpinBox = QtWidgets.QDoubleSpinBox()
-        self.diamSpinBox.setRange(2,100)
+        self.diamSpinBox.setRange(2, 100)
         self.diamSpinBox.setDecimals(1)
         self.diamSpinBox.setSingleStep(1)
         self.diamSpinBox.setValue(self.widget._diameter)
@@ -797,11 +800,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.wfraction)
         self.wfraction.hide()
 
-
         # true state indicator color
         self.colorTrue = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         button = QtWidgets.QLabel('True State LED Color')
         self.trueColorButton = QtWidgets.QPushButton()
         self.trueColorButton.setToolTip('Opens color dialog')
@@ -817,12 +819,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # False state indicator color
         self.colorFalse = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
+        hbox.setContentsMargins(0, 0, 0, 0)
         button = QtWidgets.QLabel('False State LED Color')
         self.falseColorButton = QtWidgets.QPushButton()
         self.falseColorButton.setToolTip('Opens color dialog')
         self.falseColorButton.clicked.connect(self.on_falseColorClick)
-        self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self.widget._off_color.name())
+        self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}' % self.widget._off_color.name())
         self._offColor = self.widget._off_color.name()
         hbox.addWidget(button)
         hbox.addWidget(self.falseColorButton)
@@ -834,8 +836,6 @@ class ActionButtonDialog(QtWidgets.QDialog):
         line.setFrameShape(QtWidgets.QFrame.HLine)
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
         layout.addWidget(line)
-
-
 
         self.tab2.setLayout(layout)
 
@@ -865,7 +865,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.addWidget(self.textCheckBox)
         self.textO.setLayout(hbox)
         layout.addWidget(self.textO)
-        #self.textO.hide()
+        # self.textO.hide()
 
         # True text edit box
         self.txtTrue = QtWidgets.QWidget()
@@ -893,8 +893,6 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.txtFalse)
         self.txtFalse.hide()
 
-
-
         # Python Command option
         self.cmdPython = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
@@ -908,7 +906,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.addWidget(self.pythonCheckBox)
         self.cmdPython.setLayout(hbox)
         layout.addWidget(self.cmdPython)
-        #self.cmdPython.hide()
+        # self.cmdPython.hide()
 
         # True command edit box
         self.cmdTrue = QtWidgets.QWidget()
@@ -926,7 +924,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # False command edit box
         self.cmdFalse = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
-        vbox.setContentsMargins(0,0,0,0)
+        vbox.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel('False State Command Line')
         self.fCommandEditBox = QtWidgets.QLineEdit()
         self.fCommandEditBox.setText(self.widget.false_python_command)
@@ -985,7 +983,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 self.radius.hide()
                 self.hfraction.hide()
                 self.wfraction.hide()
-            elif shape in (1,2):
+            elif shape in (1, 2):
                 self.size.hide()
                 self.diam.hide()
                 self.radius.show()
@@ -994,7 +992,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
 
             choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
             if choice is not None:
-                if  choice == 'is_joint_homed' or 'is_spindle' in choice:
+                if choice == 'is_joint_homed' or 'is_spindle' in choice:
                     self.jnum.show()
                 else:
                     self.jnum.hide()
@@ -1018,7 +1016,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
             self.cmdTrue.hide()
             self.cmdFalse.hide()
 
-        if  self.textCheckBox.isChecked():
+        if self.textCheckBox.isChecked():
             self.txtTrue.show()
             self.txtFalse.show()
         else:
@@ -1072,7 +1070,6 @@ class ActionButtonDialog(QtWidgets.QDialog):
               QtCore.QVariant(self.hfractionSpinBox.value()))
             formWindow.cursor().setProperty('width_fraction',
               QtCore.QVariant(self.wfractionSpinBox.value()))
-
 
             formWindow.cursor().setProperty('circle_diameter',
               QtCore.QVariant(self.diamSpinBox.value()))
@@ -1164,8 +1161,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
 
@@ -1201,6 +1200,7 @@ class ActionButtonTaskMenuFactory(QExtensionFactory):
             return ActionButtonMemberSheet(obj, parent)
         return None
 
+
 ####################################
 # RoundButton
 ####################################
@@ -1208,6 +1208,7 @@ class RoundButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
         super(RoundButtonPlugin, self).__init__(parent)
         self.initialized = False
+
     def initialize(self, formEditor):
         if self.initialized:
             return
@@ -1216,23 +1217,33 @@ class RoundButtonPlugin(QPyDesignerCustomWidgetPlugin):
             self.factory = ActionButtonTaskMenuFactory(manager)
             manager.registerExtensions(self.factory, Q_TYPEID['QDesignerTaskMenuExtension'])
         self.initialized = True
+
     def isInitialized(self):
         return self.initialized
+
     def createWidget(self, parent):
         return RoundButton(parent)
+
     def name(self):
         return "RoundButton"
+
     def group(self):
         return "Linuxcnc - Controller"
+
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('roundbutton')))
+
     def toolTip(self):
         return "Round shaped Button for actions"
+
     def whatsThis(self):
         return ""
+
     def isContainer(self):
         return False
+
     def domXml(self):
         return '<widget class="RoundButton" name="Roundbutton" />\n'
+
     def includeFile(self):
         return "qtvcp.widgets.action_button_round"
