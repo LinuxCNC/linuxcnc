@@ -5,8 +5,8 @@ import sys
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
-    # callback work around:
-    # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
+# callback work around:
+# http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
 from qtvcp.core import Status
 from qtvcp.lib import sys_notify
@@ -32,7 +32,7 @@ class Notify:
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
     # adds an entry to the alarm page (if available)
-    def notify(self, title, message,icon="", status_timeout=0, timeout=2):
+    def notify(self, title, message, icon="", status_timeout=0, timeout=2):
         messageid = None
         try:
             self.show_status(message, status_timeout)
@@ -81,16 +81,14 @@ class Notify:
         except Exception as e:
                log.warning('build_generalnotification_ok error:', exc_info=e)
 
-
 #####################################################
 # actualy build the notices
 #####################################################
-
     def build_error_notification(self, icon=None):
         n = sys_notify.Notification('', '', icon)
         n.setUrgency(sys_notify.Urgency.CRITICAL)
         n.setTimeout(0)
-        n.addAction("action_click","Show Last Five", self.last5_callback)
+        n.addAction("action_click", "Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
         n.addAction('destroy_clicked', 'Clear All', self.destroyClicked)
         n.addAction('close_clicked', 'close', self.closeClicked)
@@ -141,13 +139,13 @@ class Notify:
     def okClicked(self, n, action, callback):
         callback(True)
 
-    def cancelClicked(self, n, action, callack):
+    def cancelClicked(self, n, action, callback):
         callback(False)
 
-    def handle_closed(self,n):
+    def handle_closed(self, n):
         pass
-        #print self._n
-        #print n
+        # print self._n
+        # print n
 
     def closeClicked(self, n, text):
         n.close()
@@ -167,7 +165,8 @@ class Notify:
         n.body = ''
         for i in range(1,6):
             num = len(self.alarmpage) - i
-            if i > len(self.alarmpage): break
+            if i > len(self.alarmpage):
+                break
             n.body ='{}\nREVIEW #{} of {}\n{}'.format( n.body,
                                                           i,
                                                           len(self.alarmpage),
@@ -176,7 +175,6 @@ class Notify:
 
     def destroyClicked(self, n, signal_text):
         self.alarmpage = []
-
 
 #####################################################
 # General work functions
@@ -192,12 +190,12 @@ class Notify:
         n.show()
         try:
             self.show_status(message, status_timeout)
-        except:
-            pass
+        except Exception as e:
+            print("Exception in notify.update()".format(e))
         try:
             self.add_alarm_entry(n, message)
-        except:
-            pass
+        except Exception as e:
+            print("Exception in notify.update()".format(e))
 
     # try to update a status bar if we were given reference to it
     def show_status(self, message, timeout=4):
@@ -231,7 +229,7 @@ class Notify:
             print("{} {}".format(num, i))
         if self.critical_message is not None:
             n = self.critical_message
-            n.body =''
+            n.body = ''
             n.close()
         if self.normal_message is not None:
             self.normal_message.close()
@@ -240,7 +238,8 @@ class Notify:
     # update the system alarm page, if there is one
     # this should be sent to STATUS message I think?
     def add_alarm_entry(self, mobject, message):
-        if message is not None: message = ''
+        if message is not None:
+            message = ''
         try:
             self.alarmpage.append((mobject, message))
         except Exception as e:
