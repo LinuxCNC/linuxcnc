@@ -281,10 +281,6 @@ DOC_SRCS_ES := \
 	gui/pyvcp-examples_es.txt \
 	gui/qtdragon_es.txt \
 	gui/qtvcp_es.txt \
-	gui/qtvcp_widgets.txt \
-	gui/qtvcp_custom_widgets.txt \
-	gui/qtvcp_code_snippets.txt \
-	gui/qtvcp_development.txt \
 	gui/tooledit_es.txt \
 	gui/touchy_es.txt \
 	hal/basic-hal_es.txt \
@@ -305,7 +301,6 @@ DOC_SRCS_ES := \
 	hal/twopass_es.txt \
 	install/latency-test_es.txt \
 	lathe/lathe-user_es.txt \
-	ladder/classic-ladder.txt \
 	motion/kinematics_es.txt \
 	motion/dh-parameters_es.txt \
 	motion/5-axis-kinematics_es.txt \
