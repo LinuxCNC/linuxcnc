@@ -1,4 +1,4 @@
-.\" Copyright (c) 2020 Phillip A Carter
+.\" Copyright (c) 2020 andypugh
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,18 +22,36 @@
 .\"
 .\"
 .\"
-.TH pmx485 "1" "Feb 1 2020" "Powermax Modbus Communications" "LinuxCNC Documentation"
+.TH LATENCY-PLOT "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-\fBpmx485\fR \- Modbus communications with a Powermax Plasma Cutter
+latency-plot \- another way to view latency numbers
 .SH SYNOPSIS
-.B loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
-.br
+.B latency-plot
+
 .SH DESCRIPTION
-pmx485 is a userspace HAL component to communicate with a Hypertherm Powermax 
-plasma cutter using the Modbus ASCII protocol over RS485.
+\fBlatency-plot\fR plots realtime system latency.
+Mainly superseded by latency-histogram
+
+http://linuxcnc.org/docs/html/install/latency-test.html
+
+.SH "SEE ALSO"
+\fBlatency-histogram(1)\fR
+\fBLinuxCNC(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
 .PP
-See the Drivers section of the  LinuxCNC Documentation for more information on pmx485
 .SH AUTHOR
-Phillip Carter
-.SH LICENSE
-GPL
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
