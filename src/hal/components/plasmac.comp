@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.165 - 2020 Aug 24
+0.166 - 2020 Aug 26
 
 .I SUMMARY:
 .br
@@ -787,7 +787,7 @@ FUNCTION(_) {
                 safe_min = (pierce_height + (1 * units_per_mm)) / offset_scale;
                 safe_preferred = safe_height / offset_scale;
                 offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
-                offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (1 * units_per_mm)) / offset_scale;
+                offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (5 * units_per_mm)) / offset_scale;
                 if(safe_height == 0){
                     safe_target = offset_max;
                     ohmic_enable = FALSE;
@@ -1257,17 +1257,20 @@ FUNCTION(_) {
                     z_offset_counts += setup_velocity;
                 }else{
                     z_offset_counts = offset_max;
-                    if(stop_type == WAIT){
-                        feed_hold = FALSE;
-                    }
-                    /* do height override here for remainder of job */
-                    height_ovr_old = 0;
-                    if(consumable_change){
-                        state = CONSUMABLE_CHANGE_ON;
-                    }else if(cut_recovery && stop_type != STOP){
-                        state = CUT_RECOVERY_ON;
-                    }else{
-                        state = FINISH;
+                    if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 && 
+                       (int)floor(z_offset_current / offset_scale) >= offset_max - 1){
+                        if(stop_type == WAIT){
+                            feed_hold = FALSE;
+                        }
+                        /* do height override here for remainder of job */
+                        height_ovr_old = 0;
+                        if(consumable_change){
+                            state = CONSUMABLE_CHANGE_ON;
+                        }else if(cut_recovery && stop_type != STOP){
+                            state = CUT_RECOVERY_ON;
+                        }else{
+                            state = FINISH;
+                        }
                     }
                 }
             }
