@@ -8,6 +8,7 @@ Recommends: linuxcnc-doc-en | linuxcnc-doc,
     python-pyqt5.qtsvg,
     python-pyqt5.qtwebkit,
     python-opencv,
+    python-rsvg,
     python-dbus.mainloop.pyqt5,
     gstreamer1.0-tools,
     python-espeak,
@@ -63,9 +64,10 @@ Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
-Description: controlador de movimiento para máquinas CNC y robots (documentación en español).
- LinuxCNC es EMC (controlador de máquina mejorado) que proporciona control de movimiento 
- para máquinas herramientas CNC (fresado, torneado, ruteado, etc.) y aplicaciones de robótica.
+Description: controlador de movimiento para máquinas CNC y robots (Español).
+ LinuxCNC es EMC (controlador de máquina mejorado) que proporciona
+ control de movimiento para máquinas herramientas CNC (fresado,
+ torneado, ruteado, etc.) y aplicaciones de robótica.
  .
  Este paquete contiene la documentación en español.
 
@@ -74,7 +76,8 @@ Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
-Description: motion controller for CNC machines and robots (Chinese documentation)
+Description: motion controller for CNC machines and robots (Chinese
+ documentation)
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).

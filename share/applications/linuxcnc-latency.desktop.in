@@ -8,4 +8,4 @@ Terminal=false
 Name=Latency Test@EMC2_SUFFIX@
 Comment=Determine your machine's latency
 StartupNotify=false
-Categories=X-CNC;
+Categories=Science;X-CNC;

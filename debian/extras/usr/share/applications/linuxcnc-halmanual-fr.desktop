@@ -8,5 +8,5 @@ X-GNOME-DocPath=
 Terminal=false
 Comment=Details about the Hardware Abstract Layer.
 StartupNotify=false
-Categories=X-CNC-DOC;
+Categories=Science;X-CNC-DOC;
 Keywords=cnc;linuxcnc;

@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Type=Application
 Exec=/usr/bin/latency-test
@@ -9,4 +8,4 @@ Terminal=false
 Name=Latency Test
 Comment=Determine your machine's latency
 StartupNotify=false
-Categories=X-CNC;
+Categories=Science;X-CNC;

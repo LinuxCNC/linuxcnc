@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Type=Application
 Exec=/usr/bin/linuxcnc
@@ -9,4 +8,4 @@ Terminal=false
 Name=LinuxCNC
 Comment=Linuxcnc Machine Controller
 StartupNotify=false
-Categories=X-CNC;
+Categories=Science;X-CNC;

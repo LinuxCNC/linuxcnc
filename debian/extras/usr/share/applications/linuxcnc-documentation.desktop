@@ -8,5 +8,5 @@ Terminal=false
 Name=User Manual - EN
 Comment=LinuxCNC Documentation
 StartupNotify=false
-Categories=X-CNC-DOC;
+Categories=Science;X-CNC-DOC;
 Keywords=cnc;linuxcnc;
