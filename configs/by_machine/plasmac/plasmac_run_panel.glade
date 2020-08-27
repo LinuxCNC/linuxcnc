@@ -1140,8 +1140,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">Arc-OK is not required to start cutting motion
-only used if mesh-mode is enabled</property>
+                                <property name="tooltip_text" translatable="yes">Arc-OK is not required to start cutting motion</property>
                                 <property name="xalign">1</property>
                                 <property name="xpad">2</property>
                                 <property name="label" translatable="yes">Ignore ArcOK</property>
@@ -1159,8 +1158,7 @@ only used if mesh-mode is enabled</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">Arc-OK is not required to start cutting motion
-only used if mesh-mode is enabled</property>
+                                <property name="tooltip_text" translatable="yes">Arc-OK is not required to start cutting motion</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                               <packing>
