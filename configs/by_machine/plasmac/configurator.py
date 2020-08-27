@@ -529,11 +529,14 @@ class configurator:
                 plasmacPath = '/plasmac'
             else:
                 plasmacPath = ''
-            with open('{}{}/plasmac_config.py'.format(self.configDir, plasmacPath), 'r') as verFile:
-                for line in verFile:
-                    if 'self.plasmacVersion =' in line:
-                        self.versionCurrent = float(line.split('PlasmaC v')[1].replace('\'',''))
-                        break
+            try:
+                with open('{}{}/plasmac_config.py'.format(self.configDir, plasmacPath), 'r') as verFile:
+                    for line in verFile:
+                        if 'self.plasmacVersion =' in line:
+                            self.versionCurrent = float(line.split('PlasmaC v')[1].replace('\'',''))
+                            break
+            except:
+                self.versionCurrent = 0.0
             if versionMajor == self.latestMajorUpgrade:
                 self.make_links(display, versionMajor)
                 with open('{}/plasmac/plasmac_config.py'.format(self.configDir), 'r') as verFile:
@@ -542,7 +545,10 @@ class configurator:
                             self.versionNew = float(line.split('PlasmaC v')[1].replace('\'',''))
                             break
                 if float(self.versionNew) > float(self.versionCurrent):
-                    msg = '\nUpgraded from v{:0.3f} to v{:0.3f}\n'.format(self.versionCurrent, self.versionNew)
+                    if self.versionCurrent > 0:
+                        msg = '\nUpgraded from v{:0.3f} to v{:0.3f}\n'.format(self.versionCurrent, self.versionNew)
+                    else:
+                        msg = '\nUpgraded from unknown version to v{:0.3f}\n'.format( self.versionNew)
                 else:
                     msg = '\nUpgrade not required.\n\nv{:0.3f} is the latest version\n'.format(self.versionCurrent)
                 if len(sys.argv) == 3 and self.configureType == 'upgrade':
@@ -572,7 +578,10 @@ class configurator:
                     if 'self.plasmacVersion =' in line:
                         self.versionNew = float(line.split('PlasmaC v')[1].replace('\'',''))
                         break
-            upgString = '\nUpgraded from v{:0.3f} to v{:0.3f}\n'.format(self.versionCurrent, self.versionNew)
+            if self.versionCurrent > 0:
+                upg = '\nUpgraded from v{:0.3f} to v{:0.3f}\n'.format(self.versionCurrent, self.versionNew)
+            else:
+                upg = '\nUpgraded from unknown version to v{:0.3f}\n'.format(self.versionNew)
             if versionMajor < 0.140:
             # move old backup files to backups dir
                 for file in os.listdir(self.configDir):
@@ -581,15 +590,15 @@ class configurator:
                     elif '.pyc' in file:
                         os.remove(os.path.join(self.configDir,file))
             if len(sys.argv) == 3:
-                txt = '\nPlasmaC has been automatically upgraded.\n'
-                txt += upgString
-                txt += '\nLinuxCNC will need to be restarted.\n\n'
+                msg = '\nPlasmaC has been automatically upgraded.\n'
+                msg += upg
+                msg += '\nLinuxCNC will need to be restarted.\n\n'
             else:
                 self.W.hide()
-                txt = '\nPlasmaC Upgrade has completed.\n'
-                txt += upgString
-            self.dialog_ok('UPGRADE', txt)
-            print(txt)
+                msg = '\nPlasmaC Upgrade has completed.\n'
+                msg += '{}\n\n'.format(upg)
+            self.dialog_ok('UPGRADE', msg)
+            print(msg)
             sys.exit()
             return
         if not self.copy_ini_and_hal_files(): return
@@ -1094,17 +1103,17 @@ class configurator:
             for line in inFile:
                 if line.startswith('LAST_UPGRADE') or line.startswith('LAST_MAJOR_UPGRADE'):
                     line = 'LAST_MAJOR_UPGRADE      = 0.140\n'
-                elif './test/plasmac_' in line:
+                elif './test/plasmac_' in line and not './plasmac' in line:
                     line = line.replace('./test/plasmac_', './plasmac/test/plasmac_')
-                elif './plasmac_gcode' in line:
+                elif './plasmac_gcode' in line and not './plasmac' in line:
                     line = line.replace('./plasmac_gcode', './plasmac/plasmac_gcode')
-                elif 'SUBROUTINE_PATH' in line:
+                elif 'SUBROUTINE_PATH' in line and not './plasmac' in line:
                     line = line.replace('./:', './:./plasmac:')
-                elif 'USER_M_PATH' in line:
+                elif 'USER_M_PATH' in line and not './plasmac' in line:
                     line = line.replace(' ./', ' ./:./plasmac')
-                elif 'plasmac.tcl' in line:
+                elif 'plasmac.tcl' in line and not './plasmac' in line:
                     line = line.replace('plasmac.tcl', './plasmac/plasmac.tcl')
-                elif 'plasmac_axis.py' in line:
+                elif 'plasmac_axis.py' in line and not './plasmac' in line:
                     line = line.replace('plasmac_axis.py', './plasmac/plasmac_axis.py')
                 elif 'EMBED_TAB_COMMAND' in line:
                     if 'plasmac_buttons' in line:
