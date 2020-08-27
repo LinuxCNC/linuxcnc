@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # read ini items, source ngcgui.tcl, create axis tabs
 # provide tcl package Ngcgui
 

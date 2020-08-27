@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import linuxcnc
 import hal, hal_glib
