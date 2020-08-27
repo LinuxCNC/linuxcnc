@@ -16,6 +16,7 @@ net plasmac:feed-reduction          motion.analog-out-03        =>  plasmac.feed
 net plasmac:float-switch-out        debounce.0.0.out            =>  plasmac.float-switch
 net plasmac:ignore-arc-ok-0         motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net plasmac:motion-type             motion.motion-type          =>  plasmac.motion-type
+net plasmac:machine-is-on           halui.machine.is-on         =>  plasmac.machine-is-on
 net plasmac:ohmic-probe-out         debounce.0.2.out            =>  plasmac.ohmic-probe
 net plasmac:program-is-idle         halui.program.is-idle       =>  plasmac.program-is-idle
 net plasmac:program-is-paused       halui.program.is-paused     =>  plasmac.program-is-paused
