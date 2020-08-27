@@ -1,0 +1,99 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH GREMLIN_VIEW "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+gremlin_view \- G-code graphical preview
+.SH SYNOPSIS
+.B gremlin_view 
+
+.SH DESCRIPTION
+\fBgremlin_view\fR is a python wrapper for the gremlin G-code graphical
+preview
+
+PGremlinView for gremlin with buttons for simpler embedding
+Standalone functionality if linuxcnc running
+A default ui file (gremlin_view.ui) is provided for a default
+button arrangement but a user may provide their own by supplying
+the glade_file argument.
+The following objects are mandatory:
+  'gremlin_view_window'      toplevel window
+  'gremlin_view_hal_gremlin' hal_gremlin
+  'gremlin_view_box'         HBox or VBox' containing hal_gremlin
+Optional radiobutton group names:
+  'select_p_view'
+  'select_x_view'
+  'select_y_view'
+  'select_z_view'
+  'select_z2_view'
+Optional Checkbuttons names:
+  'enable_dro'
+  'show_machine_speed
+  'show_distance_to_go'
+  'show_limits'
+  'show_extents'
+  'show_tool'
+  'show_metric'
+Callbacks are provided for the following buttons actions
+  on_clear_live_plotter_clicked
+  on_enable_dro_clicked
+  on_zoomin_pressed
+  on_zoomout_pressed
+  on_pan_x_minus_pressed
+  on_pan_x_plus_pressed
+  on_pan_y_minus_pressed
+  on_pan_y_plus_pressed
+  on_show_tool_clicked
+  on_show_metric_clicked
+  on_show_extents_clicked
+  on_select_p_view_clicked
+  on_select_x_view_clicked
+  on_select_y_view_clicked
+  on_select_z_view_clicked
+  on_select_z2_view_clicked
+  on_show_distance_to_go_clicked
+  on_show_machine_speed_clicked
+  on_show_limits_clicked
+
+.SH "SEE ALSO"
+\fBhttp://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gremlin\fR
+\fBLinuxCNC(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
