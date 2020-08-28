@@ -1,0 +1,72 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALREPORT "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+halreport \- creates a report on the status of the HAL
+.SH SYNOPSIS
+.B  halreport [outfilename]
+
+.SH DESCRIPTION
+\fBhalreport\fR
+
+ 1) supports components made by halcompile and numerous
+    legacy components
+ 2) Known unhandled components:
+    at_pid   -- naming conflicts with pid, seldom used
+    boss_plc -- no manpage or docs (any users?)
+    watchdog -- seldom used (no users in-tree)
+ 3) deprecated/obsolete components
+    counter
+    supply
+
+ Identificaion of functions used according to pin name.
+ Default handling works for components that:
+ 1) use names=|count= (.comp components created with halcompile)
+ 2) have a *single* function
+
+Full docs: 
+
+.nf http://linuxcnc.org/docs/html/hal/tools.html#_halreport
+
+.SH "SEE ALSO"
+\fBLinuxCNC(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
