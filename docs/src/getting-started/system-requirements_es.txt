@@ -50,6 +50,13 @@ Puede descubrir la versión del kernel de su sistema con el comando
 
  uname -a
 
+Si ve (como arriba) `-rt-` en el nombre del kernel, entonces está ejecutando el
+preempt-rt kernel y debería instalar la versión "uspace" de linuxcnc.
+También debe instalar uspace para configuraciones "sim" en kernels que no son en tiempo real
+
+Si ve `-rtai-` en el nombre del kernel, entonces está ejecutando RTAI
+tiempo real. Consulte a continuación la versión de linuxcnc para instalar.
+
 === Preempt-RT con linuxcnc-uspace
 
 Preempt-RT es el más nuevo de los sistemas en tiempo real, y también es la versión
