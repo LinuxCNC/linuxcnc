@@ -83,6 +83,8 @@ install: build
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual_es.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
+	# Until we can actually build LinuxCNC_Getting_Started_cn.pdf
+	cp docs/src/getting-started/LinuxCNC_Getting_Started_cn.pdf debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_cn.pdf
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
