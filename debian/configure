@@ -169,7 +169,7 @@ case $DISTRIB_NAME in
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         EXTRA_BUILD=python-yapps
         YAPPS_RUNTIME="python-yapps"
-        STANDARDS_VERSION="4.3.0"
+        STANDARDS_VERSION="3.9.8"
         ;;
     Debian-9.*|Raspbian-9.*|LinuxMint-19.*|Ubuntu-18.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
