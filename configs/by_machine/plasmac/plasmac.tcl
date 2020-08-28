@@ -16,7 +16,6 @@ net plasmac:feed-reduction          motion.analog-out-03        =>  plasmac.feed
 net plasmac:float-switch-out        debounce.0.0.out            =>  plasmac.float-switch
 net plasmac:ignore-arc-ok-0         motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net plasmac:motion-type             motion.motion-type          =>  plasmac.motion-type
-net plasmac:machine-is-on           halui.machine.is-on         =>  plasmac.machine-is-on
 net plasmac:ohmic-probe-out         debounce.0.2.out            =>  plasmac.ohmic-probe
 net plasmac:program-is-idle         halui.program.is-idle       =>  plasmac.program-is-idle
 net plasmac:program-is-paused       halui.program.is-paused     =>  plasmac.program-is-paused
@@ -28,6 +27,13 @@ net plasmac:units-per-mm            halui.machine.units-per-mm  =>  plasmac.unit
 net plasmac:x-offset-current        axis.x.eoffset              =>  plasmac.x-offset-current
 net plasmac:y-offset-current        axis.y.eoffset              =>  plasmac.y-offset-current
 net plasmac:z-offset-current        axis.z.eoffset              =>  plasmac.z-offset-current
+
+# use existing machine-is-on signal from pncconf if it exists
+if {[hal list sig machine-is-on] != {}} {
+    net machine-is-on                                           =>  plasmac.machine-is-on
+} else {
+    net plasmac:machine-is-on       halui.machine.is-on         =>  plasmac.machine-is-on
+}
 
 # outputs
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
