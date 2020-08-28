@@ -1399,8 +1399,8 @@ class configurator:
                 for param in ['IPADDRESS','ENCODERS','STEPGENS','PWMGENS','SSERIAL_PORT']:
                     if param in hostmot:
                         line = line.replace('[HOSTMOT2]' + param,hostmot[param])
-            # comment out old spindle lines
-            elif 'spindle' in line.lower():
+            # comment out old spindle and halui lines
+            elif 'spindle' in line.lower() or 'halui.machine.is-on' in line.lower():
                 line = '# {}'.format(line)
             # comment out old toolchange lines
             elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool' in line:
