@@ -146,11 +146,13 @@ else
 	EXTRAS=extras
 fi
 
-DOC_DEPENDS='asciidoc (>= 8.5),  asciidoc-dblatex, dblatex (>= 0.2.12), docbook-xsl, \
-    texlive-font-utils, texlive-fonts-recommended, \
-    texlive-lang-all, texlive-xetex, texlive-latex-recommended, texlive-extra-utils, \
-    dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, python-lxml, source-highlight, \
-    w3c-linkchecker, xsltproc'
+DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
+        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
+        python-lxml, source-highlight, w3c-linkchecker, xsltproc \
+        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
+        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
+        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended'
+
 MODUTILS_DEPENDS=kmod
 PYTHON_PACKAGING_DEPENDS=dh-python
 PYTHON_PACKAGING=dh_python2

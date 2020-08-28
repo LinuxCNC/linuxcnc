@@ -385,7 +385,10 @@ PDF_TARGETS_CN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started_cn.pdf \
 	)
 
-PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
+# Chinese PDFs do not build. They can be persuaded to build by using xetex
+# as the a2x backend. See line 407 but even then all characters display as boxes
+#PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
 
 $(info  PDF_TARGETS is $(PDF_TARGETS))
 $(info )
@@ -400,7 +403,7 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_fr.html \
 	$(DOC_DIR)/html/index_cn.html \
 
-
+# Add '--backend xetex' to the --dblatex-opts string to build Chinese PDF
 A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -408,8 +411,7 @@ A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
 	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
-	  --dblatex-opts "--backend xetex \
-			  -P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
 			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
                           $(A2X_LATEX_ENCODING)"
 
@@ -704,7 +706,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
+#	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
