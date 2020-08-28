@@ -32,9 +32,8 @@ net plasmac:z-offset-current        axis.z.eoffset              =>  plasmac.z-of
 if {[hal list sig machine-is-on] != {}} {
     net machine-is-on                                           =>  plasmac.machine-is-on
 } else {
-    net plasmac:machine-is-on       halui.machine.is-on         =>  plasmac.machine-is-on
+    net machine-is-on               halui.machine.is-on         =>  plasmac.machine-is-on
 }
-
 # outputs
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
 net plasmac:cutting-stop            halui.spindle.0.stop        =>  plasmac.cutting-stop
