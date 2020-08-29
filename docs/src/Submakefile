@@ -706,7 +706,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
-#	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
