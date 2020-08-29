@@ -12,8 +12,7 @@ hm2_uart_send \- escribe datos en una UART Hostmot2
 int hm2_uart_send(char* name,  unsigned char data[], int count)
 
 .SH DESCRIPCIÓN
-\fBhm2_uart_send\fR escribe 'count' bytes de datos en UART "name" desde el búfer
-'data'.
+\fBhm2_uart_send\fR escribe 'count' bytes de datos en UART "name" desde el búfer 'data'.
 
 La FIFO UART tiene 64 bytes de profundidad, los intentos de transmitir más de 64 bytes pueden tener efectos inesperados
 
