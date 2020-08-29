@@ -446,19 +446,19 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_cn
 
-checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
 
-checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html
+checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
-checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/gcode_es.html
+checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/gcode_es.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-checkref_cn: $(DOC_TARGETS_HTML_CN)
+checkref_cn: $(DOC_TARGETS_HTML_CN) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Chinese $^
 
-checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html
+checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Vietnamese $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
