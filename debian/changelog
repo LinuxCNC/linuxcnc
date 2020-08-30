@@ -1,4 +1,4 @@
-linuxcnc (1:2.8.0~pre3) buster; urgency=low
+linuxcnc (1:2.8.0) buster; urgency=low
 
   * Finally merge "Joints Axes". Joints and cartesian axes are no longer
     treated as the same thing, making control of robots and non-trivial
@@ -115,7 +115,6 @@ linuxcnc (1:2.8.0~pre3) buster; urgency=low
   * uspace: add uspace+rtai realtime
   * add a sample config for the scorbot-er-3 robot arm
   * docs: document AXIS's foam mode
-  * configs: foam: this has no locking indexer
 
  -- andypugh <andy@bodgesoc.org>  Sun, 16 Aug 2020 19:47:54 +0100
 
