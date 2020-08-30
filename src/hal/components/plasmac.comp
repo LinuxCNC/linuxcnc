@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.168 - 2020 Aug 28
+0.169 - 2020 Aug 30
 
 .I SUMMARY:
 .br
@@ -556,7 +556,9 @@ FUNCTION(_) {
         switch(state){
             case IDLE:
                 xy_offset_enable = FALSE;
-                if(fabs(z_offset_current) - z_offset_counts < 0.000001){
+                if((int)floor(z_offset_current / offset_scale) < 0.0000001 && 
+                   (int)floor(z_offset_current / offset_scale) > -0.0000001 &&
+                   program_is_idle){
                     z_offset_enable = FALSE;
                 }
                 if(probe_inhibit && !float_switch && !breakaway && !ohmic_detected){
