@@ -595,8 +595,8 @@ objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
 objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-#objects/xref_cn.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_CN_SMALL))
-#	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+objects/xref_cn.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_CN_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
