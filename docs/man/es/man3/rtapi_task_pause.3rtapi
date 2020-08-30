@@ -24,7 +24,7 @@ libera la CPU.
 Se llama a una función de bloqueo, como \fBrtapi_sem_take\fR. Se reanudará cuando
 la función desbloquea.
 .IP 3)
-\FBrtapi_task_pause\fR la devuelve al estado "en pausa". Puede ser llamads
+\fBrtapi_task_pause\fR la devuelve al estado "en pausa". Puede ser llamads
 desde el código de inicio/limpieza, y desde dentro de las tareas en tiempo real.
 
 \fBrtapi_task_pause\fR hace que una tarea detenga la ejecución y cambie
