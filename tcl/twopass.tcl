@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # twopass.tcl:
 #
 # This file is sourced by haltcl when the inifile item HAL:TWOPASS

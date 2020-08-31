@@ -44,6 +44,13 @@ LinuxCNC需要经过更改，可实时操作的内核以控制现实中的机器
 
  uname -a
 
+如果您在内核名称中看到（如上）`-rt-`，那么您正在运行
+preempt-rt内核，应安装linuxcnc的“ uspace”版本。
+您还应该在非实时内核上为“ sim”配置安装uspace
+
+如果您在内核名称中看到`-rtai-`，那么您正在运行RTAI
+即时的。 请参阅以下有关要安装的linuxcnc版本的信息。
+
 === Preempt-RT与linuxcnc-uspace
 
 Preempt-RT是所有实时系统里最新的，更是其中最接近主线内核的版本。

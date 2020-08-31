@@ -246,7 +246,7 @@ Signals for operating program and MDI mode.
 *whb.halui.program.resume* (bit,out)::
  connect to *halui.program.resume* Pin for resuming a program.
 *whb.halui.program.stop* (bit,out)::
- connect to *program.stop* Pin for stoping a program.
+ connect to *program.stop* Pin for stopping a program.
 *whb.halui.program.is-idle* (bit,in)::
  connect to *halui.program.is-idle* Pin indicating no program is running.
 *whb.halui.mode.auto* (bit,out)::

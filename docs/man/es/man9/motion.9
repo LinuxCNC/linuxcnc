@@ -11,13 +11,13 @@ motion \- acepta comandos NML de movimiento, interactúa con HAL en tiempo real
 \fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 Los límites para los siguientes elementos se configuran en tiempo de compilación:
-.TQ
+.TP
 \fBnum_joints\fR: establece el número máximo de articulaciones EMCMOT_MAX_JOINTS.
-.TQ
+.TP
 \fBnum_dio\fR: establece el número máximo de entradas digitales EMCMOT_MAX_DIO.
-.TQ
+.TP
 \fBnum_aio\fR: establece el número máximo de entradas analógicas EMCMOT_MAX_AIO.
-.TQ
+.TP
 \fBnum_spindles\fR: establece el número máximo de husillos EMCMOT_MAX_SPINDLES.
 
 .P
@@ -93,11 +93,11 @@ Distancia restante en el movimiento actual
 \fBmotion.enable\fR IN BIT
 Si este bit se pone FALSE, el movimiento se detiene, la máquina se coloca en el estado "máquina apagada" y se muestra un mensaje para el operador. Para movimiento normal, ponga este bit a TRUE.
 
-.TQ
+.TP
 \fBmotion.eoffset-active\fR OUT BIT
 Indica que las compensaciones externas están activas (no son cero)
 
-.TQ
+.TP
 \fBmotion.eoffset-limited\fR OUT BIT
 Indica que el movimiento con offsets externos estaba limitado por una restricción de límite soft ([AXIS_L]MIN_LIMIT, MAX_LIMIT).
 
@@ -170,7 +170,7 @@ El número de clocks de CPU entre invocaciones del hilo servo. Por lo general, e
 \fBmotion.teleop\-mode\fR OUT BIT
 El modo de movimiento es teleop ( disponible jogging coordinado de ejes).
 
-.TQ
+.TP
 \fBmotion.tooloffset.L\fR OUT float
 offset de herramienta actual para cada eje donde (\fBL\fR es la letra del eje, una de entre:\fBx y z a b c u v w\fR)
 
@@ -343,7 +343,7 @@ TRUE si la articulación está utilizando el "planificador libre" y se ha deteni
 \fBjoint.\fIN\fB.index\-enable\fR IO BIT
 Debe estar conectado al pin index\-enable del codificador de la articulación para permitir homing al pulso index.
 
-.TQ
+.TP
 \fBjoint.N.is\-unlocked\fR IN BIT
 Indica que la articulación está desbloqueada (ver PINES DE DESBLOQUEO DE ARTICULACION).
 
@@ -427,7 +427,7 @@ Los pines de articulación utilizados para desbloquear una articulación (\fBjoi
 
 Los bits de la máscara articulación son: (lsb)0: articulación0, 1: articulación1, 2: articulación2, ...
 
-.TQ
+.TP
 Ejemplo: loadrt motmod ...\fBunlock_joints_mask=\fR0x38 crea pines de desbloqueo para las articulaciones 3,4,5
 
 .SH PINES DE HUSILLO
@@ -523,18 +523,18 @@ Velocidad del husillo deseada en rotaciones por segundo, siempre positiva indepe
 
 Muchos de los parámetros sirven como ayudas para la depuración y están sujetos a cambios o eliminación en cualquier momento.
 
-.TQ
+.TP
 \fBmotion\-command\-handler.tmax\fR RW S32
 Muestra información sobre el tiempo de ejecución de estas funciones HAL en clocks de CPU
 
-.TQ
+.TP
 \fBmotion\-command\-handler.tmax\-increased\fR RO S32
 
-.TQ
+.TP
 \fBmotion\-controller.tmax\fR RW S32
 Muestra información sobre el tiempo de ejecución de estas funciones HAL en clocks de CPU
 
-.TQ
+.TP
 \fBmotion\-controller.tmax\-increased\fR RO BIT
 
 .TP
@@ -557,7 +557,7 @@ El pin llamado \fBmotion-controller.time\fR y los parámetros \fBmotion-controll
 
 .SH ERRORES
 Esta página del manual está incompleta.
-.TQ
+.TP
 La identificación de pines categorizados con \fB(DEBUG)\fR es dudosa.
 
 .SH VER TAMBIÉN

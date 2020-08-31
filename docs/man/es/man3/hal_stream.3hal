@@ -190,7 +190,7 @@ En el árbol fuente debajo
 hay componentes en tiempo real que leen y escriben streams hal.
 
 .SH CONSIDERACIONES EN TIEMPO REAL
-.BR hal_stream_read "," hal_stream_readable "," hal_stream_write "," hal_stream_writable "," hal_stream_element_count "," hal_tream_pin_type "," hal_stream_depth "," hal_stream_maxdepth "," hal_stream_num_underruns "," hal_stream_num_underruns "," hal_stream_num_underruns "," hal_stream_num_underruns ",
+.BR hal_stream_read ", " hal_stream_readable ", " hal_stream_write ", " hal_stream_writable ", " hal_stream_element_count ", " hal_tream_pin_type ", " hal_stream_depth ", " hal_stream_maxdepth ", " hal_stream_num_underruns ", " hal_stream_num_underruns ", " hal_stream_num_underruns ", " hal_stream_num_underruns ",
 se pueden llamar desde código en tiempo real.
 
 .BR hal_stream_wait_writable ", " hal_stream_wait_writable
@@ -198,7 +198,7 @@ se puede llamar desde el código ULAPI.
 
 Se pueden invocar otras funciones en cualquier contexto, incluidos los contextos en tiempo real.
 .SH VALOR DEVUELTO
-.BR hal_stream_create "," hal_stream_attach "," hal_stream_read "," hal_stream_write "," hal_stream_detach "y" hal_stream_destroy " devuelven un código de estado RTAPI. Los valores de retorno de otras funciones se explicaron anteriormente.
+.BR hal_stream_create ", " hal_stream_attach ", " hal_stream_read ", " hal_stream_write ", " hal_stream_detach "y " hal_stream_destroy " devuelven un código de estado RTAPI. Los valores de retorno de otras funciones se explicaron anteriormente.
 
 .SH ERRORES
 La sobrecarga de memoria de una secuencia puede ser grande. Cada elemento en un registro usa 8 bytes, y el número de muestra implícito también usa 8 bytes. Como resultado, una stream que se usa para transportar valores de 8 bits usa el 94% de su memoria como sobrecarga.

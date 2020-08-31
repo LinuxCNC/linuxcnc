@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # ngcgui_ttt.tcl: a LinuxCNC [DISPLAY]TKAPP for using truetype-tracer and ngcgui
 
 #-----------------------------------------------------------------------
