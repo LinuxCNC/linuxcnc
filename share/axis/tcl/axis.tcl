@@ -1250,21 +1250,6 @@ setup_widget_accel $_tabs_mdi.go [_ Go]
 vspace $_tabs_mdi.vs2 \
 	-height 12
 
-label $_tabs_mdi.gcodel
-setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
-
-text $_tabs_mdi.gcodes \
-	-height 2 \
-	-width 40 \
-	-undo 0 \
-	-wrap word
-
-$_tabs_mdi.gcodes insert end {}
-$_tabs_mdi.gcodes configure -state disabled
-
-vspace $_tabs_mdi.vs3 \
-	-height 12
-
 # Grid widget $_tabs_mdi.command
 grid $_tabs_mdi.command \
 	-column 0 \
@@ -1305,10 +1290,6 @@ grid $_tabs_mdi.vs2 \
 	-column 0 \
 	-row 5
 
-# Grid widget $_tabs_mdi.vs3
-grid $_tabs_mdi.vs3 \
-	-column 0 \
-	-row 8
 grid columnconfigure $_tabs_mdi 0 -weight 1
 grid rowconfigure $_tabs_mdi 1 -weight 1
 
@@ -1406,6 +1387,7 @@ setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
 text ${pane_top}.gcodes \
 	-height 2 \
 	-width 40 \
+	-undo 0 \
 	-wrap word
 
 ${pane_top}.gcodes insert end {}

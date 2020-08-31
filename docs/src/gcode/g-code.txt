@@ -232,6 +232,11 @@ rotations. For each P increment above 1 an extra full circle is added to the
 programmed arc. Multi turn helical arcs are supported and give motion useful
 for milling holes or threads.
 
+WARNING: If the pitch of the helix is very small (less than the
+<<programming-the-planner,naive CAM tolerance>> then
+the helix might be converted into a straight line.
+https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]
+
 If a line of code makes an arc and includes rotary axis motion,
 the rotary axes turn at a constant rate so that the rotary
 motion starts and finishes when the XYZ motion starts and finishes.
@@ -881,7 +886,7 @@ G28 uses the values stored in <<sub:numbered-parameters,parameters>>
 values are 'absolute' machine coordinates in the native machine 'units' as 
 specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
-the <<sec.machine-corrdinate-system,machine origin>>.
+the <<sec.machine-coordinate-system,machine origin>>.
 
 * 'G28' - makes a <<gcode:g0,rapid move>> from the current
   position to the 'absolute' position of the values in parameters 5161-5166.
@@ -916,7 +921,7 @@ final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
 positions are stored with G30.1 then all axes will go to the
-<<sec.machine-corrdinate-system,machine origin>>.
+<<sec.machine-coordinate-system,machine origin>>.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
@@ -1372,7 +1377,7 @@ within the workpiece coordinate system. More information on G52 is in the
 G53 axes
 ----
 
-To move in the <<sec.machine-corrdinate-system,machine coordinate system>>,
+To move in the <<sec.machine-coordinate-system,machine coordinate system>>,
 program 'G53' on the same line as a linear move. 'G53' is not modal and must be
 programmed on each line. 'G0' or 'G1' does not have to be programmed on the same
 line if one is currently active.
@@ -2387,7 +2392,7 @@ All axis words are optional, except that at least one must be used.
 If an axis word is not used for a given axis, the offset for that axis 
 will be zero. 
 
-When 'G92' is executed, the <<sec.machine-corrdinate-system,origins>> 
+When 'G92' is executed, the <<sec.machine-coordinate-system,origins>> 
 of all coordinate systems move. They move such that the value of the 
 current controlled point, in the currently active coordinate system, 
 becomes the specified value. All of the coordinate system's origins 

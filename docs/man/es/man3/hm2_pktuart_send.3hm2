@@ -1,0 +1,49 @@
+\# Author Boris Skegin
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_pktuart_send "3hm2" "29-02-2016" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_pktuart_send \- escribe datos en PktUART Hostmot2
+
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_uart_send(char *name, unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[])
+
+.SH DESCRIPCIÓN
+\fBhm2_pktuart_send\fR escribe "num_frames" de datos en la PktUART "name" desde el búfer "data" con tamaños de trama preestablecidos en la matriz "frame_sizes[]".
+La matriz "frame_sizes[]" no debe tener más de 16 elementos ya que este es la más alta cantidad de tramas que se pueden enviar en llamadas "modo ráfaga".
+
+Tenga en cuenta que PktUART MaxFrameSize tiene codificados 1024 bytes en hostmot2.vhd.
+
+"name" es una cadena única dada a cada PktUART durante la configuración de hostmot2. Los nombres de los canales disponibles se imprimen en la salida estándar 
+durante la carga del controlador y toman la forma:
+hm2_ <nombre de la tarjeta>.<índice de la tarjeta>.pktuart.<índice> .
+Por ejemplo hm2_5i25.0.pktuart.0.
+
+Esta función envía un número variable de paquetes PktUART (menos o igual a 16) desde el canal especificado. Debe usarse dentro de un componente HAL en tiempo real
+registrado con el controlador principal hostmot2 utilizando la función hm2_pktuart_setup en el código de configuración.
+
+.SH VALOR DEVUELTO
+Devuelve el número de bytes enviados en caso de éxito y códigos de error negativos en caso de error.
+
+"num_frames", cuyo puntero se pasa por valor, se establece en el número de
+datagramas enviados.
+
+Los códigos de error negativos son:
+.TP
+.B -1 - error de lectura/escritura de bajo nivel
+.TP
+.B -EINVAL: cualquier error de configuración de PktUART por instancia
+.TP
+.B -HM2_PKTUART_TxSCFIFOError - Tx Send Count FIFO Error
+.TP
+Los valores numéricos de los códigos de error HM2_PKTUART_ se definen en src/hal/drivers/mesa-hostmot2/pktuart_errno.h.
+
+
+.SH VER TAMBIÉN
+.B man hm2_pktuart_setup, man hm2_pktuart_read
+.TP
+Consulte src/hal/drivers/mesa_pktgyro_test.comp para ver un ejemplo de uso.
+

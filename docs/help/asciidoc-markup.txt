@@ -1,121 +1,121 @@
-This document is a guide for using asciidoc markup
+Este documento es una guía para usar el marcado de asciidoc
 
 
-Master Document file Headers, first line replace en with two letter language code
----------------------------------------------------------------------------------
+Encabezados de archivo de documento maestro, primera línea reemplazar "en" con su código de idioma de dos letras
+----------------------------------------------------------------------------------------------------------------
 
 :lversion: {sys: cat ../VERSION}
-Getting Started V{lversion}, {localdate}
-=================================
-:lang: en
+Comenzar V{lversion}, {localdate}
+===============================
+:lang:en
 :masterdir: {indir}
 :leveloffset: 1
-The EMC Team
+El equipo de EMC
 
-The parameters are interpreted well before the load files lang-xx.conf and the other files .conf
-It is particularly important for the parameters as :lang:
+Los parámetros se interpretan antes de que se cargen los archivos lang-xx.conf y los demás archivos .conf
+Es particularmente importante para los parámetros como :lang:
 
-The typical authorized attributes : doctype, lang, encoding, icons, data-uri, toc, numbered
+Los atributos típicos autorizados son: doctype, lang, encoding, icons, data-uri, toc, numbered
 
-More information here
+Más información aquí
 http://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
-Titles
-======
-= Document Title (level 0) =  Note: level 0 can only be once per file!
-== Section title (level 1) ==  Note: trailing delimiter is optional.
-=== Section title (level 2) ===
-.Third level Title
+Títulos
+=======
+= Título del documento (nivel 0) = Nota: ¡el nivel 0 solo puede estar una vez por archivo!
+== Título de la sección (nivel 1) == Nota: el delimitador final es opcional.
+=== Título de la sección (nivel 2) ===
+.Tercer nivel de título
 
-Links
-=====
+Enlaces
+=======
 [[anchor]]
-<<anchor,caption>>
+<<anchor,leyenda>>
 
-Example document link
+Ejemplo de enlace de documento
 [[sub:torpodeos]]
 
-<<sub:torpodeos,bombs>>
+<<sub:torpodeos,bombas>>
 
-only bombs will show in the text with an underline so always provide a caption
-for a link.
+solo se mostrará "bombas" en el texto con un subrayado, así que siempre proporcione una leyenda
+para un enlace.
 
-External link
-http://linuxnc.org/someplace[description of link]
+Enlace externo
+http://linuxnc.org/someplace[descripcion del link]
 
-Comment Block
-=============
+Bloque de comentarios
+=====================
 ////
-Use: hide comments
+Uso: ocultar comentarios
 ////
 
 
-Listing Block for G Code and terminal output
-============================================
----- < 4 dashes start of block
-lines of code
+Bloque de listado para código G y salida por terminal
+=====================================================
+---- <4 guiones comienzan un bloque
+líneas de código
 ...
-more code
----- < 4 dashes end of block
-     < 1 blank line after
+mas codigo
+---- <4 guiones finalizan el bloque
+     <1 después, línea en blanco 
 
-Literal blocks
-==============
-.... < 4 periods start the block
-literal block
-will show up
-just as you type it.
-.... < 4 periods end the block
-     < 1 blank line after
+Bloques literales
+=================
+.... <4 puntos comienzan el bloque
+Un bloque literal
+aparecerá
+tal como lo escribe.
+.... <4 puntos terminan el bloque
+     <1 después, línea en blanco
 
-Lists
-=====
+Listas
+======
 * bullet
 ** bullet
 
 . numbered
 .. numbered
 
-List Item Continuation
-* List item paragaph one
-  continued with a single plus hard left.
+Continuacion de Lista de elementos
+* Parrafo uno de la lista de elementos
+  continuado con un signo + ajustado a la izquierda.
 +
-List item one continued 
-   with a second paragraph
-   and first line of second paragraph must be hard left.
+El elemento de lista uno continua
+   con un segundo párrafo
+   y la primera línea del segundo párrafo estar ajustada a la izquierda.
 
-HAL pins and parameters use the following format for consistency
-* 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
-bulleted list with the pin name emphasized by surrounding it with 
-single quotes.
+Para ser consistentes, los pines y parámetros HAL usaran el siguiente formato
+* 'parport.<p>.pin-<n>-out' (bit) Maneja un pin de salida física.
+lista con bullets con el nombre del pin enfatizado rodeándolo con
+comillas simples.
 
-Images
-======
-put all images in the images subdirectory
+Imágenes
+========
+poner todas las imágenes en el subdirectorio de imágenes
 
-image::<target>[<attributes>]
+image::<objetivo>[<atributos>]
 
-example
+ejemplo
 image::images/axis.png[]
-image::images/tiger.png["Tiger image",align="center"]
+image::images/tiger.png["Imagen de tigre",align="center"]
 
-If the image is small and displays too big in the pdf you can
-use the scaledwidth="60%" attribute
+Si la imagen es pequeña y se muestra demasiado grande en un pdf, puede
+usar el atributo scaledwidth="60%"
 
-Inline Images
-=============
-Same as images except only one : is used and no attributes are used between 
-the []
+Imágenes en línea
+=================
+Igual que imágenes excepto que solo se usa un : y no se usan atributos entre
+los []
 
-My text has an image in it image:images/axisbutton.png[]
+Mi texto tiene una imagen en el image:images/axisbutton.png[]
 
-Figures
+Figuras
 =======
-Use the following format for figures so any links to the anchor will move to
-correct place. Only create a link to a figure if it is somewhere else and not 
-the next thing you see when scrolling down. Just say something like "in the 
-following figure..."
+Utilice el siguiente formato para las figuras de modo que los enlaces al ancla se moverán a
+lugar correcto. Solo cree un enlace a una figura si está en otro lugar y no en
+lo siguiente que se vea en un scroll  hacia abajo. Diga algo como  "en la
+siguiente figura... "
 
 [[fig:Parport-block-diag]]
 
@@ -123,20 +123,21 @@ following figure..."
 
 image::images/parport-block-diag.png[align="center"]
 
-Notes and Warnings
-==================
-Inline example
-NOTE: This is an example note.
+Notas y Advertencias
+====================
+Ejemplo en línea
+NOTA: Esta es un ejemplo de nota.
 
-Paragraph example
+Ejemplo de párrafo
 [NOTE]
-This is an example note of the
-paragraph style.
+Esta es una nota de ejemplo de
+estilo de párrafo.
 
-Styles include
+Los estilos incluyen
 NOTE TIP IMPORTANT WARNING CAUTION
 
-Tables
+
+Tablas
 ======
 [options="header, width="80%"]
 |=======
@@ -145,17 +146,17 @@ Tables
 |5 |6 |C
 |=======
 
-Escaping a character
-====================
-Normally characters like ' and * would not print unless you use \' or \* then
-they will print as normal characters.
+Escapar un caracter
+======================
+Normalmente los caracteres como ' y * no se imprimirían a menos que use \' o \* y entonces
+se imprimirán como caracteres normales.
 
-Making a horizontal labeled list.
+Hacer una lista etiquetada horizontal.
 [horizontal]
-Label:: The text about the label
+Label:: El texto acerca de la etiqueta
 
-Latexmath is broken at the moment and trashes the HTML. A work around is to use open office math
-to create the math image and gimp to screen capture and save to a png.
+Latexmath no funciona en este momento y destruye el HTML. Una solución alternativa es utilizar Open Office Math (o LibreOffice)
+para crear la imagen matemática y gimp para la captura de pantalla y guardarla en un png.
 
-check asciidoc cheatsheet http://powerman.name/doc/asciidoc or user manual
-http://www.methods.co.nz/asciidoc/userguide.html for details about format.
+compruebe la hoja de referencia de asciidoc http://powerman.name/doc/asciidoc o el manual del usuario
+http://www.methods.co.nz/asciidoc/userguide.html para detalles sobre el formato.

@@ -138,6 +138,14 @@ maximum allowed acceleration rate.
 Motion resumes when this pin goes FALSE.
 
 .TP
+\fBmotion.feed\-upm\fR OUT FLOAT
+Current feed rate in machine units per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the program F value multiplied by the current feed override
+value and the motion.adaptive-feed setting (if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
 \fBmotion.homing\-inhibit\fR IN BIT
 If this bit is TRUE, initiation of any joint homing move (including "Home All")
 is disallowed and an error is reported.  By default, homing is allowed in joint

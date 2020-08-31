@@ -1,4 +1,5 @@
 [Desktop Entry]
+Encoding=UTF-8
 Version=1.0
 Type=Application
 Exec=/usr/bin/linuxcnc
@@ -6,7 +7,7 @@ Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
 Name=LinuxCNC
-Comment=Configuration Launcher
+Comment=Linuxcnc Machine Controller
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC_DOC;
+Keywords=cnc;linuxcnc;cncprog;

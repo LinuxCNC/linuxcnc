@@ -1,0 +1,151 @@
+:lang: es
+
+[[cha:latency-test]]
+
+= Test de Latencia
+
+Esta prueba es la primera que debe realizarse en un PC
+para ver si es capaz de manejar una máquina CNC.
+
+La latencia es el tiempo que tarda un PC concreto en detener lo que está haciendo y
+responder a una solicitud externa. Para LinuxCNC, la solicitud es
+BASE_THREAD, que es el "latido" periódico que sirve como
+referencia de tiempo para los pulsos de paso. Cuanto menor es la latencia,
+más rápido puede ejecutar los "latidos", y más rápidos y más suaves seran
+los pulsos de paso.
+
+La latencia es mucho más importante que la velocidad de la CPU.
+Un humilde Pentium II que responde siempre a las interrupciones en 10 us
+pueden dar mejores resultados que un P4 Hyperthreading.
+
+La CPU no es el único factor para determinar la latencia.
+La placas base, tarjetas de video, puertos USB y
+un gran número de otros factores puede dañar la latencia.
+La mejor manera de averiguar con cuanta se esta tratando, es
+ejecutar la prueba RTAI de latencia.
+
+Generar pulsos de paso en software tiene una gran ventaja; es gratis.
+Casi todas las PC admiten uno mas puertos paralelo que son capaces de emitir pulsos de pasos 
+generados por el software.
+Sin embargo, los pulsos de paso software también tiene algunas desventajas:
+
+ - velocidad de paso máxima limitada
+ - jitter (fluctuaciones) en los pulsos generados
+ - añade carga a la CPU
+
+La mejor forma de descubrir si su PC funcionará bien con LinuxCNC
+es ejecutar la prueba de latencia HAL.
+Para ejecutar la prueba, abra una ventana de terminal
+(En Ubuntu, desde Aplicaciones → Accesorios → Terminal. En Debian, Menu de Aplicaciones → Emulador de Terminal)
+y ejecute el siguiente comando:
+
+----
+latency-test
+----
+
+Debería ver algo como esto:
+
+.Prueba de Latencia HAL
+
+image::../config/images/latency.png[align="center", alt="Prueba de Latencia HAL"]
+
+Mientras se ejecuta la prueba, debe 'abusar' de la computadora.
+Mueva las ventanas alrededor de la pantalla. Navege por la web. Copie algunos archivos grandes
+en el disco. Ponga musica. Ejecute un programa OpenGL como glxgears.
+La idea es poner al PC en aprietos mientras la prueba de latencia comprueba cuáles son los peores números.
+
+[NOTE]
+No ejecute LinuxCNC o Stepconf mientras se ejecuta la prueba de latencia.
+
+Los números importantes son los de la columna "max jitter" (máxima fluctuación).
+En el ejemplo anterior, son 9075 nanosegundos, o 9,075 microsegundos.
+Anote este número e ingréselo en Stepconf cuando se le solicite.
+
+En el ejemplo, la prueba de latencia solo se ejecutó durante unos segundos.
+Debe ejecutar la prueba durante al menos varios minutos; a veces
+el peor de los casos de latencia no ocurre con frecuencia, o solo ocurre
+cuando se verifica alguna acción particular. Por ejemplo, una 
+placa madre Intel funcionaba bastante bien la mayor parte del tiempo, pero cada 64
+segundos tenía una latencia muy mala de 300 us. Afortunadamente eso fue
+reparable; vea http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
+
+Entonces, ¿qué significan los resultados?. Si su número de Max Jitter es menor
+de aproximadamente 15-20 microsegundos (15000-20000 nanosegundos),
+la computadora debería dar buenos resultados con pasos por software. Si
+la latencia máxima es de entre 30-50 microsegundos, todavía puede
+obtener buenos resultados, pero su tasa máxima de pasos podría ser un poco
+decepcionante, especialmente si usa microstepping o tiene
+tornillos de paso de paso fino. Si los números son 100 us o más (100,000
+nanosegundos), entonces la PC no es un buen candidato para pasos por software.
+Números de más de 1 milisegundo (1,000,000 de nanosegundos) significan
+la PC no es un buen candidato para LinuxCNC, independientemente de si
+usa pasos por software o no.
+
+Tenga en cuenta que si obtiene números demasiado altos, puede haber formas de mejorarlos. 
+Otra PC tuvo muy mala latencia (varios milisegundos) cuando
+usaba el video incorporado. Una tarjeta de video usada de 5$ resolvió el problema.
+
+[NOTE]
+LinuxCNC no requiere hardware de última generación.
+
+Para obtener más información sobre la sintonización de pasos, consulte el capítulo 
+<<cha:Stepper-Tuning,Sintonización de steppers>>.
+
+Hay herramientas adicionales disponibles desde la línea de comandos para examinar la latencia
+cuando LinuxCNC no está corriendo.
+
+latency-plot graba un registro de los hilos base y servo.
+Puede ser útil para ver picos de latencia cuando se inician o se usan otras aplicaciones. 
+Uso:
+----
+latency-plot --help
+
+Uso:
+      latency-plot --help | -?
+      latency-plot --hal [Opciones]
+
+Opciones:
+      --base nS  (intervalo de hilo base, valor predeterminado: 25000)
+      --servo nS (intervalo de hilo servo, por defecto: 1000000)
+      --time mS  (intervalo de informe, valor predeterminado: 1000)
+      --relative (tiempo relativo de reloj (predeterminado))
+      --actual   (hora actual del reloj)
+----
+image::../config/images/latency-plot.png[alt="latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
+
+
+latency-histogram muestra un histograma de latencia (jitter) para hilos
+base y servo.
+----
+Uso:
+   latency-histogram --help | -?
+o
+   latency-histogram [Opciones]
+
+Opciones:
+  --base nS        (intervalo de hilo base, predeterminado: 25000, min: 5000)
+  --servo nS       (intervalo de hilo servo, predeterminado: 1000000, min: 25000)
+  --bbinsize nS    (tamaño del contenedor base, valor predeterminado: 100)
+  --sbinsize nS    (tamaño del contenedor servo, predeterminado: 100)
+  --bbins n        (contenedores base, por defecto: 200)
+  --sbins n        (servo bins, por defecto: 200)
+  --logscale 0|1   (escala logaritmica del eje y, valor predeterminado: 1)
+  - text      note (nota adicional, valor predeterminado: "")
+  --show           (muestra el recuento de los contenedores no mostrados)
+  --nobase         (hilo servo solamente)
+  --verbose        (progreso y depuración)
+  --nox            (sin gui, display transcurrido, min, max, sdev para cada hilo)
+
+Notas:
+  Linuxcnc y Hal no deberían estar ejecutándose; deténgalos con halrun -U.
+  Una gran cantidad de contenedores y/o binsizes pequeños ralentizarán las actualizaciones.
+  Para un solo hilo, especifique --nobase (y opciones para el hilo servo).
+  Las latencias medidas fuera del rango +/- bin se informan
+  con barras finales especiales. Use --show para mostrar el conteo de
+  bins fuera del grrafico [pos | neg]
+----
+image ::../config/images/latency-histogram.png [alt = "latency-histogram muestra un histograma de latencia (jitter) para hilos base y servo"]
+
+// vim: set syntax = asciidoc:
+
+

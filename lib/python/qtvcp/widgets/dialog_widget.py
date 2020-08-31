@@ -23,11 +23,11 @@ from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
+from PyQt5 import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
-from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
@@ -505,6 +505,9 @@ class FileDialog(QFileDialog, GeometryMixin):
                     message['RETURN'] = self.save_dialog(ext, pre, dir)
                     STATUS.emit('general', message)
 
+    def showdialog(self):
+        self.load_dialog()
+
     def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
@@ -871,6 +874,7 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
 class CamViewDialog(QDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(CamViewDialog, self).__init__(parent)
+        from qtvcp.widgets.camview_widget import CamView
         self._color = QColor(0, 0, 0, 150)
         self._state = False
         self._request_name = 'CAMVIEW'
@@ -1090,8 +1094,7 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         l.addWidget(buttonBox)
 
     def _hal_init(self):
-        self._o.hal_init(self.HAL_GCOMP_, self.HAL_NAME_, self.QT_OBJECT_,
-                     self.QTVCP_INSTANCE_, self.PATHS_, self.PREFS_)
+        self._o.hal_init()
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
 
@@ -1103,6 +1106,9 @@ class VersaProbeDialog(QDialog, GeometryMixin):
             geo = message.get('GEONAME') or 'VersaProbeDialog-geometry'
             self.read_preference_geometry(geo)
             self.load_dialog()
+
+    def showdialog(self):
+        self.load_dialog()
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'VersaProbe Dialog', self._color)
@@ -1466,6 +1472,106 @@ class MachineLogDialog(QDialog, GeometryMixin):
     launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
+############################################
+# Run from line prestart Dialog
+############################################
+
+class RunFromLineDialog(QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(RunFromLineDialog, self).__init__(parent)
+        # Load the widgets UI file:
+        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'runFromLine_dialog.ui')
+        try:
+            self.instance = uic.loadUi(self.filename, self)
+        except AttributeError as e:
+            LOG.critical(e)
+        self.start_line = None
+        self._color = QColor(0, 0, 0, 150)
+        self.play_sound = False
+        self._request_name = 'RUNFROMLINE'
+        self._title = 'Run from line preset Dialog'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+        self.buttonBox.clicked.connect(self.Clicked)
+
+    def _hal_init(self):
+        self.set_default_geometry()
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('RunFromLineDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('RunFromLineDialog_sound_type', 'READY', str, 'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
+        STATUS.connect('dialog-request', self._external_request)
+
+        def homed_on_test():
+            return (STATUS.machine_is_on() 
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        STATUS.connect('state-off', lambda w: self.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
+        STATUS.connect('all-homed', lambda w: self.setEnabled(homed_on_test()))
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            geo = message.get('GEONAME') or 'RunFromLineDialog-geometry'
+            self.read_preference_geometry(geo)
+            t = message.get('TITLE')
+            if t:
+                self._title = t
+            else:
+                self._title = 'Run From Line Preset'
+            l = message.get('LINE')
+            nblock = message.get('NONBLOCKING')
+            mess = message.get('MESSAGE')
+            num = self.showdialog(line = l, message=mess, nonblock = nblock)
+            message['RETURN'] = num
+            STATUS.emit('general', message)
+
+    def showdialog(self, line = 1, message=None, nonblock=None):
+        self.start_line = int(line)
+        if message is not None:
+            self.label_line.setText(message)
+        if not nonblock:
+            STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
+        self.setWindowTitle(self._title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        self.set_geometry()
+        if not nonblock:
+            self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            self.record_geometry()
+            return False
+        else:
+            self.show()
+
+    # accept button applies presets and if line number given starts linuxcnc
+    def accept(self):
+        self.preset()
+        if self.start_line:
+            ACTION.RUN(self.start_line)
+        super(RunFromLineDialog, self).accept()
+
+    #apply button only applies presets
+    def Clicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.preset()
+
+    # preset spindle before running
+    def preset(self):
+        if self.radioButton_cw.isChecked():
+            direction = 'M3'
+        else:
+            direction = 'M4'
+        speed  = self.spinBox_rpm.value()
+        ACTION.CALL_MDI('s{} {}'.format(speed,direction))
 
 ################################
 # for testing without editor:
@@ -1475,7 +1581,22 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = CalculatorDialog()
+    #widget = CalculatorDialog()
+    widget = RunFromLineDialog()
+    #widget = MachineLogDialog()
+    #widget = EntryDialog()
+    #widget = CamViewDialog()
+    #widget = VersaProbeDialog()
+    #widget = MacroTabDialog()
+    #widget = CamViewDialog()
+    #widget = ToolOffsetDialog()
+    #widget = OriginOffsetDialog()
+    #widget = FileDialog()
+    #widget = ToolDialog()
+
+    widget.HAL_NAME_ = 'test'
+    widget.PREFS_ = None
+    widget._hal_init()
     widget.showdialog()
     sys.exit(app.exec_())
 if __name__ == '__main__':

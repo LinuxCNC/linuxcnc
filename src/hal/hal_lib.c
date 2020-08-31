@@ -349,6 +349,7 @@ int hal_exit(int comp_id)
     --ref_cnt;
 #ifdef ULAPI
     if(ref_cnt == 0) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "HAL:  releasing RTAPI resources");
 	/* release RTAPI resources */
 	rtapi_shmem_delete(lib_mem_id, lib_module_id);
 	rtapi_exit(lib_module_id);
@@ -1673,6 +1674,57 @@ int hal_param_alias(const char *param_name, const char *alias)
 }
 
 /***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
+{
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    if ((pin = halpr_find_pin_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (connected != NULL)
+        *connected = pin && pin->signal;
+    *type = pin->type;
+    if (pin->signal != 0) {
+        sig = (hal_sig_t *) SHMPTR(pin->signal);
+        *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    } else {
+        *data = (hal_data_u *) &(pin->dummysig);
+    }
+    return 0;
+}
+
+int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers)
+{
+    hal_sig_t *sig;
+    if ((sig = halpr_find_sig_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (has_writers != NULL)
+        *has_writers = !!sig->writers;
+    *type = sig->type;
+    *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    return 0;
+}
+
+int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data)
+{
+    hal_param_t *param;
+    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
+        return -1;
+
+    *type = param->type;
+    *data = (hal_data_u *) SHMPTR(param->data_ptr);
+    return 0;
+}
+
+
+/***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
@@ -1973,7 +2025,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     hal_ready(new->comp_id);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
-    return 0;
+    return new->comp_id;
 }
 
 extern int hal_thread_delete(const char *name)
@@ -2878,7 +2930,10 @@ static void *shmalloc_up(long int size)
 
     /* deal with alignment requirements */
     tmp_bot = hal_data->shmem_bot;
-    if (size >= 8) {
+    if (size >= 16) {
+	/* align on 16 byte boundary */
+	tmp_bot = (tmp_bot + 15) & (~15);
+    } else if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_bot = (tmp_bot + 7) & (~7);
     } else if (size >= 4) {
@@ -2897,6 +2952,7 @@ static void *shmalloc_up(long int size)
     retval = SHMPTR(tmp_bot);
     hal_data->shmem_bot = tmp_bot + size;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
+    rtapi_print_msg(RTAPI_MSG_DBG, "smalloc_up: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 
@@ -2908,7 +2964,10 @@ static void *shmalloc_dn(long int size)
     /* tentatively allocate memory */
     tmp_top = hal_data->shmem_top - size;
     /* deal with alignment requirements */
-    if (size >= 8) {
+    if (size >= 16) {
+	/* align on 16 byte boundary */
+	tmp_top &= (~15);
+    } else if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_top &= (~7);
     } else if (size >= 4) {
@@ -2927,6 +2986,7 @@ static void *shmalloc_dn(long int size)
     retval = SHMPTR(tmp_top);
     hal_data->shmem_top = tmp_top;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
+    rtapi_print_msg(RTAPI_MSG_DBG, "smalloc_dn: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 

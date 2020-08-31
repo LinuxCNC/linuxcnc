@@ -2,7 +2,8 @@
 编辑或者图片准备上为我们提供帮助，
 请联系文档编写团队任何成员，或加入我们团队。
 发送电子邮件至
-emc-users@lists.sourceforge.net。
+
+emc-users@lists.sourceforge.net
 
 版权所有©2000-2016 LinuxCNC.org
 
@@ -21,3 +22,4 @@ _Debian_ 是公益软件公司（Software in the Public Interest，Inc.）拥有
 
 LinuxCNC项目不属于UBUNTU®。
 _UBUNTU_ 是科能软件有限公司（Canonical Limited）拥有的注册商标。
+

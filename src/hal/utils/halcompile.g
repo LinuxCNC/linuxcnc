@@ -100,6 +100,7 @@ parser Hal:
 
 import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+BINDIR = os.getenv('USER_MODULE_DIR', None) or os.path.join(BASE, "bin")
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
@@ -596,25 +597,28 @@ static int comp_id;
                 print("       }", file=f)
                 print("    }", file=f)
             else:
-                print("        int j,idx;", file=f)
-                print("        char *ptr;", file=f)
+                print("        size_t i, j;", file=f)
+                print("        int idx;", file=f)
                 print("        char buf[HAL_NAME_LEN+1];", file=f)
-                print("        ptr = names;", file=f)
-                print("        idx = 0;", file=f)
-                print("        for (i=0,j=0; i <= strlen(names); i++) {", file=f)
-                print("            buf[j] = *(ptr+i);", file=f)
-                print("            if ( (*(ptr+i) == ',') || (*(ptr+i) == 0) ) {", file=f)
-                print("                buf[j] = 0;", file=f)
+                print("        const size_t length = strlen(names);", file=f)
+                print("        for (i = j = idx = 0; i <= length; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
                 if has_personality:
                     print("                r = export(buf, idx, p_value(\"%s\", buf, idx) );"%comp_name, file=f)
                 else:
                     print("                r = export(buf, idx);", file=f)
-                print("                if (*(ptr+i+1) == 0) {break;}", file=f)
-                print("                idx++;", file=f)
                 print("                if(r != 0) {break;}", file=f)
-                print("                j=0;", file=f)
+                print("                idx++;", file=f)
+                print("                j = 0;", file=f)
                 print("            } else {", file=f)
-                print("                j++;", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
                 print("            }", file=f)
                 print("        }", file=f)
                 print("    }", file=f)
@@ -799,7 +803,7 @@ def build_usr(tempdir, filename, mode, origfilename):
         raise SystemExit(os.WEXITSTATUS(result) or 1)
     output = os.path.join(tempdir, binname)
     if mode == INSTALL:
-        shutil.copy(output, os.path.join(BASE, "bin", binname))
+        shutil.copy(output, os.path.join(BINDIR, binname))
     elif mode == COMPILE:
         shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
 
@@ -1182,7 +1186,7 @@ def main():
                 lines = open(f).readlines()
                 if lines[0].startswith("#!"): del lines[0]
                 lines[0] = "#!%s\n" % sys.executable
-                outfile = os.path.join(BASE, "bin", basename)
+                outfile = os.path.join(BINDIR, basename)
                 try: os.unlink(outfile)
                 except os.error: pass
                 open(outfile, "w").writelines(lines)

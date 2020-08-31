@@ -1,0 +1,6 @@
+Demuestra aplicaciones gladevcp en pestañas de gscreen:
+   
+ pyngcgui ------ utilidad de subrutina
+ gremlin_view -- gremlin con algunos botones
+
+con un teclado emergente para usar con pantalla táctil

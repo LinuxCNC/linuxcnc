@@ -1,0 +1,123 @@
+.TH ENCODER "9" "2009-04-15" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+encoder \- conteo por software de señales de encoder en cuadratura
+.SH SINOPSIS
+.B loadrt encoder [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2\fB...]]
+
+.SH DESCRIPCIÓN
+\fBencoder\fR se usa para medir la posición contando los pulsos generados por un encoder de cuadratura. Como implementación basada en software, es mucho menos 
+costosa que una en hardware, pero tiene un tasa máxima de conteo limitada. El límite está en el rango de 10KHz a 50KHz, dependiendo de la velocidad de la 
+computadora y otros factores. Si es necesario mejor el rendimiento, un contador de encoder hardware es una opción mejor.
+Algunos sistemas basados en hardware pueden contar a velocidades de MHz.
+.P
+\fBencoder\fR admite un máximo de ocho canales. El número de los canales realmente cargados se configuran mediante el argumento \fBnum_chan\fR cuando se carga el módulo. 
+Alternativamente, especifique names= y nombres únicos separado por comas para cada canal.
+.P
+Los especificadores \fBnum_chan=\fR y \fBnames=\fR son mutuamente excluyentes.
+Si no se especifica \fBnum_chan=\fR ni \fBnames=\fR, o si \fBnum_chan=0\fR, el valor predeterminado es \fItres\fB.
+.P
+\fBencoder\fR tiene un modo unidireccional mono-fáse llamado \fIcounter\fR.
+En este modo, se ignora la entrada \fBphase\-B\fR; los recuentos aumentan en
+cada flanco ascendente de \fBphase\-A\fR. Este modo puede ser útil para contar
+un husillo unidireccional con una sola línea de entrada, aunque se pierden las características de resistencia al ruido de la cuadratura.
+
+.SH FUNCIONES
+.TP
+\fBencoder.update\-counters\fR (no punto flotante)
+Hace el conteo real, muestreando las señales del encoder y decodificando
+las formas de onda en cuadratura. Debe llamarse con la mayor frecuencia posible,
+preferiblemente el doble de rápido que la tasa de conteo máxima deseada. Opera
+en todos los canales a la vez.
+.TP
+\fBencoder.capture\-position\fR (usa punto flotante)
+Captura los recuentos sin procesar de \fBupdate\-counters\fR y realiza el escalado
+y otras conversiones necesarias, maneja el rollover del contador, etc. Puede (y debe) llamarse con menos frecuencia que \fBupdate\-counters\fR.
+Funciona en todos los canales a la vez.
+
+.SH NOMBRES
+Los nombres de pines y parámetros tienen el prefijo:
+  \fBencoder.N.\fR para N=0,1,...,num\-1 con \fBnum_chan=num\fR
+  \fBnameN.\fR para nameN=name1,name2,... con \fBnames=name1,name2,...\fR
+
+En las siguientes descripciones se muestra el formato \fBencoder.N.\fR.
+
+
+.SH PINES
+
+.TP
+\fBencoder.\fIN\fB.counter\-mode\fR bit I/O
+Habilita el modo contador. Cuando es verdadero, el contador cuenta cada flanco ascendente de la entrada fase\-A, ignorando el valor en fase\-B. Esto es útil para contar la salida de un sensor de canal único (no en cuadratura). Cuando es falso (predeterminado), cuenta en modo de cuadratura.
+.TP
+\fBencoder.\fIN\fB.counts\fR s32 out
+Posición en cuentas de encoder.
+.TP
+\fBencoder.\fIN\fB.index\-enable\fR bit I/O
+Cuando es verdadero, \fBcounts\fR y \fBposition\fR se resetean a cero en el siguiente flanco ascendente de \fBPhase\-Z\fR. Al mismo tiempo, \fBindex\-enable\fR se resetea a cero para indicar que se ha producido el flanco ascendente.
+.TP
+\fBencoder.\fIN\fB.min\-speed\-estimate\fR float in (predeterminado: 1.0)
+Determina la velocidad mínima a la que \fBvelocity\fR será estimado como distinto de cero y \fBpostition\-interpolated\fR se interpolará.
+Las unidades de \fBmin\-speed\-estimate\fR son las mismas que las unidades de
+\fBvelocity\fR. Establecer este parámetro demasiado bajo hará que se tarde mucho
+tiempo para que \fBvelocity\fR llegue a 0 después de que los pulsos del encoder hayan dejado de llegar.
+.TP
+\fBencoder.\fIN\fB.phase\-A\fR bit in
+Entrada de cuadratura para el canal A del encoder \fIN\fR.
+.TP
+\fBencoder.\fIN\fB.phase\-B\fR bit in
+Entrada de cuadratura para el canal B del encoder \fIN\fR.
+.TP
+\fBencoder.\fIN\fB.phase\-Z\fR bit in
+Entrada de pulso de índice.
+.TP
+\fBencoder.\fIN\fB.position\fR float
+Posición en unidades escaladas (ver \fBposition\-scale\fR)
+.TP
+\fBencoder.\fIN\fB.position\-interpolated\fR float
+Posición en unidades escaladas, interpoladas entre recuentos de encoder. Solo válido cuando la velocidad es aproximadamente constante y superior a \fBmin\-speed\-estimate\fR. No utilizar para el control de posición.
+.TP
+\fBencoder.\fIN\fB.position\-scale\fR float I/O
+Factor de escala, en recuentos por unidad de longitud. Por ejemplo, si \fBposition\-scale\fR es 500, entonces 1000 recuentos del encoder se informarán como una posición de 2.0 unidades.
+.TP
+\fBencoder.\fIN\fB.rawcounts\fR s32 out
+Recuento sin procesar, según lo determinado por \fBupdate\-counters\fR. Este valor se actualiza con más frecuencia que \fBcounts\fR y \fBposition\fR. Tampoco se ve afectado por \fBreset\fR o el pulso de índice.
+.TP
+\fBencoder.\fIN\fB.reset\fR bit in
+Cuando es verdadero, \fBcounts\fR y \fBposition\fR se resetean a cero inmediatamente.
+.TP
+\fBencoder.\fIN\fB.velocity\fR float
+Velocidad en unidades escaladas por segundo. \fBencoder\fR usa un algoritmo que
+reduce en gran medida el ruido de cuantización en comparación con una simple diferenciación de la salida \fBposition\fR. Cuando la magnitud de la velocidad real es inferior que \fRmin\-speed\-estimate\fR, la salida \fRvelocity\fR es 0.
+.TP
+\fBencoder.\fIN\fB.velocity-rpm\fR float out
+Velocidad en unidades escaladas por minuto. Simplemente \fBencoder.\fIN \fB.velocity\fR escalado por un factor de 60 para mayor comodidad.
+.TP
+\fBencoder.\fIN\fB.x4\-mode\fR bit I/O
+Habilita el modo X\-4. Cuando es verdadero (valor predeterminado), el contador cuenta cada borde de la forma de onda en cuadratura (cuatro conteos por ciclo completo). Cuando es falso, solo cuenta una vez por ciclo completo. En \fBcounter\-mode\fR, este parámetro se ignora.
+.TP
+\fBencoder.\fIN\fB.latch\-input\fR bit in
+.TQ
+\fBencoder.\fIN\fB.latch\-falling\fR bit in (predeterminado: \fBTRUE\fR)
+.TQ
+\fBencoder.\fIN\fB.latch\-rising\fR bit in (predeterminado: \fBTRUE\fR)
+.TQ
+\fBencoder.\fIN\fB.counts\-latched\fR s32 out
+.TQ
+\fBencoder.\fIN\fB.position\-latched\fR float out
+Actualiza \fBcounts\-latched\fR y \fBposition\-latched\fR al flanco ascendente y/o descendente de \fBlatch\-input\fR como se indique mediante \fBlatch\-rising\fR y
+\fBlatch\-falling\fR.
+.TP
+\fBencoder.\fIN\fB.counter\-mode\fR bit rw
+Habilita el modo contador. Cuando es verdadero, el contador cuenta cada flanco ascendente de la entrada de fase\-A, ignorando el valor en la fase\-B. Esto es útil para contar la salida de un sensor de canal único (no en cuadratura). Cuando es falso (predeterminado), cuenta en modo de cuadratura.
+\fBencoder.\fIN\fB.capture\-position.tmax\fR s32 rw
+Número máximo de ciclos de CPU necesarios para ejecutar esta función.
+
+.SH PARÁMETROS
+El componente encoder no tiene parámetros HAL.
+
+

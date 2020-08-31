@@ -70,7 +70,7 @@ class QTPanel():
                 self.window.registerHalWidget(widget)
                 idname = widget.objectName()
                 LOG.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(halcomp, str(idname), widget, window, window.PATHS, self.window['PREFS_'])
+                widget.hal_init()
 
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings

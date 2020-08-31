@@ -1,0 +1,122 @@
+.TH OHMIC "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+ohmic \- LinuxCNC HAL component that uses a Mesa THCAD for Ohmic sensing
+.SH SYNOPSIS
+.HP
+.B loadrt ohmic [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+Mesa THCAD Card component to scale input and outputs from the Mesa THCAD5, THCAD10 and THCAD300 cards.
+Which is designed to allow user configurable voltage threshold for ohmic sensing.
+Scaling of the Plasma arc voltage by a voltage divider is supported.
+.br
+Output pins are provided for:
+.br
+ohmic-volts (the voltage sensed on ohmic sensing)
+.br
+ohmic-on (true if ohmic-volts >= ohmic-threshold)
+.br
+arc-on (true if arc voltage is received eg. full scale reached or exceeded)
+.br
+Actual voltage as read from the THCAD card (0-300V, 0-10V or 0-5V depending on the THCAD version used.
+.br
+
+Normally, we would use a THCAD-5 for ohmic sensing in conjunction with a 24 volt isolated power supply and a 390K resistor. (voltage divider = 4.9)
+This would result in a full scale reading of 24.5 volts which is above the power supply output voltage.
+.br
+So if full scale is reached, it can be assumed that the THCAD-5 is sensing an arc voltage.
+In this case, the circuit will remain protected by the THCAD's ability to tolerate a 500V overvoltage indefinitely.
+.br
+It is optional that power to the Ohmic sensing circuit be disconnected unless probing is in progress ut this adds additional complexity.
+.br
+
+
+\fBEXAMPLE:\fR
+.br
+THCAD5 card using a 1/32 frequency setting and a voltage divider internal to the plasma cutter with range extended
+to 24.5 volts with a 390K external resistor as per the manual. Additional information and wiring diagram is contained in the Plasma Primer in hte main Linuxcnc documents.
+
+.br
+ 
+.br
+loadrt ohmic names=ohmicsense
+.br
+addf ohmicsense servo-thread
+.br
+.br
+setp ohmicsense.thcad-0-volt-freq    122900
+.br
+setp ohmicsense.thcad-max-volt-freq  925700
+.br
+setp ohmicsense.thcad-divide         32
+.br
+setp ohmicsense.thcad-fullscale      5
+.br
+setp ohmicsense.volt-divider         32
+.br
+setp ohmicsense.threshold            22
+.br
+setp ohmicsense.ohmic-low            1
+.br
+net ohmic-vel ohmicsense.velocity-in <= hm2_7i76e.0.encoder.00.velocity
+.br
+net ohmic-true ohmicsense.ohmic-on => plasmac.ohmic-probe
+
+.SH FUNCTIONS
+.TP
+\fBohmic.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B ohmic.\fIN\fB.thcad-0-volt-freq\fR float in \fR
+0 volt calibration data for THCAD card in Hz
+.TP
+.B ohmic.\fIN\fB.thcad-max-volt-freq\fR float in \fR
+Full scale calibration data for THCAD Card in Hz
+.TP
+.B ohmic.\fIN\fB.thcad-divide\fR float in \fR(default: \fI32\fR)
+THCAD Divider set by links on THCAD board (1,32,64 or 128
+.TP
+.B ohmic.\fIN\fB.thcad-fullscale\fR float in \fR(default: \fI5\fR)
+THCAD Fullscale (5, 10 or 300)
+.TP
+.B ohmic.\fIN\fB.velocity-in\fR float in \fR
+The velocity returned from the THCAD and read by the Mesa encoder input
+.TP
+.B ohmic.\fIN\fB.volt-divider\fR float in \fR(default: \fI4.9\fR)
+The divide ratio (default 1:1)
+.TP
+.B ohmic.\fIN\fB.ohmic-threshold\fR float in \fR(default: \fI18\fR)
+The threshold  volts above which Ohmic sensing is set to be true
+.TP
+.B ohmic.\fIN\fB.ohmic-low\fR float in \fR(default: \fI5\fR)
+The threshold  volts below which Ohmic sensing is set to be false
+.TP
+.B ohmic.\fIN\fB.arc-on\fR bit out \fR
+True if full scale (eg arc is on)
+.TP
+.B ohmic.\fIN\fB.thcad-volts\fR float out \fR
+Measured thcad voltage
+.TP
+.B ohmic.\fIN\fB.ohmic-volts\fR float out \fR
+Calculated Ohmic  voltage
+.TP
+.B ohmic.\fIN\fB.ohmic-on\fR bit out \fR
+Threshold plasma torch voltage
+.TP
+.B ohmic.\fIN\fB.is-probing\fR bit in \fR
+True if probing
+.SH AUTHOR
+
+Rod Webster
+.SH LICENSE
+
+GPL

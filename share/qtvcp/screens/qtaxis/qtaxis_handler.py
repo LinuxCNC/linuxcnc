@@ -6,10 +6,12 @@ import os
 import linuxcnc
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
+from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -133,6 +135,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
         TOOLBAR.configure_action(self.w.actionShow_G53_in_DRO,'', self.g53_in_dro_changed)
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
+        TOOLBAR.configure_action(self.w.actionVersaProbe,'', self.launch_versa_probe)
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
@@ -179,6 +182,8 @@ class HandlerClass:
                 else:
                     event.accept()
                     return True
+
+        if event.isAutoRepeat():return True
 
         # ok if we got here then try keybindings function calls
         # KEYBINDING will call functions from handler file as
@@ -234,17 +239,18 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
 
     def percentLoaded(self, fraction):
-        if fraction <1:
+        if fraction <0:
             self.w.progressbar.setValue(0)
-            self.w.progressbar.setFormat('')
+            self.w.progressbar.setFormat('Progress')
         else:
             self.w.progressbar.setValue(fraction)
             self.w.progressbar.setFormat('Loading: {}%'.format(fraction))
 
     def percentCompleted(self, fraction):
         self.w.progressbar.setValue(fraction)
-        if fraction <1:
-            self.w.progressbar.setFormat('')
+        if fraction <0:
+            self.w.progressbar.setValue(0)
+            self.w.progressbar.setFormat('Progress')
         else:
             self.w.progressbar.setFormat('Completed: {}%'.format(fraction))
 
@@ -435,16 +441,37 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
+    # add spindle speed bar and at-speed led to tab corner
+    # add a tool number to tab corner
     def make_corner_widgets(self):
-        # add spindle speed bar to tab corner
+        # make a spindle-at-speed green LED
+        self.w.led = LED()
+        self.w.led.setProperty('is_spindle_at_speed_status',True)
+        self.w.led.setProperty('color',QColor(0,255,0,255))
+        self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')
+
+        # make a spindle speed bar
         self.w.rpm_bar = QtWidgets.QProgressBar()
         self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
-        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
-        # add tool number status to tab corner
+
+        # containers
+        w = QtWidgets.QWidget()
+        w.setContentsMargins(0,0,0,6)
+        w.setMinimumHeight(40)
+
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self.w.rpm_bar)
+        hbox.addWidget(self.w.led)
+        w.setLayout(hbox)
+
+        # add those to the corner of the right tab widget
+        self.w.rightTab.setCornerWidget(w)
+
+        # add tool number status to left tab corner
         self.w.tool_stat = TOOLSTAT()
         self.w.tool_stat.setProperty('tool_number_status', True)
         self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
-        self.w.tool_stat._hal_init()
+        self.w.tool_stat.hal_init()
         self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.w.tool_stat.setFixedWidth(60)
         self.w.leftTab.setCornerWidget(self.w.tool_stat)
@@ -459,6 +486,9 @@ class HandlerClass:
             self.w.widget_dro_g53.show()
         else:
             self.w.widget_dro_g53.hide()
+
+    def launch_versa_probe(self, w):
+        STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
 
     #####################
     # KEY BINDING CALLS #

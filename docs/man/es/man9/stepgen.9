@@ -1,0 +1,198 @@
+.TH STEPGEN "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+stepgen \- generación de pulsos de pasos por software
+.SH SINOPSIS
+\fBloadrt stepgen step_type=\fItype0\fR[,\fItype1\fR ...] [\fBctrl_type=\fItype0\fR [,\fItype1\fR …]] [\fBuser_step_type=#, #\fR ... ]
+
+.SH DESCRIPCIÓN
+\fBstepgen\fR se usa para controlar motores paso a paso. La velocidad de paso máxima depende de la CPU y otros factores, y generalmente está en el rango de 5KHz a 25KHz. Si se necesitan tasas más altas, un generador de pasos de hardware es una mejor opción.
+.P
+\fBstepgen\fR tiene dos modos de control, que pueden seleccionarse canal por canal utilizando \fBctrl_type\fR. Los valores posibles son "\fBp\fR" para el control de posición y "\fBv\fR" para el control de velocidad. El valor predeterminado es el control de posición, que conduce el motor a una posición ordenada, sujeto a los límites de aceleración y velocidad. El control de velocidad conduce el motor a una velocidad ordenada, nuevamente sujeta a límites de aceleración y velocidad. Por lo general, el modo de posición se usa para ejes de máquina. El modo de velocidad está reservado para aplicaciones inusuales donde se desea un movimiento continuo a cierta velocidad, en lugar de moverse a una posición específica. (Tenga en cuenta que el modo de velocidad reemplaza el componente anterior \fBfreqgen\fR).
+.P
+\fBstepgen\fR puede controlar un máximo de 16 motores. El número de motores/canales realmente cargados depende del número de valores \fItype\fR dados. El valor de cada \fItype\fR determina las salidas para ese canal.
+El modo de posición o velocidad se puede seleccionar individualmente para cada canal.
+Ambos modos de control admiten los mismos 16 tipos de pasos posibles.
+.P
+Con mucho, el tipo de paso más común es '0', paso y dirección estándar. Otros incluyen arriba/abajo, cuadratura y una amplia variedad de patrones de tres, cuatro y cinco fases que se pueden usar para controlar directamente algunos tipos de bobinados de motor. (Cuando se usa con buffers apropiados, por supuesto).
+.P
+Algunos de los tipos de pasos se describen a continuación, pero para obtener más detalles (incluidos los diagramas de temporización) consulte la sección \fBstepgen\fR del manual de referencia de HAL.
+.TP
+tipo 0: paso / dir
+Dos pines, uno para el paso y otro para la dirección. \fBmake\-pulses\fR debe ejecutarse al menos dos veces para cada paso (una vez para establecer el pin de paso TRUE y otra para borrarlo). Esto limita la velocidad de paso máxima a la mitad (o menos) de la velocidad que pueden alcanzar los tipos 2-14. Los parámetros \fBsteplen\fR y \fBstepspace\fR pueden reducir aún más la velocidad de paso máxima. Los parámetros \fBdirsetup\fR y \fBdirhold\fR también se aplican a este tipo de paso.
+.TP
+tipo 1: arriba / abajo
+Dos pines, uno para 'subir' y otro para 'bajar'. Al igual que el tipo 0, \fBmake\-pulses\fR debe ejecutarse dos veces por paso, lo que limita la velocidad máxima.
+.TP
+tipo 2: cuadratura
+Dos pines, fase\-A y fase\-B. Para avanzar, A conduce a B. Puede avanzar un paso cada vez que corre \fBmake\-pulses\fR.
+.TP
+tipo 3: trifásico, paso completo
+Tres pines, fase\-A, fase\-B y fase\-C. Tres pasos por ciclo completo, luego se repite. Solo una fase es alta a la vez: para el movimiento hacia adelante, el patrón es A, luego B, luego C y luego A nuevamente.
+.TP
+tipo 4: trifásico, medio paso
+Tres pines, fases A a C. Seis pasos por ciclo completo. Primero A está alto solo, luego A y B juntos, luego B solo, luego B y C juntos, etc.
+.TP
+tipos 5 a 8: cuatro fases, paso completo
+Cuatro pines, fases A a D. Cuatro pasos por ciclo completo. Los tipos 5 y 6 son adecuados para su uso con steppers unipolares, donde se aplica energía a la toma central de cada devanado, y cuatro transistores de colector abierto impulsan los extremos. Los tipos 7 y 8 son adecuados para steppers bipolares, conducidos por dos puentes en H.
+.TP
+tipos 9 y 10: cuatro fases, medio paso
+Cuatro pines, fases A a D. Ocho pasos por ciclo completo. El tipo 9 es adecuado para el accionamiento unipolar, y el tipo 10 para el accionamiento bipolar.
+.TP
+tipos 11 y 12: cinco fases, paso completo
+Cinco pines, fases A a E. Cinco pasos por ciclo completo. Consulte el manual de referencia de HAL para ver los patrones.
+.TP
+tipos 13 y 14: cinco fases, medio paso
+Cinco pines, fases A a E. Diez pasos por ciclo completo. Consulte el manual de referencia de HAL para ver los patrones.
+.TP
+tipo 15: especificado por el usuario
+Utiliza la forma de onda especificada por el parámetro del módulo \fBuser_step_type\fR, que puede tener hasta 10 pasos y 5 fases.
+.SH FUNCIONES
+.TP
+\fBstepgen.make\-pulses\fR (no de punto flotante)
+Genera los pulsos de pasos, utilizando información calculada por \fBupdate\-freq\fR. Debe llamarse con la mayor frecuencia posible, para maximizar la velocidad de paso alcanzable y minimizar el jitter. Funciona en todos los canales a la vez.
+.TP
+\fBstepgen.capture\-position\fR (usa punto flotante)
+Captura el valor de retroalimentación de posición del código de alta velocidad y lo pone a disposición en un pin para su uso en otras partes del sistema. Funciona en todos los canales a la vez.
+.TP
+\fBstepgen.update\-freq\fR (usa punto flotante)
+Acepta un comando de velocidad o posición y lo convierte en un formato utilizable por \fBmake\-pulses\fR para la generación de pasos. Funciona en todos los canales a la vez.
+
+.SH PINES
+.TP
+\fBstepgen.\fIN\fB.counts\fR s32 out
+La posición actual, en recuentos, para el canal\fIN\fR. Actualizado por \fBcapture\-position\fR.
+.TP
+\fBstepgen.\fIN\fB.position\-fb\fR float out
+La posición actual, en unidades de longitud (ver parámetro \fBposition\-scale\fR). Actualizado por \fBcapture\-position\fR. La resolución de \fBposition\-fb\fR es mucho más fina que un solo paso. Si necesita ver pasos individuales, use \fBcounts\fR.
+.TP
+\fBstepgen.\fIN\fB.enable\fR bit in
+Habilita los pasos de salida: cuando es FALSE, no se generan pasos.
+.TP
+\fBstepgen.\fIN\fB.velocity\-cmd\fR float in (solo en modo de velocidad)
+Velocidad ordenada, en unidades de longitud por segundo (ver parámetro \fBposition\-scale\fR).
+.TP
+\fBstepgen.\fIN\fB.position\-cmd\fR float in (modo de posición solamente)
+Posición ordenada, en unidades de longitud (ver parámetro \fBposition\-scale\fB).
+.TP
+\fBstepgen.\fIN\fB.step\fR bit out (paso tipo 0 solamente)
+Salida de pulso de paso.
+.TP
+\fBstepgen.\fIN\fB.dir\fR bit out (paso tipo 0 solamente)
+Salida de dirección: baja para avance, alta para retroceso.
+.TP
+\fBstepgen.\fIN\fB.up\fR bit out (solo paso tipo 1)
+Salida de cuenta, pulsos para pasos hacia adelante.
+.TP
+\fBstepgen.\fIN\fB.down\fR bit out (paso tipo 1 solamente)
+Salida de cuenta regresiva, pulsos para pasos hacia atras.
+.TP
+\fBstepgen.\fIN\fB.phase\-A\fR  hasta \fBphase\-E\fR bit out (pasos de tipo 2-14 solamente)
+Bits de salida. \fBphase\-A\fR y \fBphase\-B\fR están presentes para los tipos de paso 2-14, \fBphase\-C\fR para los tipos 3-14, \fBphase\-D\fR para los tipos 5-14, y \fBphase\-E\fR para los tipos 11-14. El comportamiento depende del tipo de paso seleccionado.
+
+.SH PARÁMETROS
+.TP
+\fBstepgen.\fIN\fB.frequency\fR float ro
+La velocidad de paso actual, en pasos por segundo, para el canal\fIN\fR.
+.TP
+\fBstepgen.\fIN\fB.maxaccel\fR float rw
+El límite de aceleración/desaceleración, en unidades de longitud por segundo al cuadrado.
+.TP
+\fBstepgen.\fIN\fB.maxvel\fR float rw
+La velocidad máxima permitida, en unidades de longitud por segundo. Si no se puede alcanzar la velocidad máxima solicitada con la combinación actual de escala y el periodo del hilo de \fBmake\-pulses\fR, se establecerá al valor más alto posible.
+.TP
+\fBstepgen.\fIN\fB.position\-scale\fR float rw
+La escala de retroalimentación de posición, comando de posición y comando de velocidad, en pasos por unidad de longitud.
+.TP
+\fBstepgen.\fIN\fB.rawcounts\fR s32 ro
+La posición en recuentos, actualizada por \fBmake\-pulses\fR. (Nota: esto se actualiza con más frecuencia que el pin \fBcounts\fR).
+.TP
+\fBstepgen.\fIN\fB.steplen\fR u32 rw
+La longitud de los pulsos de paso, en nanosegundos. Medido desde el borde ascendente hasta el borde descendente.
+.TP
+\fBstepgen.\fIN\fB.stepspace\fR u32 rw (solo tipos de paso 0 y 1)
+El espacio mínimo entre pulsos de paso, en nanosegundos. Medido desde el borde descendente hasta el borde ascendente. El tiempo real depende de la velocidad de avance y puede ser mucho más largo.
+Si \fBstepspace\fR es 0, entonces \fBstep\fR se puede afirmar cada período. Esto se puede usar junto con los pines de restablecimiento automático de \fBhal_parport\fR para emitir un impulso de paso por período. En este modo, \fBsteplen\fR debe establecerse para un período o menos.
+.TP
+\fBstepgen.\fIN\fB.dirsetup\fR u32 rw (solo tipo de paso 0)
+El tiempo mínimo de configuración de dirección a paso, en períodos de nanosegundos. Medido desde el cambio de dirección hasta el borde ascendente del paso.
+.TP
+\fBstepgen.\fIN\fB.dirhold\fR u32 rw (solo tipo de paso 0)
+El tiempo mínimo de retención de la dirección después del paso, en nanosegundos. Medido desde el borde descendente del paso hasta el cambio de dirección.
+.TP
+\fBstepgen.\fIN\fB.dirdelay\fR u32 rw (solo los tipos de paso 1 y superiores)
+El tiempo mínimo entre un paso hacia adelante y un paso hacia atrás, en nanosegundos.
+.SH TIMING
+.P
+Hay cinco parámetros de tiempo que controlan la forma de onda de salida. Ningún tipo de paso usa los cinco, y solo los que se usarán se exportan a HAL. Los valores de estos parámetros están en nanosegundos, por lo que no es necesario volver a calcular cuando se cambian los períodos de hilos. En los diagramas de tiempo que siguen, se identifican con los siguientes números:
+.P
+(1) \fBstepgen.n.steplen\fR
+.P
+(2) \fBstepgen.n.stepspace\fR
+.P
+(3) \fBstepgen.n.dirhold\fR
+.P
+(4) \fBstepgen.n.dirsetup\fR
+.P
+(5) \fBstepgen.n.dirdelay\fR
+.P
+Para el tipo de paso 0, se utilizan los parámetros de temporización 1 a 4. El siguiente diagrama de tiempo muestra las formas de onda de salida y lo que ajusta cada parámetro.
+.P
+.ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;STEP &nbsp;____/ &nbsp; &nbsp; &#92;_______/ &nbsp; &nbsp; &#92;_____________/ &nbsp; &nbsp; &#92;______<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp; &nbsp;|-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|__________________<BR> &nbsp; &nbsp;DIR &nbsp; ________________________________/<BR></PRE>
+.el \{\
+.PD 0
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ _____
+.P
+.ft CR
+\ \ \ \ STEP\ \ ____/\ \ \ \ \ \\_______/\ \ \ \ \ \\_____________/\ \ \ \ \ \\______
+.P
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |
+.P
+.ft CR
+\ \ \ \ Time\ \ \ \ \ \ |-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|
+.P
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |__________________
+.P
+.ft CR
+\ \ \ \ DIR\ \ \ ________________________________/
+.ft R
+\}
+.PD
+.P
+Para el tipo de paso 1, se utilizan los parámetros de temporización 1, 2 y 5. El siguiente diagrama de tiempo muestra las formas de onda de salida y lo que ajusta cada parámetro.
+.P
+.ie '\*[.T]'html' .HTML <PRE> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _____ &nbsp; &nbsp; &nbsp; _____<BR> &nbsp; &nbsp;UP &nbsp; &nbsp;__/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;________________________________<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; &nbsp; |<BR> &nbsp; &nbsp;Time &nbsp; &nbsp;|-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|<BR> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|_____| &nbsp; &nbsp; |_____|<BR> &nbsp; &nbsp;DOWN &nbsp;______________________________/ &nbsp; &nbsp; &#92;_____/ &nbsp; &nbsp; &#92;____<BR></PRE>
+.el \{\
+.PD 0
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ _____\ \ \ \ \ \ \ _____
+.P
+.ft CR
+\ \ \ \ UP\ \ \ \ __/\ \ \ \ \ \\_____/\ \ \ \ \ \\________________________________
+.P
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ |\ \ \ \ \ \ \ \ \ |
+.P
+.ft CR
+\ \ \ \ Time\ \ \ \ |-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|
+.P
+.ft CR
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |_____|\ \ \ \ \ |_____|
+.P
+.ft CR
+\ \ \ \ DOWN\ \ ______________________________/\ \ \ \ \ \\_____/\ \ \ \ \ \\____
+.ft R
+\}
+.PD
+.P
+Para los tipos de paso 2 y superiores, el patrón exacto de las salidas depende del tipo de paso (consulte el manual de HAL para obtener una lista completa). Las salidas cambian de un estado a otro en un intervalo mínimo de \fBsteplen\fR. Cuando ocurre un cambio de dirección, el tiempo mínimo entre el último paso en una dirección y el primero en la otra dirección es la suma de \fBsteplen\fR y \fBdirdelay\fR.
+.SH VER TAMBIÉN
+El manual de usuario de HAL.

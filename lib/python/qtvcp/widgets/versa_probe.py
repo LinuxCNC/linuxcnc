@@ -90,6 +90,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('error', self.send_error)
         STATUS.connect('periodic', lambda w: self.check_probe())
 
+        # initialize indicated buttons
+        w = self.QTVCP_INSTANCE_
+        self.pbtn_allow_auto_zero.hal_init(HAL_NAME = self.HAL_NAME_+'-auto-z-zero')
+        self.pbtn_allow_auto_skew.hal_init(HAL_NAME = self.HAL_NAME_+'-auto-skew')
+
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -277,7 +282,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def pop_help(self):
-        d = QtWidgets.QDialog()
+        d = QtWidgets.QDialog(self)
         d.setMinimumWidth(600)
         l = QtWidgets.QVBoxLayout()
         t = QtWidgets.QTextEdit()

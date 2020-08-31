@@ -1,0 +1,23 @@
+.TH hal_exit "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_exit \- Apaga HAL
+
+.SH SINTAXIS
+.HP
+int hal_exit(int \fIcomp_id\fR)
+
+.SH ARGUMENTOS
+.IP \fIcomp_id\fR
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+
+.SH DESCRIPCION
+\fBhal_exit\fR cierra y limpia HAL y RTAPI. Debe ser
+llamado antes de salir por cualquier módulo que haya llamado a \fBhal_init\fR.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el usuario o código de inicio/limpieza, no desde tareas en tiempo real.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+

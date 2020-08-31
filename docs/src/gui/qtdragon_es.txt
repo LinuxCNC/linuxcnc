@@ -1,0 +1,293 @@
+:lang: es
+[[cha:qtdragon-gui]](((SilverDragon)))
+
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+
+= GUI SilverDragon
+
+== Introducción
+SilverDragon está construido con el marco QTVCP.
+Gran parte se basa en el excelente trabajo de otros en la comunidad LinuxCNC.
+[NOTE]
+SilverDragon y QtVcp son nuevos programas agregados a linuxcnc.
+Errores y rarezas son posibles. Por favor pruebe cuidadosamente cuando use un
+máquina peligrosa Envíe informes al foro o a la lista de correo.
+
+.qtdragon - Muestra de 3 o 4 ejes
+image::images/silverdragon.png["QTDragon Router",scale="25%"]
+
+== Comenzando
+
+Si su configuración no está configurada actualmente para usar SilverDragon,
+puede cambiarlo editando el archivo INI. +
+En la sección '[DISPLAY]' cambie la línea 'DISPLAY' para que lea: +
+<<sec:display-section,Sección de visualización >>
+[source,{ini}]
+----
+[DISPLAY]
+DISPLAY = qtvcp qtdragon
+----
+
+Para realizar un seguimiento de las preferencias, qtdragon busca un archivo de texto de preferencias. +
+agregue la siguiente entrada bajo el encabezado '[DISPLAY]'.
+(son posibles otras opciones, consulte los documentos del widget screenoption del qtvcp).
+
+[source,{ini}]
+----
+PREFERENCE_FILE_PATH = WORKINGFOLDER / qtdragon.pref
+----
+
+Puede especificar dónde guardar el historial / registros. +
+En la sección '[DISPLAY]' agregue: +
+
+[source,{ini}]
+----
+MDI_HISTORY_FILE = mdi_history.dat
+MACHINE_LOG_PATH = machine_log.dat
+LOG_FILE = qtdragon.log
+----
+
+Para que las rutinas básicas de la sonda funcionen, SUBROUTINE_PATH debe establecerse correctamente. +
+(Su ruta puede ser diferente a esta muestra) +
+<<sec:rs274ngc-section, sección RS274ngc >>
+[source,{ini}]
+----
+[RS274NGC]
+SUBROUTINE_PATH = ../../../../nc_files/probe/basic_probe/macros
+----
+
+También requiere pines de E / S analógicas adicionales para el sondeo. +
+Asegúrese de que esta línea en el archivo HAL tenga la entrada 'num_aio = 13': +
+El resto de la línea depende de su configuración y puede ser diferente y no debe cambiarse. +
+[source,{hal}]
+----
+loadrt motmod servo_period_nsec = [EMCMOT] SERVO_PERIOD num_joints = 4 num_aio = 13
+----
+
+SilverDragon tiene entradas INI personalizadas: +
+[source,{ini}]
+----
+[TOOLSENSOR]
+MAXPROBE = 40
+SEARCH_VEL = 200
+PROBE_VEL = 50
+TOUCH = 29.7
+
+[LASER]
+X = 106.9
+Y = -16.85
+----
+
+La configuración de muestra
+'sim / qtvcp_screens / qtdragon / qtdragon_xyza.ini' ya está configurado para usar SilverDragon como su front-end. +
+Hay varios otros, para demostrar diferentes configuraciones de máquina.
+
+== Vinculaciones de teclas
+SilverDragon no está destinado a utilizar principalmente un teclado para el control de la máquina. +
+Hay varias pulsaciones de teclas que controlarán la máquina para mayor comodidad. +
+----
+F1 - Estop encendido / apagado
+F2 - Encendido / apagado de la máquina
+F12 - Editor de estilos
+Inicio - Inicio Todo conjunto de la máquina
+Escape - Abortar movimiento
+Pausa-Pausa Movimiento de la máquina
+----
+
+== Botones
+
+Los botones que son marcables cambiarán su color de texto cuando estén marcados.
+
+== Teclado virtual
+QtDragon incluye un teclado virtual para usar con pantallas táctiles. +
+Para habilitar el teclado, marque la casilla de verificación Usar teclado virtual en la página Configuración. +
+Al hacer clic en cualquier campo de entrada, como parámetros de sonda o entradas de la tabla de herramientas, se mostrará el teclado. +
+También se puede mostrar haciendo clic en el botón KEYBD en la parte superior de la pantalla, +
+a menos que la máquina esté en modo AUTO. Para ocultar el teclado, realice una de las siguientes acciones: +
+  - haga clic en el botón de página PRINCIPAL +
+  - haga clic en el botón KEYBD
+  - ir al modo AUTO +
+
+Cabe señalar que el desplazamiento del teclado está desactivado cuando se utiliza el teclado virtual. +
+
+== Pines HAL
+Estos pines son específicos de la pantalla qtDragon. Por supuesto, hay muchos más pines HAL +
+que debe estar conectado para que linuxcnc funcione. +
+
+Si necesita un aviso de cambio de herramienta manual, agregue estas líneas en su archivo postgui.
+[source,{hal}]
+----
+net tool-change hal_manualtoolchange.change <= iocontrol.0.tool-change
+net tool-changed hal_manualtoolchange.changed <= iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number <= iocontrol.0.tool-prep-number
+----
+
+Estos pines deben estar conectados en el archivo postgui para que el sondeo funcione:
+[source,{hal}]
+----
+net xwidth 		motion.analog-out-00 => qtdragon.x_width
+net ywidth 		motion.analog-out-01 => qtdragon.y_width
+net avg_dia 	motion.analog-out-02 => qtdragon.avg_diameter
+net edge_angle 	motion.analog-out-03 => qtdragon.edge_angle
+net edge_delta 	motion.analog-out-04 => qtdragon.edge_delta
+net xminus 		motion.analog-out-05 => qtdragon.x_minus
+net yminus 		motion.analog-out-06 => qtdragon.y_minus
+net zminus 		motion.analog-out-07 => qtdragon.z_minus
+net xplus 		motion.analog-out-08 => qtdragon.x_plus
+net yplus 		motion.analog-out-09 => qtdragon.y_plus
+net xcenter 	motion.analog-out-10 => qtdragon.x_center
+net ycenter 	motion.analog-out-11 => qtdragon.y_center
+net cal_offset 	motion.analog-out-12 => qtdragon.cal_offset
+----
+
+Este pin de entrada debe estar conectado para indicar el estado de la sonda:
+[source,{hal}]
+----
+qtdragon.hal_led_probe
+----
+
+Estos pines se pueden conectar para indicar estados del interruptor de inicio:
+[source,{hal}]
+----
+qtdragon.hal_led_home_x
+qtdragon.hal_led_home_y
+qtdragon.hal_led_home_z
+----
+
+Estos pines son entradas relacionadas con el VFD del husillo que indican:
+[source,{hal}]
+----
+qtdragon.modbus-errors
+qtdragon.spindle_amps
+qtdragon.spindle_fault
+qtdragon.spindle_volts
+----
+
+Este pin es una salida al control del husillo para pausarlo:
+[source,{hal}]
+----
+qtdragon.spindle_pause
+----
+
+Estos pines de salida se pueden conectar para encender un láser:
+[source,{hal}]
+----
+qtdragon.btn_laser_on
+----
+
+Estos pines de salida indican botones que fueron presionados,
+son probablemente de uso limitado:
+[source,{hal}]
+----
+qtdragon.btn_dimensions
+qtdragon.btn_gcode_edit
+qtdragon.btn_home_x
+qtdragon.btn_home_y
+qtdragon.btn_home_z
+qtdragon.btn_jog_a_slow
+qtdragon.btn_jog_l_slow
+qtdragon.btn_keyboard
+qtdragon.btn_probe_help
+qtdragon.btn_probe_mode
+qtdragon.btn_select_log
+qtdragon.btn_tool_add
+qtdragon.btn_tool_delete
+----
+
+Estos pines están relacionados con compensaciones externas si se usan:
+[source,{hal}]
+----
+qtdragon.eoffset_clear
+qtdragon.eoffset_count
+qtdragon.eoffset_enable
+qtdragon.eoffset_value
+qtdragon.led_eoffset_limit
+----
+
+== archivos HAL
+
+Los archivos HAL suministrados son solo para simulación. Una máquina real necesita sus propios archivos HAL personalizados. La pantalla qtdragon
+funciona con 3 o 4 ejes con una junta por eje o 3 o 4 ejes en una configuración de pórtico. (2 articulaciones en 1 eje)
+
+== Cambios manuales de herramientas
+Si su máquina requiere cambios manuales de herramientas, SilverDragon puede abrir un cuadro de mensaje para dirigirlo. +
+Debe conectar el pin HAL adecuado en el archivo post_gui.
+Por ejemplo:
+[source,{hal}]
+----
+net tool-change hal_manualtoolchange.change <= iocontrol.0.tool-change
+net tool-changed hal_manualtoolchange.changed <= iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number <= iocontrol.0.tool-prep-number
+----
+
+== Husillo
+
+La pantalla está diseñada para interactuar con un VFD, pero seguirá funcionando sin ella. Hay una serie de controladores VFD incluidos
+en la distribución linuxcnc. Depende del usuario final proporcionar el controlador apropiado y las conexiones de archivos HAL de acuerdo con
+a su propia configuración de máquina.
+
+== Sondeo
+
+La pantalla de la sonda ha pasado por pruebas básicas, pero aún podría haber algunos errores menores.
+Al ejecutar rutinas de sondeo, tenga mucho cuidado hasta que esté familiarizado
+con cómo funciona todo. Las rutinas de la sonda se ejecutan sin bloquear la GUI principal. Esto le da al operador la oportunidad
+para ver los DRO y detener la rutina en cualquier momento.
+
+[NOTE]
+El sondeo es muy implacable con los errores; asegúrese de verificar la configuración antes de usar.
+
+.qtdragon - Muestra de sonda
+image::images/silverdragon_probe.png["QTDragon Probe",scale="25%"]
+
+== Ejecutar desde línea
+
+Se puede iniciar un programa gcode en cualquier línea haciendo clic en la línea deseada en la pantalla de gcode mientras está en modo AUTO. +
+Es responsabilidad del operador asegurarse de que la máquina esté en el modo operativo deseado. +
+Se mostrará un cuadro de diálogo que permite preestablecer la dirección y la velocidad del husillo. +
+La línea de inicio se indica en el cuadro LÍNEA, junto al botón INICIO DE CICLO. +
+La función Ejecutar desde línea se puede deshabilitar en la página de configuración.
+
+[NOTE]
+La ejecución de Linuxcnc no es muy fácil de usar. p.ej. No arranca el husillo ni confirma la herramienta adecuada.
+No maneja bien las subrutinas. Si se usa, es mejor comenzar con un movimiento rápido.
+
+== Botones láser
+
+El botón LASER ON / OFF está destinado a encender o apagar una salida que está conectada a un pequeño proyector láser en forma de cruz.
+Cuando la cruz se coloca sobre un punto de referencia deseado en la pieza de trabajo, se puede presionar el botón REF LÁSER que luego se establece
+los desplazamientos X e Y a los valores indicados por los campos DESPLAZAMIENTO LÁSER en la página Configuración y el archivo INI.
+
+== Pestaña de configuración
+Es posible cargar el archivo Html (finalización .html) con notas de configuración. Se mostrarán en la pestaña de configuración. +
+Algunos programas, como Fusion y Aspire, crearán estos archivos por usted.
+
+.qtdragon - Ejemplo de pestaña de configuración
+image::images/silverdragon_setup.png["QTDragon Setup Tab",scale="25%"]
+
+== Estilos
+
+Casi todos los aspectos de la apariencia de la GUI son configurables a través del archivo de hoja de estilo qtdragon.qss. El archivo se puede editar manualmente o
+a través del widget de diálogo de la hoja de estilo en la GUI. Para abrir el cuadro de diálogo, presione F12 en la ventana principal. Se pueden aplicar nuevos estilos.
+temporalmente y luego se guarda en un nuevo archivo qss, o sobrescribe el archivo qss actual.
+
+.qtdragon - Dos ejemplos de estilo
+image::images/style-comparison.png["QTDragon stlyes",scale="25%"]
+
+== Resolución de pantalla
+
+Esta GUI se desarrolló inicialmente para una pantalla con una resolución de 1440 x 900. No es redimensionable. Funcionará en modo ventana en
+cualquier monitor con mayor resolución pero no en monitores con menor resolución.
+
+== Personalización
+
+Todos los aspectos de la GUI son totalmente personalizables a través de qtdesigner. Esto se incluye con el entorno de desarrollo qtvcp.
+El uso extensivo de widgets qtvcp mantiene la cantidad de código python requerido al mínimo, permitiendo modificaciones relativamente fáciles.
+El sitio web LinuxCNC tiene una extensa documentación sobre la instalación y el uso de las bibliotecas qtvcp.
+<< cha: qtvcp, QtVCP Overview >> para más información
+
+.qtdragon - Silverdragon personalizado
+image::images/silverdragon_custom.png["QTDragon customized",scale=25]
+
+

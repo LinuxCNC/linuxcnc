@@ -1852,6 +1852,16 @@ static void output_to_hal(void)
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
 
+    switch (emcmotStatus->motionType) {
+        case EMC_MOTION_TYPE_FEED: //fall thru
+        case EMC_MOTION_TYPE_ARC:
+            *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
+                                         * emcmotStatus->net_feed_scale;
+            break;
+        default:
+            *(emcmot_hal_data->feed_upm) = 0;
+    }
+
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset

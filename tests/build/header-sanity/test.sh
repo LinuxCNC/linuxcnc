@@ -1,6 +1,5 @@
 #!/bin/sh
 set -xe 
-HEADERS=$(readlink -f ../../../include)
 CPPFLAGS=$(pkg-config --silence-errors --cflags libtirpc)
 for i in $HEADERS/*.h; do
     case $i in

@@ -1,0 +1,8 @@
+.TH indocumentadas "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+indocumentadas \- funciones no documentadas en HAL
+
+.SH VER TAMBIÉN
+El archivo de encabezado \fIhal.h\fR. La mayoría de las funciones hal tienen documentación
+en ese archivo

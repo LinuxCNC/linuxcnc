@@ -1,0 +1,43 @@
+.TH COMP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+comp \- Two input comparator with hysteresis
+.SH SYNOPSIS
+.HP
+.B loadrt comp [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBcomp.\fIN\fB\fR (requires a floating-point thread)
+Update the comparator
+.SH PINS
+.TP
+.B comp.\fIN\fB.in0\fR float in \fR
+Inverting input to the comparator
+.TP
+.B comp.\fIN\fB.in1\fR float in \fR
+Non-inverting input to the comparator
+.TP
+.B comp.\fIN\fB.out\fR bit out \fR
+Normal output. True when \fBin1\fR > \fBin0\fR (see parameter \fBhyst\fR for details)
+.TP
+.B comp.\fIN\fB.equal\fR bit out \fR
+Match output.  True when difference between \fBin1\fR and \fBin0\fR is less than \fBhyst\fR/2
+.SH PARAMETERS
+.TP
+.B comp.\fIN\fB.hyst\fR float rw \fR(default: \fI0.0\fR)
+Hysteresis of the comparator (default 0.0)
+
+With zero hysteresis, the output is true when \fBin1\fR > \fBin0\fR.  With nonzero
+hysteresis, the output switches on and off at two different values,
+separated by distance \fBhyst\fR around the point where \fBin1\fR = \fBin0\fR.
+Keep in mind that floating point calculations are never absolute
+and it is wise to always set \fBhyst\fR if you intend to use equal 
+.SH LICENSE
+
+GPL

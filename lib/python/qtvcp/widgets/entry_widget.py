@@ -299,15 +299,19 @@ class TouchInterface(QtCore.QObject):
             if hasattr(widget, 'keyboard_type'):
                 if hasattr(widget, 'keyboard_enable') and widget.keyboard_enable is False:
                     return False
-                if widget.keyboard_type.lower() == 'alpha':
-                    self._input_panel_alpha.show_input_panel(widget)
-                elif widget.keyboard_type.lower() == 'numeric':
-                    self._input_panel_numeric.show_input_panel(widget)
-                else:
-                    self._input_panel_full.show_input_panel(widget)
+                self.callDialog(widget, widget.keyboard_type.lower())
+
         return False
       except:
         return False
+
+    def callDialog(self,widget, ktype):
+        if ktype == 'alpha':
+            self._input_panel_alpha.show_input_panel(widget)
+        elif ktype == 'numeric':
+            self._input_panel_numeric.show_input_panel(widget)
+        else:
+            self._input_panel_full.show_input_panel(widget)
 
 class TouchInputWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -319,7 +323,6 @@ class TouchInputWidget(QtWidgets.QWidget):
 
     def eventFilter(self, widget, event):
         return self.touch_interface.eventFilter(widget, event)
-
 
 class ExampleWidget(TouchInputWidget):
     def __init__(self):

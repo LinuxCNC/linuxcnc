@@ -71,6 +71,8 @@
 
 #define HM2_ADDR_IDROM_OFFSET (0x010C)
 
+#define HM2_ADDR_WATCHDOG (0x0C00)
+
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
 #define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
@@ -219,7 +221,10 @@ typedef struct {
     // either HM2_PIN_DIR_IS_INPUT or HM2_PIN_DIR_IS_OUTPUT
     // if gtag != gpio, how the owning module instance configured it at load-time
     // if gtag == gpio, this gets copied from the .is_output parameter
+    // If the "at start" value differs from the "direction" value, this occurs
+    // the first time the write function is executed
     int direction;
+    int direction_at_start;
 
     // if the driver decides to make this pin a gpio, it'll allocate the
     // instance struct to manage it, otherwise instance is NULL
@@ -1469,6 +1474,8 @@ typedef struct {
 
     hm2_raw_t *raw;
 
+    bool ddr_initialized;
+
     struct rtapi_list_head list;
 } hostmot2_t;
 
@@ -1535,7 +1542,8 @@ void hm2_tram_cleanup(hostmot2_t *hm2);
 int hm2_read_pin_descriptors(hostmot2_t *hm2);
 void hm2_configure_pins(hostmot2_t *hm2);
 void hm2_print_pin_usage(hostmot2_t *hm2);
-void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
+void hm2_set_pin_direction_immediate(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
+void hm2_set_pin_direction_at_start(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
 void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source);
 
 
@@ -1552,6 +1560,7 @@ void hm2_ioport_force_write(hostmot2_t *hm2);
 void hm2_ioport_write(hostmot2_t *hm2);
 void hm2_ioport_print_module(hostmot2_t *hm2);
 void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
+void hm2_ioport_initialize_ddr(hostmot2_t *hm2);
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
 void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2);

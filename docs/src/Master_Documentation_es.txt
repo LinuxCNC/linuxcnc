@@ -1,162 +1,182 @@
 :lversion: {sys: cat ../VERSION}
 LinuxCNC V{lversion}, {localdate}
 =================================
-:lang: en
+:ascii-ids:
+:lang: es
 
-Contents
-========
+= Contenido
 
 :masterdir: {indir}
 
+:leveloffset: 0
+
+= Acerca de LinuxCNC
+
+:leveloffset: 1
+
+= Introduccion
+
 image::common/images/emc2-intro.*[]
 
-The LinuxCNC Team
+include::common/overleaf_es.txt[]
 
-include::common/overleaf.txt[]
+= LinuxCNC History
 
-= Using LinuxCNC
-
-:leveloffset: 1
-
-= General Info
-
-:leveloffset: 2
-
-include::user/user-foreword.txt[]
-
-include::user/user-intro.txt[]
-
-include::user/user-concepts.txt[]
-
-include::gcode/machining-center.txt[]
-
-include::getting-started/running-linuxcnc.txt[]
-
-include::config/stepconf.txt[]
-
-include::config/pncconf.txt[]
-
-include::common/linux-faq.txt[]
-
-include::lathe/lathe-user.txt[]
-
-:leveloffset: 1
-
-= User Interfaces
-
-:leveloffset: 2
-
-include::gui/axis.txt[]
-
-include::gui/gmoccapy.txt[]
-
-include::gui/ngcgui.txt[]
-
-include::gui/touchy.txt[]
-
-include::gui/tklinuxcnc.txt[]
-
-:leveloffset: 1
-
-= Programming
-
-:leveloffset: 2
-
-include::gcode/coordinates.txt[]
-
-include::gcode/overview.txt[]
-
-include::gcode/g-code.txt[]
-
-include::gcode/m-code.txt[]
-
-include::gcode/o-code.txt[]
-
-include::gcode/other-code.txt[]
-
-include::examples/gcode.txt[]
-
-include::gcode/rs274ngc.txt[]
-
-include::gui/image-to-gcode.txt[]
-
-:leveloffset: 1
-
-= Tool Compensation
-
-:leveloffset: 2
-
-include::gcode/tool-compensation.txt[]
-
-include::gui/tooledit.txt[]
+include::common/emc-history_es.txt[]
 
 :leveloffset: 0
 
-= Configuration
+= Usando LinuxCNC
 
 :leveloffset: 1
 
-= General Info
+= Informacion General
 
 :leveloffset: 2
 
-include::config/integrator-concepts.txt[]
+include::user/user-foreword_es.txt[]
 
-include::install/latency-test.txt[]
+include::user/user-intro_es.txt[]
 
-include::user/starting-linuxcnc.txt[]
+include::user/user-concepts_es.txt[]
 
-include::motion/tweaking-steppers.txt[]
+include::user/starting-linuxcnc_es.txt[]
 
-include::config/stepper-diagnostics.txt[]
+include::gcode/machining-center_es.txt[]
+
+include::getting-started/running-linuxcnc_es.txt[]
+
+include::config/stepconf_es.txt[]
+
+include::config/pncconf_es.txt[]
+
+include::common/linux-faq_es.txt[]
+
+include::lathe/lathe-user_es.txt[]
+
+include::plasma/plasma-cnc-primer_es.txt[]
 
 :leveloffset: 1
 
-= Configuration
+= Interfaces de usuario
 
 :leveloffset: 2
 
-include::config/stepper-quickstart.txt[]
+include::gui/axis_es.txt[]
 
-include::config/ini-config.txt[]
+include::gui/gmoccapy_es.txt[]
 
-include::config/ini-homing.txt[]
+include::gui/ngcgui_es.txt[]
 
-include::config/lathe-config.txt[]
+include::gui/touchy_es.txt[]
 
-include::hal/haltcl.txt[]
+include::gui/gscreen_es.txt[]
 
-include::remap/remap.txt[]
+include::gui/tklinuxcnc_es.txt[]
 
-include::config/moveoff.txt[]
-
-include::config/stepper.txt[]
+include::plasma/plasmac-user-guide_es.txt[]
 
 :leveloffset: 1
 
-= Control Panels
+= Programacion
 
 :leveloffset: 2
 
-include::gui/pyvcp.txt[]
+include::gcode/coordinates_es.txt[]
 
-include::gui/pyvcp-examples.txt[]
+// include::gcode/overview_es.txt[]
 
-include::gui/gladevcp.txt[]
+include::gcode/g-code_es.txt[]
 
-include::gui/gscreen.txt[]
+include::gcode/m-code_es.txt[]
+
+include::gcode/o-code_es.txt[]
+
+include::gcode/other-code_es.txt[]
+
+include::examples/gcode_es.txt[]
+
+include::gcode/rs274ngc_es.txt[]
+
+// include::gui/image-to-gcode_es.txt[]
 
 :leveloffset: 1
 
-= User Interfaces
+= Compensacion de Herramientas
 
 :leveloffset: 2
 
-include::gui/halui.txt[]
+include::gcode/tool-compensation_es.txt[]
 
-include::hal/halui-examples.txt[]
+include::gui/tooledit_es.txt[]
 
-include::config/python-interface.txt[]
+:leveloffset: 0
+
+= Configuracion
+
+:leveloffset: 1
+
+= Informacion General
+
+:leveloffset: 2
+
+include::config/integrator-concepts_es.txt[]
+
+include::install/latency-test_es.txt[]
+
+include::motion/tweaking-steppers_es.txt[]
+
+include::config/stepper-diagnostics_es.txt[]
+
+:leveloffset: 1
+
+= Configuracion
+
+:leveloffset: 2
+
+// include::config/stepper-quickstart_es.txt[]
+
+include::config/ini-config_es.txt[]
+
+include::config/ini-homing_es.txt[]
+
+include::config/lathe-config_es.txt[]
+
+include::hal/haltcl_es.txt[]
+
+include::remap/remap_es.txt[]
+
+include::config/moveoff_es.txt[]
+
+include::config/stepper_es.txt[]
+
+:leveloffset: 1
+
+= Paneles de Control
+
+:leveloffset: 2
+
+// include::gui/pyvcp_es.txt[]
+
+// include::gui/pyvcp-examples_es.txt[]
+
+// include::gui/gladevcp_es.txt[]
+
+:leveloffset: 1
+
+= Interfaces de Usuario
+
+:leveloffset: 2
+
+// include::gui/panelui_es.txt[]
+
+// include::gui/halui_es.txt[]
+
+include::hal/halui-examples_es.txt[]
+
+include::config/python-interface_es.txt[]
+
+// include::gui/vismach_es.txt[]
 
 :leveloffset: 1
 
@@ -164,47 +184,47 @@ include::config/python-interface.txt[]
 
 :leveloffset: 2
 
-include::hal/parallel-port.txt[]
+include::hal/parallel-port_es.txt[]
 
-include::drivers/ax5214h.txt[]
+// include::drivers/ax5214h_es.txt[]
 
-include::drivers/gs2.txt[]
+// include::drivers/gs2_es.txt[]
 
-include::drivers/hostmot2.txt[]
+// include::drivers/hostmot2_es.txt[]
 
-include::drivers/motenc.txt[]
+// include::drivers/motenc_es.txt[]
 
-include::drivers/mb2hal.txt[]
+// include::drivers/mb2hal_es.txt[]
 
-include::drivers/opto22.txt[]
+// include::drivers/opto22_es.txt[]
 
-include::drivers/pico-ppmc.txt[]
+// include::drivers/pico-ppmc_es.txt[]
 
-include::drivers/pluto-p.txt[]
+// include::drivers/pluto-p_es.txt[]
 
-include::drivers/pmx485.txt[]
+// include::drivers/pmx485_es.txt[]
 
-include::drivers/servo-to-go.txt[]
+// include::drivers/servo-to-go_es.txt[]
 
-include::drivers/shuttle.txt[]
+// include::drivers/shuttle_es.txt[]
 
-include::drivers/gm.txt[]
+// include::drivers/gm_es.txt[]
 
-include::drivers/vfs11.txt[]
+// include::drivers/vfs11_es.txt[]
 
 :leveloffset: 1
 
-= Driver Examples
+= Ejemplos de Drivers
 
 :leveloffset: 2
 
-include::examples/pci-parallel-port.txt[]
+include::examples/pci-parallel-port_es.txt[]
 
-include::examples/spindle.txt[]
+include::examples/spindle_es.txt[]
 
-include::examples/mpg.txt[]
+// include::examples/mpg_es.txt[]
 
-include::examples/gs2-example.txt[]
+include::examples/gs2-example_es.txt[]
 
 :leveloffset: 1
 
@@ -212,11 +232,11 @@ include::examples/gs2-example.txt[]
 
 :leveloffset: 2
 
-include::ladder/ladder-intro.txt[]
+// include::ladder/ladder-intro_es.txt[]
 
-include::ladder/classic-ladder.txt[]
+// include::ladder/classic-ladder_es.txt[]
 
-include::ladder/ladder-examples.txt[]
+// include::ladder/ladder-examples_es.txt[]
 
 :leveloffset: 1
 
@@ -224,52 +244,59 @@ include::ladder/ladder-examples.txt[]
 
 :leveloffset: 2
 
-include::hal/intro.txt[]
+include::hal/intro_es.txt[]
 
-include::hal/basic-hal.txt[]
+include::hal/basic-hal_es.txt[]
 
-include::hal/tutorial.txt[]
+include::hal/twopass_es.txt[]
 
-include::hal/general-ref.txt[]
+include::hal/tutorial_es.txt[]
 
-include::config/core-components.txt[]
+include::hal/general-ref_es.txt[]
 
-include::hal/canonical-devices.txt[]
+include::config/core-components_es.txt[]
 
-include::hal/tools.txt[]
+include::hal/canonical-devices_es.txt[]
 
-include::hal/halshow.txt[]
+include::hal/tools_es.txt[]
 
-include::hal/components.txt[]
+include::hal/halshow_es.txt[]
 
-include::hal/rtcomps.txt[]
+include::hal/components_es.txt[]
 
-include::hal/hal-examples.txt[]
+include::hal/rtcomps_es.txt[]
 
-include::hal/comp.txt[]
+include::hal/hal-examples_es.txt[]
 
-include::hal/halmodule.txt[]
+include::hal/comp_es.txt[]
 
+include::hal/halmodule_es.txt[]
 
-:leveloffset: 1
-
-= Advanced Topics
-
-:leveloffset: 2
-
-include::motion/kinematics.txt[]
-
-include::motion/pid-theory.txt[]
-
-:leveloffset: 1
 
 :leveloffset: 0
 
-include::common/glossary.txt[]
+= Advanced Topics
 
-include::common/gpld-copyright.txt[]
+:leveloffset: 1
+
+include::motion/kinematics_es.txt[]
+
+include::motion/dh-parameters_es.txt[]
+
+include::motion/5-axis-kinematics_es.txt[]
+
+include::motion/pid-theory_es.txt[]
+
+include::motion/external-offsets_es.txt[]
+
+include::code/rs274_es.txt[]
+
+:leveloffset: 0
+
+include::common/glossary_es.txt[]
+
+include::common/gpld-copyright_es.txt[]
 
 // = Index
 
 // vim: set syntax=asciidoc:
-

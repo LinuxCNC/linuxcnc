@@ -15,11 +15,8 @@
 #
 # touchy style MDI based heavily from Touchy code
 
-import sys
 import os
 import math
-import time
-import hal
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
@@ -53,7 +50,10 @@ class mdi:
             self.axes = ['X','Y','Z']
 
         self.gcode = 'M2'
-
+        if INFO.MACHINE_IS_LATHE:
+            G10 = ['Setup', 'L', 'P', 'A','R', 'I','J', 'Q']
+        else:
+            G10 = ['Setup', 'L', 'P', 'A', 'R']
         self.codes = {
             'M3' : ['Spindle CW', 'S'],
             'M4' : ['Spindle CCW', 'S'],
@@ -72,7 +72,7 @@ class mdi:
             'G03' : ['Arc CCW', 'A', 'I', 'J', 'K', 'R', 'P', 'F'],
             'G4' : ['Dwell', 'P'],
             'G04' : ['Dwell', 'P'],
-            'G10' : ['Setup', 'L', 'P', 'A', 'Q', 'R'],
+            'G10': G10,
             'G33' : ['Spindle synchronized feed', 'A', 'K'],
             'G33.1' : ['Rigid tap', 'Z', 'K'],
             'G38.2' : ['Probe', 'A', 'F'],
@@ -386,6 +386,7 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
+    import sys
 
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()

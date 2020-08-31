@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
-Name=French Integrator Manual
+Name=Integrator Information - FR
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual_fr.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual_fr.pdf
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-fr.svg
 X-GNOME-DocPath=
 Terminal=false
 Comment=Installation and Configuration Manual (French)
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;

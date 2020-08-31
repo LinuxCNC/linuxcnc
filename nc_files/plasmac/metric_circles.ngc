@@ -16,7 +16,7 @@ o100 repeat [#2]
   M3 $0 S1 (select plasma torch)
   G0 z0
   G2 I[#4*#1]
-  M5
+  M5 $0
   #4 = [#4+0.5]
 o100 endrepeat
 

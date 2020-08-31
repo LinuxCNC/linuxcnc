@@ -1,0 +1,754 @@
+.TH linuxcncrsh 1 "31 de mayo de 2011" "" "El Controlador de Máquina Mejorado"
+.SH NOMBRE
+linuxcncrsh \- interfaz en modo texto para comandar LinuxCNC a través de la red
+.SH SINOPSIS
+.SI
+linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPCIONES]
+.br
+.SH DESCRIPCIÓN
+\fBlinuxcncrsh\fP es una interfaz de usuario para LinuxCNC. En lugar de abrir una
+ventana GUI como axis(1) o touchy(1), procesa comandos en modo texto
+que recibe a través de la red. Un humano (o un programa) puede interactuar
+con \fBlinuxcncrsh\fP usando telnet(1) o nc(1) o programas similares.
+.P
+Todas las características de LinuxCNC están disponibles a través de la interfaz \fBlinuxcncrsh\fP.
+.SH OPCIONES
+.P
+.B
+\-p,\-\-port PORT_NUMBER
+.RS
+Especifique el puerto de escucha para linuxcncrsh. El valor predeterminado es 5007 si se omite.
+.RE
+.P
+.B
+\-n,\-\-name SERVER_NAME
+.RS
+Establece el nombre del servidor que linuxcncrsh usará para identificarse durante
+el reconocimiento con un nuevo cliente. El valor predeterminado es EMCNETSVR si se omite.
+.RE
+.P
+.B
+\-w,\-\-connectpw CONTRASEÑA
+.RS
+Especifique la contraseña de conexión para usar durante el protocolo de enlace con un nuevo
+cliente. Tenga en cuenta que la contraseña se envía sin cifrar, por lo que puede leerse
+por cualquiera que pueda leer paquetes en la red entre el servidor y
+el cliente. El valor predeterminado es EMC si se omite.
+.RE
+.P
+.B
+\-e,\-\-enablepw CONTRASEÑA
+.RS
+Especifique la contraseña requerida para habilitar LinuxCNC a través de linuxcncrsh. Tenga en cuenta que
+la contraseña se envía sin cifrar, por lo que cualquier persona que pueda leer 
+paquetes en la red entre el servidor y el cliente puede leerla. Por defecto es
+EMCTOO si se omite.
+.RE
+.P
+.B
+\-s,\-\-sessions MAX_SESSIONS
+.RS
+Especifique el número máximo de conexiones simultáneas. El valor predeterminado es \-1
+(sin límite) si no se especifica.
+.RE
+.P
+Además de las opciones enumeradas anteriormente, linuxcncrsh acepta una opción
+LINUXCNC_OPTION especial al final:
+.P
+.B
+\-ini LINUXCNC_INI_FILE
+.RS
+Archivo LinuxCNC .ini a usar. La opción \-ini \fBdebe\fP estar precedida por dos
+guiones: "\-\-". El valor predeterminado es emc.ini si se omite.
+.RE
+.SH Inicio de linuxcncrsh
+.P
+Para usar linuxcncrsh en lugar de una GUI LinuxCNC normal como Axis o Touchy, especifique
+su archivo .ini así:
+.RS
+.P
+.B [DISPLAY]
+.P
+.B DISPLAY=linuxcncrsh
+.RE
+.P
+Para usar linuxcncrsh además de una GUI normal, puede iniciarlo
+al final de su archivo .hal, o ejecutarlo a mano en una ventana de terminal.
+.P
+Para iniciarlo desde hal, agregue una línea como esta al final de su archivo .hal:
+.RS
+.P
+.B loadusr linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPTIONS]
+.RE
+.P
+Para iniciarlo desde la terminal, ejecute linuxcncrsh manualmente de esta manera:
+.RS
+.P
+.B linuxcncrsh [OPCIONES] [\-\- LINUXCNC_OPTIONS]
+.RE
+.SH Conexión
+.P
+Una vez que LinuxCNC esté activo y se esté ejecutando linuxcncrsh, puede conectarse a él utilizando
+\fBtelnet\fP o \fBnc\fP o similar:
+.RS
+.P
+.B telnet HOST PORT
+.RS
+HOST es el nombre de host o la dirección IP de la computadora que ejecuta linuxcncrsh, y
+PORT es el puerto en el que está escuchando (5007 si no le dio a linuxcncrsh la opción \-\-port).
+
+.RE
+.SH Protocolo de red
+.P
+linuxcncrsh acepta conexiones TCP en el puerto especificado por la opción \-\-port,
+o 5007 si no se especifica.
+.P
+El cliente envía solicitudes y el servidor linuxcncrsh devuelve respuestas.
+Las solicitudes consisten en una palabra de comando seguida de parámetros específicos del comando. 
+Las solicitudes y la mayoría de los parámetros de solicitud son insensibles a mayúsculas y minúsculas.
+Las excepciones son contraseñas, rutas de archivo y cadenas de texto.
+.P
+Las solicitudes de linuxcncrsh se finalizan con terminaciones de línea; cualquier combinación de
+uno o más caracteres '\\r' y '\\n'. Las respuestas de linuxcncrsh finalizan
+con la secuencia \'\\r\\n\'.
+.P
+Los comandos admitidos son los siguientes:
+.P
+\fBhello <contraseña> <cliente> <versión>\fR
+.RS
+<contraseña> debe coincidir con la contraseña de conexión de linuxcncrsh o "EMC" si no
+se suministró \-\-connectpw. Los tres argumentos pueden no contener espacios en blanco.
+Si se ingresó una contraseña válida, el servidor responderá con:
+.RS
+\fIHELLO ACK <Nombre del servidor> <Versión del servidor>\fR
+.RE
+.P
+Si se produce una contraseña no válida o cualquier otro error de sintaxis, el servidor
+responde con:
+.RS
+\fIHELLO NAK\fR
+.RE
+.RE
+.P
+\fBget <subcommand> [<parámetros>]\fR
+.RS
+El comando get toma uno de los subcomandos LinuxCNC (descrito en la
+sección \fBSubcomandos LinuxCNC\fR, a continuación) y cero o más parámetros
+adicionales específicos del subcomando.
+.RE
+.P
+\fBset <subcommand> <parámetros>\fR
+.RS
+El comando set toma uno de los subcomandos LinuxCNC (descrito en el
+sección \fBSubcomandos LinuxCNC\fR, a continuación) y uno o más parámetros adicionales.
+.RE
+.P
+\fBquit\fR
+.RS
+El comando quit desconecta la conexión de socket asociada.
+.RE
+.P
+\fBshutdown\fR
+.RS
+El comando shutdown le dice a LinuxCNC que apague y desconecte la
+sesión. Este comando solo se puede emitir si el reconocimiento ha sido
+negociado con éxito y la conexión tiene el control del CNC (ver subcomando
+\fBenable\fR en la sección \fBSubcomandos LinuxCNC\fR, a continuación).
+.RE
+.P
+\fBhelp\fR
+.RS
+El comando de ayuda devolverá información de ayuda en formato de texto sobre la
+conexión. Si no se especifican parámetros, detallará los comandos disponibles.
+Si se especifica un comando, proporcionará información de uso
+para el comando especificado. La ayuda responderá independientemente de si un
+"Hello" se ha negociado con éxito.
+.RE
+.SH "Subcomandos LinuxCNC"
+.P
+Los subcomandos para \fBget\fR y \fBset\fR son:
+.P
+\fBecho {on|off}\fR
+.RS
+Con get, se ignora cualquier parámetro on/off y es devuelto el estado de eco actual.
+Con set, se establece el estado del eco como se especifica. El eco por defecto es
+on cuando se establece la conexión por primera vez. Cuando el eco está activado, todos los comandos
+hará eco al recibirlo. Este estado es local para cada conexión.
+.RE
+.P
+\fBverbose {on|off}\fR
+.RS
+Con get, cualquier parámetro on/off se ignora y es devuelto el estado detallado actual.
+Con set, se establece el estado detallado como se especifica. Cuando el modo detallado
+está activado, todos los comandos set devuelven un reconocimiento positivo en la forma
+SET <COMMAND> ACK, y se emitirán mensajes de error de texto (FIXME: no
+se lo que esto significa). El estado detallado es local para cada conexión,
+y comienza OFF en nuevas conexiones.
+.RE
+.P
+\fBenable {<passwd>|off}\fR
+.RS
+El estado de habilitación de la sesión indica si la conexión actual está
+habilitada para realizar funciones de control. Con get, se ignora cualquier parámetro,
+y se devuelve el estado de habilitación actual. Con set y una contraseña válida coincidente
+con \-\-enablepw (EMCTOO si no se especifica), la conexión actual
+está habilitada para las funciones de control. "OFF" no puede usarse como
+una contraseña y deshabilita las funciones de control para esta conexión.
+.RE
+.P
+\fBconfig [TBD]\fR
+.RS
+Sin usar, ignorar por ahora.
+.RE
+.P
+\fBcomm_mode {ascii| binary}\fR
+.RS
+Con get, se ignora cualquier parámetro y se devuelve el modo de
+comunicacion actual. Con set, se establecerá el modo de comunicaciones en
+el modo especificado El modo ascii es el modo de solicitud/respuesta de texto, el
+protocolo binario no está actualmente diseñado o implementado.
+.RE
+.P
+\fBcomm_prot <versión>\fR
+.RS
+Con get, se ignora cualquier parámetro y se devuelve la versión actual del protocolo
+utilizado por el servidor. Con set, se configura el servidor para que use
+la versión de protocolo especificada, siempre que sea inferior o igual al
+mayor número de versión compatible con la implementación del servidor.
+.RE
+.P
+\fBinifile\fR
+.RS
+¡Actualmente no implementado! Con get, devuelve la cadena "emc.ini".
+Debería devolver la ruta completa y el nombre de archivo de la configuración actual
+inifile. Set no hace nada.
+.RE
+.P
+\fBplat\fR
+.RS
+Con get, devuelve la cadena "Linux".
+.RE
+.P
+\fBini <var> <sección>\fR
+.RS
+Actualmente no implementado, ¡no lo use! Debería devolver el valor de la cadena
+<var> en la sección <sección> del archivo ini.
+.RE
+.P
+\fBdebug <valor>\fR
+.RS
+Con get, se ignora cualquier parámetro y se devuelve el valor entero actual de
+EMC_DEBUG. Tenga en cuenta que el valor de EMC_DEBUG devuelto es
+el del archivo ini de la UI, que puede ser diferente al archivo ini de emc.
+Con set, se envía un comando a EMC para establecer el nuevo nivel de depuración y
+establece el EMC_DEBUG global aquí con el mismo valor. Esto hará que los
+dos valores sean iguales, ya que realmente deberían ser iguales.
+.RE
+.P
+\fBset_wait {recived|done}\fR
+.RS
+La configuración set_wait controla la espera después de recibir un comando.
+Puede ser "recived" (después de que el comando fue enviado y recibido) o "done"
+(después de que se ejecuto el comando). Con get, se ignora cualquier parámetro y
+se devuelve la configuración actual de set_wait. Con set, se establece la configuración set_wait
+al valor especificado.
+.RE
+.P
+\fBwait {recived|done}\fR
+.RS
+Con set, fuerza una espera para que se reciba el comando anterior, o done.
+.RE
+.P
+\fBset_timeout <timeout>\fR
+.RS
+Con set, establece el tiempo de espera para que los comandos vuelvan a los <timeout>
+segundos. El tiempo de espera es un número real. Si es <= 0.0, significa esperar para siempre.
+El valor predeterminado es 0.0, espera para siempre.
+.RE
+.P
+\fBupdate {none|auto}\fR
+.RS
+El modo de actualización controla si se deben devolver valores nuevos u obsoletos para
+"obtener" solicitudes. Cuando el modo de actualización es "none", devuelve valores obsoletos;
+cuando es "auto" devuelve valores nuevos. El valor predeterminado es "auto" para nuevas
+conexiones. Ajústelo a "none" si quiere confundirse.
+.RE
+.P
+\fBerror\fR
+.RS
+Con get, devuelve la cadena de error actual o "ok" si no hay error.
+.RE
+.P
+\fBoperator_display\fR
+.RS
+Con get, devuelve la cadena de visualización del operador actual, o "ok" si no hay ninguno.
+.RE
+.P
+\fBoperator_text\fR
+.RS
+Con get, devuelve la cadena de texto del operador actual, o "ok" si no hay ninguno.
+.RE
+.P
+\fBtime\fR
+.RS
+Con get, devuelve el tiempo, en segundos, desde el comienzo del epoch.
+El tiempo de inicio depende de la plataforma.
+.RE
+.P
+\fBestop {on|off}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelve la configuración actual de estop
+como "on" o "off". Con set, establece estop como se especifica. Estop "on"
+significa que la máquina está en estado de parada y no actuará.
+.RE
+.P
+\fBmachine {on|off}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelve el encendido actual de la máquina
+configurando como "on" o "off". Con set, enciende o apaga la máquina como se
+especifique.
+.RE
+.P
+\fBmode {manual|auto|mdi}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelve el modo de máquina actual.
+Con set, establece el modo de máquina como se especifica.
+.RE
+.P
+\fBmist {on|off}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelve el ajuste de refrigerante de niebla actual.
+Con set, establece la configuración de niebla como se especifica.
+.RE
+.P
+\fBflood {on|off}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelve el ajuste de refrigerante de inundación actual.
+Con set, establece la configuración de inundación como se especifica.
+.RE
+.P
+\fBlube {on|off}\fR
+.RS
+Con get, ignora cualquier parámetro y devuelveel ajuste de la bomba de lubricación actual.
+Con set, establece la configuración de la bomba de lubricación como se especifica.
+.RE
+.P
+\fBlube_level\fR
+.RS
+Con get, devuelve la lectura del sensor de nivel de lubricante como "ok" o "low".
+Con set, no hay efecto real.
+.RE
+.P
+\fBspindle {forward|reverse|increase|decrease|constant|off}\fR
+.RS
+Con get, se ignora cualquier parámetro y el estado actual del cabezal es
+devuelto como "forward", "reverse", "increase", "decrease", "constant" o "off". Con
+set, establece el husillo como se especifica. Tenga en cuenta que "increase" y "decrease"
+provocará un cambio de velocidad en la dirección correspondiente hasta que
+se envía el comando "constant".
+.RE
+.P
+\fBbrake {on|off}\fR
+.RS
+Con get, se ignora cualquier parámetro y la configuración actual del freno es
+devuelta. Con set, el freno se establece como se especifica.
+.RE
+.P
+\fBtool\fR
+.RS
+Con get, devuelve la identificación de la herramienta cargada actualmente.
+.RE
+.P
+\fBtool_offset\fR
+.RS
+Con get, devuelve el desplazamiento de longitud de herramienta aplicado actualmente.
+.RE
+.P
+\fBload_tool_table <archivo>\fR
+.RS
+Con set, carga la tabla de herramientas especificada por <archivo>.
+.RE
+.P
+\fBhome {0|1|2|...}|-1\fR
+.RS
+Con set, pone home a la articulación indicada o, si -1, home Todas las articulaciones
+.RE
+.P
+\fBjog_stop joint_number|axis_letter\fR
+.RS
+Con set, detiene cualquier jog en curso en la articulación o eje especificado.
+Si TELEOP_ENABLE es NO, use joint_number;
+Si TELEOP_ENABLE es SÍ, use axis_letter.
+.RE
+.P
+\fBjog joint_number|axis_letter <speed>\fR
+.RS
+Con set, mueve la articulación o eje especificado a la <velocidad>; el signo de velocidad es dirección.
+Si TELEOP_ENABLE es NO, use joint_number;
+Si TELEOP_ENABLE es SÍ, use axis_letter.
+.RE
+.P
+\fBjog_incr jog_number|axis_letter <speed> <incr>\fR
+.RS
+Con set, mueve la articulación o eje indicado por incremento <incr> en <speed>; el signo de
+la velocidad es dirección.
+Si TELEOP_ENABLE es NO, use joint_number;
+Si TELEOP_ENABLE es SÍ, use axis_letter.
+.RE
+.P
+\fBfeed_override <percent>\fR
+.RS
+Con get, se ignora cualquier parámetro y retorna el ajuste de alimentación actual
+(como un porcentaje del feed ordenado). Con set, establece el ajuste de feed
+como se especifica.
+.RE
+.P
+\fBspindle_override <percent>\fR
+.RS
+Con get, se ignora cualquier parámetro y retorna el ajuste de husillo actual
+(como un porcentaje de husillo ordenado). Con set, establece el ajuste de husillo
+como se especifica.
+.RE
+.P
+\fBabs_cmd_pos [{0|1|...}]\fR
+.RS
+Con get, devuelve la posición ordenada del eje especificado en absoluto
+coordenadas Si no se especifica ningún eje, devuelve todos los ejes ordenados
+posición absoluta
+.RE
+.P
+\fBabs_act_pos [{0|1|...}]\fR
+.RS
+Con get, devuelve la posición real del eje especificado en absoluto
+coordenadas Si no se especifica ningún eje, devuelve el absoluto real de todos los ejes
+posición.
+.RE
+.P
+\fBrel_cmd_pos [{0|1|...}]\fR
+.RS
+Con get, devuelve la posición ordenada del eje especificado en relación
+coordenadas, incluido el desplazamiento de la longitud de la herramienta. Si no se especifica ningún eje,
+devuelve la posición relativa ordenada de todos los ejes.
+.RE
+.P
+\fBrel_act_pos [{0|1|...}]\fR
+.RS
+Con get, devuelve la posición real del eje especificado en relación
+coordenadas, incluido el desplazamiento de la longitud de la herramienta. Si no se especifica ningún eje,
+devuelve la posición relativa real de todos los ejes.
+.RE
+.P
+\fBjoint_pos [{0|1|...}]\fR
+.RS
+Con get, devuelve la posición real de la articulación especificada en absoluto
+coordenadas, excluyendo el desplazamiento de la longitud de la herramienta. Si no se especifica una junta,
+devuelve la posición absoluta real de todas las articulaciones.
+.RE
+.P
+\fBpos_offset [{X|Y|Z|R|P|W}]\fR
+.RS
+Con get, devuelve el desplazamiento de posición asociado con la coordenada mundial
+previsto.
+.RE
+.P
+\fBjoint_limit [{0|1|...}]\fR
+.RS
+Con get, devuelve el estado límite de la unión especificada como "ok", "minsoft",
+"minhard", "maxsoft" o "maxhard". Si no se especifica un número conjunto,
+devuelve el estado límite de todas las articulaciones.
+.RE
+.P
+\fBjoint_fault [{0|1|...}]\fR
+.RS
+Con get, devuelve el estado de falla de la unión especificada como "ok" o
+"culpa". Si no se especifica un número conjunto, devuelve el estado de falla de
+Todas las articulaciones.
+.RE
+.P
+\fBjoint_homed [{0|1|...}]\fR
+.RS
+Con get, devuelve el estado de referencia de la unión especificada como "referenciada"
+o no". Si no se especifica un número conjunto, devuelve el estado de inicio de
+Todas las articulaciones.
+.RE
+.P
+\fBmdi <cadena>\fR
+.RS
+Con set, envía <cadena> como un comando MDI.
+.RE
+.P
+\fBtask_plan_init\fR
+.RS
+Con set, inicializa el intérprete de programa.
+.RE
+.P
+\fBopen <nombre de archivo>\fR
+.RS
+Con set, abre el archivo con nombre. El <nombre de archivo> es abierto por linuxcnc,
+por lo que debería ser una ruta absoluta o una ruta relativa que comience en
+el directorio de trabajo de linuxcnc (el directorio del archivo .ini activo).
+.RE
+.P
+\fBrun [<StartLine>]\fR
+.RS
+Con set, ejecuta el programa abierto. Si no se especifica StartLine, se ejecuta
+desde el principio. Si se especifica una línea de inicio, la línea de inicio se ejecuta desde
+esa linea. Una línea de inicio de \ -1 se ejecuta en modo de verificación.
+.RE
+.P
+\fBpause\fR
+.RS
+Con set, pausa la ejecución del programa.
+.RE
+.P
+\fBresume\fR
+.RS
+Con set, reanudar la ejecución del programa.
+.RE
+.P
+\fBabort\fR
+.RS
+Con set, abortar programa o ejecución MDI.
+.RE
+.P
+\fBstep\fR
+.RS
+Con set, pasa el programa una línea.
+.RE
+.P
+\fBprogram\fR
+.RS
+Con get, devuelve el nombre del programa abierto actualmente o "ninguno".
+.RE
+.P
+\fBprogram_line\fR
+.RS
+Con get, devuelve la línea actualmente en ejecución del programa.
+.RE
+.P
+\fBprogram_status\fR
+.RS
+Con get, devuelve "inactivo", "en ejecución" o "en pausa".
+.RE
+.P
+\fBprogram_codes\fR
+.RS
+Con get, devuelve la cadena para los códigos de programa actualmente activos.
+.RE
+.P
+\fBjoint_type [<joint>]\fR
+.RS
+Con get, devuelve "lineal", "angular" o "personalizado" para el tipo de
+junta especificada (o para todas las juntas si no se especifica ninguna).
+.RE
+.P
+\fBjoint_units [<unidad>]\fR
+.RS
+Con get, devuelve "inch", "mm", "cm" o "deg", "rad", "grad" o
+"personalizado", para las unidades nativas correspondientes de la unión especificada (o
+para todas las juntas si no se especifica ninguna). El tipo del eje (lineal o
+angular) se utiliza para resolver qué tipo de unidades se devuelven. las unidades
+se obtienen heurísticamente, en base a las unidades numéricas EMC_AXIS_STAT ::
+valor de unidades de usuario por mm o deg. Para juntas lineales, algo cercano
+a 0.03937 se considera "pulgada", 1.000 es "mm", 0.1 es "cm", de lo contrario es
+"personalizado". Para juntas angulares, algo cercano a 1,000 se considera "deg",
+PI / 180 es "rad", 100/90 es "grad", de lo contrario es "personalizado".
+.RE
+.P
+\fBprogram_units\fR
+.RS
+Sinónimo de program_linear_units.
+.RE
+.P
+\fBprogram_linear_units\fR
+.RS
+Con get, devuelve "inch", "mm", "cm" o "none", para el correspondiente
+unidades lineales que están activas en el intérprete de programa.
+.RE
+.P
+\fBprogram_angular_units\fR
+.RS
+Con get, devuelve "deg", "rad", "grad" o "none" para el correspondiente
+unidades angulares que están activas en el intérprete de programa.
+.RE
+.P
+\fBuser_linear_units\fR
+.RS
+Con get, devuelve "inch", "mm", "cm" o "custom", para el correspondiente
+Unidades lineales de usuario nativo del nivel de trayectoria LinuxCNC. Esto se obtiene
+heurísticamente, basado en el valor numérico EMC_TRAJ_STAT :: linearUnits
+de unidades de usuario por mm. Algo cercano a 0.03937 se considera "pulgada",
+1.000 es "mm", 0.1 es "cm", de lo contrario es "personalizado".
+.RE
+.P
+\fBuser_angular_units\fR
+.RS
+Devuelve "deg", "rad", "grad" o "custom" para el nativo correspondiente
+Unidades angulares de usuario del nivel de trayectoria LinuxCNC. Al igual que con las unidades lineales,
+Esto se obtiene heurísticamente.
+.RE
+.P
+\fBdisplay_linear_units\fR
+.RS
+Con get, devuelve "inch", "mm", "cm" o "personalizado" para el lineal
+unidades que están activas en la pantalla. Este es efectivamente el valor
+de linearUnitConversion.
+.RE
+\fBdisplay_angular_units\fR
+.RS
+Con get, devuelve "deg", "rad", "grad" o "custom", para el angular
+unidades que están activas en la pantalla. Este es efectivamente el valor
+de angularUnitConversion.
+.RE
+.P
+\fBlinear_unit_conversion {inch|mm|cm|auto}\fR
+.RS
+Con get, se ignora cualquier parámetro y la conversión de unidad activa es
+devuelto Con set, establece la unidad que se mostrará. Si es "auto",
+las unidades que se mostrarán coinciden con las unidades del programa.
+.RE
+.P
+\fBangular_unit_conversion {deg|rad|grad|auto}\fR
+.RS
+Con get, se ignora cualquier parámetro y la conversión de unidad activa es
+devuelto Con set, establece las unidades que se mostrarán. Si es "auto",
+las unidades que se mostrarán coinciden con las unidades del programa.
+.RE
+.P
+\fBprobe_clear\fR
+.RS
+Con el set, borre la bandera de la sonda disparada.
+.RE
+.P
+\fBprobe_tripped\fR
+.RS
+Con get, devuelve el estado de la sonda: ¿se ha disparado la sonda desde el último borrado?
+.RE
+.P
+\fBprobe_value\fR
+.RS
+Con get, devuelve el valor actual de la señal de la sonda.
+.RE
+.P
+\fBprobe\fR
+.RS
+Con el set, muévete hacia una determinada ubicación. Si la sonda se dispara
+la forma de detener el movimiento, registrar la posición y levantar la bandera de la sonda disparada.
+.RE
+.P
+\fBteleop_enable [on|off]\fR
+.RS
+Con get, se ignora cualquier parámetro y el modo teleop actual es
+devuelto Con set, establece el modo teleop como se especifica.
+.RE
+.P
+\fBkinematics_type\fR
+.RS
+Con get, devuelve el tipo de funciones cinemáticas utilizadas (identidad = 1,
+serial = 2, paralelo = 3, personalizado = 4).
+.RE
+.P
+\fBoverride_limits {on|off}\fR
+.RS
+Con get, se ignora cualquier parámetro y la configuración override_limits es
+devuelto Con set, el parámetro override_limits se establece como se especifica.
+Si override_limits está activado, deshabilita los límites de hardware de fin de viaje para
+permitir correr fuera de un límite. Si los parámetros están desactivados, entonces los límites de hardware
+están habilitados
+.RE
+.P
+\fBoptional_stop {0|1}\fR
+.RS
+Con get, se ignora cualquier parámetro y la actual "parada opcional en M1"
+Se devuelve la configuración. Con set, la configuración se establece como se especifica.
+.RE
+.SH Sesión de ejemplo
+.P
+Esta sección muestra una sesión de ejemplo para la máquina local (\fBlocalhost\fR).
+Usted escribe los elementos en negrita, la salida de máquina no es negrita. Los valores predeterminados se muestran para
+--port PORT_NUMBER (\fB5007\fR), --conectpw PASSWORD (\fBEMC\fR) y
+--enablepw CONTRASEÑA (\fBEMCTOO\fR).
+.P
+El usuario se conecta a linuxcncrsh, reconocimiento con el servidor (hello), habilita
+comandos para la máquina de esta sesión (set enable), saca la máquina
+de parada (apaga estop) y la enciende (la máquina), hace todos los home de
+los ejes, cambia la máquina al modo mdi, envía un comando MDI de código g,
+luego se desconecta y apaga LinuxCNC.
+.P
+> \fBtelnet localhost 5007\fR
+.br
+Trying 127.0.0.1...
+.br
+Connected to 127.0.0.1
+.br
+Escape character is '^]'.
+.br
+\fBhello EMC user\-typing\-at\-telnet 1.0\fR
+.br
+HELLO ACK EMCNETSVR 1.1
+.br
+\fBset enable EMCTOO\fR
+.br
+set enable EMCTOO
+.br
+\fBset mode manual\fR
+.br
+set mode manual
+.br
+\fBset estop off\fR
+.br
+set estop off
+.br
+\fBset machine on\fR
+.br
+set machine on
+.br
+\fBset home 0\fR
+.br
+set home 0
+.br
+\fBset home 1\fR
+.br
+set home 1
+.br
+\fBset home 2\fR
+.br
+set home 2
+.br
+\fBset mode mdi\fR
+.br
+set mode mdi
+.br
+\fBset mdi g0x1\fR
+.br
+set mdi g0x1
+.br
+\fBhelp\fR
+.br
+help
+.br
+Available commands:
+  Hello <password> <client name> <protocol version>
+  Get <emc command>
+  Set <emc command>
+  Shutdown
+  Help <command>
+.br
+\fBhelp get\fR
+.br
+help get
+.br
+Usage:
+Get <emc command>
+  Get commands require that a hello has been successfully negotiated.
+  Emc command may be one of:
+    Abs_act_pos
+    Abs_cmd_pos
+.br
+\fB ... \fR
+.br
+\fBshutdown\fR
+.br
+shutdown
+.br
+Connection closed by foreign host.

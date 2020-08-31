@@ -1,0 +1,92 @@
+.TH MULTICLICK "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+multiclick \- Single-, double-, triple-, and quadruple-click detector
+.SH SYNOPSIS
+.HP
+.B loadrt multiclick [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+A click is defined as a rising edge on the 'in' pin,
+followed by the 'in' pin being True for at most 'max-hold-ns' nanoseconds,
+followed by a falling edge.
+
+A double-click is defined as two clicks, separated by at
+most 'max-space-ns' nanoseconds with the 'in' pin in the False state.
+
+I bet you can guess the definition of triple- and quadruple-click.
+
+You probably want to run the input signal through a debounce component
+before feeding it to the multiclick detector, if the input is at all
+noisy.
+
+The '*-click' pins go high as soon as the input detects the correct
+number of clicks.
+
+The '*-click-only' pins go high a short while after the click, after
+the click separator space timeout has expired to show that no further
+click is coming.  This is useful for triggering halui MDI commands.
+.SH FUNCTIONS
+.TP
+\fBmulticlick.\fIN\fB\fR
+Detect single-, double-, triple-, and quadruple-clicks
+.SH PINS
+.TP
+.B multiclick.\fIN\fB.in\fR bit in \fR
+The input line, this is where we look for clicks.
+.TP
+.B multiclick.\fIN\fB.single-click\fR bit out \fR
+Goes high briefly when a single-click is detected on the 'in' pin.
+.TP
+.B multiclick.\fIN\fB.single-click-only\fR bit out \fR
+Goes high briefly when a single-click is detected on the 'in' pin
+and no second click followed it.
+.TP
+.B multiclick.\fIN\fB.double-click\fR bit out \fR
+Goes high briefly when a double-click is detected on the 'in' pin.
+.TP
+.B multiclick.\fIN\fB.double-click-only\fR bit out \fR
+Goes high briefly when a double-click is detected on the 'in' pin
+and no third click followed it.
+.TP
+.B multiclick.\fIN\fB.triple-click\fR bit out \fR
+Goes high briefly when a triple-click is detected on the 'in' pin.
+.TP
+.B multiclick.\fIN\fB.triple-click-only\fR bit out \fR
+Goes high briefly when a triple-click is detected on the 'in' pin
+and no fourth click followed it.
+.TP
+.B multiclick.\fIN\fB.quadruple-click\fR bit out \fR
+Goes high briefly when a quadruple-click is detected on the 'in' pin.
+.TP
+.B multiclick.\fIN\fB.quadruple-click-only\fR bit out \fR
+Goes high briefly when a quadruple-click is detected on the 'in'
+pin and no fifth click followed it.
+.TP
+.B multiclick.\fIN\fB.state\fR s32 out \fR
+.SH PARAMETERS
+.TP
+.B multiclick.\fIN\fB.invert-input\fR bit rw \fR(default: \fIFALSE\fR)
+If FALSE (the default), clicks start with rising edges.  If TRUE,
+clicks start with falling edges.
+.TP
+.B multiclick.\fIN\fB.max-hold-ns\fR u32 rw \fR(default: \fI250000000\fR)
+If the input is held down longer than this, it's not part of a
+multi-click.  (Default 250,000,000 ns, 250 ms.)
+.TP
+.B multiclick.\fIN\fB.max-space-ns\fR u32 rw \fR(default: \fI250000000\fR)
+If the input is released longer than this, it's not part of a
+multi-click.  (Default 250,000,000 ns, 250 ms.)
+.TP
+.B multiclick.\fIN\fB.output-hold-ns\fR u32 rw \fR(default: \fI100000000\fR)
+Positive pulses on the output pins last this long.  (Default
+100,000,000 ns, 100 ms.)
+.SH LICENSE
+
+GPL

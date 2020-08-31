@@ -1,0 +1,131 @@
+.TH EOFFSET_PER_ANGLE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+eoffset_per_angle \- Compute External Offset Per Angle
+.SH SYNOPSIS
+.HP
+.B loadrt eoffset_per_angle [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+
+An offset is computed (from one of several functions) based on
+an input angle in degrees.  The angle could be a rotary
+coordinate value or a spindle angle.
+
+The computed offset is represented as an s32 \fBkcounts\fR output
+pin that is a compatible input to external offset pins like
+\fBaxis.L.eoffset-counts\fR where \fBL\fR is the coordinate
+letter.  Scaling of the s32 \fBkcounts\fR is controlled by the
+input (\fBk\fR) -- its reciprocal value is presented on an output pin
+(\fBkreciprocal\fR) for connection to \fBaxis.L.eoffset-scale\fR.
+The default value for \fBk\fR should be suitable for most uses.
+
+The built-in functions use pins \fBfmult\fR and \fBrfraction\fR
+to control the output frequency (or number of polygon sides)
+and amplitude respectively.  The  \fBrfraction\fR pin controls
+the offset amplitude as a fraction of the \fBradius-ref\fR pin.
+
+One of the four built-in functions is specified by the \fBfnum\fR pin:
+  \fB0\fR: f0 inside  polygon  (requires \fBfmult\fR == nsides >= 3)
+  \fB1\fR: f1 outside polygon  (requires \fBfmult\fR == nsides >= 3)
+  \fB2\fR: f2 sinusoid
+  \fB3\fR: f3 square wave
+
+Unsupported \fBfnum\fR values default to use function f0.
+
+\fBNOTES:\fR
+
+\fBradius-ref\fR:
+The computed offsets are based on the \fBradius-ref\fR pin
+value.  This pin may be set to a constant radius value or
+controlled by a user interface or by g code program (using
+\fBM68\fR and a \fBmotion.analog-out-NN pin for instance).
+
+\fBStopping\fR:
+When the \fBenable-in\fR pin is deasserted, the offset is
+returned to zero respecting the allocated acceleration
+and velocity limits.  The allocations for coordinate \fBL\fR
+are typically controlled by an ini file setting:
+\fB[AXIS_L]OFFSET_AV_RATIO\fR.
+
+\fBNOTES\fR:
+If unsupported parameters are supplied to a function (for instance
+a polygon with fewer than three sides), the current offset
+will be returned to zero (respecting velocity and acceleration
+constraints).  After correcting the offending parameter, the
+\fBenable-in\fR pin must be toggled to resume offset
+computations.
+
+\fBEXAMPLE:\fR
+An example simulation configuration is provided at:
+\fBconfigs/sim/axis/external_offsets/opa.ini\fR.  A
+simulated XZC machine uses the \fBC\fR coordinate angle to
+offset the transverse \fBX\fR coordinate according to
+the selected \fBfnum\fR function.
+
+.SH FUNCTIONS
+.TP
+\fBeoffset-per-angle.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B eoffset-per-angle.\fIN\fB.active\fR bit in \fR(default: \fI0\fR)
+From: motion.eoffset-active
+.TP
+.B eoffset-per-angle.\fIN\fB.is-on\fR bit in \fR(default: \fI0\fR)
+From: halui.machine.is-on
+.TP
+.B eoffset-per-angle.\fIN\fB.enable-in\fR bit in \fR(default: \fI0\fR)
+Enable Input
+.TP
+.B eoffset-per-angle.\fIN\fB.radius-ref\fR float in \fR(default: \fI1\fR)
+Radius reference (see notes)
+.TP
+.B eoffset-per-angle.\fIN\fB.angle\fR float in \fR(default: \fI0\fR)
+Input angle (in degrees)
+.TP
+.B eoffset-per-angle.\fIN\fB.start-angle\fR float in \fR(default: \fI0\fR)
+Start angle (in degrees)
+.TP
+.B eoffset-per-angle.\fIN\fB.fnum\fR s32 in \fR(default: \fI0\fR)
+Function selector (default 0)
+.TP
+.B eoffset-per-angle.\fIN\fB.rfraction\fR float in \fR(default: \fI0.1\fR)
+Offset amplitude (+/- fraction of radius_ref)
+.TP
+.B eoffset-per-angle.\fIN\fB.fmult\fR float in \fR(default: \fI6\fR)
+Offset frequency multiplier
+.TP
+.B eoffset-per-angle.\fIN\fB.k\fR u32 in \fR(default: \fI10000\fR)
+Scaling Factor (if 0, use 10000)
+.TP
+.B eoffset-per-angle.\fIN\fB.is-off\fR bit out \fR
+invert is_on (for convenience)
+.TP
+.B eoffset-per-angle.\fIN\fB.enable-out\fR bit out \fR
+To: axis.L.eoffset-enable
+.TP
+.B eoffset-per-angle.\fIN\fB.clear\fR bit out \fR
+To: axis.L.eoffset-clear
+.TP
+.B eoffset-per-angle.\fIN\fB.kcounts\fR s32 out \fR
+To: axis.L.eoffset-counts
+.TP
+.B eoffset-per-angle.\fIN\fB.kreciprocal\fR float out \fR
+To: axis.L.eoffset-scale (1/k)
+.TP
+.B eoffset-per-angle.\fIN\fB.eoffset-dbg\fR float out \fR
+offset (debug pin--use kcounts & kreciprocal)
+.TP
+.B eoffset-per-angle.\fIN\fB.state-dbg\fR u32 out \fR
+state  (debug pin)
+.SH LICENSE
+
+GPL

@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
 
@@ -213,18 +215,35 @@ class _Lcnc_Action(object):
                 STATUS.emit('file-loaded',fname)
 
     def SAVE_PROGRAM(self, source, fname):
+        # no gcode - ignore
         if source == '': return
-        if '.' not in fname:
-            fname += '.ngc'
-        name, ext = fname.rsplit('.')
+
+        # normalize to absolute path
         try:
-            outfile = open(name + '.' + ext.lower(),'w')
+            path = os.path.abspath(fname)
+            if '.' not in path:
+                path += '.ngc'
+            name, ext = path.rsplit('.')
+            npath = name + '.' + ext.lower()
+        except Exception as e:
+            log.debug('save error: {}'.format(e))
+            log.debug('Original save path: {}'.format(fname))
+
+        log.debug('SAVE_PROGRAM write to: {}'.format(npath))
+
+        # ok write the file
+        try:
+            outfile = open(npath,'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
             print e
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
-            outfile.close()
+            try:
+                outfile.close()
+            except:
+                pass
 
     def SET_AXIS_ORIGIN(self,axis,value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -699,3 +718,20 @@ class FilterProgram:
             'TITLE':'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
+
+# For testing purposes
+
+if __name__ == "__main__":
+
+    from qtvcp.core import Action
+    testcase = Action()
+
+    # print status caught errors
+    def mess(error,text):
+        print 'STATUS caught:',text
+
+    STATUS.connect("error", lambda w, n, d: mess(n,d))
+
+    # test case
+    testcase.SAVE_PROGRAM('hi','/../../home')
+

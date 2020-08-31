@@ -1,0 +1,77 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH parport "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_parport \- acceso portáble a puertos paralelos estilo PC
+
+.SH SINTAXIS
+.HP
+#include "rtapi_parport.h"
+.HP
+int \fBrtapi_parport_get\fR(const char *\fImodule_name\fR, rtapi_parport_t *\fIport\fR, unsigned short \fIbase\fR, unsigned short \fIbase_hi\fR, unsigned int \fImodes\fR)
+.HP
+void \fBrtapi_parport_release\fR(rtapi_parport_t *\fIport\fR)
+.HP
+.SH ARGUMENTOS
+.IP \fImodule_name\fR
+Por convención, el nombre del módulo RTAPI o componente HAL que usa el parport.
+.IP \fIport\fR
+Un puntero a una estructura rtapi_parport_t
+.IP \fIbase\fR
+La dirección base del puerto (si puerto >= 16) o el número Linux de puerto (si puerto <16)
+.IP \fIbase_hi\fR
+La dirección "high" del puerto (ubicación de los registros ECP), 0 para usar una
+dirección alta probada, o \-1 para deshabilitar la dirección alta
+.IP \fImodes\fR
+Avisar al driver de los modos de puerto deseados, desde <linux/parport.h>. Si un
+puerto detectado por Linux no proporciona los modos solicitados, se imprime una advertencia con rtapi_print_msg. 
+Esto no hace que la solicitud de puerto falle, porque desafortunadamente, muchos sistemas que tienen puertos EPP
+que funcionan no se detectan por Linux.
+.SH DESCRIPCIÓN
+\fBrtapi_parport_get\fR asigna un puerto paralelo para uso exclusivo del componente
+hal nombrado. Si tiene éxito, accede al puerto con llamadas de E/S como
+\fRrtapi_inb\fR en la dirección base, en las direcciones \fBbase\fR o \fBbase_hi\fR.
+El puerto debe liberarse con \fBrtapi_parport_release\fR antes de la salida del componente con \fBrtapi_exit\fR.
+.SH SONDEO DE DIRECCIÓN HIGH
+Si el puerto es un puerto paralelo conocido por Linux, y se detectó una dirección high de E/S, se utiliza este valor. De lo contrario, 
+si base+0x400 no está registrada a cualquier dispositivo, se usara. De lo contrario, no se utiliza ninguna dirección. 
+Si no hay una dirección high detectada, port\->base_hi es 0.
+.SH ESTRUCTURA DE PARPORT
+.in +4n
+.nf
+typedef struct
+{
+    unsigned short base;
+    unsigned short base_hi;
+    .... // otros campos
+} rtapi_parport_t;
+.fi
+.en
+.SH VALOR DEVUELTO
+\fBrtapi_parport_get\fR devuelve un código de estado HAL. En caso de éxito, \fIport\fR es completado con información sobre el puerto asignado. 
+En caso de falla, los contenidos de \fIport\fR no están definidos, excepto que es seguro (pero no obligatorio) pasar este puerto a \fBrtapi_parport_release\fR.
+
+\fBrtapi_parport_release\fR no devuelve un valor. Siempre tiene éxito.
+.SH NOTAS
+En nuevo código, se prefiere el uso de rtapi_parport a rtapi_parport.
+

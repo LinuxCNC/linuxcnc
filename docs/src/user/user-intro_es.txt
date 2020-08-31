@@ -1,0 +1,99 @@
+﻿:lang: es
+:toc:
+
+[[cha:linuxcnc-user-introduction]]
+
+= Introduccion para usuarios de LinuxCNC
+
+== Como funciona LinuxCNC
+
+LinuxCNC es un conjunto de aplicaciones altamente personalizables para el control de fresadoras y tornos de control numerico mediante una computadora (CNC), impresoras 3D, robots, cortadores láser, cortadores de plasma y otros dispositivos automatizados. Es capaz de proporcionar el control coordinado de hasta 9 ejes de movimiento.
+
+En esencia, LinuxCNC consta de varios componentes clave que se integran para formar un sistema completo:
+
+* una interfaz gráfica de usuario (GUI), que forma la interfaz básica entre el operador, el software y la máquina CNC en sí misma;
+* una <<cha:hal-introduction,capa de abstracción de hardware (HAL)>>, que proporciona un método para vincular las diversas señales virtuales internas generadas y recibidas por LinuxCNC con el mundo exterior.
+* controladores de alto nivel que coordinan la generación y ejecución del control de movimiento de la máquina CNC, es decir,el controlador de movimiento (EMCMOT), el controlador de entrada/salida discretas (EMCIO) y el ejecutor de tareas (EMCTASK).
+
+La siguiente ilustración es un diagrama de bloques simple que muestra una fresadora típica CNC de 3 ejes con motores paso a paso:
+
+image::images/whatstep1.png[align="center", alt="Máquina simple controlada por LinuxCNC"]
+
+El ordenador que ejecuta LinuxCNC envía una secuencia de impulsos a través del puerto paralelo a las unidades paso a paso.
+Cada una de esas unidades tiene un motor paso a paso conectado. Cada unidad recibe dos señales independientes; una señal para ordenar al accionamiento que mueva su motor paso a paso asociado en sentido horario o antihorario (señal de direccion), y una segunda señal (tren de pulsos) que define la velocidad a la que gira el motor paso a paso.
+
+Se ha ilustrado un sistema de motor paso a paso bajo control del puerto paralelo, pero un sistema LinuxCNC también puede conectarse a una amplia variedad de interfaces hardware dedicadas de control de movimiento para una mayor velocidad o capacidades de E/S. Se puede encontrar una lista completa de interfaces compatibles con LinuxCNC en la página Wiki http://http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Hardware soportado]
+
+En la mayoría de los casos, los usuarios crearán una configuración específica para la configuración de su maquina utilizando el <<cha:stepconf-wizard,Asistente de Configuracion de Steppers>> (para sistemas CNC que funcionan con puerto paralelo) o el <<cha:pncconf-wizard,Asistente de Hardware Mesa>> (para sistemas más avanzados que utilizan tarjetas PCI Mesa Anything I/O). La ejecución de cualquiera de los asistentes creará varias carpetas en el disco  duro del ordenador que contiene una cierta cantidad de archivos de configuración específicos para esa máquina CNC, y un ícono colocado en el escritorio para permitir el lanzamiento fácil de LinuxCNC.
+
+Por ejemplo, si se usó el Asistente de Configuración de Steppers para crear una configuración para la fresadora CNC de 3 ejes ilustrada mas arriba y se titulo 'Mi_CNC', las carpetas creadas por el asistente contendrían generalmente los
+siguientes archivos:
+
+* Carpeta: Mi_CNC
+** Mi_CNC.ini
+*** El archivo INI contiene toda la información básica del hardware relacionado con el funcionamiento de la fresadora CNC, tales como el número de pasos que debe realizar cada motor paso a paso para completar una revolución completa, la velocidad máxima en que cada paso a paso puede operar, los límites de recorrido de cada eje o la configuración y el comportamiento de interruptores de límite en cada eje.
+** Mi_CNC.hal
+*** Este archivo HAL contiene información que le dice a LinuxCNC cómo vincular las señales virtuales internas a conexiones físicas exteriores a la computadora. Por ejemplo, especificando el pin 4 en el puerto paralelo para enviar la señal de dirección de paso del eje Z, o instruir a LinuxCNC para dejar de mover el motor del eje X cuando se activa el interruptor de límite conectado al pin 13 del puerto paralelo.
+** custom.HAL
+*** Las personalizaciones para la configuración de la fresadora, más allá del alcance del asistente, pueden realizarse incluyendo enlaces adicionales a otros puntos virtuales dentro de LinuxCNC en este archivo HAL. Al iniciar una sesión de LinuxCNC, este archivo se lee y se procesa antes de cargar la GUI. Por ejemplo, puede incluir iniciar las comunicaciones Modbus con el driver del husillo para que se confirme como operativo antes de que se muestre la GUI.
+** custom_postgui.hal
+*** El archivo HAL custom_postgui permite una mayor personalización de LinuxCNC, pero difiere de custom.HAL en que se procesa después de que se muestre la GUI. Por ejemplo, después de establecer comunicaciones Modbus al driver del motor del husillo en custom.hal, LinuxCNC puede usar el archivo custom_postgui para vincular la lectura de la velocidad del husillo desde el driver del motor con un gráfico de barras que se muestra en la GUI.
+** postgui_backup.hal
+*** Proporciona una copia de seguridad del archivo custom_postgui.hal para permitir al usuario restaurar rápidamente una configuración HAL postgui que funcionaba anteriormente. Esto es especialmente útil si el usuario desea ejecutar el Asistente de configuración nuevamente bajo el mismo nombre, 'Mi_CNC',para modificar algunos parámetros.
+Al guardar la nueva configuración con el asistente, se sobrescribirá el archivo custom_postgui existente mientras que el archivo postgui_backup queda intacto.
+** tool.tbl
+*** Un archivo de tabla de herramientas contiene una lista parametrizada de cualquier herramienta de corte utilizada. Estos parámetros puede incluir el diámetro y la longitud del cortador, y se utiliza para proporcionar un catálogo de datos que le dice a LinuxCNC cómo compensar su movimiento para herramientas de diferentes tamaños dentro de una operación de fresado.
+* Carpeta: nc_files
+*** La carpeta nc_files se proporciona como la ubicación predeterminada para almacenar los programas de código G utilizados en la maquina. También incluye varias subcarpetas con ejemplos de código G.
+
+== Interfaces graficas de usuario
+
+Una interfaz gráfica de usuario es la parte del LinuxCNC con la que interactúa el operador de la máquina herramienta.
+LinuxCNC viene con varios tipos de interfaces de usuario que se pueden elegir al editar ciertos campos contenidos en el <<cha:ini-configuration,archivo INI:
+
+<<cha:axis-gui,'Axis'>>, es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
+
+image::../gui/images/axis_es.png[align="center", alt="Axis, interfaz GUI de teclado estándar"]
+
+
+<<cha:touchy-gui,'Touchy'>> es una GUI para usar con pantalla táctil:
+
+image::../gui/images/touchy_es.png[align="center", alt="Touchy, una GUI para usar con pantalla táctil"]
+
+<<cha:gscreen,'Gscreen'>> una GUI de pantalla táctil configurable por el usuario:
+
+image::../gui/images/gscreen-mill.png[align="center", alt="Gscreen, una GUI de pantalla táctil configurable"]
+
+<<cha:gmoccapy,'GMOCCAPY'>> una GUI de pantalla táctil basada en Gscreen. GMOCCAPY también está diseñada para funcionar tambien en aplicaciones donde el teclado y el mouse son los métodos preferidos para controlar la GUI:
+
+image::../gui/images/gmoccapy_3_axis.png[align="center", alt="gmoccapy, una GUI de pantalla táctil basada en Gscreen"]
+
+<<cha:ngcgui,'NGCGUI'>> una GUI de subrutinas que proporciona una programación de código G, de tipo asistente. NGCGUI puede ejecutarse como un programa independiente o incrustado en otra GUI como una serie de pestañas. La siguiente captura de pantalla muestra a NGCGUI incrustado en Axis:
+
+image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, una GUI de subrutinas que proporciona una programación de código G tipo asistente"]
+
+== Paneles de control virtual
+
+Como se mencionó anteriormente, muchas de las GUI de LinuxCNC pueden ser personalizadas por el usuario. Esto se puede hacer para agregar indicadores, salidas de lectores, interruptores o controles deslizantes a la apariencia básica de una de las GUI para aumentar su flexibilidad o funcionalidad. Se ofrecen dos estilos de Paneles de Control Virtual en LinuxCNC:
+
+<<cha:pyvcp,'PyVCP'>> un panel de control virtual basado en Python que se puede agregar a la GUI Axis. PyVCP utiliza solo señales virtuales contenidas dentro de la capa de abstracción de hardware HAL, como el indicador de velocidad del husillo o la señal de salida de Parada de Emergencia, y tiene una apariencia sencilla, sin lujos. Esto lo hace una excelente opción si el usuario desea agregar un Panel de Control Virtual con un mínimo esfuerzo.
+
+image::../gui/images/axis-pyvcp.png[align="center", alt="PyVCP en Axis"]
+
+<<cha:glade-vcp,'GladeVCP'>> un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
+
+image::../gui/images/axis-gladevcp.png[align="center", alt="GladeVCP con Axis"]
+
+== Idiomas
+
+LinuxCNC utiliza archivos de traducción para traducir las interfaces de usuario de LinuxCNC a muchos idiomas, incluidos francés, español, alemán, italiano, finlandés, ruso, rumano, portugués y chino. Suponiendo que una traducción ha sido creada, LinuxCNC usará automáticamente cualquier idioma nativo con el que inicie la sesión en el sistema operativo Linux. Si su idioma no ha sido traducido, contacte a un desarrollador en el IRC, la lista de correo o el Foro de usuarios para obtener ayuda.
+
+== Modos de operacion
+
+Cuando LinuxCNC se está ejecutando, hay tres modos principales, diferentes entre si, utilizados para ingresar comandos. Son los modos manual, automático y MDI (entrada manual de datos). Al cambiar de un modo a otro, hay una gran diferencia en la forma en que se comporta LinuxCNC. Hay cosas específicas que se pueden hacer en un modo y que no pueden hacerse en otro. Un operador puede hacer home en un eje en modo manual pero no en modo automático o MDI, o puede hacer que la máquina ejecute un archivo completo de código G en el modo automático pero no en manual o MDI.
+
+En el modo manual, cada comando se ingresa por separado. En términos humanos, un comando manual podría ser encender el refrigerante o mover el eje X a 25 pulgadas por minuto. Estos serian, más o menos, equivalentes a pulsar un interruptor o girar el volante de un eje. Estos comandos se manejan normalmente en una de las interfaces gráficas, presionando un botón con el mouse o presionando una tecla en el teclado. En el modo automático, un botón similar o presionar una tecla podría usarse para cargar o iniciar la ejecución de un programa completo de código G almacenado en un archivo. En el Modo MDI, el operador puede escribir un bloque de código y decirle a la máquina que lo ejecute al presionar en el teclado <return> o <enter>.
+
+Algunos comandos de control de movimiento están disponibles en todo momento y causarán los mismos cambios de movimiento en todos los modos. Estos incluyen Abort (abortar), Emergency Stop (parada de emergencia) y Feed Rate Override (mando manual de alimentacion). Comandos como estos deben ser en si mismos explicativos.
+
+La interfaz de usuario AXIS oculta algunas de las distinciones entre Auto y los otros modos, haciendo disponibles comandos Auto en muchas ocasiones. También difumina la distinción entre Manual y MDI porque algunos de los comandos manuales como Touch Off se implementan realmente mediante el envío de comandos MDI. Esto lo hace cambiando automáticamente al modo que se necesite para la acción que el usuario ha solicitado.

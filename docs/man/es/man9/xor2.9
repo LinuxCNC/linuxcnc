@@ -1,0 +1,38 @@
+.TH XOR2 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+xor2 \- Two-input XOR (exclusive OR) gate
+.SH SYNOPSIS
+.HP
+.B loadrt xor2 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBxor2.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B xor2.\fIN\fB.in0\fR bit in \fR
+.TQ
+.B xor2.\fIN\fB.in1\fR bit in \fR
+.TQ
+.B xor2.\fIN\fB.out\fR bit out \fR
+\fBout\fR is computed from the value of \fBin0\fR and \fBin1\fR according
+to the following rule:
+.RS
+.TP
+\fBin0=TRUE in1=FALSE\fR
+.TQ
+\fBin0=FALSE in1=TRUE\fR
+\fBout=TRUE\fR
+.TP
+Otherwise,
+\fBout=FALSE\fR
+.SH LICENSE
+
+GPL

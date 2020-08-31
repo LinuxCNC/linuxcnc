@@ -62,7 +62,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'UNAVAILABLE'
+    LINUXCNCVERSION = 'Master (2.9)'
 
 def get_value(w):
     try:
@@ -319,8 +319,12 @@ class App:
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
         self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
+        if self.warning_dialog(self._p.MESS_FINISH_QUIT,False):
             gtk.main_quit()
+
+    def save(self):
+        base = self.build_base()
+        self.d.save(base)
 
 # helper functions
 
@@ -337,8 +341,10 @@ class App:
             itr = self.widgets.discovery_interface_combobox.get_active_iter()
             d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
             a = self.widgets.discovery_address_entry.get_text()
-        print('discovery:',n,d,a)
-        return n,d,a
+            r =  self.widgets.discovery_read_option.get_active()
+            print ('discovery:',n,d,a,r)
+            return n,d,a,r
+        return None,None,None,None
 
     def discovery_interface_combobox_changed(self,w):
         itr = w.get_active_iter()
@@ -453,6 +459,21 @@ class App:
             else:
                 return False
 
+    def quit_dialog(self):
+        dialog = self.widgets.quitdialog
+        dialog.show_all()
+        result = dialog.run()
+        dialog.hide()
+        if result == gtk.RESPONSE_YES:
+            return True
+        elif result == gtk.RESPONSE_CANCEL:
+            return False
+        # save data then quit
+        else:
+            self.p.on_button_fwd_clicked(None)
+            self.save()
+            return True
+
     def show_help(self):
         helpfilename = os.path.join(self._p.HELPDIR, "%s"% self.d.help)
         textbuffer = self.widgets.helpview.get_buffer()
@@ -468,10 +489,6 @@ class App:
         self.widgets.help_window.set_title(_("Help Pages") )
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
-        if self.debugstate:
-            self.widgets.input_tab.set_visible(True)
-        else:
-            self.widgets.input_tab.set_visible(False)
         self.widgets.help_window.present()
 
     def print_page(self,print_dialog, context, n, imagename):
@@ -1019,14 +1036,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 "PWM /A":_PD.TPPWMAN,"PWM /B":_PD.TPPWMBN,"PWM /C":_PD.TPPWMCN,
                 "FAULT":_PD.TPPWMF,"ENABLE":_PD.TPPWME}
             pinconvertsserial = {"RXDATA0":_PD.RXDATA0,"TXDATA0":_PD.TXDATA0,"TXE0":_PD.TXEN0,"TXEN0":_PD.TXEN0,
-                                "RXDATA1":_PD.RXDATA0,"TXDATA1":_PD.TXDATA0,"TXE1":_PD.TXEN0,"TXEN1":_PD.TXEN0,
-                                "RXDATA2":_PD.RXDATA1,"TXDATA2":_PD.TXDATA1,"TXE2":_PD.TXEN1,"TXEN2":_PD.TXEN1,
-                                "RXDATA3":_PD.RXDATA2,"TXDATA3":_PD.TXDATA2,"TXE3":_PD.TXEN2,"TXEN3":_PD.TXEN2,
-                                "RXDATA4":_PD.RXDATA3,"TXDATA4":_PD.TXDATA3,"TXE4":_PD.TXEN3,"TXEN4":_PD.TXEN3,
-                                "RXDATA5":_PD.RXDATA4,"TXDATA5":_PD.TXDATA4,"TXE5":_PD.TXEN4,"TXEN4":_PD.TXEN4,
-                                "RXDATA6":_PD.RXDATA5,"TXDATA6":_PD.TXDATA5,"TXE6":_PD.TXEN5,"TXEN6":_PD.TXEN5,
-                                "RXDATA7":_PD.RXDATA6,"TXDATA7":_PD.TXDATA6,"TXE7":_PD.TXEN6,"TXEN7":_PD.TXEN6,
-                                "RXDATA8":_PD.RXDATA7,"TXDATA8":_PD.TXDATA7,"TXE8":_PD.TXEN7,"TXEN8":_PD.TXEN7}
+                                "RXDATA1":_PD.RXDATA1,"TXDATA1":_PD.TXDATA1,"TXE1":_PD.TXEN1,"TXEN1":_PD.TXEN1,
+                                "RXDATA2":_PD.RXDATA2,"TXDATA2":_PD.TXDATA2,"TXE2":_PD.TXEN2,"TXEN2":_PD.TXEN2,
+                                "RXDATA3":_PD.RXDATA3,"TXDATA3":_PD.TXDATA3,"TXE3":_PD.TXEN3,"TXEN3":_PD.TXEN3,
+                                "RXDATA4":_PD.RXDATA4,"TXDATA4":_PD.TXDATA4,"TXE4":_PD.TXEN4,"TXEN4":_PD.TXEN4,
+                                "RXDATA5":_PD.RXDATA5,"TXDATA5":_PD.TXDATA5,"TXE5":_PD.TXEN5,"TXEN4":_PD.TXEN5,
+                                "RXDATA6":_PD.RXDATA6,"TXDATA6":_PD.TXDATA6,"TXE6":_PD.TXEN6,"TXEN6":_PD.TXEN6,
+                                "RXDATA7":_PD.RXDATA7,"TXDATA7":_PD.TXDATA7,"TXE7":_PD.TXEN7,"TXEN7":_PD.TXEN7}
             pinconvertnone = {"NOT USED":_PD.GPIOI}
 
             count = 0
@@ -1193,18 +1209,28 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return temp
 
     def discover_mesacards(self):
-        name, interface, address = self.get_discovery_meta()
-        if name is None: return
+        name, interface, address, readoption = self.get_discovery_meta()
+        if name is None: return None
 
         if not name:
             name = '5i25'
 
-        if self.debugstate:
+        if self.debugstate or readoption:
             print('try to discover board by reading help text input:',name)
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),
                         buf.get_end_iter(),
                         True)
+
+            # This is a HACK to pass info about the interface forward
+            # otherwise thw driver info is blank in the discovered firmware
+            if interface == '--addr':
+                inter = 'ETH'
+            elif interface == '--epp':
+                inter = 'EPP'
+            else:
+                inter = 'PCI'
+            info = info + "\n {}".format(inter)
         else:
             info = self.call_mesaflash(name,interface,address)
         print('INFO:',info,'<-')
@@ -1213,17 +1239,19 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         try:
             if 'ERROR' in lines[0]:
                 raise ValueError('Mesaflash Error')
+            elif 'root' in info:
+                raise ValueError('Mesaflash Error')
         except ValueError as err:
             text = err.args
             self.warning_dialog(text[0],True)
-            return
-        except:
-            self.warning_dialog('Unspecified Error with Mesaflash',True)
+            return None
+        except Exception as e:
+            print(e)
+            self.warning_dialog('Unspecified Error with Discovery option',True)
             return
         if 'No' in lines[0] and 'board found' in lines[0] :
             text = _("No board was found\n")
             self.warning_dialog(text,True)
-            print('OOPS no board found!')
             return None
         return info
 
@@ -1251,11 +1279,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         else:
             board_command = '--device %s' %(devicename)
 
-        #cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
-        cmd =""" mesaflash -%s;mesaflash %s --sserial;mesaflash %s --readhmid  """%(board_command, board_command, board_command)
+        # PCI boards require sudo
+        cmd ="""pkexec sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
+        print('cmd=',cmd)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
+        if error:
+            print ('mesaflash error',error)
         if output == '':
             text = _("Discovery is  got an error\n\n Is mesaflash installed?\n\n %s"%error)
             self.warning_dialog(text,True)
@@ -1273,8 +1304,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         except:
             text = _("Discovery is  unavailable\n")
             self.warning_dialog(text,True)
-
-        print('cmd=',cmd)
         return output
 
     def parse_discovery(self,info,boardnum=0):
@@ -1310,13 +1339,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             i = i.lstrip()
             temp2 = i.split(" ")
             #print i,temp2
-            if 'ETH' in i:
-                DRIVER = 'hm2_eth'
-            if 'PCI' in i:
-                DRIVER = 'hm2_pci'
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
+            if 'ETH' in i:
+                DRIVER = 'hm2_eth'
+            elif 'PCI' in i:
+                DRIVER = 'hm2_pci'
+            elif 'EPP' in i:
+                if '7i43' in BOARDNAME.lower():
+                    DRIVER = 'hm2_7i43'
+                else:
+                    DRIVER = 'hm2_7i90'
             if 'DEVICE AT' in i:
                 if ssflag:
                     n1 = add_element(ELEMENT,'SSERIALDEVICES')
@@ -1457,6 +1491,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        print(driver, boardname, firmname, path) 
         boardname = 'Discovered:%s'% boardname
         firmdata = self.parse_xml( driver,boardname,firmname,path)
         self._p.MESA_FIRMWAREDATA.append(firmdata)

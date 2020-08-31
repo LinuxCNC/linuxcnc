@@ -208,6 +208,15 @@ Sent when linuxcnc switches to mdi mode.
 *mode-auto* :: '(returns nothing)' -
 Sent when linuxcnc switches to auto mode.
 
+*command-running* :: '(returns nothing)' -
+Sent when running a program or MDI
+
+*command-stopped* :: '(returns nothing)' -
+Sent when a program or MDI stopped
+
+*command-error* :: '(returns nothing)' -
+Sent when there is a command error
+
 *interp-run* :: '(returns nothing)' -
 Sent when linuxcnc's interpreter is running an MDI or program.
 

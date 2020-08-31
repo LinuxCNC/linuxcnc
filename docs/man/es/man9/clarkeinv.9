@@ -1,0 +1,47 @@
+.TH CLARKEINV "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+clarkeinv \- Inverse Clarke transform
+.SH SYNOPSIS
+.HP
+.B loadrt clarkeinv [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+The inverse Clarke transform can be used rotate a 
+vector quantity and then translate it from Cartesian coordinate
+system to a three phase system (three components 120 degrees apart).
+.SH FUNCTIONS
+.TP
+\fBclarkeinv.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B clarkeinv.\fIN\fB.x\fR float in \fR
+.TQ
+.B clarkeinv.\fIN\fB.y\fR float in \fR
+cartesian components of input
+.TP
+.B clarkeinv.\fIN\fB.h\fR float in \fR
+homopolar component of input (usually zero)
+.TP
+.B clarkeinv.\fIN\fB.theta\fR float in \fR
+rotation angle: 0.00 to 1.00 = 0 to 360 degrees
+.TP
+.B clarkeinv.\fIN\fB.a\fR float out \fR
+.TQ
+.B clarkeinv.\fIN\fB.b\fR float out \fR
+.TQ
+.B clarkeinv.\fIN\fB.c\fR float out \fR
+three phase output vector
+.SH SEE ALSO
+
+\fBclarke2\fR and \fBclarke3\fR for the forward transform.
+.SH LICENSE
+
+GPL

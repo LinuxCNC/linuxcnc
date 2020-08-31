@@ -1,0 +1,297 @@
+:lang: es
+
+[[cha:parport]]
+
+= Controlador de puerto paralelo
+
+El componente hal_parport es un controlador para el puerto paralelo PC tradicional.
+El puerto tiene un total de 17 pines físicos. El puerto paralelo original dividia
+esos pines en tres grupos: datos, control y estado. El grupo de datos
+consta de 8 pines de salida, el grupo de control consta de 4 pines, y el
+El grupo de estado consta de 5 pines de entrada.
+
+A principios de la década de 1990, se introdujo el puerto paralelo bidireccional, que
+permite que el grupo de datos se use para salida o entrada. El controlador HAL admite
+el puerto bidireccional, y permite al usuario configurar el grupo de datos como
+entrada o salida. Si se configura como 'out', un puerto proporciona un total de 12 salidas
+y 5 entradas. Si se configura como 'in', proporciona 4 salidas y 13 entradas.
+
+En algunos puertos paralelos, los pines del grupo de control son de colector abierto, que pueden
+también ser puestos en BAJO por una puerta externa. En una tarjeta con pines de control de colector abierto,
+si se configura como 'x', proporciona 8 salidas y 9 entradas.
+
+En otros puertos paralelos, el grupo de control tiene controladores push-pull y no pueden ser
+utilizados como entrada.
+
+.HAL y colectores abiertos
+[NOTE]
+===========================================================
+HAL no puede determinar automáticamente si los pines bidireccionales del modo 'x' son
+efectivamente de colector abierto (OC). Si no lo son, no pueden usarse como entradas,
+e intentar conducirlos BAJOS desde una fuente externa puede dañar el
+hardware.
+
+Para determinar si su puerto tiene pines 'open collector', cargue hal_parport en
+modo 'x' Sin un dispositivo conectado, HAL debería leer el pin como VERDADERO. Despues,
+inserte una resistencia de 470 ohmios desde uno de los pines de control a GND. Si el resultado
+de la tensión en el pin de control está cerca de 0V, y HAL ahora lee el pin como FALSO,
+entonces tienes un puerto OC. Si el voltaje resultante está lejos de 0V, o HAL
+no lee el pin como FALSE, entonces su puerto no puede usarse en el modo 'x'.
+
+El hardware externo que controla los pines de control también debe usar
+puertas de colector abierto (por ejemplo, 74LS05).
+
+En algunas computadoras, la configuración del BIOS puede afectar a si el modo 'x' puede ser
+usado. El modo 'SPP' es el más probable que funcione.
+===========================================================
+
+No se admiten otras combinaciones, y no se puede cambiar un puerto de entrada a
+salida una vez que el controlador está instalado.
+
+El controlador parport puede controlar hasta 8 puertos (definido por MAX_PORTS en
+hal_parport.c). Los puertos están numerados comenzando en cero.
+
+== Carga
+
+El controlador hal_parport es un componente en tiempo real, por lo que debe cargarse en el
+hilo de tiempo real con 'loadrt'. La cadena de configuración describe los puertos paralelo
+que se utilizarán y (opcionalmente) sus tipos. Si la cadena de configuración
+no describe al menos un puerto, es un error.
+
+----
+loadrt hal_parport cfg="port [type] [port [type] ...]"
+----
+
+.Especificando el Puerto
+
+Los números inferiores a 16 se refieren a puertos paralelos detectados por el sistema. Este es
+la forma más simple de configurar el controlador hal_parport, y coopera con el driver Linux
+parport_pc, si está cargado. El puerto 0 es el primer puerto paralelo
+detectado en el sistema, 1 es el siguiente, y así sucesivamente.
+
+.Configuracion basica
+
+Esto usará el primer puerto paralelo que Linux detecta:
+
+----
+loadrt hal_parport cfg="0"
+----
+
+.Usando la dirección del puerto
+
+La dirección del puerto puede especificarse usando la notación hexadecimal '0x' y luego la dirección.
+
+----
+loadrt hal_parport cfg="0x378"
+----
+
+.Tipo
+
+Para cada puerto paralelo manejado por el controlador hal_parport, se puede
+especificar un 'tipo' opcionalmente. El tipo es uno de 'in', 'out', 'epp' o 'x'.
+
+. Dirección de Puerto Paralelo
+[cols=">1,3*^2", width="50%", options="header"]
+|===========================
+|Pin|in|out/epp|x
+|1|out|out|in
+|2|in|out|out
+|3|in|out|out
+|4|in|out|out
+|5|in|out|out
+|6|in|out|out
+|7|in|out|out
+|8|in|out|out
+|9|in|out|out
+|10|in|in|in
+|11|in|in|in
+|12|in|in|in
+|13|in|in|in
+|14|in|out|in
+|15|in|in|in
+|16|out|out|in
+|17|out|out|in
+|===========================
+
+Si el tipo no está especificado, el valor predeterminado es 'out'.
+
+El tipo 'epp' es igual a 'out', pero el controlador hal_parport pide que
+el puerto cambie al modo EPP. El controlador hal_parport no *usa* el 
+protocolo de bus EPP, pero en algunos sistemas el modo EPP cambia las
+características del puerto de una manera que puede hacer que algún hardware marginal funcione
+mejor. Se sabe que la bomba de carga del Gecko G540 requiere esto en un puerto paralelo.
+
+Consulte la Nota anterior sobre el modo 'x'.
+
+.Ejemplo con dos puertos paralelos
+
+Esto habilitará dos puertos paralelos detectados por el sistema, el primero en modo de salida
+y el segundo en modo de entrada:
+
+----
+loadrt hal_parport cfg = "0 out 1 in"
+----
+
+.Funciones
+También debe indicar a LinuxCNC que ejecute las funciones 'read' y 'write'.
+
+----
+addf parport.0.read base-thread
+addf parport.0.write base-thread
+----
+
+== Dirección del puerto PCI
+
+Entre las buena tarjetas PCI parport estan las que contienen el chipset Netmos 9815.
+Tiene buenas señales de + 5V, y puede venir en puertos únicos o duales.
+
+Para encontrar las direcciones de E/S para tarjetas PCI, abra una ventana de terminal
+y use el comando que lista pci:
+
+----
+lspci -v
+----
+
+Busque la entrada con "Netmos" en ella. Ejemplo de una tarjeta de 2 puertos:
+
+----
+0000:01:0a.0 Communication controller: \
+      Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
+Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter)
+Flags: medium devsel, IRQ 5
+I/O ports at b800 [size=8]
+I/O ports at bc00 [size=8]
+I/O ports at c000 [size=8]
+I/O ports at c400 [size=8]
+I/O ports at c800 [size=8]
+I/O ports at cc00 [size=16]
+----
+
+Por experimentación, se ha encontrado que el primer puerto (el puerto en la tarjeta) usa el
+la tercera dirección enumerada (c000) y el segundo puerto (la que se conecta con
+un cable de cinta) utiliza la primera dirección enumerada (b800). El siguiente ejemplo
+muestra el puerto paralelo de la placa madre y un puerto paralelo PCI que usa el valor predeterminado
+fuera de la dirección.
+
+----
+loadrt hal_parport cfg = "0x378 0xc000"
+----
+
+Tenga en cuenta que sus valores pueden ser diferentes. Las tarjetas Netmos son
+Plug-N-Play, y podrían cambiar su configuración dependiendo de qué
+ranura en la que se pongan, así que si le gusta "meterse debajo del capó"
+y reorganizar las cosas, asegúrese de verificar estos valores antes de que usted
+inicie LinuxCNC.
+
+== Pines
+
+Para cada pin, '<p>' es el número de puerto, y '<n>' es el
+número de pin físico en el conector D-shell de 25 pines.
+
+* 'parport.<p>.pin-<n>-out' (bit) Maneja el pin de salida física.
+
+* 'parport.<p>.pin-<n>-in' (bit) Realiza el seguimiento de un pin de entrada física.
+
+* 'parport.<p>.pin-<n>-in-not' (bit) Realiza el seguimiento de un pin de entrada física, pero invertido.
+
+Para cada pin de salida física, el controlador crea un solo pin HAL, por ejemplo:
+'parport.0.pin-14-out'.
+
+Para cada pin de entrada física, el controlador crea dos pines HAL, por ejemplo:
+'parport.0.pin-12-in' y 'parport.0.pin-12-in-not'.
+
+El pin HAL '-in' es VERDADERO si el pin físico es alto, y FALSO si
+el pin físico es bajo. El pin HAL '-in-not' está invertido y es FALSO si
+el pin físico es alto
+
+== Parámetros
+
+* 'parport.<p>.pin-<n>-out-invert' (bit) Invierte un pin de salida.
+
+* 'parport.<p>.pin-<n>-out-reset' (bit) (solo para 'out' pins) TRUE si
+el pin debe reiniciarse cuando se ejecuta la función '-reset'.
+
+* 'parport.<p>.reset-time' (u32) El tiempo (en nanosegundos)
+entre que un pin se establece mediante 'write' y se restablece mediante la función 'reset' si
+está habilitado.
+
+El parámetro '-invert' determina si un pin de salida está activo
+alto o activo bajo. Si '-invert' es FALSE, establecer el pin HAL '-out' TRUE lleva al
+pin físico  a alto, y FALSO lo conduce bajo. Si '-invert' es TRUE, entonces
+al establecer el pin HAL '-out' TRUE, el pin físico estará bajo.
+
+[[sub:parport-functions]]
+
+== Funciones
+
+* 'parport.<p>.read' (funct) Lee los pines de entrada física del puerto
+   '<portnum>' y actualiza los pines HAL '-in' y '-in-not'.
+
+* 'parport.read-all' (funct) Lee los pines de entrada física de todos los puertos
+   y actualiza los pines HAL '-in' y '-in-not'.
+
+* 'parport.<p>.write' (funct) Lee los pines HAL '-out' del puerto
+   '<p>' y actualiza los pines de salida física del puerto.
+
+* 'parport.write-all' (funct) Lee los pines HAL '-out' de todos los puertos
+   y actualiza todos los pines de salida física.
+
+* 'parport.<p>.reset' (funct) Espera hasta que 'reset-time' halla
+   transcurrido desde la 'write' asociada, luego restablece los pines a los valores
+   indicados por las configuraciones '-out-invert' y '-out-invert'. 'reset' debe ser,
+   en el mismo hilo, posterior a 'write'. Si '-reset' es TRUE, entonces
+   la función 'reset' configurará el pin al valor de '-out-invert'. Esta
+   puede usarse junto con 'doublefreq' de stepgen para producir un
+   paso por periodo El <<sub:stepgen-parameters,stepgen steppace>> para ese pin
+   debe establecerse en 0 para habilitar doublefreq.
+
+Las funciones individuales se proporcionan para situaciones en las que un puerto
+necesita ser actualizado en un hilo muy rápido, pero otros puertos pueden ser
+actualizado en un subproceso más lento para ahorrar tiempo de CPU. Probablemente no sea una buena
+idea utilizar una función '-all' y una función individual al mismo tiempo.
+
+== Problemas comunes
+
+Si cargando el módulo se informa 
+
+----
+insmod: error inserting '../rtlib/hal_parport.ko':
+-1 Device or resource busy
+----
+
+asegúrese de que el módulo kernel estándar 'parport_pc' no este cargado
+footnote:[En los paquetes de LinuxCNC para Ubuntu, el archivo
+/etc/modprobe.d/emc2
+generalmente evita que 'parport_pc' se cargue automáticamente.]
+y que ningún otro dispositivo en el sistema ha reclamado los puertos de E/S.
+
+Si el módulo se carga pero no parece funcionar, entonces el puerto o
+la dirección puede ser incorrecta
+
+== Usando DoubleStep
+
+Para configurar DoubleStep en el puerto paralelo, debe agregar la función
+parport.n.reset después de parport.n.write y configurar stepspace en 0 y
+el tiempo de reset deseado. Entonces, ese paso puede verificarse en cada período en
+HAL y luego desactivado por parport después de ser verificado durante el tiempo
+especificado por parport.n.reset-time.
+
+Por ejemplo:
+
+----
+loadrt hal_parport cfg="0x378 out"
+setp parport.0.reset-time 5000
+loadrt stepgen step_type=0,0,0
+addf parport.0.read base-thread
+addf stepgen.make-pulses base-thread
+addf parport.0.write base-thread
+addf parport.0.reset base-thread
+addf stepgen.capture-position servo-thread
+... 
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
+----
+
+Puede encontrar más información sobre DoubleStep en
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
+

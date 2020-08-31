@@ -203,11 +203,25 @@ NOTE: Base machine configuration means a complete working system without any pla
 
 IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. HERE, THESE WILL BE ADDED LATER DURING THE PlasmaC CONFIGURATION.
 
+* Floating Head - it is recommended that a floating head is used and it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
+
+----
+o = 0.5 × a × (v ÷ a)^2
+----
+
+where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec
+
+For a metric machine with a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s the overrun would be 3mm
+
+For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
+
+It is also recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
+ 
 [[z_settings]]
 
 Recommended settings for the Z axis are:
 
-* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.0157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
+* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
 * Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
 * Z HOME should be just below the maximum limit
 
@@ -217,7 +231,7 @@ When and ONLY WHEN this stage is successfully completed can you configure Plasma
 
 You can create a base machine manually or you may use existing configuration helpers:
 
-NOTE: It is probably best to keep the base machine config simple until you have it fully tested and tuned. If you are using stepconf or pncconf then deselect the VCP Panel, manual tool change and classic ladder options these can be manually added later if you have a need for them.
+NOTE: It is best to keep the base machine config simple until you have it fully tested and tuned. If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options these can be manually added later if you have a need for them.
 
 If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>>:
 
@@ -245,7 +259,7 @@ You NEED to have a fully tested and working base machine configuration without a
 
 CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
-IMPORTANT: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
+NOTE: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
 
 [[configurator]]
 
@@ -275,8 +289,8 @@ HAL connection examples in the following table show an example for both a parall
 
 [width="100%",cols="4,10,6"]
 |===
-|*Field*|*Description*|*Example*
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini|PLASMA
+|*Field*|*Description*|*Examples*
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini|plasma_table
 |Ini File|this is the .ini file you created for your base machine config|base.ini
 |HAL File|this is the .hal file you created for your base machine config|base.hal
 |Mode|select the mode you require +
@@ -323,12 +337,12 @@ HAL connection examples in the following table show an example for both a parall
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run *HalShow* for a full listing of all HAL pins.
 
-Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
+Fill in the required entries to suit your machine wiring, click *Create* and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine_name>
 
 This can be run as follows:
 
 ----
-$ linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
+$ linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
 ----
 
 After creating a new configuration some initial setup is required.
@@ -341,7 +355,7 @@ Open the Config Panel and ensure every one of these settings suits your machine.
 
 See <<config-panel, Config Panel>>
 
-. axis Z MIMIMUM_LIMIT should be set below the slats by the amount of float switch travel plus a small 'bit' for tolerance. Say your float switch moves 4mm (0.0157") before the switch activates then you should set the Z axis minimum limit to 5mm (0.096) below the lowest slat position.
+. axis Z MIMIMUM_LIMIT should be set below the slats by the amount of float switch travel plus a small 'bit' for tolerance. Say your float switch moves 4mm (0.157") before the switch activates then you should set the Z axis minimum limit to 5mm (0.096) below the lowest slat position.
 
 . axis Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel, it must not be lower than Z HOME_OFFSET but does not need to be at the top of travel.
 
@@ -397,11 +411,42 @@ Contact bounce or external interference may cause some inconsistent behaviour of
 * Ohmic Probe
 * Breakaway Switch
 
-This may be alleviated by changing the debounce value in the <MACHINE>_connections.hal file. This value applies to all three switches simultaneously in a standard configuration.
-
-You could separate these by using an exclusive debounce component for each switch.
+This may be alleviated by changing the debounce value in the <machine_name>_connections.hal file. In a standard configuration this value applies to all three switches simultaneously but you could separate these by using an exclusive debounce group.
 
 Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
+
+Debounce is achieved by using the HAL link:http://linuxcnc.org/docs/html/man/man9/debounce.9.html[debounce component].
+
+If you require debounce for other equipment like home or limit switches etc then change the following line in the <machine_name>_connections.hal:
+
+----
+loadrt  debounce  cfg=3
+----
+
+to:
+
+----
+loadrt  debounce  cfg=3,n
+----
+
+with n being the number of contacts you need debounced. 
+
+This will create a new debounce group named debounce.1 for your use, then add the following lines:
+
+----
+setp  debounce.1.delay  c
+addf  debounce.1        servo-thread
+----
+
+with c being the number of servo cycles for the debounce time.
+
+Then you can net the debounce to any HAL pin you require in any of the .hal files (except postgui.hal) like the following example:
+
+----
+net home-x-in   parport.1.pin-11-in-not  =>  debounce.1.0.in
+net home-x-out  debounce.1.0.out         =>  joint.0.home-sw-in
+----
+
 
 == Desktop Launcher
 
@@ -414,7 +459,7 @@ After the launcher appears on the desktop, right click on it and then open with 
 Comment=
 Terminal=false
 Name=LinuxCNC
-Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine>/<machine>.ini"
+Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine_name>/<machine_name>.ini"
 Type=Application
 Icon=/usr/share/pixmaps/linuxcncicon.png
 ----
@@ -433,13 +478,13 @@ After an installation, the following files are created in the configuration dire
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|<MACHINE>.ini|configuration file
-|<MACHINE>.hal|HAL connections for the PlasmaC component
-|<MACHINE>_connections.hal|HAL connections to the I/O HAL pins
+|<machine_name>.ini|configuration file
+|<machine_name>.hal|HAL connections for the PlasmaC component
+|<machine_name>_connections.hal|HAL connections to the I/O HAL pins
 |postgui.hal|a HAL file run after the GUI has loaded for user customizing
 |===
 
-NOTE: Custom commands are allowed in <MACHINE>_connections.hal and the postgui.hal files as they are not overwritten during upgrades
+NOTE: Custom commands are allowed in <machine_name>_connections.hal and the postgui.hal files as they are not overwritten during upgrades
 
 In addition to the above files, the following links are created to the files in the source directory:
 [width="100%",cols="1,2"]
@@ -467,11 +512,11 @@ In addition to the above files, the following links are created to the files in 
 After running a new configuration the first time the following files will be created in the configuration directory:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>_config.cfg|configuration settings for the Config Panel
-|<MACHINE>_run.cfg|configuration settings for the Run Panel
-|<MACHINE>_material.cfg|material file for cut parameters
-|<MACHINE>_wizards.cfg|configuration settings for the shape library
+|*Filename*|*Function* (<machine_name> = name of machine in .ini file)
+|<machine_name>_config.cfg|configuration settings for the Config Panel
+|<machine_name>_run.cfg|configuration settings for the Run Panel
+|<machine_name>_material.cfg|material file for cut parameters
+|<machine_name>_wizards.cfg|configuration settings for the shape library
 |plasmac_stats.var|saved statistics
 |===
 
@@ -511,7 +556,7 @@ image::images/plasmac_config.png[width=50%]
 |Probe Height|This is the height above the Z axis bottom limit that Probe Speed begins.
 |Ohmic Probe Offset|The Z axis offset of the ohmic probe.
 |Ohmic Retries|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
-|Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip, IHS Skip>>.
+|Skip IHS|The distance used to see if Initial Height Sense (probe) can be skipped for the current cut, see <<ihs-skip, IHS Skip>>.
 |===
 
 NOTE: Probe Height is the height above the minimum Z axis limit.
@@ -550,7 +595,8 @@ NOTE: Probe Height is the height above the minimum Z axis limit.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
-|Height Per Volt|0,1,2|The distance the torch would need to move to change the arc voltage by one volt.
+|Height Per Volt|0,1,2|The distance the torch would need to move to change the arc voltage by one volt. +
+                       Used for manual height change only.
 |OK High Volts|0|High voltage threshold for Arc OK.
 |OK Low Volts|0|Low voltage threshold for Arc OK.
 |===
@@ -589,9 +635,9 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
 [underline]*Save & Reload Buttons*
 
-The **Save** button will save the currently displayed parameters as the default.
+The **Save** button will save the currently displayed parameters.
 
-The **Reload** button will reload the last saved parameters.
+The **Reload** button will reload all the parameters.
 
 [[run-panel]]
 
@@ -667,6 +713,15 @@ NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status
 |Start Cut|Press to commence a single cut.
 |===
 
+[underline]*Cutting Mode*
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Mesh Mode|Enable mesh mode for cutting expanded metal.
+|Ignore Arc OK|Don't require Arc OK to start a cut and ignore loss of Arc OK during a cut.
+|===
+
 [underline]*Powermax Comms*
 
 [width="100%",cols="4,16"]
@@ -684,10 +739,17 @@ NOTE: This frame is only visible if a PM_PORT is configured in the [PLASMAC] sec
 
 [underline]*Save Button*
 
-The **Save** button has two modes of operation:
+image::images/plasmac_save_dialog.png[width=20%]
 
-. If the Default material is displayed then all the currently displayed parameters on the Run Panel will be saved as the default.
-. If any other material is showing then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
+The **Save** button brings up a dialog with the following options:
+
+[width="100%",cols="4,16"]
+|===
+|Material|Save the Cut Parameters for the material currently displayed.
+|Settings|Save all setting except for the Cut Parameters.
+|Both|Save The Cut Parameters and the settings.
+|Cancel|Close the dialog withaout saving.
+|===
 
 [underline]*Reload Button*
 
@@ -783,6 +845,8 @@ When reversing, motion will stop when it reaches a spindle on command.
 
 When forwarding, motion can continue until the end of the path.
 
+For advanced recovery from a failed cut see <<cut-recovery, cut recovery>>.
+
 [underline]*Height Change*
 
 Each press of Raise or Lower will change the height of the torch by the value set in Height Per Volt in the Arc frame of the Config Panel. Reset will cancel any height override.
@@ -801,11 +865,11 @@ image::images/plasmac_stats.png[width=60%]
 
 === Extras Panel
 
-This provides a shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
+This provides a conversational shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
 
-It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to load a G-Code program and have an image displayed on the button.
+It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to use the <<cut-recovery, cut-recovery>> function and load a G-Code program. They can also display a custom image on the button.
 
-See <<shape-library, shape library>> for shape usage.
+See <<shape-library, conversational shape library>> for shape usage.
  
 See <<custom-user-buttons, custom user buttons>> for button usage.
 
@@ -845,8 +909,6 @@ If you intend to place the material randomly on the table then before each job y
 
 The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each G-Code file.
 
-[[multi-tool]]
-
 === Pause At End Of Cut
 
 This causes all motion to pause at the end of the cut with the torch still on. After the specified dwell time has passed the torch will turn off and the Z axis will rise.
@@ -854,6 +916,8 @@ This causes all motion to pause at the end of the cut with the torch still on. A
 The time value for this feature is *Pause At End* in the Cut Parameters of the Run Panel. This value is also in the material file and may be set for each material.
 
 This feature is used to allow the arc to catch up to the torch position to fully finish the cut. It is usually required for thicker materials, especially stainless.
+
+[[multi-tool]]
 
 === Multiple Tools
 
@@ -869,7 +933,7 @@ If multiple tools are enabled then a LinuxCNC tool number is required in the *M3
 * *M3 $1 S1* will select the scribe.
 * *M3 $2 S1* will select the plasma spotting tool.
 
-To enable the multiple tools feature you need to edit the following line in <MACHINE_NAME>_connections.hal.
+To enable the multiple tools feature you need to edit the following line in <machine_name>_connections.hal.
 
 from:
 
@@ -909,7 +973,8 @@ For manual material handling you manually select the material from the materials
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
-...
+.
+.
 M5 $0
 ----
 
@@ -924,7 +989,8 @@ M190 Pn
 M66 P3 L3 Q1
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
-...
+.
+.
 M5 $0
 ----
 
@@ -936,7 +1002,7 @@ Materials can be selected manually with the either the Cut Parameters combobox o
 
 If a G-Code program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
 
-==== Adding/Editing Materials From G-Code
+=== Materials Adding And Editing From G-Code
 
 It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
 
@@ -957,12 +1023,12 @@ Mandatory parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|o=|option
-|nu=|material number (not required for option 0)
-|na=|material name (not required for option 0)
-|ph=|pierce height
-|pd=|pierce delay
-|ch=|cut height
+|o|option
+|nu|material number (not required for option 0)
+|na|material name (not required for option 0)
+|ph|pierce height
+|pd|pierce delay
+|ch|cut height
 |fr|feed rate
 |===
 
@@ -971,15 +1037,15 @@ Optional parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|kw=|kerf width
-|th=|thc enable (0=disable, 1=enable)
-|ca=|cut amps
-|cv=|cut voltage
-|pe=|pause at end delay
-|gp=|gas pressure (Powermax)
-|cm=|cut mode (Powermax)
-|jh=|puddle jump height
-|jd=|puddle jump delay
+|kw|kerf width
+|th|thc enable (0=disable, 1=enable)
+|ca|cut amps
+|cv|cut voltage
+|pe|pause at end delay
+|gp|gas pressure (Powermax)
+|cm|cut mode (Powermax)
+|jh|puddle jump height
+|jd|puddle jump delay
 |===
 
 Formatting rules are:
@@ -988,13 +1054,15 @@ Formatting rules are:
 - The beginning of the magic comment must be *(o=*
 - The equals sign must immediately follow each parameter with no space
 - The above mandatory parameters must be in the magic comment (*nu* and *na* are not required for option 0)
-- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 are in the G-Code file then only the first one found will be used and the others will have a warning reported.
-
+- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 are in the G-Code file then only the last one found will be used.
+- If option 0 is required as well as other option 1 and/or option 2 then option 0 must be the last one in the G-Code file.
 A complete example is:
 
 ----
 (o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
 ----
+
+[[thc]]
 
 === THC
 
@@ -1053,6 +1121,8 @@ WARNING: If Cut Feed Rate in the Run Panel is set to Zero then PlasmaC will use 
 
 NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Panel.
 
+[[cutter-compensation]]
+
 === Cutter Compensation
 
 To use cutter compensation you will need to use G41.1, G42.1 and G40 with the kerf width HAL pin:
@@ -1065,13 +1135,17 @@ IMPORTANT: IF *Cutter Compensation* IS IN EFFECT *G-Code THC*, *Velocity Based T
 
 [[ihs-skip]]
 
-=== IHS Skip
+=== Initial Height Sense Skip
 
 IHS may be skipped in one of two different ways:
 
-If THC is disabled then skip IHS if start of cut less than *plasmac.skip-ihs-distance* from last successful probe.
+If THC is disabled then skip IHS if the start of the cut is less than *Skip IHS* distance from the last successful probe.
 
-If THC is enabled then skip IHS if start of cut less than *plasmac.skip-ihs-distance* from end of last cut.
+If THC is enabled then skip IHS if the start of the cut is less than *Skip IHS* distance from the end of the last cut.
+
+A value of zero for *Skip IHS* will disable IHS skipping.
+
+Any errors encountered on a cut will disable IHS skipping for the next cut if it was enabled.
 
 === Probing
 
@@ -1101,7 +1175,7 @@ This also enables near end of life consumables to be used for piercing and they 
 There are two ways of enabling this feature:
 
 * Program a <<button-cut, custom user button>> to toggle between the cut types.
-* Adding a line *#<pierce-only> = 1* anywhere in a G-Code file to enable Pierce Only mode for the current file.
+* Adding a line *#<pierce-only> = 1* in the G-Code file before the first cut to enable Pierce Only mode for the current file.
 
 If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
 
@@ -1109,7 +1183,7 @@ If using a custom user button then the GUI will automatically reload the file wh
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 PlasmaC can utilise G-Code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you do not have a PP or your PP does not support these methods then PlasmaC can automatically adapt the G-Code to suit. This automatic mode is disabled by default.
 
@@ -1127,6 +1201,8 @@ IMPORTANT: *Overcut* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT,
 === Hole Cutting - G-Code Commands
 
 Your G-Code commands are set up either by a CAM Post Processor (PP) or by hand coding.
+
+[[velocity-reduction]]
 
 [underline]*Velocity Reduction*
 
@@ -1147,7 +1223,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1169,16 +1245,18 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
+
+[[overcut]]
 
 [underline]*Overcut*
 
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62* or *M64*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the PlasmaC G-Code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.0157"). This distance may be specified by adding #<oclength> = n to the G-Code file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding #<oclength> = n to the G-Code file.
 
 * *M62 P3* will turn the torch off (synchronised with motion)
 * *M63 P3* will allow the torch to be turned on (synchronised with motion)
@@ -1201,30 +1279,37 @@ M62 P3 (turn torch off)
 G3 X0.8 Y6.081 I10 (continue motion for 4mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
+
+[[hole-cutting]]
 
 === Hole Cutting - Automatic
 
 PlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Overcut*.
 
-The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following commands:
+The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following command:
 
-* #<m_diameter> = nn - To set a diameter in metric measurments
-* #<i_diameter> = nn - To set a diameter in imperial measurements
+* #<h_diameter> = nn - To set a diameter in the same units system as the rest of the G-Code file.
+
+The default velocity for PlasmaC small holes is 60% of the current feed rate.  It is possible to change this value with the following command:
+
+* #<h_velocity> = nn - to set the percentage of the current feed rate required.
 
 PlasmaC hole sensing is enabled/disabled by setting the following G-Code parameter. It is disabled by default.
 
-* #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of *CutFeedRate*.
+* #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
 * #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path.
+* #<holes> = 3 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
+* #<holes> = 4 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path.
 
 [underline]*Arc Dwell*
 
 Hold motion for a time by setting *Pause At End* in the Cut Parameters frame of the <<run-panel, Run Panel>>
 
-* #<holes> = 1 to allow velocity reduction.
+Specify #<holes> = 1 to allow velocity reduction.
 
 Sample code:
 
@@ -1238,16 +1323,18 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
 
 [underline]*Overcut*
 
-* #<holes> = 2 to allow velocity reduction and overcut.
+The default overcut length for PlasmaC hole sensing is 4mm (0.157").  It is possible to change this value with the following command:
 
-* #<oclength> = n to specify an overcut length different, if this parameter is not specified the default is 4mm (0.0157").
+* #<oclength> = n to specify an overcut length  in the same units system as the rest of the G-Code filedifferent, if this parameter is not specified the default is 4mm (0.157").
+
+Specify #<holes> = 2 to allow velocity reduction and overcut.
 
 Sample code:
 
@@ -1262,16 +1349,12 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
 
-[NOTE]
-----
-* It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file.
-* It is OK to have multiple and mixed #<holes> commands in a G-Code file.
-----
+NOTE: It is OK to have multiple and mixed hole commands in a G-Code file.
 
 === Single Cut
 
@@ -1327,83 +1410,197 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 . When the cut is complete press *Esc*. +
 . The torch will turn off and the Z axis returns to the starting position.
 
+[[mesh-mode]]
+
+=== Mesh Mode (expanded metal)
+
+Expanded metal is able to be cut provided your machine has a pilot arc torch and it is capable of constant pilot arc mode.
+
+Mesh mode disables torch height control and also ignores a lost Arc OK signal during a cut. It can be selected by checking the Mesh Mode checkbutton in the Run Panel.
+
+If you have <<pm_comms, RS485>> communications enabled with a Hypertherm Powermax plasma cutter then selecting mesh mode will disable the Cut Mode spinbutton in the Run Panel and it will select cut mode 2 (CPA). When mesh mode is disabled then the Cut Mode spinbutton will be re-enabled and the original cut mode will be restored.
+
+It is also possible to start a cut without receiving the Arc OK signal by checking the Ignore Arc OK checkbutton on the Run Panel.
+
+You can enable/disable this mode at any time during a job.
+
+[[ignore-ok]]
+
+=== Ignore Arc OK
+
+Ignore Arc OK mode disables torch height control, will begin a cut without requiring an Arc OK signal and also ignores a lost Arc OK signal during a cut.
+
+This mode can be selected by:
+
+. checking the Ignore Arc OK checkbutton in the Run Panel. +
+. setting HAL pin motion.digital-out-01 to 1 from G-Code.
+
+----
+M62 P1 or M64 P1 (enable Ignore Arc OK)
+M63 P1 or M65 P1 (disable Ignore Arc OK)
+----
+
+This mode may also be used in conjunction with Mesh Mode if you don't require the Arc OK signal to begin the cut.
+
+You can enable/disable this mode at any time during a job.
+
+[[cut-recovery]]
+
+== Cut Recovery
+
+image::images/plasmac_cut_recovery.png[width=40%]
+
+This dialog box feature allows the torch to be moved away from the cut path during a <<paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. This function is only available from a user-programmed button in the Extras panel and is only valid while motion is paused.
+
+It is generally preferable to make torch position adjustments from the point at which paused motion occurred, however if moving along the cut path is necessary prior to setting the new start point, the user may use the paused motion controls (Rev, Fwd, and a jog-speed slider) at the top of the dialog box. Once the user is satisfied with the positioning of the torch along the cut path, moving off the cut path is achieved by pressing the direction buttons. Each press of the direction button will move the torch a distance equivalent to the kerf width of the currently selected material.
+
+Once the torch has been moved off the cut path by using the direction buttons, the paused motion controls (Rev, Fwd, and a jog-speed slider) at the top of the dialog box will be disabled.
+
+Pressing Cancel (or the X in the title bar) will cause the torch to move back to where it was positioned prior to moving the torch with the direction buttons and the dialog box will close.
+
+Once the torch position is satisfactory, press Resume Cut or the GUI’s Resume button (Pause symbol) and the cut will resume from the new position. The dialog box will close when the torch returns to the original paused motion location.
+
 [[shape-library]]
 
-== Shape Library
+== Conversational Shape Library
 
-The shape library is not meant to be a CAD/CAM replacement and there are limitations as to what can be achieved.
+image::images/plasmac_conversational.png[width=40%]
 
-Blank entries in the shape dialogs will use whatever is current. e.g. If *X start* was blank then the current X axis position would be used.
+The conversational shape library consists of several basic shapes and functions and is available from the *Extras* tab in the Gui. It is not meant to be a CAD/CAM replacement and there are limitations to what can be achieved.
+
+Blank entries in the shape dialogs will use the current setting at the time. e.g. If *X start* was blank then the current X axis position would be used.
 
 All lead-ins and lead-outs are arcs except for:
 
 * Small holes
 * Stars
 
-The *New* button in the Extras Panel is only required if you wish to begin a new job and a current job exists.
+The cut order is the in the same order as the shape was built.
 
-All distances are in machine units and all angles are in degrees.
+Pressing *Return* on the keyboard while editing parameters will automatically show the preview of the shape if there are enough parameters entered to create the shape. Clicking checkboxes will do the same.
+
+The *New* button will remove the current G-Code file and load a blank G-Code file.
+
+The *Save* button opens a dialog allowing the current shape to be saved as a G-Code  file.
+
+The *Settings* button allows changing the global settings.
+
+The *Quit* button will close the Conversational Panel, all edits will be discarded.
+
+The *Send* button will close the Conversational Panel and load the current shape into LinuxCNC. If the last edit was not added then it will be discarded.
+
+The *Preview* button will display a preview of the current shape provide the required information is present.
+
+The *Continue* button is for lines and arcs only and allows another segment to be added to the current segment/segments.
+
+The *Add* button will store the current shape into the current job.
+
+The *Undo* button will revert to the previous stored state. If there have been no edits since the last store then it will stay at the current state.
+
+If there is a G-Code file loaded in LinuxCNC when the Conversational Panel is opened then that code will be imported into conversational as the the first shape of the job. If this code is not required then it can be removed with the New button.
+
+NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
 === Settings
 
-Global settings for the shape library can be set by pressing *Settings* in the Extras Panel. This will bring up the settings dialog to allow the changing and saving of these global settings.
-
-The default parameters available are:
+Global settings for the shape library can be set by pressing *Settings* in the Conversational Panel. This will display all the available settings parameters:
 
 * Preamble
 * Postamble
+* Origin (one of centre or bottom left)
 * Lead-in length
 * Lead-out length
 * Small hole diameter
 * Small hole speed
+* Window Size
 
 Any internal circle that has a diameter less than *Small hole diameter* is classed as a small hole. It will have a straight lead-in with a length the lesser of the radius of the hole and the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
 
+Pressing the *Save* button will save all the settings as displayed and will change the window size to the displayed size.
+
 === Single Shape
 
-. Open the Extras Panel.
-. Select the shape you wish to create which will open a shape dialog.
-. If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel. +
-  If using Axis the Preview Panel will open automatically when *Preview* is pressed.
-. Enter the appropriate values in the shape dialog and press *Preview* to load the shape.
-. If the shape is not correct, edit the values and press *Preview* and the new shape will be shown. Repeat until you are satisfied with the shape.
+. Select the shape you wish to create which will display the available parameters.
+. Enter the appropriate values and press *Preview* to display the shape.
+. If the shape is not correct, edit the values and press *Preview* and the new shape will be displayed. Repeat until you are satisfied with the shape.
 
-=== Multiple Shapes
+=== Lines And Arcs
 
-Multiple shapes can be added together to create a complex job.
+Lines and arcs have an additional option in that they are able to be strung together to create a complex shape.
 
-The cut order of the job is determined by the order in which the individual shapes are added to the job.
+There are two line types and three arc types available.
 
-Once a shape is added to the job it cannot be edited or removed.
+. Line from start point and end point
+. Line from start point, length and angle
+. Arc from start point, waypoint and end point
+. Arc from start point, end point and radius
+. Arc from start point, length, angle and radius
 
-Jobs cannot be edited, only added to.
+To use lines and arcs:
+
+. Select Lines and Arcs
+. Select the type of line to create
+. Enter the desired parameters
+. Preview the shape
+. If satisfied with the shape press Continue
+. Change the line type if needed and continue this procedure until the shape is complete.
+
+If you wish to create a closed shape then you will need to create any required leadin as the first segment of the shape. If a leadout is required it will need to be the last segment of the shape.
+
+NOTE: At this stage there is no automatic option for a leadin/leadout if the shape is closed. +
+It is intended that this will be available in the future as well as kerf width compensation.
+
+=== Group Of Shapes
+
+Multiple shapes can be added together to create a complex group.
+
+The cut order of the group is determined by the order in which the individual shapes are added to the group.
+
+Once a shape is added to the group it cannot be edited or removed.
+
+Groups cannot be edited, only added to.
 
 . Create the first shape as in *Single Shape*.
-. Press *Add* and the shape will be added to the job.
-. If you wish to add another version of the same shape then edit the parameters as in #5 above and press *Add* when you are satisfied with the shape.
-. If you wish to add a different shape, press *Return* in the shape dialog and create a new a new shape as in *Single Shape*.
-. Repeat until you have completed adding all the required shapes. 
+. Press *Add* and the shape will be added to the group.
+. If you wish to add another version of the same shape then edit the required parameters and press *Add* when you are satisfied with the shape.
+. If you wish to add a different shape, select that shape and create as in *Single Shape*.
+. Repeat until you have added all the required shapes to complete the group. 
 
-=== Array of Shapes
+=== Rotate
 
-When you are satisfied with the job you have created, an array of the job can be created.
+The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
+
+Arrays created with Conversational may be rotated but imported arrays cannot be rotated.
+
+Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
+
+. Create a shape, a group or use the imported G-Code file.
+. Press *Rotate* to open the rotate dialog.
+. Enter the appropriate values in the rotate dialog and press *Preview* to display the rotated code.
+. If the rotation is not correct, edit the values and press *Preview* and the new rotated code will be shown. Repeat until you are satisfied with the rotated code.
+. Press *Add* to complete the procedure.
+
+=== Array
+
+An array can be created from a shape, a group or an imported G-Code file.
+
+Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
 
 The cut order of an array is from left to right, starting at the bottom row and ending at the top row.
 
-. Press *Array* in the Extras Panel which will open the array dialog.
-. If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel. +
-  If using Axis the Preview Panel will open automatically when *Preview* is pressed.
-. Enter the appropriate values in the array dialog and press *Preview* to load the array.
-. If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until you are satisfied with the shape.
-. Press *Accept* to complete the procedure.
+. Create a shape, a group or use the imported G-Code file.
+. Press *Array* to open the array dialog.
+. Enter the appropriate values in the array dialog and press *Preview* to display the array.
+. If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until you are satisfied with the array.
+. Press *Add* to complete the procedure.
 
 === Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the *Save* feature of the G-Code Editor in the GUI.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *Save* button.
 
 === Running A Job
 
-The current job displayed in the Preview Panel may be run at any time.
+To run a job, press the *Finish* button which will close the Conversational Panel and return to LinuxCNC.
 
 [[scribe]]
 
@@ -1441,13 +1638,14 @@ To use the scribe from G-Code:
 M52 P1 (paused motion on)
 F#<_hal[plasmac.cut-feed-rate]>
 T1 M6 (select scribe)
-G43 H0 (apply ofsets)
+G43 H0 (apply offsets)
 M3 $1 S1 (start plasmac with scribe)
-...
+.
+.
 T0 M6 (select torch)
-G43 H0(apply ofsets)
+G43 H0 (apply offsets)
 G0 X0 Y0 (parking position)
-M5 $1(end)
+M5 $1 (end)
 ----
 
 It is a good idea to switch back to the torch at the end of the program before your final rapid parking move so your machine is always in the same state at idle.
@@ -1457,6 +1655,8 @@ You can switch between the torch and the scribe any number of times during a pro
 Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing M5 (without $n) will cause the machine to behave as if an *M5 $0* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous G-Code files.
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
+
+[[spotting]]
 
 == Spotting
 
@@ -1477,17 +1677,19 @@ An example G-Code is:
 ----
 G21 (metric)
 F99999 (high feed rate)
-
-g0 x10 y10
-m3 $2 s1 (spotting on)
-g91 (relative distance mode)
-g1 x0.000001
-g90 (absolute distance mode)
-m5 $2(spotting off)
-
-g0 x0 y0
-g90
-m30
+.
+.
+G0 X10 Y10
+M3 $2 S1 (spotting on)
+G91 (relative distance mode)
+G1 X0.000001
+G90 (absolute distance mode)
+M5 $2 (spotting off)
+.
+.
+G0 X0 Y0
+G90
+M2
 ----
 
 NOTE: The *high feed rate* is to ensure that the motion is at the machines highest feed rate.
@@ -1575,7 +1777,7 @@ PlasmaC requires some specific .ini file variables as follows:
 
 [[ini-mode]]
 
-[underline]*[PLASMAC]* Section
+*[PLASMAC]* Section
 
 ----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
@@ -1593,47 +1795,49 @@ BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 ----
 
-[underline]*[FILTER]* Section
+*[FILTER]* Section
 
 ----
-PROGRAM_EXTENSION = .ngc (filter *.ngc files)
-ngc               = ./plasmac_G-Code.py (this parses the G-Code file and comments out any Z axis motion)
+PROGRAM_EXTENSION       = .ngc (filter gcode files)
+ngc                     = ./plasmac/plasmac_gcode.py
+nc                      = ./plasmac/plasmac_gcode.py
+tap                     = ./plasmac/plasmac_gcode.py
 ----
 
 [[rs274]]
 
-[underline]*[RS274NGC]* Section
+*[RS274NGC]* Section
 
 ----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
-SUBROUTINE_PATH       = ./:../../nc_files/subroutines (./ must be in this path)
+SUBROUTINE_PATH       = ./:./plasmac:../../nc_files/subroutines (./ must be in this path)
 FEATURES              = 12 (for reading .ini and HAL variables)
-USER_M_PATH           = ./ (for M190 material change)
+USER_M_PATH           = ./:./plasmac (for M190 material change)
 ----
 
 IMPORTANT: SEE <<path-tolerance, PATH TOLERANCE>>
 
-[underline]*[HAL]* Section
+*[HAL]* Section
 
 ----
 TWOPASS = on (needed for multiple .hal files)
-HALFILE = <MACHINE_NAME>.hal (your base machine .hal file)
+HALFILE = <machine_name>.hal (your base machine .hal file)
 HALFILE = plasmac.tcl (the standard PlasmaC .hal file )
-HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
+HALFILE = <machine_name>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 ----
 
-The <MACHINE_NAME>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of an <<scribe, scribe>> if required.
+The <machine_name>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of an <<scribe, scribe>> if required.
 
-NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
+NOTE: You could place custom HAL commands in <machine_name>_connections.hal as this file is not overwritten by an upgrade.
 
-[underline]*[TRAJ]* Section
+*[TRAJ]* Section
 
 ----
 SPINDLES = 3
 ----
 
-[underline]*[AXIS_X]* Section
+*[AXIS_X]* Section
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1641,7 +1845,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 ----
 
-[underline]*[AXIS_Y]* Section
+*[AXIS_Y]* Section
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1649,7 +1853,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 ----
 
-[underline]*[AXIS_Z]* Section
+*[AXIS_Z]* Section
 
 ----
 MIN_LIMIT        = the top of your slats or just below
@@ -1664,7 +1868,7 @@ NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for m
 
 === Axis GUI Specific
 
-[underline]*[PLASMAC]* Section
+*[PLASMAC]* Section
 
 ----
 FONT        = sans 10 (valid font sizes are from 9 to 15 inclusive)
@@ -1690,29 +1894,29 @@ NOTE: WINDOW_SIZE has replaced MAXIMISED. For backwards compatibility these name
 
 [[axis-display-section]]
 
-[underline]*[DISPLAY]* Section
+*[DISPLAY]* Section
 
 ----
 TOOL_EDITOR       = tooledit x y
 USER_COMMAND_FILE = plasmac_axis.py.py
 
 EMBED_TAB_NAME    = Statistics
-EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
 
 #use one of the next two
 
 #run frame in tab behind preview
 EMBED_TAB_NAME    = Plasma Run
-EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
 
 #run frame in panel on left side
-#GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#GLADEVCP = -c plasmac_run -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
 
 EMBED_TAB_NAME    = Plasma Config
-EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
 
 EMBED_TAB_NAME    = Extras
-EMBED_TAB_COMMAND = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
 
 ----
 
@@ -1725,40 +1929,40 @@ The Run Window can be displayed as one of:
 
 [[gmoccapy-display-section]]
 
-[underline]*[DISPLAY]* section
+*[DISPLAY]* section
 
 ----
 EMBED_TAB_NAME     = plasmac_buttons
 EMBED_TAB_LOCATION = box_cooling
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x <XID> -u ./plasmac_buttons.py -H ./plasmac_buttons.hal plasmac_buttons.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x <XID> -u ./plasmac/plasmac_buttons.py -H ./plasmac/plasmac_buttons.hal ./plasmac/plasmac_buttons.glade
 EMBED_TAB_NAME     = plasmac_control
 EMBED_TAB_LOCATION = box_spindle
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x <XID> -u ./plasmac_control.py -H ./plasmac_control.hal plasmac_control.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x <XID> -u ./plasmac/plasmac_control.py -H ./plasmac/plasmac_control.hal ./plasmac/plasmac_control.glade
 EMBED_TAB_NAME     = Statistics
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac/plasmac_stats.py -H ./plasmac/plasmac_stats.hal ./plasmac/plasmac_stats.glade
 EMBED_TAB_NAME     = Plasma Run
 
 #use one of the next two
 
 #run panel in tab behind preview
 EMBED_TAB_LOCATION  = ntb_preview
-EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_tab.glade
 
 #run panel in panel on left side
 #EMBED_TAB_LOCATION = box_left
-#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac/plasmac_run.py -H ./plasmac/plasmac_run.hal ./plasmac/plasmac_run_panel.glade
 
 EMBED_TAB_NAME     = Plasma Config
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x <XID> -u ./plasmac/plasmac_config.py -H ./plasmac/plasmac_config.hal ./plasmac/plasmac_config.glade
 EMBED_TAB_NAME     = plasmac_monitor
 EMBED_TAB_LOCATION = box_tool_and_code_info
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u plasmac_monitor.py -H plasmac_monitor.hal plasmac_monitor.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u ./plasmac/plasmac_monitor.py -H ./plasmac/plasmac_monitor.hal ./plasmac/plasmac_monitor.glade
 
 EMBED_TAB_NAME     = Extras
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
 
 ----
 
@@ -1799,7 +2003,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can <<button-load, Load>> a G-Code program.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can run the special function <<button-recovery, cut-recovery>>, <<button-load, load a G-Code>> program or display a custom image.
 
 [[button-cmds]]
 
@@ -1895,6 +2099,16 @@ There are three methods to return to the previous coordinates:
 - Press the button again and the torch will return and the machine will wait for a resume command.
 - Resume the program which causes the torch to return then the program will begin running.
 - Stop the program which causes the torch to return then the program will abort.
+
+[[button-recovery]]
+
+[underline]*Cut Recovery*
+
+----
+BUTTON_n_CODE = cut-recovery
+----
+
+This brings up the <<cut-recovery, cut recovery>> dialog which allows the torch to move away from the cut to find a good piece of material to restart the cut from. This function is only available from the Extras panel and is only valid while paused.
 
 [[button-load]]
 
@@ -2105,7 +2319,7 @@ If you have a format you would like converted, create a *New Topic* in the https
 Materialverter may be run from a GUI file manager by double clicking on *materialverter.py* in your configuration directory or may be run from a terminal with the following command:
 
 ----
-$ python ~/linuxcnc/configs/<machine-name>/materialverter.py
+$ python ~/linuxcnc/configs/<machine_name>/materialverter.py
 ----
 
 This will bring up the materialverter dialog:
@@ -2122,7 +2336,7 @@ For SheetCam only, select whether you would like a metric or imperial output fil
 
 For a conversion, select the Input File you wish to have converted.
 
-Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine_name>_material.cfg, although you could select a different file and hand edit your <machine_name>_material.cfg file.
 
 Click Create/Convert and your new material file will be created.
 
@@ -2130,23 +2344,74 @@ For a Manual creation or a Fusion360 conversion a dialog will show with all avai
 
 image::images/plasmac_material_dialogs.png[width=40%]
 
-NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
+NOTE: If you select ~/linuxcnc/configs/<machine_name>_material.cfg then if this file already exists it will be overwritten.
+
+
+[[pm_comms]]
+
+== Hypertherm Powermax Communications
+
+Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
+
+If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
+
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
+
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
+
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
+
+----
+[PLASMAC]
+PM_PORT = /dev/ttyusb0
+----
+
+If you are unsure of the name of your port there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to using this feature in PlasmaC. To use the test script enter the following in a terminal.
+
+----
+$ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
+----
+
+The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
+
+
+The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
+
+To switch the Powermax back to local mode you can either:
+
+.  Disable Powermax Comms from the Run panel
+.  Close LinuxCNC which will put the Powermax into local mode during shutdown.
+.  Powerdown the Powermax for 30 seconds and then power it back on.
+
+TIP: If Powermax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode in the Powermax unit.
+
+NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
+If pyserial is not installed an error message will be displayed.
+
+To install pyserial, type the following in a terminal:
+
+----
+sudo apt-get install python-serial
+----
+
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
+
 
 [[mesa-thcad]]
 
 == Mesa THCAD
 
-The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter.
+The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter. The THCAD may be used for parallel port configs or for configs using other Mesa Electronics hardware.
 
-The THCAD may be used on parallel port configs or configs using other Mesa Electronics hardware.
+The preferred method is to setup the required parameters for the THCAD in your <machine_name>.hal file.
 
-=== Mesa Board Settings
+=== Parallel Port Config
 
-The preferred method is to setup the required parameters for the THCAD in your <machine>.hal file.
-
-An example parallel port config:
+An example parallel port config using a link:http://linuxcnc.org/docs/html/man/man9/encoder.9.html[software encoder].
 
 THCAD jumper settings *UNIPOLAR* and *F/64*
+
+NOTE: If your computer has good latency then you may be able to use *F/32*
 
 ----
 loadrt encoder num_chan=1
@@ -2157,7 +2422,15 @@ addf encoder.capture-position servo-thread
 net arc-voltage-raw parport.1.pin-04-in encoder.0.phase-A
 ----
 
-An example Mesa 7i96 config:
+You then need to note that the *Arc Voltage HAL Pin* entry in the PlasmaC Configurator will be:
+
+----
+encoder.0.velocity
+----
+
+=== Mesa 7i96 Config:
+
+An example Mesa 7i96 config using the onboard hardware encoder. Other Mesa hardware will be similar but with a different board identifier.
 
 THCAD jumper settings *UNIPOLAR* and *F/32*
 
@@ -2168,14 +2441,6 @@ setp  hm2_7i96.0.encoder.00.counter-mode 1
 ----
 
 You then need to note that the *Arc Voltage HAL Pin* entry in the PlasmaC Configurator will be:
-
-For a parallel port config:
-
-----
-encoder.0.velocity
-----
-
-For a Mesa 7i96 config:
 
 ----
 hm2_7i96.0.encoder.00.velocity
@@ -2206,13 +2471,13 @@ This is to obtain the starting values for Voltage Offset and Voltage Scale in th
 If you look at the rear of the THCAD you will see a calibration sticker with:
 
 ----
-     THCAD-5     |      THCAD-10      |      THCAD-300
-                 |                    |
- 0V  121.1 kHz   |    0V  121.1 kHz   |     0V   121.1 kHz
- 5V  925.3 kHz   |   10V  925.3 kHz   |   300V   925.3 kHz
+    THCAD-nnn
+                 
+ 0V  121.1 kHz
+ 5V  925.3 kHz
 ----
 
-Or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
+or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
 
 You can now calculate the values as shown below or use https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator]
 
@@ -2259,54 +2524,6 @@ The THCAD-10 and THCAD-300 examples above would be:
 121100 / 32 = 3784.375
 ----
 
-[[pm_comms]]
-
-== Powermax Communications
-
-Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
-
-If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
-
-Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
-
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
-
-This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
-
-----
-[PLASMAC]
-PM_PORT = /dev/ttyusb0
-----
-
-If you are unsure of the name of your port there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to using this feature in PlasmaC. To use the test script enter the following in a terminal.
-
-----
-$ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
-----
-
-The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
-
-
-The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
-
-To switch the Powermax back to local mode you can either:
-
-.  Disable Powermax Comms from the Run panel
-.  Close LinuxCNC which will put the Powermax into local mode during shutdown.
-.  Powerdown the Powermax for 30 seconds and then power it back on.
-
-NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
-If pyserial is not installed an error message will be displayed.
-
-To install pyserial, type the following in a terminal:
-
-----
-sudo apt-get install python-serial
-----
-
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
-
-It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 
 == Support
 
@@ -2314,11 +2531,245 @@ On line help and support are available from the https://forum.linuxcnc.org/plasm
 
 == Appendix
 
+
+=== Plasmac Specific Gcodes
+
+[width="100%",cols="1,2"]
+|===
+|*Description*|*Code*
+|Begin <<multi-tool, cut>>
+   |M3 $0 S1
+|End <<multi-tool, cut>>|M5 $0
+|Begin <<scribe, scribe>>
+   |M3 $1 S1
+|End <<scribe, scribe>>
+   |M5 $1
+|Begin <<spotting, centre spot>>
+   |M3 $2 S1
+|End <<spotting, centre spot>>
+   |M5 $0
+|End all the above
+   |M5 $-1 
+|Select a <<material-handling, material>>
+   |M190 Pn +
+    n denotes material number
+|Wait for <<material-handling, material>> change confirmation
+   |M66 P3 L3 Q1 +
+    Q1 is number of seconds to wait, 
+    may need to be increased for very 
+    large material files
+|Set feed rate from <<material-handling, material>>
+   |F#<_hal[plasmac.cut-feed-rate]>
+|Disable <<thc, THC>>
+   |M62 P2 (synchronised with motion) +
+    M64 P2 (immediate)
+|Enable <<thc, THC>>
+   |M63 P2 (synchronised with motion) +
+    M65 P2 (immediate)
+|Disable <<overcut, Torch>>
+   |M62 P3 (synchronised with motion) +
+    M64 P3 (immediate)
+|Enable <<overcut, Torch>>
+   |M63 P3 (synchronised with motion) +
+    M65 P3 (immediate)
+|Set <<velocity_thc, velocity>> to a percentage of feed rate
+   |M67 E3 Qn (synchronised with motion) +
+    M68 E3 Qn (immediate) +
+    n is the percentage to set +
+    10 is the minimum, below this will set to 100% +
+    *It is recommended to have M68 E3 Q0 in preamble and postamble*
+|Cutter <<cutter-compensation, compensation>> - left of path
+   |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<cutter-compensation, compensation>> - right of path
+   |G42.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<cutter-compensation, compensation>> off
+   |G40 +
+    *Note that M62 through M68 are invalid while cutter compensation is on*
+|Cut <<hole-cutting, holes>> at 60% feed rate
+   |#<holes> = 1 +
+    for holes less than 32mm (1.26") diameter
+|Cut <<hole-cutting, holes>> at 60% feed rate, +
+turn torch off at hole end, + 
+continue hole path for overcut
+   |#<holes> = 2 +
+    for holes less than 32mm (1.26") diameter
+    overcut length = 4mm (0.157")
+|Cut <<hole-cutting, holes>> and arcs at 60% feed rate
+   |#<holes> = 3 +
+    for holes less than 32mm (1.26") diameter +
+    for arcs less than 16mm (0.63") radius
+|Cut <<hole-cutting, holes>> and arcs at 60% feed rate, +
+turn torch off at hole end, + 
+continue hole path for overcut
+   |#<holes> = 4 +
+    for holes less than 32mm (1.26") diameter +
+    for arcs less than 16mm (0.63") radius +
+    overcut length = 4mm (0.157")
+|Specify <<hole-cutting, hole>> diameter for +
+#<holes> = 1 ~ 4
+   |#<h_diameter> = n (use the same units system as the rest of the G-Code file)
+|Specify <<hole-cutting, hole>> velocity for +
+#<holes> = 1 ~ 4
+   |#<h_velocity> = n (set the percentage of the current feed rate)
+|Specify <<overcut, overcut>> length
+   |#<oclength> = n (use the same units system as the rest of the G-Code file)
+|Specify <<cut-types, pierce-only>> mode
+   |#<pierce-only> = n (0=normal cut mode, 1=pierce only mode)
+|Enable <<ignore-ok, Ignore Arc OK>>
+   |M62 P1 (synchronised with motion) +
+    M64 P1 (immediate)
+|Disable <<ignore-ok, Ignore Arc OK>>
+   |M63 P1 (synchronised with motion) +
+    M65 P1 (immediate)
+|Create or edit materials. +
+options: +
+1 - Create temporary default +
+2 - Add if not existing +
+3 - Overwrite if existing else add new +
+   |mandatory parameters: +
+    (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
+    optional parameters: +
+    kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>
+|===
+
+=== Plasmac Gcode Examples
+
+[width="100%",cols="1,2"]
+|===
+|*Description*|*Example*
+|Select material and do a normal cut
+   |M190 P3 +
+    M66 P3 L3 Q1 +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    M3 $0 S1 +
+    . +
+    . +
+    M5 $0
+|Set velocity to 100% of CutFeedRate
+   |M67 E3 Q0 or M67 E3 Q100
+|Set velocity to 40% of CutFeedRate
+   |M67 E3 Q60
+|Set velocity to 40% of CutFeedRate
+   |M67 E3 Q40
+|Cut a hole with 60% reduced speed using velocity setting
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    M67 E3 Q60 (reduce feed rate to 60%) +
+    G3 I10 (the hole) +
+    M67 E3 Q0 (restore feed rate to 100%) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Cut a hole with 60% reduced speed using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 1 (velocity reduction for holes) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Cut a hole with overcut using torch disable
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    M67 E3 Q60 (reduce feed rate to 60%) +
+    G3 I10 (the hole) +
+    M62 P3 (turn torch off) +
+    G3 X0.8 Y6.081 I10 (continue motion for 4mm) +
+    M63 P3 (allow torch to be turned on) +
+    M67 E3 Q0 (restore feed rate to 100%) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job) +
+|Cut a hole with overcut using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 2 (overcut for holes) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job) +
+|Cut a hole with 6.5mm overcut using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 2 (overcut for holes) +
+    #<oclength> = 6.5 (6.5mm overcut length) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Select scribe and select torch at end of scribing
+   |. +
+    . +
+    M52 P1 (paused motion on) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    T1 M6 (select scribe) +
+    G43 H0 (apply offsets) +
+    M3 $1 S1 (start plasmac with scribe) +
+    . +
+    . +
+    T0 M6 (select torch) +
+    G43 H0 (apply offsets) +
+    G0 X0 Y0 (parking position) +
+    M5 $1 (end)
+|Hole centre spotting. +
+  |(Requires a small motion command or nothing happens) +
+    G21 (metric) +
+    F99999 (high feed rate) +
+    G0 X10 Y10 +
+    M3 $2 S1 (spotting on) +
+    G91 (relative distance mode) +
+    G1 X0.000001 +
+    G90 (absolute distance mode) +
+    M5 $2 (spotting off) +
+    G0 X0 Y0 +
+    G90 +
+    M2 +
+|Create temporay default material
+   |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
+|Edit material, if not existing create a new one
+   |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
+|===
+
 [[rs485_connections]]
 
 === RS485 Connections
 
-image::images/plasmac_rs485_connections.png[width=75%]
+Hypertherm Powermax 125:
+
+image::images/plasmac_rs485_pmx.png[]
+
+Sunnix SER5037A PCI Card with breakout board:
+
+image::images/plasmac_rs485_sunnix.png[]
+
+Dtech DT-5019 USB to RS485 converter adapter:
+
+image::images/plasmac_rs485_dtech.png[]
 
 [[reed-arc-ok]]
 
@@ -2330,5 +2781,5 @@ This assembly will now act as a relay that will switch on when current is flowin
 
 This will require that PlasmaC be operated in Mode 1 rather than Mode 0. See the <<ini-mode, INI File>> and <<plasmac-mode, PlasmaC Modes>> sections for more information.
 
-image::images/plasmac_reed_arc_ok.png[width=75%]
+image::images/plasmac_reed_arc_ok.png[]
 

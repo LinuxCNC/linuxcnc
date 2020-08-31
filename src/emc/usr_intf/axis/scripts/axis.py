@@ -2726,7 +2726,7 @@ class TclCommands(nf.TclCommands):
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
 
@@ -2768,7 +2768,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         lnum = 10 + vars.tto_g11.get()
-        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L%d P%d %c[[%s]*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
         c.mdi("G43")
@@ -3633,10 +3633,10 @@ for a in range(linuxcnc.MAX_AXIS):
         pass
     else:
         if f != 0:
-            step_size_tmp = min(step_size, 1. / f)
-            #TODO: not working, see https://github.com/LinuxCNC/linuxcnc/issues/812
-            #if a < 3: step_size = astep_size = step_size_tmp
-            #else: astep_size = step_size_tmp
+           step_size_tmp = min(step_size, 1. / f)
+           if a in 'XYZ': step_size = astep_size = step_size_tmp
+           elif a in 'ABC': astep_size = step_size_tmp
+           else: step_size = step_size_tmp
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)

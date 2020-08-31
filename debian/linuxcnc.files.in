@@ -1,6 +1,7 @@
 etc/linuxcnc/*
 etc/init.d/realtime
 etc/X11/app-defaults/*
+etc/xdg/menus/applications-merged/CNC.menu
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so.*
@@ -20,6 +21,7 @@ usr/share/glade3
 usr/share/doc/linuxcnc/asciidoc-markup.txt
 usr/share/doc/linuxcnc/gcode.html
 usr/share/doc/linuxcnc/gcode_fr.html
+usr/share/doc/linuxcnc/gcode_es.html
 usr/share/doc/linuxcnc/gcode_vi.html
 usr/share/doc/linuxcnc/rtfaults.txt
 usr/share/doc/linuxcnc/AUTHORS
@@ -30,6 +32,7 @@ usr/share/doc/linuxcnc/README.axis
 usr/share/doc/linuxcnc/examples/nc_files
 usr/share/doc/linuxcnc/examples/sample-configs/*/*
 usr/share/doc/linuxcnc/examples/sample-configs/maintainer.txt
+usr/share/doc/linuxcnc/examples/sample-configs/maintainer_es.txt
 usr/share/linuxcnc/*
 usr/share/linuxcnc/stepconf/*.glade
 usr/share/linuxcnc/pncconf/*.glade
@@ -40,4 +43,3 @@ usr/share/gtksourceview-2.0/
 usr/share/gscreen
 usr/share/gmoccapy
 usr/share/qtvcp
-

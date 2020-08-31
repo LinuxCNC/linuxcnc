@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
-Name=Getting Started Guide
+Name=Getting Started Guide - EN
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started.pdf
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-en.svg
 X-GNOME-DocPath=
 Terminal=false
 Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;

@@ -1,0 +1,296 @@
+'\" t
+.\"     Title: hy_gt_vfd
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 08/11/2020
+.\"    Manual: LinuxCNC Documentation
+.\"    Source: LinuxCNC
+.\"  Language: English
+.\"
+.TH "HY_GT_VFD" "1" "08/11/2020" "LinuxCNC" "LinuxCNC Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+hy_gt_vfd \- HAL userspace component for Huanyang GT\-series VFDs
+.SH "SYNOPSIS"
+.sp
+\fBhy_gt_vfd\fR [\fIOPTIONS\fR]
+.SH "DESCRIPTION"
+.sp
+The hy_gt_vfd component interfaces a Huanyang GT\-series VFD to the LinuxCNC HAL\&. The VFD is connected via RS\-485 serial to the LinuxCNC computer\&.
+.SH "HARDWARE SETUP"
+.sp
+At least some Huanyang GT VFDs must be physically modified to enable Modbus communication\&.
+.sp
+The circuit board location marked "SW1" is identified in the manual as "Switch of terminal resistor for RS485 communication"\&. On the only VFD I have experience with, the circuit board contained no switch at that location, instead holding a pair of crossed jumper wires (top\-left pad connected to bottom\-right pad, top\-right to bottom\-left)\&. In this configuration, no Modbus communication is possible\&. We had to desolder the two crossed jumper wires and re\-solder them parallel to each other (top\-left to bottom\-left, top\-right to bottom\-right)\&.
+.SH "FIRMWARE SETUP"
+.sp
+The Huanyang GT VFD must be configure via the faceplate to talk Modbus with LinuxCNC\&. Consult the Operation section of the Huanyang GT\-series Inverter Manual for details\&. Set the following parameters:
+.PP
+P0\&.01 = 2
+.RS 4
+Set Run Command Source to Modbus serial port\&.
+.RE
+.PP
+P0\&.03
+.RS 4
+Set Maximum Frequency to the maximum frequency you want the VFD to output, in Hz\&.
+.RE
+.PP
+P0\&.04
+.RS 4
+Set Upper Frequence Limit to the maximum frequency you want the VFD to output, in Hz\&. This should be the same as the value in P0\&.03\&.
+.RE
+.PP
+P0\&.05
+.RS 4
+Set Lower Frequency Limit to the minimum frequency you want the VFD to output, in Hz\&.
+.RE
+.PP
+P0\&.07 = 7
+.RS 4
+Set Frequency A Command Source to Modbus serial port\&.
+.RE
+.PP
+P2\&.01 = ???
+.RS 4
+Set Motor Rated Power to the motor\(cqs power rating in kW\&.
+.RE
+.PP
+P2\&.02 = ???
+.RS 4
+Set Motor Rated Frequency to the motor\(cqs max frequency in Hz\&.
+.RE
+.PP
+P2\&.03 = ???
+.RS 4
+Set Motor Rated Speed to the motor\(cqs speed in RPM at its rated maximum frequence\&.
+.RE
+.PP
+P2\&.04 = ???
+.RS 4
+Set Motor Rated Voltage to the motor\(cqs maximum voltage, in Volts\&.
+.RE
+.PP
+P2\&.05 = ???
+.RS 4
+Set Motor Rated Current to the motor\(cqs maximum current, in Amps\&.
+.RE
+.PP
+PC\&.00 = 1
+.RS 4
+Set Local Address to 1\&. This matches the default in the hy_gt_vfd driver, change this if your setup has special needs\&.
+.RE
+.PP
+PC\&.01 = 5
+.RS 4
+Set Baud Rate Selection to 5 (38400 bps)\&. This matches the default in the hy_gt_vfd driver, change this if your setup has special needs\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+0 = 1200
+1 = 2400
+2 = 4800
+3 = 9600
+4 = 19200
+5 = 38400
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+PC\&.02 = 0
+.RS 4
+Set Data Format (8n1 RTU)\&. This matches the default in the hy_gt_vfd driver, change this if your setup has special needs\&.
+.RE
+.PP
+PC\&.03 = 1
+.RS 4
+Set Communication Delay Time to 1 ms\&. This is expected by the hy_gt_vfd driver\&.
+.RE
+.SH "OPTIONS"
+.PP
+\fB\-b\fR, \fB\-\-bits\fR \fIN\fR
+.RS 4
+(default 8) For Modbus communication\&. Set number of data bits to
+\fIN\fR\&.
+\fIN\fR
+must be between 5 and 8 inclusive\&.
+.RE
+.sp
+\fB\-p\fR, \fB\-\-parity\fR [Even,Odd,None]
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+(default None) For Modbus communication\&.  Set serial parity to Even,
+Odd, or None\&.
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fB\-r\fR, \fB\-\-rate\fR \fIN\fR
+.RS 4
+(default 38400) For Modbus communication\&. Set baud rate to
+\fIN\fR\&. It is an error if the rate is not one of the following: 1200, 2400, 4800, 9600, 19200, 38400
+.RE
+.PP
+\fB\-s\fR, \fB\-\-stopbits\fR [1,2]
+.RS 4
+(default 1) For Modbus communication\&. Set serial stop bits to 1 or 2\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-target\fR \fIN\fR
+.RS 4
+(default 1) For Modbus communication\&. Set Modbus target (slave) number\&. This must match the device number you set on the Huanyang GT VFD\&.
+.RE
+.PP
+\fB\-d\fR, \fB\-\-device\fR \fIPATH\fR
+.RS 4
+(default /dev/ttyS0) For Modbus communication\&. Set the name of the serial device node to use\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-verbose\fR
+.RS 4
+Turn on verbose mode\&.
+.RE
+.PP
+\fB\-S\fR, \fB\-\-motor\-max\-speed\fR \fIRPM\fR
+.RS 4
+The motor\(cqs max speed in RPM\&. This must match the motor speed value configured in VFD register P2\&.03\&.
+.RE
+.PP
+\fB\-F\fR, \fB\-\-max\-frequency\fR \fIHZ\fR
+.RS 4
+This is the maximum output frequency of the VFD in Hz\&. It should correspond to the motor\(cqs rated max frequency, and to the maximum and upper limit output frequency configured in VFD register P0\&.03 and P0\&.04\&.
+.RE
+.PP
+\fB\-f\fR, \fB\-\-min\-frequency\fR \fIHZ\fR
+.RS 4
+This is the minimum output frequency of the VFD in Hz\&. It should correspond to the minimum output frequency configured in VFD register P0\&.05\&.
+.RE
+.SH "PINS"
+.PP
+\fBhy_gt_vfd\&.period\fR (float, in)
+.RS 4
+The period for the driver\(cqs update cycle, in seconds\&. This is how frequently the driver will wake up, check its HAL pins, and communicate with the VFD\&. Must be between 0\&.001 and 2\&.000 seconds\&. Default: 0\&.1 seconds\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.speed\-cmd\fR (float, in)
+.RS 4
+The requested motor speed, in RPM\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.speed\-fb\fR (float, out)
+.RS 4
+The motor\(cqs current speed, in RPM, reported by the VFD\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.at\-speed\fR (bit, out)
+.RS 4
+True when the drive is on and at the commanded speed (within 2%), False otherwise\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.freq\-cmd\fR (float, out)
+.RS 4
+The requested output frequency, in Hz\&. This is set from the \&.speed\-cmd value, and is just shown for debugging purposes\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.freq\-fb\fR (float, out)
+.RS 4
+The current output frequency of the VFD, in Hz\&. This is reported from the VFD to the driver\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.spindle\-on\fR (bit, in)
+.RS 4
+Set this pin True to command the spindle on, at the speed requested on the \&.speed\-cmd pin\&. Set this pin False to command the spindle off\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.output\-voltage\fR (float, out)
+.RS 4
+The voltage that the VFD is current providing to the motor, in Volts\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.output\-current\fR (float, out)
+.RS 4
+The current that the motor is currently drawing from the VFD, in Amperes\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.output\-power\fR (float, out)
+.RS 4
+The power that the motor is currently drawing from the VFD, in Watts\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.dc\-bus\-volts\fR (float, out)
+.RS 4
+The current voltage of the VFD\(cqs internal DC power supply, in Volts\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.modbus\-errors\fR (u32, out)
+.RS 4
+A count of the number of modbus communication errors between the driver and the VFD\&. The driver is resilient against communication errors, but a large or growing number here indicates a problem that should be investigated\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.input\-terminal\fR (float, out)
+.RS 4
+The VFD\(cqs input terminal register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.output\-terminal\fR (float, out)
+.RS 4
+The VFD\(cqs output terminal register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.AI1\fR (float, out)
+.RS 4
+The VFD\(cqs AI1 register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.AI2\fR (float, out)
+.RS 4
+The VFD\(cqs AI2 register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.HDI\-frequency\fR (float, out)
+.RS 4
+The VFD\(cqs HDI\-frequency register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.external\-counter\fR (float, out)
+.RS 4
+The VFD\(cqs external counter register\&.
+.RE
+.PP
+\fBhy_gt_vfd\&.fault\-info\fR (float, out)
+.RS 4
+The VFD\(cqs fault info register\&.
+.RE
+.SH "ISSUES"
+.sp
+The VFD produces the output frequency that it sends to the motor by adding a manually specified offset to the frequency command it gets over modbus\&.
+.sp
+The manual offset is controlled by pressing the Up/Down arrows on the faceplate while the VFD is turning the motor\&.
+.sp
+If you command a speed on the \&.speed\-cmd pin and get a different speed reported on the \&.speed\-fb pin, first verify that the VFD registers listed in the FIRMWARE SETUP section above and the driver\(cqs command\-line arguments all agree with the info on the motor\(cqs name plate\&. If you still aren\(cqt getting the speed you expect, zero the VFD\(cqs frequency offset by starting the motor running, then pressing the Up/Down buttons to zero the offset\&.

@@ -1,0 +1,41 @@
+.TH WATCHDOG "9" "2010-06-22" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+
+watchdog \- supervisa múltiples entradas para un "latido"
+.SH SINOPSIS
+.HP
+.B loadrt watchdog num_inputs=\fIN\fR
+.P
+Debe especificar el número de entradas, de 1 a 32. Cada entrada tiene un valor de tiempo de espera separado.
+.SH FUNCIONES
+.TP
+\ fProceso\fR
+Verifique todos los pines de entrada para las transiciones, borre el pin \fBok\-out\fR si alguna entrada no tiene transición dentro de su período de tiempo de espera. Esta función no utiliza punto flotante y debe agregarse a un hilo rápido.
+.TP
+\fBset\-timeouts\fR
+Verifica los cambios de tiempo de espera y convierte las entradas float de tiempo de espera en valores int que se pueden usar en \fBprocess\fR. Esta función también supervisa \fBenable\-in\fR para detectar transiciones de FALSE a TRUE, y vuelve a habilitar la supervisión cuando se detecta dicha transición. Esta función usa punto flotante, y es apropiado agregarla al hilo del servo.
+.SH PINES
+.TP
+.B watchdog.input\-n\fR bit in\fR
+Ingrese el número n. Las entradas están numeradas de 0 a \fBnum_inputs\fR\-1.
+.TP
+.B watchdog.enable\-in\fR bit in \fR(predeterminado: \fIFALSE\fR)
+Si es TRUE, obliga a \-ok a ser FALSE. Además, si se produce un tiempo de espera en cualquier entrada, este pin debe configurarse como FALSE y TRUE nuevamente para reiniciar la supervisión de los pines de entrada.
+.TP
+.B watchdog.ok\-out\fR bit out \fR(predeterminado: \fIFALSE\fR)
+Salida OK. Este pin es TRUE solo si enable\-in es TRUE y no se ha detectado ningún tiempo de espera. Esta salida se puede conectar a la entrada de activación de una \fBcharge_pump\fR o \fBstepgen\fR (en modo v), para proporcionar una señal de latido al hardware de monitoreo externo.
+.SH PARÁMETROS
+.TP
+.B
+.B watchdog.timeout\-n\fR float in\fR
+Valor de tiempo de espera para el número de entrada n. Las entradas están numeradas de 0 a \fBnum_inputs\fR\-1. El tiempo de espera es en segundos y puede no ser inferior a cero.
+Tenga en cuenta que un tiempo de espera de 0.0 probablemente evitará que \fBok\-out\fR se vuelva realidad. También tenga en cuenta que los tiempos de espera excesivamente largos son relativamente inútiles para fines de monitoreo.
+.SH LICENCIA
+
+GPL

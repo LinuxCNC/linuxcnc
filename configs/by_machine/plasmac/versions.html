@@ -19,6 +19,264 @@ table th {
 </head>
 <body>
 
+<br><b><u>v0.169 - 2020 Aug 30</u></b>
+<ul style="margin:0;">
+  <li>fix offset disable error from v0.162</li>
+</ul>
+
+<br><b><u>v0.168 - 2020 Aug 28</u></b>
+<ul style="margin:0;">
+  <li>fix reset offsets after power cycle</li>
+  <li>comment out halui.machine.is-on for new configs</li>
+</ul>
+
+<br><b><u>v0.167 - 2020 Aug 27</u></b>
+<ul style="margin:0;">
+  <li>reset offsets after power cycle</li>
+</ul>
+
+<br><b><u>v0.166 - 2020 Aug 26</u></b>
+<ul style="margin:0;">
+  <li>fix offset clear for low home height</li>
+  <li>fix configurator upgrade</li>
+  <li>plasmac run panel and tab tooltips</li>
+  <li>use tcl file for postgui</li>
+</ul>
+
+<br><b><u>v0.165 - 2020 Aug 24</u></b>
+<ul style="margin:0;">
+  <li>add cut recovery</li>
+</ul>
+
+<br><b><u>v0.164 - 2020 Aug 23</u></b>
+<ul style="margin:0;">
+  <li>fix version reporting for upgrades</li>
+</ul>
+
+<br><b><u>v0.163 - 2020 Aug 18</u></b>
+<ul style="margin:0;">
+  <li>prevent multiple conversational instances</li>
+  <li>save current position in conversational</li>
+</ul>
+
+<br><b><u>v0.162 - 2020 Aug 17</u></b>
+<ul style="margin:0;">
+  <li>disable z offset when not required</li>
+  <li>fix thc active for mode 2</li>
+  <li>prevent queued single cut commands</li>
+</ul>
+
+<br><b><u>v0.161 - 2020 Aug 15</u></b>
+<ul style="margin:0;">
+  <li>fix conversational settings save and load</li>
+  <li>doc update for height per volt</li>
+</ul>
+
+<br><b><u>v0.160 - 2020 Aug 12</u></b>
+<ul style="margin:0;">
+  <li>rework mesh mode</li>
+  <li>rework gcode filter</li>
+  <li>update user guide</li>
+</ul>
+
+<br><b><u>v0.159 - 2020 Aug 10</u></b>
+<ul style="margin:0;">
+  <li>mesh mode update for rs485</li>
+  <li>user guide update</li>
+</ul>
+
+<br><b><u>v0.158 - 2020 Aug 08</u></b>
+<ul style="margin:0;">
+  <li>fix conversational kerf offsets</li>
+</ul>
+
+<br><b><u>v0.157 - 2020 Aug 07</u></b>
+<ul style="margin:0;">
+  <li>fix probing for ohmic probe offset</li>
+</ul>
+
+<br><b><u>v0.156 - 2020 Aug 07</u></b>
+<ul style="margin:0;">
+  <li>set conversational origin to 0,0</li>
+  <li>don't save mesh mode enable</li>
+</ul>
+
+<br><b><u>v0.155 - 2020 Aug 06</u></b>
+<ul style="margin:0;">
+  <li>update some conversational shapes</li>
+</ul>
+
+<br><b><u>v0.154 - 2020 Aug 05</u></b>
+<ul style="margin:0;">
+  <li>conversational tidy up</li>
+  <li>fix grid scale for conversational</li>
+  <li>add quit button to conversational</li>
+  <li>doc typo and help updates</li>
+</ul>
+
+<br><b><u>v0.153 - 2020 Aug 03</u></b>
+<ul style="margin:0;">
+  <li>add mesh mode for expanded metal</li>
+</ul>
+
+<br><b><u>v0.152 - 2020 Aug 02</u></b>
+<ul style="margin:0;">
+  <li>conversational updates</li>
+  <li>gmoccapy wizard blank file path error</li>
+</ul>
+
+<br><b><u>v0.151 - 2020 Aug 01</u></b>
+<ul style="margin:0;">
+  <li>disable x/y offsets when not required</li>
+ </ul>
+
+<br><b><u>v0.150 - 2020 Jul 31</u></b>
+<ul style="margin:0;">
+  <li>new interface for conversational shape library</li>
+  <li>consumable change updates</li>
+ </ul>
+
+<br><b><u>v0.149 - 2020 Jul 29</u></b>
+<ul style="margin:0;">
+  <li>add a save dialog to the run panel</li>
+ </ul>
+
+<br><b><u>v0.148 - 2020 Jul 29</u></b>
+<ul style="margin:0;">
+  <li>consumable change fixes and error handling</li>
+  <li>remove print statement from configurator</li>
+  <li>change stop type for breakaway during rapid move</li>
+ </ul>
+
+<br><b><u>v0.147 - 2020 Jul 27</u></b>
+<ul style="margin:0;">
+  <li>fix symlinks to plasmac_connections.hal</li>
+ </ul>
+
+<br><b><u>v0.146 - 2020 Jul 24</u></b>
+<ul style="margin:0;">
+  <li>fix consumable change lockup and velocities</li>
+  <li>breakaway during rapid now errors out</li>
+  <li>allow consumable change during rapid motion</li>
+  <li>change gcode feed rate warnings</li>
+ </ul>
+<b>Note:</b> PlasmaC now uses the axis.x.eoffset and axis.y.eoffset HAL pins<br>
+
+<br><b><u>v0.145 - 2020 Jul 24</u></b>
+<ul style="margin:0;">
+  <li>fix manual cut resetting from cut mode</li>
+ </ul>
+
+<br><b><u>v0.144 - 2020 Jul 22</u></b>
+<ul style="margin:0;">
+  <li>fix issues caused by v0.140</li>
+  <li>user guide typos</li>
+  <li>update list errors</li>
+ </ul>
+
+<br><b><u>v0.143 - 2020 Jul 15</u></b>
+<ul style="margin:0;">
+  <li>fix paused motion resume on rapid segment</li>
+  <li>configurator comments all spindle lines</li>
+  <li>user guide update</li>
+  <li>fix torch pulse interlock</li>
+ </ul>
+<b>Note:</b> PlasmaC now uses the motion.motion-type HAL pin<br>
+
+<br><b><u>v0.142 - 2020 Jul 13</u></b>
+<ul style="margin:0;">
+  <li>fix m-code path errors</li>
+ </ul>
+
+<br><b><u>v0.141 - 2020 Jul 08</u></b>
+<ul style="margin:0;">
+  <li>materialverter not processing Cut Mode from SheetCam</li>
+ </ul>
+
+<br><b><u>v0.140 - 2020 Jul 02</u></b>
+<ul style="margin:0;">
+  <li>rearrange config directory</li>
+ </ul>
+
+<br><b><u>v0.139 - 2020 Jun 24</u></b>
+<ul style="margin:0;">
+  <li>comment out spindle lines with configurator</li>
+ </ul>
+
+<br><b><u>v0.138 - 2020 Jun 23</u></b>
+<ul style="margin:0;">
+  <li>fix not returning from cut mode</li>
+ </ul>
+
+<br><b><u>v0.137 - 2020 Jun 21</u></b>
+<ul style="margin:0;">
+  <li>fix consumable change routine</li>
+ </ul>
+
+<br><b><u>v0.136 - 2020 Jun 18</u></b>
+<ul style="margin:0;">
+  <li>enhanced material changes with error handling</li>
+ </ul>
+
+<br><b><u>v0.135 - 2020 Jun 14</u></b>
+<ul style="margin:0;">
+  <li>missing plasmac:requested-velocity signal</li>
+  <li>fix line numbers in cgcode parser</li>
+  <li>user guide update gcodes</li>
+</ul>
+
+<br><b><u>v0.134 - 2020 Jun 09</u></b>
+<ul style="margin:0;">
+  <li>fix float probe kangaroo</li>
+  <li>conversational arrays can be rotated and/or arrayed</li>
+</ul>
+
+<br><b><u>v0.133 - 2020 Jun 09</u></b>
+<ul style="margin:0;">
+  <li>fix ohmic probe attempts</li>
+  <li>fix fix material saving issue</li>
+</ul>
+
+<br><b><u>v0.132 - 2020 Jun 08</u></b>
+<ul style="margin:0;">
+  <li>add arcs to conversational</li>
+</ul>
+
+<br><b><u>v0.131 - 2020 Jun 06</u></b>
+<ul style="margin:0;">
+  <li>add sector to conversational</li>
+  <li>redo conversational images</li>
+  <li>update m5 commands in sample ngc files</li>
+</ul>
+
+<br><b><u>v0.130 - 2020 Jun 03</u></b>
+<ul style="margin:0;">
+  <li>add rotate to conversational</li>
+  <li>save default origin for conversational</li>
+  <li>fix touchoff for conversational arrays</li>
+</ul>
+
+<br><b><u>v0.129 - 2020 Jun 01</u></b>
+<ul style="margin:0;">
+  <li>fix gcode parser for negative values</li>
+  <li>wizards: individual radius for rectangle corners</li>
+  <li>wizards: allow partial bolt circles</li>
+  <li>add gcodes and examples to docs</li>
+</ul>
+
+<br><b><u>v0.128 - 2020 May 28</u></b>
+<ul style="margin:0;">
+  <li>fix IHS skip</li>
+</ul>
+
+<br><b><u>v0.127 - 2020 May 22</u></b>
+<ul style="margin:0;">
+  <li>calculate arc voltage as absolute value</li>
+  <li>stop arc voltage flicker from 0v to -0v</li>
+  <li>allow higher cut feed rate</li>
+  <li>change font size in status panel</li>
+</ul>
+
 <br><b><u>v0.126 - 2020 May 17</u></b>
 <ul style="margin:0;">
   <li>only show paused motion when required</li>

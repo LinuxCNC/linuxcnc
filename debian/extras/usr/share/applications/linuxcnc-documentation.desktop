@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Documentation.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Documentation.pdf
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-en.svg
 X-GNOME-DocPath=
 Terminal=false
-Name=Documentation
+Name=User Manual - EN
 Comment=LinuxCNC Documentation
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;

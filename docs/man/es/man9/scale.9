@@ -1,0 +1,30 @@
+.TH SCALE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+scale \- LinuxCNC HAL component that applies a scale and offset to its input
+.SH SYNOPSIS
+.HP
+.B loadrt scale [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBscale.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B scale.\fIN\fB.in\fR float in \fR
+.TQ
+.B scale.\fIN\fB.gain\fR float in \fR
+.TQ
+.B scale.\fIN\fB.offset\fR float in \fR
+.TQ
+.B scale.\fIN\fB.out\fR float out \fR
+out = in * gain + offset
+.SH LICENSE
+
+GPL

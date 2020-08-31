@@ -101,6 +101,9 @@ class HandlerClass:
                 self.w.mdi_line.keyPressEvent(event)
                 event.accept()
             return True
+
+        if event.isAutoRepeat():return True
+
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
@@ -346,7 +349,7 @@ class HandlerClass:
         if self.shutdown_check:
             answer = MSG.showdialog('Do you want to shutdown now?',
                 details='You can set a preference to not see this message',
-                 display_type=MSG.YN_TYPE)
+                 display_type='YESNO')
             if not answer:
                 self.w.overlay.hide()
                 event.ignore()

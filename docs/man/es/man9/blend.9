@@ -1,0 +1,37 @@
+.TH BLEND "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+blend \- Perform linear interpolation between two values
+.SH SYNOPSIS
+.HP
+.B loadrt blend [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBblend.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B blend.\fIN\fB.in1\fR float in \fR
+First input.  If select is equal to 1.0, the output is equal to in1
+.TP
+.B blend.\fIN\fB.in2\fR float in \fR
+Second input.  If select is equal to 0.0, the output is equal to in2
+.TP
+.B blend.\fIN\fB.select\fR float in \fR
+Select input.  For values between 0.0 and 1.0, the output changes linearly from in2 to in1
+.TP
+.B blend.\fIN\fB.out\fR float out \fR
+Output value.
+.SH PARAMETERS
+.TP
+.B blend.\fIN\fB.open\fR bit rw \fR
+If true, select values outside the range 0.0 to 1.0 give values outside the range in2 to in1.  If false, outputs are clamped to the the range in2 to in1
+.SH LICENSE
+
+GPL

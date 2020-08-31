@@ -1,0 +1,28 @@
+.TH hal_start_threads "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_start_threads \- Permitir que los hilos HAL comiencen a ejecutarse
+
+.SH SINTAXIS
+.HP
+int hal_start_threads ()
+
+.HP
+int hal_stop_threads ()
+
+.SH ARGUMENTOS
+
+.SH DESCRIPCIÓN
+\fBhal_start_threads\fR inicia todos los hilos que se han creado. Este
+es el punto en el que comienzan a llamarse las funciones en tiempo real.
+
+\fBhal_stop_threads\fR detiene todos los hilos que fueron iniciados previamente por
+\fBhal_start_threads\fR. Debe llamarse antes de cualquier componente que
+es parte de salida del sistema.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH VER TAMBIÉN
+\fBhal_export_funct(3hal)\fR, \fBhal_create_thread(3hal)\fR,
+\fBhal_add_funct_to_thread(3hal)\fR

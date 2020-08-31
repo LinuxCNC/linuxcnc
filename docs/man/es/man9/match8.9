@@ -1,0 +1,59 @@
+.TH MATCH8 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+match8 \- 8-bit binary match detector
+.SH SYNOPSIS
+.HP
+.B loadrt match8 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmatch8.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B match8.\fIN\fB.in\fR bit in \fR(default: \fITRUE\fR)
+cascade input - if false, output is false regardless of other inputs
+.TP
+.B match8.\fIN\fB.a0\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a1\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a2\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a3\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a4\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a5\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a6\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.a7\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b0\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b1\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b2\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b3\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b4\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b5\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b6\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.b7\fR bit in \fR
+.TQ
+.B match8.\fIN\fB.out\fR bit out \fR
+true only if in is true and a[m] matches b[m] for m = 0 thru 7
+.SH LICENSE
+
+GPL

@@ -304,6 +304,9 @@ class materialConverter:
                     elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
                         self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
+                    elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                        a,b = line.split('=',1)
+                        self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
                     count += 1
                 if valid:
                     self.output()

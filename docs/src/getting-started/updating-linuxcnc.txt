@@ -12,7 +12,7 @@ updates. If you don't have an internet connection to your PC see
 == Upgrade to the new version
 
 This section describes how to upgrade LinuxCNC from version 2.7 to the
-new version.  It assumes that you have an existing 2.7 install that you
+new 2.8.0 version.  It assumes that you have an existing 2.7 install that you
 want to update.
 
 To upgrade LinuxCNC from a version older than 2.7, you have to first
@@ -24,7 +24,15 @@ If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 
-To upgrade major versions like 2.6 to 2.7 when you have a network connection at
+Furthermore, if you are running Ubuntu Precise or Debian Wheezy it is
+well worth considering making a backup of the "linuxcnc" directory on
+removeable media and performing a
+<<cha:getting-linuxcnc,clean install of a newer OS and LinuxCNC version>>
+as these releases were EOL in 2017 and 2018 respectively.
+If you are running on Ubuntu Lucid then you will have to do this, as
+Lucid is no longer supported by LinuxCNC (it was EOL in 2013)
+
+To upgrade major versions like 2.7 to 2.8 when you have a network connection at
 the machine you need to disable the old linuxcnc.org apt sources and add a new
 linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
 
@@ -38,16 +46,32 @@ Distributor ID: Debian
 Codename:       wheezy
 ----
 
-You should be running on Debian Wheezy (as above), or Ubuntu Precise,
-or Ubuntu Lucid.
+You should be running on Debian Stretch or Wheezy (as above), or Ubuntu
+Precise. Packages are also avaialble for Debian Jessie or Debian Buster
+if you happen to already be running one of those.
+
+You will also need to check which realtime kernel is being used:
+
+----
+uname -r
+4.19.0-9-rt-amd64
+----
+
+If you see (as above) `-rt-` in the kernel name then you are running the
+preempt-rt kernel and should install the "uspace" version of linuxcnc.
+You should also install uspace for "sim" configs on non-realtime kernels
+
+If you see `-rtai-` in the kernel name then you are running RTAI
+realtime. See below for the linuxcnc version to install.
 
 
+[[_setting_apt_sources]]
 === Setting apt sources
 
 * Open the `Software Sources` window. The process for doing this
   differs slightly on the three supported platforms:
 
-** Debian Wheezy:
+** Debian:
 
 *** Click on `Applications Menu`, then `System`, then
   `Synaptic Package Manager`.
@@ -55,7 +79,7 @@ or Ubuntu Lucid.
 *** In Synaptic, click on the `Settings` menu, then click `Repositories`
   to open the `Software Sources` window.
 
-** Ubuntu Precise:
+** Ubuntu:
 
 *** Click on the `Dash Home` icon in the top left.
 
@@ -65,14 +89,6 @@ or Ubuntu Lucid.
 *** In the Ubuntu Software Center window, click on the `Edit` menu,
   then click on `Software Sources...` to open the `Software Sources`
   window.
-
-** Ubuntu Lucid:
-
-*** Click the `System` menu, then `Administration`, then
-  `Synaptic Package Manager`.
-
-*** In Synaptic, click on the `Settings` menu, then click `Repositories`
-  to open the `Software Sources` window.
 
 * In the `Software Sources` window, select the `Other Software` tab.
 
@@ -84,13 +100,17 @@ or Ubuntu Lucid.
 
 [options="header"]
 |====
-| Platform       | apt source line
-| Debian Wheezy  | `deb http://linuxcnc.org wheezy base 2.7-rtai`
-| Ubuntu Precise | `deb http://linuxcnc.org precise base 2.7-rtai`
-| Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
+| Platform                | apt source line
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.7.png[align="left", alt="Setting apt sources"]
+image::images/upgrading-to-2.8.png[align="left", alt="Setting apt sources"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -105,7 +125,7 @@ The process again differs depending on your platform.
 
 ==== Debian Wheezy and Ubuntu Lucid
 
-Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
+Debian Wheezy and Stretch both use the Synaptic Package Manager.
 
 * Open Synaptic using the instructions in <<_setting_apt_sources,Setting
   apt sources>> above.
@@ -113,6 +133,9 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 * Click the `Reload` button.
 
 * Use the Search function to search for `linuxcnc`.
+
+* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace"
+  for preempt-rt.
 
 * Click the check box to mark the new linuxcnc and linuxcnc-doc-*
   packages for upgrade. The package manager may select a number of
@@ -135,13 +158,11 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
 * Click the `Install Updates` button to install the new versions of
   all packages.
 
-== Updating without Network
 [[getting-started:update-no-network]]
+== Updating without Network
 
 To update without a network connection you need to download the deb then install
-it with dpkg. The buildbot builds new debs each time something is updated and
-stores them at http://buildbot.linuxcnc.org/dists/
-
+it with dpkg. The debs can be found in http://linuxcnc.org/dists/
 You have to drill down from the above link to find the correct deb for your
 installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
 to find the name of your OS.
@@ -149,28 +170,37 @@ to find the name of your OS.
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       wheezy
+Codename:       buster
 ----
 
-Pick the OS from the list then pick the major version you want like 2.7-rt for
-real time or 2.7-sim for the simulator only.
+Pick the OS from the list then pick the major version you want like
+2.8-rt for RTAI or 2.8-rtpreempt for preempt-rt.
 
-Next pick the type of computer you have i386 for 32 bit and amd64 for 64 bit.
+Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
+binary-i386 for 32 bit, binary-armhf for RaspBerry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc_2.7.4.46.g5954dcf_i386.deb'. Download the deb and copy it to your
-home directory. You can rename the file to something a bit shorter with the file
-manager like 'linuxcnc_2.7.4.deb' then open a terminal and install it with the
-package manager with this command 'sudo dpkg -i linuxcnc_2.7.4.deb'
+'linuxcnc-uspace_2.8.0_amd64.deb'. (choose the latest by date)
+Download the deb and copy it to your home directory. You can rename the
+file to something a bit shorter with the file manager like
+'linuxcnc_2.8.0.deb' then open a terminal and install it with the
+package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.7.4.deb
+sudo dpkg -i linuxcnc_2.8.0.deb
 ----
 
 == Updating Configuration Files (for 2.8.x)
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.
+
+The main difference is that LinuxCNC no longer makes any assumptions about
+which joint controls which axis. This change is generally termed
+"joints-axes" after the name of the development branch where the changes
+started.
+This change has been in development since at least 2010, and has finally
+been merged.
 
 === Distribution Configurations (updates for joints_axes)
 
@@ -193,7 +223,7 @@ This script is invoked when a user starts an existing configuration for the
 first time after updating LinuxCNC.  The script searches the user ini file for
 a [EMC]VERSION item.   If this item 1) does not exist, or 2) exists and is set
 to the historical CVS value "$Revision$", or is a numerical value less than
-1.0, then the update_ini script will popup a dialog to offer to edit the user
+1.1, then the update_ini script will popup a dialog to offer to edit the user
 files to create an updated configuration.  If the user accepts, the
 configuration will be updated.
 
@@ -498,7 +528,8 @@ be a one-to-one correspondence between the rotary axis and the joint number.
 Lines with numeric INI variables are no longer allowed to have trailing
 text.  In earlier versions of LinuxCNC any text after the number was
 silently ignored, but as of this version such text is totally disallowed.
-This includes hash characters ("#"), which in this position are a part of the value, not a comment character.
+This includes hash characters ("#"), which in this position are a part
+of the value, not a comment character.
 
 For example, lines like this will no longer be accepted:
 -----
@@ -876,7 +907,7 @@ for machines with non-identity kinematics.
 === tklinuxcnc
 
 The tklinuxcnc gui supports both identity and non-identity kinematics, includes
-gui radiobuttons and a key bindiing ('$') for toggling joint and teleop modes.
+gui radiobuttons and a key binding ('$') for toggling joint and teleop modes.
 External changes to joint or teleop motion mode are detected.
 Jogging is supported in both joint and teleop motion modes.
 Note that the parameters used for jogging may not be appropriate for both modes
@@ -1273,6 +1304,10 @@ lib/python/vismach.py: new hal pin vismach.plotclear
 ==== Components
 
 sim_home_switch: added I/O pin for index-enable
+
+==== Motion module pins
+
+motion.feed-upm -- current feed in units per minute
 
 === Configs
 

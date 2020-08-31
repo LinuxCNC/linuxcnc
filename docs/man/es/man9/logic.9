@@ -1,0 +1,57 @@
+.TH LOGIC "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+logic \- LinuxCNC HAL component providing configurable logic functions
+.SH SYNOPSIS
+.HP
+.B loadrt logic [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+
+General `logic function' component.  Can perform `and', `or',
+`nand', `nor' and `xor' of up to 16 inputs.
+.LP
+Determine the proper value for `personality'
+by adding the inputs and outputs then convert to hex:
+.IP \(bu 4
+The number of input pins, usually from 2 to 16
+.IP \(bu
+256 (0x100)  if the `and' output is desired
+.IP \(bu
+512 (0x200)  if the `or' output is desired
+.IP \(bu
+1024 (0x400)  if the `xor' (exclusive or) output is desired
+.IP \(bu
+2048 (0x800)  if the `nand' output is desired
+.IP \(bu
+4096 (0x1000)  if the `nor' output is desired
+.LP
+Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
+would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
+
+.SH FUNCTIONS
+.TP
+\fBlogic.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B logic.\fIN\fB.in-\fIMM\fB\fR bit in  (MM=00..personality & 0xff) \fR
+.TQ
+.B logic.\fIN\fB.and\fR bit out  [if personality & 0x100] \fR
+.TQ
+.B logic.\fIN\fB.or\fR bit out  [if personality & 0x200] \fR
+.TQ
+.B logic.\fIN\fB.xor\fR bit out  [if personality & 0x400] \fR
+.TQ
+.B logic.\fIN\fB.nand\fR bit out  [if personality & 0x800] \fR
+.TQ
+.B logic.\fIN\fB.nor\fR bit out  [if personality & 0x1000] \fR
+.SH LICENSE
+
+GPL

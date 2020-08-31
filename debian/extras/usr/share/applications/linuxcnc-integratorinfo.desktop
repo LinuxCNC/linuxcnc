@@ -1,13 +1,12 @@
 [Desktop Entry]
 Version=1.0
-Name=Integrator Information
+Name=Integrator Information - EN
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-en.svg
 X-GNOME-DocPath=
 Terminal=false
-Comment=Integrator Information
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;
 Name[en_US]=Integrator Info

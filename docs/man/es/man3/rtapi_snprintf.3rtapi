@@ -1,0 +1,31 @@
+.TH rtapi_snprintf "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_snprintf, rtapi_vsnprintf \- Realiza un formateo de cadena similar a snprintf
+
+.SH SINTAXIS
+.HP
+ int rtapi_snprintf(char *\fIbuf\fR, unsigned long int \fIsize\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int rtapi_vsnprintf(char *\fIbuf\fR, unsigned long int \fIsize\fR, const char *\fIfmt\fR, va_list \fIapfB)
+
+.SH ARGUMENTOS 
+Como en \fIsnprintf(3)\fR o \fIvsnprintf(3)\fR.
+
+.SH DESCRIPCIÓN
+Estas funciones actuan como las funciones estándar C printf, excepto que
+se admite un conjunto reducido de operaciones de formateo.
+
+En particular: el formato de valores long long no es compatible. El formateo de
+los valores de punto flotante se realizan como con %A incluso cuando otros formatos como %f
+están especificados
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde código de usuario, init/cleanup y en tiempo real.
+
+.SH VALOR DEVUELTO
+El número de caracteres escritos en \fIbuf\fR.
+
+.SH VER TAMBIÉN
+\fBprintf(3)\fR

@@ -1,0 +1,33 @@
+.TH BIN2GRAY "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+bin2gray \- convert a number to the gray-code representation
+.SH SYNOPSIS
+.HP
+.B loadrt bin2gray [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+Converts a number into gray-code
+.SH FUNCTIONS
+.TP
+\fBbin2gray.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B bin2gray.\fIN\fB.in\fR u32 in \fR
+binary code in
+.TP
+.B bin2gray.\fIN\fB.out\fR u32 out \fR
+gray code out
+.SH AUTHOR
+
+andy pugh
+.SH LICENSE
+
+GPL
