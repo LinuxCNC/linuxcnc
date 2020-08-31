@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtvcp baseclass
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -68,7 +68,7 @@ class _HalWidgetBase(_HalWidgetBase_):
     _instanceNum = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = _HalWidgetBase_.__new__(cls, *args, **kwargs)
+            cls._instance = _HalWidgetBase_.__new__(cls)
         return cls._instance
 
     def __getitem__(self, item):

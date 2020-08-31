@@ -22,7 +22,7 @@ from PyQt5.QtCore import pyqtProperty, QSize, QEvent
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QWindow, QResizeEvent
 from qtvcp.core import Status
-import thread
+import _thread
 import gobject
 
 import linuxcnc
@@ -243,11 +243,11 @@ class PyApp(gtk.Plug):
 class Graphics(QWidget):
     def __init__(self, parent = None):
         super(Graphics, self).__init__(parent)
-        self.pygtk = PyApp(0l)
+        self.pygtk = PyApp(0)
         self.gremlin = self.pygtk.gremlin
         # run GTK in a separate thread
         try:
-            thread.start_new_thread( run_gtk,(None) )
+            _thread.start_new_thread( run_gtk,(None) )
         except:
             pass
 

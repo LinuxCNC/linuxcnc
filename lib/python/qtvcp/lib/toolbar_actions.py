@@ -565,7 +565,7 @@ class ToolBarActions():
         def setSize(data):
             ACTION.SET_GRAPHICS_GRID_SIZE(data)
 
-        print INFO.GRID_INCREMENTS
+        print(INFO.GRID_INCREMENTS)
         for temp in (INFO.GRID_INCREMENTS):
             if temp == '0':
                 sizeAct = QtWidgets.QAction('Off', widget)

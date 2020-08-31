@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp Widget - DRO label widget
 # This widgets displays linuxcnc axis position information.
 #

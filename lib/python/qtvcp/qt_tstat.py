@@ -20,7 +20,7 @@ import hashlib
 
 from qtvcp.core import Status, Info, Action
 # Set up logging
-import logger
+from . import logger
 
 STATUS = Status()
 INFO = Info()
@@ -313,7 +313,7 @@ class _TStat(object):
                         line = line + "%s%.5f "%(KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
             if not skip:
-                print >>file,line
+                print(line, file=file)
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()

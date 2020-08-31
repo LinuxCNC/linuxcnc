@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -71,7 +71,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         STATUS.connect('user-system-changed', self._convert_system)
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        for num, let in conversion.iteritems():
+        for num, let in conversion.items():
             if let in (INFO.AVAILABLE_AXES):
                 continue
             self.hideColumn(num)

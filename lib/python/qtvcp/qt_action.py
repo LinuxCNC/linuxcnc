@@ -7,7 +7,7 @@ import linuxcnc
 import hal
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -70,7 +70,7 @@ class _Lcnc_Action(object):
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
                 for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
-                    print j, num, len(INFO.JOINT_SEQUENCE_LIST)
+                    print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
                     # at the end so all homed
                     if num == length -1:
                         self.home_all_warning_flag = False
@@ -237,7 +237,7 @@ class _Lcnc_Action(object):
             outfile.write(source)
             STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
-            print e
+            print(e)
             STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
             try:
@@ -407,7 +407,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):
-        if isinstance(data, (int, long)):
+        if isinstance(data, int):
             STATUS.set_selected_joint(data)
         else:
             log.error( 'Selected joint must be an integer: {}'.format(data))
@@ -422,7 +422,7 @@ class _Lcnc_Action(object):
     # use joint number for joint or letter for axis jogging
     def DO_JOG(self, joint_axis, direction):
         angular = False
-        if isinstance(joint_axis, (int, long)):
+        if isinstance(joint_axis, int):
             if STATUS.stat.joint[joint_axis]['jointType'] == linuxcnc.ANGULAR:
                 angular =  True
             jointnum = joint_axis
@@ -728,7 +728,7 @@ if __name__ == "__main__":
 
     # print status caught errors
     def mess(error,text):
-        print 'STATUS caught:',text
+        print('STATUS caught:',text)
 
     STATUS.connect("error", lambda w, n, d: mess(n,d))
 

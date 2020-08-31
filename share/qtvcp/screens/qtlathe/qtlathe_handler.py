@@ -154,7 +154,7 @@ class HandlerClass:
             LOG.debug('Exception in KEYBINDING: {}'.format (e))
         except Exception as e:
             LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
             return False        
 
     
@@ -315,14 +315,14 @@ class HandlerClass:
 
     def set_active_mode(self, mode, index):
         def update(widget):
-            for key, value in self.activeWidgetDict.iteritems():
+            for key, value in self.activeWidgetDict.items():
                 #print mode,key,value
                 if key == widget:
-                    print widget
+                    print(widget)
                     self.w[key].setStyleSheet('#%s%s'%(key, self.activeStyle))
                     self.activeWidgetDict[key] = True
                 elif value == True:
-                    print 'switch off', key
+                    print('switch off', key)
                     self.w[key].setStyleSheet('#%s%s'%(key, self.defaultStyle))
                     self.activeWidgetDict[key] = False
 
@@ -494,7 +494,7 @@ class HandlerClass:
 
     def set_default_html(self,filename=None):
         if filename is None: filename = 'No program Loaded'
-        print filename
+        print(filename)
         self.html = """<html>
 <head>
 <title>Test page for the download:// scheme</title>

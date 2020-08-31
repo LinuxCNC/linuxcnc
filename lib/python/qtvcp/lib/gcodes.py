@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import mdi_text as mdiText
+from . import mdi_text as mdiText
 from qtvcp.qt_makegui import VCPWindow
 
 WIDGETS = VCPWindow()
@@ -12,7 +12,7 @@ class GCodes:
     def setup_list(self):
         self.w.gcode_list.currentRowChanged.connect(self.list_row_changed)
         titles = mdiText.gcode_titles()
-        for key in sorted(titles.iterkeys()):
+        for key in sorted(titles.keys()):
             self.w.gcode_list.addItem(key + ' ' + titles[key])
         self.w.gcode_description.setReadOnly(True)
 

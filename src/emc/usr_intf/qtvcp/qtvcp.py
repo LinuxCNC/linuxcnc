@@ -1,5 +1,5 @@
-#!/usr/bin/python
-from __future__ import print_function
+#!/usr/bin/python3
+
 import os
 import sys
 import shutil
@@ -9,6 +9,7 @@ import signal
 
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
 from qtvcp.core import Status, Info, QComponent, Path
 from qtvcp.lib import xembed
 
@@ -116,7 +117,7 @@ class QTVCP:
             # International translation
             locale.setlocale(locale.LC_ALL, '')
             locale.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
-            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR, unicode=True)
+            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR)
             gettext.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
 
             # if no handler file specified, use stock test one
@@ -193,6 +194,7 @@ Pressing cancel will close linuxcnc.""" % target)
         if opts.usermod:
             LOG.debug('Loading the handler file')
             window.load_extension(opts.usermod)
+            window.web_view = QWebView()
             # do any class patching now
             if "class_patch__" in dir(window.handler_instance):
                 window.handler_instance.class_patch__()

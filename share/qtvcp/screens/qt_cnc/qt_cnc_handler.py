@@ -177,7 +177,7 @@ class HandlerClass:
     # called from 'machine on' button's python command in designer
     # to test that function
     def test_function(self, text=None):
-        print text
+        print(text)
 
     def editor_exit(self):
         self.w.gcodeeditor.exit()
@@ -228,7 +228,7 @@ class HandlerClass:
     # f9, f10  call this function with different values
     def on_keycall_custom(self,event,state,shift,cntrl,value):
         if state:
-            print 'custom keycall function value: ',value
+            print('custom keycall function value: ',value)
     def on_keycall_F11(self,event,state,shift,cntrl):
         if state:
             NURBSEDITOR.load_dialog()

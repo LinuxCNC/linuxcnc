@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -151,9 +151,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        self.proc.start('python {}'.format(SUBPROGRAM))
+        self.proc.start('python3 {}'.format(SUBPROGRAM))
         # send our PID so subprogram can check to see if it is still running 
-        self.proc.writeData('PiD_ {}\n'.format(os.getpid()))
+        self.proc.writeData(bytes('PiD_ {}\n'.format(os.getpid()), 'utf-8'))
 
     def start_probe(self, cmd):
         if self.process_busy is True:
@@ -165,9 +165,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         # clear all previous offsets
         ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
-        string_to_send = cmd.encode('utf-8') + ' ' + result + '\n'
+        string_to_send = cmd + ' ' + result + '\n'
 #        print("String to send ", string_to_send)
-        self.proc.writeData(string_to_send)
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
         self.process_busy = True
 
     def process_started(self):
@@ -175,13 +175,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def read_stdout(self):
         qba = self.proc.readAllStandardOutput()
-        line = qba.data().encode('utf-8')
+        line = qba.data()
         self.parse_input(line)
         self.process_busy = False
 
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
-        line = qba.data().encode('utf-8')
+        line = qba.data()
         self.parse_input(line)
 
     def process_finished(self):
@@ -189,6 +189,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         self.process_busy = False
+        line = str(line)
         if "ERROR" in line:
             print(line)
         elif "DEBUG" in line:
@@ -210,7 +211,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def send_error(self, w, kind, text):
         message ='_ErroR_ {},{} \n'.format(kind,text)
-        self.proc.writeData(message)
+        self.proc.writeData(bytes(message, 'utf-8'))
 
 #####################################################
 # button callbacks
@@ -299,7 +300,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             file = QtCore.QFile(HELP)
             file.open(QtCore.QFile.ReadOnly)
             html = file.readAll()
-            html = unicode(html, encoding='utf8')
+            html = str(html, encoding='utf8')
             html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
             t.setHtml(html)
         except Exception as e:

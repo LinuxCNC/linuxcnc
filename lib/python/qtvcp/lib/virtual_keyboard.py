@@ -45,7 +45,7 @@ class virt_keyboard():
             #socket.show()
             #self.widgets.key_box.add( socket )
             #socket.add_id( long( sid ) )
-        except Exception, e:
+        except Exception as e:
             pass
 
     def kill_keyboard( self ):

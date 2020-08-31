@@ -153,14 +153,14 @@ class Notify:
         n.close()
 
     def OnClicked(self, n, signal_text):
-        print '1: ' + str(n)
-        print '2: ' + str(signal_text)
+        print('1: ' + str(n))
+        print('2: ' + str(signal_text))
         n.close()
 
     def action_callback(self, *args, **kwds):
-        print '\nAll recorded messages:'
+        print('\nAll recorded messages:')
         for num,i in enumerate(self.alarmpage):
-            print num,i
+            print(num,i)
 
     # pop up last five critical errors
     def last5_callback(self, n, signal_text):
@@ -228,7 +228,7 @@ class Notify:
 
     def external_close(self):
         for num,i in enumerate(self.alarmpage):
-            print num, i
+            print(num, i)
         if self.critical_message is not None:
             n = self.critical_message
             n.body =''

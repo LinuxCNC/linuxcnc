@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import math
 
@@ -56,7 +56,7 @@ class Calculator(QDialog):
                     self.digitClicked))
 
         self.pointButton = self.createButton(".", self.pointClicked)
-        self.changeSignButton = self.createButton(u"\N{PLUS-MINUS SIGN}",
+        self.changeSignButton = self.createButton("\N{PLUS-MINUS SIGN}",
                 self.changeSignClicked)
 
         self.axisButton = self.createAxisButton("Axis X",
@@ -71,16 +71,16 @@ class Calculator(QDialog):
         self.setMemoryButton = self.createButton("MS", self.setMemory)
         self.addToMemoryButton = self.createButton("M+", self.addToMemory)
 
-        self.divisionButton = self.createButton(u"\N{DIVISION SIGN}",
+        self.divisionButton = self.createButton("\N{DIVISION SIGN}",
                 self.multiplicativeOperatorClicked)
-        self.timesButton = self.createButton(u"\N{MULTIPLICATION SIGN}",
+        self.timesButton = self.createButton("\N{MULTIPLICATION SIGN}",
                 self.multiplicativeOperatorClicked)
         self.minusButton = self.createButton("-", self.additiveOperatorClicked)
         self.plusButton = self.createButton("+", self.additiveOperatorClicked)
 
         self.squareRootButton = self.createButton("Sqrt",
                 self.unaryOperatorClicked)
-        self.powerButton = self.createButton(u"x\N{SUPERSCRIPT TWO}",
+        self.powerButton = self.createButton("x\N{SUPERSCRIPT TWO}",
                 self.unaryOperatorClicked)
         self.reciprocalButton = self.createButton("1/x",
                 self.unaryOperatorClicked)
@@ -167,7 +167,7 @@ class Calculator(QDialog):
                 return
 
             result = math.sqrt(operand)
-        elif clickedOperator == u"x\N{SUPERSCRIPT TWO}":
+        elif clickedOperator == "x\N{SUPERSCRIPT TWO}":
             result = math.pow(operand, 2.0)
         elif clickedOperator == "1/x":
             if operand == 0.0:
@@ -279,7 +279,7 @@ class Calculator(QDialog):
                     digitValue =  round(relp[conversion[let]],5)
                     text = text.replace('%s'%let,'%s'%digitValue)
         except Exception as e:
-            print e
+            print(e)
             return
 
         if self.display.text() == '0' and digitValue == 0.0:
@@ -383,12 +383,12 @@ class Calculator(QDialog):
 
     def getDisplay(self):
         try:
-            print self.display.text()
+            print(self.display.text())
             a = int(self.display.text())
         except Exception as e:
             self.display.setText('0')
-            print e
-        print self.display.text()
+            print(e)
+        print(self.display.text())
         return self.display.text()
 
     def calculate(self, rightOperand, pendingOperator):
@@ -396,9 +396,9 @@ class Calculator(QDialog):
             self.sumSoFar += rightOperand
         elif pendingOperator == "-":
             self.sumSoFar -= rightOperand
-        elif pendingOperator == u"\N{MULTIPLICATION SIGN}":
+        elif pendingOperator == "\N{MULTIPLICATION SIGN}":
             self.factorSoFar *= rightOperand
-        elif pendingOperator == u"\N{DIVISION SIGN}":
+        elif pendingOperator == "\N{DIVISION SIGN}":
             if rightOperand == 0.0:
                 return False
 

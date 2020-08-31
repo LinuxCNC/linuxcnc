@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget - MDI edit line widget
 # Copyright (c) 2017 Chris Morley
@@ -78,7 +78,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         try:
             # Python v2.
-            logText = unicode(logText, encoding='utf8')
+            logText = str(logText, encoding='utf8')
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')
@@ -91,7 +91,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         try:
             # Python v2.
-            logText = unicode(logText, encoding='utf8')
+            logText = str(logText, encoding='utf8')
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')

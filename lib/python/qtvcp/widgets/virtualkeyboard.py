@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -163,7 +163,7 @@ class VirtualKeyboard(QtWidgets.QWidget):
             for val in self.number_list:
                 alt_txt = self['btn_' + val].property('fcode')
                 self['btn_' + val].setText(alt_txt)
-            for key, val in self.function_keys.items():
+            for key, val in list(self.function_keys.items()):
                 self['btn_' + key].KEY_CHAR = val
         else:
             self.init_numbers()

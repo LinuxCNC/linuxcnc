@@ -268,8 +268,8 @@ class Keylookup:
             if is_pressed:
                 formatted_lines = traceback.format_exc().splitlines()
                 #LOG.debug('Exception in KEYBINDING:', exc_info=e)
-                print """Key Binding Error for key '%s' calling function: %s in handler file:"""%(key,self.convert(event))
+                print("""Key Binding Error for key '%s' calling function: %s in handler file:"""%(key,self.convert(event)))
                 for i in range(5, len(formatted_lines)):
-                    print formatted_lines[i]
+                    print(formatted_lines[i])
         event.accept()
         return True
