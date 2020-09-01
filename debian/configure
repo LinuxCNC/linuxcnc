@@ -330,7 +330,7 @@ else
 fi
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es})
+    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
     for P in $DOCS_PACKAGES; do
         if [ -f $EXTRAS/$P.files ]; then
             cat $P.files.in $EXTRAS/$P.files > $P.files
