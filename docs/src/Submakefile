@@ -388,7 +388,9 @@ PDF_TARGETS_CN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started_cn.pdf \
 	)
 
-PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
+# Chinese PDFs don't build with latex, they do with xetex but that is not on stretch
+#PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
@@ -480,8 +482,8 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started
 	@ln -f $< $@
 # Chinese PDFs do not build. They can be persuaded to build by using xetex
 # as the a2x backend. See line 403 but even then all characters display as boxes
-$(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:
-
+$(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:$(DOC_SRCDIR)/Master_Getting_Started_cn.pdf
+	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
@@ -705,7 +707,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
-#	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
