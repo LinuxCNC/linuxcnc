@@ -87,121 +87,33 @@ IMPORTANT: THESE PINS WILL BE ENTERED LATER INTO THE CONFIGURATOR, THEY SHOULD *
 
 The preferred method of installing LinuxCNC with PlasmaC is by using an ISO image as described below.
 
-The minimum requirement for PlasmaC is LinuxCNC v2.8.
-
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
-
-All PlasmaC development has been done on a Stretch ISO installation.
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies.
 
 === If You Do Not Have Linux Installed
 
-LinuxCNC requires a realtime Linux kernel and there are currently two ISO images available from LinuxCNC downloads with different realtime options.
+Installation instructions are available at: http://linuxcnc.org/docs/devel/html/getting-started/getting-linuxcnc.html
 
-. PREEMPT_RT - The preferred option if using an external motion card. Good for parallel port if your machine has acceptable latency. Required if you intend to use a Mesa Electronics ethernet card.
-. RTAI - Good for parallel port, normally provides better latency than PREEMPT_RT.
-
-The downloadable ISO images are:
-
-* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/
-* RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
-
-Download your chosen image and write it to a bootable device, then boot from that device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNC. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the boot menu and continue to install the system.
-
-This will give you a machine with the current stable branch (v2.7) of LinuxCNC which will be upgraded to 2.8 in the next section.
-
+Following these instructions will give you a machine with the current stable branch (v2.8) of LinuxCNC.
 
 === If You Have LinuxCNC v2.7
 
-The method described here is called a Buildbot Installation as it uses prebuilt packages from the LinuxCNC Buildbot to install and update LinuxCNC.
+Upgrading instruction are availabe at: http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html
 
-NOTE: There is another method called Run In Place which requires the user to compile LinuxCNC locally. This method is normally used for development work and is beyond the scope of this manual.
-For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
-
-To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
-
-----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
-----
-
-If you get an error like GPG: keyserver receive failed: No dirmngr
-
-Then enter the following in the terminal:
-
-----
-sudo apt-get install dirmngr
-----
-
-The missing dirmngr package will then be installed.
-
-If you still get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
-
-----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-key E0EE663E
-----
-
-Close the terminal, then from the Main Menu, open Synaptic Package Manager.
-
-Select Search in the menu bar and do a search using *linuxcnc* as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be removed.
-
-Click Settings from the menu and select Repositories.
-
-You can then either edit or delete existing LinuxCNC entries from the repositories list. You need to end up with the following set of stanzas as the only enabled references to LinuxCNC:
-
-----
-deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
-deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
-----
-
-Where:
-
-* <distro> is stretch or wheezy
-* <branch> is 2.8 or master
-* <rt_type> is rtpreempt or rt
-
-So if you installed the *stretch* version and wanted *2.8* branch on a *PREEMPT_RT* machine then you would have:
-
-----
-deb     http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
-----
-
-When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
-
-Now do a Search with *linuxcnc* as the search term and the result should be a list of newly available LinuxCNC packages
-
-Right click on the package you want to install and then select Mark for Installation.
-
-For PREEMPT_RT you would select linuxcnc-uspace and for RTAI it would be linuxcnc.
-
-You may also select the documentation if you want it installed locally and/or the -dev package if you intend to build new realtime components and/or alternate front-ends for linuxcnc.
-
-When you have made all your selections, click Apply on the menu bar and the selected packages will be installed.
-
-Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
-
-NOTE: For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC Buildbot home page]
-
-[[sec:testing-linuxcnc]]
-
-=== Testing LinuxCNC Installation
-
-The LinuxCNC Configuration Selector should open.
-
-Navigate to Sample Configurations > by_machine > plasmac.
-
-Select either Axis or Gmoccapy.
-
-Select either metric or imperial.
-
-The selected PlasmaC simulation configuration will now open and may be tested at will.
-
-You now have all the requirements to run PlasmaC, the next step is to create a working configuration for your machine.
+Following these instructions will give you a machine with the current stable branch (v2.8) of LinuxCNC.
 
 === Make A Working Base Machine Configuration
 
 NOTE: Base machine configuration means a complete working system without any plasma connections. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
 IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. HERE, THESE WILL BE ADDED LATER DURING THE PlasmaC CONFIGURATION.
+
+Some recommended settings:
+
+[[z_settings]]
+
+* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
+* Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
+* Z HOME should be just below the maximum limit
 
 * Floating Head - it is recommended that a floating head is used and it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
 
@@ -217,21 +129,15 @@ For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELO
 
 It is also recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
  
-[[z_settings]]
-
-Recommended settings for the Z axis are:
-
-* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
-* Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
-* Z HOME should be just below the maximum limit
-
 IMPORTANT: YOU SHOULD BE ABLE TO HOME YOUR MACHINE, TOUCH OFF, JOG TO SOFT LIMITS WITHOUT CRASHING AND RUN SOME TEST G-CODE WITHOUT ANY ERRORS.
 
-When and ONLY WHEN this stage is successfully completed can you configure PlasmaC on top of your working machine.
+When and ONLY WHEN this stage is successfully completed should you configure PlasmaC on top of your working machine.
 
 You can create a base machine manually or you may use existing configuration helpers:
 
-NOTE: It is best to keep the base machine config simple until you have it fully tested and tuned. If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options these can be manually added later if you have a need for them.
+NOTE: It is highly recommended to keep the base machine config simple until you have it fully tested and tuned. +
+If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options. +
+Any these can be manually added later if you have a need for them.
 
 If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>>:
 
@@ -2207,48 +2113,24 @@ There is a ./test directory in the source which has a simple Test Panel and asso
 
 If you wish to use this in your own sim configuration then you will need to create a link to this directory and edit your .ini file to suit.
 
-== Upgrade An Existing LinuxCNC Configuration
+== Upgrading PlasmaC
 
-The method of upgrading is dependent on the type of LinuxCNC installation:
+PlasmaC upgrade notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates
 
-=== Upgrade LinuxCNC
+=== Standard Upgrade
 
-From a terminal:
+For a standard ISO installation, LinuxCNC will only be upgraded when a new minor release has been released. PlasmaC will then automatically upgrade its configuration the first time it is run after a LinuxCNC upgrade.
 
-----
-$ sudo apt-get update
-$ sudo apt-get dist-upgrade
-----
-
-== Upgrade PlasmaC
-
-=== Automatic Upgrade
-
-After you have upgraded LinuxCNC, PlasmaC will test if it needs an upgrade when LinuxCNC is started. If it finds that it needs upgrading it will automatically proceed with the upgrade. After the upgrade is complete you may get a warning that LinuxCNC needs to be restarted. This depends on which files needed changing.
-
-=== Manual Upgrade
-
-If you do not wish to allow PlasmaC to do automatic upgrades then you can prevent this by adding *MANUAL_UPGRADE = 1* to the [PLASMAC] section of the .ini file:
+LinuxCNC is normally upgraded by opening a terminal and running:
 
 ----
-MANUAL_UPGRADE            = 1
+$ sudo apt update
+$ sudo apt dist-upgrade
 ----
 
-You would then need to manually upgrade PlasmaC by opening a terminal and running the configurator:
+=== Continuous Upgrade
 
-----
-$ python linuxcnc/<your_configuration_directory>/configurator.py
-----
-
-The selection window is now visible:
-
-image::images/plasmac_configurator_home_used.png[width=30%]
-
-Select *Upgrade* from the selection window, this shows an info dialog, select *Continue* and the Upgrade window will display.
-
-image::images/plasmac_configurator_upgrade.png[width=40%]
-
-Select the .ini file of the PlasmaC configuration you wish to upgrade, click *Upgrade* and your PlasmaC configuration will be upgraded.
+Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If you wish to update whenever a new PlasmaC version has been pushed then you could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
 
 [[modify-config]]
 
@@ -2288,11 +2170,11 @@ NOTE: Machine Name and .hal File can not be modified.
 
 == Change Type Of LinuxCNC Installation
 
-If you have changed the type of LinuxCNC installation from Buildbot to Run In Place or vice versa you will need to run the Configurator from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
+If you have changed the type of LinuxCNC installation from a Package installation to a Run In Place or vice versa you will need to run the Configurator from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
 
 From a terminal do one of the following:
 
-Reset to a new Buildbot installation:
+Reset to a new Package installation:
 
 ----
 $ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
@@ -2391,7 +2273,7 @@ If pyserial is not installed an error message will be displayed.
 To install pyserial, type the following in a terminal:
 
 ----
-sudo apt-get install python-serial
+sudo apt install python-serial
 ----
 
 A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
