@@ -127,7 +127,7 @@ For a metric machine with a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOC
 
 For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
 
-It is also recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
+It is highly recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
  
 IMPORTANT: YOU SHOULD BE ABLE TO HOME YOUR MACHINE, TOUCH OFF, JOG TO SOFT LIMITS WITHOUT CRASHING AND RUN SOME TEST G-CODE WITHOUT ANY ERRORS.
 
@@ -165,7 +165,7 @@ You NEED to have a fully tested and working base machine configuration without a
 
 CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
-NOTE: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
+NOTE: If you are using a *Mesa Electronics THCAD* card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
 
 [[configurator]]
 
@@ -290,6 +290,8 @@ If you use a float switch then you will need to set the offset in the Config Pan
 . If it measures greater than Pierce Height then reduce the Float Travel by the difference, if less than Pierce Height then increase the Float Travel by the difference.
 
 . After the Z axis rises, repeat from #4 above until the Pierce Height is correct. 
+
+NOTE: If your final probe up time seems excessive then see <<probing, the probing section>> for a solution.
 
 IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN UP UNTIL NOW THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF YOU INTEND TO USE CUT VOLTAGES FROM MANUFACTURES CUT CHARTS THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
@@ -466,6 +468,8 @@ image::images/plasmac_config.png[width=50%]
 |===
 
 NOTE: Probe Height is the height above the minimum Z axis limit.
+
+NOTE: If your final probe up time seems excessive then see <<probing, the probing section>> for a solution.
 
 [underline]*THC*
 
@@ -1053,6 +1057,8 @@ A value of zero for *Skip IHS* will disable IHS skipping.
 
 Any errors encountered on a cut will disable IHS skipping for the next cut if it was enabled.
 
+[[probing]]
+
 === Probing
 
 Probing may be with either ohmic sensing or a float switch, it is also possible to combine both with the float switch providing a fallback to ohmic probing.
@@ -1062,6 +1068,23 @@ If your torch does not support ohmic probing you could have a separate probe nex
 Probing setup is done in the Motion frame of the Config Panel.
 
 PlasmaC can probe at the full Z axis velocity so long as your machine has enough movement in the float switch to absorb any overrun. If your machine is suitable you could set Probe Height to near the Z axis minimum and do all probing at full speed.
+
+Some float switches can exhibit a large switching hysteresis which shows up in probing as an excessive time to complete the final probe up.
+ This time may be decreased by changing the speed of the final probe up.
+ This speed defaults to 0.001mm (0.000039") per servo cycle.
+ It is possible to increase this speed by up to a factor of 10 by adding the following line to your <machine_name>_connections.hal file:
+
+----
+setp plasmac.probe-final-speed n
+----
+
+where n is from 1~10. It is recommended to keep this value as low as possible.
+
+Using this feature will change the final height slightly so will require thorough probe testing to confirm the final height.
+
+This speed value affects ALL probing so if you use ohmic probing and you change this speed value then you will need to probe test to set the require offset to compensate for this speed change as well as the float travel.
+
+The reliability of this feature will only be as good as the repeatability of the float switch.
 
 NOTE: Probe Height is the height above the minimum Z axis limit.
 
