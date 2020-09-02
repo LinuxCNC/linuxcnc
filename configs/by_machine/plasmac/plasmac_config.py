@@ -89,11 +89,11 @@ class HandlerClass:
         self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('float-switch-travel').set_digits(2)
-            self.builder.get_object('float-switch-travel-adj').configure(1.5,0,25,0.01,0,0)
+            self.builder.get_object('float-switch-travel-adj').configure(1.5,-25,25,0.01,0,0)
             self.builder.get_object('height-per-volt').set_digits(3)
             self.builder.get_object('height-per-volt-adj').configure(0.1,0.025,0.2,0.01,0,0)
             self.builder.get_object('ohmic-probe-offset').set_digits(2)
-            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-25,0,0.01,0,0)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-25,+25,0.01,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(0)
             self.builder.get_object('probe-feed-rate-adj').configure(300,1,self.thcFeedRate,1,0,0)
             self.builder.get_object('probe-start-height').set_digits(0)
@@ -107,11 +107,11 @@ class HandlerClass:
             self.builder.get_object('skip-ihs-distance').set_value(0)
         elif self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
             self.builder.get_object('float-switch-travel').set_digits(3)
-            self.builder.get_object('float-switch-travel-adj').configure(0.06,0,1,0.001,0,0)
+            self.builder.get_object('float-switch-travel-adj').configure(0.06,-1,1,0.001,0,0)
             self.builder.get_object('height-per-volt').set_digits(4)
             self.builder.get_object('height-per-volt-adj').configure(0.004,0.001,0.008,0.001,0,0)
             self.builder.get_object('ohmic-probe-offset').set_digits(3)
-            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-1,0,0.001,0,0)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-1,1,0.001,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(1)
             self.builder.get_object('probe-feed-rate-adj').configure(12,0.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('probe-start-height').set_digits(2)
@@ -321,7 +321,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.169'
+        self.plasmacVersion = 'PlasmaC v0.170'
 
         self.halcomp = halcomp
         self.builder = builder

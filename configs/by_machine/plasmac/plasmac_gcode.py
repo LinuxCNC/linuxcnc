@@ -608,6 +608,7 @@ with open(inCode, 'r') as fRead:
                 scribing = False
             else:
                 scribing = True
+                print(line)
                 continue
         # if pierce only mode
         if pierceOnly:
