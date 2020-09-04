@@ -495,7 +495,7 @@ class _GStat(gobject.GObject):
 
         # calculate position offsets (native units)
         p,rel_p,dtg = self.get_position()
-        self.emit('current_position',p, rel_p, dtg, self.stat.joint_actual_position)
+        self.emit('current-position',p, rel_p, dtg, self.stat.joint_actual_position)
 
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
