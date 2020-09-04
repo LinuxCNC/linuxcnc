@@ -294,11 +294,13 @@ Sent when spindle direction or running status changes.
 Sent when the current feed rate changes.
 
 *current-x-rel-position* :: '(returns float)' -
-Sent when the X relative position changes.
+Sent every 100ms.
 
-*current-position* :: '(returns pyobject, pyobject, pyobject)' -
-Sent as the current positions changes. +
-returns tuples of position,relative position and distance-to-go.
+*current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
+Sent every 100ms. +
+returns tuples of position, relative position, distance-to-go and +
+the joint actual position. Before homing, on multi-joint axes, only joint +
+position is valid.
 
 *current-z-rotation* :: '(returns float)' -
 Sent as the current rotatated angle around the Z axis changes +
