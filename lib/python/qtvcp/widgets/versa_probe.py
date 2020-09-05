@@ -151,9 +151,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        self.proc.start('python3 {}'.format(SUBPROGRAM))
-        # send our PID so subprogram can check to see if it is still running 
-        self.proc.writeData(bytes('PiD_ {}\n'.format(os.getpid()), 'utf-8'))
+        if sys.version_info.major > 2:
+            self.proc.start('python3 {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData(bytes('PiD_ {}\n'.format(os.getpid()), 'utf-8'))     
+        else:
+            self.proc.start('python {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData('PiD_ {}\n'.format(os.getpid()))
 
     def start_probe(self, cmd):
         if self.process_busy is True:
@@ -167,7 +172,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
         string_to_send = cmd + ' ' + result + '\n'
 #        print("String to send ", string_to_send)
-        self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        if sys.version_info.major > 2:
+            self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        else:
+            self.proc.writeData(string_to_send)
         self.process_busy = True
 
     def process_started(self):
@@ -211,7 +219,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def send_error(self, w, kind, text):
         message ='_ErroR_ {},{} \n'.format(kind,text)
-        self.proc.writeData(bytes(message, 'utf-8'))
+        if sys.version_info.major > 2:
+            self.proc.writeData(bytes(message, 'utf-8'))
+        else:
+            self.proc.writeData(message)
 
 #####################################################
 # button callbacks

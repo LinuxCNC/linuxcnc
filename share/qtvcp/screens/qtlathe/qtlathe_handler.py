@@ -7,10 +7,6 @@ import linuxcnc
 import hal
 
 from PyQt5 import QtCore, QtWidgets
-try:
-    from PyQt5.QtWebKitWidgets import QWebView
-except ImportError:
-    raise Exception("Qtvcp error with qtLathe - is package python-pyqt5.qtwebkit installed?")
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
@@ -125,8 +121,7 @@ class HandlerClass:
         self.w.pushbutton_metric.clicked[bool].connect(self.change_mode)
 
         # web view widget for SETUP SHEET page
-        self.web_view = QWebView()
-        self.w.verticalLayout_setup.addWidget(self.web_view)
+        self.w.verticalLayout_setup.addWidget(self.w.web_view)
         self.set_default_html()
 
         self.GCODES.setup_list()
@@ -231,9 +226,9 @@ class HandlerClass:
     def toggle_dro(self):
         next = self.w.droPaneStack.currentIndex() +1
         if next == self.w.droPaneStack.count():
-			self.w.droPaneStack.setCurrentIndex(0)
+            self.w.droPaneStack.setCurrentIndex(0)
         else:
-			self.w.droPaneStack.setCurrentIndex(next)
+            self.w.droPaneStack.setCurrentIndex(next)
         
     def toggle_offsets(self):
         self.set_active_mode('offsetPage',None)
@@ -488,7 +483,7 @@ class HandlerClass:
 
         if fname.endswith(".html"):
             if os.path.exists(fname):
-                self.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 return
         self.set_default_html(fname)
 
@@ -510,7 +505,7 @@ class HandlerClass:
 </body>
 </html>
 """ %(filename,os.path.join(self.PATH.IMAGEDIR,'lcnc_swoop.png'))
-        self.web_view.setHtml(self.html)
+        self.w.web_view.setHtml(self.html)
 
     def add_alarm(self, message):
         STATUS.emit('update-machine-log', message, 'TIME')

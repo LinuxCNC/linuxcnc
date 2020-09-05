@@ -78,7 +78,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         try:
             # Python v2.
-            logText = str(logText, encoding='utf8')
+            logText = str(logText)
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')
@@ -91,7 +91,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         logText = file.readAll()
         try:
             # Python v2.
-            logText = str(logText, encoding='utf8')
+            logText = str(logText)
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')

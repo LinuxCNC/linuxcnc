@@ -165,10 +165,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        self.proc.start('python3 {}'.format(SUBPROGRAM))
-        # send our PID so subprogram can check to see if it is still running 
-        self.proc.writeData(bytes('PID {}\n'.format(os.getpid()), 'utf-8'))
-
+        if sys.version_info.major > 2:
+            self.proc.start('python3 {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData(bytes('PID {}\n'.format(os.getpid()), 'utf-8'))
+        else:
+            self.proc.start('python {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData('PID {}\n'.format(os.getpid()))
+            
     def start_probe(self, cmd):
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
             LOG.error("Probe tool not mounted in spindle")
@@ -178,7 +183,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         string_to_send = cmd + '\n'
 #        print("String to send ", string_to_send)
-        self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        if sys.version_info.major > 2:
+            self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        else:
+            self.proc.writeData(string_to_send)
         self.process_busy = True
 
     def process_started(self):
@@ -213,7 +221,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
-        message =bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
+        if sys.version_info.major > 2:
+            message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
+        else:
+            message = 'ERROR {},{} \n'.format(kind,text)
         self.proc.writeData(message)
 
 # Main button handler routines

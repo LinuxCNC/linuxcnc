@@ -16,8 +16,11 @@
 # use open cv to do camera alignment
 
 import sys
-import _thread as Thread
-
+if sys.version_info.major > 2:
+    import _thread as Thread
+else:
+    import thread as Thread
+    
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
 
@@ -132,10 +135,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         # coh = center of original height
         ##########################
         (h, w) = frame.shape[:2]
-        ch = h/2
-        cw = w/2
-        coh = oh/2
-        cow = ow/2
+        ch = int(h/2)
+        cw = int(w/2)
+        coh = int(oh/2)
+        cow = int(ow/2)
         # NOTE: its img[y: y + h, x: x + w]
         frame = frame[ch-coh:ch+coh, cw-cow:cw+cow]
 

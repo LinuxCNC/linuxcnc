@@ -3,8 +3,10 @@
 
 import linuxcnc
 
-# import gobject
-from gi.repository import GObject
+import sys
+if sys.version_info.major > 2:
+    from gi.repository import GObject
+else: import gobject as GObject
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal

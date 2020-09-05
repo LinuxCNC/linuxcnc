@@ -225,7 +225,7 @@ class StyleSheetEditor(QDialog):
             styleSheet = file.readAll()
             try:
                 # Python v2.
-                styleSheet = str(styleSheet, encoding='utf8')
+                styleSheet = str(styleSheet)
             except NameError:
                 # Python v3.
                 styleSheet = str(styleSheet, encoding='utf8')
