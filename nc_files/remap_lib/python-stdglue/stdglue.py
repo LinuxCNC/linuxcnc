@@ -25,7 +25,7 @@ def setspeed_prolog(self,**words):
             self.set_errormsg("S requires a value") 
             return INTERP_ERROR
         self.params["speed"] = c.s_number
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("S/setspeed_prolog: %s)" % (e))
         return INTERP_ERROR
     return INTERP_OK
@@ -47,7 +47,7 @@ def setspeed_epilog(self,**words):
             self.speed = self.params["speed"]
             emccanon.enqueue_SET_SPINDLE_SPEED(self.speed)
         return INTERP_OK
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("S/setspeed_epilog: %s)" % (e))
         return INTERP_ERROR
     return INTERP_OK    
@@ -62,7 +62,7 @@ def setfeed_prolog(self,**words):
             self.set_errormsg("F requires a value") 
             return INTERP_ERROR
         self.params["feed"] = c.f_number
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("F/setfeed_prolog: %s)" % (e))
         return INTERP_ERROR
     return INTERP_OK    
@@ -81,7 +81,7 @@ def setfeed_epilog(self,**words):
             self.feed_rate = self.params["feed"]
             emccanon.enqueue_SET_FEED_RATE(self.feed_rate)
         return INTERP_OK
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("F/setfeed_epilog: %s)" % (e))
         return INTERP_ERROR
     return INTERP_OK    
@@ -106,7 +106,7 @@ def prepare_prolog(self,**words):
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("T%d/prepare_prolog: %s" % (int(words['t']), e))
         return INTERP_ERROR
 
@@ -129,7 +129,7 @@ def prepare_epilog(self, **words):
             else:
                 self.set_errormsg("T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value))
                 return INTERP_ERROR
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("T%d/prepare_epilog: %s" % (tool,e))
         return INTERP_ERROR       
 
@@ -147,7 +147,7 @@ def change_prolog(self, **words):
             if self.params[5601] < 0.0:
                 self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
                 return INTERP_ERROR
-            print "change_prolog: Toolchanger soft fault %d" % int(self.params[5601])
+            print("change_prolog: Toolchanger soft fault %d" % int(self.params[5601]))
 
         if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
@@ -160,7 +160,7 @@ def change_prolog(self, **words):
         self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("M6/change_prolog: %s" % (e))
         return INTERP_ERROR
 
@@ -176,7 +176,7 @@ def change_epilog(self, **words):
             if self.params[5601] < 0.0:
                 self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
                 yield INTERP_ERROR
-            print "change_epilog: Toolchanger soft fault %d" % int(self.params[5601])
+            print("change_epilog: Toolchanger soft fault %d" % int(self.params[5601]))
 
         if self.blocks[self.remap_level].builtin_used:
             #print "---------- M6 builtin recursion, nothing to do"
@@ -196,7 +196,7 @@ def change_epilog(self, **words):
             else:
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 yield INTERP_ERROR
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("M6/change_epilog: %s" % (e))
         yield INTERP_ERROR
 
@@ -220,7 +220,7 @@ def settool_prolog(self,**words):
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         return INTERP_OK
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("M61/settool_prolog: %s)" % (e))
         return INTERP_ERROR
 
@@ -246,7 +246,7 @@ def settool_epilog(self,**words):
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
                 return INTERP_ERROR
-    except Exception,e:
+    except Exception as e:
         self.set_errormsg("M61/settool_epilog: %s)" % (e))
         return INTERP_ERROR
 
@@ -278,7 +278,7 @@ def set_tool_number(self, **words):
         else:
             self.set_errormsg("M61 failed: Q=%4" % (toolno))
             return INTERP_ERROR
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("M61/set_tool_number: %s" % (e))
         return INTERP_ERROR
 
@@ -312,20 +312,20 @@ def cycle_prolog(self,**words):
         self.params["motion_code"] = c.g_modes[1]
 
         (sw,incompat,plane_name) =_compat[self.plane]
-        for (word,value) in words.items():
+        for (word,value) in list(words.items()):
             # inject current parameters
             self.params[word] = value
             # record sticky words
             if word in sw:
-                if self.debugmask & 0x00080000: print "%s: record sticky %s = %.4f" % (r.name,word,value)
+                if self.debugmask & 0x00080000: print("%s: record sticky %s = %.4f" % (r.name,word,value))
                 self.sticky_params[r.name][word] = value
             if word in incompat:
                 return "%s: Cannot put a %s in a canned cycle in the %s plane" % (r.name, word.upper(), plane_name)
 
         # inject sticky parameters which were not in words:
-        for (key,value) in self.sticky_params[r.name].items():
+        for (key,value) in list(self.sticky_params[r.name].items()):
             if not key in words:
-                if self.debugmask & 0x00080000: print "%s: inject sticky %s = %.4f" % (r.name,key,value)
+                if self.debugmask & 0x00080000: print("%s: inject sticky %s = %.4f" % (r.name,key,value))
                 self.params[key] = value
 
         if not "r" in self.sticky_params[r.name]:
@@ -353,7 +353,7 @@ def cycle_prolog(self,**words):
             return "%s: Cannot use canned cycles with cutter compensation on" % (r.name)
         return INTERP_OK
 
-    except Exception, e:
+    except Exception as e:
         raise
         return "cycle_prolog failed: %s" % (e)
 
@@ -364,7 +364,7 @@ def cycle_epilog(self,**words):
         c = self.blocks[self.remap_level]
         self.motion_mode = c.executing_remap.motion_code # retain the current motion mode
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         return "cycle_epilog failed: %s" % (e)
 
 # this should be called from TOPLEVEL __init__()
@@ -382,7 +382,7 @@ def init_stdglue(self):
 def ignore_m6(self,**words):
     try:
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         return "Ignore M6 failed: %s" % (e)
 
 # REMAP=T python=index_lathe_tool_with_wear
@@ -463,7 +463,7 @@ def index_lathe_tool_with_wear(self,**words):
             self.execute("g43.2 h%d"% wear)
         return INTERP_OK
 
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         self.set_errormsg("T%d index_lathe_tool_with_wear: %s" % (int(words['t']), e))
         return INTERP_ERROR
