@@ -412,7 +412,7 @@ class GlCanonDraw:
         'axis_y': (1.00, 0.20, 0.20),
         'grid': (0.15, 0.15, 0.15),
     }
-    def __init__(self, s, lp, g=None):
+    def __init__(self, s=None, lp=None, g=None):
         self.stat = s
         self.lp = lp
         self.canon = g
