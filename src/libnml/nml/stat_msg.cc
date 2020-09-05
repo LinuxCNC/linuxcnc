@@ -32,6 +32,7 @@ RCS_STAT_MSG::RCS_STAT_MSG(NMLTYPE t, size_t sz):NMLmsg(t, sz)
     line = -1;
     source_line = -1;
     memset(source_file, 0, 64);
+    memset(inifile_path, 0, 200);
 
 }
 
@@ -44,6 +45,7 @@ int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS * cms)
     cms->update(((RCS_STAT_MSG *) buf)->line);
     cms->update(((RCS_STAT_MSG *) buf)->source_line);
     cms->update(((RCS_STAT_MSG *) buf)->source_file, 64);
+    cms->update(((RCS_STAT_MSG *) buf)->inifile_path, 200);
 
     switch (t) {
     case RCS_GENERIC_STATUS_TYPE:

@@ -3270,6 +3270,8 @@ int main(int argc, char *argv[])
     emcStatus = new EMC_STAT;
 
     // get the Python plugin going
+	// let python know which ini file we're using, only 200 characters possible
+	strncpy(emcStatus->inifile_path, emc_inifile, 200);
 
     // inistantiate task methods object, too
     emcTaskOnce(emc_inifile);

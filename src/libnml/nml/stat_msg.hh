@@ -27,7 +27,7 @@ class RCS_STAT_MSG:public NMLmsg {
     int line;
     int source_line;
     char source_file[64];
-
+    char inifile_path[200];
 };
 
 extern int RCS_STAT_MSG_format(NMLTYPE, void *, CMS *);
