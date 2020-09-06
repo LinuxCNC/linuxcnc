@@ -121,8 +121,9 @@ class HandlerClass:
         self.w.pushbutton_metric.clicked[bool].connect(self.change_mode)
 
         # web view widget for SETUP SHEET page
-        self.w.verticalLayout_setup.addWidget(self.w.web_view)
-        self.set_default_html()
+        if self.w.web_view:
+            self.w.verticalLayout_setup.addWidget(self.w.web_view)
+            self.set_default_html()
 
         self.GCODES.setup_list()
         self.w.gcode_editor.hide()
@@ -480,7 +481,8 @@ class HandlerClass:
 
             # change filepath extension to autoload an html setup page
             fname = os.path.splitext(fname)[0]+'.html'
-
+        if self.w.web_view is None:
+            return
         if fname.endswith(".html"):
             if os.path.exists(fname):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))

@@ -236,8 +236,9 @@ class HandlerClass:
         self.w.frame_home_all.mousePressEvent = self.btn_home_all_clicked
         
         # web view widget for SETUP page
-        self.w.verticalLayout_setup.addWidget(self.w.web_view)
-        self.w.web_view.setHtml(self.html)
+        if self.w.web_view:
+            self.w.verticalLayout_setup.addWidget(self.w.web_view)
+            self.w.web_view.setHtml(self.html)
         
         # check for virtual keyboard enabled
         if self.w.chk_use_virtual.isChecked():
@@ -706,7 +707,7 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-        elif fname.endswith(".html"):
+        elif fname.endswith(".html") and self.w.web_view:
             self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
             self.add_status("Loaded HTML file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
