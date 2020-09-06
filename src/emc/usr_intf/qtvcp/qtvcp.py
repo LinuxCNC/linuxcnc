@@ -9,7 +9,7 @@ import signal
 
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+
 from qtvcp.core import Status, Info, QComponent, Path
 from qtvcp.lib import xembed
 
@@ -19,6 +19,16 @@ from qtvcp.lib import xembed
 from qtvcp import logger
 LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+except:
+    try:
+        from PyQt5.QtWebKitWidgets import QWebView
+    except:
+        if sys.version_info.major > 2:
+            LOG.error('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
+        else:
+            LOG.error('Qtvcp Error with loading webView - is python-pyqt5.qtwebkit or python-pyqt5.qtwebengine installed?')
 # If log_file is none, logger.py will attempt to find the log file specified in
 # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
 
@@ -194,7 +204,10 @@ Pressing cancel will close linuxcnc.""" % target)
         if opts.usermod:
             LOG.debug('Loading the handler file')
             window.load_extension(opts.usermod)
-            window.web_view = QWebView()
+            try:
+                window.web_view = QWebView()
+            except:
+                window.web_view = None
             # do any class patching now
             if "class_patch__" in dir(window.handler_instance):
                 window.handler_instance.class_patch__()
