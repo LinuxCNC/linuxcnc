@@ -138,7 +138,7 @@ class bolt_circle_wiz:
                     Torch = False
                     outTmp.write('m62 p3 (disable torch)\n')
                     self.over_cut(xS, yS, hRadius - ijDiff, hRadius - ijDiff, outTmp)
-                outTmp.write('m5\n')
+                outTmp.write('m5 $0\n')
                 if sHole:
                     outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')
                 if not torch:

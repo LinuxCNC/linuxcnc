@@ -240,11 +240,12 @@ class wizards:
                 self.c.program_open(self.outFile)
                 hal.set_p('plasmac_run.cut-type','0')
         elif 'load' in commands.lower():
+            path = self.i.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
             lFile = commands.split('load')[1].strip()
             if self.gui == 'axis':
-                Popen('axis-remote {}/{}'.format(os.environ['LINUXCNC_NCFILES_DIR'], lFile), stdout = PIPE, shell = True)
+                Popen('axis-remote {}/{}'.format(path, lFile), stdout = PIPE, shell = True)
             elif self.gui == 'gmoccapy':
-                self.c.program_open('{}/{}'.format(os.environ['LINUXCNC_NCFILES_DIR'], lFile))
+                self.c.program_open('{}/{}'.format(path, lFile))
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
