@@ -520,8 +520,8 @@ class HandlerClass:
                 self.c.mdi('G91')
                 self.c.mdi('G1 X{} Y{} F#<_hal[plasmac.cut-feed-rate]>'.format(x, y))
                 self.c.mdi('G90')
-                self.c.mdi('M5')
-                self.c.mdi('M30')
+                self.c.mdi('M5 $0')
+                self.c.mdi('M2')
             else:
                 print('current mode prevents a single cut')
 

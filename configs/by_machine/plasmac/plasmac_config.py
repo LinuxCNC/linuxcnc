@@ -27,6 +27,7 @@ import gobject
 import hal, hal_glib
 from   gladevcp.persistence import widget_defaults,select_widgets
 import gladevcp
+import tarfile
 
 class HandlerClass:
 
@@ -36,13 +37,41 @@ class HandlerClass:
     def on_reload_clicked(self,widget,data=None):
         self.load_settings()
 
+    def on_backup_clicked(self,widget):
+            outPath = '{}'.format(os.path.expanduser('~'))
+            outName = '{}.tar.gz'.format(self.i.find('EMC', 'MACHINE'))
+            configDir = os.path.realpath(os.path.dirname(os.environ['INI_FILE_NAME']))
+            with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
+                archive.add('{}'.format(configDir), filter=self.tar_filter)
+            msg  = 'A compressed backup of the machine configuration\n'
+            msg += 'has been saved in your home directory.\n\n'
+            msg += 'The file name is: {}\n\n'.format(outName)
+            msg += 'This file may be attached to a post on the\n'
+            msg += 'LinuxCNC forum to aid in problem solving.\n\n'
+            md = gtk.MessageDialog(self.W, 
+                                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                                   gtk.MESSAGE_INFO, 
+                                   gtk.BUTTONS_CLOSE,
+                                   msg)
+            md.set_title('Config Backup')
+            md.set_keep_above(True)
+            md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+            md.run()
+            md.destroy()
+
+    def tar_filter(self, tarinfo):
+         if os.path.splitext(tarinfo.name)[1] in ['.pyc']:
+              return None
+         else:
+              return tarinfo
+
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
 
     def configure_widgets(self):
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
-        self.builder.get_object('version-label').set_text(self.plasmacVersion)
+        self.builder.get_object('version-label').set_text(self.plasmacVersion.strip('PlasmaC '))
         self.builder.get_object('arc-fail-delay').set_digits(1)
         self.builder.get_object('arc-fail-delay-adj').configure(3,0.1,60,0.1,0,0)
         self.builder.get_object('arc-ok-low').set_digits(0)
@@ -321,8 +350,9 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.170'
+        self.plasmacVersion = 'PlasmaC v0.171'
 
+        self.W = gtk.Window()
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])

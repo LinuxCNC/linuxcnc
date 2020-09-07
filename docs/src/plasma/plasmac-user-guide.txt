@@ -549,6 +549,10 @@ The **Save** button will save the currently displayed parameters.
 
 The **Reload** button will reload all the parameters.
 
+The **version** label displays the current PlasmaC version.
+
+The **Backup** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis.
+
 [[run-panel]]
 
 === Run Panel
@@ -2432,8 +2436,10 @@ The THCAD-10 and THCAD-300 examples above would be:
 
 == Support
 
-On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
+On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC section] of the https://forum.linuxcnc.org/[LinuxCNC Forum].
 
+You can create a complete backup of the machine configuration to aid in fault diagnosis by pressing the 'Backup' button in the config panel. This will create a compressed file in your home directory that is suitable for attaching to a post on the LinuxCNC Forum.
+ 
 == Appendix
 
 
