@@ -61,6 +61,7 @@ man9/conv_u8_s32.9
 man9/conv_u8_s8.9
 man9/conv_u8_u32.9
 man9/corexy_by_hal.9
+man9/dbounce.9
 man9/ddt.9
 man9/deadzone.9
 man9/demux.9
@@ -69,6 +70,7 @@ man9/edge.9
 man9/eoffset_per_angle.9
 man9/estop_latch.9
 man9/feedcomp.9
+man9/filter_kalman.9
 man9/flipflop.9
 man9/gantry.9
 man9/gearchange.9
