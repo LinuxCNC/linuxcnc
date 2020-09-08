@@ -42,6 +42,14 @@ Descargue el CD Live/Install desde esta dirección:
 
 http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
 
+Para la Raspberry Pi, una imagen completa de la tarjeta SD está disponible aquí:
+
+https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pre3-pi4.zip
+
+Esto se puede instalar usando el Pi normal
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md[proceso de instalación]
+incluso con la aplicación Raspberry Pi Imager.
+
 
 === Descargar usando zsync
 

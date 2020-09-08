@@ -37,10 +37,17 @@ Image.
 
 === Normal Download
 
-Download the Live/Install CD by clicking here:
+For x86 PCs Download the Live/Install CD by clicking here:
 
 http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
 
+For the Raspberry Pi a complete SD card image is available here:
+
+https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pre3-pi4.zip
+
+This can be installed using the normal Pi
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
+including with the Raspberry Pi Imager app.
 
 === Download using zsync
 
@@ -61,6 +68,10 @@ sudo apt-get install zsync
 +
 ----
 zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso.zsync
+----
+or
+----
+zsync https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pre3-pi4.zip.zsync
 ----
 
 .zsync in Windows
@@ -100,9 +111,13 @@ https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
 == Write the image to a bootable device
 
-The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
-directly to a USB storage device (flash drive) or a DVD and used to boot
-a computer.  The image is too large to fit on a CD.
+The Raspbery Pi image is a completes SD card image and should be
+written to an SD card in
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md[the normal way]
+
+The LinuxCNC Live/Install ISO Image is a hybrid ISO image which can
+be written directly to a USB storage device (flash drive) or a DVD and
+used to boot a computer.  The image is too large to fit on a CD.
 
 .Writing the image to a USB storage device in Linux
 
