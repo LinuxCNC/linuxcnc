@@ -44,7 +44,7 @@ http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
 
 Para la Raspberry Pi, una imagen completa de la tarjeta SD está disponible aquí:
 
-https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pre3-pi4.zip
+https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip
 
 Esto se puede instalar usando el Pi normal
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[proceso de instalación]
@@ -70,7 +70,13 @@ sudo apt-get install zsync
 ----
 zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso.zsync
 ----
-
++
+o
++
+----
+zsync https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip.zsync
+----
++
 .zsync en Windows
 
 Hay una versión Windows de zsync. Funciona como una aplicación de consola. Puede ser
