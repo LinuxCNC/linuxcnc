@@ -464,6 +464,10 @@ But there is not one in the machine-named folder.."""),True)
             return
         d = self.d
         w = self.w
+        self.w.xtunedir.set_tooltip_text(_(
+"""± = move on both sides of start position\n
++ = move on positive side of start position\n
+- = move on negative side of start position"""))
         self.updaterunning = False
         self.scale = self.enc_scale = 1000
         axnum = "xyzas".index(axis)
