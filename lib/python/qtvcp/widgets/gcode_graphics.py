@@ -77,7 +77,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_view_signal(self, w, view, args):
         v = view.lower()
         if v == 'clear':
-            self.clear_live_plotter()
+            self.logger.clear()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
