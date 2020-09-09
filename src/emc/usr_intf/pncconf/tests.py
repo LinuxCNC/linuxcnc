@@ -609,7 +609,10 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("setp pid.0.maxoutput  %d\n"% ( w[axis+"maxoutput"].get_value() ))
         halrun.write("setp pid.0.error-previous-target true\n")
         if self.stepgen:
-            halrun.write("setp pid.0.maxerror .0005\n")
+            if self.d.units == _PD._IMPERIAL:
+                halrun.write("setp pid.0.maxerror .0005\n")
+            else:
+                halrun.write("setp pid.0.maxerror .0127\n")
         halrun.write("net enable     =>  pid.0.enable\n")
         halrun.write("net output     <=  pid.0.output\n")
         halrun.write("net pos-cmd    =>  pid.0.command\n")
