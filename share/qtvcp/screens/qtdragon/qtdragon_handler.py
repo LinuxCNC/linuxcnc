@@ -672,7 +672,7 @@ class HandlerClass:
 
     def btn_dimensions_clicked(self, state):
         self.w.gcodegraphics.show_extents_option = state
-        self.w.gcodegraphics.clear_live_plotter()
+        self.w.gcodegraphics.updateGL()
         
     def chk_override_limits_checked(self, state):
         if state:
