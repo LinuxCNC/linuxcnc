@@ -223,6 +223,8 @@ class ToolBarActions():
             function = (self.actOnAlphaMode)
         elif action == 'inhibit_selection':
             function = (self.actOnInhibitSelection)
+        elif action == 'show_dimensions':
+            function = (self.actOnShowDimensions)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -447,6 +449,12 @@ class ToolBarActions():
             ACTION.SET_GRAPHICS_VIEW('inhibit-selection-on')
         else:
             ACTION.SET_GRAPHICS_VIEW('inhibit-selection-off')
+
+    def actOnShowDimensions(self, widget, state):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-off')
 
     #########################################################
     # Sub menus

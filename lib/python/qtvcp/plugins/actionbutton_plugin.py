@@ -414,7 +414,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         for num, i in enumerate(('P','X','Y','Y2','Z','Z2','Clear',
             'zoom-in','zoom-out','pan-up','pan-down','pan-left',
             'pan-right','rotate-up','rotate-down','rotate-cw',
-            'rotate-ccw','reload')):
+            'rotate-ccw','reload','overlay_dro_on','overlay_dro_off',
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off')):
             if self.widget.view_type.lower() == i.lower():
                 flag = num
             self.viewComboBox.addItem(i)

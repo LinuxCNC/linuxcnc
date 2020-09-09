@@ -2469,7 +2469,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>8</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -13468,7 +13468,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>04:16:46 PM</string>
+                  <string>10:36:48 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13880,8 +13880,8 @@ ALL</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>513</x>
+     <y>507</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13896,8 +13896,8 @@ ALL</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13912,8 +13912,8 @@ ALL</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14152,8 +14152,8 @@ ALL</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>-235</y>
+     <x>887</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>877</x>
@@ -14206,6 +14206,22 @@ ALL</string>
     <hint type="destinationlabel">
      <x>1677</x>
      <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_dimensions</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_dimensions_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>929</x>
+     <y>-4</y>
     </hint>
    </hints>
   </connection>

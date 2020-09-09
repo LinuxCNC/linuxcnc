@@ -521,6 +521,8 @@ alpha-mode-on
 alpha-mode-off
 inhibit-selection-on
 inhibit-selection-off
+dimensions-on
+dimensions-off
 grid-size
 P
 X

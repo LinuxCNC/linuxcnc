@@ -501,7 +501,7 @@ class _Lcnc_Action(object):
                 'overlay_dro_on','overlay_dro_off',
                 'overlay-offsets-on','overlay-offsets-off',
                 'inhibit-selection-on','inhibit-selection-off',
-                'alpha-mode-on','alpha-mode-off'):
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
