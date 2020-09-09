@@ -1105,7 +1105,7 @@ class configurator:
                     line = 'LAST_MAJOR_UPGRADE      = 0.140\n'
                 elif './test/plasmac_' in line and not './plasmac' in line:
                     line = line.replace('./test/plasmac_', './plasmac/test/plasmac_')
-                elif './plasmac_gcode' in line and not './plasmac' in line:
+                elif './plasmac_gcode' in line:
                     line = line.replace('./plasmac_gcode', './plasmac/plasmac_gcode')
                 elif 'SUBROUTINE_PATH' in line and not './plasmac' in line:
                     line = line.replace('./:', './:./plasmac:')
@@ -1694,6 +1694,8 @@ class configurator:
                 os.unlink(fName)
             elif os.path.isfile(fName):
                 os.remove(fName)
+            elif os.path.isdir(fName):
+                shutil.rmtree(fName, ignore_errors=True)
         # if plasmac directory exists remove all existing links
         plasDir = '{}/plasmac'.format(self.configDir)
         if os.path.exists(plasDir):
