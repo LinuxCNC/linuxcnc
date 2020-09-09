@@ -465,6 +465,10 @@ But there is not one in the machine-named folder.."""),True)
             return
         d = self.d
         w = self.w
+        self.w.xtunedir.set_tooltip_text(_(
+"""± = move on both sides of start position\n
++ = move on positive side of start position\n
+- = move on negative side of start position"""))
         self.updaterunning = False
         self.scale = self.enc_scale = 1000
         axnum = "xyzas".index(axis)
@@ -494,7 +498,7 @@ But there is not one in the machine-named folder.."""),True)
         w.xsteptable.set_sensitive(state)
         distance = 2
         if axis == "a":
-            w,xtunedistunits.set_text(_("degrees"))
+            w.xtunedistunits.set_text(_("degrees"))
             w.xtunevelunits.set_text(_("degrees / minute"))
             w.xtuneaccunits.set_text(_("degrees / second²"))
             distance = 360
