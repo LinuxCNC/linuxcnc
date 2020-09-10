@@ -34,13 +34,13 @@ In the 'IMPORT SECTION': +
 [source,python]
 ----
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+STYLEEDITOR = SSE()
 ----
 
 In the 'INITIALIZE SECTION'
 Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
 [source,python]
 ----
-        self.STYLEEDITOR = SSE(widgets,paths)
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 ----
 
@@ -50,7 +50,7 @@ In the 'KEYBINDING SECTION' add: +
 ----
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 ----
 
 == Request Dialog Entry
