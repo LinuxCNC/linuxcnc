@@ -232,7 +232,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self._init_state_change()
         self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
                                  'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal}
-        self._localsParameter = {'dir': dir}
+        self._localsParameter = {'dir': dir, 'True':True, 'False':False}
 
     def _init_state_change(self):
         def only_false(data):
