@@ -621,7 +621,6 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("net enable     =>  pid.0.enable\n")
         halrun.write("net output     <=  pid.0.output\n")
         halrun.write("net pos-cmd    =>  pid.0.command\n")
-        halrun.write("net vel-cmd    =>  pid.0.command-deriv\n")
         halrun.write("net pos-fb     =>  pid.0.feedback\n")
         # search and connect I/o signals needed to enable amps etc
         self.hal_test_signals(axis)
