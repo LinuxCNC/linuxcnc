@@ -70,6 +70,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
+        STATUS.connect('jogincrement-changed', lambda w, d, t: self.record_jog_incr(d,t))
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
@@ -181,6 +182,20 @@ class HandlerClass:
 
     def editor_exit(self):
         self.w.gcodeeditor.exit()
+
+    def record_jog_incr(self,d, t):
+        if d != 0:
+            self.L_incr = d
+            self.L_text = t
+            self.w.btn_toggle_continuous.safecheck(False)
+
+    def toggle_continuous_clicked(self, state):
+        if state:
+            # set continuous 
+            self.w.btn_toggle_continuous.incr_action()
+        else:
+            # reset previously recorded increment
+            ACTION.SET_JOG_INCR(self.L_incr, self.L_text)
 
     #####################
     # KEY BINDING CALLS #
