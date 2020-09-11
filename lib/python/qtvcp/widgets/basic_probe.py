@@ -262,7 +262,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def cal_btn_clicked(self, button):
         mode = int(self.btn_probe_mode.isChecked() is True)
-        sub = button.property('filename').encode('utf-8')
+        ngc = button.property('filename').encode('utf-8')
         if self.cal_avg_error.isChecked():
             avg = '[0]'
         elif self.cal_x_error.isChecked():
