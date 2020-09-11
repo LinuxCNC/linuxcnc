@@ -1422,33 +1422,40 @@ class configurator:
                 '# being overwritten by updates or pncconf/stepconf changes\n\n'\
                 '# Other customisations may be placed here as well\n'\
                 '# This file is built by the configurator in your configuration directory\n\n'\
-                '#***** debounce for the float, ohmic and breakaway switches *****\n'\
-                '# the lower the delay here the better\n'\
-                '# each 1 is a 0.001mm (0.00004") increase in probed height result\n'\
-                'loadrt  debounce          cfg=3\n'\
-                'setp    debounce.0.delay  5\n'\
-                'addf    debounce.0        servo-thread\n\n'\
-                '#***** arc voltage lowpass cutoff frequency *****\n'\
-                '#***** change to the cutoff frequency you require *****\n'\
+                '#***** DEBOUNCE FOR THE INPUTS *****\n'\
+                'loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok\n'\
+                'addf db_float     servo-thread\n'\
+                'addf db_ohmic     servo-thread\n'\
+                'addf db_breakaway servo-thread\n'\
+                'addf db_arc-ok    servo-thread\n'\
+                '# for the float and ohmic inputs\n'\
+                '# each increment in delay is a 0.001mm (0.00004") increase in any probed height result\n'\
+                'setp db_float.delay     5\n'\
+                'setp db_ohmic.delay     5\n'\
+                'setp db_breakaway.delay 5\n'\
+                'setp db_arc-ok.delay    5\n\n'\
+                '#***** ARC VOLTAGE LOWPASS FILTER *****\n'\
+                '# set the cutoff frequency if required\n'\
                 'setp plasmac.lowpass-frequency 0\n\n'\
-                '#***** the joint associated with the Z axis *****\n')
+                '#***** THE JOINT ASSOCIATED WITH THE Z AXIS *****\n')
             outFile.write('net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position\n\n'.format(self.zJoint))
+            outFile.write('#***** PLASMA CONNECTIONS *****\n')
             if self.arcVoltPin.get_text() and (self.mode == 0 or self.mode == 1):
                 outFile.write('net plasmac:arc-voltage-in {} => plasmac.arc-voltage-in\n'.format(self.arcVoltPin.get_text()))
             if self.arcOkPin.get_text() and (self.mode == 1 or self.mode == 2):
-                outFile.write('net plasmac:arc-ok-in {} => plasmac.arc-ok-in\n'.format(self.arcOkPin.get_text()))
+                outFile.write('net plasmac:arc-ok-in {} => db_arc-ok.in\n'.format(self.arcOkPin.get_text()))
             if self.floatPin.get_text():
-                outFile.write('net plasmac:float-switch {} => debounce.0.0.in\n'.format(self.floatPin.get_text()))
+                outFile.write('net plasmac:float-switch {} => db_float.in\n'.format(self.floatPin.get_text()))
             elif not self.floatPin.get_text():
-                outFile.write('# net plasmac:float-switch {YOUR FLOAT SWITCH PIN} => debounce.0.0.in\n')
+                outFile.write('# net plasmac:float-switch {YOUR FLOAT SWITCH PIN} => db_float.in\n')
             if self.breakPin.get_text():
-                outFile.write('net plasmac:breakaway {} => debounce.0.1.in\n'.format(self.breakPin.get_text()))
+                outFile.write('net plasmac:breakaway {} => db_breakaway.in\n'.format(self.breakPin.get_text()))
             elif not self.breakPin.get_text():
-                outFile.write('# net plasmac:breakaway {YOUR BREAKAWAY PIN} => debounce.0.1.in\n')
+                outFile.write('# net plasmac:breakaway {YOUR BREAKAWAY PIN} => db_breakaway.in\n')
             if self.ohmicInPin.get_text():
-                outFile.write('net plasmac:ohmic-probe {} => debounce.0.2.in\n'.format(self.ohmicInPin.get_text()))
+                outFile.write('net plasmac:ohmic-probe {} => db_ohmic.in\n'.format(self.ohmicInPin.get_text()))
             elif not self.ohmicInPin.get_text():
-                outFile.write('# net plasmac:ohmic-probe {YOUR OHMIC PROBE PIN} => debounce.0.2.in\n')
+                outFile.write('# net plasmac:ohmic-probe {YOUR OHMIC PROBE PIN} => db_ohmic.in\n')
             if self.ohmicOutPin.get_text():
                 outFile.write('net plasmac:ohmic-enable plasmac.ohmic-enable  => {}\n'.format(self.ohmicOutPin.get_text()))
             elif not self.ohmicOutPin.get_text():
@@ -1459,12 +1466,10 @@ class configurator:
                 outFile.write('net plasmac:move-up {} => plasmac.move-up\n'.format(self.moveUpPin.get_text()))
             if self.moveDownPin.get_text() and self.mode == 2:
                 outFile.write('net plasmac:move-down {} => plasmac.move-down\n'.format(self.moveDownPin.get_text()))
-            outFile.write('\n# a 1 here allows multiple tools to be used\n' \
-                            '# gcode M3 S1 needs to be changed to:\n' \
-                            '# M3 $0 S1 for the plasma torch\n' \
-                            '# M3 $1 S1 for the scribe\n' \
-                            '# M3 $2 S1 for spotting\n' \
-                            'setp plasmac.multi-tool 0\n')
+            outFile.write('\n#***** MULTIPLE TOOL ENABLE *****\n' \
+                            '# set to 1 to enable a scribe or spotting\n' \
+                            'setp plasmac.multi-tool 0\n\n')
+            outFile.write('#***** SCRIBE CONNECTIONS *****\n')
             if self.scribeArmPin.get_text():
                 outFile.write('net plasmac:scribe-arm plasmac.scribe-arm => {}\n'.format(self.scribeArmPin.get_text()))
             else:
@@ -1811,7 +1816,7 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'arc-ok-in' in line:
+                elif 'plasmac:arc-ok-in' in line:
                     arcOkMissing = False
                     if self.arcOkPin.get_text() and (self.mode == 1 or self.mode == 2):
                         if self.oldArcOkPin != self.arcOkPin.get_text() or self.oldMode != self.mode:
@@ -1995,8 +2000,8 @@ class configurator:
                         self.oldArcVoltPin = (line.split('age-in', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.arcVoltPin.set_text(self.oldArcVoltPin)
-                    elif 'arc-ok-in' in line:
-                        self.oldArcOkPin = (line.split('ok-in', 1)[1].strip().split(' ', 1)[0].strip())
+                    elif 'plasmac:arc-ok-in' in line:
+                        self.oldArcOkPin = (line.split('plasmac:arc-ok-in', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.arcOkPin.set_text(self.oldArcOkPin)
                     elif 'ohmic-probe' in line:
