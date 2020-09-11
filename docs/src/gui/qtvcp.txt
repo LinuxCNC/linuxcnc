@@ -627,6 +627,8 @@ In the Designer editor you would create user function slots and connect +
 them to widgets using signals. +
 In the handler file you would create the slot's functions defined in Designer. +
 
+[[cha:designer-slots]]
+
 === Using Designer to add slots
 When you have loaded your screen into designer add a plain PushButton to the screen. +
 You could change the name of the button to something interesting like 'test_button' +
