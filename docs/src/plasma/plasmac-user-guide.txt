@@ -313,48 +313,79 @@ Would give a cutoff frequency of 100Hz.
 
 == Contact Debounce
 
-Contact bounce or external interference may cause some inconsistent behaviour of the following switches:
+Contact bounce from mechanical relays or external interference may cause some inconsistent behaviour of the following switches:
 
 * Float Switch
 * Ohmic Probe
 * Breakaway Switch
+* Arc OK (for modes 1 & 2)
 
-This may be alleviated by changing the debounce value in the <machine_name>_connections.hal file. In a standard configuration this value applies to all three switches simultaneously but you could separate these by using an exclusive debounce group.
+This may be alleviated by changing the appropriate debounce value in the <machine_name>_connections.hal file.
 
-Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
+Each increment adds one servo thread cycle to the debounce time.
 
-Debounce is achieved by using the HAL link:http://linuxcnc.org/docs/html/man/man9/debounce.9.html[debounce component].
+For the Float and Ohmic switches this equates to a 0.001mm (0.00004") increase in the probed height result.
 
-If you require debounce for other equipment like home or limit switches etc then change the following line in the <machine_name>_connections.hal:
+It is recommended to keep the debounce values as low as possible provided the results are consistent. Using link:http://linuxcnc.org/docs/2.8/html/hal/tutorial.html#_halscope[Halscope] to plot the inputs is a good way to establish the correct value.
+
+There are two versions of contact debouncing in PlasmaC and these are determined by when the configuration was first created. There is no automatic upgrade from the orignal debounce setup as it is too difficult to determine any changes and/or additions that may have been made.
+
+=== Debounce v0.173 and later
+
+For PlasmaC v0.173 (11 Sep 2020) and later, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows loading and naming of individual instances and is compatible with Twopass HAL file processing.
+
+All four signals above have an individual debounce component so they can have differing delay values. Any changes made to them in the <machine_name>_connections.hal file will not be overwritten by later upgrades.
+
+The default delay for all inputs is five. In most cases this will work quite well. If any of the inputs do not use mechanical switches then it may be possible to either reduce or remove the delay for those inputs.
+
+If debounce is required for other equipment like home or limit switches etc then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
+
+=== Debounce v0.172 and earlier
+
+For PlasmaC v0.172 (10 Sep 2020) and earlier, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/debounce.9.html[debounce component].
+
+In a standard configuration only the Float Switch, Ohmic Probe and Breakaway Switch are connected to debounce and a single delay value applies to all three switches simultaneously. These could separated by using an exclusive debounce group for each signal.
+
+If debounce is required for other equipment like home or limit switches then either more filters could be added to the existing group or another group could be added by editing the existing 'loadrt debounce' line in the <machine_name>_connections.hal file.
+
+.To add an extra filter to the existing group:
 
 ----
-loadrt  debounce  cfg=3
+loadrt debounce cfg=4
+----
+
+This would add a new filter named debounce.0.3 that could be used to debounce another switch signal.
+
+.To add an extra group with one filter:
+
+----
+loadrt debounce cfg=3,1
+setp   debounce.1.delay n
+addf   debounce.1 servo-thread
+----
+
+This would add a new group named debounce.1 with a new filter named debounce.1.0 having a delay of n servo cycles that could be used to debounce another switch signal.
+
+=== Change Debounce Type
+
+It is possible to manually change the debounce type by editing the <machine_name>_connections.hal file. If this is done then the naming convention as used in link:https://github.com/LinuxCNC/linuxcnc/blob/2.8/configs/by_machine/plasmac/plasmac_connections.hal[this example connections.hal] file must be followed.
+
+It is also then necessary to edit the <machine_name>.ini file by changing the following:
+
+----
+# required for upgrades (DO NOT CHANGE)
+LAST_MAJOR_UPGRADE      = 0.144
 ----
 
 to:
 
 ----
-loadrt  debounce  cfg=3,n
+# required for upgrades (DO NOT CHANGE)
+LAST_MAJOR_UPGRADE      = 0.144
+DBOUNCE                 = 1
 ----
 
-with n being the number of contacts you need debounced. 
-
-This will create a new debounce group named debounce.1 for your use, then add the following lines:
-
-----
-setp  debounce.1.delay  c
-addf  debounce.1        servo-thread
-----
-
-with c being the number of servo cycles for the debounce time.
-
-Then you can net the debounce to any HAL pin you require in any of the .hal files (except postgui.hal) like the following example:
-
-----
-net home-x-in   parport.1.pin-11-in-not  =>  debounce.1.0.in
-net home-x-out  debounce.1.0.out         =>  joint.0.home-sw-in
-----
-
+Failure to follow this procedure will lead to errors when loading LinuxCNC.
 
 == Desktop Launcher
 
