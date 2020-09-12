@@ -176,7 +176,7 @@ class Notify:
 
     def destroyClicked(self, n, signal_text):
         self.alarmpage = []
-
+        n.body = ''
 
 #####################################################
 # General work functions
