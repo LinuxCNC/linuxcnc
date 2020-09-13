@@ -143,13 +143,15 @@ NOTE: if forward motion goes past the end of the cut then reverse motion cannot 
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">&lt;b&gt;Paused Motion&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;Paused Motion Speed&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
             </child>
           </object>
           <packing>
             <property name="right_attach">2</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
             <property name="x_padding">1</property>
             <property name="y_padding">1</property>
           </packing>
@@ -222,8 +224,6 @@ NOTE: if forward motion goes past the end of the cut then reverse motion cannot 
           </object>
           <packing>
             <property name="right_attach">2</property>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
             <property name="x_padding">1</property>
             <property name="y_padding">1</property>
           </packing>
@@ -463,7 +463,7 @@ NOTE: if forward motion goes past the end of the cut then reverse motion cannot 
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Height Change&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;Height Override&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
             </child>

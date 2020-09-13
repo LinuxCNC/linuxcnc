@@ -29,10 +29,6 @@ import gladevcp
 
 class HandlerClass:
 
-    def configure_widgets(self):
-        if int(linuxcnc.version.split('.')[0] + linuxcnc.version.split('.')[1]) < 29:
-            self.builder.get_object('pausedmotion-frame').hide()
-
     def periodic(self):
         self.s.poll()
         if self.feed_override != self.s.feedrate:
@@ -48,11 +44,9 @@ class HandlerClass:
         if (hal.get_value('halui.program.is-paused') or \
            hal.get_value('plasmac.paused-motion-speed')) and \
            not hal.get_value('plasmac.cut-recovery'):
-            self.builder.get_object('forward').set_sensitive(True)
-            self.builder.get_object('reverse').set_sensitive(True)
+            self.builder.get_object('pausedmotion-frame').show()
         else:
-            self.builder.get_object('forward').set_sensitive(False)
-            self.builder.get_object('reverse').set_sensitive(False)
+            self.builder.get_object('pausedmotion-frame').hide()
         if hal.get_value('halui.machine.is-on'):
             self.builder.get_object('height-frame').set_sensitive(True)
         else:
@@ -157,7 +151,6 @@ class HandlerClass:
         self.maxFeed = int(float(self.i.find("DISPLAY", "MAX_FEED_OVERRIDE") or '1') * 100)
         self.maxRapid = int(float(self.i.find("DISPLAY", "MAX_RAPID_OVERRIDE") or '1') * 100)
         self.oldMode = 9
-        self.configure_widgets()
         self.feed_override = 0
         self.rapid_override = 0
         self.torch_height = 0
