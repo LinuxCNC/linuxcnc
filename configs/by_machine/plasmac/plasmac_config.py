@@ -39,7 +39,7 @@ class HandlerClass:
 
     def on_backup_clicked(self,widget):
             outPath = '{}'.format(os.path.expanduser('~'))
-            outName = '{}.tar.gz'.format(self.i.find('EMC', 'MACHINE'))
+            outName = '{}_v{}.tar.gz'.format(self.i.find('EMC', 'MACHINE'), self.plasmacVersion.split('v')[1])
             configDir = os.path.realpath(os.path.dirname(os.environ['INI_FILE_NAME']))
             with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
                 archive.add('{}'.format(configDir), filter=self.tar_filter)
@@ -350,7 +350,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.173'
+        self.plasmacVersion = 'PlasmaC v0.174'
 
         self.W = gtk.Window()
         self.halcomp = halcomp

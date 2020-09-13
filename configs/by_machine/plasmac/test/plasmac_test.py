@@ -123,17 +123,8 @@ class plasmacTest:
         self.halcomp.ready()
         sp.Popen(['halcmd net plasmac:torch-on plasmactest.torch-on'], shell=True)
         self.torch.connect('value-changed', self.torch_changed)
-
         # test if using debounce on arc ok input (configs prior to 4 Sep 2020)
         arcDb = int(self.lcnc.iniFile.find('PLASMAC', 'DBOUNCE') or '0')
-        # try:
-        #     tmp = hal.get_value('plasmac:arc-ok')
-        #     arcDb = True
-        # except:
-        #     arcDb = False
-
-        print arcDb, type(arcDb)
-
         if arcDb:
             if not hal.pin_has_writer('db_arc-ok.in'):
                 sp.Popen(['halcmd net p_test:arc-ok-in plasmactest.arcOk db_arc-ok.in'], shell=True)
