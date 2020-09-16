@@ -62,7 +62,7 @@ class recovery:
 
     def periodic(self):
 
-        # if we are not paused the we have resumed
+        # if we are not paused then we have resumed
         if self.resumeWait and not hal.get_value('plasmac.x-offset-counts') and not hal.get_value('plasmac.y-offset-counts'):
             self.resumeWait = False
 
@@ -96,7 +96,7 @@ class recovery:
             if not self.cancelWait or not self.resumeWait:
                 self.feed_enable()
                 self.buttons_enable()
-        
+        self.info.set_text('Move\n{}'.format(hal.get_value('plasmac_run.kerf-width-f')))
         return True
 
     def dialog_error(self, error):
@@ -340,47 +340,49 @@ class recovery:
         self.fwd.connect('pressed', self.fwd_pressed)
         self.fwd.connect('released', self.fwd_released)
         self.T.attach(self.fwd, 4, 5, 0, 2)
-        self.XminusYplus = gtk.Button('X- Y+')
+        self.XminusYplus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_left_up.png')
+        self.XminusYplus.add(image)
         self.XminusYplus.connect('pressed', self.XminusYplus_pressed)
         self.T.attach(self.XminusYplus, 1, 2, 3, 5)
-        self.Yplus = gtk.Button('Y+')
-        # self.Yplus = gtk.Button()
-        # image = gtk.image_new_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        # self.Yplus.add(image)
+        self.Yplus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_up.png')
+        self.Yplus.add(image)
         self.Yplus.connect('pressed', self.Yplus_pressed)
         self.T.attach(self.Yplus, 2, 3, 3, 5)
-        self.XplusYplus = gtk.Button('X- Y-')
+        self.XplusYplus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_right_up.png')
+        self.XplusYplus.add(image)
         self.XplusYplus.connect('pressed', self.XplusYplus_pressed)
         self.T.attach(self.XplusYplus, 3, 4, 3, 5)
-        self.Xminus = gtk.Button('X-')
-        # self.Xminus = gtk.Button()
-        # image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        # self.Xminus.add(image)
+        self.Xminus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_left.png')
+        self.Xminus.add(image)
         self.Xminus.connect('pressed', self.Xminus_pressed)
         self.T.attach(self.Xminus, 1, 2, 5, 7)
-        self.Xplus = gtk.Button('X+')
-        # self.Xplus = gtk.Button()
-        # image = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        # self.Xplus.add(image)
+        self.info = gtk.Label()
+        self.info.set_justify(gtk.JUSTIFY_CENTER)
+        self.T.attach(self.info, 2, 3, 5, 7)
+        self.Xplus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_right.png')
+        self.Xplus.add(image)
         self.Xplus.connect('pressed', self.Xplus_pressed)
         self.T.attach(self.Xplus, 3, 4, 5, 7)
-        self.XminusYminus = gtk.Button('X- Y-')
+        self.XminusYminus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_left_down.png')
+        self.XminusYminus.add(image)
         self.XminusYminus.connect('pressed', self.XminusYminus_pressed)
         self.T.attach(self.XminusYminus, 1, 2, 7, 9)
-        self.Yminus = gtk.Button('Y-')
-        # self.Yminus = gtk.Button()
-        # image = gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        # self.Yminus.add(image)
+        self.Yminus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_down.png')
+        self.Yminus.add(image)
         self.Yminus.connect('pressed', self.Yminus_pressed)
         self.T.attach(self.Yminus, 2, 3, 7, 9)
-        self.XplusYminus = gtk.Button('X+\nY-')
+        self.XplusYminus = gtk.Button()
+        image = gtk.image_new_from_file('./wizards/images/arrow_right_down.png')
+        self.XplusYminus.add(image)
         self.XplusYminus.connect('pressed', self.XplusYminus_pressed)
         self.T.attach(self.XplusYminus, 3, 4, 7, 9)
-#        IMAGES FROM FILES
-#        pixbuf = gtk.gdk.pixbuf_new_from_xpm_data(filename='./wizards/images/downarrow.xbm'.format(wizard)) 
-#        image = gtk.Image()
-#        image.set_from_pixbuf(pixbuf)
-#        self.<button_name>.add(image)
         self.resume = gtk.Button('Resume\nCut')
         for child in self.resume.children():
             child.set_justify(gtk.JUSTIFY_CENTER)
