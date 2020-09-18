@@ -86,7 +86,7 @@ class IconFileSelection(gtk.HBox):
         super(IconFileSelection, self).__init__()
 
         # set some default values'
-        self.icon_size = 48
+        self.icon_size = gtk.IconSize.LARGE_TOOLBAR
         self.start_dir = os.path.expanduser('/')
         self.cur_dir = self.start_dir
         self.user_dir = os.path.expanduser('~')

@@ -731,7 +731,7 @@ class gmoccapy(object):
                 pixbuf = gdk.pixbuf_new_from_file_at_size(filepath, 72, 48)
                 image.set_from_pixbuf(pixbuf)
             else:
-                image.set_from_stock(stock, 48)
+                image.set_from_stock(stock, gtk.IconSize.LARGE_TOOLBAR)
             btn.add(image)
         except:
             message = _("**** GMOCCAPY ERROR ****\n")
