@@ -2698,11 +2698,11 @@ class OnePg():
             if kl in ['control_r','control_l'] : return
             if kl in ['shift_r','shift_l']     : return
             pre = ''
-            if  event.state & gdk.CONTROL_MASK:
+            if  event.state & gdk.ModifierType.CONTROL_MASK:
                 pre = "Control-"
-            elif event.state & gdk.MOD1_MASK:
+            elif event.state & gdk.ModifierType.MOD1_MASK:
                 pre = "Alt-"
-            elif event.state & gdk.SHIFT_MASK:
+            elif event.state & gdk.ModifierType.SHIFT_MASK:
                 pre = "Shift-"
             k = pre + keyname
             #print("%10s (%03d=%#2X)" % (k, event.keyval,event.keyval))

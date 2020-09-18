@@ -141,7 +141,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         button1 = event.button == 1
         button2 = event.button == 2
         button3 = event.button == 3
-        shift = event.state & gdk.SHIFT_MASK
+        shift = event.state & gdk.ModifierType.SHIFT_MASK
         if not button1:return
         if self._dragging:
             self._dragging = False

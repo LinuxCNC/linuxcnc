@@ -72,7 +72,7 @@ class Notification(gtk.Window):
         self.popup = gtk.Window(gtk.WindowType.POPUP)
         self.vbox = gtk.VBox()
         self.popup.add(self.vbox)
-        self.icon_size = 16
+        self.icon_size = gtk.IconSize.LARGE_TOOLBAR
         self.message_width = 200
         self.x_pos = 20
         self.y_pos = 20

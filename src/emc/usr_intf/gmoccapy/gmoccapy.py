@@ -3005,7 +3005,7 @@ class gmoccapy(object):
             if keyname == "Page_Up" or keyname == "Page_Down" or keyname == "KP_Page_Up" or keyname == "KP_Page_Down":
                 return
 
-        if event.state & gdk.SHIFT_MASK:  # SHIFT is hold down, fast jogging active
+        if event.state & gdk.ModifierType.SHIFT_MASK:  # SHIFT is hold down, fast jogging active
             fast = True
         else:
             fast = False
@@ -3105,7 +3105,7 @@ class gmoccapy(object):
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
-        self.notification.set_property('icon_size', 48)
+        self.notification.set_property('icon_size', gtk.IconSize.LARGE_TOOLBAR)
         self.notification.set_property('top_to_bottom', True)
 
     def _from_internal_linear_unit(self, v, unit=None):
