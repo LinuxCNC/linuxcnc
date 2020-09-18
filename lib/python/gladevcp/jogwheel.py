@@ -21,6 +21,7 @@
 
 import gi
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
 from gi.repository import GObject as gobject
 import math
 import hal
@@ -47,15 +48,15 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     __gtype_name__ = 'JogWheel'
     __gproperties__ = {
         'show_counts' : ( gobject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
-                          True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                          True, gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
         'show_scaled_value' : ( gobject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
-                          False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                          False, gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
         'size'  : ( gobject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
-                    100, 500, 200, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                    100, 500, 200, gobject.ParamFlags.READWRITE|gobject.ParamFlags.CONSTRUCT),
         'cpr'   : ( gobject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
-                    25, 360, 40, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                    25, 360, 40, gobject.ParamFlags.READWRITE|gobject.ParamFlags.CONSTRUCT),
         'label' : ( gobject.TYPE_STRING, 'label', 'Sets the string to be shown in the upper part of the widget',
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                    "", gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -84,8 +85,8 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
         # To use the the events, we have to unmask them
         self.add_events(gdk.EventMask.BUTTON_PRESS_MASK |
-                        gdk.BUTTON_RELEASE_MASK |
-                        gdk.POINTER_MOTION_MASK)
+                        gdk.EventMask.BUTTON_RELEASE_MASK |
+                        gdk.EventMask.POINTER_MOTION_MASK)
 
     # init the hal pin management
     def _hal_init(self):
@@ -124,7 +125,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.cr = widget.get_property('window').cairo_create()
 
         # the area of reactions
-        self.cr.rectangle(event.area.x, event.area.x, event.area.width, event.area.height)
+        self.cr.rectangle(0, 0, self.get_allocated_width(), self.get_allocated_height())
         self.cr.clip()
 
         # calculate the delta angle between the ticks
@@ -309,7 +310,7 @@ def main():
     jogwheel.set_property('label', "max. 12 Characters are used !")
     window.add(jogwheel)
     window.set_title("Jogwheel")
-    window.set_position(gtk.WIN_POS_CENTER)
+    window.set_position(gtk.WindowPosition.CENTER)
     window.show_all()
 
     gtk.main()
