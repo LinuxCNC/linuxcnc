@@ -208,17 +208,14 @@ class Combi_DRO(gtk.VBox):
     # make an pango attribute to be used with several labels
     def _set_attributes(self, bgcolor, fgcolor, size, weight):
         attr = pango.AttrList()
-        
-        #TODO:
-        #Pango.AttrType.BACKGROUND
-        #bg_color = pango.AttrBackground(bgcolor[0], bgcolor[1], bgcolor[2], 0, -1)
-        #attr.insert(bg_color)
-        #size_attr = pango.AttrSize(size[0], size[1], size[2])
-        #attr.insert(size_attr)
-        #weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
-        #attr.insert(weight_attr)
-        #fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 13)
-        #attr.insert(fg_color)
+        bg_color = pango.attr_background_new(bgcolor[0], bgcolor[1], bgcolor[2])
+        attr.insert(bg_color)
+        size_attr = pango.attr_size_new(size[0])
+        attr.insert(size_attr)
+        weight_attr = pango.attr_weight_new(weight[0])
+        attr.insert(weight_attr)
+        fg_color = pango.attr_foreground_new(fgcolor[0], fgcolor[1], fgcolor[2])
+        attr.insert(fg_color)
         return attr
 
     # if the eventbox has been clicked, we like to toggle the DRO's
