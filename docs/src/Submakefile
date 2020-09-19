@@ -409,7 +409,7 @@ A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
-	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
+	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
 	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
 			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
                           $(A2X_LATEX_ENCODING)"
@@ -781,7 +781,7 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 	a2x -v --doctype manpage \
 		--format manpage \
 		--destination-dir `dirname $@` \
-		--xsltproc-opts --nonet \
+		--xsltproc-opts="--nonet" \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
