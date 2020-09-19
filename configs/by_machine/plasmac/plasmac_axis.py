@@ -932,6 +932,16 @@ def user_live_update():
             hal.set_p('plasmac_run.preview-tab', '0')
     except:
         pass
+    # allows user to set a HAL pin to initiate the sequence of reloading the program, clearing the live plot, and rezooming the axis
+    if hal.get_value('axisui.refresh') == 1:
+        hal.set_p('axisui.refresh', '2')
+        commands.reload_file()
+    elif hal.get_value('axisui.refresh') == 2:
+        hal.set_p('axisui.refresh', '3')
+        commands.clear_live_plot()
+    elif hal.get_value('axisui.refresh') == 3:
+        hal.set_p('axisui.refresh', '0')
+        commands.set_view_z()
 
 def user_hal_pins():
     # create new hal pins
@@ -947,6 +957,7 @@ def user_hal_pins():
     comp.newpin('led-down', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-corner-locked', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-kerf-locked', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('refresh', hal.HAL_S32, hal.HAL_IN)
     comp.ready()
     # create new signals and connect pins
     hal_data = [[0,'plasmac:arc-voltage-out','plasmac.arc-voltage-out','axisui.arc-voltage'],\
