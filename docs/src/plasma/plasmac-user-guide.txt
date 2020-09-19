@@ -1967,7 +1967,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can run the special function <<button-recovery, cut-recovery>>, <<button-load, load a G-Code>> program or display a custom image.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of five special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>>, <<button-consumables, Change Consumables>>, or <<button-touchoff, Touch Off X & Y>>. In addition to this, buttons 10~19 in the Extras panel can run the special function <<button-recovery, cut-recovery>>, <<button-load, load a G-Code>> program or display a custom image.
 
 [[button-cmds]]
 
@@ -2085,6 +2085,38 @@ BUTTON_n_CODE = load path/to/G-Code.ngc
 ----
 
 The path is relative to the directory specified by *PROGRAM_PREFIX* in the .ini file. This is usually ~/linuxcnc/nc_files, so if your G-Code file was in a subdirectory of your *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/G-Code.ngc*.
+
+[[button-touchoff]]
+
+[underline]*Touch Off X & Y*
+
+Buttons 1-19 are capable of touching off (zeroing) the X and Y axes and moving Z to an appropriate height for the start of a g-code program run.
+
+If the user is using the Axis GUI, they may also add a command to run a routine that will reload the program, clear the live plot, and rezoom the preview window.  This will allow the user to easily see where the new zero coordinates are with respect to the currently loaded G-Code program.
+
+To set the X and Y axes to zero:
+
+----
+G10 L20 P0 X0 Y0
+----
+
+To move the Z axis away from the MAXIMUM_LIMIT by a small amount to prepare for cutting (5.0mm in the following example):
+
+----
+G53 G0 Z[{AXIS_Z MAX_LIMIT} - 5.0]
+----
+
+To refresh the preview window (Axis only):
+
+----
+%halcmd setp axisui.refresh 1
+----
+
+Combined to perform all 3 tasks:
+
+----
+G10 L20 P0 X0 Y0 \ G53 G0 Z[{AXIS_Z MAX_LIMIT} - 5.0] \ %halcmd setp axisui.refresh 1
+----
 
 === Button Image
 
