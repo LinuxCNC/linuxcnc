@@ -1018,7 +1018,7 @@ AC_ARG_WITH(python,
     [
         PYTHON=$withval
     ],[
-        PYTHON=python2
+        PYTHON=python3
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none")
 if test $PYTHON = "none"
