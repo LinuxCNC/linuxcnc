@@ -20,6 +20,8 @@
 # GNU General Public License for more details.
 
 import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -29,7 +31,7 @@ import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalSpeedControlBase
+from .hal_widgets import _HalSpeedControlBase
 
 class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
     '''
@@ -122,6 +124,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
         self.adjustment = Gtk.Adjustment(value = self._value, lower = self._min, upper = self._max, step_increment = self._increment, page_increment = 0)
         self.adjustment.connect("value_changed", self._on_value_changed)
+        self.adjustment.connect("changed", self._on_value_changed)
 
         self.btn_plus = Gtk.Button(label = "+")
         self.btn_plus.connect("pressed", self.on_btn_plus_pressed)
@@ -352,7 +355,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
     # returns separate values for red, green and blue of a Gtk_color
     def get_color_tuple(Gtk_color,c):
-        return (int(c.red*65535), int(c.green*65535), int(c.blue*65535))
+        return (c.red, c.green, c.blue)
 
     # set the digits of the shown value
     def set_digits(self, digits):
@@ -405,8 +408,6 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
             if name == 'color':
                 col = getattr(self, name)
                 colorstring = col.to_string()
-                print("col = ",col)
-                print("colorstring = ",colorstring)
                 return getattr(self, name)
             return getattr(self, name)
         else:
@@ -425,11 +426,11 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
                     self.set_value(value)
                 if name == "min":
                     self._min = value
-                    self.adjustment.lower = value
+                    self.adjustment.set_lower(value)
                     self._increment = (self._max - self._min) / 100.0
                 if name == "max":
                     self._max = value
-                    self.adjustment.upper = value
+                    self.adjustment.set_upper(value)
                     self._increment = (self._max - self._min) / 100.0
                 if name == "increment":
                     if value < 0:
