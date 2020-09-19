@@ -526,7 +526,7 @@ class IconFileSelection(Gtk.HBox):
 
     def on_btn_select_clicked(self, data):
         try:
-            self.iconView.item_activated(self.iconView.get_cursor()[0])
+            self.iconView.item_activated(self.iconView.get_cursor()[1])
             if self.path:
                 filepath = self.cur_dir + os.path.sep + self.path
                 self.file_label.set_text(filepath)
@@ -534,7 +534,8 @@ class IconFileSelection(Gtk.HBox):
                 self.file_label.set_text("")
                 filepath = None
             self.emit('selected', filepath)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     def on_btn_exit_clicked(self, data):
