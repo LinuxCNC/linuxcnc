@@ -3928,6 +3928,7 @@ class gmoccapy(object):
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
+        print(message)
 
     def on_btn_show_kbd_clicked(self, widget):
         #print("show Keyboard clicked", self.widgets.key_box.get_children())
