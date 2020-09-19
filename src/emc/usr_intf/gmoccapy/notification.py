@@ -108,7 +108,8 @@ class Notification(Gtk.Window):
         label.set_line_wrap(True)
         label.set_line_wrap_mode(Pango.WrapMode.CHAR)
         label.set_size_request(self.message_width, -1)
-
+# ToDo:
+# Let the user change the font to display the messages
         #font_desc = Pango.FontDescription(self.font)
         # label.set_attributes(attr)
         # As messages may contain non Pango conform syntax like "vel <= 0" we will have to check that to avoid an error
