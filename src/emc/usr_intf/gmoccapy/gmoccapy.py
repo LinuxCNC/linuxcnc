@@ -4588,11 +4588,47 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_LOAD_FILE)
         self.widgets.ntb_preview.set_current_page(3)
         self.widgets.tbtn_fullsize_preview0.set_active(True)
-#        self.widgets.tbtn_fullsize_preview1.set_active(True)
-        self._show_iconview_tab(True)
-        self.widgets.IconFileSelection1.refresh_filelist()
-        self.widgets.IconFileSelection1.iconView.grab_focus()
+
+        self.dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self.widgets.window1, action=Gtk.FileChooserAction.OPEN)
+        self.dialog.add_buttons( Gtk.STOCK_CANCEL,
+                            Gtk.ResponseType.CANCEL,
+                            Gtk.STOCK_OPEN,
+                            Gtk.ResponseType.OK,
+                          )
+
+        self.add_filters(self.dialog)
+
+        response = self.dialog.run()
+        if response == Gtk.ResponseType.OK:
+            File_selected = self.dialog.get_filename()
+            print("Open clicked")
+            print("File selected: " + File_selected)
+            self.on_IconFileSelection1_selected(widget = None, path = File_selected)
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel clicked")
+
+        self.dialog.destroy()
+
+#        self._show_iconview_tab(True)
+#        self.widgets.IconFileSelection1.refresh_filelist()
+#        self.widgets.IconFileSelection1.iconView.grab_focus()
         self.gcodeerror = ""
+
+    def add_filters(self, dialog):
+        filter_ngc = Gtk.FileFilter()
+        filter_ngc.set_name("NC files")
+        filter_ngc.add_pattern("*.ngc")
+        dialog.add_filter(filter_ngc)
+
+        filter_py = Gtk.FileFilter()
+        filter_py.set_name("Python files")
+        filter_py.add_mime_type("text/x-python")
+        dialog.add_filter(filter_py)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name("Any files")
+        filter_any.add_pattern("*")
+        dialog.add_filter(filter_any)
 
     def on_btn_sel_next_clicked(self, widget, data=None):
         self.widgets.IconFileSelection1.btn_sel_next.emit("clicked")
