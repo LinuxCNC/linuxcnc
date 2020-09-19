@@ -5,18 +5,15 @@
 loadrt  plasmac
 addf    plasmac  servo-thread
 
-# inputs
+# INPUTS
 net plasmac:axis-x-position         axis.x.pos-cmd              =>  plasmac.axis-x-position
 net plasmac:axis-y-position         axis.y.pos-cmd              =>  plasmac.axis-y-position
-net plasmac:breakaway-switch-out    debounce.0.1.out            =>  plasmac.breakaway
 net plasmac:current-velocity        motion.current-vel          =>  plasmac.current-velocity
 net plasmac:cutting-start           spindle.0.on                =>  plasmac.cutting-start
 net plasmac:feed-override           halui.feed-override.value   =>  plasmac.feed-override
 net plasmac:feed-reduction          motion.analog-out-03        =>  plasmac.feed-reduction
-net plasmac:float-switch-out        debounce.0.0.out            =>  plasmac.float-switch
 net plasmac:ignore-arc-ok-0         motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net plasmac:motion-type             motion.motion-type          =>  plasmac.motion-type
-net plasmac:ohmic-probe-out         debounce.0.2.out            =>  plasmac.ohmic-probe
 net plasmac:program-is-idle         halui.program.is-idle       =>  plasmac.program-is-idle
 net plasmac:program-is-paused       halui.program.is-paused     =>  plasmac.program-is-paused
 net plasmac:program-is-running      halui.program.is-running    =>  plasmac.program-is-running
@@ -34,7 +31,20 @@ if {[hal list sig machine-is-on] != {}} {
 } else {
     net machine-is-on               halui.machine.is-on         =>  plasmac.machine-is-on
 }
-# outputs
+
+# v0.173 and later use dbounce in lieu of debounce
+if [info exists ::PLASMAC(DBOUNCE)] {
+    net plasmac:float-switch-out        db_float.out            =>  plasmac.float-switch
+    net plasmac:breakaway-switch-out    db_breakaway.out        =>  plasmac.breakaway
+    net plasmac:ohmic-probe-out         db_ohmic.out            =>  plasmac.ohmic-probe
+    net plasmac:arc-ok                  db_arc-ok.out           =>  plasmac.arc-ok-in
+} else {
+    net plasmac:float-switch-out        debounce.0.0.out        =>  plasmac.float-switch
+    net plasmac:breakaway-switch-out    debounce.0.1.out        =>  plasmac.breakaway
+    net plasmac:ohmic-probe-out         debounce.0.2.out        =>  plasmac.ohmic-probe
+}
+
+# OUTPUTS
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
 net plasmac:cutting-stop            halui.spindle.0.stop        =>  plasmac.cutting-stop
 net plasmac:feed-hold               plasmac.feed-hold           =>  motion.feed-hold

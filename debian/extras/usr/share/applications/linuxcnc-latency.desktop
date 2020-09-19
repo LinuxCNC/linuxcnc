@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Version=1.0
 Type=Application
 Exec=/usr/bin/latency-test
@@ -11,3 +10,4 @@ Comment=Determine your machine's latency
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC-DOC;
 Keywords=cnc;linuxcnc;cncprog;benchmark;
+

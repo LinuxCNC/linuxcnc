@@ -47,9 +47,8 @@ must agree on a
 .I key
 (32-bit integer identifier) and a data structure
 specified by
-.I typestring
-.  They must also agree which component (the first one loaded)
-will
+.I typestring.
+They must also agree which component (the first one loaded) will
 .B hal_stream_create
 the stream, and which component (the second one loaded) will
 .B hal_stream_attach
@@ -65,7 +64,7 @@ the key is 0x48534130 plus the channel number.
 
 .SS \fBhal_stream_create\fR
 Create the given stream, initializing the \fIstream\fR which is passed by
-reference.  If is an undiagnosed error if a stream has already been created with the same \fIkey\fR.
+reference.  It is an undiagnosed error if a stream has already been created with the same \fIkey\fR.
 
 .SS \fBhal_stream_destroy\fR
 Destroy the given stream.  It is an undiagnosed error if the stream is still attached by another component.  It is an undiagnosed error if the stream was attached with

@@ -3,7 +3,7 @@ import linuxcnc
 import collections
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
 log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -174,7 +174,7 @@ class _IStat(object):
         for j in self.AVAILABLE_JOINTS:
             temp = []
             flag = False
-            for hj, hs in  self.JOINT_SEQUENCE_LIST.items():
+            for hj, hs in  list(self.JOINT_SEQUENCE_LIST.items()):
                 if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
                     temp.append(hj)
                     if int(hs) < 0:
@@ -292,7 +292,7 @@ class _IStat(object):
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
             log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
         try:
-            self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
+            self.ZIPPED_USRMESS = list(zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME))
         except:
             self.ZIPPED_USRMESS = None
 
@@ -315,7 +315,7 @@ class _IStat(object):
                 except:
                     self.TAB_LOCATIONS.append("default")
         try:
-            self.ZIPPED_TABS = zip(self.TAB_NAMES,self.TAB_LOCATIONS,self.TAB_CMDS)
+            self.ZIPPED_TABS = list(zip(self.TAB_NAMES,self.TAB_LOCATIONS,self.TAB_CMDS))
         except:
             self.ZIPPED_TABS = None
 
@@ -364,12 +364,12 @@ class _IStat(object):
             return v
         else:
             c = [1.0/25.4]*3+[1]*3+[1.0/25.4]*3
-            return map(lambda x,y: x*y, v, c)
+            return list(map(lambda x,y: x*y, v, c))
 
     def convert_9_imperial_to_machine(self,v):
         if self.MACHINE_IS_METRIC:
             c = [25.4]*3+[1]*3+[25.4]*3
-            return map(lambda x,y: x*y, v, c)
+            return list(map(lambda x,y: x*y, v, c))
         else:
             return v
 
@@ -378,7 +378,7 @@ class _IStat(object):
 
     def convert_units_9(self,v):
         c = self.MACHINE_UNIT_CONVERSION_9
-        return map(lambda x,y: x*y, v, c)
+        return list(map(lambda x,y: x*y, v, c))
 
     # This finds the filter program's initilizing
     # program eg python for .py from INI

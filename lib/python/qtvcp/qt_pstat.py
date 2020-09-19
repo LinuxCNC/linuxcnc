@@ -19,7 +19,7 @@ import os
 import sys
 
 # Set up logging
-import logger
+from . import logger
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -119,12 +119,12 @@ class _PStat(object):
                     dirs = next(os.walk(self.SCREENDIR))[1]
                     LOG.error('Available built-in Machine Control Screens:')
                     for i in dirs:
-                        print('{}'.format(i))
+                        print(('{}'.format(i)))
                 else:
                     dirs = next(os.walk(self.PANELDIR))[1]
                     LOG.error('Available built-in VCP Panels:')
                     for i in dirs:
-                        print('{}'.format(i))
+                        print(('{}'.format(i)))
                 print('\n')
                 sys.exit(0)
 

@@ -1691,6 +1691,12 @@ AC_SUBST(PYTHON_LIBS)
 # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
 AX_BOOST_PYTHON_EMC
 
+saved_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
+AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
+     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+CPPFLAGS=$saved_CPPFLAGS
+
 AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
 AC_MSG_RESULT($SITEPY)

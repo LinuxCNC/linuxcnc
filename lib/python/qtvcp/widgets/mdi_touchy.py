@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -118,7 +118,7 @@ class mdi:
                 return ['P', 'Q']
         except IndexError:
             return []
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]

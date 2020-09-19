@@ -608,6 +608,7 @@ with open(inCode, 'r') as fRead:
                 scribing = False
             else:
                 scribing = True
+                print(line)
                 continue
         # if pierce only mode
         if pierceOnly:
@@ -621,7 +622,7 @@ with open(inCode, 'r') as fRead:
                 print('M3 $0 S1')
                 print('G91')
                 print('G1 X.000001')
-                print('G90\nM5')
+                print('G90\nM5 $0')
                 rapidLine = ''
                 continue
             if not pierces or line.startswith('o') or line.startswith('#'):

@@ -154,7 +154,7 @@ class slot_wiz:
                 ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[1]))
                 outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xS, ylCentre - yS))
             outTmp.write('g40\n')
-            outTmp.write('m5\n')
+            outTmp.write('m5 $0\n')
             outTmp.close()
             outTmp = open(self.parent.fTmp, 'r')
             for line in outTmp:

@@ -225,12 +225,12 @@ if __name__ == "__main__":
     try:
         test = Player()
         test.play_error()
-        print 'done'
+        print('done')
         gobject.threads_init()
         G = gobject.MainLoop()
         G.run()
 
     except Exception as e:
-        print e
+        print(e)
 
  

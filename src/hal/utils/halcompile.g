@@ -867,10 +867,11 @@ def to_hal_man(s):
     return s
 
 def document(filename, outfilename):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9"
 
     a, b = parse(filename)
+    if outfilename is None:
+        outfilename = os.path.splitext(filename)[0] + ".1" if options.get("userspace") else ".9"
+
     f = open(outfilename, "w")
 
     has_personality = False
@@ -881,8 +882,9 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print(".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
-        comp_name.upper(), time.strftime("%F")), file=f)
+    print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
+        comp_name.upper(), "1" if options.get("userspace") else "9",
+        time.strftime("%F")), file=f)
     print(".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n", file=f)
 
     print(".SH NAME\n", file=f)

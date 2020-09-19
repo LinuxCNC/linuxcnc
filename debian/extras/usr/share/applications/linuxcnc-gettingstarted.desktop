@@ -10,3 +10,4 @@ Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC-DOC;
 Keywords=cnc;linuxcnc;cncdoc;
+

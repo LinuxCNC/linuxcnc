@@ -9,4 +9,3 @@ Terminal=false
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC-DOC;
 Keywords=cnc;linuxcnc;cncdoc;
-Name[en_US]=Integrator Info

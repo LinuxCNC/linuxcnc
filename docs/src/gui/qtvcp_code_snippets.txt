@@ -34,13 +34,13 @@ In the 'IMPORT SECTION': +
 [source,python]
 ----
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+STYLEEDITOR = SSE()
 ----
 
 In the 'INITIALIZE SECTION'
 Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
 [source,python]
 ----
-        self.STYLEEDITOR = SSE(widgets,paths)
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 ----
 
@@ -50,7 +50,7 @@ In the 'KEYBINDING SECTION' add: +
 ----
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 ----
 
 == Request Dialog Entry
@@ -167,7 +167,7 @@ The function to be called if the actionMyFunction button is pressed.
 
 == Add HAL Pins that call functions
 In this way you don't need to poll the state of input pins. +
-under the initialised__ function, make sure there is an entry similar to this: +
+Under the initialised__ function, make sure there is an entry similar to this: +
 [source,python]
 ----
     ##########################################
@@ -233,8 +233,66 @@ Then add the code to the handler file.
 
    def setMVPercentValue(self, value):
         ACTION.SET_MAX_VELOCITY_RATE(INFO.MAX_TRAJ_VELOCITY * (value/100.0))
-
 ----
+
+== Toggle Continuous Jog On and Off
+
+Generally selecting continuous jogging is a momentary button, that requires you to select +
+the previous jog increment after. We will build a button that toggles between continuous jog and whatever +
+increment that was already selected. +
+ +
+In Designer: +
+use an action button with no action. call it 'btn_toggle_continuous' +
+set the AbstractButton property 'checkable' true +
+set the ActionButton properties 'incr_imperial_number' and 'incr_mm_number' to 0 +
+Use designer's slot editor to use the button signal 'clicked(bool)' to call form's handler function 'toggle_continuous_clicked()' +
+<<cha:designer-slots,Using Designer to add slots>>
+ +
+Then add this code snippets to the handler file: +
+Under the initialized__ function, make sure there is an entry similar to this: +
+[source,python]
+----
+# at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        STATUS.connect('jogincrement-changed', lambda w, d, t: self.record_jog_incr(d,t))
+        # set a default increment to toggle back to
+        self.L_incr = 0.01
+        self.L_text = "0.01in"
+----
+
+In the 'GENERAL FUNCTIONS SECTION' ADD: +
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+
+    # if it isn't continuous, record the latest jog increment
+    # and untoggle the continuous button
+    def record_jog_incr(self,d, t):
+        if d != 0:
+            self.L_incr = d
+            self.L_text = t
+            self.w.btn_toggle_continuous.safecheck(False)
+----
+In the 'CALLBACKS FROM FORM SECTION' ADD: +
+[source,python]
+----
+    #######################
+    # CALLBACKS FROM FORM #
+    #######################
+
+    def toggle_continuous_clicked(self, state):
+        if state:
+            # set continuous (call the actionbutton's function)
+            self.w.btn_toggle_continuous.incr_action()
+        else:
+            # reset previously recorded increment
+            ACTION.SET_JOG_INCR(self.L_incr, self.L_text)
+----
+
 == Class Patch the file manager widget
 
 [NOTE]

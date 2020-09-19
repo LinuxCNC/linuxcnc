@@ -11,6 +11,7 @@ man1/svd-ps_vfd.1
 man1/linuxcnc.1
 man1/halstreamer.1
 man1/thermistor.1
+man1/wj200_vfd.1
 man1/xhc-whb04b-6.1
 
 man9/abs_s32.9
@@ -61,6 +62,7 @@ man9/conv_u8_s32.9
 man9/conv_u8_s8.9
 man9/conv_u8_u32.9
 man9/corexy_by_hal.9
+man9/dbounce.9
 man9/ddt.9
 man9/deadzone.9
 man9/demux.9
@@ -69,6 +71,7 @@ man9/edge.9
 man9/eoffset_per_angle.9
 man9/estop_latch.9
 man9/feedcomp.9
+man9/filter_kalman.9
 man9/flipflop.9
 man9/gantry.9
 man9/gearchange.9
@@ -143,6 +146,5 @@ man9/tristate_bit.9
 man9/tristate_float.9
 man9/updown.9
 man9/wcomp.9
-man9/wj200_vfd.9
 man9/xhc_hb04_util.9
 man9/xor2.9

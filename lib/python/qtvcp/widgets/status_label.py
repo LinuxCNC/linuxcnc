@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # QTVcp Widget
 #
 # Copyright (c) 2017 Chris Morley

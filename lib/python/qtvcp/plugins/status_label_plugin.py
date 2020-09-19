@@ -91,7 +91,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         QPyDesignerPropertySheetExtension.__init__(self, parent)
         self.widget = widget
         self.formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
-        print self.formWindow
+        print(self.formWindow)
         self.propertylist=['objectName','geometry','text']
         self.temp_flag = True
         #print dir(self.widget.pyqtConfigure.__sizeof__)
@@ -100,7 +100,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
             #print i
             if 'PyQt5.QtCore.pyqtProperty'  in str(StatusLabel.__dict__[i]):
                 self.propertylist.append(i)
-                print i
+                print(i)
         #print dir(self.widget)
 
     def count(self):
@@ -108,7 +108,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
 
     def property(self,index):
         name = self.propertyName(index)
-        print 'property index:', index,name
+        print('property index:', index,name)
         if 'object' in name:
             return QVariant('default')
         if 'orient' in name:
@@ -122,7 +122,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         for num,i in enumerate(self.propertylist):
             if i == name: return num
         self.propertylist.append(name)
-        print 'not found:',name, num+1
+        print('not found:',name, num+1)
         return num +1
 
     def setChanged(self, index, value):
@@ -150,7 +150,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
     def setProperty(self, index, vvalue):
         prop = self.propertyName(index)
         value = vvalue.toPyObject()
-        print 'SET property',prop,index,value
+        print('SET property',prop,index,value)
         if 'objectName' in prop:
             self.widget.setObjectName(value)
         if 'geometry' in prop:
@@ -180,7 +180,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
 
     def do_alt_text_test(self, prop, indexm, value):
         if 'jograte' in prop:
-            print 'flag:',value
+            print('flag:',value)
             self.temp_flag = value
 
 

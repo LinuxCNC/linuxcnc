@@ -465,6 +465,10 @@ But there is not one in the machine-named folder.."""),True)
             return
         d = self.d
         w = self.w
+        self.w.xtunedir.set_tooltip_text(_(
+"""± = move on both sides of start position\n
++ = move on positive side of start position\n
+- = move on negative side of start position"""))
         self.updaterunning = False
         self.scale = self.enc_scale = 1000
         axnum = "xyzas".index(axis)
@@ -494,7 +498,7 @@ But there is not one in the machine-named folder.."""),True)
         w.xsteptable.set_sensitive(state)
         distance = 2
         if axis == "a":
-            w,xtunedistunits.set_text(_("degrees"))
+            w.xtunedistunits.set_text(_("degrees"))
             w.xtunevelunits.set_text(_("degrees / minute"))
             w.xtuneaccunits.set_text(_("degrees / second²"))
             distance = 360
@@ -610,11 +614,13 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("setp pid.0.maxoutput  %d\n"% ( w[axis+"maxoutput"].get_value() ))
         halrun.write("setp pid.0.error-previous-target true\n")
         if self.stepgen:
-            halrun.write("setp pid.0.maxerror .0005\n")
+            if self.d.units == _PD._IMPERIAL:
+                halrun.write("setp pid.0.maxerror .0005\n")
+            else:
+                halrun.write("setp pid.0.maxerror .0127\n")
         halrun.write("net enable     =>  pid.0.enable\n")
         halrun.write("net output     <=  pid.0.output\n")
         halrun.write("net pos-cmd    =>  pid.0.command\n")
-        halrun.write("net vel-cmd    =>  pid.0.command-deriv\n")
         halrun.write("net pos-fb     =>  pid.0.feedback\n")
         # search and connect I/o signals needed to enable amps etc
         self.hal_test_signals(axis)

@@ -68,9 +68,9 @@ class XEmbedFowarding():
         window.keyReleaseTrap = self.catch_keyrelease
 
     def catch_keypress(self, e):
-        print e.nativeScanCode()
-        print e.nativeVirtualKey()
-        print e.text()
+        print(e.nativeScanCode())
+        print(e.nativeVirtualKey())
+        print(e.text())
         self.forward(e,e.nativeScanCode())
 
     def catch_keyrelease(self, e):
@@ -135,7 +135,7 @@ class X11ClientMessage():
         self.receiver_id = receiver_id
 
     def send_client_message(self, message="Visible\0\0\0\0\0\0\0\0\0\0\0\0\0", mtype='Gladevcp'):
-        print 'X11 message sent'
+        print('X11 message sent')
         mess_type = self.d.intern_atom(mtype)
         #TODO add check of message for 20 characters
 

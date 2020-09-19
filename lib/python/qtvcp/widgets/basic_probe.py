@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp basic probe
 #
 # Copyright (c) 2020  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -165,10 +165,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        self.proc.start('python {}'.format(SUBPROGRAM))
-        # send our PID so subprogram can check to see if it is still running 
-        self.proc.writeData('PID {}\n'.format(os.getpid()))
-
+        if sys.version_info.major > 2:
+            self.proc.start('python3 {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData(bytes('PID {}\n'.format(os.getpid()), 'utf-8'))
+        else:
+            self.proc.start('python {}'.format(SUBPROGRAM))
+            # send our PID so subprogram can check to see if it is still running
+            self.proc.writeData('PID {}\n'.format(os.getpid()))
+            
     def start_probe(self, cmd):
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
             LOG.error("Probe tool not mounted in spindle")
@@ -176,9 +181,12 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_busy is True:
             LOG.error("Probing processor is busy")
             return
-        string_to_send = cmd.encode('utf-8') + '\n'
+        string_to_send = cmd + '\n'
 #        print("String to send ", string_to_send)
-        self.proc.writeData(string_to_send)
+        if sys.version_info.major > 2:
+            self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        else:
+            self.proc.writeData(string_to_send)
         self.process_busy = True
 
     def process_started(self):
@@ -186,34 +194,37 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def read_stdout(self):
         qba = self.proc.readAllStandardOutput()
-        line = qba.data().encode('utf-8')
+        line = qba.data()
         self.parse_input(line)
         self.process_busy = False
 
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
-        line = qba.data().encode('utf-8')
+        line = qba.data()
         self.parse_input(line)
 
     def process_finished(self, exitCode, exitStatus):
-        print("Probe Process signals finished exitCode {} exitStatus {}".format(exitCode, exitStatus))
+        print(("Probe Process signals finished exitCode {} exitStatus {}".format(exitCode, exitStatus)))
 
     def parse_input(self, line):
         self.process_busy = False
-        if "ERROR" in line:
+        if b"ERROR" in line:
             print(line)
-        elif "DEBUG" in line:
+        elif b"DEBUG" in line:
             print(line)
-        elif "INFO" in line:
+        elif b"INFO" in line:
             print(line)
-        elif "COMPLETE" in line:
+        elif b"COMPLETE" in line:
             LOG.info("Probing routine completed without errors")
             self.show_results()
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
-        message ='ERROR {},{} \n'.format(kind,text)
+        if sys.version_info.major > 2:
+            message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
+        else:
+            message = 'ERROR {},{} \n'.format(kind,text)
         self.proc.writeData(message)
 
 # Main button handler routines
@@ -248,21 +259,21 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def probe_btn_clicked(self, button):
         mode = int(self.btn_probe_mode.isChecked() is True)
-        ngc = button.property('filename').encode('utf-8')
+        ngc = button.property('filename')
         parms = self.get_parms() + self.get_rv_parms() + '[{}]'.format(mode)
         cmd = "PROBE {} {}".format(ngc, parms)
         self.start_probe(cmd)
 
     def boss_pocket_clicked(self, button):
         mode = int(self.btn_probe_mode.isChecked() is True)
-        ngc = button.property('filename').encode('utf-8')
+        ngc = button.property('filename')
         parms = self.get_parms() + self.get_bp_parms() + '[{}]'.format(mode)
         cmd = "PROBE {} {}".format(ngc, parms)
         self.start_probe(cmd)
 
     def cal_btn_clicked(self, button):
         mode = int(self.btn_probe_mode.isChecked() is True)
-        sub = button.property('filename').encode('utf-8')
+        ngc = button.property('filename')
         if self.cal_avg_error.isChecked():
             avg = '[0]'
         elif self.cal_x_error.isChecked():
@@ -275,7 +286,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.start_probe(cmd)
         
     def clear_results_clicked(self, button):
-        sub = button.property('filename').encode('utf-8')
+        sub = button.property('filename')
         cmd = "o< {} > call".format(sub)
         ACTION.CALL_OWORD(cmd)
         self.show_results()

@@ -394,7 +394,7 @@ class HandlerClass:
     (_("Ctrl-Space"), _("Clear notifications")),
     (_("Alt-F, M, V"), _("Open a Menu")),
 ]
-        help =  zip(help1,help2)
+        help =  list(zip(help1,help2))
         msg = QtWidgets.QDialog()
         msg.setWindowTitle("Quick Reference")
         button = QtWidgets.QPushButton("Ok")

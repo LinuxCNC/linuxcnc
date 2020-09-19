@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -395,7 +395,7 @@ def main():
     # class patching is my new thing
     # class patch the OK button
     def newOk(w):
-        print 'Ok'
+        print('Ok')
         w.text = 'OK'
         # make update
         w.hide()

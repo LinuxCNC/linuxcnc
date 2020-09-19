@@ -199,17 +199,17 @@ class HandlerClass:
             ACTION.ABORT()
 
     def cycleStart(self, state):
-        print state, self.current_mode
+        print(state, self.current_mode)
         if state:
             tab = self.w.mainTab.currentWidget()
             if  tab in( self.w.tab_auto,  self.w.tab_graphics):
-                print 'start cycle!', self.w.gcode_editor.get_line()
+                print('start cycle!', self.w.gcode_editor.get_line())
                 ACTION.RUN(line=0)
             elif tab == self.w.tab_files:
-                    print 'load program'
+                    print('load program')
                     self.w.filemanager.load()
             elif tab == self.w.tab_mdi:
-                print 'run MDI'
+                print('run MDI')
                 self.w.mditouchy.run_command()
 
     # MPG scrolling of program or MDI history

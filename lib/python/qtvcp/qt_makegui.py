@@ -6,7 +6,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets, uic
 import traceback
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
 log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -201,7 +201,7 @@ Python Error:\n {}'''.format(str(e))
             DIR =self.PATHS.PANELDIR
             BNAME = self.PATHS.BASENAME
         # apply one word system theme
-        if fname in (QtWidgets.QStyleFactory.keys()):
+        if fname in (list(QtWidgets.QStyleFactory.keys())):
             QtWidgets.qApp.setStyle(fname)
             return
         
@@ -242,7 +242,7 @@ Python Error:\n {}'''.format(str(e))
                 log.error('QSS Filepath Error: {}'.format(qssname))
                 log.error("{} theme not available".format(fname))
                 current_theme = str(QtWidgets.qApp.style().objectName())
-                for i in (QtWidgets.QStyleFactory.keys()):
+                for i in (list(QtWidgets.QStyleFactory.keys())):
                     themes += (', {}'.format(i))
                 log.error('QTvcp Available system themes: green<{}> {}'.format(current_theme, themes))
 
@@ -276,7 +276,7 @@ Python Error:\n {}'''.format(str(e))
 
             try:
                 mod = __import__(basename)
-            except ImportError, e:
+            except ImportError as e:
                 log.critical("module '{}' skipped - import error: ".format(basename), exc_info=e)
                 sys.exit(0)
                 continue
@@ -299,9 +299,9 @@ Python Error:\n {}'''.format(str(e))
                 for object in objlist:
                     log.debug("Registering handlers in module {} object {}".format(mod.__name__, object))
                     if isinstance(object, dict):
-                        methods = dict.items()
+                        methods = list(dict.items())
                     else:
-                        methods = map(lambda n: (n, getattr(object, n, None)), dir(object))
+                        methods = [(n, getattr(object, n, None)) for n in dir(object)]
                     for method,f in methods:
                         if method.startswith('_'):
                             continue

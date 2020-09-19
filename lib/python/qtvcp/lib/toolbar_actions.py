@@ -223,6 +223,8 @@ class ToolBarActions():
             function = (self.actOnAlphaMode)
         elif action == 'inhibit_selection':
             function = (self.actOnInhibitSelection)
+        elif action == 'show_dimensions':
+            function = (self.actOnShowDimensions)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -448,6 +450,12 @@ class ToolBarActions():
         else:
             ACTION.SET_GRAPHICS_VIEW('inhibit-selection-off')
 
+    def actOnShowDimensions(self, widget, state):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-off')
+
     #########################################################
     # Sub menus
     #########################################################
@@ -565,7 +573,7 @@ class ToolBarActions():
         def setSize(data):
             ACTION.SET_GRAPHICS_GRID_SIZE(data)
 
-        print INFO.GRID_INCREMENTS
+        print(INFO.GRID_INCREMENTS)
         for temp in (INFO.GRID_INCREMENTS):
             if temp == '0':
                 sizeAct = QtWidgets.QAction('Off', widget)

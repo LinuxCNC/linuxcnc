@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # QTVcp Widget
 #
 # Copyright (c) 2017 Chris Morley
@@ -92,14 +92,14 @@ min-width: 30px;
         gl = QtWidgets.QVBoxLayout()
         self.setFont(self.PARENT_OBJECT.font())
         number_widget_list = []
-        sym_list = range(0, 6)
+        sym_list = list(range(0, 6))
         for sym in sym_list:
             button = MyFlatPushButton(str(sym))
             button.KEY_CHAR = ord(str(sym))
             number_widget_list.append(button)
 
         number_widget_list.append('new_row')
-        sym_list = range(6, 10)
+        sym_list = list(range(6, 10))
         for sym in sym_list:
             button = MyFlatPushButton(str(sym))
             button.KEY_CHAR = ord(str(sym))
@@ -194,7 +194,7 @@ min-width: 30px;
                 v = QtWidgets.QHBoxLayout()
                 v.addStretch()
                 v.setSpacing(5)
-                map(v.addWidget, tlist)
+                list(map(v.addWidget, tlist))
                 v.addStretch()
                 gl.addLayout(v)
                 tlist = []
@@ -204,7 +204,7 @@ min-width: 30px;
         v = QtWidgets.QHBoxLayout()
         v.setSpacing(5)
         v.addStretch()
-        map(v.addWidget, tlist)
+        list(map(v.addWidget, tlist))
         v.addStretch()
         gl.addLayout(v)
         gl.setContentsMargins(0, 0, 0, 0)

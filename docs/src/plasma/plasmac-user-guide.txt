@@ -87,121 +87,33 @@ IMPORTANT: THESE PINS WILL BE ENTERED LATER INTO THE CONFIGURATOR, THEY SHOULD *
 
 The preferred method of installing LinuxCNC with PlasmaC is by using an ISO image as described below.
 
-The minimum requirement for PlasmaC is LinuxCNC v2.8.
-
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
-
-All PlasmaC development has been done on a Stretch ISO installation.
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies.
 
 === If You Do Not Have Linux Installed
 
-LinuxCNC requires a realtime Linux kernel and there are currently two ISO images available from LinuxCNC downloads with different realtime options.
+Installation instructions are available at: http://linuxcnc.org/docs/devel/html/getting-started/getting-linuxcnc.html
 
-. PREEMPT_RT - The preferred option if using an external motion card. Good for parallel port if your machine has acceptable latency. Required if you intend to use a Mesa Electronics ethernet card.
-. RTAI - Good for parallel port, normally provides better latency than PREEMPT_RT.
-
-The downloadable ISO images are:
-
-* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/
-* RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
-
-Download your chosen image and write it to a bootable device, then boot from that device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNC. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the boot menu and continue to install the system.
-
-This will give you a machine with the current stable branch (v2.7) of LinuxCNC which will be upgraded to 2.8 in the next section.
-
+Following these instructions will give you a machine with the current stable branch (v2.8) of LinuxCNC.
 
 === If You Have LinuxCNC v2.7
 
-The method described here is called a Buildbot Installation as it uses prebuilt packages from the LinuxCNC Buildbot to install and update LinuxCNC.
+Upgrading instruction are availabe at: http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html
 
-NOTE: There is another method called Run In Place which requires the user to compile LinuxCNC locally. This method is normally used for development work and is beyond the scope of this manual.
-For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
-
-To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
-
-----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
-----
-
-If you get an error like GPG: keyserver receive failed: No dirmngr
-
-Then enter the following in the terminal:
-
-----
-sudo apt-get install dirmngr
-----
-
-The missing dirmngr package will then be installed.
-
-If you still get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
-
-----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-key E0EE663E
-----
-
-Close the terminal, then from the Main Menu, open Synaptic Package Manager.
-
-Select Search in the menu bar and do a search using *linuxcnc* as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be removed.
-
-Click Settings from the menu and select Repositories.
-
-You can then either edit or delete existing LinuxCNC entries from the repositories list. You need to end up with the following set of stanzas as the only enabled references to LinuxCNC:
-
-----
-deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
-deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
-----
-
-Where:
-
-* <distro> is stretch or wheezy
-* <branch> is 2.8 or master
-* <rt_type> is rtpreempt or rt
-
-So if you installed the *stretch* version and wanted *2.8* branch on a *PREEMPT_RT* machine then you would have:
-
-----
-deb     http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
-----
-
-When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
-
-Now do a Search with *linuxcnc* as the search term and the result should be a list of newly available LinuxCNC packages
-
-Right click on the package you want to install and then select Mark for Installation.
-
-For PREEMPT_RT you would select linuxcnc-uspace and for RTAI it would be linuxcnc.
-
-You may also select the documentation if you want it installed locally and/or the -dev package if you intend to build new realtime components and/or alternate front-ends for linuxcnc.
-
-When you have made all your selections, click Apply on the menu bar and the selected packages will be installed.
-
-Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
-
-NOTE: For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC Buildbot home page]
-
-[[sec:testing-linuxcnc]]
-
-=== Testing LinuxCNC Installation
-
-The LinuxCNC Configuration Selector should open.
-
-Navigate to Sample Configurations > by_machine > plasmac.
-
-Select either Axis or Gmoccapy.
-
-Select either metric or imperial.
-
-The selected PlasmaC simulation configuration will now open and may be tested at will.
-
-You now have all the requirements to run PlasmaC, the next step is to create a working configuration for your machine.
+Following these instructions will give you a machine with the current stable branch (v2.8) of LinuxCNC.
 
 === Make A Working Base Machine Configuration
 
 NOTE: Base machine configuration means a complete working system without any plasma connections. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
 IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. HERE, THESE WILL BE ADDED LATER DURING THE PlasmaC CONFIGURATION.
+
+Some recommended settings:
+
+[[z_settings]]
+
+* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
+* Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
+* Z HOME should be just below the maximum limit
 
 * Floating Head - it is recommended that a floating head is used and it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
 
@@ -215,23 +127,17 @@ For a metric machine with a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOC
 
 For a imperial machine with a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s the overrun would be 0.12 in
 
-It is also recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
+It is highly recommended that even if you intend to use ohmic probing as your primary probing system that you also have a switch on the floating head as a backup in case of ohmic probe failure due to dirty surfaces.
  
-[[z_settings]]
-
-Recommended settings for the Z axis are:
-
-* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
-* Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (it must not be lower than Z HOME_OFFSET)
-* Z HOME should be just below the maximum limit
-
 IMPORTANT: YOU SHOULD BE ABLE TO HOME YOUR MACHINE, TOUCH OFF, JOG TO SOFT LIMITS WITHOUT CRASHING AND RUN SOME TEST G-CODE WITHOUT ANY ERRORS.
 
-When and ONLY WHEN this stage is successfully completed can you configure PlasmaC on top of your working machine.
+When and ONLY WHEN this stage is successfully completed should you configure PlasmaC on top of your working machine.
 
 You can create a base machine manually or you may use existing configuration helpers:
 
-NOTE: It is best to keep the base machine config simple until you have it fully tested and tuned. If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options these can be manually added later if you have a need for them.
+NOTE: It is highly recommended to keep the base machine config simple until you have it fully tested and tuned. +
+If you are using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change and classic ladder options. +
+Any these can be manually added later if you have a need for them.
 
 If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>>:
 
@@ -259,7 +165,7 @@ You NEED to have a fully tested and working base machine configuration without a
 
 CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
-NOTE: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEASUREMENT, SEE <<mesa-thcad, Mesa THCAD>> BEFORE PROCEEDING
+NOTE: If you are using a *Mesa Electronics THCAD* card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
 
 [[configurator]]
 
@@ -385,6 +291,8 @@ If you use a float switch then you will need to set the offset in the Config Pan
 
 . After the Z axis rises, repeat from #4 above until the Pierce Height is correct. 
 
+NOTE: If your final probe up time seems excessive then see <<probing, the probing section>> for a solution.
+
 IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN UP UNTIL NOW THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF YOU INTEND TO USE CUT VOLTAGES FROM MANUFACTURES CUT CHARTS THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
 CAUTION: PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF YOU ARE NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
@@ -405,48 +313,79 @@ Would give a cutoff frequency of 100Hz.
 
 == Contact Debounce
 
-Contact bounce or external interference may cause some inconsistent behaviour of the following switches:
+Contact bounce from mechanical relays or external interference may cause some inconsistent behaviour of the following switches:
 
 * Float Switch
 * Ohmic Probe
 * Breakaway Switch
+* Arc OK (for modes 1 & 2)
 
-This may be alleviated by changing the debounce value in the <machine_name>_connections.hal file. In a standard configuration this value applies to all three switches simultaneously but you could separate these by using an exclusive debounce group.
+This may be alleviated by changing the appropriate debounce value in the <machine_name>_connections.hal file.
 
-Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
+Each increment adds one servo thread cycle to the debounce time.
 
-Debounce is achieved by using the HAL link:http://linuxcnc.org/docs/html/man/man9/debounce.9.html[debounce component].
+For the Float and Ohmic switches this equates to a 0.001mm (0.00004") increase in the probed height result.
 
-If you require debounce for other equipment like home or limit switches etc then change the following line in the <machine_name>_connections.hal:
+It is recommended to keep the debounce values as low as possible provided the results are consistent. Using link:http://linuxcnc.org/docs/2.8/html/hal/tutorial.html#_halscope[Halscope] to plot the inputs is a good way to establish the correct value.
+
+There are two versions of contact debouncing in PlasmaC and these are determined by when the configuration was first created. There is no automatic upgrade from the orignal debounce setup as it is too difficult to determine any changes and/or additions that may have been made.
+
+=== Debounce v0.173 and later
+
+For PlasmaC v0.173 (11 Sep 2020) and later, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows loading and naming of individual instances and is compatible with Twopass HAL file processing.
+
+All four signals above have an individual debounce component so they can have differing delay values. Any changes made to them in the <machine_name>_connections.hal file will not be overwritten by later upgrades.
+
+The default delay for all inputs is five. In most cases this will work quite well. If any of the inputs do not use mechanical switches then it may be possible to either reduce or remove the delay for those inputs.
+
+If debounce is required for other equipment like home or limit switches etc then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
+
+=== Debounce v0.172 and earlier
+
+For PlasmaC v0.172 (10 Sep 2020) and earlier, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/debounce.9.html[debounce component].
+
+In a standard configuration only the Float Switch, Ohmic Probe and Breakaway Switch are connected to debounce and a single delay value applies to all three switches simultaneously. These could separated by using an exclusive debounce group for each signal.
+
+If debounce is required for other equipment like home or limit switches then either more filters could be added to the existing group or another group could be added by editing the existing 'loadrt debounce' line in the <machine_name>_connections.hal file.
+
+.To add an extra filter to the existing group:
 
 ----
-loadrt  debounce  cfg=3
+loadrt debounce cfg=4
+----
+
+This would add a new filter named debounce.0.3 that could be used to debounce another switch signal.
+
+.To add an extra group with one filter:
+
+----
+loadrt debounce cfg=3,1
+setp   debounce.1.delay n
+addf   debounce.1 servo-thread
+----
+
+This would add a new group named debounce.1 with a new filter named debounce.1.0 having a delay of n servo cycles that could be used to debounce another switch signal.
+
+=== Change Debounce Type
+
+It is possible to manually change the debounce type by editing the <machine_name>_connections.hal file. If this is done then the naming convention as used in link:https://github.com/LinuxCNC/linuxcnc/blob/2.8/configs/by_machine/plasmac/plasmac_connections.hal[this example connections.hal] file must be followed.
+
+It is also then necessary to edit the <machine_name>.ini file by changing the following:
+
+----
+# required for upgrades (DO NOT CHANGE)
+LAST_MAJOR_UPGRADE      = 0.144
 ----
 
 to:
 
 ----
-loadrt  debounce  cfg=3,n
+# required for upgrades (DO NOT CHANGE)
+LAST_MAJOR_UPGRADE      = 0.144
+DBOUNCE                 = 1
 ----
 
-with n being the number of contacts you need debounced. 
-
-This will create a new debounce group named debounce.1 for your use, then add the following lines:
-
-----
-setp  debounce.1.delay  c
-addf  debounce.1        servo-thread
-----
-
-with c being the number of servo cycles for the debounce time.
-
-Then you can net the debounce to any HAL pin you require in any of the .hal files (except postgui.hal) like the following example:
-
-----
-net home-x-in   parport.1.pin-11-in-not  =>  debounce.1.0.in
-net home-x-out  debounce.1.0.out         =>  joint.0.home-sw-in
-----
-
+Failure to follow this procedure will lead to errors when loading LinuxCNC.
 
 == Desktop Launcher
 
@@ -561,6 +500,8 @@ image::images/plasmac_config.png[width=50%]
 
 NOTE: Probe Height is the height above the minimum Z axis limit.
 
+NOTE: If your final probe up time seems excessive then see <<probing, the probing section>> for a solution.
+
 [underline]*THC*
 
 [width="100%",cols="4,2,14"]
@@ -638,6 +579,10 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 The **Save** button will save the currently displayed parameters.
 
 The **Reload** button will reload all the parameters.
+
+The **version** label displays the current PlasmaC version.
+
+The **Backup** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis.
 
 [[run-panel]]
 
@@ -1147,6 +1092,8 @@ A value of zero for *Skip IHS* will disable IHS skipping.
 
 Any errors encountered on a cut will disable IHS skipping for the next cut if it was enabled.
 
+[[probing]]
+
 === Probing
 
 Probing may be with either ohmic sensing or a float switch, it is also possible to combine both with the float switch providing a fallback to ohmic probing.
@@ -1156,6 +1103,23 @@ If your torch does not support ohmic probing you could have a separate probe nex
 Probing setup is done in the Motion frame of the Config Panel.
 
 PlasmaC can probe at the full Z axis velocity so long as your machine has enough movement in the float switch to absorb any overrun. If your machine is suitable you could set Probe Height to near the Z axis minimum and do all probing at full speed.
+
+Some float switches can exhibit a large switching hysteresis which shows up in probing as an excessive time to complete the final probe up.
+ This time may be decreased by changing the speed of the final probe up.
+ This speed defaults to 0.001mm (0.000039") per servo cycle.
+ It is possible to increase this speed by up to a factor of 10 by adding the following line to your <machine_name>_connections.hal file:
+
+----
+setp plasmac.probe-final-speed n
+----
+
+where n is from 1~10. It is recommended to keep this value as low as possible.
+
+Using this feature will change the final height slightly so will require thorough probe testing to confirm the final height.
+
+This speed value affects ALL probing so if you use ohmic probing and you change this speed value then you will need to probe test to set the require offset to compensate for this speed change as well as the float travel.
+
+The reliability of this feature will only be as good as the repeatability of the float switch.
 
 NOTE: Probe Height is the height above the minimum Z axis limit.
 
@@ -2207,48 +2171,24 @@ There is a ./test directory in the source which has a simple Test Panel and asso
 
 If you wish to use this in your own sim configuration then you will need to create a link to this directory and edit your .ini file to suit.
 
-== Upgrade An Existing LinuxCNC Configuration
+== Upgrading PlasmaC
 
-The method of upgrading is dependent on the type of LinuxCNC installation:
+PlasmaC upgrade notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates
 
-=== Upgrade LinuxCNC
+=== Standard Upgrade
 
-From a terminal:
+For a standard ISO installation, LinuxCNC will only be upgraded when a new minor release has been released. PlasmaC will then automatically upgrade its configuration the first time it is run after a LinuxCNC upgrade.
 
-----
-$ sudo apt-get update
-$ sudo apt-get dist-upgrade
-----
-
-== Upgrade PlasmaC
-
-=== Automatic Upgrade
-
-After you have upgraded LinuxCNC, PlasmaC will test if it needs an upgrade when LinuxCNC is started. If it finds that it needs upgrading it will automatically proceed with the upgrade. After the upgrade is complete you may get a warning that LinuxCNC needs to be restarted. This depends on which files needed changing.
-
-=== Manual Upgrade
-
-If you do not wish to allow PlasmaC to do automatic upgrades then you can prevent this by adding *MANUAL_UPGRADE = 1* to the [PLASMAC] section of the .ini file:
+LinuxCNC is normally upgraded by opening a terminal and running:
 
 ----
-MANUAL_UPGRADE            = 1
+$ sudo apt update
+$ sudo apt dist-upgrade
 ----
 
-You would then need to manually upgrade PlasmaC by opening a terminal and running the configurator:
+=== Continuous Upgrade
 
-----
-$ python linuxcnc/<your_configuration_directory>/configurator.py
-----
-
-The selection window is now visible:
-
-image::images/plasmac_configurator_home_used.png[width=30%]
-
-Select *Upgrade* from the selection window, this shows an info dialog, select *Continue* and the Upgrade window will display.
-
-image::images/plasmac_configurator_upgrade.png[width=40%]
-
-Select the .ini file of the PlasmaC configuration you wish to upgrade, click *Upgrade* and your PlasmaC configuration will be upgraded.
+Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If you wish to update whenever a new PlasmaC version has been pushed then you could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
 
 [[modify-config]]
 
@@ -2288,11 +2228,11 @@ NOTE: Machine Name and .hal File can not be modified.
 
 == Change Type Of LinuxCNC Installation
 
-If you have changed the type of LinuxCNC installation from Buildbot to Run In Place or vice versa you will need to run the Configurator from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
+If you have changed the type of LinuxCNC installation from a Package installation to a Run In Place or vice versa you will need to run the Configurator from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
 
 From a terminal do one of the following:
 
-Reset to a new Buildbot installation:
+Reset to a new Package installation:
 
 ----
 $ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
@@ -2391,7 +2331,7 @@ If pyserial is not installed an error message will be displayed.
 To install pyserial, type the following in a terminal:
 
 ----
-sudo apt-get install python-serial
+sudo apt install python-serial
 ----
 
 A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
@@ -2527,8 +2467,10 @@ The THCAD-10 and THCAD-300 examples above would be:
 
 == Support
 
-On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
+On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC section] of the https://forum.linuxcnc.org/[LinuxCNC Forum].
 
+You can create a complete backup of the machine configuration to aid in fault diagnosis by pressing the 'Backup' button in the config panel. This will create a compressed file in your home directory that is suitable for attaching to a post on the LinuxCNC Forum.
+ 
 == Appendix
 
 

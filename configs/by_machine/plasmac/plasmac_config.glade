@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.18"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="arc-fail-delay-adj"/>
   <object class="GtkAdjustment" id="arc-max-starts-adj"/>
@@ -772,9 +772,26 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                               <object class="GtkLabel" id="version-label">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="tooltip_text" translatable="yes">PlasmaC version number</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="backup">
+                                <property name="label" translatable="yes">Backup</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">create a compressed backup of the
+complete machine configuration</property>
+                                <signal name="clicked" handler="on_backup_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
                                 <property name="right_attach">4</property>
                               </packing>
                             </child>

@@ -32,7 +32,7 @@ ser desde unos pocos nanosegundos a una fracción de nanosegundo.
 
 Tenga en cuenta que las matemáticas \fIlong long\fR pueden ser poco compatibles en algunas 
 plataformas, especialmente en el espacio del kernel. También tenga en cuenta que rtapi_print() 
-NO imprime \fLong long\fRs. La mayoría de las mediciones de tiempo son relativas, 
+NO imprime \fBLong long\fRs. La mayoría de las mediciones de tiempo son relativas, 
 y deberían hacerse así:
 .RS
 deltat = (long int)(end_time \- start_time);

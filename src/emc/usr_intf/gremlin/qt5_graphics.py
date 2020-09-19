@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -18,18 +18,25 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
 try:
     from PyQt5.QtOpenGL import QGLWidget
 except ImportError:
-    LOG.critical("Qtvcp error with qt5_graphics - is package python-pyqt5.qtopengl installed?")
+    LOG.critical("Qtvcp error with qt5_graphics - is package python3-pyqt5.qtopengl installed?")
 
 LIB_GOOD = True
 try:
     from OpenGL import GL
     from OpenGL import GLU
 except ImportError:
-    LOG.error('Qtvcp Error with graphics - is python-openGL installed?')
+    LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
     LIB_GOOD = False
 
-import gi
-from gi.repository import Pango as pango
+if sys.version_info.major > 2:
+    import gi
+    gi.require_version('Pango', '1.0')
+    from gi.repository import Pango
+    import _thread
+else:
+    import pango
+    import thread as _thread
+    
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
@@ -42,7 +49,6 @@ import tempfile
 import shutil
 import os
 
-import _thread
 from qtvcp.widgets.fake_status import fakeStatus
 
 ###################################
@@ -189,7 +195,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None):
-        super(Lcnc_3dGraphics, self).__init__(parent)
+        super(Lcnc_3dGraphics,self).__init__(parent)
         glnav.GlNavBase.__init__(self)
 
         def C(s):
@@ -865,7 +871,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & Qt.RightButton:
-            self.clear_live_plotter()
+            self.logger.clear()
 
     def mouseMoveEvent(self, event):
         # move

@@ -16,6 +16,13 @@ Every filter in the same group has the same sample rate and delay. For example
 cfg=2,3 creates two filter groups with 2 filters in the first group and 3
 filters in the second group.
 
+.SH NOTE
+.P
+An alternate component named \fBdbounce\fR implements similar
+functionality using conventional count= and names= parameters.  Delay
+settings are implemented by a delay pin for each instance instead of
+using filter groups.
+
 .SH DESCRIPTION
 The debounce filter works by incrementing a counter whenever the input is true,
 and decrementing the counter when it is false.  If the counter decrements to

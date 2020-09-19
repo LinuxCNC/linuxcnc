@@ -14,13 +14,13 @@
   </object>
   <object class="GtkAdjustment" id="dir_hold_adjust">
     <property name="lower">100</property>
-    <property name="upper">5000</property>
+    <property name="upper">10000</property>
     <property name="value">1000</property>
     <property name="step_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="dir_setup_adjust">
     <property name="lower">100</property>
-    <property name="upper">5000</property>
+    <property name="upper">10000</property>
     <property name="value">1000</property>
     <property name="step_increment">10</property>
   </object>
@@ -1843,13 +1843,13 @@ or discard changes and quit?</property>
   </object>
   <object class="GtkAdjustment" id="step_space_adjust">
     <property name="lower">100</property>
-    <property name="upper">5000</property>
+    <property name="upper">10000</property>
     <property name="value">1000</property>
     <property name="step_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="step_time_adjust">
     <property name="lower">100</property>
-    <property name="upper">5000</property>
+    <property name="upper">10000</property>
     <property name="value">1000</property>
     <property name="step_increment">10</property>
   </object>
@@ -3294,7 +3294,7 @@ or discard changes and quit?</property>
     </data>
   </object>
   <object class="GtkAdjustment" id="tune_accl_adjust">
-    <property name="upper">6000</property>
+    <property name="upper">10000</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="tune_bias_adjust">
@@ -3341,7 +3341,7 @@ or discard changes and quit?</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="tune_vel_adjust">
-    <property name="upper">6000</property>
+    <property name="upper">1000000</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkDialog" id="tunedialog">

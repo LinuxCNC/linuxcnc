@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget - MDI history widget
 # Copyright (c) 2017 Chris Morley

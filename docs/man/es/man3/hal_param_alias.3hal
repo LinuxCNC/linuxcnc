@@ -9,7 +9,7 @@ Int
 .BR hal_param_alias "(const char *" original_name ", const char *" alias );
 
 .SH ARGUMENTOS
-.IP \fIoriginal_name \fR
+.IP \fIoriginal_name\fR
 El nombre original del parametro.
 
 .IP \fIalias\fR

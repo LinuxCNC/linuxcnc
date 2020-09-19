@@ -740,7 +740,7 @@ originoffsetdialog
 calculatordialog
 alphamode
 inhibit_selection
-
+show_dimensions
 ----
 
 Submenus:

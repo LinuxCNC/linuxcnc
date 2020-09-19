@@ -131,7 +131,7 @@ class star_wiz:
                     outTmp.write('g1 x{} y{}\n'.format(pList[i][0], pList[i][1]))
             if self.offset.get_active():
                 outTmp.write('g40\n')
-            outTmp.write('m5\n')
+            outTmp.write('m5 $0\n')
             outTmp.close()
             outTmp = open(self.parent.fTmp, 'r')
             for line in outTmp:

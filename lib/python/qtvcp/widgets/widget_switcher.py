@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # qtvcp
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -70,7 +70,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             if i.indexOf(widget) > -1:
                 #print i.layout(), widget.objectName(), i.objectName()
                 return i.layout(), i.indexOf(widget)
-        print widget.parent()
+        print(widget.parent())
         LOG.error('No layout found for {}'.format(widget))
         return widget.parent(),None
 

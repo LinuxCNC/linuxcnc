@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 #    This is a part of LinuxCNC
 #    Copyright 2006-2009 Jeff Epler <jepler@unpythonic.net>
 #

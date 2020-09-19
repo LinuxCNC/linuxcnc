@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2016 Chris Morley
@@ -77,7 +77,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_view_signal(self, w, view, args):
         v = view.lower()
         if v == 'clear':
-            self.clear_live_plotter()
+            self.logger.clear()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
@@ -129,6 +129,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.inhibit_selection = True
         elif v == 'inhibit-selection-off':
             self.inhibit_selection = False
+        elif v == 'dimensions-on':
+            self.show_extents_option = True
+            self.updateGL()
+        elif v == 'dimensions-off':
+            self.show_extents_option = False
+            self.updateGL()
         else:
             self.set_view(v)
 
@@ -165,7 +171,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
-            print 'error', self._reload_filename
+            print('error', self._reload_filename)
             pass
 
 

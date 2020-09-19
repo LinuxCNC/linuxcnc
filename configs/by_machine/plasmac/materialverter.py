@@ -250,7 +250,7 @@ class materialConverter:
                         self.materialNum = ''
                         self.materialName = 'NAME               = '
                         self.materialKerf = 'KERF_WIDTH         = '
-                        self.materialTHC = 'THC                = 0'
+                        self.materialTHC = 'THC                = 1'
                         self.materialPierceH = 'PIERCE_HEIGHT      = '
                         self.materialPierceD = 'PIERCE_DELAY       = '
                         self.materialPuddleH = 'PUDDLE_JUMP_HEIGHT = 0'
