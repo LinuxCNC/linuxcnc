@@ -33,6 +33,7 @@ Build-Depends: debhelper (>= 6),
     psmisc,
     desktop-file-utils,
     yapps2,
+    python3-yapps,
     libtirpc-dev,
     libepoxy-dev,
 Standards-Version: 3.9.2
