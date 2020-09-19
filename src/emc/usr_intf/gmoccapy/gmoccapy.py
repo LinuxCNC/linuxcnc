@@ -30,6 +30,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 from gi.repository import GObject
 
 import traceback           # needed to launch traceback errors
@@ -713,6 +714,8 @@ class gmoccapy(object):
         children = self.widgets.hbtb_ref.get_children()
         for child in children:
             self.ref_button_dic[child.get_property("name")] = child
+        
+        self.widgets.hbtb_ref.show_all()
 
     def _get_space_label(self, name):
         lbl = Gtk.Label("")
@@ -722,6 +725,7 @@ class gmoccapy(object):
         return lbl
 
     def _get_button_with_image(self, name, filepath, stock):
+        print("get button with image")
         image = Gtk.Image()
         image.set_size_request(72,48)
         btn = Gtk.Button()
@@ -729,14 +733,15 @@ class gmoccapy(object):
         btn.set_property("name", name)
         try:
             if filepath:
-                pixbuf = Gdk.pixbuf_new_from_file_at_size(filepath, 72, 48)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filepath, 48, 48)
                 image.set_from_pixbuf(pixbuf)
             else:
-                image.set_from_stock(stock, Gtk.IconSize.LARGE_TOOLBAR)
+                image.set_from_stock(stock, 48)
             btn.add(image)
-        except:
+        except Exception as e:
+            print(e)
             message = _("**** GMOCCAPY ERROR ****\n")
-            message += _("**** could not resolv the image path '{0}' given for macro button '{1}' ****".format(filepath, name))
+            message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
             image.set_from_stock(Gtk.STOCK_MISSING_IMAGE, 48)
             btn.add(image)
