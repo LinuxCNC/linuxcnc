@@ -23,6 +23,7 @@ import gi
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GLib
 from math import pi
 import hal
 
@@ -272,7 +273,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
     # we create a timer and repeat the increment command as long as the button is pressed
     def on_btn_plus_pressed(self, widget):
-        self.timer_id = GObject.timeout_add(self._speed, self.increase)
+        self.timer_id = GLib.timeout_add(self._speed, self.increase)
 
     # destroy the timer to finish increasing the value
     def on_btn_plus_released(self, widget):
@@ -280,7 +281,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         # also on creation of the hal pin, but the default is False, but we do not have
         # a self.timer_id at this state.
         try:
-            GObject.source_remove(self.timer_id)
+            GLib.source_remove(self.timer_id)
         except:
             pass
     
@@ -300,7 +301,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
     # we create a timer and repeat the decrease command as long as the button is pressed
     def on_btn_minus_pressed(self, widget):
-        self.timer_id = GObject.timeout_add(self._speed, self.decrease)
+        self.timer_id = GLib.timeout_add(self._speed, self.decrease)
 
     # destroy the timer to finish increasing the value
     def on_btn_minus_released(self, widget):
@@ -308,7 +309,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         # also on creation of the hal pin, but the default is False, but we do not have
         # a self.timer_id at this state.
         try:
-            GObject.source_remove(self.timer_id)
+            GLib.source_remove(self.timer_id)
         except:
             pass
 
