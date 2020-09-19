@@ -267,9 +267,7 @@ class IconFileSelection(Gtk.HBox):
     def _get_icon(self, name):
         mime = Gio.content_type_guess(name)
         if mime:
-            #print("if mime")
             iconname = Gio.content_type_get_icon(mime[0])
-            #print(iconname)
             icon = Gtk.IconTheme.get_default().choose_icon(iconname.get_names(), self.icon_size, 0)
             if icon:
                 return Gtk.IconInfo.load_icon(icon)
@@ -283,7 +281,6 @@ class IconFileSelection(Gtk.HBox):
         return store
 
     def _fill_store(self):
-        print("fill_store")
         if self.cur_dir == None:
             return
         
@@ -326,12 +323,10 @@ class IconFileSelection(Gtk.HBox):
                 allobjects.sort(reverse = not self.sortorder == _ASCENDING)
     
                 for obj in allobjects:
-                    print(obj)
                     if os.path.isdir(os.path.join(self.cur_dir, obj)):
                         self.store.append([obj, self.dirIcon, True])
                     else:
                         icon = self._get_icon(obj)
-                        print(icon)
                         self.store.append([obj, icon, False])
             
             dirs.sort(key = None, reverse = False)
@@ -340,7 +335,6 @@ class IconFileSelection(Gtk.HBox):
                 for dir in dirs:
                     self.store.append([dir, self.dirIcon, True])
                 for file in files:
-                    print(file)
                     icon = self._get_icon(file)
                     self.store.append([file, icon, False])
             elif self.sortorder == _FILEFIRST:
@@ -411,12 +405,10 @@ class IconFileSelection(Gtk.HBox):
             #self.file_label.hide()
 
     def on_btn_home_clicked(self, widget):
-        print("button Home clicked")
         self.cur_dir = self.user_dir
         self._fill_store()
 
     def on_btn_jump_to_clicked(self, widget):
-        print("button JumpTo clicked")
         self.cur_dir = self.jump_to_dir
         self._fill_store()
 
@@ -494,7 +486,7 @@ class IconFileSelection(Gtk.HBox):
 #        print("margin = ", self.iconView.get_margin())
 #        print("visible range = ", self.iconView.get_visible_range())
 #        print("get cursor = ", self.iconView.get_cursor())
-#        #print("item row = ", self.iconView.get_item_at_row(self.get_selected()))
+#        print("item row = ", self.iconView.get_item_at_row(self.get_selected()))
 #        print("item column = ", self.iconView.get_item_column(self.get_selected()))
 #
 #
@@ -539,7 +531,6 @@ class IconFileSelection(Gtk.HBox):
             pass
 
     def on_btn_exit_clicked(self, data):
-        print("button EXIT clicked")
         if __name__ == "__main__":
             Gtk.main_quit()
         self.emit('exit')
@@ -563,7 +554,6 @@ class IconFileSelection(Gtk.HBox):
         self.check_button_state()
 
     def on_btn_dir_up_clicked(self, widget):
-        print("button DirUp clicked")
         self.cur_dir = os.path.dirname(self.cur_dir)
         self._fill_store()
 

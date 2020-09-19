@@ -4605,29 +4605,29 @@ class gmoccapy(object):
         self.widgets.ntb_preview.set_current_page(3)
         self.widgets.tbtn_fullsize_preview0.set_active(True)
 
-        self.dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self.widgets.window1, action=Gtk.FileChooserAction.OPEN)
-        self.dialog.add_buttons( Gtk.STOCK_CANCEL,
-                            Gtk.ResponseType.CANCEL,
-                            Gtk.STOCK_OPEN,
-                            Gtk.ResponseType.OK,
-                          )
+        # self.dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self.widgets.window1, action=Gtk.FileChooserAction.OPEN)
+        # self.dialog.add_buttons( Gtk.STOCK_CANCEL,
+        #                     Gtk.ResponseType.CANCEL,
+        #                     Gtk.STOCK_OPEN,
+        #                     Gtk.ResponseType.OK,
+        #                   )
 
-        self.add_filters(self.dialog)
+        # self.add_filters(self.dialog)
 
-        response = self.dialog.run()
-        if response == Gtk.ResponseType.OK:
-            File_selected = self.dialog.get_filename()
-            print("Open clicked")
-            print("File selected: " + File_selected)
-            self.on_IconFileSelection1_selected(widget = None, path = File_selected)
-        elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel clicked")
+        # response = self.dialog.run()
+        # if response == Gtk.ResponseType.OK:
+        #     File_selected = self.dialog.get_filename()
+        #     print("Open clicked")
+        #     print("File selected: " + File_selected)
+        #     self.on_IconFileSelection1_selected(widget = None, path = File_selected)
+        # elif response == Gtk.ResponseType.CANCEL:
+        #     print("Cancel clicked")
 
-        self.dialog.destroy()
+        # self.dialog.destroy()
 
-#        self._show_iconview_tab(True)
-#        self.widgets.IconFileSelection1.refresh_filelist()
-#        self.widgets.IconFileSelection1.iconView.grab_focus()
+        self._show_iconview_tab(True)
+        self.widgets.IconFileSelection1.refresh_filelist()
+        self.widgets.IconFileSelection1.iconView.grab_focus()
         self.gcodeerror = ""
 
     def add_filters(self, dialog):
