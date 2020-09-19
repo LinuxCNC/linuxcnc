@@ -243,7 +243,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.entry.set_text(self.model[idx][0])
         self.entry.grab_focus()
         self.entry.set_position(-1)
-        if event.type == gdk._2BUTTON_PRESS:
+        if event.type == gdk.EventType._2BUTTON_PRESS:
             print("Double Click", self.use_double_click)
             if self.use_double_click:
                 self.submit()

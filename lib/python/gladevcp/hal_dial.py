@@ -128,11 +128,11 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
             self.start_drag(widget,event)
         if not self.scale_adjustable:
             return False
-        if button1 and (event.type == gdk._2BUTTON_PRESS):
+        if button1 and (event.type == gdk.EventType._2BUTTON_PRESS):
             self.scale=self.scale*.10
             self.redraw_canvas()
             self.emit("scale_changed", self._count,self.scale)
-        if button3 and (event.type == gdk._2BUTTON_PRESS):
+        if button3 and (event.type == gdk.EventType._2BUTTON_PRESS):
             self.scale=self.scale*10
             self.redraw_canvas()
             self.emit("scale_changed", self._count,self.scale)
