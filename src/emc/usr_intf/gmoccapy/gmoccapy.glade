@@ -761,8 +761,6 @@
                                             <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_view_z">
-                                                <property name="width_request">48</property>
-                                                <property name="height_request">48</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="pixbuf">images/toolaxisz.png</property>
@@ -840,8 +838,6 @@
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_view_y2">
-                                                <property name="width_request">48</property>
-                                                <property name="height_request">48</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="pixbuf">images/toolaxisy2.png</property>
@@ -1040,6 +1036,36 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1082,7 +1108,7 @@
                                                       <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">10500</property>
                                                         <property name="unit">mm/min</property>
                                                         <property name="value">1500</property>
@@ -1129,7 +1155,7 @@
                                                   <object class="SpeedControl" id="spc_ang_jog_vel">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="color">rgb(255,129,22)</property>
                                                     <property name="max">3600</property>
                                                     <property name="template">%.d</property>
                                                     <property name="unit">°/min</property>
@@ -1285,6 +1311,66 @@
                                                             <child>
                                                             <placeholder/>
                                                             </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="tab_fill">False</property>
@@ -1310,6 +1396,66 @@
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             <child>
                                                             <placeholder/>
                                                             </child>
@@ -2222,7 +2368,7 @@
                                                           <object class="SpeedControl" id="spc_spindle">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="color">#ffff81811616</property>
+                                                            <property name="color">rgb(255,129,22)</property>
                                                             <property name="max">120</property>
                                                             <property name="template">%d</property>
                                                             <property name="unit">%</property>
@@ -2562,7 +2708,7 @@
                                                       <object class="SpeedControl" id="spc_rapid">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">120</property>
                                                         <property name="template">%.d</property>
                                                         <property name="unit">%</property>
@@ -2666,7 +2812,7 @@
                                                       <object class="SpeedControl" id="spc_feed">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">120</property>
                                                         <property name="template">%d</property>
                                                         <property name="unit">%</property>
@@ -5545,6 +5691,7 @@ will be in a frame.</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="tooltip_text" translatable="yes">The font to use</property>
+                                                <property name="font">Sans 12</property>
                                                 <signal name="font-set" handler="on_fontbutton_popup_font_set" swapped="no"/>
                                               </object>
                                               <packing>
