@@ -119,13 +119,13 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self._template = template
         self._speed = inc_speed
 
-        self.adjustment = Gtk.Adjustment(self._value, self._min, self._max, self._increment, 0)
+        self.adjustment = Gtk.Adjustment(value = self._value, lower = self._min, upper = self._max, step_increment = self._increment, page_increment = 0)
         self.adjustment.connect("value_changed", self._on_value_changed)
 
-        self.btn_plus = Gtk.Button("+")
+        self.btn_plus = Gtk.Button(label = "+")
         self.btn_plus.connect("pressed", self.on_btn_plus_pressed)
         self.btn_plus.connect("released", self.on_btn_plus_released)
-        self.btn_minus = Gtk.Button("-")
+        self.btn_minus = Gtk.Button(label = "-")
         self.btn_minus.connect("pressed", self.on_btn_minus_pressed)
         self.btn_minus.connect("released", self.on_btn_minus_released)
         
