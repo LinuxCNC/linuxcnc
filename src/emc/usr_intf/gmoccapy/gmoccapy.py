@@ -28,9 +28,9 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 
 import traceback           # needed to launch traceback errors
 import hal                 # base hal class to react to hal signals
@@ -52,7 +52,7 @@ from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
 
 from time import sleep     # needed to get time in case of non wanted mode switch
 from time import strftime  # needed for the clock in the GUI
-#from gtk._gtk import main_quit
+#from Gtk._Gtk import main_quit
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -63,9 +63,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = gtk.MessageDialog(w,
-                          gtk.DialogFlags.MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
-                          gtk.MessageType.ERROR, gtk.ButtonsType.OK,
+    m = Gtk.MessageDialog(w,
+                          Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                          Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                           ("Found an error!\nThe following information may be useful in troubleshooting:\n\n")
                           + "".join(lines))
     m.show()
@@ -150,9 +150,9 @@ INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
 
 # this is for hiding the pointer when using a touch screen
 #TODO:
-#pixmap = gdk.Pixmap(None, 1, 1, 1)
-#color = gdk.Color()
-#INVISABLE = gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+#pixmap = Gdk.Pixmap(None, 1, 1, 1)
+#color = Gdk.Color()
+#INVISABLE = Gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 
 class gmoccapy(object):
@@ -174,7 +174,7 @@ class gmoccapy(object):
         self.stat.poll()
         self.error_channel.poll()
 
-        self.builder = gtk.Builder()
+        self.builder = Gtk.Builder()
         # translation of the glade file will be done with
         self.builder.set_translation_domain("gmoccapy")
         self.builder.add_from_file(XMLNAME)
@@ -237,7 +237,7 @@ class gmoccapy(object):
 
         # the default theme = System Theme we store here to be able to go back to that one later
         #TODO:
-        #self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
+        #self.default_theme = Gtk.settings_get_default().get_property("Gtk-theme-name")
 
         self.dialogs = dialogs.Dialogs()
         self.dialogs.connect("play_sound", self._on_play_sound)
@@ -366,30 +366,30 @@ class gmoccapy(object):
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
-        self.widgets.tbtn_on.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_estop.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FF0000"))
-        self.widgets.tbtn_estop.modify_bg(gtk.StateFlags.NORMAL, gdk.color_parse("#00FF00"))
-        self.widgets.rbt_manual.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_mdi.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_auto.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_setup.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_forward.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#00FF00"))
-        self.widgets.rbt_reverse.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#00FF00"))
-        self.widgets.rbt_stop.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_p.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_x.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_y.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_y2.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_z.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_flood.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_fullsize_preview0.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_fullsize_preview1.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_mist.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_optional_blocks.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_user_tabs.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_view_dimension.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_view_tool_path.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_switch_mode.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_on.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_estop.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FF0000"))
+        self.widgets.tbtn_estop.modify_bg(Gtk.StateFlags.NORMAL, Gdk.color_parse("#00FF00"))
+        self.widgets.rbt_manual.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_mdi.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_auto.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_setup.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_forward.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
+        self.widgets.rbt_reverse.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
+        self.widgets.rbt_stop.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_p.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_x.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_y.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_y2.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_z.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_flood.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
+        self.widgets.tbtn_fullsize_preview0.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_fullsize_preview1.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_mist.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#00FF00"))
+        self.widgets.tbtn_optional_blocks.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_user_tabs.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_view_dimension.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_view_tool_path.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_switch_mode.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
 
         # should the tool in spindle be reloaded on startup?
         self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
@@ -450,18 +450,18 @@ class gmoccapy(object):
         # check the highlighting type
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
-        LANGDIR = os.path.join(BASE, "share", "gtksourceview-2.0", "language-specs")
+        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-2.0", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
             print("**** GMOCCAPY INFO: Gcode.lang found ****")
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
-        self.widgets.abs_colorbutton.set_color(gdk.color_parse(self.abs_color))
-        self.widgets.rel_colorbutton.set_color(gdk.color_parse(self.rel_color))
-        self.widgets.dtg_colorbutton.set_color(gdk.color_parse(self.dtg_color))
-        self.widgets.homed_colorbtn.set_color(gdk.color_parse(self.homed_color))
-        self.widgets.unhomed_colorbtn.set_color(gdk.color_parse(self.unhomed_color))
+        self.widgets.abs_colorbutton.set_color(Gdk.color_parse(self.abs_color))
+        self.widgets.rel_colorbutton.set_color(Gdk.color_parse(self.rel_color))
+        self.widgets.dtg_colorbutton.set_color(Gdk.color_parse(self.dtg_color))
+        self.widgets.homed_colorbtn.set_color(Gdk.color_parse(self.homed_color))
+        self.widgets.unhomed_colorbtn.set_color(Gdk.color_parse(self.unhomed_color))
 
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
@@ -492,11 +492,11 @@ class gmoccapy(object):
 
         # since the main loop is needed to handle the UI and its events, blocking calls like sleep()
         # will block the UI as well, so everything goes through event handlers (aka callbacks)
-        # The gobject.timeout_add() function sets a function to be called at regular intervals
+        # The GObject.timeout_add() function sets a function to be called at regular intervals
         # the time between calls to the function, in milliseconds
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
-        gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
+        GObject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -605,11 +605,11 @@ class gmoccapy(object):
             dro.change_axisletter(axis.upper())
             dro.show()
             dro.set_property("name", "Combi_DRO_{0}".format(pos))
-            dro.set_property("abs_color", gdk.color_parse(self.abs_color))
-            dro.set_property("rel_color", gdk.color_parse(self.rel_color))
-            dro.set_property("dtg_color", gdk.color_parse(self.dtg_color))
-            dro.set_property("homed_color", gdk.color_parse(self.homed_color))
-            dro.set_property("unhomed_color", gdk.color_parse(self.unhomed_color))
+            dro.set_property("abs_color", Gdk.color_parse(self.abs_color))
+            dro.set_property("rel_color", Gdk.color_parse(self.rel_color))
+            dro.set_property("dtg_color", Gdk.color_parse(self.dtg_color))
+            dro.set_property("homed_color", Gdk.color_parse(self.homed_color))
+            dro.set_property("unhomed_color", Gdk.color_parse(self.unhomed_color))
             dro.set_property("actual", self.dro_actual)
             dro.connect("clicked", self._on_DRO_clicked)
             dro.connect('axis_clicked', self._on_DRO_axis_clicked)
@@ -658,7 +658,7 @@ class gmoccapy(object):
 
         if num_elements > 7:
             # show the previous arrow to switch visible homing button)
-            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_clicked)
             self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -689,7 +689,7 @@ class gmoccapy(object):
 
         if num_elements > 7:
             # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_clicked)
             self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -710,7 +710,7 @@ class gmoccapy(object):
         self.widgets.hbtb_ref.pack_start(btn,True,True,0)
         
         name = "home_back"
-        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn = self._get_button_with_image(name, None, Gtk.STOCK_UNDO)
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -721,30 +721,30 @@ class gmoccapy(object):
             self.ref_button_dic[child.get_property("name")] = child
 
     def _get_space_label(self, name):
-        lbl = gtk.Label("")
+        lbl = Gtk.Label("")
         lbl.set_property("name", name)
         lbl.set_size_request(85,56)
         lbl.show()
         return lbl
 
     def _get_button_with_image(self, name, filepath, stock):
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_size_request(72,48)
-        btn = gtk.Button()
+        btn = Gtk.Button()
         btn.set_size_request(85,56)
         btn.set_property("name", name)
         try:
             if filepath:
-                pixbuf = gdk.pixbuf_new_from_file_at_size(filepath, 72, 48)
+                pixbuf = Gdk.pixbuf_new_from_file_at_size(filepath, 72, 48)
                 image.set_from_pixbuf(pixbuf)
             else:
-                image.set_from_stock(stock, gtk.IconSize.LARGE_TOOLBAR)
+                image.set_from_stock(stock, Gtk.IconSize.LARGE_TOOLBAR)
             btn.add(image)
         except:
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for macro button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_stock(gtk.STOCK_MISSING_IMAGE, 48)
+            image.set_from_stock(Gtk.STOCK_MISSING_IMAGE, 48)
             btn.add(image)
         
         btn.show_all()
@@ -898,17 +898,17 @@ class gmoccapy(object):
             # we will have 3 buttons on the right side
             end -= 1
 
-        btn = gtk.ToggleButton(_("  edit\noffsets"))
+        btn = Gtk.ToggleButton(_("  edit\noffsets"))
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
         btn.set_property("name", "edit_offsets")
-        btn.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+        btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
         if num_elements > 6:
             # show the previous arrow to switch visible touch button)
-            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -932,7 +932,7 @@ class gmoccapy(object):
 
         if num_elements > (end - 1):
             # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -946,7 +946,7 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(lbl,True,True,0)
             lbl.show()
 
-        btn = gtk.Button(_("zero\n G92"))
+        btn = Gtk.Button(_("zero\n G92"))
         btn.connect("clicked", self.on_btn_zero_g92_clicked)
         btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
         btn.set_property("name", "zero_offsets")
@@ -954,21 +954,21 @@ class gmoccapy(object):
         btn.show()
 
         if self.tool_measure_OK:
-            btn = gtk.Button(_(" Block\nHeight"))
+            btn = Gtk.Button(_(" Block\nHeight"))
             btn.connect("clicked", self.on_btn_block_height_clicked)
             btn.set_property("tooltip-text", _("Press to enter new value for block height"))
             btn.set_property("name", "block_height")
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             btn.show()
 
-        btn = gtk.Button(_("    set\nselected"))
+        btn = Gtk.Button(_("    set\nselected"))
         btn.connect("clicked", self._on_btn_set_selected_clicked)
         btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
         btn.set_property("name", "set_active")
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
-        btn = self._get_button_with_image("touch_back", None, gtk.STOCK_UNDO)
+        btn = self._get_button_with_image("touch_back", None, Gtk.STOCK_UNDO)
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -1029,25 +1029,26 @@ class gmoccapy(object):
         # One from the released button and one from the pressed button
         # we make a list of the buttons to later add the hardware pins to them
         label = _("Continuous")
-        rbt = gtk.RadioButton(None, label)
+        rbt = Gtk.RadioButton(label = label)
         rbt.set_property("name","rbt_0")
         rbt.connect("pressed", self._jog_increment_changed)
         self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
         rbt.set_property("draw_indicator", False)
         rbt.show()
-        rbt.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+        rbt.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.Color(65535, 65535, 0))
         self.incr_rbt_dic[rbt.get_property("name")] = rbt
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
             name = "rbt_{0}".format(item)
-            rbt = gtk.RadioButton(self.incr_rbt_dic["rbt_0"], self.jog_increments[item])
+            rbt = Gtk.RadioButton.new_from_widget(self.incr_rbt_dic["rbt_0"]) 
+            rbt.set_label(label = self.jog_increments[item])
             rbt.set_property("name",name)
             rbt.connect("pressed", self._jog_increment_changed)
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
-            rbt.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+            rbt.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
             self.incr_rbt_dic[rbt.get_property("name")] = rbt
         self.incr_rbt_dic["rbt_0"].set_active(True)
         self.active_increment = "rbt_0" 
@@ -1168,12 +1169,12 @@ class gmoccapy(object):
         for axis in self.axis_list:
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(axis), direction)
-                btn = gtk.Button(name.upper())
+                btn = Gtk.Button(name.upper())
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
-                btn.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+                btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
@@ -1187,12 +1188,12 @@ class gmoccapy(object):
         for joint in range(0, self.stat.joints):
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(joint), direction)
-                btn = gtk.Button(name.upper())
+                btn = Gtk.Button(name.upper())
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
-                btn.modify_bg(gtk.StateFlags.ACTIVE, gdk.color_parse("#FFFF00"))
+                btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
                 btn.set_size_request(48,48)
 
                 self.joints_button_dic[name] = btn
@@ -1220,7 +1221,7 @@ class gmoccapy(object):
 
             num_macros = 16
 
-        btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+        btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
         btn.hide()
         btn.set_property("tooltip-text", _("Press to display previous macro button"))
         btn.connect("clicked", self._on_btn_previous_macro_clicked)
@@ -1239,7 +1240,7 @@ class gmoccapy(object):
                 # shorten / break line of the name if it is to long
                 if len(lbl) > 11:
                     lbl = lbl[0:10] + "\n" + lbl[11:20]
-                btn = gtk.Button(lbl, None, False)
+                btn = Gtk.Button(lbl, None, False)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("pressed", self._on_btn_macro_pressed, name)
@@ -1247,7 +1248,7 @@ class gmoccapy(object):
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
 
-        btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+        btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
         btn.set_property("tooltip-text", _("Press to display next macro button"))
         btn.connect("clicked", self._on_btn_next_macro_clicked)
         btn.hide()
@@ -1260,7 +1261,7 @@ class gmoccapy(object):
         # places if the amount of macros change.
         if num_macros < 9:
             for pos in range(num_macros, 9):
-                lbl = gtk.Label()
+                lbl = Gtk.Label()
                 lbl.set_property("name","lbl_space_{0}".format(pos))
                 lbl.set_text("")
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
@@ -1323,11 +1324,11 @@ class gmoccapy(object):
         # should never be used due to the limit in axis from 0 to 8
         dro = Combi_DRO()
         dro.set_property("name", "Combi_DRO_9")
-        dro.set_property("abs_color", gdk.color_parse(self.abs_color))
-        dro.set_property("rel_color", gdk.color_parse(self.rel_color))
-        dro.set_property("dtg_color", gdk.color_parse(self.dtg_color))
-        dro.set_property("homed_color", gdk.color_parse(self.homed_color))
-        dro.set_property("unhomed_color", gdk.color_parse(self.unhomed_color))
+        dro.set_property("abs_color", Gdk.color_parse(self.abs_color))
+        dro.set_property("rel_color", Gdk.color_parse(self.rel_color))
+        dro.set_property("dtg_color", Gdk.color_parse(self.dtg_color))
+        dro.set_property("homed_color", Gdk.color_parse(self.homed_color))
+        dro.set_property("unhomed_color", Gdk.color_parse(self.unhomed_color))
         dro.set_property("actual", self.dro_actual)
 
         joint = self._get_joint_from_joint_axis_dic("x")
@@ -1737,9 +1738,9 @@ class gmoccapy(object):
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
-        s = gtk.Socket()
+        s = Gtk.Socket()
         try:
-            widget.append_page(s, gtk.Label(" " + text + " "))
+            widget.append_page(s, Gtk.Label(" " + text + " "))
         except:
             try:
                 widget.pack_end(s, True, True, 0)
@@ -1847,7 +1848,7 @@ class gmoccapy(object):
             for dirs in names:
                 try:
                     sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
-                    if 'gtk-2.0' in sbdirs:
+                    if 'Gtk-2.0' in sbdirs:
                         themes.append(dirs)
                 except:
                     pass
@@ -1857,21 +1858,21 @@ class gmoccapy(object):
             for dirs in names:
                 try:
                     sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
-                    if 'gtk-2.0' in sbdirs:
+                    if 'Gtk-2.0' in sbdirs:
                         themes.append(dirs)
                 except:
                     pass
         temp = 0
-        theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
+        theme_name = self.prefs.getpref("Gtk_theme", "Follow System Theme", str)
         for index, theme in enumerate(themes):
             model.append((theme,))
             if theme == theme_name:
                 temp = index + 1
         self.widgets.theme_choice.set_active(temp)
         #TODO:
-        #settings = gtk.settings_get_default()
+        #settings = Gtk.settings_get_default()
         #if not theme_name == "Follow System Theme":
-        #    settings.set_string_property("gtk-theme-name", theme_name, "")
+        #    settings.set_string_property("Gtk-theme-name", theme_name, "")
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
@@ -1911,8 +1912,8 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property("use_commanded", not self.dro_actual)
         self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
-        self.widgets.eb_program_label.modify_bg(gtk.StateFlags.NORMAL, gdk.Color(0, 0, 0))
-        self.widgets.eb_blockheight_label.modify_bg(gtk.StateFlags.NORMAL, gdk.Color(0, 0, 0))
+        self.widgets.eb_program_label.modify_bg(Gtk.StateFlags.NORMAL, Gdk.Color(0, 0, 0))
+        self.widgets.eb_blockheight_label.modify_bg(Gtk.StateFlags.NORMAL, Gdk.Color(0, 0, 0))
 
     def _init_kinematics_type (self):
         print("Kinematics type changed")
@@ -1978,7 +1979,7 @@ class gmoccapy(object):
                 self._no_virt_keyboard()
                 return
             sid = self.onboard_kb.stdout.readline()
-            self.socket = gtk.Socket()
+            self.socket = Gtk.Socket()
             self.widgets.key_box.add(self.socket)
             self.socket.add_id(int(sid))
             self.socket.show_all()
@@ -2106,9 +2107,9 @@ class gmoccapy(object):
     # init the keyboard shortcut bindings
     def _init_keybindings(self):
         try:
-            accel_group = gtk.AccelGroup()
+            accel_group = Gtk.AccelGroup()
             self.widgets.window1.add_accel_group(accel_group)
-            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307, 0, gtk.ACCEL_LOCKED)
+            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307, 0, Gtk.ACCEL_LOCKED)
         except:
             pass
         self.widgets.window1.connect("key_press_event", self.on_key_event, 1)
@@ -2790,7 +2791,7 @@ class gmoccapy(object):
             self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
         self.command.state(linuxcnc.STATE_ESTOP)
-        gtk.main_quit()
+        Gtk.main_quit()
 
     # What to do if a macro button has been pushed
     def _on_btn_macro_pressed( self, widget = None, data = None ):
@@ -2856,26 +2857,26 @@ class gmoccapy(object):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
         print(state)
         if state:
-            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("abs_color", gdk.color_parse(self.abs_color))
-            self.dro_dic["Combi_DRO_9"].set_property("rel_color", gdk.color_parse(self.rel_color))
-            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", Gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", Gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", Gdk.color_parse(self.dtg_color))
             self.diameter_mode = True
         else:
-            self.dro_dic["Combi_DRO_9"].set_property("abs_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("rel_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gdk.color_parse(self.abs_color))
-            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gdk.color_parse(self.rel_color))
-            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", Gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", Gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", Gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", Gdk.color_parse(self.dtg_color))
             self.diameter_mode = False
 
     def on_key_event(self, widget, event, signal):
 
         # get the keyname
-        keyname = gdk.keyval_name(event.keyval)
+        keyname = Gdk.keyval_name(event.keyval)
 
         # estop with F1 shold work every time
         # so should also escape abort actions
@@ -2916,7 +2917,7 @@ class gmoccapy(object):
             pass
 
         if keyname == "space" and signal:
-            if event.state & gdk.CONTROL_MASK:  # only do it when control is hold down
+            if event.state & Gdk.CONTROL_MASK:  # only do it when control is hold down
                 self.notification.del_message(-1)
                 self.widgets.window1.grab_focus()
                 return
@@ -2982,7 +2983,7 @@ class gmoccapy(object):
                 return
 
             if (keyname == "R" or keyname == "r") and self.stat.interp_state == linuxcnc.INTERP_IDLE:
-                if event.state & gdk.CONTROL_MASK:
+                if event.state & Gdk.CONTROL_MASK:
                     print("R und Control gedrückt")
                     self.widgets.hal_action_reload.emit("activate")
                 else:
@@ -3022,7 +3023,7 @@ class gmoccapy(object):
             if keyname == "Page_Up" or keyname == "Page_Down" or keyname == "KP_Page_Up" or keyname == "KP_Page_Down":
                 return
 
-        if event.state & gdk.ModifierType.SHIFT_MASK:  # SHIFT is hold down, fast jogging active
+        if event.state & Gdk.ModifierType.SHIFT_MASK:  # SHIFT is hold down, fast jogging active
             fast = True
         else:
             fast = False
@@ -3122,7 +3123,7 @@ class gmoccapy(object):
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
-        self.notification.set_property('icon_size', gtk.IconSize.LARGE_TOOLBAR)
+        self.notification.set_property('icon_size', Gtk.IconSize.LARGE_TOOLBAR)
         self.notification.set_property('top_to_bottom', True)
 
     def _from_internal_linear_unit(self, v, unit=None):
@@ -3662,7 +3663,7 @@ class gmoccapy(object):
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
-        name = gtk.Buildable.get_name(widget)
+        name = Gtk.Buildable.get_name(widget)
         if name[-1] == "0":
             name_2 = name[:-1] + "1"
         else:
@@ -4165,12 +4166,12 @@ class gmoccapy(object):
         #theme = widget.get_active_text()
         #if theme == None:
         #    return
-        #self.prefs.putpref('gtk_theme', theme)
-        #settings = gtk.settings_get_default()
+        #self.prefs.putpref('Gtk_theme', theme)
+        #settings = Gtk.settings_get_default()
         ##TODO:
         # if theme == "Follow System Theme":
         #    theme = self.default_theme
-        #settings.set_string_property("gtk-theme-name", theme, "")
+        #settings.set_string_property("Gtk-theme-name", theme, "")
 
     def on_rbt_unlock_toggled(self, widget, data=None):
         if widget.get_active():
@@ -5028,10 +5029,10 @@ class gmoccapy(object):
             print(_("the button is not sensitive"))
             return
  
-        if type(button[0]) == gtk.ToggleButton:
+        if type(button[0]) == Gtk.ToggleButton:
             button[0].set_active(not button[0].get_active())
             print(_("Button {0} has been toggled".format(button[1])))
-        elif type(button[0]) == gtk.RadioButton:
+        elif type(button[0]) == Gtk.RadioButton:
             button[0].set_active(True)
             button[0].emit("pressed")        
             print(_("Button {0} has been pressed".format(button[1])))
@@ -5058,11 +5059,11 @@ class gmoccapy(object):
             if not child.get_visible():
                 hidden +=1
             else:
-                if type(child) != gtk.Label:
+                if type(child) != Gtk.Label:
                     pos = container.child_get_property(child, "position")
                     name = child.get_property("name")
                     if name == None:
-                        name = gtk.Buildable.get_name(child)
+                        name = Gtk.Buildable.get_name(child)
                     self.child_button_dic[pos - hidden] = (child, name)
         
         if number is not None:
@@ -5223,5 +5224,5 @@ if __name__ == "__main__":
         if res:
             raise SystemExit(res)
 
-    gtk.main()
+    Gtk.main()
 
