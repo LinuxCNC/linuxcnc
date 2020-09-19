@@ -28,6 +28,7 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
@@ -51,7 +52,6 @@ from gladevcp.gladebuilder import GladeBuilder
 
 from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
 
-from time import sleep     # needed to get time in case of non wanted mode switch
 from time import strftime  # needed for the clock in the GUI
 #from Gtk._Gtk import main_quit
 
@@ -2504,6 +2504,7 @@ class gmoccapy(object):
         self.macro_dic["keyboard"].set_sensitive(True)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
+        print("hal signal tool chnaged")
         # need to save the tool in spindle as preference, to be able to reload it on startup
         self.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self._update_toolinfo(new_tool_no)
@@ -4411,6 +4412,7 @@ class gmoccapy(object):
 
     # Here we create a manual tool change dialog
     def on_tool_change(self, widget):
+        print("on tool chnage")
         change = self.halcomp['toolchange-change']
         toolnumber = self.halcomp['toolchange-number']
         if change:
