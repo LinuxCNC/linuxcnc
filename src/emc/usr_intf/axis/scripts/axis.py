@@ -1251,7 +1251,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 if m == -1: continue
                 initcodes.append("M%d" % m)
         try:
-            print(f"parsing {f} {initcodes} {interpname}")
             result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
