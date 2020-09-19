@@ -28,7 +28,7 @@ import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from .hal_widgets import _HalSpeedControlBase
+from hal_widgets import _HalSpeedControlBase
 
 class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
     '''
@@ -86,7 +86,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
                     20, 300, 100, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
         'unit' : ( GObject.TYPE_STRING, 'unit', 'Sets the unit to be shown in the bar after the value',
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-        'color' : (Gdk.RGBA.__gtype__, 'color', 'Sets the color of the bar',
+        'color' : (Gdk.RGBA, 'color', 'Sets the color of the bar',
                         GObject.ParamFlags.READWRITE),
         'template' : (GObject.TYPE_STRING, 'Text template for bar value',
                 'Text template to display. Python formatting may be used for one variable',
@@ -140,6 +140,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
         self.add(self.table)
         self.show_all()
         self.connect("destroy", Gtk.main_quit)
+
 
         self._update_widget()
 
@@ -350,7 +351,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
 
     # returns separate values for red, green and blue of a Gtk_color
     def get_color_tuple(Gtk_color,c):
-        return (c.red_float, c.green_float, c.blue_float)
+        return (int(c.red*65535), int(c.green*65535), int(c.blue*65535))
 
     # set the digits of the shown value
     def set_digits(self, digits):
@@ -462,7 +463,9 @@ def main():
     window.show_all()
     speedcontrol.set_property("height", 48)
     speedcontrol.set_property("unit", "mm/min")
-    speedcontrol.set_property("color", Gdk.RGBA.parse("#FF8116"))
+    color = Gdk.RGBA()
+    color.parse("#FF8116")
+    speedcontrol.set_property("color", color)
     speedcontrol.set_property("min", 0)
     speedcontrol.set_property("max", 15000)
     speedcontrol.set_property("increment", 250.123)
