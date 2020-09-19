@@ -36,13 +36,13 @@ class listing:
                 l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
-            
-            if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#66f'))
-            elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
-            else:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
+            #TODO: gtk3
+            #if self.start_line == self.lineoffset + i:
+            #    e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#66f'))
+            #elif self.selected == self.lineoffset + i:
+            #    e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+            #else:
+            #    e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
 
     def show_line(self, n):
         if len(self.program) <= self.numlabels:

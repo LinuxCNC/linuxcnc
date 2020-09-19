@@ -34,10 +34,11 @@ class filechooser:
                 l.set_text(files[i])
             else:
                 l.set_text('')
-            if self.selected == self.fileoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
-            else:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
+            #TODO: gtk3
+            #if self.selected == self.fileoffset + i:
+            #    e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+            #else:
+            #    e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
 
     def select(self, eventbox, event):
         n = int(eventbox.get_name()[20:])
