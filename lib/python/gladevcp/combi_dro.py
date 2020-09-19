@@ -20,10 +20,11 @@
 import gi
 gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
-from gi.repository import Pango as pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import GLib
 import os
 import sys
 import math
@@ -45,7 +46,7 @@ except:
     pass
 
 # This is the main class
-class Combi_DRO(gtk.VBox):
+class Combi_DRO(Gtk.VBox):
     '''
     Combi_DRO will display an linuxcnc DRO with all three types at ones
 
@@ -56,47 +57,47 @@ class Combi_DRO(gtk.VBox):
 
     __gtype_name__ = 'Combi_DRO'
     __gproperties__ = {
-        'joint_number' : (gobject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
-                    0, 8, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'actual' : (gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'metric_units' : (gobject.TYPE_BOOLEAN, 'Display in metric units', 'Display in metric or not',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'auto_units' : (gobject.TYPE_BOOLEAN, 'Change units according gcode', 'Units will toggle between metric and imperial according to gcode.',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'diameter' : (gobject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'mm_text_template' : (gobject.TYPE_STRING, 'Text template for Metric Units',
+        'joint_number' : (GObject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
+                    0, 8, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'actual' : (GObject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'metric_units' : (GObject.TYPE_BOOLEAN, 'Display in metric units', 'Display in metric or not',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'auto_units' : (GObject.TYPE_BOOLEAN, 'Change units according gcode', 'Units will toggle between metric and imperial according to gcode.',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'diameter' : (GObject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'mm_text_template' : (GObject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%10.3f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'imperial_text_template' : (gobject.TYPE_STRING, 'Text template for Imperial Units',
+                "%10.3f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'imperial_text_template' : (GObject.TYPE_STRING, 'Text template for Imperial Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%9.4f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'homed_color' : (gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
-                        gobject.PARAM_READWRITE),
-        'unhomed_color' : (gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
-                        gobject.PARAM_READWRITE),
-        'abs_color' : (gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
-                        gobject.PARAM_READWRITE),
-        'rel_color' : (gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
-                        gobject.PARAM_READWRITE),
-        'dtg_color' : (gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
-                        gobject.PARAM_READWRITE),
-        'font_size' : (gobject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
-                    8, 96, 25, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'toggle_readout' : (gobject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolut , Relativ and DTG with each mouse click.',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'cycle_time' : (gobject.TYPE_INT, 'Cycle Time', 'Time, in milliseconds, that display will sleep between polls',
-                    100, 1000, 150, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                "%9.4f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'homed_color' : (Gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
+                        GObject.ParamFlags.READWRITE),
+        'unhomed_color' : (Gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
+                        GObject.ParamFlags.READWRITE),
+        'abs_color' : (Gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
+                        GObject.ParamFlags.READWRITE),
+        'rel_color' : (Gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
+                        GObject.ParamFlags.READWRITE),
+        'dtg_color' : (Gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
+                        GObject.ParamFlags.READWRITE),
+        'font_size' : (GObject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
+                    8, 96, 25, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'toggle_readout' : (GObject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolut , Relativ and DTG with each mouse click.',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'cycle_time' : (GObject.TYPE_INT, 'Cycle Time', 'Time, in milliseconds, that display will sleep between polls',
+                    100, 1000, 150, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                    'clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
-                    'units_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-                    'system_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-                    'axis_clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                    'clicked': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
+                    'units_changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+                    'system_changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+                    'axis_clicked': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+                    'exit': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
                    }
 
     # Init the class
@@ -113,16 +114,15 @@ class Combi_DRO(gtk.VBox):
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
         self.gstat = GStat()
-
         # set some default values'
         self._ORDER = ["Rel", "Abs", "DTG"]
         self.system = "Rel"
         self.homed = False
-        self.homed_color = gdk.Color.parse("green")[1]
-        self.unhomed_color = gdk.Color.parse("red")[1]
-        self.abs_color = gdk.Color.parse("blue")[1]
-        self.rel_color = gdk.Color.parse("black")[1]
-        self.dtg_color = gdk.Color.parse("yellow")[1]
+        self.homed_color = (0, 65535, 0)
+        self.unhomed_color = (65535, 0, 0)
+        self.abs_color = (0, 0, 65535)
+        self.rel_color = (0, 0, 0)
+        self.dtg_color = (65535, 65535, 0)
         self.mm_text_template = "%10.3f"
         self.imperial_text_template = "%9.4f"
         self.font_size = 25
@@ -134,47 +134,97 @@ class Combi_DRO(gtk.VBox):
         self.cycle_time = 150
 
         # Make the GUI and connect signals
-        self.eventbox = gtk.EventBox()
-        self.eventbox.modify_bg(gtk.StateFlags.NORMAL, gdk.color_parse("black"))
+        self.eventbox = Gtk.EventBox()
+        self.css = Gtk.CssProvider()
+        self.css.load_from_data(b"""
+        .relative{
+            background-image: none;
+            background-color: black;
+        }
+        .absolut{
+            background-image: none;
+            background-color: blue;
+        }
+        .dtg{
+            background-image: none;
+            background-color: yellow;
+        }
+        .homed{
+            color: lime;
+        }
+        .unhomed{
+            color: red;
+        }
+        .axisletter{
+            font-size: 25px;
+            font-weight: bold;
+        }
+        .system{
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .main_dro{
+            font-size: 25px;
+            font-weight: bold;
+        }
+        """)
+        self.eventbox.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.eventbox.get_style_context().add_class("relative")
         self.add(self.eventbox)
-        vbox_main = gtk.VBox(False, 0)
+        vbox_main = Gtk.VBox(homogeneous = False, spacing = 0)
         self.eventbox.add(vbox_main)
-        hbox_up = gtk.HBox(False, 0)
+        hbox_up = Gtk.HBox(homogeneous = False, spacing = 0)
         vbox_main.pack_start(hbox_up, True, True, 0)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size * 1000, 0, -1), (600, 0, -1))
-        self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.axis_no])
-        self.lbl_axisletter.set_attributes(attr)
+
+        self.lbl_axisletter = Gtk.Label(label = _AXISLETTERS[self.axis_no])
+        self.lbl_axisletter.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.lbl_axisletter.get_style_context().add_class("axisletter")
+        self.lbl_axisletter.get_style_context().add_class("unhomed")
         hbox_up.pack_start(self.lbl_axisletter, False, False, 0)
-        vbox_ref_type = gtk.VBox(False, 0)
+
+        vbox_ref_type = Gtk.VBox(homogeneous = False, spacing = 0)
         hbox_up.pack_start(vbox_ref_type, False, False, 0)
-        lbl_space = gtk.Label("")
+        lbl_space = Gtk.Label(label = "")
         vbox_ref_type.pack_start(lbl_space, True, True, 0)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
-        self.lbl_sys_main = gtk.Label(self.system)
+        
+        self.lbl_sys_main = Gtk.Label(label = self.system)
+        self.lbl_sys_main.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.lbl_sys_main.get_style_context().add_class("system")
+        self.lbl_sys_main.get_style_context().add_class("unhomed")
         vbox_ref_type.pack_start(self.lbl_sys_main, False, False, 0)
-        self.lbl_sys_main.set_attributes(attr)
-        self.main_dro = gtk.Label("9999.999")
+
+        self.main_dro = Gtk.Label(label = "9999.999")
+        self.main_dro.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.main_dro.get_style_context().add_class("main_dro")
+        self.main_dro.get_style_context().add_class("unhomed")
         hbox_up.pack_start(self.main_dro, False, False, 0)
-        self.main_dro.set_alignment(1.0, 0.5)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size, 0, -1), (600, 0, -1))
-        self.main_dro.set_attributes(attr)
-        hbox_down = gtk.HBox(False, 5)
+
+        hbox_down = Gtk.HBox(homogeneous = False, spacing = 5)
         vbox_main.pack_start(hbox_down, False, False, 0)
-        self.lbl_sys_left = gtk.Label("Abs")
+
+        self.lbl_sys_left = Gtk.Label(label = "Abs")
+        self.lbl_sys_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.lbl_sys_left.get_style_context().add_class("system")
+        self.lbl_sys_left.get_style_context().add_class("unhomed")
         hbox_down.pack_start(self.lbl_sys_left, False, False, 0)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
-        self.lbl_sys_left.set_attributes(attr)
-        self.dro_left = gtk.Label("-11.111")
+
+        self.dro_left = Gtk.Label(label = "-11.111")
+        self.dro_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.dro_left.get_style_context().add_class("system")
+        self.dro_left.get_style_context().add_class("unhomed")
         hbox_down.pack_start(self.dro_left, False, False, 0)
-        self.dro_left.set_alignment(1.0, 0.5)
-        self.dro_left.set_attributes(attr)
-        self.lbl_sys_right = gtk.Label("DTG")
+        
+        self.lbl_sys_right = Gtk.Label(label = "DTG")
+        self.lbl_sys_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.lbl_sys_right.get_style_context().add_class("system")
+        self.lbl_sys_right.get_style_context().add_class("unhomed")        
         hbox_down.pack_start(self.lbl_sys_right, False, False, 0)
-        self.lbl_sys_right.set_attributes(attr)
-        self.dro_right = gtk.Label("22.222")
+        
+        self.dro_right = Gtk.Label(label = "22.222")
+        self.dro_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.dro_right.get_style_context().add_class("system")
+        self.dro_right.get_style_context().add_class("unhomed")        
         hbox_down.pack_start(self.dro_right, False, False, 0)
-        self.dro_right.set_alignment(1.0, 0.5)
-        self.dro_right.set_attributes(attr)
 
         self.eventbox.connect("button_press_event", self._on_eventbox_clicked)
 
@@ -203,20 +253,7 @@ class Combi_DRO(gtk.VBox):
             self.machine_units = _INCH
 
         # add the timer at a period of 100 ms
-        gobject.timeout_add(self.cycle_time, self._periodic)
-
-    # make an pango attribute to be used with several labels
-    def _set_attributes(self, bgcolor, fgcolor, size, weight):
-        attr = pango.AttrList()
-        bg_color = pango.attr_background_new(bgcolor[0], bgcolor[1], bgcolor[2])
-        attr.insert(bg_color)
-        size_attr = pango.attr_size_new(size[0])
-        attr.insert(size_attr)
-        weight_attr = pango.attr_weight_new(weight[0])
-        attr.insert(weight_attr)
-        fg_color = pango.attr_foreground_new(fgcolor[0], fgcolor[1], fgcolor[2])
-        attr.insert(fg_color)
-        return attr
+        GLib.timeout_add(self.cycle_time, self._periodic)
 
     # if the eventbox has been clicked, we like to toggle the DRO's
     # or just emit a signal to allow GUI to do what ever they want with that
@@ -291,9 +328,9 @@ class Combi_DRO(gtk.VBox):
             gcode = self.status.gcodes[1:]
             for code in gcode:
                 if code >= 540 and code <= 590:
-                    return "G%s" % (code / 10)
+                    return "G%s" % int((code / 10))
                 elif code > 590 and code <= 593:
-                    return "G%s" % (code / 10.0)
+                    return "G%s" % int((code / 10.0))
             return "Rel"
 
     # Get the units used according to gcode
@@ -320,38 +357,80 @@ class Combi_DRO(gtk.VBox):
             self.lbl_sys_right.set_text(self._ORDER[2])
 
         if self._ORDER[0] == "Abs":
-            bg_color = self.abs_color
+            bg_color = "absolut"
         elif self._ORDER[0] == "DTG":
-            bg_color = self.dtg_color
+            bg_color = "dtg"
         else:
-            bg_color = self.rel_color
-        self.eventbox.modify_bg(gtk.StateFlags.NORMAL, bg_color)
-        bg_color = self._convert_to_rgb(bg_color)
+            bg_color = "relative"
+        
+        self.eventbox.get_style_context().remove_class("absolut")
+        self.eventbox.get_style_context().remove_class("dtg")
+        self.eventbox.get_style_context().remove_class("relative")
+        self.eventbox.get_style_context().add_class(bg_color)
+
         if self.homed:
-            fg_color = self.homed_color
+            fg_color = "homed"
         else:
-            fg_color = self.unhomed_color
-        fg_color = self._convert_to_rgb(fg_color)
-        attr = self._set_attributes(bg_color, fg_color, (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
-        self.lbl_sys_main.set_attributes(attr)
-        self.lbl_sys_left.set_attributes(attr)
-        self.lbl_sys_right.set_attributes(attr)
-        self.dro_left.set_attributes(attr)
-        self.dro_right.set_attributes(attr)
-        attr = self._set_attributes(bg_color, fg_color, (self.font_size * 1000, 0, -1), (600, 0, -1))
-        self.main_dro.set_attributes(attr)
-        self.lbl_axisletter.set_attributes(attr)
+            fg_color = "unhomed"
+
+        self.lbl_sys_main.get_style_context().remove_class("absolut")
+        self.lbl_sys_main.get_style_context().remove_class("dtg")
+        self.lbl_sys_main.get_style_context().remove_class("relative")
+        self.lbl_sys_main.get_style_context().add_class(bg_color)
+        self.lbl_sys_main.get_style_context().remove_class("homed")
+        self.lbl_sys_main.get_style_context().remove_class("unhomed")
+        self.lbl_sys_main.get_style_context().add_class(fg_color)
+
+        self.lbl_sys_left.get_style_context().remove_class("absolut")
+        self.lbl_sys_left.get_style_context().remove_class("dtg")
+        self.lbl_sys_left.get_style_context().remove_class("relative")
+        self.lbl_sys_left.get_style_context().add_class(bg_color)
+        self.lbl_sys_left.get_style_context().remove_class("homed")
+        self.lbl_sys_left.get_style_context().remove_class("unhomed")
+        self.lbl_sys_left.get_style_context().add_class(fg_color)
+
+        self.lbl_sys_right.get_style_context().remove_class("absolut")
+        self.lbl_sys_right.get_style_context().remove_class("dtg")
+        self.lbl_sys_right.get_style_context().remove_class("relative")
+        self.lbl_sys_right.get_style_context().add_class(bg_color)
+        self.lbl_sys_right.get_style_context().remove_class("homed")
+        self.lbl_sys_right.get_style_context().remove_class("unhomed")
+        self.lbl_sys_right.get_style_context().add_class(fg_color)
+
+        self.dro_left.get_style_context().remove_class("absolut")
+        self.dro_left.get_style_context().remove_class("dtg")
+        self.dro_left.get_style_context().remove_class("relative")
+        self.dro_left.get_style_context().add_class(bg_color)
+        self.dro_left.get_style_context().remove_class("homed")
+        self.dro_left.get_style_context().remove_class("unhomed")
+        self.dro_left.get_style_context().add_class(fg_color)
+
+        self.dro_right.get_style_context().remove_class("absolut")
+        self.dro_right.get_style_context().remove_class("dtg")
+        self.dro_right.get_style_context().remove_class("relative")
+        self.dro_right.get_style_context().add_class(bg_color)
+        self.dro_right.get_style_context().remove_class("homed")
+        self.dro_right.get_style_context().remove_class("unhomed")
+        self.dro_right.get_style_context().add_class(fg_color)
+
+        self.main_dro.get_style_context().remove_class("absolut")
+        self.main_dro.get_style_context().remove_class("dtg")
+        self.main_dro.get_style_context().remove_class("relative")
+        self.main_dro.get_style_context().add_class(bg_color)
+        self.main_dro.get_style_context().remove_class("homed")
+        self.main_dro.get_style_context().remove_class("unhomed")
+        self.main_dro.get_style_context().add_class(fg_color)
+
+        self.lbl_axisletter.get_style_context().remove_class("absolut")
+        self.lbl_axisletter.get_style_context().remove_class("dtg")
+        self.lbl_axisletter.get_style_context().remove_class("relative")
+        self.lbl_axisletter.get_style_context().add_class(bg_color)
+        self.lbl_axisletter.get_style_context().remove_class("homed")
+        self.lbl_axisletter.get_style_context().remove_class("unhomed")
+        self.lbl_axisletter.get_style_context().add_class(fg_color)
 
         self.system = self._get_current_system()
 
-    # returns the separate RGB color numbers from the color widget
-    def _convert_to_rgb(self, spec):
-        color = spec.to_string()
-        temp = color.strip("#")
-        r = temp[0:4]
-        g = temp[4:8]
-        b = temp[8:]
-        return (int(r, 16), int(g, 16), int(b, 16))
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
@@ -611,9 +690,9 @@ class Combi_DRO(gtk.VBox):
 # for testing without glade editor:
 # to show some behavior and setting options
 def main():
-    window = gtk.Window(gtk.WindowType.TOPLEVEL)
+    window = Gtk.Window(type = Gtk.WindowType.TOPLEVEL)
 
-    vbox = gtk.VBox(False, 5)
+    vbox = Gtk.VBox(homogeneous = False, spacing = 5)
     MDRO_X = Combi_DRO(0)
     MDRO_Y = Combi_DRO(1)
     MDRO_Z = Combi_DRO(2)
@@ -625,7 +704,7 @@ def main():
     vbox.add(MDRO_C)
     window.add(vbox)
 
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
     MDRO_X.connect("clicked", clicked)
     MDRO_Y.connect("clicked", clicked)
     MDRO_Y.set_auto_units(False)
@@ -636,10 +715,10 @@ def main():
     MDRO_Z.connect("clicked", clicked)
     MDRO_C.connect("clicked", clicked)
     MDRO_C.set_property('mm_text_template', '%10.2f')
-    MDRO_C.set_property('imperial_text_template', '%10.2f')
+    MDRO_C.set_property('imperial_text_template', '%10.3f')
     MDRO_C.set_property('toggle_readout', False)
     window.show_all()
-    gtk.main()
+    Gtk.main()
 
 def clicked(self, axis_number, order):
     '''
