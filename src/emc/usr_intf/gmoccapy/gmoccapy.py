@@ -2907,7 +2907,7 @@ class gmoccapy(object):
             pass
 
         if keyname == "space" and signal:
-            if event.state & Gdk.CONTROL_MASK:  # only do it when control is hold down
+            if event.state & Gdk.ModifierType.CONTROL_MASK:  # only do it when control is hold down
                 self.notification.del_message(-1)
                 self.widgets.window1.grab_focus()
                 return
