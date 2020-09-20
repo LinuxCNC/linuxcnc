@@ -76,8 +76,8 @@ EXTRA_FILES=
 EXTRA_BUILD=
 KERNEL_VERSION=$TARGET
 DRIVERS=drivers.files.in
-PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
+PYTHON_VERSION=$(python3 -c 'import sys; print (sys.version[:3])')
+PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV=libreadline-gplv2-dev
 
 BUILD_RTAI=false
@@ -175,7 +175,10 @@ YAPPS_RUNTIME="yapps2-runtime"
 STANDARDS_VERSION="3.9.3"
 
 case $DISTRIB_NAME in
-    Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
+Ubuntu-20.04*)
+        DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
+        ;;
+Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         EXTRA_BUILD=python-yapps
