@@ -2397,7 +2397,7 @@ class gmoccapy(object):
         widgetlist = ["btn_use_current" ]
         # this test is only necessary, because of remap and toolchange, it will emit a file loaded signal
         if filename:
-            fileobject = file(filename, 'r')
+            fileobject = open(filename, 'r')
             lines = fileobject.readlines()
             fileobject.close()
             self.halcomp["program.length"] = len(lines)
