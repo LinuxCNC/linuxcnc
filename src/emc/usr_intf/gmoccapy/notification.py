@@ -148,7 +148,7 @@ class Notification(Gtk.Window):
         hbox.show()
         icon.show()
 # we do not show the labelnumber, but we use it for the handling
-        labelnumber.show()
+        #labelnumber.show()
         self.vbox.show()
 
     # add a message, the message is a string, it will be line wraped
