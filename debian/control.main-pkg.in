@@ -5,7 +5,7 @@ Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python3,
-    ${python:Depends}, ${misc:Depends},
+    ${python3:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
     libgladeui-dev,
     python@PYTHON_VERSION@-numpy | python-numpy,
