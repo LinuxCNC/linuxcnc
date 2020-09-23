@@ -176,7 +176,7 @@ STANDARDS_VERSION="3.9.3"
 case $DISTRIB_NAME in
 Ubuntu-20.04*|Debian-testing)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
-        YAPPS_RUNTIME="python3-yapps2"
+        YAPPS_RUNTIME="yapps2"
         ;;
 Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
