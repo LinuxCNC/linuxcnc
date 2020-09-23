@@ -174,7 +174,7 @@ PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk | pyth
 STANDARDS_VERSION="3.9.3"
 
 case $DISTRIB_NAME in
-Ubuntu-20.04*)
+Ubuntu-20.04*|Debian-testing)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         YAPPS_RUNTIME="python3-yapps2"
         ;;
