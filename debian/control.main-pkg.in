@@ -13,7 +13,6 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     @PYTHON_IMAGING_TK@,
     libgtksourceview-3.0-dev,
     python-vte | gir1.2-vte-2.91,
-    @PYTHON_GST@,
     python-xlib, python3-configobj,
     tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt, udev
