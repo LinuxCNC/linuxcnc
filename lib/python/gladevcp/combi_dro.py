@@ -133,100 +133,105 @@ class Combi_DRO(Gtk.VBox):
         self.toggle_readout = True
         self.cycle_time = 150
 
+        self.widgets = {}  # will hold all our widgets we need to style
+
         # Make the GUI and connect signals
-        self.eventbox = Gtk.EventBox()
         self.css = Gtk.CssProvider()
         self.css.load_from_data(b"""
-        .relative{
-            background-image: none;
-            background-color: black;
-        }
-        .absolut{
-            background-image: none;
-            background-color: blue;
-        }
-        .dtg{
-            background-image: none;
-            background-color: yellow;
-        }
-        .homed{
-            color: lime;
-        }
-        .unhomed{
-            color: red;
-        }
-        .axisletter{
-            font-size: 25px;
-            font-weight: bold;
-        }
-        .system{
-            font-size: 10px;
-            font-weight: bold;
-        }
-        .main_dro{
-            font-size: 25px;
-            font-weight: bold;
-        }
-        """)
-        self.eventbox.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.eventbox.get_style_context().add_class("relative")
-        self.add(self.eventbox)
+                                .relative{
+                                    background-image: none;
+                                    background-color: black;
+                                }
+                                .absolut{
+                                    background-image: none;
+                                    background-color: blue;
+                                }
+                                .dtg{
+                                    background-image: none;
+                                    background-color: yellow;
+                                }
+                                .homed{
+                                    color: lime;
+                                }
+                                .unhomed{
+                                    color: red;
+                                }
+                                .axisletter{
+                                    font-size: 25px;
+                                    font-weight: bold;
+                                }
+                                .system{
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                }
+                                .main_dro{
+                                    font-size: 25px;
+                                    font-weight: bold;
+                                }
+                                """)
+
+        eventbox = Gtk.EventBox()
+        eventbox.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self.add(eventbox)
         vbox_main = Gtk.VBox(homogeneous = False, spacing = 0)
-        self.eventbox.add(vbox_main)
+        eventbox.add(vbox_main)
         hbox_up = Gtk.HBox(homogeneous = False, spacing = 0)
         vbox_main.pack_start(hbox_up, True, True, 0)
+        self.widgets["eventbox"] = eventbox
 
-        self.lbl_axisletter = Gtk.Label(label = _AXISLETTERS[self.axis_no])
-        self.lbl_axisletter.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.lbl_axisletter.get_style_context().add_class("axisletter")
-        self.lbl_axisletter.get_style_context().add_class("unhomed")
-        hbox_up.pack_start(self.lbl_axisletter, False, False, 0)
+        lbl_axisletter = Gtk.Label(label = _AXISLETTERS[self.axis_no])
+        lbl_axisletter.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        lbl_axisletter.get_style_context().add_class("axisletter")
+        hbox_up.pack_start(lbl_axisletter, False, False, 0)
+        self.widgets["lbl_axisletter"] = lbl_axisletter
 
         vbox_ref_type = Gtk.VBox(homogeneous = False, spacing = 0)
         hbox_up.pack_start(vbox_ref_type, False, False, 0)
         lbl_space = Gtk.Label(label = "")
         vbox_ref_type.pack_start(lbl_space, True, True, 0)
         
-        self.lbl_sys_main = Gtk.Label(label = self.system)
-        self.lbl_sys_main.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.lbl_sys_main.get_style_context().add_class("system")
-        self.lbl_sys_main.get_style_context().add_class("unhomed")
-        vbox_ref_type.pack_start(self.lbl_sys_main, False, False, 0)
+        lbl_sys_main = Gtk.Label(label = self.system)
+        lbl_sys_main.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        lbl_sys_main.get_style_context().add_class("system")
+        vbox_ref_type.pack_start(lbl_sys_main, False, False, 0)
+        self.widgets["lbl_sys_main"] = lbl_sys_main
 
-        self.main_dro = Gtk.Label(label = "9999.999")
-        self.main_dro.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.main_dro.get_style_context().add_class("main_dro")
-        self.main_dro.get_style_context().add_class("unhomed")
-        hbox_up.pack_start(self.main_dro, False, False, 0)
+        main_dro = Gtk.Label(label = "9999.999")
+        main_dro.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        main_dro.get_style_context().add_class("main_dro")
+        hbox_up.pack_start(main_dro, False, False, 0)
+        self.widgets["main_dro"] = main_dro
 
         hbox_down = Gtk.HBox(homogeneous = False, spacing = 5)
         vbox_main.pack_start(hbox_down, False, False, 0)
 
-        self.lbl_sys_left = Gtk.Label(label = "Abs")
-        self.lbl_sys_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.lbl_sys_left.get_style_context().add_class("system")
-        self.lbl_sys_left.get_style_context().add_class("unhomed")
-        hbox_down.pack_start(self.lbl_sys_left, False, False, 0)
+        lbl_sys_left = Gtk.Label(label = "Abs")
+        lbl_sys_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        lbl_sys_left.get_style_context().add_class("system")
+        hbox_down.pack_start(lbl_sys_left, False, False, 0)
+        self.widgets["lbl_sys_left"] = lbl_sys_left
 
-        self.dro_left = Gtk.Label(label = "-11.111")
-        self.dro_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.dro_left.get_style_context().add_class("system")
-        self.dro_left.get_style_context().add_class("unhomed")
-        hbox_down.pack_start(self.dro_left, False, False, 0)
-        
-        self.lbl_sys_right = Gtk.Label(label = "DTG")
-        self.lbl_sys_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.lbl_sys_right.get_style_context().add_class("system")
-        self.lbl_sys_right.get_style_context().add_class("unhomed")        
-        hbox_down.pack_start(self.lbl_sys_right, False, False, 0)
-        
-        self.dro_right = Gtk.Label(label = "22.222")
-        self.dro_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.dro_right.get_style_context().add_class("system")
-        self.dro_right.get_style_context().add_class("unhomed")        
-        hbox_down.pack_start(self.dro_right, False, False, 0)
+        dro_left = Gtk.Label(label = "-11.111")
+        dro_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        dro_left.get_style_context().add_class("system")
+        hbox_down.pack_start(dro_left, False, False, 0)
+        self.widgets["dro_left"] = dro_left
 
-        self.eventbox.connect("button_press_event", self._on_eventbox_clicked)
+        lbl_sys_right = Gtk.Label(label = "DTG")
+        lbl_sys_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        lbl_sys_right.get_style_context().add_class("system")
+        hbox_down.pack_start(lbl_sys_right, False, False, 0)
+        self.widgets["lbl_sys_right"] = lbl_sys_right
+        
+        dro_right = Gtk.Label(label = "22.222")
+        dro_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        dro_right.get_style_context().add_class("system")
+        hbox_down.pack_start(dro_right, False, False, 0)
+        self.widgets["dro_right"] = dro_right
+
+        eventbox.connect("button_press_event", self._on_eventbox_clicked)
+
+        self.set_style("relative", "unhomed")
 
         self.show_all()
 
@@ -259,8 +264,8 @@ class Combi_DRO(Gtk.VBox):
     # or just emit a signal to allow GUI to do what ever they want with that
     # signal- gmoccapy uses this signal to open the touch off dialog
     def _on_eventbox_clicked(self, widget, event):
-        if event.x <= self.lbl_axisletter.get_allocation().width + self.lbl_sys_main.get_allocation().width:
-            self.emit('axis_clicked', self.lbl_axisletter.get_text().lower())
+        if event.x <= self.widgets["lbl_axisletter"].get_allocation().width + self.widgets["lbl_sys_main"].get_allocation().width:
+            self.emit('axis_clicked', self.widgets["lbl_axisletter"].get_text().lower())
         else:
             if not self.toggle_readout:
                 return
@@ -344,17 +349,17 @@ class Combi_DRO(Gtk.VBox):
     # update the labels
     def _set_labels(self):
         if self._ORDER[0] == "Rel":
-            self.lbl_sys_main.set_text(self._get_current_system())
+            self.widgets["lbl_sys_main"].set_text(self._get_current_system())
         else:
-            self.lbl_sys_main.set_text(self._ORDER[0])
+            self.widgets["lbl_sys_main"].set_text(self._ORDER[0])
         if self._ORDER[1] == "Rel":
-            self.lbl_sys_left.set_text(self._get_current_system())
+            self.widgets["lbl_sys_left"].set_text(self._get_current_system())
         else:
-            self.lbl_sys_left.set_text(self._ORDER[1])
+            self.widgets["lbl_sys_left"].set_text(self._ORDER[1])
         if self._ORDER[2] == "Rel":
-            self.lbl_sys_right.set_text(self._get_current_system())
+            self.widgets["lbl_sys_right"].set_text(self._get_current_system())
         else:
-            self.lbl_sys_right.set_text(self._ORDER[2])
+            self.widgets["lbl_sys_right"].set_text(self._ORDER[2])
 
         if self._ORDER[0] == "Abs":
             bg_color = "absolut"
@@ -362,75 +367,25 @@ class Combi_DRO(Gtk.VBox):
             bg_color = "dtg"
         else:
             bg_color = "relative"
-        
-        self.eventbox.get_style_context().remove_class("absolut")
-        self.eventbox.get_style_context().remove_class("dtg")
-        self.eventbox.get_style_context().remove_class("relative")
-        self.eventbox.get_style_context().add_class(bg_color)
 
         if self.homed:
             fg_color = "homed"
         else:
             fg_color = "unhomed"
-
-        self.lbl_sys_main.get_style_context().remove_class("absolut")
-        self.lbl_sys_main.get_style_context().remove_class("dtg")
-        self.lbl_sys_main.get_style_context().remove_class("relative")
-        self.lbl_sys_main.get_style_context().add_class(bg_color)
-        self.lbl_sys_main.get_style_context().remove_class("homed")
-        self.lbl_sys_main.get_style_context().remove_class("unhomed")
-        self.lbl_sys_main.get_style_context().add_class(fg_color)
-
-        self.lbl_sys_left.get_style_context().remove_class("absolut")
-        self.lbl_sys_left.get_style_context().remove_class("dtg")
-        self.lbl_sys_left.get_style_context().remove_class("relative")
-        self.lbl_sys_left.get_style_context().add_class(bg_color)
-        self.lbl_sys_left.get_style_context().remove_class("homed")
-        self.lbl_sys_left.get_style_context().remove_class("unhomed")
-        self.lbl_sys_left.get_style_context().add_class(fg_color)
-
-        self.lbl_sys_right.get_style_context().remove_class("absolut")
-        self.lbl_sys_right.get_style_context().remove_class("dtg")
-        self.lbl_sys_right.get_style_context().remove_class("relative")
-        self.lbl_sys_right.get_style_context().add_class(bg_color)
-        self.lbl_sys_right.get_style_context().remove_class("homed")
-        self.lbl_sys_right.get_style_context().remove_class("unhomed")
-        self.lbl_sys_right.get_style_context().add_class(fg_color)
-
-        self.dro_left.get_style_context().remove_class("absolut")
-        self.dro_left.get_style_context().remove_class("dtg")
-        self.dro_left.get_style_context().remove_class("relative")
-        self.dro_left.get_style_context().add_class(bg_color)
-        self.dro_left.get_style_context().remove_class("homed")
-        self.dro_left.get_style_context().remove_class("unhomed")
-        self.dro_left.get_style_context().add_class(fg_color)
-
-        self.dro_right.get_style_context().remove_class("absolut")
-        self.dro_right.get_style_context().remove_class("dtg")
-        self.dro_right.get_style_context().remove_class("relative")
-        self.dro_right.get_style_context().add_class(bg_color)
-        self.dro_right.get_style_context().remove_class("homed")
-        self.dro_right.get_style_context().remove_class("unhomed")
-        self.dro_right.get_style_context().add_class(fg_color)
-
-        self.main_dro.get_style_context().remove_class("absolut")
-        self.main_dro.get_style_context().remove_class("dtg")
-        self.main_dro.get_style_context().remove_class("relative")
-        self.main_dro.get_style_context().add_class(bg_color)
-        self.main_dro.get_style_context().remove_class("homed")
-        self.main_dro.get_style_context().remove_class("unhomed")
-        self.main_dro.get_style_context().add_class(fg_color)
-
-        self.lbl_axisletter.get_style_context().remove_class("absolut")
-        self.lbl_axisletter.get_style_context().remove_class("dtg")
-        self.lbl_axisletter.get_style_context().remove_class("relative")
-        self.lbl_axisletter.get_style_context().add_class(bg_color)
-        self.lbl_axisletter.get_style_context().remove_class("homed")
-        self.lbl_axisletter.get_style_context().remove_class("unhomed")
-        self.lbl_axisletter.get_style_context().add_class(fg_color)
-
+        
+        self.set_style(fg_color, bg_color)
+        
         self.system = self._get_current_system()
 
+    def set_style(self, fg_color, bg_color):
+        for widget in self.widgets:
+            self.widgets[widget].get_style_context().remove_class("absolut")
+            self.widgets[widget].get_style_context().remove_class("dtg")
+            self.widgets[widget].get_style_context().remove_class("relative")
+            self.widgets[widget].get_style_context().remove_class("homed")
+            self.widgets[widget].get_style_context().remove_class("unhomed")
+            self.widgets[widget].get_style_context().add_class(bg_color)
+            self.widgets[widget].get_style_context().add_class(fg_color)
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
@@ -442,9 +397,9 @@ class Combi_DRO(Gtk.VBox):
             pass
 
         if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY and not self.homed:
-            self.main_dro.set_text("----.---")
-            self.dro_left.set_text("----.---")
-            self.dro_right.set_text("----.---")
+            self.widgets["main_dro"].set_text("----.---")
+            self.widgets["dro_left"].set_text("----.---")
+            self.widgets["dro_right"].set_text("----.---")
             return True
 
         try:
@@ -474,9 +429,9 @@ class Combi_DRO(Gtk.VBox):
         main_dro = tmpl(main * scale)
         left_dro = tmpl(left * scale)
         right_dro = tmpl(right * scale)
-        self.main_dro.set_text(main_dro)
-        self.dro_left.set_text(left_dro)
-        self.dro_right.set_text(right_dro)
+        self.widgets["main_dro"].set_text(main_dro)
+        self.widgets["dro_left"].set_text(left_dro)
+        self.widgets["dro_right"].set_text(right_dro)
         return True
 
     # calculate the positions to display
@@ -530,7 +485,6 @@ class Combi_DRO(Gtk.VBox):
         self._set_labels()
 
     def _all_homed(self, widget, data = None):
-        print("Combi DRO all homed")
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             return
         if not self.homed:
