@@ -44,8 +44,8 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: g++, @KERNEL_HEADERS@,
-    python-serial,
-    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    python3-serial,
+    python3
     ${python:Depends}, ${misc:Depends},
     @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
     udev,
