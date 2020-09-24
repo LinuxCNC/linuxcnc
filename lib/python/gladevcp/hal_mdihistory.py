@@ -18,10 +18,10 @@ import os
 
 import gi
 gi.require_version("Gtk","3.0")
-gi.require_version("Gdk","3.0")
-from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
-from gi.repository import Pango as pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -33,7 +33,7 @@ try:
 except:
     pass
 
-class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
+class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
     '''
     EMC_MDIHistory will store each MDI command to a file on your hard drive
     and display the grabbed commands in a treeview so they can be used again
@@ -42,21 +42,21 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
     __gtype_name__ = 'EMC_MDIHistory'
     __gproperties__ = {
-        'font_size_tree' : (gobject.TYPE_INT, 'Font Size', 'The font size of the tree view text',
-                    8, 96, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'font_size_entry' : (gobject.TYPE_INT, 'Font Size', 'The font size of the entry text',
-                    8, 96, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'use_double_click' : (gobject.TYPE_BOOLEAN, 'Enable submit a command using a double click', 'A double click on an entry will submit the selected command directly\nIt is not recommended to use this on real machines',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'font_size_tree' : (GObject.TYPE_INT, 'Font Size', 'The font size of the tree view text',
+                    8, 96, 10, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
+        'font_size_entry' : (GObject.TYPE_INT, 'Font Size', 'The font size of the entry text',
+                    8, 96, 10, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
+        'use_double_click' : (GObject.TYPE_BOOLEAN, 'Enable submit a command using a double click', 'A double click on an entry will submit the selected command directly\nIt is not recommended to use this on real machines',
+                    False, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                    'exit': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
                    }
 
     def __init__(self, *a, **kw):
-        gtk.VBox.__init__(self, *a, **kw)
+        Gtk.VBox.__init__(self, *a, **kw)
         self.use_double_click = False
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
@@ -66,15 +66,15 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.filename = os.path.expanduser(path)
 
-        self.model = gtk.ListStore(str)
+        self.model = Gtk.ListStore(str)
 
-        self.tv = gtk.TreeView()
+        self.tv = Gtk.TreeView()
         self.default_font = self.tv.get_style().font_desc.to_string()
-        self.tv.modify_font(pango.FontDescription(self.default_font))
+        self.tv.modify_font(Pango.FontDescription(self.default_font))
         self.tv.set_model(self.model)
-        self.cell = gtk.CellRendererText()
+        self.cell = Gtk.CellRendererText()
 
-        self.col = gtk.TreeViewColumn("Command")
+        self.col = Gtk.TreeViewColumn("Command")
         self.col.pack_start(self.cell, True)
         self.col.add_attribute(self.cell, 'text', 0)
 
@@ -82,16 +82,16 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.tv.set_search_column(0)
         self.tv.set_reorderable(False)
         self.tv.set_headers_visible(True)
-        self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
+        self.tv.get_selection().set_mode(Gtk.SelectionMode.NONE)
 
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow()
         scroll.add(self.tv)
-        scroll.props.hscrollbar_policy = gtk.PolicyType.AUTOMATIC
-        scroll.props.vscrollbar_policy = gtk.PolicyType.AUTOMATIC
+        scroll.props.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
+        scroll.props.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
 
-        self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.EntryIconPosition.SECONDARY, 'gtk-ok')
-        self.entry.modify_font(pango.FontDescription(self.default_font))
+        self.entry = Gtk.Entry()
+        self.entry.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, 'Gtk-ok')
+        self.entry.modify_font(Pango.FontDescription(self.default_font))
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -180,7 +180,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             self.tv.set_cursor(path)
             self.entry.set_text('')
             self.entry.grab_focus()
-        self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
+        self.tv.get_selection().set_mode(Gtk.SelectionMode.NONE)
 
     def select(self, w):
         idx = w.get_cursor()[0]
@@ -192,7 +192,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
     def on_key_press_event(self,w,event):
         # get the keyname
-        keyname = gdk.keyval_name(event.keyval)
+        keyname = Gdk.keyval_name(event.keyval)
 #        print(keyname)
         idx = self.tv.get_cursor()[0]
         if idx is None:
@@ -207,7 +207,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
 
         if keyname == 'Up':
-            self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
+            self.tv.get_selection().set_mode(Gtk.SelectionMode.SINGLE)
             if not selected:
                 self.tv.set_cursor(len)
             else:
@@ -220,30 +220,30 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         if keyname == 'Down':
             if not selected:
                 return True
-            self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
+            self.tv.get_selection().set_mode(Gtk.SelectionMode.SINGLE)
             if idx[0] < len:
                 self.tv.set_cursor(idx[0] + 1)
             else:
                 self.tv.set_cursor(idx[0])
                 self.entry.set_text('')
                 self.entry.grab_focus()
-                self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
+                self.tv.get_selection().set_mode(Gtk.SelectionMode.NONE)
             return True
 
         if keyname == 'Escape':
             self.entry.set_text('')
             self.entry.grab_focus()
-            self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
+            self.tv.get_selection().set_mode(Gtk.SelectionMode.NONE)
 
     def on_button_press_event(self,w,event):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
+        self.tv.get_selection().set_mode(Gtk.SelectionMode.SINGLE)
         self.entry.set_text(self.model[idx][0])
         self.entry.grab_focus()
         self.entry.set_position(-1)
-        if event.type == gdk.EventType._2BUTTON_PRESS:
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
             print("Double Click", self.use_double_click)
             if self.use_double_click:
                 self.submit()
@@ -269,12 +269,12 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     def _change_font_entry(self, value):
         font = self.default_font.split()[0]
         new_font = font +" " + str(value)
-        self.entry.modify_font(pango.FontDescription(new_font))
+        self.entry.modify_font(Pango.FontDescription(new_font))
 
     def _change_font_tree(self, value):
         font = self.default_font.split()[0]
         new_font = font +" " + str(value)
-        self.tv.modify_font(pango.FontDescription(new_font))
+        self.tv.modify_font(Pango.FontDescription(new_font))
 
     # Get property
     def do_get_property(self, property):
@@ -304,16 +304,16 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
 # for testing without glade editor or LinuxCNC not running:
 def main():
-    window = gtk.Window(gtk.WindowType.TOPLEVEL)
+    window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
     mdi = EMC_MDIHistory()
     mdi.set_property("font_size_tree", 12)
     mdi.set_property("font_size_entry", 20)
     mdi.set_property("use_double_click", True)
     window.add(mdi)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
     window.set_size_request(250, 400)
     window.show_all()
-    gtk.main()
+    Gtk.main()
 
 if __name__ == "__main__":
     main()
