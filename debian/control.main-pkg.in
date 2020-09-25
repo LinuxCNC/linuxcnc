@@ -4,8 +4,8 @@ Architecture: any
 Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
-    python3
-    ${python:Depends}, ${misc:Depends},
+    python3,
+    ${python3:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
     libgladeui-dev,
     python@PYTHON_VERSION@-numpy | python-numpy,
@@ -13,7 +13,6 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     @PYTHON_IMAGING_TK@,
     libgtksourceview-3.0-dev,
     python-vte | gir1.2-vte-2.91,
-    @PYTHON_GST@,
     python-xlib, python3-configobj,
     tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt, udev
