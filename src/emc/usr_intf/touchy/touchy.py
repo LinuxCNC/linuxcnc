@@ -133,7 +133,7 @@ class touchy:
                 self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
                 self.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
                 self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
-                self.window_max = self.prefs.getpref('window_force_max', 'False', bool)
+                self.window_max = self.prefs.getpref('window_force_max', 'false', bool)
 
                 # initial screen setup
                 if os.path.exists(themedir):
@@ -270,27 +270,27 @@ class touchy:
 
                 self.status.set_machine_units(self.machine_units_mm,conversion)
 
-                if self.prefs.getpref('toolsetting_fixture', 0):
+                if self.prefs.getpref('toolsetting_fixture', "false"):
                         self.g10l11 = 1
                 else:
                         self.g10l11 = 0
 
-                if self.prefs.getpref('dro_mm', 0):
+                if self.prefs.getpref('dro_mm', "false"):
                         self.status.dro_mm(0)
                 else:
                         self.status.dro_inch(0)
 
-                if self.prefs.getpref('dro_actual', 0):
+                if self.prefs.getpref('dro_actual', "false"):
                         self.status.dro_actual(0)
                 else:
                         self.status.dro_commanded(0)
 
-                if self.prefs.getpref('blockdel', 0):
+                if self.prefs.getpref('blockdel', "false"):
                         self.linuxcnc.blockdel_on(0)
                 else:
                         self.linuxcnc.blockdel_off(0)
 
-                if self.prefs.getpref('opstop', 1):
+                if self.prefs.getpref('opstop', "true"):
                         self.linuxcnc.opstop_on(0)
                 else:
                         self.linuxcnc.opstop_off(0)                        
