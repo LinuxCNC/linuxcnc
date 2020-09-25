@@ -20,17 +20,21 @@
 # GNU General Public License for more details.
 
 import gi
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 import math
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc being started
-from .hal_widgets import _HalJogWheelBase
+if __name__ == "__main__":
+    from hal_widgets import _HalJogWheelBase
+else:
+    from .hal_widgets import _HalJogWheelBase
 
-class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
+class JogWheel(Gtk.DrawingArea, _HalJogWheelBase):
     '''
     The JogWheel Widget simulates a real jog wheel
 
@@ -47,16 +51,16 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     __gtype_name__ = 'JogWheel'
     __gproperties__ = {
-        'show_counts' : ( gobject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
-                          True, gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
-        'show_scaled_value' : ( gobject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
-                          False, gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
-        'size'  : ( gobject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
-                    100, 500, 200, gobject.ParamFlags.READWRITE|gobject.ParamFlags.CONSTRUCT),
-        'cpr'   : ( gobject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
-                    25, 360, 40, gobject.ParamFlags.READWRITE|gobject.ParamFlags.CONSTRUCT),
-        'label' : ( gobject.TYPE_STRING, 'label', 'Sets the string to be shown in the upper part of the widget',
-                    "", gobject.ParamFlags.READWRITE | gobject.ParamFlags.CONSTRUCT),
+        'show_counts' : ( GObject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
+                          True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_scaled_value' : ( GObject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
+                          False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'size'  : ( GObject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
+                    100, 500, 200, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'cpr'   : ( GObject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
+                    25, 360, 40, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'label' : ( GObject.TYPE_STRING, 'label', 'Sets the string to be shown in the upper part of the widget',
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -76,7 +80,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self._label = ""
 
         # connect our signals
-        self.connect("destroy", gtk.main_quit)
+        self.connect("destroy", Gtk.main_quit)
         self.connect("draw", self.expose)
         self.connect("button_press_event", self._button_press)
         self.connect("button_release_event", self._button_release)
@@ -84,9 +88,10 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.connect("scroll_event", self._scroll)
 
         # To use the the events, we have to unmask them
-        self.add_events(gdk.EventMask.BUTTON_PRESS_MASK |
-                        gdk.EventMask.BUTTON_RELEASE_MASK |
-                        gdk.EventMask.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK |
+                        Gdk.EventMask.SCROLL_MASK)
 
     # init the hal pin management
     def _hal_init(self):
@@ -255,9 +260,9 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     # handle the scroll wheel of the mouse
     def _scroll(self, widget, event):
-        if event.direction == gdk.SCROLL_UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             self._counts += 1
-        if event.direction == gdk.SCROLL_DOWN:
+        if event.direction == Gdk.ScrollDirection.DOWN:
             self._counts -= 1
         self._angle = self._counts * self._delta_a
 
@@ -300,7 +305,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 # to show some behavior and setting options  
 
 def main():
-    window = gtk.Window()
+    window = Gtk.Window()
     #size = 300
     #tiks = 10
 #    jogwheel = JogWheel(size, tiks)
@@ -310,10 +315,10 @@ def main():
     jogwheel.set_property('label', "max. 12 Characters are used !")
     window.add(jogwheel)
     window.set_title("Jogwheel")
-    window.set_position(gtk.WindowPosition.CENTER)
+    window.set_position(Gtk.WindowPosition.CENTER)
     window.show_all()
 
-    gtk.main()
+    Gtk.main()
 
 if __name__ == "__main__":
     main()
