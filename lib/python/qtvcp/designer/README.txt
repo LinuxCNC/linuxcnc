@@ -23,7 +23,12 @@ you must copy that proper version of libpyqt5_py2.so to the folder:
 (x86_64-linux-gnu might be called something slightly different 
 on different systems)
 
-You will require super user privileges to copy the file to the folder.
+The libpyqt5_py2.so must be the first python library to be found inthe folder.
+Some systems have the python3 library - libpyqt5.so - file in the folder.
+You must rename one of the files so it is found first.
+Renaming the python3 version to libpyqt5_py3.so should do this.
+
+You will require super user privileges to copy/rename the file to the folder.
 
 This file might be included in linuxcnc at this location:
 
