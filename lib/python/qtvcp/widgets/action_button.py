@@ -601,7 +601,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
         # defult error case
         else:
-            self.safecheck(state)
+            if state is not None:
+                self.safecheck(state)
             if not self._python_command:
                 LOG.error('No action recognised')
 
