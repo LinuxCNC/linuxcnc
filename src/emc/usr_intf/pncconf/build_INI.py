@@ -260,7 +260,7 @@ class INI:
         self.write_one_joint(file, 0, "x", "LINEAR", all_homes, tandemjoint)
         if tandemjoint:
             jnum += 1
-            self.write_one_joint(file, jnum, "x", "LINEAR", all_homes, True)
+            self.write_one_joint(file, jnum, "x", "LINEAR", all_homes, True, ismain = False)
         jnum += 1
         print >>file, "#******************************************"
 
@@ -271,7 +271,7 @@ class INI:
             self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, tandemjoint)
             if tandemjoint:
                 jnum += 1
-                self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, True)
+                self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, True, ismain = False)
             jnum += 1
             print >>file, "#******************************************"
 
@@ -281,7 +281,7 @@ class INI:
         self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, tandemjoint)
         if tandemjoint:
             jnum += 1
-            self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, True)
+            self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, True, ismain = False)
         jnum += 1
         print >>file, "#******************************************"
 
@@ -292,7 +292,7 @@ class INI:
             self.write_one_joint(file, jnum, "a", "ANGULAR", all_homes, tandemjoint)
             if tandemjoint:
                 jnum += 1
-                self.write_one_joint(file, jnum, "a", "ANGULAR", all_homes, True)
+                self.write_one_joint(file, jnum, "a", "ANGULAR", all_homes, True, ismain = False)
             jnum += 1
             print >>file, "#******************************************"
 
@@ -302,7 +302,7 @@ class INI:
         file.close()
         self.d.add_md5sum(filename)
 
-    def write_one_joint(self, file, num, letter, type, all_homes, tandemflag):
+    def write_one_joint(self, file, num, letter, type, all_homes, tandemflag, ismain = True):
         def get(s): return self.d[letter + s]
         pwmgen = self.a.pwmgen_sig(letter)
         tppwmgen = self.a.tppwmgen_sig(letter)
@@ -420,7 +420,10 @@ class INI:
             else:
                 if get("latchdir") == 1: 
                     latchvel = -latchvel
-            print >>file, "HOME_OFFSET = %f" % get("homesw")
+            if ismain:
+                print >>file, "HOME_OFFSET = %f" % get("homesw")
+            else:
+                print >>file, "HOME_OFFSET = %f" % get("hometandemsw")
             print >>file, "HOME_SEARCH_VEL = %f" % searchvel                      
             print >>file, "HOME_LATCH_VEL = %f" % latchvel
             print >>file, "HOME_FINAL_VEL = %f" % get("homefinalvel")
