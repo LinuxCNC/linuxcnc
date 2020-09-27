@@ -175,7 +175,7 @@ class Combi_DRO(Gtk.VBox):
         self.add(eventbox)
         vbox_main = Gtk.VBox(homogeneous = False, spacing = 0)
         eventbox.add(vbox_main)
-        hbox_up = Gtk.HBox(homogeneous = False, spacing = 0)
+        hbox_up = Gtk.HBox(homogeneous = False, spacing = 5)
         vbox_main.pack_start(hbox_up, True, True, 0)
         self.widgets["eventbox"] = eventbox
 
@@ -187,6 +187,7 @@ class Combi_DRO(Gtk.VBox):
 
         vbox_ref_type = Gtk.VBox(homogeneous = False, spacing = 0)
         hbox_up.pack_start(vbox_ref_type, False, False, 0)
+        # This label is needed to press the main index (rel,Abs;Dtg) to the upper part
         lbl_space = Gtk.Label(label = "")
         vbox_ref_type.pack_start(lbl_space, True, True, 0)
         
@@ -199,10 +200,11 @@ class Combi_DRO(Gtk.VBox):
         main_dro = Gtk.Label(label = "9999.999")
         main_dro.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         main_dro.get_style_context().add_class("main_dro")
-        hbox_up.pack_start(main_dro, False, False, 0)
+        main_dro.set_xalign(1.0)
+        hbox_up.pack_start(main_dro, True, True, 0)
         self.widgets["main_dro"] = main_dro
 
-        hbox_down = Gtk.HBox(homogeneous = False, spacing = 5)
+        hbox_down = Gtk.HBox(homogeneous = True, spacing = 5)
         vbox_main.pack_start(hbox_down, False, False, 0)
 
         lbl_sys_left = Gtk.Label(label = "Abs")
@@ -214,7 +216,8 @@ class Combi_DRO(Gtk.VBox):
         dro_left = Gtk.Label(label = "-11.111")
         dro_left.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         dro_left.get_style_context().add_class("system")
-        hbox_down.pack_start(dro_left, False, False, 0)
+        dro_left.set_xalign(1.0)
+        hbox_down.pack_start(dro_left, True, True, 0)
         self.widgets["dro_left"] = dro_left
 
         lbl_sys_right = Gtk.Label(label = "DTG")
@@ -226,7 +229,8 @@ class Combi_DRO(Gtk.VBox):
         dro_right = Gtk.Label(label = "22.222")
         dro_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         dro_right.get_style_context().add_class("system")
-        hbox_down.pack_start(dro_right, False, False, 0)
+        dro_right.set_xalign(1.0)
+        hbox_down.pack_start(dro_right, True, True, 0)
         self.widgets["dro_right"] = dro_right
 
         eventbox.connect("button_press_event", self._on_eventbox_clicked)
@@ -397,9 +401,9 @@ class Combi_DRO(Gtk.VBox):
             pass
 
         if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY and not self.homed:
-            self.widgets["main_dro"].set_text("----.---")
-            self.widgets["dro_left"].set_text("----.---")
-            self.widgets["dro_right"].set_text("----.---")
+            self.widgets["main_dro"].set_label("----.---")
+            self.widgets["dro_left"].set_label("----.---")
+            self.widgets["dro_right"].set_label("----.---")
             return True
 
         try:
@@ -429,9 +433,9 @@ class Combi_DRO(Gtk.VBox):
         main_dro = tmpl(main * scale)
         left_dro = tmpl(left * scale)
         right_dro = tmpl(right * scale)
-        self.widgets["main_dro"].set_text(main_dro)
-        self.widgets["dro_left"].set_text(left_dro)
-        self.widgets["dro_right"].set_text(right_dro)
+        self.widgets["main_dro"].set_label(main_dro)
+        self.widgets["dro_left"].set_label(left_dro)
+        self.widgets["dro_right"].set_label(right_dro)
         return True
 
     # calculate the positions to display
