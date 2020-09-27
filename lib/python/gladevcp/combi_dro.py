@@ -566,7 +566,7 @@ class Combi_DRO(Gtk.VBox):
         letter = string
 
         '''
-        self.lbl_axisletter.set_text(letter)
+        self.widgets["lbl_axisletter"].set_text(letter)
 
     def set_joint_no(self, joint):
         '''
