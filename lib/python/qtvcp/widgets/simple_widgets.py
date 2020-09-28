@@ -14,7 +14,8 @@
 # GNU General Public License for more details.
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase, _HalToggleBase, _HalSensitiveBase
+from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
+        _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status
 from functools import partial
@@ -112,6 +113,29 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_s.set(self._currentTotalCount)
         self.hal_pin_f.set(self._currentTotalCount * self.scale)
         self.hal_pin_d.set(self._deltaScaled)
+
+class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
+    intOutput = QtCore.pyqtSignal(int)
+    floatOutput = QtCore.pyqtSignal(float)
+
+    def __init__(self, parent=None):
+        super(DoubleScale, self).__init__(parent)
+        self.setValue(1)
+
+    # one can connect signals to this widget to
+    # feed an input that gets scaled by this widget. 
+    @QtCore.pyqtSlot(float)
+    @QtCore.pyqtSlot(int)
+    def setInput(self, data):
+        self.input = data
+        self.valueChanged.emit(self.value())
+
+    # call original pin update then
+    # update anything connected to signals
+    def _pin_update(self, data):
+        super(DoubleScale, self)._pin_update(data)
+        self.intOutput.emit(int(self.hal_pin_s.get()))
+        self.floatOutput.emit(self.hal_pin_f.get())
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):
