@@ -27,6 +27,7 @@ import math
 import gtk
 import shutil
 import time
+import hal
 from subprocess import Popen, PIPE
 
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -298,11 +299,10 @@ def do_material_change():
         wng += '\nAdd a new material\n'
         wng += 'or edit GCode file to suit.'
         dialog_error(gtk.MESSAGE_ERROR, 'ERROR', wng)
+        print(line)
         quit()
+    Popen('halcmd setp plasmac_run.material-change-number {}'.format(material[0]), stdout = PIPE, shell = True)
     print(line)
-    # if not firstMaterial:
-    #     firstMaterial = True
-    #     Popen('halcmd setp plasmac_run.first-material {}'.format(material[0]), stdout = PIPE, shell = True)
 
 # check if matarial edit required
 def check_material_edit():

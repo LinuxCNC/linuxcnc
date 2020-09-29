@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.176 - 2020 Sep 19
+0.177 - 2020 Sep 29
 
 .I SUMMARY:
 .br
@@ -159,7 +159,8 @@ pin out float   z_relative                  "distance of Z from last probed heig
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_fail_timer;             /* arc failure timer */
-variable float  arc_voltage;                /* calculated arc voltage before lowpass filter*/
+variable float  arc_voltage_raw;            /* filtered arc voltage to be scaled */
+variable float  arc_valid_timer;            /* timer to wait for valid arc_voltage_in */
 variable float  axis_x_finish;              /* axis x position at end of cut */
 variable float  axis_x_start;               /* axis x position at start of cut */
 variable float  axis_y_finish;              /* axis y position at end of cut */
@@ -182,7 +183,6 @@ variable bool   initialized;                /* initialization flag */
 variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
 variable float  kerf_threshold;             /* kerf crossing threshold voltage */
 variable int    kerf_errors;                /* number of times kerfcross threshold exceeded */
-//variable int    kerf_errors_max;            /* allowable kerfcross threshold exceeded */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
 variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
@@ -318,6 +318,16 @@ FUNCTION(_) {
         initialized = TRUE;
         probe_force_val = 5;
         recovery_velocity = 3;
+    }
+
+    /* wait until arc_voltage_in is valid */
+    if(isinf(arc_voltage_in) || isnan(arc_voltage_in)){
+        arc_valid_timer += fperiod;
+        if(arc_valid_timer > 1){
+            rtapi_print_msg(RTAPI_MSG_ERR,"invalid arc-voltage-in\n");
+            arc_valid_timer = 0;
+        } 
+        return;
     }
 
     /* set the active tool */
@@ -501,14 +511,14 @@ FUNCTION(_) {
     }
 
     /* calculate arc voltage */
-    arc_voltage = (fabs(arc_voltage_in) - arc_voltage_offset) * fabs(arc_voltage_scale);
-    if(arc_voltage < 0 && arc_voltage > -0.5){
-        arc_voltage = 0;
-    }
     if(lowpass_frequency){
-        arc_voltage_out += (arc_voltage - arc_voltage_out) * (1 - pow(2.71828, -(2 * M_PI * lowpass_frequency) * fperiod));
+        arc_voltage_raw += (arc_voltage_in - arc_voltage_raw) * (1 - exp(-(2 * M_PI * fabs(lowpass_frequency)) * fperiod));
     }else{
-        arc_voltage_out = arc_voltage;
+        arc_voltage_raw = arc_voltage_in;
+    }
+    arc_voltage_out = roundf(((fabs(arc_voltage_raw) - arc_voltage_offset) * fabs(arc_voltage_scale)) * 1000) / 1000;
+    if(arc_voltage_out < 0 && arc_voltage_out > -0.1){
+        arc_voltage_out = 0;
     }
 
     /* set arc ok from either arc ok input of from actual arc voltage
@@ -944,7 +954,7 @@ FUNCTION(_) {
                 feed_hold = TRUE;
                 if(tool == SPOTTING){
                     if(!spotting){
-                        if(arc_voltage >= spotting_threshold){
+                        if(arc_voltage_out >= spotting_threshold){
                             spotting = TRUE;
                             spotting_timer = spotting_time * 0.001;
                         }
