@@ -40,7 +40,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
     __gproperties__ = {
         'idle_line_reset' : ( GObject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
-                    True, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT)
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     }
     def __init__(self, *a, **kw):
         gtksourceview.View.__init__(self, *a, **kw)
@@ -300,7 +300,7 @@ def safe_write(filename, data, mode=0o644):
 class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
     __gtype_name__ = 'EMC_Action_Save'
     __gproperties__ = { 'textview' : (EMC_SourceView.__gtype__, 'Textview',
-                    "Corresponding textview widget", GObject.PARAM_READWRITE),
+                    "Corresponding textview widget", GObject.ParamFlags.READWRITE),
     }
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
