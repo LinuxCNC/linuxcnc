@@ -15,20 +15,22 @@
 
 import gi
 gi.require_version("Gtk","3.0")
-gi.require_version("Gdk","3.0")
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 import cairo
 import math
 import time
 from collections import deque
 
-from .hal_widgets import _HalWidgetBase, hal
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase, hal
+else:
+    from .hal_widgets import _HalWidgetBase, hal
 
 MAX_INT = 0x7fffffff
 
-def gdk_color_tuple(c):
+def Gdk_color_tuple(c):
     if not c:
         return 0, 0, 0
     return c.red_float, c.green_float, c.blue_float
@@ -43,52 +45,52 @@ def mround(v, m):
     if v < 0: return v - vm + m
     return 0
 
-class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
+class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Graph'
     __gproperties__ = {
-        'min' : ( gobject.TYPE_FLOAT, 'Min', 'Minimum value',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'max'  : ( gobject.TYPE_FLOAT, 'Max', 'Maximum value',
-                    -MAX_INT, MAX_INT, 100, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'autoscale' : ( gobject.TYPE_BOOLEAN, 'Autoscale', 'Autoscale Y axis',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'period'  : ( gobject.TYPE_FLOAT, 'Period', 'TIme period to display',
-                    -MAX_INT, MAX_INT, 60, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'tick'  : ( gobject.TYPE_INT, 'Tick period', 'Data acquarison pariod in ms',
-                    100, 10000, 500, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'zero' : ( gobject.TYPE_FLOAT, 'Zero', 'Zero value',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'value' : ( gobject.TYPE_FLOAT, 'Value', 'Current meter value (for glade testing)',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'yticks' : ( gobject.TYPE_FLOAT, 'Y Tick scale', 'Ticks on Y scale',
-                    0, MAX_INT, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'xticks' : ( gobject.TYPE_FLOAT, 'X Tick scale', 'Ticks on X scale (in seconds)',
-                    0, MAX_INT, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'fg_color' : ( gdk.Color.__gtype__, 'Graph color', "Set graphing color",
-                        gobject.PARAM_READWRITE),
-        'bg_color' : ( gdk.Color.__gtype__, 'Background', "Choose background color",
-                        gobject.PARAM_READWRITE),
-        'fg_fill' : ( gobject.TYPE_BOOLEAN, 'Fill graph', 'Fill area covered with graph',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'force_width' : ( gobject.TYPE_INT, 'Forced width', 'Force bar width not dependent on widget size. -1 to disable',
-                    -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'force_height' : ( gobject.TYPE_INT, 'Forced height', 'Force bar height not dependent on widget size. -1 to disable',
-                    -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'time_format' : ( gobject.TYPE_STRING, 'Time format',
+        'min' : ( GObject.TYPE_FLOAT, 'Min', 'Minimum value',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'max'  : ( GObject.TYPE_FLOAT, 'Max', 'Maximum value',
+                    -MAX_INT, MAX_INT, 100, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'autoscale' : ( GObject.TYPE_BOOLEAN, 'Autoscale', 'Autoscale Y axis',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'period'  : ( GObject.TYPE_FLOAT, 'Period', 'TIme period to display',
+                    -MAX_INT, MAX_INT, 60, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'tick'  : ( GObject.TYPE_INT, 'Tick period', 'Data acquarison pariod in ms',
+                    100, 10000, 500, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'zero' : ( GObject.TYPE_FLOAT, 'Zero', 'Zero value',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'value' : ( GObject.TYPE_FLOAT, 'Value', 'Current meter value (for glade testing)',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'yticks' : ( GObject.TYPE_FLOAT, 'Y Tick scale', 'Ticks on Y scale',
+                    0, MAX_INT, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'xticks' : ( GObject.TYPE_FLOAT, 'X Tick scale', 'Ticks on X scale (in seconds)',
+                    0, MAX_INT, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'fg_color' : ( Gdk.Color.__gtype__, 'Graph color', "Set graphing color",
+                        GObject.ParamFlags.READWRITE),
+        'bg_color' : ( Gdk.Color.__gtype__, 'Background', "Choose background color",
+                        GObject.ParamFlags.READWRITE),
+        'fg_fill' : ( GObject.TYPE_BOOLEAN, 'Fill graph', 'Fill area covered with graph',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'force_width' : ( GObject.TYPE_INT, 'Forced width', 'Force bar width not dependent on widget size. -1 to disable',
+                    -1, MAX_INT, -1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'force_height' : ( GObject.TYPE_INT, 'Forced height', 'Force bar height not dependent on widget size. -1 to disable',
+                    -1, MAX_INT, -1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'time_format' : ( GObject.TYPE_STRING, 'Time format',
                 'Time format to display. Use any strftime capable formatting',
-                "%M:%S", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'label' : ( gobject.TYPE_STRING, 'Graph label', 'Label to display',
-                "", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'sublabel' : ( gobject.TYPE_STRING, 'Graph sub label', 'Sub text to display',
-                "", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                "%M:%S", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'label' : ( GObject.TYPE_STRING, 'Graph label', 'Label to display',
+                "", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'sublabel' : ( GObject.TYPE_STRING, 'Graph sub label', 'Sub text to display',
+                "", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     def __init__(self):
         super(HAL_Graph, self).__init__()
 
-        self.bg_color = gdk.Color.parse('white')
-        self.fg_color = gdk.Color.parse('red')
+        self.bg_color = Gdk.Color.parse('white')
+        self.fg_color = Gdk.Color.parse('red')
 
         self.force_radius = None
         self.ticks = deque()
@@ -98,13 +100,13 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
         self.connect("button-press-event", self.snapshot)
         self.connect("draw", self.expose)
-        self.add_events(gdk.EventMask.BUTTON_PRESS_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
 
         self.tick = 500
         self.tick_idx = 0
         self.hal_pin = 0
 
-        gobject.timeout_add(self.tick, self.tick_poll, self.tick_idx)
+        GObject.timeout_add(self.tick, self.tick_poll, self.tick_idx)
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
@@ -218,7 +220,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
         if self.ticks_saved:
             self.draw_graph(cr, w, h, ymin, ymax, self.ticks_saved, t2x)
-            cr.set_source_rgba(*(gdk_color_tuple(self.fg_color) + (0.3,)))
+            cr.set_source_rgba(*(Gdk_color_tuple(self.fg_color) + (0.3,)))
 
         self.draw_graph(cr, w, h, ymin, ymax, self.ticks, lambda t: t2x(t, tnow))
 
@@ -325,7 +327,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
         if name == 'tick':
             self.tick_idx += 1
-            gobject.timeout_add(value, self.tick_poll, self.tick_idx)
+            GObject.timeout_add(value, self.tick_poll, self.tick_idx)
         if name in ['bg_color', 'fg_color']:
             if not value:
                 return False
