@@ -6,188 +6,243 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>564</width>
+    <height>642</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Ignored">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>564</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Qtvcp</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="13" column="1">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string/>
+      <item row="8" column="3" rowspan="2">
+       <widget class="QDockWidget" name="dockWidget_4">
+        <property name="features">
+         <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
         </property>
+        <property name="windowTitle">
+         <string>Dial 3 (0 - 100)</string>
+        </property>
+        <widget class="QWidget" name="dockWidgetContents_4">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="Dial" name="dial_3">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_20">
+            <property name="text">
+             <string>Dial 3</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="lcdNumber_3">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>1</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Scale</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="DoubleScale" name="doublescale_3">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="dro_3">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
-      <item row="3" column="4">
-       <widget class="QLineEdit" name="lineEdit_13"/>
-      </item>
-      <item row="0" column="2">
-       <widget class="LED" name="led_2"/>
-      </item>
-      <item row="5" column="1">
-       <widget class="CheckBox" name="checkbox_3">
-        <property name="text">
-         <string>check 3</string>
+      <item row="8" column="2" rowspan="2">
+       <widget class="QDockWidget" name="dockWidget_3">
+        <property name="features">
+         <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="PushButton" name="pushbutton_1">
-        <property name="text">
-         <string>Button 1</string>
+        <property name="windowTitle">
+         <string>Dial 2 (+-50)</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="LED" name="led_4"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEdit_2">
-        <property name="text">
-         <string>LED2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="Dial" name="dial_1">
-        <property name="minimum">
-         <number>-50</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="notchesVisible">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLineEdit" name="lineEdit_11"/>
-      </item>
-      <item row="6" column="4">
-       <widget class="QLineEdit" name="lineEdit_16"/>
-      </item>
-      <item row="7" column="1" colspan="4">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="PushButton" name="pushbutton_4">
-        <property name="text">
-         <string>Button 4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="4">
-       <widget class="Dial" name="dial_4">
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="notchesVisible">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLineEdit" name="lineEdit_10"/>
-      </item>
-      <item row="8" column="3">
-       <widget class="Dial" name="dial_3">
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="notchesVisible">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="PushButton" name="pushbutton_3">
-        <property name="text">
-         <string>Button 3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="lineEdit_9"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="text">
-         <string>LED1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="LED" name="led"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="CheckBox" name="checkbox_2">
-        <property name="text">
-         <string>check 2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="4">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2">
-       <widget class="Dial" name="dial_2">
-        <property name="minimum">
-         <number>-50</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="notchesVisible">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="4">
-       <widget class="QLineEdit" name="lineEdit_15"/>
-      </item>
-      <item row="10" column="1">
-       <widget class="QLCDNumber" name="lcdNumber">
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="lineWidth">
-         <number>1</number>
-        </property>
-        <property name="midLineWidth">
-         <number>1</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="CheckBox" name="checkbox_4">
-        <property name="text">
-         <string>check 4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="1" colspan="4">
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
+        <widget class="QWidget" name="dockWidgetContents_2">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="Dial" name="dial_2">
+            <property name="minimum">
+             <number>-50</number>
+            </property>
+            <property name="maximum">
+             <number>50</number>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_18">
+            <property name="text">
+             <string>Dial 2</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="lcdNumber_2">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>1</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Scale</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="DoubleScale" name="doublescale_2">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="dro_2">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item row="1" column="4">
@@ -197,58 +252,10 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="2">
-       <widget class="QLCDNumber" name="lcdNumber_2">
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="lineWidth">
-         <number>1</number>
-        </property>
-        <property name="midLineWidth">
-         <number>1</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="3">
        <widget class="QLineEdit" name="lineEdit_3">
         <property name="text">
          <string>LED3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3">
-       <widget class="QLCDNumber" name="lcdNumber_3">
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="lineWidth">
-         <number>1</number>
-        </property>
-        <property name="midLineWidth">
-         <number>1</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="4">
-       <widget class="QLCDNumber" name="lcdNumber_4">
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="lineWidth">
-         <number>1</number>
-        </property>
-        <property name="midLineWidth">
-         <number>1</number>
-        </property>
-        <property name="segmentStyle">
-         <enum>QLCDNumber::Flat</enum>
         </property>
        </widget>
       </item>
@@ -265,35 +272,109 @@
         </property>
        </spacer>
       </item>
-      <item row="9" column="1">
-       <widget class="QLineEdit" name="lineEdit_17">
-        <property name="text">
-         <string>Dial 1</string>
+      <item row="3" column="4">
+       <widget class="QLineEdit" name="lineEdit_13"/>
+      </item>
+      <item row="0" column="2">
+       <widget class="LED" name="led_2">
+        <property name="color">
+         <color>
+          <red>13</red>
+          <green>17</green>
+          <blue>237</blue>
+         </color>
         </property>
        </widget>
       </item>
-      <item row="9" column="2">
-       <widget class="QLineEdit" name="lineEdit_18">
-        <property name="text">
-         <string>Dial 2</string>
+      <item row="5" column="2">
+       <widget class="QLineEdit" name="lineEdit_11"/>
+      </item>
+      <item row="0" column="4">
+       <widget class="LED" name="led_4">
+        <property name="color">
+         <color>
+          <red>245</red>
+          <green>7</green>
+          <blue>143</blue>
+         </color>
         </property>
        </widget>
       </item>
-      <item row="9" column="3">
-       <widget class="QLineEdit" name="lineEdit_19">
+      <item row="6" column="4">
+       <widget class="QLineEdit" name="lineEdit_16"/>
+      </item>
+      <item row="3" column="3">
+       <widget class="PushButton" name="pushbutton_1">
         <property name="text">
-         <string>Dial 3</string>
+         <string>Button 1</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="4">
-       <widget class="QLineEdit" name="lineEdit_20">
+      <item row="5" column="4">
+       <widget class="QLineEdit" name="lineEdit_15"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEdit_2">
         <property name="text">
-         <string>Dial 4</string>
+         <string>LED2</string>
         </property>
        </widget>
       </item>
-      <item row="15" column="2">
+      <item row="4" column="2">
+       <widget class="QLineEdit" name="lineEdit_10"/>
+      </item>
+      <item row="7" column="1" colspan="4">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLineEdit" name="lineEdit_9"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="LED" name="led_1"/>
+      </item>
+      <item row="6" column="3">
+       <widget class="PushButton" name="pushbutton_4">
+        <property name="text">
+         <string>Button 4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="4">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QLineEdit" name="lineEdit_12"/>
+      </item>
+      <item row="5" column="3">
+       <widget class="PushButton" name="pushbutton_3">
+        <property name="text">
+         <string>Button 3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QLineEdit" name="lineEdit_14"/>
+      </item>
+      <item row="0" column="3">
+       <widget class="LED" name="led_3">
+        <property name="color">
+         <color>
+          <red>57</red>
+          <green>245</green>
+          <blue>8</blue>
+         </color>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="2">
        <widget class="ActionButton" name="actionbutton">
         <property name="text">
          <string>Halmeter</string>
@@ -464,13 +545,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QLineEdit" name="lineEdit_12"/>
-      </item>
-      <item row="4" column="4">
-       <widget class="QLineEdit" name="lineEdit_14"/>
-      </item>
-      <item row="15" column="3">
+      <item row="12" column="3">
        <widget class="ActionButton" name="actionbutton_2">
         <property name="text">
          <string>Halscope</string>
@@ -651,11 +726,241 @@
         </property>
        </widget>
       </item>
-      <item row="13" column="3">
-       <widget class="QLabel" name="label_3">
+      <item row="5" column="1">
+       <widget class="CheckBox" name="checkbox_3">
         <property name="text">
-         <string/>
+         <string>check 3</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="text">
+         <string>LED1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="CheckBox" name="checkbox_2">
+        <property name="text">
+         <string>check 2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1" rowspan="2">
+       <widget class="QDockWidget" name="dockWidget_2">
+        <property name="features">
+         <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+        </property>
+        <property name="windowTitle">
+         <string>Dial 1 (+-50)</string>
+        </property>
+        <widget class="QWidget" name="dockWidgetContents_dial1">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="Dial" name="dial_1">
+            <property name="minimum">
+             <number>-50</number>
+            </property>
+            <property name="maximum">
+             <number>50</number>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="invertedControls">
+             <bool>false</bool>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_17">
+            <property name="text">
+             <string>Dial 1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="lcdNumber_1">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>1</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Scale</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="DoubleScale" name="doublescale_1">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="dro_1">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="8" column="4" rowspan="2">
+       <widget class="QDockWidget" name="dockWidget_5">
+        <property name="features">
+         <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+        </property>
+        <property name="windowTitle">
+         <string>Dial 4 (0 - 100)</string>
+        </property>
+        <widget class="QWidget" name="dockWidgetContents_5">
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="Dial" name="dial_4">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="invertedControls">
+             <bool>false</bool>
+            </property>
+            <property name="wrapping">
+             <bool>false</bool>
+            </property>
+            <property name="notchesVisible">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_21">
+            <property name="text">
+             <string>Dial 4</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLCDNumber" name="lcdNumber_4">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>1</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Scale</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="DoubleScale" name="doublescale_4">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="minimum">
+               <double>-1000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="dro_4">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item row="4" column="3">
@@ -665,157 +970,21 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="LED" name="led_3"/>
-      </item>
-      <item row="13" column="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string/>
+      <item row="11" column="1" colspan="4">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="13" column="4">
-       <widget class="QLabel" name="label_4">
+      <item row="6" column="1">
+       <widget class="CheckBox" name="checkbox_4">
         <property name="text">
-         <string/>
+         <string>check 4</string>
         </property>
        </widget>
-      </item>
-      <item row="11" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_7">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Scale</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="DoubleScale" name="doublescale_6">
-          <property name="decimals">
-           <number>4</number>
-          </property>
-          <property name="minimum">
-           <double>-1000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="11" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Scale</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="DoubleScale" name="doublescale_7">
-          <property name="decimals">
-           <number>4</number>
-          </property>
-          <property name="minimum">
-           <double>-1000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="11" column="3">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Scale</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="DoubleScale" name="doublescale_8">
-          <property name="decimals">
-           <number>4</number>
-          </property>
-          <property name="minimum">
-           <double>-1000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="11" column="4">
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QLabel" name="label_10">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Scale</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="DoubleScale" name="doublescale_9">
-          <property name="decimals">
-           <number>4</number>
-          </property>
-          <property name="minimum">
-           <double>-1000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>
@@ -824,12 +993,87 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>564</width>
      <height>27</height>
     </rect>
    </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuDial_Adjustment">
+    <property name="title">
+     <string>Dial Range</string>
+    </property>
+    <widget class="QMenu" name="menuDial_1">
+     <property name="title">
+      <string>Dial 1</string>
+     </property>
+     <addaction name="actionSetD1_50_50"/>
+     <addaction name="actionSetD1_0_100"/>
+     <addaction name="actionSetD1_0_1000"/>
+    </widget>
+    <widget class="QMenu" name="menuDial_2">
+     <property name="title">
+      <string>Dial 2</string>
+     </property>
+     <addaction name="actionSetD2_50_50"/>
+     <addaction name="actionSetD2_0_100"/>
+     <addaction name="actionSetD2_0_1000"/>
+    </widget>
+    <addaction name="menuDial_1"/>
+    <addaction name="menuDial_2"/>
+   </widget>
+   <addaction name="menuDial_Adjustment"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="windowTitle">
+    <string>Terminal</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidget_term_2"/>
+  </widget>
+  <action name="actionSetD1_50_50">
+   <property name="text">
+    <string>Set +-  50</string>
+   </property>
+  </action>
+  <action name="actionSetD1_0_1000">
+   <property name="text">
+    <string>Set 0 - 1000</string>
+   </property>
+  </action>
+  <action name="actionSetD1_0_100">
+   <property name="text">
+    <string>Set 0 - 100</string>
+   </property>
+  </action>
+  <action name="actionDial_3">
+   <property name="text">
+    <string>Dial 3</string>
+   </property>
+  </action>
+  <action name="actionDial_4">
+   <property name="text">
+    <string>Dial 4</string>
+   </property>
+  </action>
+  <action name="actionSetD2_50_50">
+   <property name="text">
+    <string>Set +- 50</string>
+   </property>
+  </action>
+  <action name="actionSetD2_0_100">
+   <property name="text">
+    <string>Set 0 - 100</string>
+   </property>
+  </action>
+  <action name="actionSetD2_0_1000">
+   <property name="text">
+    <string>Set 0 - 1000</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -868,16 +1112,48 @@
   <connection>
    <sender>dial_1</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber</receiver>
+   <receiver>lcdNumber_1</receiver>
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>57</x>
-     <y>329</y>
+     <x>58</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>74</x>
-     <y>402</y>
+     <x>67</x>
+     <y>494</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial_1</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>doublescale_1</receiver>
+   <slot>setInput(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>432</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>528</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_1</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>dro_1</receiver>
+   <slot>setNum(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>129</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>93</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
@@ -888,12 +1164,44 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>303</y>
+     <x>266</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>317</x>
-     <y>402</y>
+     <x>266</x>
+     <y>494</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial_2</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>doublescale_2</receiver>
+   <slot>setInput(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>254</x>
+     <y>348</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>265</x>
+     <y>528</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_2</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>dro_2</receiver>
+   <slot>setNum(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>266</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
@@ -904,12 +1212,44 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>374</x>
-     <y>307</y>
+     <x>402</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>475</x>
-     <y>402</y>
+     <x>402</x>
+     <y>494</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial_3</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>doublescale_3</receiver>
+   <slot>setInput(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>401</x>
+     <y>528</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_3</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>dro_3</receiver>
+   <slot>setNum(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>401</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
@@ -920,142 +1260,65 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>515</x>
-     <y>324</y>
+     <x>538</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>632</x>
-     <y>402</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dial_1</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>doublescale_6</receiver>
-   <slot>setInput(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>133</x>
-     <y>328</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>126</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dial_2</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>doublescale_7</receiver>
-   <slot>setInput(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>289</x>
-     <y>323</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>289</x>
-     <y>417</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dial_3</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>doublescale_8</receiver>
-   <slot>setInput(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>446</x>
-     <y>326</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>446</x>
-     <y>421</y>
+     <x>538</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>dial_4</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>doublescale_9</receiver>
+   <receiver>doublescale_4</receiver>
    <slot>setInput(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>597</x>
-     <y>325</y>
+     <x>538</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
-     <x>597</x>
-     <y>418</y>
+     <x>537</x>
+     <y>528</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>doublescale_6</sender>
+   <sender>doublescale_4</sender>
    <signal>floatOutput(double)</signal>
-   <receiver>label</receiver>
+   <receiver>dro_4</receiver>
    <slot>setNum(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>421</y>
+     <x>537</x>
+     <y>528</y>
     </hint>
     <hint type="destinationlabel">
-     <x>100</x>
-     <y>449</y>
+     <x>538</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>doublescale_7</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>label_2</receiver>
-   <slot>setNum(double)</slot>
+   <sender>menubar</sender>
+   <signal>triggered(QAction*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actionTriggered()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>249</x>
-     <y>416</y>
+     <x>41</x>
+     <y>18</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>450</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_8</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>label_3</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>417</x>
-     <y>417</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>412</x>
-     <y>449</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_9</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>label_4</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>588</x>
-     <y>423</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>566</x>
-     <y>447</y>
+     <x>-1</x>
+     <y>73</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>actionTriggered()</slot>
+ </slots>
 </ui>
