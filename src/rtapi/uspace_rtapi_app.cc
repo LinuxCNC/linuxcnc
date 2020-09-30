@@ -598,10 +598,8 @@ struct PosixTask : rtapi_task
 
 struct Posix : RtapiApp
 {
-    Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+    Posix(int policy = SCHED_FIFO) : RtapiApp(policy) {
         pthread_once(&key_once, init_key);
-        if(do_thread_lock)
-            pthread_mutex_init(&thread_lock, 0);
     }
     int task_delete(int id);
     int task_start(int task_id, unsigned long period_nsec);
@@ -618,8 +616,6 @@ struct Posix : RtapiApp
     void do_outb(unsigned char value, unsigned int port);
     int run_threads(int fd, int (*callback)(int fd));
     static void *wrapper(void *arg);
-    bool do_thread_lock;
-    pthread_mutex_t thread_lock;
 
     static pthread_once_t key_once;
     static pthread_key_t key;
@@ -664,14 +660,21 @@ static void signal_handler(int sig, siginfo_t *si, void *uctx)
 }
 
 const size_t PRE_ALLOC_SIZE = 1024*1024*32;
-const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory()
 {
-    int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
-    if(res < 0) perror("setrlimit");
+    struct rlimit limit;
+    int res = getrlimit(RLIMIT_MEMLOCK, &limit);
+    if(res < 0)
+        perror("getrlimit");
+    else {
+        rtapi_print_msg(RTAPI_MSG_WARN,"RLIMIT_MEMLOCK: curr: %ju, max: %ju\n",
+                        (uintmax_t)limit.rlim_cur, (uintmax_t)limit.rlim_max);
 
-    res = mlockall(MCL_CURRENT | MCL_FUTURE);
-    if(res < 0) perror("mlockall");
+        if (limit.rlim_max >= 2* PRE_ALLOC_SIZE) {
+            res = mlockall(MCL_CURRENT | MCL_FUTURE);
+            if(res < 0) perror("mlockall");
+        }
+    }
 
 #ifdef __linux__
     /* Turn off malloc trimming.*/
@@ -703,40 +706,24 @@ static void configure_memory()
 
 static int harden_rt()
 {
-    if(!rtapi_is_realtime()) return -EINVAL;
-
-    WITH_ROOT;
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        rtapi_print_msg(RTAPI_MSG_WARN,
                         "cannot gain I/O privileges - "
                         "forgot 'sudo make setuid'?\n");
-        return -EPERM;
     }
 #endif
 
     struct sigaction sig_act = {};
 #ifdef __linux__
-    // enable realtime
-    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
-    {
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit(RTLIMIT_RTPRIO): %s\n",
-		  strerror(errno));
-        return -errno;
-    }
+    struct rlimit limit;
 
-    // enable core dumps
-    if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
-		  strerror(errno));
-
-    // even when setuid root
-    if (prctl(PR_SET_DUMPABLE, 1) < 0)
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
-		  errno, strerror(errno));
+    int res = getrlimit(RLIMIT_MEMLOCK, &limit);
+    if(res < 0)
+        perror("getrlimit");
+    else
+        rtapi_print_msg(RTAPI_MSG_WARN,"RLIMIT_RTPRIO: curr: %ju, max: %ju\n",
+                        (uintmax_t)limit.rlim_cur, (uintmax_t)limit.rlim_max);
 #endif /* __linux__ */
 
     configure_memory();
@@ -776,11 +763,8 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(euid != 0 || harden_rt() < 0)
-    {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
-        return new Posix(SCHED_OTHER);
-    }
+    harden_rt();
+
     WithRoot r;
     void *dll = nullptr;
     if(detect_xenomai()) {
@@ -799,8 +783,7 @@ static RtapiApp *makeApp()
             return result;
         }
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-    return new Posix(SCHED_FIFO);
+    return new Posix();
 }
 RtapiApp &App()
 {
@@ -1041,10 +1024,6 @@ void *Posix::wrapper(void *arg)
 
   pthread_setspecific(key, arg);
 
-  Posix &papp = reinterpret_cast<Posix&>(App());
-  if(papp.do_thread_lock)
-      pthread_mutex_lock(&papp.thread_lock);
-
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
   rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
@@ -1086,8 +1065,6 @@ int Posix::task_self() {
 }
 
 void Posix::wait() {
-    if(do_thread_lock)
-        pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
     rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
@@ -1103,8 +1080,6 @@ void Posix::wait() {
         int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
         if(res < 0) perror("clock_nanosleep");
     }
-    if(do_thread_lock)
-        pthread_mutex_lock(&thread_lock);
 }
 
 unsigned char Posix::do_inb(unsigned int port)

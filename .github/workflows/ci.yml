@@ -29,8 +29,12 @@ jobs:
         ./configure --with-realtime=uspace --disable-check-runtime-deps
         make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
-    
+        sudo setcap cap_ipc_lock,cap_net_admin,cap_sys_rawio,cap_sys_nice+ep ../bin/rtapi_app
+        timeout --signal=9 3600 ../scripts/rip-environment runtests -vp || \
+          ([ -e ~/linuxcnc_debug.txt ] && (echo linuxcnc_debug.txt; cat ~/linuxcnc_debug.txt); \
+           [ -e ~/linuxcnc_print.txt ] && (echo linuxcnc_print.txt; cat ~/linuxcnc_print.txt); \
+           false)
+
   htmldocs:
     runs-on: ubuntu-16.04
     steps:
