@@ -1,6 +1,11 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
+import sys
+from distutils.spawn import find_executable
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 ###########################################
 # **** instantiate libraries section **** #
@@ -35,6 +40,14 @@ class HandlerClass:
         self.w.dial_3.valueChanged.emit(self.w.dial_3.value())
         self.w.dial_4.valueChanged.emit(self.w.dial_4.value())
 
+        if find_executable('urxvt') is not None:
+            term = embterminal()
+            self.w.dockWidget.setWidget(term)
+        else:
+            self.w.dockWidget.setWidget(
+                QLabel('''terminal program urxvt not available. \
+Try sudo apt install rxvt-unicode-256color'''))
+
     ########################
     # callbacks from STATUS #
     ########################
@@ -42,7 +55,31 @@ class HandlerClass:
     #######################
     # callbacks from form #
     #######################
-
+    def actionTriggered(self, data):
+        if data == self.w.actionSetD1_50_50:
+            self.w.dial_1.setMinimum(-50)
+            self.w.dial_1.setMaximum(50)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (+-50)')
+        elif data == self.w.actionSetD1_0_1000:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(1000)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-1000)')
+        elif data == self.w.actionSetD1_0_100:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(100)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-100)')
+        elif data == self.w.actionSetD2_50_50:
+            self.w.dial_2.setMinimum(-50)
+            self.w.dial_2.setMaximum(50)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (+-50)')
+        elif data == self.w.actionSetD2_0_1000:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(1000)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-1000)')
+        elif data == self.w.actionSetD2_0_100:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(100)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-100)')
     #####################
     # general functions #
     #####################
@@ -63,6 +100,31 @@ class HandlerClass:
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+class embterminal(QWidget):
+
+    def __init__(self, parent=None):
+        super(embterminal, self).__init__(parent)
+        self.process = QProcess(self)
+
+        self.w = QWindow()
+        self.terminal = QWidget.createWindowContainer(self.w)
+        self.terminal.setMinimumSize(550,100)
+        self.terminal.setMaximumSize(550,100)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.terminal)
+
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(size_policy)
+
+        # Works also with urxvt:
+        self.process.start(
+                'urxvt',['-bg','black','-fg','green', '-cr','green',
+                '-bd', 'green', '-embed', str(int(self.w.winId()))])
+
+    def sizeHint(self):
+        return QSize(550, 100)
 
 ################################
 # required handler boiler code #
