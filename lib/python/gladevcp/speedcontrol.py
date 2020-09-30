@@ -21,7 +21,6 @@
 
 import gi
 gi.require_version("Gtk","3.0")
-gi.require_version("Gdk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -31,7 +30,10 @@ import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from .hal_widgets import _HalSpeedControlBase
+if __name__ == "__main__":
+    from hal_widgets import _HalSpeedControlBase
+else:
+    from .hal_widgets import _HalSpeedControlBase
 
 class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
     '''
