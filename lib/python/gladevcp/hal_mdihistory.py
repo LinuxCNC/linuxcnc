@@ -23,10 +23,16 @@ from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 
-from .hal_widgets import _HalWidgetBase
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase
+    from hal_actions import _EMC_ActionBase, ensure_mode
+else:
+    from .hal_widgets import _HalWidgetBase
+    from .hal_actions import _EMC_ActionBase, ensure_mode
+
 import linuxcnc
 from hal_glib import GStat
-from .hal_actions import _EMC_ActionBase, ensure_mode
+
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -43,16 +49,16 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
     __gtype_name__ = 'EMC_MDIHistory'
     __gproperties__ = {
         'font_size_tree' : (GObject.TYPE_INT, 'Font Size', 'The font size of the tree view text',
-                    8, 96, 10, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
+                    8, 96, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'font_size_entry' : (GObject.TYPE_INT, 'Font Size', 'The font size of the entry text',
-                    8, 96, 10, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
+                    8, 96, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'use_double_click' : (GObject.TYPE_BOOLEAN, 'Enable submit a command using a double click', 'A double click on an entry will submit the selected command directly\nIt is not recommended to use this on real machines',
-                    False, GObject.PARAM_READWRITE | GObject.PARAM_CONSTRUCT),
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                    'exit': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+                    'exit': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
                    }
 
     def __init__(self, *a, **kw):
