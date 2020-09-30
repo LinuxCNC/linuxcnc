@@ -24,7 +24,6 @@
 '''
 import gi
 gi.require_version("Gtk","3.0")
-gi.require_version("Gdk","3.0")
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Pango
@@ -35,7 +34,7 @@ class Dialogs(GObject.GObject):
     __gtype_name__ = 'Dialogs'
 
     __gsignals__ = {
-                'play_sound': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+                'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
                }
 
     def __init__(self):
