@@ -305,7 +305,7 @@ class HAL_VBar(HAL_Bar):
 
         # make bar
         cr.save()
-        set_color(Gdk.Color.parse('black'))
+        set_color(Gdk.Color.parse('black')[1])
         zv = h * self.get_value_diff(self.zero)
         wv = h * self.get_value_diff(self.value)
         if not self.invert:
@@ -356,7 +356,7 @@ class HAL_VBar(HAL_Bar):
             cr.stroke()
 
         # make text
-        set_color(Gdk.Color.parse('black'))
+        set_color(Gdk.Color.parse('black')[1])
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
