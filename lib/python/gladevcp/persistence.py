@@ -24,7 +24,10 @@
 import os
 import sys
 import time
-import gtk
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 from configobj import ConfigObj, flatten_errors
 from validate import Validator
 from hashlib import sha1
@@ -74,12 +77,12 @@ def select_widgets(widgets, hal_only=False,output_only = False):
             continue
         if hal_only and not isinstance(w, _HalWidgetBase):
             continue
-        if output_only and not isinstance(w, (gtk.Range,
-                                              gtk.SpinButton,
-                                              gtk.ComboBox,
-                                              gtk.CheckButton,
-                                              gtk.ToggleButton,
-                                              gtk.RadioButton)):
+        if output_only and not isinstance(w, (Gtk.Range,
+                                              Gtk.SpinButton,
+                                              Gtk.ComboBox,
+                                              Gtk.CheckButton,
+                                              Gtk.ToggleButton,
+                                              Gtk.RadioButton)):
             continue
         wlist.append(w)
     return wlist
@@ -89,9 +92,9 @@ def accessors(w):
     '''
     retrieve getter/setter name of an 'interesting' widget
     '''
-    if isinstance(w, (gtk.Range, gtk.SpinButton)):
+    if isinstance(w, (Gtk.Range, Gtk.SpinButton)):
         return (w.get_value,w.set_value)
-    if isinstance(w, (gtk.CheckButton, gtk.ToggleButton,gtk.RadioButton,gtk.ComboBox)):
+    if isinstance(w, (Gtk.CheckButton, Gtk.ToggleButton,Gtk.RadioButton,Gtk.ComboBox)):
         return (w.get_active,w.set_active)
     return (None,None)
 
@@ -268,7 +271,7 @@ class IniFile(object):
         self.filename = filename
         self.builder = builder
         spec = self._gen_spec(self.defaults)
-        self.signature = sha1(spec).hexdigest()
+        self.signature = sha1(spec.encode('utf-8')).hexdigest()
         self.defaults[IniFile.ini][IniFile.signature] = self.signature
 
         dbg(2, "auto-generated spec:\n%s\nsignature = %s" %
