@@ -241,9 +241,10 @@ class INI:
         if self.d.random_toolchanger:
             print("RANDOM_TOOLCHANGER = 1", file=file)
         
-        all_homes = self.a.home_sig("x") and self.a.home_sig("z")
-        if self.d.axes in (0,1): all_homes = all_homes and self.a.home_sig("y")
-        if self.d.axes == 1: all_homes = all_homes and self.a.home_sig("a")
+        all_homes = bool(self.a.home_sig("x") and self.a.home_sig("z"))
+        if self.d.axes in (0,1): all_homes = bool(all_homes and self.a.home_sig("y"))
+        # A axis usually doesn't have home switches
+        #if self.d.axes == 1: all_homes = all_homes and self.a.home_sig("a")
 
         ##############################################################
         # build axis/joint info
@@ -435,16 +436,17 @@ class INI:
                 if self.a.findsignal(i):
                     print("HOME_IGNORE_LIMITS = YES", file=file)
                     break
-            # if all axis have homing switches and user doesn't request
-            # manual individual homing:
-            if all_homes and not self.d.individual_homing:
-                seqnum = int(get("homesequence"))
-                # if a tandem joint we wish to finish the home sequence together
-                if tandemflag: wait ='-'
-                else: wait = ''
-                print("HOME_SEQUENCE = %s%d" % (wait,seqnum), file=file)
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
+
+        # if all axis have homing switches and user doesn't request
+        # manual individual homing:
+        if all_homes and not self.d.individual_homing:
+            seqnum = int(get("homesequence"))
+            # if a tandem joint we wish to finish the home sequence together
+            if tandemflag: wait ='-'
+            else: wait = ''
+            print("HOME_SEQUENCE = %s%d" % (wait,seqnum), file=file)
 
     def write_one_axis(self, file, letter):
         # For KINEMATICS_IDENTITY:
