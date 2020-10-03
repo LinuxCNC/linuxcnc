@@ -516,7 +516,7 @@ FUNCTION(_) {
     }else{
         arc_voltage_raw = arc_voltage_in;
     }
-    arc_voltage_out = roundf(((fabs(arc_voltage_raw) - arc_voltage_offset) * fabs(arc_voltage_scale)) * 1000) / 1000;
+    arc_voltage_out = round(((fabs(arc_voltage_raw) - arc_voltage_offset) * fabs(arc_voltage_scale)) * 1000) / 1000;
     if(arc_voltage_out < 0 && arc_voltage_out > -0.1){
         arc_voltage_out = 0;
     }
