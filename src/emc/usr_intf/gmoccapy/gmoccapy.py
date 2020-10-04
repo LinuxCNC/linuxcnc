@@ -94,7 +94,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.8.2"
+_RELEASE = " 3.3.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -600,16 +600,23 @@ class gmoccapy(object):
             dro.change_axisletter(axis.upper())
             dro.show()
             dro.set_property("name", "Combi_DRO_{0}".format(pos))
-            dro.set_property("abs_color", Gdk.color_parse(self.abs_color))
-            dro.set_property("rel_color", Gdk.color_parse(self.rel_color))
-            dro.set_property("dtg_color", Gdk.color_parse(self.dtg_color))
-            dro.set_property("homed_color", Gdk.color_parse(self.homed_color))
-            dro.set_property("unhomed_color", Gdk.color_parse(self.unhomed_color))
+            dro.set_property("abs_color", self._get_RGBA_color(self.abs_color))
+            dro.set_property("rel_color", self._get_RGBA_color(self.rel_color))
+            dro.set_property("dtg_color", self._get_RGBA_color(self.dtg_color))
+            dro.set_property("homed_color", self._get_RGBA_color(self.homed_color))
+            dro.set_property("unhomed_color", self._get_RGBA_color(self.unhomed_color))
             dro.set_property("actual", self.dro_actual)
             dro.connect("clicked", self._on_DRO_clicked)
             dro.connect('axis_clicked', self._on_DRO_axis_clicked)
             self.dro_dic[dro.get_property("name")] = dro
 #            print dro.name
+
+    def _get_RGBA_color(self, color_str):
+        color = Gdk.RGBA()
+        color.parse(color_str)
+        print(color.red, color.green, color.blue, color.alpha)
+        return Gdk.RGBA(color.red, color.green, color.blue, color.alpha)
+        
 
     def _get_joint_from_joint_axis_dic(self, value):
         # if the selected axis is a double axis we will get the joint from the
@@ -1316,11 +1323,11 @@ class gmoccapy(object):
         # should never be used due to the limit in axis from 0 to 8
         dro = Combi_DRO()
         dro.set_property("name", "Combi_DRO_9")
-        dro.set_property("abs_color", Gdk.color_parse(self.abs_color))
-        dro.set_property("rel_color", Gdk.color_parse(self.rel_color))
-        dro.set_property("dtg_color", Gdk.color_parse(self.dtg_color))
-        dro.set_property("homed_color", Gdk.color_parse(self.homed_color))
-        dro.set_property("unhomed_color", Gdk.color_parse(self.unhomed_color))
+        dro.set_property("abs_color", self.abs_color)
+        dro.set_property("rel_color", self.rel_color)
+        dro.set_property("dtg_color", self.dtg_color)
+        dro.set_property("homed_color", self.homed_color)
+        dro.set_property("unhomed_color", self.unhomed_color)
         dro.set_property("actual", self.dro_actual)
 
         joint = self._get_joint_from_joint_axis_dic("x")
@@ -2847,20 +2854,20 @@ class gmoccapy(object):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
         print(state)
         if state:
-            self.dro_dic["Combi_DRO_0"].set_property("abs_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("rel_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("abs_color", Gdk.color_parse(self.abs_color))
-            self.dro_dic["Combi_DRO_9"].set_property("rel_color", Gdk.color_parse(self.rel_color))
-            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", Gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", self.abs_color)
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", self.rel_color)
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", self.dtg_color)
             self.diameter_mode = True
         else:
-            self.dro_dic["Combi_DRO_9"].set_property("abs_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("rel_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", Gdk.color_parse("#F2F1F0"))
-            self.dro_dic["Combi_DRO_0"].set_property("abs_color", Gdk.color_parse(self.abs_color))
-            self.dro_dic["Combi_DRO_0"].set_property("rel_color", Gdk.color_parse(self.rel_color))
-            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", Gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", "#F2F1F0")
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", self.abs_color)
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", self.rel_color)
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", self.dtg_color)
             self.diameter_mode = False
 
     def on_key_event(self, widget, event, signal):
@@ -3283,16 +3290,20 @@ class gmoccapy(object):
                 self.rabbit_jog = self.rabbit_jog * self.faktor
 
     def _change_dro_color(self, property, color):
+        print(property)
+        print(color.red, color.green, color.blue, color.alpha)
         for dro in self.dro_dic:
             self.dro_dic[dro].set_property(property, color)
-        if self.lathe_mode:
-            # check if G7 or G8 is active
-            # this is set on purpose wrong, because we want the periodic
-            # to update the state correctly
-            if "G7" in self.active_gcodes:
-                self.diameter_mode = False
-            else:
-                self.diameter_mode = True
+
+# ToDo: Do w need this???
+#         if self.lathe_mode:
+#             # check if G7 or G8 is active
+#             # this is set on purpose wrong, because we want the periodic
+#             # to update the state correctly
+#             if "G7" in self.active_gcodes:
+#                 self.diameter_mode = False
+#             else:
+#                 self.diameter_mode = True
 
     def _update_toolinfo(self, tool):
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
@@ -3375,7 +3386,6 @@ class gmoccapy(object):
         return
 
     def _on_DRO_axis_clicked(self, widget, axisletter):
-        print("DRO Axisletter has been clicked", axisletter)
         if axisletter == "r" or axisletter == "d":
             axisletter = "x"
         self._on_btn_set_value_clicked(None, data=axisletter)
@@ -4040,7 +4050,7 @@ class gmoccapy(object):
         else:
             axis = data
 
-        print("touch button clicked ", axis)
+        print("touch button clicked ",axis.upper())    
 
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:
@@ -4053,8 +4063,8 @@ class gmoccapy(object):
                                                    label=_("Set radius to:"), integer=False)
         else:
             preset = self.prefs.getpref("offset_axis_{0}".format(axis), 0, float)
-            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis {0}").format(axis),
-                                               label=_("Set axis {0} to:").format(axis), integer=False)
+            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis {0}").format(axis.upper()),
+                                               label=_("Set axis {0} to:").format(axis.upper()), integer=False)
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
@@ -4294,41 +4304,42 @@ class gmoccapy(object):
             #self.widgets.window1.window.set_cursor(INVISABLE) #TODO:
         else:
             self.widgets.window1.window.set_cursor(None)
-        self.abs_color = self.prefs.getpref("abs_color", "blue", str)
-        self.rel_color = self.prefs.getpref("rel_color", "black", str)
-        self.dtg_color = self.prefs.getpref("dtg_color", "yellow", str)
-        self.homed_color = self.prefs.getpref("homed_color", "green", str)
-        self.unhomed_color = self.prefs.getpref("unhomed_color", "red", str)
+
+# Helper may be in an extra file, used also in CombiDRO
+    def convert_color(self, color):
+        colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
+        return ('#' + ''.join(f'{i:02X}' for i in colortuple))
 
     def on_rel_colorbutton_color_set(self, widget):
-        color = widget.get_color()
-        self.prefs.putpref('rel_color', color)
+        color = widget.get_rgba()
+        print(color)
+        self.rel_color = self.convert_color(color)
+        self.prefs.putpref('rel_color', self.rel_color)
         self._change_dro_color("rel_color", color)
-        self.rel_color = str(color)
 
     def on_abs_colorbutton_color_set(self, widget):
-        color = widget.get_color()
-        self.prefs.putpref('abs_color', widget.get_color())
+        color = widget.get_rgba()
+        self.abs_color = self.convert_color(color)
+        self.prefs.putpref('abs_color', self.abs_color)
         self._change_dro_color("abs_color", color)
-        self.abs_color = str(color)
 
     def on_dtg_colorbutton_color_set(self, widget):
-        color = widget.get_color()
-        self.prefs.putpref('dtg_color', widget.get_color())
+        color = widget.get_rgba()
+        self.dtg_color = self.convert_color(color)
+        self.prefs.putpref('dtg_color', self.dtg_color)
         self._change_dro_color("dtg_color", color)
-        self.dtg_color = str(color)
 
     def on_homed_colorbtn_color_set(self, widget):
-        color = widget.get_color()
-        self.prefs.putpref('homed_color', widget.get_color())
+        color = widget.get_rgba()
+        self.homed_color = self.convert_color(color)
+        self.prefs.putpref('homed_color', self.homed_color)
         self._change_dro_color("homed_color", color)
-        self.homed_color = str(color)
 
     def on_unhomed_colorbtn_color_set(self, widget):
-        color = widget.get_color()
-        self.prefs.putpref('unhomed_color', widget.get_color())
+        color = widget.get_rgba()
+        self.unhomed_color = self.convert_color(color)
+        self.prefs.putpref('unhomed_color', self.unhomed_color)
         self._change_dro_color("unhomed_color", color)
-        self.unhomed_color = str(color)
 
     def on_file_to_load_chooser_file_set(self, widget):
         self.prefs.putpref("open_file", widget.get_filename())
