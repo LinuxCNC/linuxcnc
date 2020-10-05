@@ -1748,8 +1748,9 @@ class gmoccapy(object):
 
     # Gotta kill the embedded processes when gmoccapy closes
     def _kill_dynamic_childs(self):
+        print("_kill_dynamic_childs")
         for child in list(self._dynamic_childs.values()):
-            if type(child) == Gtk.Socket:#
+            if type(child) == Gtk.Socket:
                 child.disconnect
             else:
                 child.terminate()
@@ -1979,7 +1980,6 @@ class gmoccapy(object):
             self.socket.add_id(int(sid))
             self.socket.show_all()
             self.widgets.key_box.show_all()
-            atexit.register(self._kill_dynamic_childs)
             self._dynamic_childs[int(sid)] = self.socket
             self.onboard = True
         except Exception as e:
@@ -2022,6 +2022,7 @@ class gmoccapy(object):
         self.widgets.btn_keyb.set_sensitive(False)
 
     def _kill_keyboard(self):
+        print("_kill_keyboard")
         try:
             self.onboard_kb.kill()
             self.onboard_kb.terminate()
@@ -2784,6 +2785,7 @@ class gmoccapy(object):
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         print("estoping / killing gmoccapy")
+        self._kill_dynamic_childs()
         if self.onboard:
             self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
