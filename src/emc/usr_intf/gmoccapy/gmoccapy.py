@@ -95,7 +95,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.3.3.1"
+_RELEASE = " 3.3.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -4704,10 +4704,10 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
         self.widgets.tbl_DRO.hide()
-        width = self.widgets.window1.allocation.width
-        width -= self.widgets.vbtb_main.allocation.width
-        width -= self.widgets.box_right.allocation.width
-        width -= self.widgets.box_left.allocation.width
+        width = self.widgets.window1.get_size().width
+        width -= self.widgets.vbtb_main.get_allocated_width()
+        width -= self.widgets.box_right.get_allocated_width()
+        width -= self.widgets.box_left.get_allocated_width()
         self.widgets.vbx_jog.set_size_request(width, -1)
         if not self.widgets.vbx_jog.get_visible():
             self.widgets.vbx_jog.set_visible(True)
