@@ -94,7 +94,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.3.3.2"
+_RELEASE = " 3.3.3.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1955,7 +1955,7 @@ class gmoccapy(object):
     def _init_keyboard(self, args="", x="", y=""):
         self.onboard = False
 
-        # now we check if onboard or matchbox-keyboard is installed
+        # now we check if onboard is installed
         try:
             if os.path.isfile("/usr/bin/onboard"):
                 self.onboard_kb = subprocess.Popen(["onboard", "--xid", args, x, y],
@@ -1964,16 +1964,10 @@ class gmoccapy(object):
                                                    close_fds=True)
                 print (_("**** GMOCCAPY INFO ****"))
                 print (_("**** virtual keyboard program found : <onboard>"))
-            elif os.path.isfile("/usr/bin/matchbox-keyboard"):
-                self.onboard_kb = subprocess.Popen(["matchbox-keyboard", "--xid"],
-                                                   stdin=subprocess.PIPE,
-                                                   stdout=subprocess.PIPE,
-                                                   close_fds=True)
-                print (_("**** GMOCCAPY INFO ****"))
-                print (_("**** virtual keyboard program found : <matchbox-keyboard>"))
             else:
                 print (_("**** GMOCCAPY INFO ****"))
-                print (_("**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."))
+                print (_("**** No virtual keyboard installed, we checked for <onboard> ."))
+                print (_("**** try sudo apt-get install onboard"))
                 self._no_virt_keyboard()
                 return
             sid = self.onboard_kb.stdout.readline()
@@ -1982,11 +1976,14 @@ class gmoccapy(object):
             self.socket.add_id(int(sid))
             self.socket.show_all()
             self.widgets.key_box.show_all()
+            atexit.register(self._kill_dynamic_childs)
+            self._dynamic_childs[int(sid)] = self.socket
             self.onboard = True
         except Exception as e:
             print (_("**** GMOCCAPY ERROR ****"))
             print (_("**** Error with launching virtual keyboard,"))
-            print (_("**** is onboard or matchbox-keyboard installed? ****"))
+            print (_("**** is onboard installed? ****"))
+            print (_("**** try sudo apt-get install onboard"))
             traceback.print_exc()
             self._no_virt_keyboard()
 
