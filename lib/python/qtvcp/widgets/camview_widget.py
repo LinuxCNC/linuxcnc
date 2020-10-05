@@ -74,7 +74,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.rotationIncrement = .5
         self.pix = None
         self.stopped = False
-        self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
+        if sys.version_info.major > 2:
+            self.degree = str("\N{DEGREE SIGN}")
+        else:
+            self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
 
     def hal_init(self):
         self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
