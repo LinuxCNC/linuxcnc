@@ -94,7 +94,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.3.3.3"
+_RELEASE = " 3.3.3.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1749,7 +1749,10 @@ class gmoccapy(object):
     # Gotta kill the embedded processes when gmoccapy closes
     def _kill_dynamic_childs(self):
         for child in list(self._dynamic_childs.values()):
-            child.terminate()
+            if type(child) == Gtk.Socket:#
+                child.disconnect
+            else:
+                child.terminate()
 
     def set_up_user_tab_widgets(self, tab_locations):
         print(tab_locations)
