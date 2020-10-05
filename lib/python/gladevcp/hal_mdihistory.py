@@ -96,7 +96,8 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         scroll.props.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
 
         self.entry = Gtk.Entry()
-        self.entry.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, 'Gtk-ok')
+        print("Icon from stock")
+        self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "gtk-ok")
         self.entry.modify_font(Pango.FontDescription(self.default_font))
 
         self.entry.connect('activate', self.submit)
