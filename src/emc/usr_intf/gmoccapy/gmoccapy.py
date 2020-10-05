@@ -94,7 +94,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.3.3.3.1"
+_RELEASE = " 3.3.3.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1941,15 +1941,6 @@ class gmoccapy(object):
     def _init_hide_cursor(self):
         hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
         self.widgets.chk_hide_cursor.set_active(hide_cursor)
-        # if hide cursor requested
-        # we set the graphics to use touchscreen controls
-        #TODO
-        #if hide_cursor:
-        #    self.widgets.window1.window.set_cursor(INVISABLE)
-        #    self.widgets.gremlin.set_property("use_default_controls", False)
-        #else:
-        #    self.widgets.window1.window.set_cursor(None)
-        #    self.widgets.gremlin.set_property("use_default_controls", True)
 
 # =============================================================
 # Onboard keybord handling Start
@@ -4301,11 +4292,13 @@ class gmoccapy(object):
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
         self.hide_cursor = widget.get_active()
+
+        win = self.widgets.window1.get_window()
         if widget.get_active():
-            pass
-            #self.widgets.window1.window.set_cursor(INVISABLE) #TODO:
+            self.cursor = Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)
         else:
-            self.widgets.window1.window.set_cursor(None)
+            self.cursor = Gdk.Cursor(Gdk.CursorType.ARROW)
+        win.set_cursor(self.cursor)
 
 # Helper may be in an extra file, used also in CombiDRO
     def convert_color(self, color):
