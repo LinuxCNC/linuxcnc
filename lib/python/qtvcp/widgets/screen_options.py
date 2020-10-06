@@ -437,28 +437,32 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
         w = self.QTVCP_INSTANCE_
-        w.toolDialog_ = ToolDialog()
+        w.toolDialog_ = ToolDialog(w)
+        w.toolDialog_.setObjectName('toolDialog_')
         w.toolDialog_.hal_init(HAL_NAME='')
         w.toolDialog_.overlay_color = self._toolDialogColor
 
     def init_message_dialog(self):
         from qtvcp.widgets.dialog_widget import LcncDialog
         w = self.QTVCP_INSTANCE_
-        w.messageDialog_ = LcncDialog()
+        w.messageDialog_ = LcncDialog(w)
+        w.messageDialog_.setObjectName('messageDialog_')
         w.messageDialog_.hal_init(HAL_NAME='')
         w.messageDialog_.overlay_color = self._messageDialogColor
 
     def init_close_dialog(self):
         from qtvcp.widgets.dialog_widget import CloseDialog
         w = self.QTVCP_INSTANCE_
-        w.closeDialog_ = CloseDialog()
+        w.closeDialog_ = CloseDialog(w)
+        w.closeDialog_.setObjectName('closeDialog_')
         w.closeDialog_.hal_init(HAL_NAME='')
         w.closeDialog_.overlay_color = self._messageDialogColor
 
     def init_entry_dialog(self):
         from qtvcp.widgets.dialog_widget import EntryDialog
         w = self.QTVCP_INSTANCE_
-        w.entryDialog_ = EntryDialog()
+        w.entryDialog_ = EntryDialog(w)
+        w.entryDialog_.setObjectName('entryDialog_')
         w.entryDialog_.hal_init(HAL_NAME='')
         w.entryDialog_.soft_keyboard_option = self._entryDialogSoftkey
         w.entryDialog_.overlay_color = self._entryDialogColor
@@ -466,7 +470,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def init_file_dialog(self):
         from qtvcp.widgets.dialog_widget import FileDialog
         w = self.QTVCP_INSTANCE_
-        w.fileDialog_ = FileDialog()
+        w.fileDialog_ = FileDialog(w)
         w.fileDialog_.setObjectName('fileDialog_')
         w.fileDialog_.hal_init(HAL_NAME='')
         w.fileDialog_.overlay_color = self._fileDialogColor
@@ -475,12 +479,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.overlay_widget import FocusOverlay
         w = self.QTVCP_INSTANCE_
         w.focusOverlay_ = FocusOverlay(w)
+        w.focusOverlay_.setObjectName('focusOverlay_')
         w.focusOverlay_.hal_init(HAL_NAME='')
 
     def init_versaprobe_dialog(self):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
-        w.versaProbeDialog_ = VersaProbeDialog()
+        w.versaProbeDialog_ = VersaProbeDialog(w)
         w.versaProbeDialog_.setObjectName('versaProbeDialog_')
         w.registerHalWidget(w.versaProbeDialog_)
         w.versaProbeDialog_.hal_init(HAL_NAME='')
@@ -489,7 +494,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def init_macrotab_dialog(self):
         from qtvcp.widgets.dialog_widget import MacroTabDialog
         w = self.QTVCP_INSTANCE_
-        w.macroTabDialog_ = MacroTabDialog()
+        w.macroTabDialog_ = MacroTabDialog(w)
         w.macroTabDialog_.setObjectName('macroTabDialog_')
         w.macroTabDialog_.hal_init(HAL_NAME='')
         w.macroTabDialog_.overlay_color = self._macroTabDialogColor
@@ -497,42 +502,48 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def init_camview_dialog(self):
         from qtvcp.widgets.dialog_widget import CamViewDialog
         w = self.QTVCP_INSTANCE_
-        w.camViewDialog_ = CamViewDialog()
+        w.camViewDialog_ = CamViewDialog(w)
+        w.camViewDialog_.setObjectName('camViewDialog_')
         w.camViewDialog_.hal_init(HAL_NAME='')
         w.camViewDialog_.overlay_color = self._camViewDialogColor
 
     def init_tooloffset_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolOffsetDialog
         w = self.QTVCP_INSTANCE_
-        w.toolOffsetDialog_ = ToolOffsetDialog()
+        w.toolOffsetDialog_ = ToolOffsetDialog(w)
+        w.toolOffsetDialog_.setObjectName('toolOffsetDialog_')
         w.toolOffsetDialog_.hal_init(HAL_NAME='')
         w.toolOffsetDialog_.overlay_color = self._toolOffsetDialogColor
 
     def init_originoffset_dialog(self):
         from qtvcp.widgets.dialog_widget import OriginOffsetDialog
         w = self.QTVCP_INSTANCE_
-        w.originOffsetDialog_ = OriginOffsetDialog()
+        w.originOffsetDialog_ = OriginOffsetDialog(w)
+        w.originOffsetDialog_.setObjectName('originOffsetDialog_')
         w.originOffsetDialog_.hal_init(HAL_NAME='')
         w.originOffsetDialog_.overlay_color = self._originOffsetDialogColor
 
     def init_calculator_dialog(self):
         from qtvcp.widgets.dialog_widget import CalculatorDialog
         w = self.QTVCP_INSTANCE_
-        w.calculatorDialog_ = CalculatorDialog()
+        w.calculatorDialog_ = CalculatorDialog(w)
+        w.calculatorDialog_.setObjectName('calculatorDialog_')
         w.calculatorDialog_.hal_init(HAL_NAME='')
         w.calculatorDialog_.overlay_color = self._calculatorDialogColor
 
     def init_machinelog_dialog(self):
         from qtvcp.widgets.dialog_widget import MachineLogDialog
         w = self.QTVCP_INSTANCE_
-        w.machineLogDialog_ = MachineLogDialog()
+        w.machineLogDialog_ = MachineLogDialog(w)
+        w.machineLogDialog_.setObjectName('machineLogDialog_')
         w.machineLogDialog_.hal_init(HAL_NAME='')
         w.machineLogDialog_.overlay_color = self._machineLogDialogColor
 
     def init_runfromline_dialog(self):
         from qtvcp.widgets.dialog_widget import RunFromLineDialog
         w = self.QTVCP_INSTANCE_
-        w.runFromLineDialog_ = RunFromLineDialog()
+        w.runFromLineDialog_ = RunFromLineDialog(w)
+        w.runFromLineDialog_.setObjectName('runFromLineDialog_')
         w.runFromLineDialog_.hal_init(HAL_NAME='')
         w.runFromLineDialog_.overlay_color = self._runFromLineDialogColor
 
