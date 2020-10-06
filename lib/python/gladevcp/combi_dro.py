@@ -284,11 +284,6 @@ class Combi_DRO(Gtk.VBox):
 
     # Set propertys
     def do_set_property(self, property, value):
-#         name = property.name.replace('-', '_')
-#         if name == "abs_color":
-#             print("got abs color", value)
-#             self.rel_color = self.convert_color(value)
-#             self.toggle_readout(Data = True)
         try:
             name = property.name.replace('-', '_')
             if name in list(self.__gproperties.keys()):
