@@ -62,9 +62,9 @@ class OffsetPage(Gtk.VBox):
                 "%9.4f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'font' : (GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-        'highlight_color'  : (Gdk.Color.__gtype__, 'Highlight color', "",
+        'highlight_color'  : (Gdk.RGBA.__gtype__, 'Highlight color', "",
                     GObject.ParamFlags.READWRITE),
-        'foreground_color'  : (Gdk.Color.__gtype__, 'Active text color', "",
+        'foreground_color'  : (Gdk.RGBA.__gtype__, 'Active text color', "",
                     GObject.ParamFlags.READWRITE),
         'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvw and t are the options',
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
@@ -92,9 +92,13 @@ class OffsetPage(Gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        self.highlight_color = Gdk.Color.parse("lightblue")[1]
-        self.foreground_color = Gdk.Color.parse("red")[1]
-        self.unselectable_color = Gdk.Color.parse("lightgray")[1]
+        color = Gdk.RGBA()
+        color.parse("lightblue")
+        self.highlight_color = color
+        color.parse("red")
+        self.foreground_color = color
+        color.parse("lightgray")
+        self.unselectable_color = color
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = Gtk.Builder()
@@ -141,7 +145,7 @@ class OffsetPage(Gtk.VBox):
             if units == None:
                 units = self.inifile.find("AXIS_X", "UNITS")
         except:
-            print(_("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
+            print(("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -153,7 +157,7 @@ class OffsetPage(Gtk.VBox):
             self.conversion = [25.4] * 3 + [1] * 3 + [25.4] * 3
 
         # check linuxcnc status every half second
-        GObject.timeout_add(500, self.periodic_check)
+#        GObject.timeout_add(500, self.periodic_check)
 
     # Reload the offsets into display
     def reload_offsets(self):
@@ -193,11 +197,11 @@ class OffsetPage(Gtk.VBox):
             for column in range(0, 9):
                 if row == 2:
                     if column == 2:
-                        self.store[row][column + 1] = locale.format(degree_tmpl, rot)
+                        self.store[row][column + 1] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.store[row][column + 1] = " "
                 else:
-                    self.store[row][column + 1] = locale.format(tmpl, i[column])
+                    self.store[row][column + 1] = locale.format_string(tmpl, i[column])
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
                 self.store[row][13] = str(self.foreground_color)
@@ -291,6 +295,7 @@ class OffsetPage(Gtk.VBox):
 
     # make the cells editable and highlight them
     def set_editing(self, widget):
+        print("set editing")
         state = widget.get_active()
         # stop updates from linuxcnc
         self.editing_mode = state
@@ -304,15 +309,17 @@ class OffsetPage(Gtk.VBox):
             if not self.store[i][0] in('G5x', 'Rot', 'G92', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'): continue
             if self.store[i][0] in self.selection_mask: continue
             self.store[i][11] = state
-            #TODO: gtk3
-            #self.store[i][12] = color
+            self.store[i][12] = self.convert_color(color)
         self.queue_draw()
 
     # When the column is edited this does the work
     # TODO the edited column does not end up showing the editted number even though linuxcnc
     # registered the change
     def col_editted(self, widget, filtered_path, new_text, col):
-        (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)
+        print("col edited")
+        model, treeiter = self.view2.get_selection().get_selected()
+        path = self.modelfilter.get_path(treeiter)
+        (store_path,) = self.modelfilter.convert_path_to_child_path(path)
         row = store_path
         axisnum = col - 1
         # print "EDITED:", new_text, col, int(filtered_path), row, "axis num:", axisnum
@@ -440,13 +447,18 @@ class OffsetPage(Gtk.VBox):
             self.reload_offsets()
         return True
 
+    # converts a RGBA color to a string value like #00FF00
+    def convert_color(self, color):
+        colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
+        return ('#' + ''.join(f'{i:02X}' for i in colortuple))
+
     # sets the color when editing is active
     def set_highlight_color(self, value):
-        self.highlight_color = Gdk.Color.parse(value)[1]
+        self.highlight_color = self.convert_color(value)
 
     # sets the text color of the current system description name
     def set_foreground_color(self, value):
-        self.foreground_color = Gdk.Color.parse(value)[1]
+        self.foreground_color = self.convert_color(value)
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self, value):
@@ -565,25 +577,30 @@ class OffsetPage(Gtk.VBox):
 def main(filename = None):
     window = Gtk.Dialog("My dialog",
                    None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                   modal = True , destroy_with_parent = True,)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
+    
     offsetpage = OffsetPage()
 
     window.vbox.add(offsetpage)
-    # offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
-    # offsetpage.set_col_visible("Yabuvw", False)
-    # offsetpage.set_row_visible("456789abc", False)
-    # offsetpage.set_row_visible("89abc", True)
-    # offsetpage.set_to_mm()
-    # offsetpage.set_font("sans 20")
-    # offsetpage.set_property("highlight_color", Gdk.Color.parse('blue'))
-    # offsetpage.set_highlight_color("violet")
-    # offsetpage.set_foreground_color("yellow")
-    # offsetpage.mark_active("G55")
-    # offsetpage.selection_mask = ("Tool", "Rot", "G5x")
-    # offsetpage.set_names([['G54', 'Default'], ["G55", "Vice1"], ['Rot', 'Rotational']])
-    # print offsetpage.get_names()
+    offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
+    offsetpage.set_col_visible("Yabuvw", False)
+    offsetpage.set_row_visible("456789abc", False)
+    offsetpage.set_row_visible("89abc", True)
+    offsetpage.set_to_mm()
+    offsetpage.set_font("sans 20")
+    color = Gdk.RGBA()
+    color.parse("lightblue")
+    offsetpage.set_property("highlight_color", color)
+    color.parse("violet")
+    offsetpage.set_highlight_color(color)
+    color.parse("yellow")
+    offsetpage.set_foreground_color(color)
+    offsetpage.mark_active("G55")
+    offsetpage.selection_mask = ("Tool", "Rot", "G5x")
+    offsetpage.set_names([['G54', 'Default'], ["G55", "Vice1"], ['Rot', 'Rotational']])
+    print(offsetpage.get_names())
 
     window.connect("destroy", Gtk.main_quit)
     window.show_all()
