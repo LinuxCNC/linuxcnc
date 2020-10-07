@@ -21,6 +21,7 @@
 # HAL only widgets
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin
+from qtvcp.plugins.hal_label_plugin import HALLabelPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
