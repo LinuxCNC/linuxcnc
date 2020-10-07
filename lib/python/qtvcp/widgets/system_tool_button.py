@@ -46,7 +46,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         self._last = 0
         self._block_signal = False
         self._auto_label_flag = True
-        SettingMenu = QMenu()
+        SettingMenu = QMenu(self)
         for system in('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'):
 
             Button = QAction(QIcon('exit24.png'), system, self)

@@ -50,7 +50,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self.display_units_mm = 0
         homeOption = False
 
-        SettingMenu = QMenu()
+        SettingMenu = QMenu(self)
         self.settingMenu = SettingMenu
         self.zeroButton = QAction(QIcon('exit24.png'), 'Zero', self)
         self.zeroButton.triggered.connect(self.Zero)
