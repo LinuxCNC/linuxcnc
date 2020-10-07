@@ -20,7 +20,7 @@ log = logger.getLogger(__name__)
 
 
 class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal([int], [float], [bool] )
+    value_changed = pyqtSignal('PyQt_PyObject')
 
     REGISTRY = []
     UPDATE = False
