@@ -16,6 +16,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# Note: items like pivot_len can be set at invocation, example:
+#       5axisgui pivot_len=300
 
 from vismach import *
 import hal
@@ -41,20 +43,25 @@ c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-pivot_len=100
-tool_radius=25
+pivot_len = 250 # to agree with default in 5axiskins.c
+za =  50
+zb = 100
 
-for setting in sys.argv[1:]: exec(setting)
+for setting in sys.argv[1:]:
+    print(setting)
+    exec(setting)
 
 tooltip = Capture()
 tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
                    HalToolCylinder(c),
-                   CylinderZ(pivot_len, 100, 0.0, 50),
-                   Box(-100,-100,pivot_len, 100,100,pivot_len+50),
-                   Box(-50,25,pivot_len+50, 50,100,pivot_len+150)
+                   CylinderZ(pivot_len-(zb+za), 100, 0.0, 50),
+                   Box(-100,-100,pivot_len-(zb+za),
+                        100, 100,pivot_len-zb),
+                   Box( -50,  25,pivot_len-zb,
+                         50, 100,pivot_len)
                    ])
 
-tool = Translate([tool], 0, 0, -pivot_len-150)
+tool = Translate([tool], 0, 0, -pivot_len)
 
 tool = Collection([tool,
                    CylinderY(-100,75, -10,75),
@@ -108,4 +115,5 @@ table = Collection([
 
 model = Collection([ram, table])
 
-main(model, tooltip, work, 1500)
+main(model, tooltip, work, size=1500,lat=-65, lon=45)
+
