@@ -136,15 +136,33 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="dro_3">
+           <widget class="HALLabel" name="hallabel_2">
             <property name="text">
-             <string/>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#0cf421;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="bit_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="s32_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="float_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#0cf421;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QLineEdit" name="lineEdit_14"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="LED" name="led_1"/>
       </item>
       <item row="8" column="2" rowspan="2">
        <widget class="QDockWidget" name="dockWidget_3">
@@ -235,9 +253,21 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="dro_2">
+           <widget class="HALLabel" name="hallabel_3">
             <property name="text">
-             <string/>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#4c1bf1;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="bit_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="s32_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="float_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#4c1bf1;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -245,10 +275,24 @@
         </widget>
        </widget>
       </item>
+      <item row="3" column="4">
+       <widget class="QLineEdit" name="lineEdit_13"/>
+      </item>
       <item row="1" column="4">
        <widget class="QLineEdit" name="lineEdit_4">
         <property name="text">
          <string>LED4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="LED" name="led_4">
+        <property name="color">
+         <color>
+          <red>245</red>
+          <green>7</green>
+          <blue>143</blue>
+         </color>
         </property>
        </widget>
       </item>
@@ -272,8 +316,8 @@
         </property>
        </spacer>
       </item>
-      <item row="3" column="4">
-       <widget class="QLineEdit" name="lineEdit_13"/>
+      <item row="5" column="2">
+       <widget class="QLineEdit" name="lineEdit_11"/>
       </item>
       <item row="0" column="2">
        <widget class="LED" name="led_2">
@@ -286,42 +330,11 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QLineEdit" name="lineEdit_11"/>
-      </item>
-      <item row="0" column="4">
-       <widget class="LED" name="led_4">
-        <property name="color">
-         <color>
-          <red>245</red>
-          <green>7</green>
-          <blue>143</blue>
-         </color>
-        </property>
-       </widget>
-      </item>
       <item row="6" column="4">
        <widget class="QLineEdit" name="lineEdit_16"/>
       </item>
-      <item row="3" column="3">
-       <widget class="PushButton" name="pushbutton_1">
-        <property name="text">
-         <string>Button 1</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="4">
        <widget class="QLineEdit" name="lineEdit_15"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEdit_2">
-        <property name="text">
-         <string>LED2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLineEdit" name="lineEdit_10"/>
       </item>
       <item row="7" column="1" colspan="4">
        <widget class="Line" name="line_2">
@@ -330,18 +343,18 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="lineEdit_9"/>
+      <item row="4" column="2">
+       <widget class="QLineEdit" name="lineEdit_10"/>
       </item>
-      <item row="0" column="1">
-       <widget class="LED" name="led_1"/>
-      </item>
-      <item row="6" column="3">
-       <widget class="PushButton" name="pushbutton_4">
+      <item row="3" column="3">
+       <widget class="PushButton" name="pushbutton_1">
         <property name="text">
-         <string>Button 4</string>
+         <string>Button 1</string>
         </property>
        </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLineEdit" name="lineEdit_9"/>
       </item>
       <item row="2" column="1" colspan="4">
        <widget class="Line" name="line">
@@ -350,18 +363,15 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QLineEdit" name="lineEdit_12"/>
-      </item>
-      <item row="5" column="3">
-       <widget class="PushButton" name="pushbutton_3">
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="lineEdit_2">
         <property name="text">
-         <string>Button 3</string>
+         <string>LED2</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="4">
-       <widget class="QLineEdit" name="lineEdit_14"/>
+      <item row="6" column="2">
+       <widget class="QLineEdit" name="lineEdit_12"/>
       </item>
       <item row="0" column="3">
        <widget class="LED" name="led_3">
@@ -371,6 +381,27 @@
           <green>245</green>
           <blue>8</blue>
          </color>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="PushButton" name="pushbutton_4">
+        <property name="text">
+         <string>Button 4</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="CheckBox" name="checkbox_1">
+        <property name="text">
+         <string>check 1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="PushButton" name="pushbutton_3">
+        <property name="text">
+         <string>Button 3</string>
         </property>
        </widget>
       </item>
@@ -719,13 +750,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="CheckBox" name="checkbox_1">
-        <property name="text">
-         <string>check 1</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="1">
        <widget class="CheckBox" name="checkbox_3">
         <property name="text">
@@ -842,9 +866,21 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="dro_1">
+           <widget class="HALLabel" name="hallabel_4">
             <property name="text">
-             <string/>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#f40c11;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="bit_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="s32_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="float_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#f40c11;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -953,9 +989,21 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="dro_4">
+           <widget class="HALLabel" name="hallabel">
             <property name="text">
-             <string/>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#f6057e;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="bit_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="s32_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="float_pin_type" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#f6057e;&quot;&gt;%0.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -1092,6 +1140,11 @@
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
    <class>DoubleScale</class>
    <extends>QDoubleSpinBox</extends>
    <header>qtvcp.widgets.simple_widgets</header>
@@ -1117,11 +1170,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>58</x>
-     <y>432</y>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>67</x>
-     <y>494</y>
+     <y>488</y>
     </hint>
    </hints>
   </connection>
@@ -1133,27 +1186,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>125</x>
-     <y>432</y>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>129</x>
-     <y>528</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_1</sender>
-   <signal>floatOutput(double)</signal>
-   <receiver>dro_1</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>129</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>93</x>
-     <y>551</y>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -1165,11 +1202,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>266</x>
-     <y>432</y>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>266</x>
-     <y>494</y>
+     <y>488</y>
     </hint>
    </hints>
   </connection>
@@ -1185,23 +1222,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>265</x>
-     <y>528</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_2</sender>
-   <signal>floatOutput(double)</signal>
-   <receiver>dro_2</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>265</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>266</x>
-     <y>551</y>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -1213,11 +1234,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>402</x>
-     <y>432</y>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>402</x>
-     <y>494</y>
+     <y>488</y>
     </hint>
    </hints>
   </connection>
@@ -1233,23 +1254,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>401</x>
-     <y>528</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_3</sender>
-   <signal>floatOutput(double)</signal>
-   <receiver>dro_3</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>401</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>402</x>
-     <y>551</y>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -1261,11 +1266,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>538</x>
-     <y>432</y>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>538</x>
-     <y>494</y>
+     <y>488</y>
     </hint>
    </hints>
   </connection>
@@ -1281,23 +1286,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>537</x>
-     <y>528</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>doublescale_4</sender>
-   <signal>floatOutput(double)</signal>
-   <receiver>dro_4</receiver>
-   <slot>setNum(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>537</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>538</x>
-     <y>551</y>
+     <y>522</y>
     </hint>
    </hints>
   </connection>
@@ -1314,6 +1303,70 @@
     <hint type="destinationlabel">
      <x>-1</x>
      <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_4</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>hallabel</receiver>
+   <slot>setDisplay(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>468</x>
+     <y>551</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_3</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>hallabel_2</receiver>
+   <slot>setDisplay(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>504</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>335</x>
+     <y>536</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_2</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>hallabel_3</receiver>
+   <slot>setDisplay(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>507</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>537</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doublescale_1</sender>
+   <signal>floatOutput(double)</signal>
+   <receiver>hallabel_4</receiver>
+   <slot>setDisplay(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>505</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>534</y>
     </hint>
    </hints>
   </connection>
