@@ -33,6 +33,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import GObject
+from gi.repository import GLib
 
 import traceback           # needed to launch traceback errors
 import hal                 # base hal class to react to hal signals
@@ -495,7 +496,7 @@ class gmoccapy(object):
         # the time between calls to the function, in milliseconds
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
-        GObject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
+        GLib.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
