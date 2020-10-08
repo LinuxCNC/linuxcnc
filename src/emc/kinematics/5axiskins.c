@@ -10,7 +10,15 @@
 *    
 * Copyright (c) 2007 Chris Radek
 *
-* Last change:
+* Notes:
+*  1) pivot_length hal pin must agree with mechanical
+*     design (including vismach simulation) and augmented
+*     with current tool z offset
+*     (typ: mechanical_pivot_en + motion.tooloffset.z)
+*  2) B axis: spherical angle (t or theta) wrt z axis
+*  3) C axis: spherical angle (p or phi) in xy plane
+*  4) W axis: negative values increase radius
+*     example: drilling into body at b,c angles
 ********************************************************************/
 
 #include "kinematics.h"		/* these decls */
@@ -51,7 +59,7 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(*(haldata->pivot_length)+ joints[JOINT_W]
+    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JOINT_W]
                        ,joints[JOINT_C]
                        ,180.0 - joints[JOINT_B]);
 
@@ -124,7 +132,7 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_new("5axiskins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
+    result = hal_pin_float_new("5axiskins.pivot-length", HAL_IN, &(haldata->pivot_length), comp_id);
     if(result < 0) goto error;
 
     *(haldata->pivot_length) = 250.0;
