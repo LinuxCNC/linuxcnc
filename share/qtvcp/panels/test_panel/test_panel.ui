@@ -279,7 +279,7 @@
        <widget class="QLineEdit" name="lineEdit_13"/>
       </item>
       <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_4">
+       <widget class="QLineEdit" name="lineEdit_led_4">
         <property name="text">
          <string>LED4</string>
         </property>
@@ -297,7 +297,7 @@
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLineEdit" name="lineEdit_3">
+       <widget class="QLineEdit" name="lineEdit_led_3">
         <property name="text">
          <string>LED3</string>
         </property>
@@ -364,7 +364,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="lineEdit_led_2">
         <property name="text">
          <string>LED2</string>
         </property>
@@ -758,7 +758,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="lineEdit_led_1">
         <property name="text">
          <string>LED1</string>
         </property>
@@ -813,7 +813,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_17">
+           <widget class="QLineEdit" name="lineEdit_dial_1">
             <property name="text">
              <string>Dial 1</string>
             </property>
@@ -1032,6 +1032,25 @@
         </property>
        </widget>
       </item>
+      <item row="12" column="4">
+       <widget class="ScreenOptions" name="screen_options">
+        <property name="notify_option" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="catch_errors_option" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="use_pref_file_option" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="pref_filename_string" stdset="0">
+         <string>~/.qtvcp_test_preferences</string>
+        </property>
+        <property name="embedded_program_option" stdset="0">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -1071,7 +1090,17 @@
     <addaction name="menuDial_1"/>
     <addaction name="menuDial_2"/>
    </widget>
+   <widget class="QMenu" name="menuLED_Sound">
+    <property name="title">
+     <string>LED Sound</string>
+    </property>
+    <addaction name="actionLED_1"/>
+    <addaction name="actionLED_2"/>
+    <addaction name="actionLED_3"/>
+    <addaction name="actionLED_4"/>
+   </widget>
    <addaction name="menuDial_Adjustment"/>
+   <addaction name="menuLED_Sound"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="windowTitle">
@@ -1122,6 +1151,38 @@
     <string>Set 0 - 1000</string>
    </property>
   </action>
+  <action name="actionLED_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LED 1</string>
+   </property>
+  </action>
+  <action name="actionLED_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LED 2</string>
+   </property>
+  </action>
+  <action name="actionLED_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LED 3</string>
+   </property>
+  </action>
+  <action name="actionLED_4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>LED 4</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1133,6 +1194,12 @@
    <class>LED</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
@@ -1373,5 +1440,6 @@
  </connections>
  <slots>
   <slot>actionTriggered()</slot>
+  <slot>announceDial4()</slot>
  </slots>
 </ui>

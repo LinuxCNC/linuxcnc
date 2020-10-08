@@ -6,11 +6,11 @@ from distutils.spawn import find_executable
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
+from qtvcp.core import Status
 ###########################################
 # **** instantiate libraries section **** #
 ###########################################
-
+STATUS = Status()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -23,8 +23,18 @@ class HandlerClass:
     # widgets allows access to  widgets from the qtvcp files
     # at this point the widgets and hal pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
-        self.hal = halcomp
         self.w = widgets
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.announceTime)
+
+        self.lastLED_1 = 0
+        self.lastLED_2 = 0
+        self.lastLED_3 = 0
+        self.lastLED_4 = 0
+
+        self.timer.start(1000)
+
     ##########################################
     # Special Functions called from QTVCP
     ##########################################
@@ -80,6 +90,17 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_2.setMinimum(0)
             self.w.dial_2.setMaximum(100)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (0-100)')
+
+    def announceTime(self):
+        # speak led label contents on state change, if checked
+        for i in range(1,5):
+            if self.w['actionLED_{}'.format(i)].isChecked():
+                data = self.w['led_{}'.format(i)].getState()
+                if self['lastLED_{}'.format(i)] != data:
+                    name = self.w['lineEdit_led_{}'.format(i)].text()
+                    STATUS.emit('play-sound', 'SPEAK {} {}'.format(name,data))
+                    self['lastLED_{}'.format(i)] = data
+
     #####################
     # general functions #
     #####################
