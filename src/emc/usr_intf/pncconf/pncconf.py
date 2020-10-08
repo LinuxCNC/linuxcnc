@@ -4810,14 +4810,14 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = int(pinnumber[4:5])
         channel = None
         pinlist = self.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
-        #print pinlist
+        #print ('step gen pinlist:',pinlist)
         for num,i in enumerate(pinlist):
+            #print (i[0],self.d[i[0]], ' is inverted? ', self.d[i[0]+"inv"])
             if self.d[i[0]+"inv"]:
                 gpioname = self.make_pinname(self.findsignal( self.d[i[0]] ),True)
-                #print gpioname
-                if num:
+                if self.d[i[0]+'type'] == _PD.STEPB:
                     signallist_b.append(gpioname)
-                else:
+                elif self.d[i[0]+'type'] == _PD.STEPA:
                     signallist_a.append(gpioname)
         return [signallist_a, signallist_b]
 
