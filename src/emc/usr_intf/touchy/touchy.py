@@ -29,6 +29,7 @@ from gi.repository import Pango
 import atexit
 import tempfile
 import signal
+import locale              # for setting the language of the GUI
 
 empty_program = tempfile.NamedTemporaryFile()
 empty_program.write(b"%\n%\n")
@@ -36,10 +37,9 @@ empty_program.flush()
 
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.setlocale(locale.LC_ALL, '')
+locale.bindtextdomain("linuxcnc", LOCALEDIR)
 gettext.install("linuxcnc", localedir=LOCALEDIR)
-#TODO
-#gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
-#Gtk.glade.textdomain("linuxcnc")
 
 def set_active(w, s):
         if not w: return
