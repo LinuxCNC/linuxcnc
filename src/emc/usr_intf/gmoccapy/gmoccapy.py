@@ -1759,11 +1759,14 @@ class gmoccapy(object):
         return s.get_id()
 
     # Gotta kill the embedded processes when gmoccapy closes
+    #@atexit.register
     def _kill_dynamic_childs(self):
         print("_kill_dynamic_childs")
         for child in list(self._dynamic_childs.values()):
             if type(child) == Gtk.Socket:
-                child.disconnect
+                if self.onboard:
+                    self._kill_keyboard()
+                    child.disconnect(child.get_id())
             else:
                 child.terminate()
 
@@ -2792,6 +2795,7 @@ class gmoccapy(object):
     def on_window1_destroy(self, widget, data=None):
         print("estoping / killing gmoccapy")
         self._kill_dynamic_childs()
+#        self._kill_keyboard()
         if self.onboard:
             self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
