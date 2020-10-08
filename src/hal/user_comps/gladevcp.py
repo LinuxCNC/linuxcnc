@@ -41,9 +41,12 @@ import warnings
 import hal
 from optparse import Option, OptionParser
 import gi
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+# ToDo: Check if GObject is needed, IMHO it is not user in this file
+# from gi.repository import GObject
 
 
 import signal
@@ -90,7 +93,7 @@ def dbg(string):
     print(string)
 
 def on_window_destroy(widget, data=None):
-        gtk.main_quit()
+        Gtk.main_quit()
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -165,7 +168,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
 def main():
     """ creates a HAL component.
-        parsees a glade XML file with gtk.builder or libglade
+        parsees a glade XML file with Gtk.builder or libglade
         calls gladevcp.makepins with the specified XML file
         to create pins and register callbacks.
         main window must be called "window1"
@@ -192,13 +195,13 @@ def main():
 
     #try loading as a libglade project
     try:
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(xmlname)
     except:
         try:
-            # try loading as a gtk.builder project
+            # try loading as a Gtk.builder project
             dbg("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
-            builder = gtk.glade.XML(xmlname)
+            builder = Gtk.glade.XML(xmlname)
             builder = GladeBuilder(builder)
 
         except Exception as e:
@@ -232,9 +235,9 @@ def main():
         if not opts.debug:
             # supress warnings when x window closes
             warnings.filterwarnings("ignore")
-        # block X errors since gdk error handling silently exits the
+        # block X errors since Gdk error handling silently exits the
         # program without even the atexit handler given a chance
-        gdk.error_trap_push()
+        Gdk.error_trap_push()
 
         forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
         if forward:
@@ -246,9 +249,9 @@ def main():
         if not opts.debug:
             # supress warnings when x window closes
             warnings.filterwarnings("ignore")
-        # block X errors since gdk error handling silently exits the
+        # block X errors since Gdk error handling silently exits the
         # program without even the atexit handler given a chance
-        gdk.error_trap_push()
+        Gdk.error_trap_push()
 
         window = xembed.reparent(window, opts.parent)
 
@@ -287,20 +290,20 @@ def main():
         # this makes widget and widget_class matches in gtkrc and theme files actually work
         dbg( "activating GTK bug workaround for gtkrc files")
         for o in builder.get_objects():
-            if isinstance(o, gtk.Widget):
+            if isinstance(o, Gtk.Widget):
                 # retrieving the name works only for GtkBuilder files, not for
                 # libglade files, so be cautious about it
-                name = gtk.Buildable.get_name(o)
+                name = Gtk.Buildable.get_name(o)
                 if name: o.set_name(name)
 
     if opts.gtk_rc:
         dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
-        gtk.rc_add_default_file(opts.gtk_rc)
-        gtk.rc_parse(opts.gtk_rc)
+        Gtk.rc_add_default_file(opts.gtk_rc)
+        Gtk.rc_parse(opts.gtk_rc)
 
     if opts.theme:
         dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
-        settings = gtk.settings_get_default()
+        settings = Gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
 
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
@@ -334,15 +337,15 @@ def main():
         signal.signal(signal.SIGINT,  handlers[signal_func])
 
     try:
-        gtk.main()
+        Gtk.main()
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
         halcomp.exit()
 
     if opts.parent or opts.push_XID:
-        gdk.flush()
-        error = gdk.error_trap_pop()
+        Gdk.flush()
+        error = Gdk.error_trap_pop()
         if error and opts.debug:
             print("**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error), file=sys.stderr)
 
