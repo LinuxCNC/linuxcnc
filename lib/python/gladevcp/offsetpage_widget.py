@@ -31,10 +31,12 @@ lncnc_running = False
 
 import gi
 gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
+from gi.repository import GLib
 
 # localization
 import locale
@@ -157,7 +159,7 @@ class OffsetPage(Gtk.VBox):
             self.conversion = [25.4] * 3 + [1] * 3 + [25.4] * 3
 
         # check linuxcnc status every half second
-#        GObject.timeout_add(500, self.periodic_check)
+        GLib.timeout_add(500, self.periodic_check)
 
     # Reload the offsets into display
     def reload_offsets(self):
