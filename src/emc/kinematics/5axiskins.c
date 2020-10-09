@@ -15,8 +15,8 @@
 *     design (including vismach simulation) and augmented
 *     with current tool z offset
 *     (typ: mechanical_pivot_en + motion.tooloffset.z)
-*  2) B axis: spherical angle (t or theta) wrt z axis
-*  3) C axis: spherical angle (p or phi) in xy plane
+*  2) C axis: spherical angle (t or theta) in xy plane
+*  3) B axis: spherical angle (p or phi)   wrt z axis
 *  4) W axis: negative values increase radius
 *     example: drilling into body at b,c angles
 ********************************************************************/
