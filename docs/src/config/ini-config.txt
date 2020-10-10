@@ -1020,9 +1020,9 @@ The <letter> specifies one of: X Y Z A B C U V W
     When this limit is exceeded, the controller aborts axis motion.
 
 * 'WRAPPED_ROTARY = 1' - 
-    When this is set to 1 for an ANGULAR joint the joint will move 0-359.999
-    degrees. Positive Numbers will move the joint in a positive direction and
-    negative numbers will move the joint in the negative direction.
+    When this is set to 1 for an ANGULAR axis the axis will move 0-359.999
+    degrees. Positive Numbers will move the axis in a positive direction and
+    negative numbers will move the axis in the negative direction.
 
 * 'LOCKING_INDEXER_JOINT = 4' - This value selects a joint to use for
     a locking indexer for the specified axis <letter>.  In this example, the
