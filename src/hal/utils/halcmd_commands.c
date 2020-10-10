@@ -1272,7 +1272,7 @@ int do_unloadusr_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 0 && comp->pid != ourpid) {
+	if ( comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
 	    /* found a userspace component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, send it SIGTERM */
@@ -1304,7 +1304,7 @@ int do_unloadrt_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -1385,17 +1385,17 @@ int do_unload_cmd(char *mod_name) {
         return do_unloadrt_cmd(mod_name);
     } else {
         hal_comp_t *comp;
-        int type = -1;
+        component_type_t type = COMPONENT_TYPE_UNKNOWN;
         rtapi_mutex_get(&(hal_data->mutex));
         comp = halpr_find_comp_by_name(mod_name);
         if(comp) type = comp->type;
         rtapi_mutex_give(&(hal_data->mutex));
-        if(type == -1) {
+        if(type == COMPONENT_TYPE_UNKNOWN) {
             halcmd_error("component '%s' is not loaded\n",
                 mod_name);
             return -1;
         }
-        if(type == 1) return do_unloadrt_cmd(mod_name);
+        if(type == COMPONENT_TYPE_REALTIME) return do_unloadrt_cmd(mod_name);
         else return do_unloadusr_cmd(mod_name);
     }
 }
@@ -1600,7 +1600,7 @@ int do_waitusr_cmd(char *comp_name)
 	halcmd_info("component '%s' not found or already exited\n", comp_name);
 	return 0;
     }
-    if (comp->type != 0) {
+    if (comp->type != COMPONENT_TYPE_USER) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("'%s' is not a userspace component\n", comp_name);
 	return -EINVAL;
@@ -1640,16 +1640,16 @@ static void print_comp_info(char **patterns)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( match(patterns, comp->name) ) {
-            if(comp->type == 2) {
+            if(comp->type == COMPONENT_TYPE_OTHER) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
                 halcmd_output("    INST %s %s",
                         comp1 ? comp1->name : "(unknown)", 
                         comp->name);
             } else {
                 halcmd_output(" %5d  %-4s  %-*s",
-                    comp->comp_id, (comp->type ? "RT" : "User"),
+                    comp->comp_id, (comp->type == COMPONENT_TYPE_REALTIME) ? "RT" : "User",
                     HAL_NAME_LEN, comp->name);
-                if(comp->type == 0) {
+                if(comp->type == COMPONENT_TYPE_USER) {
                         halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
                                 "ready" : "initializing");
                 } else {
@@ -2495,7 +2495,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             ncomps ++;
         }
 	next = comp->next_ptr;
@@ -2505,7 +2505,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             *compptr++ = SHMPTR(next);
         }
 	next = comp->next_ptr;

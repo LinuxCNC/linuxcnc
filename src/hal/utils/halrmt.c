@@ -1316,7 +1316,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -1699,7 +1699,7 @@ static void getCompInfo(char *pattern, connectionRecType *context)
     while (next != 0) {
       comp = SHMPTR(next);
       if (strncmp(pattern, comp->name, len) == 0) {
-        snprintf(context->outBuf, sizeof(context->outBuf), "COMP %s %02d %s", comp->name, comp->comp_id, (comp->type ? "RT  " : "User"));
+        snprintf(context->outBuf, sizeof(context->outBuf), "COMP %s %02d %s", comp->name, comp->comp_id, (comp->type != COMPONENT_TYPE_USER) ? "RT  " : "User");
 	sockWrite(context);
 	}
       next = comp->next_ptr;
@@ -2156,7 +2156,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
 		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
