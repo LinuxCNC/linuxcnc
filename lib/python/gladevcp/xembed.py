@@ -5,7 +5,8 @@ XEmbed helper functions to allow correct embeding inside Axis
 """
 
 import gi
-from gi.repository import Gtk as gtk
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
 def reparent(window, parent):
     """ Forced reparent. When reparenting Gtk applications into Tk
@@ -17,7 +18,7 @@ def reparent(window, parent):
     if not parent:
         return window
 
-    plug = gtk.Plug(int(parent))
+    plug = Gtk.Plug(int(parent))
     plug.show()
 
     d = display.Display()
@@ -42,7 +43,7 @@ def add_plug(window):
     """Replace top level with a plug so it can be reparented.
     This doesn't actually reparent the widget
     """
-    plug = gtk.Plug(0)
+    plug = Gtk.Plug(0)
     plug.show()
     for c in window.get_children():
         window.remove(c)
@@ -73,7 +74,7 @@ def keyboard_forward(window, forward):
 
     d = display.Display()
     fw = drawable.Window(d.display, forward, 0)
-#TODO
+#TODO: GTK3
 #    ks = gtk.keysyms
     ignore = []#[ ks.Tab, ks.Page_Up, ks.Page_Down
 #             , ks.KP_Page_Up, ks.KP_Page_Down
