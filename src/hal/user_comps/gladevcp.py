@@ -42,12 +42,8 @@ import hal
 from optparse import Option, OptionParser
 import gi
 gi.require_version('Gtk', '3.0')
-gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
-# ToDo: Check if GObject is needed, IMHO it is not user in this file
-# from gi.repository import GObject
-
 
 import signal
 
@@ -69,8 +65,6 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
           , Option( '-r', dest='gtk_rc', default="",
                     help="read custom GTK rc file to set widget style")
-          , Option( '-R', dest='gtk_workaround', action='store_false',default=True,
-                    help="disable workaround for GTK bug to properly read ~/.gtkrc-2.0 gtkrc files")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
@@ -284,17 +278,6 @@ def main():
             print("**** GLADE VCP ERROR:    With window resize data", file=sys.stderr)
             parser.print_usage()
             sys.exit(1)
-
-    if opts.gtk_workaround:
-        # work around https://bugs.launchpad.net/ubuntu/+source/pygtk/+bug/507739
-        # this makes widget and widget_class matches in gtkrc and theme files actually work
-        dbg( "activating GTK bug workaround for gtkrc files")
-        for o in builder.get_objects():
-            if isinstance(o, Gtk.Widget):
-                # retrieving the name works only for GtkBuilder files, not for
-                # libglade files, so be cautious about it
-                name = Gtk.Buildable.get_name(o)
-                if name: o.set_name(name)
 
     if opts.gtk_rc:
         dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
