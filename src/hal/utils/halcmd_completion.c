@@ -343,7 +343,7 @@ static char *usrcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(comp->type) continue;
+        if(comp->type != COMPONENT_TYPE_USER) continue;
 	if(strncmp(text, comp->name, len) == 0)
             return strdup(comp->name);
     }
@@ -387,7 +387,7 @@ static char *rtcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(!comp->type) continue;
+        if(comp->type == COMPONENT_TYPE_USER) continue;
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
     }
