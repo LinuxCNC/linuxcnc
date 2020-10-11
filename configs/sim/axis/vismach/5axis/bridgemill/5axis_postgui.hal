@@ -1,0 +1,7 @@
+net :jx  => pyvcp.joint0
+net :jy  => pyvcp.joint1
+net :jz  => pyvcp.joint2
+net :jb  => pyvcp.joint3
+net :jc  => pyvcp.joint4
+
+net :vismach-clear  <= pyvcp.vismach-clear => vismach.plotclear
