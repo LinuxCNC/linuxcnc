@@ -1,10 +1,10 @@
-#ifndef HALSC_RT_H
-#define HALSC_RT_H
-/** This file, 'halsc_rt.h', contains declarations used by
-    'halscope_rt.c' to implement the real-time portion of
+#ifndef SCOPE_RT_H
+#define SCOPE_RT_H
+/** This file, 'scope_rt.h', contains declarations used by
+    'scope_rt.c' to implement the real-time portion of
     the HAL oscilloscope.  Declarations that are common to the
-    realtime and user parts are in 'halsc_shm.h', and those used
-    only by the user part are in 'halsc_usr.h'.
+    realtime and user parts are in 'scope_shm.h', and those used
+    only by the user part are in 'scope_usr.h'.
 */
 
 /** Copyright (C) 2003 John Kasunich

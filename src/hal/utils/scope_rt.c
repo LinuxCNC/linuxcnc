@@ -1,5 +1,5 @@
-/** This file, 'halscope_rt.c', is a HAL component that together with
-    'halscope.c' provides an oscilloscope to view HAL pins, signals,
+/** This file, 'scope_rt.c', is a HAL component that together with
+    'scope.c' provides an oscilloscope to view HAL pins, signals,
     and parameters
 */
 

@@ -1,4 +1,4 @@
-/** This file, 'halsc_horiz.c', contains the portion of halscope
+/** This file, 'scope_horiz.c', contains the portion of halscope
     that deals with horizontal stuff - sample rate, scaling,
     position and such.
 */
@@ -43,8 +43,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-
-#include "config.h"
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include <rtapi_mutex.h>
