@@ -40,7 +40,9 @@ class HalToolCylinder(CylinderZ):
         self.comp = comp
 
     def coords(self):
-        return -self.comp.tool_length, 20, 0, 20
+        r = 20 # default if hal pin not set
+        if (c.tool_diam > 0): r=c.tool_diam/2
+        return -self.comp.tool_length, r, 0, r
 
 c = hal.component("5axisgui")
 c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
@@ -49,6 +51,7 @@ c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool_diam", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("pivot_len", hal.HAL_FLOAT, hal.HAL_OUT)
 c["pivot_len"] = pivot_len
 c.ready()
