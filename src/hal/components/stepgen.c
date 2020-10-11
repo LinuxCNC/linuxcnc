@@ -1203,7 +1203,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 static int setup_user_step_type(void) {
     int used_phases = 0;
     int i = 0;
-    for(i=0; i<10 && user_step_type[i] != -1; i++) {
+    for(i=0; i < MAX_CYCLE && user_step_type[i] != -1; i++) {
         master_lut[USER_STEP_TYPE][i] = user_step_type[i];
 	used_phases |= user_step_type[i];
     }
