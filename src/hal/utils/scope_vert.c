@@ -1,4 +1,4 @@
-/** This file, 'halsc_vert.c', contains the portion of halscope
+/** This file, 'scope_vert.c', contains the portion of halscope
     that deals with vertical stuff - signal sources, scaling,
     position and such.
 */

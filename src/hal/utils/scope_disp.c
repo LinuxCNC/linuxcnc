@@ -1,4 +1,4 @@
-/** This file, 'halsc_disp.c', contains the portion of halscope
+/** This file, 'scope_disp.c', contains the portion of halscope
     that actually displays waveforms.
 */
 
