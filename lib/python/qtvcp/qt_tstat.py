@@ -122,6 +122,10 @@ class _TStat(object):
         self.toolinfo = None
         toolinfo_flag = False
         for rawline in logfile:
+            # ignore blank lines
+            if rawline == '':
+                continue
+            #print 'raw:',rawline
             # strip the comments from line and add directly to array
             # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
@@ -162,7 +166,8 @@ class _TStat(object):
                                     LOG.error("toolfile integer access: {} : {}".format(word.lstrip(i), e))
                         else:
                             try:
-                                if float(word.lstrip(i)) < 0.000001:
+                                # we will call this range zero:
+                                if float(word.lstrip(i)) < 0.000001 and float(word.lstrip(i)) > -0.000001:
                                     array[offset]= 0.0
                                 else:
                                     array[offset]= float(word.lstrip(i))
@@ -179,6 +184,10 @@ class _TStat(object):
             self.toolinfo = temp
         else:
             self.toolinfo = [0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']
+        #print 'load'
+        #for i in tool_model:
+        #    print i
+        #print wear_model
         return (tool_model, wear_model)
 
     # converts from linuxcnc toolfile array to toolwear array
@@ -223,23 +232,27 @@ class _TStat(object):
         # now we pull the values we need out and put it in our
         # full tool list's  tool variable's parent tool row
         # eg 10001 goes to tool 1, 10002 goes to tool 2 etc
-        for rnum, row in enumerate(weartool):
-            values = [ value for value in row ]
-            try:
-                parent_tool = tool_num_list[( values[0]-10000)]
-            except KeyError:
-                LOG.error("tool wear number has no parent Tool: {}".format(values))
-                continue
-            else:
-                full_tool_list[parent_tool][4] = values[2]
-                full_tool_list[parent_tool][6] = values[3]
-                full_tool_list[parent_tool][8] = values[4]
+        # for now only if in lathe mode
+        if INFO.MACHINE_IS_LATHE:
+            for rnum, row in enumerate(weartool):
+                values = [ value for value in row ]
+                try:
+                    parent_tool = tool_num_list[( values[0]-10000)]
+                except KeyError:
+                    LOG.error("tool wear number has no parent Tool: {}".format(values))
+                    continue
+                else:
+                    full_tool_list[parent_tool][4] = values[2]
+                    full_tool_list[parent_tool][6] = values[3]
+                    full_tool_list[parent_tool][8] = values[4]
         return full_tool_list
 
     # converts from toolwear array to linuxcnc toolfile array
     # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
     # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_STANDARD_TYPE(self, data):
+        #for i in data:
+        #    print i
         if data is None:
             data = ([])
         tool_wear_list = []           
@@ -280,8 +293,10 @@ class _TStat(object):
                 tool_wear_list.append(new_wear_line)
             # add tool line to tool list
             full_tool_list.append(new_line)
-        # add wear list to full tool list
-        full_tool_list = full_tool_list + tool_wear_list
+            LOG.debug("converted line: {}".format(new_line))
+        # add wear list to full tool list if in lathe mode
+        if INFO.MACHINE_IS_LATHE:
+            full_tool_list = full_tool_list + tool_wear_list
         return full_tool_list
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
@@ -292,7 +307,6 @@ class _TStat(object):
         file = open(self.toolfile, "w")
         for row in new_model:
             values = [ value for value in row ]
-            #print values
             line = ""
             skip = False
             for num,i in enumerate(values):
