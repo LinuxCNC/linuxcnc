@@ -135,7 +135,10 @@ int kinematicsInverse(const EmcPose * pos,
     // Update the kinematic joints specified by the
     // [KINS]JOINTS setting (3 required for this template).
     // Maximum number of joints is defined in include file:
-    //         emcmotcfg:EMCMOT_MAX_JOINTS (typ 9)
+    //         emcmotcfg:EMCMOT_MAX_JOINTS (typ 16)
+    // Some joints may be claimed as 'extrajoints' and
+    // do not participate in kinematics calculations --
+    // $ man motion for more info
     j[0] = pos->tran.x; // joint 0
     j[1] = pos->tran.y; // joint 1
     j[2] = pos->tran.z; // joint 2
