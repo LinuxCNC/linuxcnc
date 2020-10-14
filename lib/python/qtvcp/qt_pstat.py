@@ -51,10 +51,12 @@ class _PStat(object):
             # TODO this fixes the error but maybe it should be something else
             self.CONFIGPATH = self.WORKINGDIR
 
+        # record the original argument passed to us
+        self.ARGUMENT = filename
         # Linuxcnc project base directory
         self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         # PyQt's .ui file's basename 
-        self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
+        self.BASENAME = os.path.splitext(filename)[0]
         LOG.debug('BASENAME {}'.format(self.BASENAME))
         # python library directory
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
