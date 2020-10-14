@@ -5,6 +5,7 @@ import shutil
 import traceback
 import hal
 import signal
+import subprocess
 
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
@@ -213,6 +214,17 @@ Pressing cancel will close linuxcnc.""" % target)
                 window.handler_instance.initialized__()
         # All Widgets should be added now - synch them to linuxcnc
         STATUS.forced_update()
+
+        # call a HAL file after widgets built
+        if opts.halfile:
+            if opts.halfile[-4:] == ".tcl":
+                cmd = ["haltcl", opts.halfile]
+            else:
+                cmd = ["halcmd", "-f", opts.halfile]
+            res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+            if res:
+                print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+                sys.exit(res)
 
         # User components are set up so report that we are ready
         LOG.debug('Set HAL ready')
