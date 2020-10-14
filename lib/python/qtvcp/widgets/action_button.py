@@ -401,7 +401,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 else:
                     ACTION.SET_MACHINE_UNHOMED(self.joint)
             else:
-                if STATUS.is_all_homed():
+                if self.joint == -1:
+                    if STATUS.is_all_homed():
+                        ACTION.SET_MACHINE_UNHOMED(-1)
+                    else:
+                        ACTION.SET_MACHINE_HOMING(-1)
+                elif STATUS.is_joint_homed(self.joint):
                     ACTION.SET_MACHINE_UNHOMED(self.joint)
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint)
