@@ -862,6 +862,11 @@ class _GStat(gobject.GObject):
 
     def get_selected_axis(self):
         return self.selected_axis
+
+    def is_joint_homed(self, joint):
+        self.stat.poll()
+        return self.stat.homed[joint]
+
     def is_all_homed(self):
         return self._is_all_homed
 
