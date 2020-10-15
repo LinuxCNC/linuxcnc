@@ -56,8 +56,10 @@ class _PStat(object):
         # Linuxcnc project base directory
         self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         # PyQt's .ui file's basename 
-        self.BASENAME = os.path.splitext(filename)[0]
-        LOG.debug('BASENAME {}'.format(self.BASENAME))
+        self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
+        # base path (includes any extra path commands
+        self.BASEPATH = os.path.splitext(filename)[0]
+        LOG.debug('BASEPATH {}'.format(self.BASEPATH))
         # python library directory
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
         sys.path.insert(0, self.LIBDIR)
@@ -66,9 +68,9 @@ class _PStat(object):
         self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp","panels")
 
         # look for custom handler files:
-        handler_fn = "{}_handler.py".format(self.BASENAME)
+        handler_fn = "{}_handler.py".format(self.BASEPATH)
         if self.IS_SCREEN:
-            default_handler_path = os.path.join(self.SCREENDIR, self.BASENAME, handler_fn)
+            default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
             local_handler_path = 'None Found'
             for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
                 if handler_fn in(files):
@@ -76,7 +78,7 @@ class _PStat(object):
                     break
         else:
             local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
-            default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
+            default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
         LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
 
         if os.path.exists(local_handler_path):
@@ -92,9 +94,9 @@ class _PStat(object):
                 LOG.info("No handler file found")
 
         # look for custom ui file
-        ui_fn = "{}.ui".format(self.BASENAME)
+        ui_fn = "{}.ui".format(self.BASEPATH)
         if self.IS_SCREEN:
-            defaultui = os.path.join(self.SCREENDIR, self.BASENAME, ui_fn)
+            defaultui = os.path.join(self.SCREENDIR, self.BASEPATH, ui_fn)
             localui = 'None Found'
             for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
                 if ui_fn in(files):
@@ -102,7 +104,7 @@ class _PStat(object):
                     break
         else:
             localui = os.path.join(self.WORKINGDIR, ui_fn)
-            defaultui = os.path.join(self.PANELDIR, self.BASENAME, ui_fn)
+            defaultui = os.path.join(self.PANELDIR, self.BASEPATH, ui_fn)
         LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
             LOG.info("Using LOCAL ui file from yellow<{}>".format(localui))
@@ -131,9 +133,9 @@ class _PStat(object):
                 sys.exit(0)
 
         # check for qss file
-        qss_fn = "{}.qss".format(self.BASENAME)
+        qss_fn = "{}.qss".format(self.BASEPATH)
         if self.IS_SCREEN:
-            defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
+            defaultqss = os.path.join(self.SCREENDIR, self.BASEPATH, qss_fn)
             localqss = 'None Found'
             for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
                 if qss_fn in(files):
@@ -141,7 +143,7 @@ class _PStat(object):
                     break
         else:
             localqss = os.path.join(self.WORKINGDIR, qss_fn)
-            defaultqss = os.path.join(self.PANELDIR, self.BASENAME, qss_fn)
+            defaultqss = os.path.join(self.PANELDIR, self.BASEPATH, qss_fn)
 
         LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
         if os.path.exists(localqss):
@@ -157,9 +159,9 @@ class _PStat(object):
                 LOG.info("No qss file found")
 
         # check for qrc file
-        qrc_fn = "{}.qrc".format(self.BASENAME)
+        qrc_fn = "{}.qrc".format(self.BASEPATH)
         if self.IS_SCREEN:
-            defaultqrc = os.path.join(self.SCREENDIR, self.BASENAME, qrc_fn)
+            defaultqrc = os.path.join(self.SCREENDIR, self.BASEPATH, qrc_fn)
             localqrc = 'None Found'
             for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
                 if qrc_fn in(files):
@@ -167,7 +169,7 @@ class _PStat(object):
                     break
         else:
             localqrc = os.path.join(self.WORKINGDIR, qrc_fn)
-            defaultqrc = os.path.join(self.PANELDIR, self.BASENAME, qrc_fn)
+            defaultqrc = os.path.join(self.PANELDIR, self.BASEPATH, qrc_fn)
 
         LOG.debug("Checking for .qrc in: yellow<{}>".format(localqrc))
         if os.path.exists(localqrc):
@@ -188,7 +190,7 @@ class _PStat(object):
         qrcpy_fn = 'resources.py'
         self.QRCPY_IS_LOCAL = None
         if self.IS_SCREEN:
-            defaultqrcpy = os.path.join(self.SCREENDIR, self.BASENAME, qrcpy_fn)
+            defaultqrcpy = os.path.join(self.SCREENDIR, self.BASEPATH, qrcpy_fn)
             localqrcpy = os.path.join(self.CONFIGPATH, qrcpy_fn)
             #for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
                 #if qrcpy_fn in(files):
@@ -196,7 +198,7 @@ class _PStat(object):
                     #break
         else:
             localqrcpy = os.path.join(self.WORKINGDIR, qrcpy_fn)
-            defaultqrcpy = os.path.join(self.PANELDIR, self.BASENAME, qrcpy_fn)
+            defaultqrcpy = os.path.join(self.PANELDIR, self.BASEPATH, qrcpy_fn)
 
         LOG.debug("Checking for resources.py in: yellow<{}>".format(localqrcpy))
         # if there is a local resource file or a QRC to compile it from:
@@ -229,14 +231,14 @@ class _PStat(object):
         locallocale = os.path.join(self.CONFIGPATH,"locale")
         if os.path.exists(locallocale):
             self.LOCALEDIR = locallocale
-            self.DOMAIN = self.BASENAME
-            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
+            self.DOMAIN = self.BASEPATH
+            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASEPATH))
         else:
-            locallocale = os.path.join(self.SCREENDIR,"%s/locale"% self.BASENAME)
+            locallocale = os.path.join(self.SCREENDIR,"%s/locale"% self.BASEPATH)
             if os.path.exists(locallocale):
                 self.LOCALEDIR = locallocale
-                self.DOMAIN = self.BASENAME
-                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
+                self.DOMAIN = self.BASEPATH
+                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASEPATH))
             else:
                 self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
                 self.DOMAIN = "linuxcnc"
