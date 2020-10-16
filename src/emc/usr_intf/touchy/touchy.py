@@ -24,12 +24,14 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import Pango
 
 import atexit
 import tempfile
 import signal
 import locale              # for setting the language of the GUI
+import time
 
 empty_program = tempfile.NamedTemporaryFile()
 empty_program.write(b"%\n%\n")
@@ -297,8 +299,8 @@ class touchy:
 
                 self.linuxcnc.max_velocity(self.mv_val)
                                 
-                GObject.timeout_add(50, self.periodic_status)
-                GObject.timeout_add(100, self.periodic_radiobuttons)
+                GLib.timeout_add(50, self.periodic_status)
+                GLib.timeout_add(100, self.periodic_radiobuttons)
 
                 # event bindings
                 dic = {
@@ -877,6 +879,10 @@ if __name__ == "__main__":
         postgui_halfile,inifile = touchy.postgui(hwg)
         print("TOUCHY postgui filename:",postgui_halfile)
         if postgui_halfile:
+                #the touchy example config starts glade panels via HAL,HALCMD, and not via DISPLAY,GLADEVCP
+                #HALCMD doesnt wait for glade to create the pins, so sometimes it tries to link pins from the
+                #postgui before they are created. proper fix would be to add a DISPLAY,GLADEVCP ini section to touchy
+                time.sleep(1)
                 if postgui_halfile.lower().endswith('.tcl'):
                         res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
                 else:
