@@ -121,10 +121,11 @@ a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
 \fBmotion.feed\-hold\fR IN BIT
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
+Note: feed-hold applies to gcode commands -- not jogs.
+
 .TP
 \fBmotion.feed\-inhibit\fR IN BIT
-When this pin is TRUE, machine motion is inhibited (this includes jogs,
-programmed feeds, and programmed rapids, aka traverse moves).
+When this pin is TRUE, machine motion is inhibited for gcode commands.
 
 If the machine is performing a spindle synchronized move when this
 pin goes TRUE, the spindle synchronized motion will finish, and any
@@ -136,6 +137,8 @@ when this pin goes TRUE, the machine will decelerate to a stop at the
 maximum allowed acceleration rate.
 
 Motion resumes when this pin goes FALSE.
+
+Note: feed-inhibit applies to gcode commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
