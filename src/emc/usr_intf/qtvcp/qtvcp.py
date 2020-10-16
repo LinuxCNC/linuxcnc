@@ -6,6 +6,7 @@ import shutil
 import traceback
 import hal
 import signal
+import subprocess
 
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
@@ -110,11 +111,17 @@ class QTVCP:
         # set paths using basename
         PATH.set_paths(basepath, bool(INIPATH))
 
+        # keep track of python version during this transition
+        if sys.version_info.major > 2:
+            ver = 'Python 3'
+        else:
+            ver = 'Python 2'
+
         #################
         # Screen specific
         #################
         if INIPATH:
-            LOG.info('green<Building A Linuxcnc Main Screen>')
+            LOG.info('green<Building A Linuxcnc Main Screen with {}>'.format(ver))
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -170,7 +177,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # VCP specific
         #################
         else:
-            LOG.info('green<Building A VCP Panel>')
+            LOG.info('green<Building A VCP Panel with {}>'.format(ver))
             # if no handler file specified, use stock test one
             if not opts.usermod:
                 LOG.info('No handler file specified - using {}'.format(PATH.HANDLER))
@@ -229,6 +236,17 @@ Pressing cancel will close linuxcnc.""" % target)
                 window.handler_instance.initialized__()
         # All Widgets should be added now - synch them to linuxcnc
         STATUS.forced_update()
+
+        # call a HAL file after widgets built
+        if opts.halfile:
+            if opts.halfile[-4:] == ".tcl":
+                cmd = ["haltcl", opts.halfile]
+            else:
+                cmd = ["halcmd", "-f", opts.halfile]
+            res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+            if res:
+                print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+                sys.exit(res)
 
         # User components are set up so report that we are ready
         LOG.debug('Set HAL ready')

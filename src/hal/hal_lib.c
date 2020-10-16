@@ -261,10 +261,10 @@ int hal_init(const char *name)
     /* initialize the structure */
     comp->comp_id = comp_id;
 #ifdef RTAPI
-    comp->type = 1;
+    comp->type = COMPONENT_TYPE_REALTIME;
     comp->pid = 0;
 #else /* ULAPI */
-    comp->type = 0;
+    comp->type = COMPONENT_TYPE_USER;
     comp->pid = getpid();
 #endif
     comp->ready = 0;
@@ -1768,7 +1768,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
     }
-    if (comp->type == 0) {
+    if (comp->type == COMPONENT_TYPE_USER) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -3010,7 +3010,7 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 	p->next_ptr = 0;
 	p->comp_id = 0;
 	p->mem_id = 0;
-	p->type = 0;
+	p->type = COMPONENT_TYPE_USER;
 	p->shmem_base = 0;
 	p->name[0] = '\0';
     }
@@ -3276,7 +3276,7 @@ static void free_comp_struct(hal_comp_t * comp)
     /* clear contents of struct */
     comp->comp_id = 0;
     comp->mem_id = 0;
-    comp->type = 0;
+    comp->type = COMPONENT_TYPE_USER;
     comp->shmem_base = 0;
     comp->name[0] = '\0';
     /* add it to free list */

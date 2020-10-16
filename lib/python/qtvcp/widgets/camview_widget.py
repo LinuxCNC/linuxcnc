@@ -16,11 +16,14 @@
 # use open cv to do camera alignment
 
 import sys
+
 if sys.version_info.major > 2:
     import _thread as Thread
 else:
     import thread as Thread
-    
+
+import hal
+
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
 
@@ -71,8 +74,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.rotationIncrement = .5
         self.pix = None
         self.stopped = False
+        if sys.version_info.major > 2:
+            self.degree = str("\N{DEGREE SIGN}")
+        else:
+            self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
 
-    def _hal_init(self):
+    def hal_init(self):
+        self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
         if LIB_GOOD:
             STATUS.connect('periodic', self.nextFrameSlot)
 
@@ -102,14 +110,18 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                 self.rotation += self.rotationIncrement
         if self.diameter < 2: self.diameter = 2
         if self.diameter > w: self.diameter = w
-        if self.rotation > 360: self.rotation = 0
-        if self.rotation < 0: self.rotation = 360
+        if self.rotation > 360 - self.rotationIncrement: self.rotation = 0
+        if self.rotation < 0: self.rotation = 360 - self.rotationIncrement
         if self.scale < 1: self.scale = 1
         if self.scale > 5: self.scale = 5
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() & QtCore.Qt.RightButton:
+        if event.button() & QtCore.Qt.LeftButton:
+            self.scale = 1
+        elif event.button() & QtCore.Qt.RightButton:
             self.rotation = 0
+        elif event.button() & QtCore.Qt.MiddleButton:
+            self.diameter = 20
 
     def nextFrameSlot(self, w):
         if not self.video: return
@@ -151,6 +163,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.pix = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         # repaint the window
         self.update()
+        self.pin_.set(360 - self.rotation)
 
     def showEvent(self, event):
         if LIB_GOOD:
@@ -183,7 +196,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         qp.setPen(self.text_color)
         qp.setFont(self.font)
         if self.pix:
-            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{}'.format(self.rotation))
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{}{}'.format(self.rotation,self.degree))
         else:
             qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
 
@@ -213,7 +226,22 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         gp.drawLine(0+self.gap, 0, w, 0)
         gp.drawLine(0, 0+self.gap, 0, h)
 
+    def rotation_increments_changed(self,w):
+        if self.rotationIncrement == 1.00:
+            self.rotationIncrement = 0.1
+        elif self.rotationIncrement == 0.10:
+            self.rotationIncrement = 0.01
+        else:
+            self.rotationIncrement = 1.00
 
+    def setCircleColor(self, color):
+        self.circle_color = color
+
+    def setCrossColor(self, color):
+        self.cross_color = color
+
+    def setPointerColor(self, color):
+        self.cross_pointer_color = color
 
 class WebcamVideoStream:
     def __init__(self, src=0):

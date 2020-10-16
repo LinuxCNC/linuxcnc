@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget)
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent
 from PyQt5 import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
@@ -30,7 +30,7 @@ from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
-from qtvcp.widgets.entry_widget import TouchInputWidget
+from qtvcp.widgets.entry_widget import SoftInputWidget
 from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.machine_log import MachineLog
 from qtvcp.lib.notify import Notify
@@ -1165,18 +1165,16 @@ class EntryDialog(QDialog, GeometryMixin):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
-
-        l = QVBoxLayout()
-        self.setLayout(l)
-
-        self.softkey = TouchInputWidget(self)
-        l.addWidget(self.softkey)
+        self._softKey = SoftInputWidget(self, 'numeric')
 
         self.Num = QLineEdit()
-        # actiate touch input
-        self.Num.returnPressed.connect(lambda: self.accept())
+        self.Num.installEventFilter(self)
         self.Num.keyboard_type = 'numeric'
+        # actiate touch input
         self.Num.keyboard_enable = True
+
+        self.Num.returnPressed.connect(lambda: self.accept())
+
 
         gl = QVBoxLayout()
         gl.addWidget(self.Num)
@@ -1188,7 +1186,7 @@ class EntryDialog(QDialog, GeometryMixin):
         self.bBox.accepted.connect(self.accept)
 
         gl.addWidget(self.bBox)
-        self.softkey.setLayout(gl)
+        self.setLayout(gl)
 
     def _hal_init(self):
         self.set_default_geometry()
@@ -1198,6 +1196,12 @@ class EntryDialog(QDialog, GeometryMixin):
         else:
             self.play_sound = False
         STATUS.connect('dialog-request', self._external_request)
+
+    def eventFilter(self, widget, event):
+        if self.Num.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
+            if self.Num.keyboard_enable:
+                self._softKey.show_input_panel(widget)
+        return False
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us

@@ -21,7 +21,7 @@ import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
-QItemEditorFactory,QDoubleSpinBox,QStyledItemDelegate)
+QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -53,8 +53,14 @@ class ItemEditorFactory(QItemEditorFactory):
         if userType == QVariant.Double:
             doubleSpinBox = QDoubleSpinBox(parent)
             doubleSpinBox.setDecimals(4)
-            doubleSpinBox.setMaximum(1000)
+            doubleSpinBox.setMaximum(99999)
+            doubleSpinBox.setMinimum(-99999)
             return doubleSpinBox
+        elif userType == QVariant.Int:
+            spinBox = QSpinBox(parent)
+            spinBox.setMaximum(20000)
+            spinBox.setMinimum(1)
+            return spinBox
         else:
             return super(ItemEditorFactory,self).createEditor(userType, parent)
 

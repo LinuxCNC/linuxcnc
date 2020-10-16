@@ -921,8 +921,8 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
-   are accepted in g-code.  It is permitted to write an axis name twice
-   (e.g., X Y Y Z for a gantry machine).
+   are accepted in g-code.  It is permitted to write an axis name more than
+   once (e.g., X Y Y Z for a gantry machine).
    For the common 'trivkins kinematics', joint numbers are assigned in sequence
    according to the trivkins parameter 'coordinates='.  So, for trivkins
    'coordinates=xz', joint0 corresponds to X and joint1 corresponds to Z.
@@ -1014,15 +1014,21 @@ The <letter> specifies one of: X Y Z A B C U V W
 * 'MIN_LIMIT = -1000' -
     (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion.
+    The axis must be homed before MIN_LIMIT is in force.
+    For a rotary axis (A,B,C typ)  with unlimited rotation having no MIN_LIMIT
+    for that axis in the [AXIS_<letter>] section a value of -1e99 is used.
 
 * 'MAX_LIMIT = 1000' -
     (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion.
+    The axis must be homed before MAX_LIMIT is in force.
+    For a rotary axis (A,B,C typ) with unlimited rotation having no MAX_LIMIT
+    for that axis in the [AXIS_<letter>] section a value of 1e99 is used.
 
 * 'WRAPPED_ROTARY = 1' - 
-    When this is set to 1 for an ANGULAR joint the joint will move 0-359.999
-    degrees. Positive Numbers will move the joint in a positive direction and
-    negative numbers will move the joint in the negative direction.
+    When this is set to 1 for an ANGULAR axis the axis will move 0-359.999
+    degrees. Positive Numbers will move the axis in a positive direction and
+    negative numbers will move the axis in the negative direction.
 
 * 'LOCKING_INDEXER_JOINT = 4' - This value selects a joint to use for
     a locking indexer for the specified axis <letter>.  In this example, the
@@ -1065,7 +1071,7 @@ names begin numbering at 0, and run through the number of joints
 specified in the [KINS]JOINTS entry minus 1.
 
 Typically (for systems using 'trivkins kinematics', there is a 1:1
-correspondence between a joint and an axis):
+correspondence between a joint and an axis coordinate letter):
 
 * JOINT_0 = X
 * JOINT_1 = Y
@@ -1107,8 +1113,8 @@ For more information on kinematics modules see the manpage: '$ man kins'
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
     MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
-    axis to jerk as it changes direction. If a COMP_FILE is specificed for an
-    axis BACKLASH is not used.
+    joint to jerk as it changes direction. If a COMP_FILE is specificed for a
+    joint BACKLASH is not used.
 
 // add a link to machine units
 
@@ -1121,18 +1127,18 @@ For more information on kinematics modules see the manpage: '$ man kins'
     are interpolated between the two nominals. Compensation files must start
     with the smallest nominal and be in ascending order to the largest value of
     nominals. File names are case sensitive and can contain letters and/or
-    numbers. Currently the limit inside LinuxCNC is for 256 triplets per axis.
+    numbers. Currently the limit inside LinuxCNC is for 256 triplets per joint.
     +
     +
-    If COMP_FILE is specified for an axis, BACKLASH is not used. A 
+    If COMP_FILE is specified for an joint, BACKLASH is not used. A 
     'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
 * 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
    first value is the nominal (commanded) position for both types.
 
-** 'Type 0:' The second value specifies the actual position as the axis is moving
+** 'Type 0:' The second value specifies the actual position as the joint is moving
     in the positive direction (increasing value) and the third value specifies
-    the actual position as the axis is moving in the negative direction
+    the actual position as the joint is moving in the negative direction
     (decreasing value).
     +
     +
@@ -1157,20 +1163,42 @@ Type 1 Example
 1.000 0.003 -0.004
 ----
 
-* 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
-    machine units. When this limit is reached, the controller aborts axis
-    motion. The axis must be homed before MIN_LIMIT is in force. For a rotary
-    axis with unlimited rotation having no MIN_LIMIT for that axis in the 
-    [JOINT_n] section then the value -1e99 is used.
+* 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for joint motion, in
+    machine units.  When this limit is reached, the controller aborts joint
+    motion.
+    For a rotary joint with unlimited rotation having no MIN_LIMIT
+    for that joint in the [JOINT_N] section a the value -1e99 is used.
 
-* 'MAX_LIMIT = 1000' - (((MAX LIMIT))) The maximum limit for axis motion, in
-    machine units. When this limit is reached, the controller aborts axis
-    motion. The axis must be homed before MAX_LIMIT is in force. For a rotary
-    axis with unlimited rotation having no MAX_LIMIT for that axis in the 
-    [JOINT_n] section then the value 1e99 is used.
+
+* 'MAX_LIMIT = 1000' - (((MAX LIMIT))) The maximum limit for joint motion, in
+    machine units.  When this limit is reached, the controller aborts joint
+    motion.
+    For a rotary joint with unlimited rotation having no MAX_LIMIT
+    for that joint in the [JOINT_N] section a the value 1e99 is used.
+
+[NOTE]
+
+For *identity* kinematics, the [JOINT_N]MIN_LIMIT,MAX_LIMIT settings must equal
+or exceed the corresponding (one-to-one identity) [AXIS_L] limits.  These
+settings are verified at startup when the trivkins kinematics modules is
+specified.
+
+[NOTE]
+
+The [JOINT_N]MIN_LIMIT, MAX_LIMIT settings are enforced while jogging in joint
+mode prior to homing.  After homing, [AXIS_L]MIN_LIMIT,MAX_LIMIT coordinate
+limits are used as constraints for axis (coordinate letter) jogging and
+by the trajectory planning used for gcode moves (programs and mdi commands).
+The trajectory planner works in Cartesian space (XYZABCUVW) and has no
+information about the motion of joints implemented by *any* kinematics module.
+It is possible for joint limit violations to occur for gcode that obeys
+trajectory planning position limits when non identity kinematics are used.  The
+motion module always detects joint position limit violations and faults if they
+occur during the execution of gcode commands.  See also related github issue
+#97.
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR))) This is the value in machine units by
-    which the axis is permitted to deviate from commanded position at very low
+    which the joint is permitted to deviate from commanded position at very low
     speeds. If MIN_FERROR is smaller than FERROR, the two produce a ramp of
     error trip points. You could think of this as a graph where one dimension is
     speed and the other is permitted following error. As speed increases the

@@ -34,7 +34,6 @@ static char *license = \
     information, go to www.linuxcnc.org.\n\
 ";
 
-#include "config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
