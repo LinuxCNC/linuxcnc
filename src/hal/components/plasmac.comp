@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.177 - 2020 Sep 29
+0.178 - 2020 Oct 19
 
 .I SUMMARY:
 .br
@@ -619,7 +619,8 @@ FUNCTION(_) {
                                 ohmic_enable = FALSE;
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
-                                    rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.");
+                                    rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.\n"
+                                                                  "probe test aborted.");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -631,7 +632,8 @@ FUNCTION(_) {
                             }else if(float_switch && !probe_inhibit){
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
-                                    rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before probing.");
+                                    rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before probing.\n"
+                                                                  "probe test aborted.");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -643,7 +645,8 @@ FUNCTION(_) {
                             }else if(breakaway && !probe_inhibit){
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
-                                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.");
+                                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.\n"
+                                                                  "probe test aborted.");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -908,7 +911,8 @@ FUNCTION(_) {
                     state = MAX_HEIGHT;
                     rtapi_print_msg(RTAPI_MSG_ERR,"invalid pierce height.\n"
                                                   "or invalid cut height.\n"
-                                                  "or invalid cut volts.");
+                                                  "or invalid cut volts.\n"
+                                                  "program is paused.");
                 }
                 break;
             case TORCH_ON:
@@ -1056,7 +1060,7 @@ FUNCTION(_) {
                  * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
                  * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
                  * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
-                if(torch_on && !mesh_enable && ! ignore_arc_ok_0 && !ignore_arc_ok_1){
+                if(torch_on && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1){
                     /* thc control by arc voltage */
                     if(mode < 2){
                         thc_delay_timer -= fperiod;
