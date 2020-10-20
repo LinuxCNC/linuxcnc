@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="arc-fail-delay-adj"/>
   <object class="GtkAdjustment" id="arc-max-starts-adj"/>
@@ -678,7 +678,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="tooltip_text" translatable="yes">percentage of calculated kerfcross threshold to apply</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Void Override (%)</property>
+                                    <property name="label" translatable="yes">Void Sense Override (%)</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
