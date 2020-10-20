@@ -1447,7 +1447,7 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-arm-delay">
-                                <property name="width_request">66</property>
+                                <property name="width_request">50</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1467,7 +1467,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-on-delay">
-                                <property name="width_request">66</property>
+                                <property name="width_request">50</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1551,11 +1551,10 @@ this also sets the maximum probe feed rate</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="n_columns">4</property>
-                            <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="spotting-time">
-                                <property name="width_request">66</property>
+                                <property name="width_request">50</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1583,7 +1582,7 @@ this also sets the maximum probe feed rate</property>
                                 <property name="tooltip_text" translatable="yes">delay time after threshold voltage reached to turn torch off (mS)</property>
                                 <property name="xalign">1</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Delay(mS)</property>
+                                <property name="label" translatable="yes">Time On(mS)</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1608,7 +1607,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="spotting-threshold">
-                                <property name="width_request">66</property>
+                                <property name="width_request">50</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
