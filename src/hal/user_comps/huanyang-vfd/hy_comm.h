@@ -101,6 +101,8 @@ typedef struct _hycomm_param_t {
 	struct termios old_tios;	/* Save old termios settings */
 	int fd;						/* Descriptor (tty or socket) */
 	int debug;					/* Flag debug */
+	int extra_reg[10];
+	int extra_val[10];               // parameters specified explicitly
 } hycomm_param_t;
 
 
