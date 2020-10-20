@@ -350,7 +350,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.178'
+        self.plasmacVersion = 'PlasmaC v0.179'
 
         self.W = gtk.Window()
         self.halcomp = halcomp

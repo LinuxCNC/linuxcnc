@@ -56,15 +56,15 @@ mwidth = int(fullsize[0])
 mheight = int(fullsize[1])
 if wsize and 'x' in wsize.lower():
     width, height = wsize.lower().replace(' ','').split('x')
-    wxpos = (mwidth-int(width))/2
-    wypos = (mheight-int(height))/2
+    wxpos = int((mwidth-int(width))/2)
+    wypos = int((mheight-int(height))/2)
 elif wsize == '1':
     pad_width = 0
     pad_height = 0
     width = mwidth-pad_width
     height = mwidth-pad_height
-    wxpos = pad_width/2
-    wypos = pad_height/2
+    wxpos = int(pad_width/2)
+    wypos = int(pad_height/2)
 else:
     fsizes = ['9','10','11','12','13','14','15']
     if orientation == 'portrait':
@@ -85,8 +85,8 @@ else:
             heights = [636, 664, 702, 768, 792, 828, 878]
     width = widths[fsizes.index(fsize)]
     height = heights[fsizes.index(fsize)]
-    wxpos = (mwidth-width)/2
-    wypos = (mheight-height)/2
+    wxpos = int((mwidth-width)/2)
+    wypos = int((mheight-height)/2)
 if width: # fixme - remove when portrait sizes fixed
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(str(width),str(height),str(wxpos),str(wypos)))
     print('\nAxis window is {0} x {1}\n'.format(width,height))
@@ -402,10 +402,10 @@ w('pack',fmonitor + '.updown.labdn','-side','left','-fill','none','-expand','0')
 w('pack',fmonitor + '.updown.led-down','-side','left','-fill','none','-expand','0')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock','-anchor','w','-width','15')
+w('label',fmonitor + '.lCLlab','-text','VAD Lock','-anchor','w','-width','15')
 w('canvas',fmonitor + '.led-kerf-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lKLlab','-text','THC Void Lock','-anchor','w','-width','15')
+w('label',fmonitor + '.lKLlab','-text','Void Sense Lock','-anchor','w','-width','15')
 if inifile.find('PLASMAC', 'MODE') != '2':
     w('grid',fmonitor + '.arc-voltage',    '-row','0','-column', '0','-columnspan','4','-rowspan','2','-sticky','se')
     w('grid',fmonitor + '.aVlab',          '-row','1','-column', '4','-columnspan','4','-sticky','w')
@@ -592,8 +592,7 @@ if orientation == 'portrait':
         root_window.tk.eval(ftop + ".jogspeed.l1 configure -text in/min")
         root_window.tk.eval(ftop + ".maxvel.l1 configure -text in/min")
     root_window.tk.eval(ftop + ".ajogspeed.l1 configure -text deg/min")
-    w('update_jog_slider_vel','999999')
-    w('update_maxvel_slider_vel','999999')
+    w('update_maxvel_slider_vel', max_linear_speed)
     max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
     max_feed_override = int(max_feed_override * 100 + 0.5)
     widgets.feedoverride.configure(to=max_feed_override)
@@ -743,7 +742,7 @@ def user_button_pressed(button,commands):
     elif 'probe-test' in commands.lower():
         global probePressed, probeTimer, probeButton
         global probeStart, probeText, probeColor
-        if not probeTimer:
+        if not probeTimer and not hal.get_value('plasmac.z-offset-counts'):
             probePressed = True
             probeButton = button
             if commands.lower().replace('probe-test','').strip():
