@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.178 - 2020 Oct 19
+0.179 - 2020 Oct 19
 
 .I SUMMARY:
 .br
@@ -468,7 +468,7 @@ FUNCTION(_) {
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
                 state = MAX_HEIGHT;
-            }else if(state > PIERCE_HEIGHT && float_switch){
+            }else if(state > ARC_OK && float_switch){
                 torch_on = FALSE;
                 program_pause = TRUE;
                 stop_type = PAUSE;
@@ -477,7 +477,7 @@ FUNCTION(_) {
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
                 state = MAX_HEIGHT;
-            }else if(state > PIERCE_HEIGHT && ohmic_detected){
+            }else if(state > ARC_OK && ohmic_detected){
                 torch_on = FALSE;
                 program_pause = TRUE;
                 stop_type = PAUSE;
