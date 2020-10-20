@@ -168,95 +168,124 @@ class main_wiz:
         settings = w_settings.settings_wiz()
         settings.settings_show(self)
 
-    def on_line_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_line)
-        line = w_line.line_wiz()
-        line.line_show(self)
+    def on_line_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_line)
+            line = w_line.line_wiz()
+            line.line_show(self)
+            self.set_buttons_off(widget)
 
-    def on_circle_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_circle)
-        circle = w_circle.circle_wiz()
-        circle.circle_show(self)
+    def on_circle_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_circle)
+            circle = w_circle.circle_wiz()
+            circle.circle_show(self)
+            self.set_buttons_off(widget)
 
-    def on_triangle_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_triangle)
-        triangle = w_triangle.triangle_wiz()
-        triangle.triangle_show(self)
+    def on_triangle_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_triangle)
+            triangle = w_triangle.triangle_wiz()
+            triangle.triangle_show(self)
+            self.set_buttons_off(widget)
 
-    def on_rectangle_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_rectangle)
-        rectangle = w_rectangle.rectangle_wiz()
-        rectangle.rectangle_show(self)
+    def on_rectangle_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_rectangle)
+            rectangle = w_rectangle.rectangle_wiz()
+            rectangle.rectangle_show(self)
+            self.set_buttons_off(widget)
 
-    def on_polygon_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_polygon)
-        polygon = w_polygon.polygon_wiz()
-        polygon.polygon_show(self)
+    def on_polygon_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_polygon)
+            polygon = w_polygon.polygon_wiz()
+            polygon.polygon_show(self)
+            self.set_buttons_off(widget)
 
-    def on_bolt_circle_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_bolt_circle)
-        bolt_circle = w_bolt_circle.bolt_circle_wiz()
-        bolt_circle.bolt_circle_show(self)
+    def on_bolt_circle_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_bolt_circle)
+            bolt_circle = w_bolt_circle.bolt_circle_wiz()
+            bolt_circle.bolt_circle_show(self)
+            self.set_buttons_off(widget)
 
-    def on_slot_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_slot)
-        slot = w_slot.slot_wiz()
-        slot.slot_show(self)
+    def on_slot_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_slot)
+            slot = w_slot.slot_wiz()
+            slot.slot_show(self)
+            self.set_buttons_off(widget)
 
-    def on_star_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_star)
-        star = w_star.star_wiz()
-        star.star_show(self)
+    def on_star_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_star)
+            star = w_star.star_wiz()
+            star.star_show(self)
+            self.set_buttons_off(widget)
 
-    def on_gusset_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_gusset)
-        gusset = w_gusset.gusset_wiz()
-        gusset.gusset_show(self)
+    def on_gusset_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_gusset)
+            gusset = w_gusset.gusset_wiz()
+            gusset.gusset_show(self)
+            self.set_buttons_off(widget)
 
-    def on_sector_clicked(self, widget):
-        self.enable_buttons()
-        reload(w_sector)
-        sector = w_sector.sector_wiz()
-        sector.sector_show(self)
+    def on_sector_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+#            reload(w_sector)
+            sector = w_sector.sector_wiz()
+            sector.sector_show(self)
+            self.set_buttons_off(widget)
 
-    def on_rotate_clicked(self, widget):
-        self.enable_buttons()
-        with open(self.fNgc) as inFile:
-            for line in inFile:
-                if '(new wizard)' in line:
-                    self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
-                    return
-        reload(w_rotate)
-        rotate = w_rotate.rotate_wiz()
-        rotate.rotate_show(self)
+    def on_rotate_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+            with open(self.fNgc) as inFile:
+                for line in inFile:
+                    if '(new wizard)' in line:
+                        self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
+                        return
+#            reload(w_rotate)
+            rotate = w_rotate.rotate_wiz()
+            rotate.rotate_show(self)
+            self.set_buttons_off(widget)
 
-    def on_array_clicked(self, widget):
-        self.enable_buttons()
-        with open(self.fNgc) as inFile:
-            for line in inFile:
-                if '(new wizard)' in line:
-                    self.dialog_error('ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
-                    return
-                elif '(wizard' in line:
-                    self.arrayMode = 'wizard'
-                    break
-                elif '#<ucs_' in line:
-                    self.dialog_error('ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
-                    return
-                else:
-                    self.arrayMode = 'external'
-        reload(w_array)
-        array = w_array.array_wiz()
-        array.array_show(self)
+    def on_array_toggled(self, widget):
+        if widget.get_active():
+            self.enable_buttons()
+            with open(self.fNgc) as inFile:
+                for line in inFile:
+                    if '(new wizard)' in line:
+                        self.dialog_error('ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                        return
+                    elif '(wizard' in line:
+                        self.arrayMode = 'wizard'
+                        break
+                    elif '#<ucs_' in line:
+                        self.dialog_error('ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                        return
+                    else:
+                        self.arrayMode = 'external'
+#            reload(w_array)
+            array = w_array.array_wiz()
+            array.array_show(self)
+            self.set_buttons_off(widget)
+
+    def set_buttons_off(self, widget):
+        for button in self.buttons:
+            if button != widget:
+                button.set_active(False)
 
     def on_send_clicked(self, widget):
         shutil.copyfile(self.fNgcBkp, self.fNgc)
@@ -315,36 +344,48 @@ class main_wiz:
         right = gtk.Frame()
         bottom.pack_start(self.left, expand = False, fill = True)
         bottom.pack_start(right, expand = True, fill = True)
-        self.line = gtk.Button()
-        self.line.connect('clicked', self.on_line_clicked)
-        self.circle = gtk.Button()
-        self.circle.connect('clicked', self.on_circle_clicked)
-        self.triangle = gtk.Button()
-        self.triangle.connect('clicked', self.on_triangle_clicked)
-        self.rectangle = gtk.Button()
-        self.rectangle.connect('clicked', self.on_rectangle_clicked)
-        self.polygon = gtk.Button()
-        self.polygon.connect('clicked', self.on_polygon_clicked)
-        self.bolt_circle = gtk.Button()
-        self.bolt_circle.connect('clicked', self.on_bolt_circle_clicked)
-        self.slot = gtk.Button()
-        self.slot.connect('clicked', self.on_slot_clicked)
-        self.star = gtk.Button()
-        self.star.connect('clicked', self.on_star_clicked)
-        self.gusset = gtk.Button()
-        self.gusset.connect('clicked', self.on_gusset_clicked)
-        self.sector = gtk.Button()
-        self.sector.connect('clicked', self.on_sector_clicked)
-        self.rotate = gtk.Button()
-        self.rotate.connect('clicked', self.on_rotate_clicked)
-        self.array = gtk.Button()
-        self.array.connect('clicked', self.on_array_clicked)
-        buttons = [self.line, self.circle, self.triangle, self.rectangle, \
+        self.line = gtk.ToggleButton()
+        self.line.connect('toggled', self.on_line_toggled)
+        self.circle = gtk.ToggleButton()
+        self.circle.connect('toggled', self.on_circle_toggled)
+        self.triangle = gtk.ToggleButton()
+        self.triangle.connect('toggled', self.on_triangle_toggled)
+        self.rectangle = gtk.ToggleButton()
+        self.rectangle.connect('toggled', self.on_rectangle_toggled)
+        self.polygon = gtk.ToggleButton()
+        self.polygon.connect('toggled', self.on_polygon_toggled)
+        self.bolt_circle = gtk.ToggleButton()
+        self.bolt_circle.connect('toggled', self.on_bolt_circle_toggled)
+        self.slot = gtk.ToggleButton()
+        self.slot.connect('toggled', self.on_slot_toggled)
+        self.star = gtk.ToggleButton()
+        self.star.connect('toggled', self.on_star_toggled)
+        self.gusset = gtk.ToggleButton()
+        self.gusset.connect('toggled', self.on_gusset_toggled)
+        self.sector = gtk.ToggleButton()
+        self.sector.connect('toggled', self.on_sector_toggled)
+        self.rotate = gtk.ToggleButton()
+        self.rotate.connect('toggled', self.on_rotate_toggled)
+        self.array = gtk.ToggleButton()
+        self.array.connect('toggled', self.on_array_toggled)
+        self.buttons = [self.line, self.circle, self.triangle, self.rectangle, \
                    self.polygon, self.bolt_circle, self.slot, self.star, \
                    self.gusset, self.sector, self.rotate, self.array]
         bunames = ['line', 'circle', 'triangle', 'rectangle', 'polygon', \
                    'bolt_circle', 'slot', 'star', 'gusset', 'sector', \
                    'rotate', 'array']
+        tooltips = ['create a line or arc', \
+                    'create a circle', \
+                    'create a triangle', \
+                    'create a rectangle', \
+                    'create a regular polygon', \
+                    'create a bolt circle', \
+                    'create a slot', \
+                    'create a star', \
+                    'create a gusset', \
+                    'create a sector', \
+                    'rotate a shape', \
+                    'create an array of shapes']
         for wizard in bunames:
             if bunames.index(wizard) <= 11:
                 pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
@@ -353,8 +394,10 @@ class main_wiz:
                         height=60)
                 image = gtk.Image()
                 image.set_from_pixbuf(pixbuf)
-                buttons[bunames.index(wizard)].set_image(image)
-            top.add(buttons[bunames.index(wizard)])
+                self.buttons[bunames.index(wizard)].set_image(image)
+            print(self.buttons[bunames.index(wizard)], bunames.index(wizard))
+            self.buttons[bunames.index(wizard)].set_tooltip_text(tooltips[bunames.index(wizard)])
+            top.add(self.buttons[bunames.index(wizard)])
         right.add(self.preview)
         self.entries = gtk.Table(1, 1, True)
         self.entries.set_row_spacings(self.rowSpace)
@@ -452,7 +495,8 @@ class main_wiz:
         self.xSaved = '0.000'
         self.ySaved = '0.000'
         self.oSaved = self.origin
-        self.on_line_clicked(None)
+#        self.on_line_clicked(None)
+        self.line.set_active(True)
         response = self.W.run()
 
     @staticmethod
