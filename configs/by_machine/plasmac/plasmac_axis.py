@@ -56,15 +56,15 @@ mwidth = int(fullsize[0])
 mheight = int(fullsize[1])
 if wsize and 'x' in wsize.lower():
     width, height = wsize.lower().replace(' ','').split('x')
-    wxpos = (mwidth-int(width))/2
-    wypos = (mheight-int(height))/2
+    wxpos = int((mwidth-int(width))/2)
+    wypos = int((mheight-int(height))/2)
 elif wsize == '1':
     pad_width = 0
     pad_height = 0
     width = mwidth-pad_width
     height = mwidth-pad_height
-    wxpos = pad_width/2
-    wypos = pad_height/2
+    wxpos = int(pad_width/2)
+    wypos = int(pad_height/2)
 else:
     fsizes = ['9','10','11','12','13','14','15']
     if orientation == 'portrait':
@@ -85,8 +85,8 @@ else:
             heights = [636, 664, 702, 768, 792, 828, 878]
     width = widths[fsizes.index(fsize)]
     height = heights[fsizes.index(fsize)]
-    wxpos = (mwidth-width)/2
-    wypos = (mheight-height)/2
+    wxpos = int((mwidth-width)/2)
+    wypos = int((mheight-height)/2)
 if width: # fixme - remove when portrait sizes fixed
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(str(width),str(height),str(wxpos),str(wypos)))
     print('\nAxis window is {0} x {1}\n'.format(width,height))
