@@ -4,8 +4,7 @@
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="arcVoltageAdj">
-    <property name="lower">50</property>
-    <property name="upper">300</property>
+    <property name="upper">110</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -271,6 +270,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="toggled" handler="on_arcOk_toggled" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">True</property>

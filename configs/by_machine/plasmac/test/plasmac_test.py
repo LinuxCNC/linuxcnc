@@ -90,6 +90,14 @@ class plasmacTest:
             self.B.get_object('arc').set_sensitive(1)
             self.B.get_object('moves').set_sensitive(1)
 
+    def on_arcOk_toggled(self, widget):
+        if widget.get_active():
+            print('on')
+            sp.Popen(['halcmd setp plasmac.arc-ok-in 1'], shell=True)
+        else:
+            print('off')
+            sp.Popen(['halcmd setp plasmac.arc-ok-in 0'], shell=True)
+
     def setmode(self, mode):
         sp.Popen(['halcmd setp plasmac.mode ' + str(mode)], shell=True)
 
@@ -103,11 +111,19 @@ class plasmacTest:
         return gtk.TRUE
 
     def torch_changed(self, halpin):
-        if not halpin.get():
+        if halpin.get():
+            if hal.get_value('plasmac.mode') == 0 or hal.get_value('plasmac.mode') == 1:
+                self.B.get_object('arcVoltage').set_value(100.0)
+                self.B.get_object('arcVoltageAdj').set_lower(90.0)
+            if hal.get_value('plasmac.mode') == 1 or hal.get_value('plasmac.mode') == 2:
+                self.B.get_object('arcOk').set_active(True)
+        else:
             self.B.get_object('arcVoltage').set_sensitive(0)
-            self.B.get_object('arcVoltage').set_value(50.0)
+            self.B.get_object('arcVoltageAdj').set_lower(0.0)
+            self.B.get_object('arcVoltage').set_value(0.0)
             time.sleep(.1)
             self.B.get_object('arcVoltage').set_sensitive(1)
+            self.B.get_object('arcOk').set_active(False)
 
     def __init__(self):
         self.lcnc = linuxCNC()
@@ -135,8 +151,6 @@ class plasmacTest:
             if not hal.pin_has_writer('db_ohmic.in'):
                 sp.Popen(['halcmd net p_test:ohmic-probe plasmactest.ohmicProbe db_ohmic.in'], shell=True)
         else:
-            if not hal.pin_has_writer('plasmac.arc-ok-in'):
-                sp.Popen(['halcmd net p_test:arc-ok-in plasmactest.arcOk plasmac.arc-ok-in'], shell=True)
             if not hal.pin_has_writer('debounce.0.0.in'):
                 sp.Popen(['halcmd net p_test:float-switch plasmactest.floatSwitch debounce.0.0.in'], shell=True)
             if not hal.pin_has_writer('debounce.0.1.in'):
