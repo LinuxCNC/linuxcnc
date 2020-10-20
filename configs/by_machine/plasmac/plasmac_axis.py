@@ -743,7 +743,7 @@ def user_button_pressed(button,commands):
     elif 'probe-test' in commands.lower():
         global probePressed, probeTimer, probeButton
         global probeStart, probeText, probeColor
-        if not probeTimer:
+        if not probeTimer and not hal.get_value('plasmac.z-offset-counts'):
             probePressed = True
             probeButton = button
             if commands.lower().replace('probe-test','').strip():

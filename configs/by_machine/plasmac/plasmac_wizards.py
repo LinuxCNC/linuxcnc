@@ -199,7 +199,7 @@ class wizards:
         elif commands.lower() == 'ohmic-test':
             hal.set_p('plasmac.ohmic-test','1')
         elif 'probe-test' in commands.lower():
-            if not self.probeTimer:
+            if not self.probeTimer and not hal.get_value('plasmac.z-offset-counts'):
                 self.probePressed = True
                 self.probeButton = button
                 if commands.lower().replace('probe-test','').strip():
