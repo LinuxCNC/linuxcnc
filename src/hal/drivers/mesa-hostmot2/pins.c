@@ -736,6 +736,9 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
            case 29:      /* 7I95 punt on this for now */
                 pin->port_pin = i + 1;
                 break;
+           case 30:      /* 8cSS , MC04 boards */
+                pin->port_pin = i + 1;
+                break;
             default:
                 HM2_ERR("%s: invalid port width %d\n", __FUNCTION__, hm2->idrom.port_width);
         }
