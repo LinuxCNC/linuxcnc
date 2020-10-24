@@ -1575,11 +1575,11 @@ static void rotate_y(double pt[3], double a) {
 static void rotate_x(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
-    double tx, tz;
-    tx = pt[1] * c - pt[2] * s;
+    double ty, tz;
+    ty = pt[1] * c - pt[2] * s;
     tz = pt[1] * s + pt[2] * c;
 
-    pt[1] = tx; pt[2] = tz;
+    pt[1] = ty; pt[2] = tz;
 }
 
 static void translate(double pt[3], double ox, double oy, double oz) {
