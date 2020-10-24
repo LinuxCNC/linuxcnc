@@ -467,6 +467,17 @@ class GlCanonDraw:
             print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
                    msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
+        geometry_chars = "XYZABCUVW-"
+        g = self.get_geometry().upper()
+        dupchars = []; badchars = []
+        for ch in g:
+            if g.count(ch) >1: dupchars.append(ch)
+            if not ch in geometry_chars: badchars.append(ch)
+        if dupchars:
+            print("Warning: duplicate chars %s in geometry: %s"%(dupchars,g))
+        if badchars:
+            print("Warning: unknown chars %s in geometry: %s"%(badchars,g))
+
     def realize(self):
         self.hershey = hershey.Hershey()
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
