@@ -112,6 +112,8 @@ QCheckBox::indicator:checked {
 
 QCheckBox::indicator:unchecked {
     background-color: #404040;
+    height: 14px;
+    width: 14px;
 }
 
 QComboBox {

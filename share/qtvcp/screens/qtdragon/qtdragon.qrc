@@ -1,10 +1,23 @@
 <RCC>
   <qresource prefix="buttons">
+    <file>../../images/qtdragon/images/unchecked.png</file>
+    <file>../../images/qtdragon/images/slide_off.png</file>
+    <file>../../images/qtdragon/images/slide_on.png</file>
+    <file>../../images/qtdragon/images/checked.png</file>
+    <file>../../images/qtdragon/images/Right_arrow.png</file>
+    <file>../../images/qtdragon/images/Left_arrow.png</file>
     <file>../../images/qtdragon/images/a_minus_jog_button.png</file>
+    <file>../../images/qtdragon/images/a_plus_jog_button.png</file>
+    <file>../../images/qtdragon/images/x_plus_jog_button.png</file>
+    <file>../../images/qtdragon/images/x_minus_jog_button.png</file>
+    <file>../../images/qtdragon/images/z_minus_jog_button.png</file>
+    <file>../../images/qtdragon/images/z_plus_jog_button.png</file>
+    <file>../../images/qtdragon/images/y_minus_jog_button.png</file>
+    <file>../../images/qtdragon/images/y_plus_jog_button.png</file>
   </qresource>
   <qresource prefix="images">
+    <file>../../images/qtdragon/images/atc_spindle_tool.png</file>
     <file>../../images/qtdragon/images/brushed_metal.png</file>
-    <file>../../images/qtdragon/checked.png</file>
-    <file>../../images/qtdragon/unchecked.png</file>
+    <file>../../images/qtdragon/images/tool_probe.png</file>
   </qresource>
 </RCC>
