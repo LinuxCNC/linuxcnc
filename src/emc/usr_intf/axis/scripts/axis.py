@@ -3298,7 +3298,7 @@ max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or 
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
 default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
-geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
+geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZABCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 

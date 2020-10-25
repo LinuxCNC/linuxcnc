@@ -1266,6 +1266,7 @@ New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
 index that does not reset upon receipt of index pulse following
 assertion of index_enable.
 
+axis.py default for [DISPLAY]GEOMETRY was:"XYZBCUVW",is:"XYZABCUVW"
 === Code Updates
 
 ==== Reverse Run
