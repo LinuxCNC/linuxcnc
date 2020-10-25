@@ -17,7 +17,7 @@
 
 import sys
 import os
-import hal
+import json
 from PyQt5.QtCore import QProcess, QByteArray
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -29,16 +29,16 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 current_dir =  os.path.dirname(__file__)
-SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'basic_probe_subprog.py'))
+SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 CONFIG_DIR = os.getcwd()
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__(parent)
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
+            self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         else:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.9999, 4)
+            self.valid = QtGui.QDoubleValidator(-999.9999, 999.9999, 4)
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = os.path.join(INFO.LIB_PATH, 'widgets_ui', 'basic_probe.ui')
@@ -52,26 +52,34 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.dialog = uic.loadUi(self.filename)
         except AttributeError as e:
             LOG.critical(e)
-        # check if probe macros exist
-        self.probe_enable = False
-        for path in INFO.SUB_PATH_LIST:
-            path = os.path.expanduser(path)
-            for root, dirs, files in os.walk(path):
-                for file in files:
-                    # just need to check for one file - proof enough
-                    if 'probe_rect_pocket.ngc' in file:
-                        self.probe_enable = True
-                # don't go deeper then this folder
-                break
 
-        self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "BOSS and POCKETS", "RIDGE and VALLEY",
-                           "EDGE ANGLE", "ROTARY AXIS", "CALIBRATE"]
+        self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "EDGE ANGLE", "BOSS and POCKETS",
+                           "RIDGE and VALLEY", "CALIBRATE"]
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
 
-        self.basic_data = ['probe_tool', 'max_z', 'max_xy', 'xy_clearance', 'z_clearance',
-                           'step_off', 'extra_depth', 'probe_feed', 'probe_rapid', 'calibration_offset']
-        self.rv_data = ['x_hint', 'y_hint', 'diameter_hint', 'edge_width']
-        self.bp_data = ['x_hint_0', 'y_hint_0', 'diameter_hint', 'edge_width']
-        self.cal_data = ['cal_diameter', 'cal_x_width', 'cal_y_width']
+        #create parameter dictionary
+        self.send_dict = {}
+        # these parameters are sent to the subprogram
+        self.parm_list = ['probe_diam',
+                          'max_travel',
+                          'xy_clearance',
+                          'z_clearance',
+                          'extra_depth',
+                          'latch_return_dist',
+                          'search_vel',
+                          'probe_vel',
+                          'rapid_vel',
+                          'side_edge_length',
+                          'x_hint_bp',
+                          'y_hint_bp',
+                          'x_hint_rv',
+                          'y_hint_rv',
+                          'diameter_hint',
+                          'cal_diameter',
+                          'cal_x_width',
+                          'cal_y_width',
+                          'calibration_offset']
+
         self.process_busy = False
         # button connections
         self.cmb_probe_select.activated.connect(self.cmb_probe_select_changed)
@@ -79,7 +87,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.inside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.boss_pocket_buttonGroup.buttonClicked.connect(self.boss_pocket_clicked)
-        self.ridge_valley_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.ridge_valley_buttonGroup.buttonClicked.connect(self.ridge_valley_clicked)
         self.cal_buttonGroup.buttonClicked.connect(self.cal_btn_clicked)
         self.clear_buttonGroup.buttonClicked.connect(self.clear_results_clicked)
         self.btn_probe_help.clicked.connect(self.probe_help_clicked)
@@ -90,74 +98,61 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.clear()
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
-        for i in self.basic_data:
+        # define validators for all lineEdit widgets
+        for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
-        for i in self.rv_data:
-            self['lineEdit_' + i].setValidator(self.valid)
-        for i in self.bp_data:
-            self['lineEdit_' + i].setValidator(self.valid)
-        for i in self.cal_data:
-            self['lineEdit_' + i].setValidator(self.valid)
-
+        
     def _hal_init(self):
         def homed_on_status():
-            return (STATUS.machine_is_on() and self.probe_enable and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+            return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
-        STATUS.connect('all-homed', lambda w: self.setEnabled(self.probe_enable))
-        # create HAL pins
-        self.HAL_GCOMP_.newpin("x_width", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("y_width", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("avg_diameter", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("edge_angle", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("edge_delta", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("x_minus", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("y_minus", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("z_minus", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("x_plus", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("y_plus", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("x_center", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("y_center", hal.HAL_FLOAT, hal.HAL_IN)
-        self.HAL_GCOMP_.newpin("cal_offset", hal.HAL_FLOAT, hal.HAL_IN)
+        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(str(self.PREFS_.getpref('Probe tool', 0, int, 'PROBE OPTIONS')))
-            self.lineEdit_probe_rapid.setText(str(self.PREFS_.getpref('Probe rapid', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_max_xy.setText(str(self.PREFS_.getpref('Probe max xy', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_max_z.setText(str(self.PREFS_.getpref('Probe max z', 2, float, 'PROBE OPTIONS')))
-            self.lineEdit_extra_depth.setText(str(self.PREFS_.getpref('Probe extra depth', 0, float, 'PROBE OPTIONS')))
-            self.lineEdit_step_off.setText(str(self.PREFS_.getpref('Probe step off', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_probe_feed.setText(str(self.PREFS_.getpref('Probe feed', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_xy_clearance.setText(str(self.PREFS_.getpref('Probe xy clearance', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_z_clearance.setText(str(self.PREFS_.getpref('Probe z clearance', 10, float, 'PROBE OPTIONS')))
-            self.lineEdit_edge_width.setText(str(self.PREFS_.getpref('Probe edge width', 10, float, 'PROBE OPTIONS')))
-        if self.probe_enable == False:
-            LOG.error("No path to BasicProbe Macros Found in INI's [RS274] SUBROUTINE_PATH entry")
-            STATUS.emit('update-machine-log', 'WARNING -Basic_Probe macro files not found -Probing disabled', 'TIME')
-        else:
-            STATUS.connect('error', self.send_error)
-            self.start_process()
-    # when qtvcp closes, this gets called
+            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
+            self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_search_vel.setText(self.PREFS_.getpref('Probe search', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_max_travel.setText(self.PREFS_.getpref('Probe max travel', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_max_z.setText(self.PREFS_.getpref('Probe max z', '2', str, 'PROBE OPTIONS'))
+            self.lineEdit_extra_depth.setText(self.PREFS_.getpref('Probe extra depth', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_latch_return_dist.setText(self.PREFS_.getpref('Probe step off', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_xy_clearance.setText(self.PREFS_.getpref('Probe xy clearance', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_z_clearance.setText(self.PREFS_.getpref('Probe z clearance', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_side_edge_length.setText(self.PREFS_.getpref('Probe edge width', '10', str, 'PROBE OPTIONS'))
+            self.lineEdit_calibration_offset.setText(self.PREFS_.getpref('Calibration offset', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_cal_x_width.setText(self.PREFS_.getpref('Cal x width', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_cal_y_width.setText(self.PREFS_.getpref('Cal y width', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_cal_diameter.setText(self.PREFS_.getpref('Cal diameter', '0', str, 'PROBE OPTIONS'))
+        self.start_process()
+
     def closing_cleanup__(self):
         if self.PREFS_:
             LOG.debug('Saving Basic Probe data to preference file.')
-            self.PREFS_.putpref('Probe tool', float(self.lineEdit_probe_tool.text()), int, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe rapid', float(self.lineEdit_probe_rapid.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe max xy', float(self.lineEdit_max_xy.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe max z', float(self.lineEdit_max_z.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe extra depth', float(self.lineEdit_extra_depth.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe step off', float(self.lineEdit_step_off.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe feed', float(self.lineEdit_probe_feed.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe xy clearance', float(self.lineEdit_xy_clearance.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe z clearance', float(self.lineEdit_z_clearance.text()), float, 'PROBE OPTIONS')
-            self.PREFS_.putpref('Probe edge width', float(self.lineEdit_edge_width.text()), float, 'PROBE OPTIONS')
-        if self.probe_enable:
-            self.proc.terminate()
+            self.PREFS_.putpref('Probe tool', self.lineEdit_probe_tool.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe diameter', self.lineEdit_probe_diam.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe rapid', self.lineEdit_rapid_vel.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe feed', self.lineEdit_probe_vel.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe search', self.lineEdit_search_vel.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe max travel', self.lineEdit_max_travel.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe max z', self.lineEdit_max_z.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe extra depth', self.lineEdit_extra_depth.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe step off', self.lineEdit_latch_return_dist.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe xy clearance', self.lineEdit_xy_clearance.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe z clearance', self.lineEdit_z_clearance.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Probe edge width', self.lineEdit_side_edge_length.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Calibration offset', self.lineEdit_calibration_offset.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Cal x width', self.lineEdit_cal_x_width.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Cal y width', self.lineEdit_cal_y_width.text(), str, 'PROBE OPTIONS')
+            self.PREFS_.putpref('Cal diameter', self.lineEdit_cal_diameter.text(), str, 'PROBE OPTIONS')
+        self.proc.terminate()
 
-#############################################
+#################
 # process control
-#############################################
+#################
     def start_process(self):
         self.proc = QProcess()
         self.proc.setReadChannel(QProcess.StandardOutput)
@@ -165,14 +160,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
+        string_to_send = 'PID${' + str(os.getpid()) + '}\n'
         if sys.version_info.major > 2:
             self.proc.start('python3 {}'.format(SUBPROGRAM))
             # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData(bytes('PID {}\n'.format(os.getpid()), 'utf-8'))
+            self.proc.writeData(bytes(string_to_send, 'utf-8'))
         else:
             self.proc.start('python {}'.format(SUBPROGRAM))
             # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData('PID {}\n'.format(os.getpid()))
+            self.proc.writeData(string_to_send)
             
     def start_probe(self, cmd):
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
@@ -181,7 +177,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_busy is True:
             LOG.error("Probing processor is busy")
             return
-        string_to_send = cmd + '\n'
+        string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
 #        print("String to send ", string_to_send)
         if sys.version_info.major > 2:
             self.proc.writeData(bytes(string_to_send, 'utf-8'))
@@ -216,7 +212,13 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             print(line)
         elif b"COMPLETE" in line:
             LOG.info("Probing routine completed without errors")
-            self.show_results()
+            return_data = line.rstrip().split('$')
+            data = json.loads(return_data[1])
+            self.show_results(data)
+        elif "HISTORY" in line:
+            temp = line.strip('HISTORY$')
+            STATUS.emit('update-machine-log', temp, 'TIME')
+            LOG.info("Probe history updated to machine log")
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
@@ -258,89 +260,66 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.probe_help_widget.setCurrentIndex(i + 1)
 
     def probe_btn_clicked(self, button):
-        mode = int(self.btn_probe_mode.isChecked() is True)
-        ngc = button.property('filename')
-        parms = self.get_parms() + self.get_rv_parms() + '[{}]'.format(mode)
-        cmd = "PROBE {} {}".format(ngc, parms)
+        cmd = button.property('probe')
+#        print("Button clicked ", cmd)
+        self.get_parms()
         self.start_probe(cmd)
 
     def boss_pocket_clicked(self, button):
-        mode = int(self.btn_probe_mode.isChecked() is True)
-        ngc = button.property('filename')
-        parms = self.get_parms() + self.get_bp_parms() + '[{}]'.format(mode)
-        cmd = "PROBE {} {}".format(ngc, parms)
+        for i in ['x_hint_bp', 'y_hint_bp', 'diameter_hint']:
+            if self['lineEdit_' + i].text() is None: return
+        cmd = button.property('probe')
+        self.get_parms()
+        self.start_probe(cmd)
+
+    def ridge_valley_clicked(self, button):
+        for i in ['x_hint_rv', 'y_hint_rv']:
+            if self['lineEdit_' + i].text() is None: return
+        cmd = button.property('probe')
+        self.get_parms()
         self.start_probe(cmd)
 
     def cal_btn_clicked(self, button):
-        mode = int(self.btn_probe_mode.isChecked() is True)
-        ngc = button.property('filename')
-        if self.cal_avg_error.isChecked():
-            avg = '[0]'
-        elif self.cal_x_error.isChecked():
-            avg = '[1]'
-        else:
-            avg = '[2]'
-        parms = self.get_parms() + self.get_rv_parms() + '[{}]'.format(mode)
-        parms += self.get_cal_parms() + avg
-        cmd = "PROBE {} {}".format(ngc, parms)
+        for i in ['calibration_offset', 'cal_diameter', 'cal_x_width', 'cal_y_width']:
+            if self['lineEdit_' + i].text() is None: return
+        cmd = button.property('probe')
+        self.get_parms()
         self.start_probe(cmd)
-        
+
     def clear_results_clicked(self, button):
-        sub = button.property('filename')
-        cmd = "o< {} > call".format(sub)
-        ACTION.CALL_OWORD(cmd)
-        self.show_results()
+        cmd = button.property('clear')
+        if cmd in dir(self): self[cmd]()
 
-# Helper functions
+    def clear_x(self):
+        self.status_xm.setText('0')
+        self.status_xp.setText('0')
+        self.status_xc.setText('0')
+        self.status_lx.setText('0')
+
+    def clear_y(self):
+        self.status_ym.setText('0')
+        self.status_yp.setText('0')
+        self.status_yc.setText('0')
+        self.status_ly.setText('0')
+        
+    def clear_all(self):
+        self.clear_x()
+        self.clear_y()
+        self.status_z.setText('0')
+        self.status_d.setText('0')
+        self.status_delta.setText('0')
+        self.status_a.setText('0')
+
+# Helper functions       
     def get_parms(self):
-        p = ""
-        for i in self.basic_data:
-            next = self['lineEdit_' + i].text()
-            if next == '':
-                next = 0.0
-            p += '[{}]'.format(next)
-        return p
+        self.send_dict = {key: self['lineEdit_' + key].text() for key in (self.parm_list)}
+        for key in ['allow_auto_zero', 'allow_auto_skew', 'cal_avg_error', 'cal_x_error', 'cal_y_error']:
+            val = '1' if self[key].isChecked() else '0'
+            self.send_dict.update( {key: val} )
 
-    def get_rv_parms(self):
-        p = ""
-        for i in self.rv_data:
-            next = self['lineEdit_' + i].text()
-            if next == '':
-                next = 0.0
-            p += '[{}]'.format(next)
-        return p
-
-    def get_bp_parms(self):
-        p = ""
-        for i in self.bp_data:
-            next = self['lineEdit_' + i].text()
-            if next == '':
-                next = 0.0
-            p += '[{}]'.format(next)
-        return p
-
-    def get_cal_parms(self):
-        p = ""
-        for i in self.cal_data:
-            next = self['lineEdit_' + i].text()
-            if next == '':
-                next = 0.0
-            p += '[{}]'.format(next)
-        return p
-
-    def show_results(self):
-        self.status_xminus.setText('{:.3f}'.format(self.HAL_GCOMP_['x_minus']))
-        self.status_xplus.setText('{:.3f}'.format(self.HAL_GCOMP_['x_plus']))
-        self.status_xcenter.setText('{:.3f}'.format(self.HAL_GCOMP_['x_center']))
-        self.status_xwidth.setText('{:.3f}'.format(self.HAL_GCOMP_['x_width']))
-        self.status_yminus.setText('{:.3f}'.format(self.HAL_GCOMP_['y_minus']))
-        self.status_yplus.setText('{:.3f}'.format(self.HAL_GCOMP_['y_plus']))
-        self.status_ycenter.setText('{:.3f}'.format(self.HAL_GCOMP_['y_center']))
-        self.status_ywidth.setText('{:.3f}'.format(self.HAL_GCOMP_['y_width']))
-        self.status_z.setText('{:.3f}'.format(self.HAL_GCOMP_['z_minus']))
-        self.status_angle.setText('{:.3f}'.format(self.HAL_GCOMP_['edge_angle']))
-        self.status_delta.setText('{:.3f}'.format(self.HAL_GCOMP_['edge_delta']))
-        self.status_diameter.setText('{:.3f}'.format(self.HAL_GCOMP_['avg_diameter']))
+    def show_results(self, line):
+        for key in self.status_list:
+            self['status_' + key].setText(line[key])
 
     ##############################
     # required class boiler code #
