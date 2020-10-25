@@ -1552,12 +1552,24 @@ static PyTypeObject Error_Type = {
 
 #include <GL/gl.h>
 
+static struct rotation_offsets {
+    double x;
+    double y;
+    double z;
+    unsigned int respect_offsets;
+} roffsets;
+
 static void rotate_z(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, ty;
-    tx = pt[0] * c - pt[1] * s;
-    ty = pt[0] * s + pt[1] * c;
+    if (roffsets.respect_offsets) {
+        tx = (pt[0]-roffsets.x) * c - (pt[1]-roffsets.y) * s;
+        ty = (pt[0]-roffsets.x) * s + (pt[1]-roffsets.y) * c;
+    } else {
+        tx = pt[0] * c - pt[1] * s;
+        ty = pt[0] * s + pt[1] * c;
+    }
 
     pt[0] = tx; pt[1] = ty;
 }
@@ -1566,8 +1578,13 @@ static void rotate_y(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, tz;
-    tx = pt[0] * c - pt[2] * s;
-    tz = pt[0] * s + pt[2] * c;
+    if (roffsets.respect_offsets) {
+        tx = (pt[0]-roffsets.x) * c - (pt[2]-roffsets.z) * s;
+        tz = (pt[0]-roffsets.x) * s + (pt[2]-roffsets.z) * c;
+    } else {
+        tx = pt[0] * c - pt[2] * s;
+        tz = pt[0] * s + pt[2] * c;
+    }
 
     pt[0] = tx; pt[2] = tz;
 }
@@ -1576,8 +1593,13 @@ static void rotate_x(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double ty, tz;
-    ty = pt[1] * c - pt[2] * s;
-    tz = pt[1] * s + pt[2] * c;
+    if (roffsets.respect_offsets) {
+        ty = (pt[1]-roffsets.y) * c - (pt[2]-roffsets.z) * s;
+        tz = (pt[1]-roffsets.y) * s + (pt[2]-roffsets.z) * c;
+    } else {
+        ty = pt[1] * c - pt[2] * s;
+        tz = pt[1] * s + pt[2] * c;
+    }
 
     pt[1] = ty; pt[2] = tz;
 }
@@ -1696,6 +1718,23 @@ static PyObject *pyvertex9(PyObject *s, PyObject *o) {
 
     vertex9(pt, pt1, geometry);
     return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
+}
+
+static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
+    if(!PyArg_ParseTuple(o, "i", &roffsets.respect_offsets)) {
+        return NULL;
+    }
+    fprintf(stderr,"%s respect_offsets=%d\n",__FILE__,roffsets.respect_offsets);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *pygui_rot_offsets(PyObject *s, PyObject *o) {
+    if(!PyArg_ParseTuple(o, "ddd", &roffsets.x,&roffsets.y,&roffsets.z)) {
+        return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
@@ -2185,6 +2224,8 @@ METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
 METH(draw_dwells, "Draw a bunch of dwell positions in the 'rs274.glcanon' format"),
 METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
 METH(vertex9, "Get the 3d location for a 9d point"),
+METH(gui_rot_offsets, "Set x,y,z offsets for A,B,C rotations"),
+METH(gui_respect_offsets, "Enable rotations about g5x,g92 offsets"),
     {NULL}
 #undef METH
 };

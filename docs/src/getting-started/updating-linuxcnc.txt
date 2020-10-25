@@ -1313,6 +1313,11 @@ motion.feed-upm -- current feed in units per minute
 
 === Configs
 
+==== Inifile
+
+[DISPLAY]GEOMETRY settings that include  the '!' character
+specify that displayed rotations respect G5x,G92 offsets.
+
 ==== Simulation Configs
 
 sim/configs/axis/axis_9axis: demonstrate simulated encoder index
