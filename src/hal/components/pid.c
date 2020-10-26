@@ -41,7 +41,8 @@
     'command' minus 'feedback'.  'enable' is a bit that enables
     the loop.  If 'enable' is false, all integrators are reset,
     and the output is forced to zero.  If 'enable' is true, the
-    loop operates normally.
+    loop operates normally. 'keep-integrator' can be used to
+    save the integrator value when 'enable' is false.
 
     The PID gains, limits, and other 'tunable' features of the
     loop are implemented as parameters.  These are as follows:
@@ -207,6 +208,7 @@ typedef struct {
     hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
                                        otherwise screw up FF */
     hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
+    hal_bit_t *keep_integrator; /* pin: keep integrator when pid is disabled */
     char prev_ie;
 } hal_pid_t;
 
@@ -366,8 +368,8 @@ static void calc_pid(void *arg, long period)
 		*(pid->error_i) = -*(pid->maxerror_i);
 	    }
 	}
-    } else {
-	/* not enabled, reset integrator */
+    } else if (!*(pid->keep_integrator)) {
+	/* not enabled and not requested to save, reset integrator */
 	*(pid->error_i) = 0;
     }
     /* compute command and feedback derivatives to dummysigs */
@@ -632,6 +634,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->keep_integrator), comp_id,
+                  "%s.keep-integrator", prefix);
+    if (retval != 0) {
+    return retval;
+    }
     /* export optional parameters */
     if (debug > 0) {
 	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
@@ -675,6 +682,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     /* init all structure members */
     *(addr->enable) = 0;
     *(addr->error_previous_target) = 1;
+    *(addr->keep_integrator) = 0;
     *(addr->command) = 0;
     *(addr->feedback) = 0;
     *(addr->error) = 0;
