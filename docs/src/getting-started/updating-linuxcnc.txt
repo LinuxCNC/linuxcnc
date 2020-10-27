@@ -1266,6 +1266,7 @@ New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
 index that does not reset upon receipt of index pulse following
 assertion of index_enable.
 
+axis.py default for [DISPLAY]GEOMETRY was:"XYZBCUVW",is:"XYZABCUVW"
 === Code Updates
 
 ==== Reverse Run
@@ -1311,6 +1312,11 @@ sim_home_switch: added I/O pin for index-enable
 motion.feed-upm -- current feed in units per minute
 
 === Configs
+
+==== Inifile
+
+[DISPLAY]GEOMETRY settings that include  the '!' character
+specify that displayed rotations respect G5x,G92 offsets.
 
 ==== Simulation Configs
 

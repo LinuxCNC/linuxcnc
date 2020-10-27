@@ -841,12 +841,22 @@ class _GStat(GObject.GObject):
         return self.current_jog_distance_angular
 
     def set_jog_increment_angular(self, distance, text):
+        try:
+            isinstance(float(distance), float)
+        except:
+            print('error converting angular jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance_angular))
+            return
         self.current_jog_distance_angular = distance
         self.current_jog_distance_text_angular = text
         self.emit('jogincrement-angular-changed', distance, text)
 
     # should be in machine units
     def set_jog_increments(self, distance, text):
+        try:
+            isinstance(float(distance), float)
+        except:
+            print('error converting jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance))
+            return
         self.current_jog_distance = distance
         self.current_jog_distance_text = text
         self.emit('jogincrement-changed', distance, text)

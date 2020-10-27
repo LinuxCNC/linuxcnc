@@ -376,23 +376,43 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 
 * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 
-* 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
-    of a sequence of axis letters, optionally preceded by a "-" sign.
-    This sequence specifies the order in which the effect
-    of each axis is applied, with a "-" inverting the sense of the
-    rotation.
-     The proper GEOMETRY string depends on the machine configuration and
-    the kinematics used to control it. The example string GEOMETRY=XYZBCUVW
-    is for a 5-axis machine where kinematics causes UVW to move in the
-    coordinate system of the tool and XYZ to move in the coordinate system
-    of the material. The order of the letters is important, because it
-    expresses the order in which the different transformations are applied.
-    For example rotating around C then B is different than rotating around
-    B then C. Geometry has no effect without a rotary axis.
-     Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value
-    blank even though this value is presently ignored in foam-cutter mode.  A
-    future version may define what ";" means, but if it does "XY;UV" will mean
-    the same as the current foam default.
+* 'GEOMETRY = XYZABCUVW' - Controls the *preview* and *backplot* of motion.
+   This item consists of a sequence of axis letters and control characters:
+
+.  The letters X,Y,Z specify translation along the named coordinate.
+.  The letters A,B,C specify rotation about the corresponding axes X,Y,Z.
+.  The letters U,V,W specify translation along the related axes X,Y,Z.
+.  Each letter specified must occur in [TRAJ]COORDINATES to have an effect.
+.  A "*-*" character preceding any letter inverts the direction of the operation.
+.  The translation and rotation operations are evaluated *right-to-left*.
+   So using GEOMETRY=XYZBC specifies a C rotation followed by a B rotation
+   followed by Z,Y,X translations.  (The ordering of consecutive translation
+   letters is immaterial.)
+.  If the "*!*" special character appears anywhere in the sequence, rotations
+   for the A,B,C axis letters respect the offsets (G5x, G92) applied to X,Y,Z.
+.  The proper GEOMETRY string depends on the machine configuration and
+   the kinematics used to control it. The order of the letters is important.
+   For example, rotating around C then B is different than rotating
+   around B then C.
+.  Rotations are by default applied with respect to the machine origin.
+   Example: GEOMETRY=CXYZ first translates the control point to X,Y,Z and then
+   performs a C rotation about the Z axis centered at the machine origin.
+.  Rotations applied after translations may use the "*!*" provision to
+   to act with respect to the current machine offset.  Example: GEOMETRY=!CXYZ
+   translates the control point to the X,Y,Z position and then performs
+   a C rotation about the machine origin displaced by the current G5x,G92
+   X,Y,Z offsets.  (Changing offsets may require a program reload).
+.  UVW translation example: GEOMETRY=XYZUVW causes UVW to move in the coordinate
+   system of the tool and XYZ to move in the coordinate system of the material
+.  Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value
+   blank even though this value is presently ignored in foam-cutter mode.  A
+   future version may define what ";" means, but if it does "XY;UV" will mean
+   the same as the current foam default.
+
+[NOTE]
+If no [DISPLAY]GEOMETRY is included in the inifile, a default is provided
+by the [DISPLAY]DISPLAY gui program (typically "XYZABCUVW")
+
 
 * 'ARCDIVISION = 64' - Set the quality of preview of arcs. Arcs are previewed by dividing
     them into a number of straight lines; a semicircle is divided into

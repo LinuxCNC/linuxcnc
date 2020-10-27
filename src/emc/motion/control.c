@@ -1190,7 +1190,8 @@ static void get_pos_cmds(long period)
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
 	    /* compute joint velocity limit */
-            if ( get_home_is_idle(joint_num) ) {
+            if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+                && get_home_is_idle(joint_num) ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;

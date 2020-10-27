@@ -1,4 +1,4 @@
-# Keep your plasmac i/o connections here to prevent them from
+# Keep your PlasmaC I/O connections here to prevent them from
 # being overwritten by updates or pncconf/stepconf changes
 
 # Other customisations may be placed here as well

@@ -9,7 +9,7 @@ INCLUDES += emc/sai
 ../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
 	../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libpyplugin.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(READLINE_LIBS)
+	$(Q)$(CXX) -o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(READLINE_LIBS) $(LDFLAGS) 
 
 $(patsubst ./emc/sai/%,../include/%,$(wildcard ./emc/sai/*.h)): ../include/%.h: ./emc/sai/%.h
 	cp $^ $@

@@ -812,7 +812,7 @@ turn off to use cut volts from parameters</property>
                                     <property name="tooltip_text" translatable="yes">enable/disable corner lock mode</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Velocity Anti Dive Enable</property>
+                                    <property name="label" translatable="yes">Velocity Anti Dive Enable (VAD)</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
