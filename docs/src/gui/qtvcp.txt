@@ -138,6 +138,55 @@ You can put these files in a arbitrary named folder - qtvcp will search all fold
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
 
 
+== VCP Panels
+Qtvcp can be used to create control panels that interface with HAL. +
+
+=== Builtin panels
+There are some buit in panels that may be useful. +
+
+* test_panel - comvience panel useable for basic testing controls.
+* cam_align - panel that displays a camera image with alignment controls.
+* sim_panel - can be used to simulate MPG jogging controls
+
+[source,hal]
+----
+loadusr qtvcp test_panel
+----
+
+You can of course make your own panel and load it. +
+If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal' +
+You would then load this from a terminal with halrun -I -f my_panel.hal +
+
+[source,hal]
+----
+# load realtime components
+loadrt threads 
+loadrt classicladder_rt
+
+# load user space programs
+loadusr classicladder
+loadusr -Wn my_panel qtvcp my_panel.ui
+
+# add components to thread
+addf classicladder.0.refresh thread1
+
+
+# connect pins
+net bit-input1     test_panel.checkbox_1        classicladder.0.in-00
+net bit-hide       test_panel.checkbox_4        classicladder.0.hide_gui
+
+net bit-output1    test_panel.led_1             classicladder.0.out-00
+
+net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
+
+# start thread
+start
+----
+
+In this case we load qtvcp using -Wn; which waits for the panel to finish loading before +
+continuing to run the next HAL command. This is so the HAL pins from the panel are finished +
+in case the are used in the rest of the file.
+
 == Build a simple clean-sheet custom screen
 
 .Ugly custom screen
