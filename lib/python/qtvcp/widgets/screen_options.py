@@ -240,8 +240,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         # If there is a widget named statusBar give a reference to desktop notify
         try:
             NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
-        except Exception as e:
-            LOG.info('Exception adding status to notify:', exc_info=e)
+        except:
+            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
 
         # critical messages don't timeout, the greeting does
         if self.desktop_notify:
