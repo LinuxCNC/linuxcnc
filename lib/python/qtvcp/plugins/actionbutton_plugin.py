@@ -62,7 +62,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the icon
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('actionbutton')))
+        return QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/standardbutton-apply-128.png')
 
     # Returns a tool tip short description
     def toolTip(self):
