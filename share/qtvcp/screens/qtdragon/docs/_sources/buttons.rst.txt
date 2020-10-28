@@ -1,0 +1,4 @@
+=======
+BUTTONS
+=======
+Buttons that are checkable will change their text colour when checked.

@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PROBING &mdash; QtDragon 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RUN FROM LINE" href="runfromline.html" />
+    <link rel="prev" title="SPINDLE" href="spindle.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> QtDragon
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">INTRODUCTION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">GETTING STARTED</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keybindings.html">KEYBINDINGS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtual_keyboard.html">VIRTUAL KEYBOARD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="halfiles.html">HAL FILES</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toolchange.html">MANUAL TOOL CHANGES</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spindle.html">SPINDLE</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PROBING</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runfromline.html">RUN FROM LINE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="styles.html">STYLES</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resolution.html">SCREEN RESOLUTION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="customize.html">CUSTOMIZATION</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">QtDragon</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>PROBING</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/probing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="probing">
+<h1>PROBING<a class="headerlink" href="#probing" title="Permalink to this headline">¶</a></h1>
+<p>The probe screen has been through basic testing but there could still be some minor bugs. When running probing routines,
+use extreme caution until you are familiar with how everything works. Probe routines run without blocking the main GUI.
+This gives the operator the opportunity to watch the DROs and stop the routine at any time.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Probing is very unforgiving of mistakes; be sure to check settings before using.</p>
+</div>
+<p>There are 2 probe interfaces available - VersaProbe and BasicProbe. The user can choose which one to use by a setting in the INI file.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">PROBE</span><span class="p">]</span>
+<span class="n">USE_PROBE</span> <span class="o">=</span> <span class="n">versaprobe</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">PROBE</span><span class="p">]</span>
+<span class="n">USE_PROBE</span> <span class="o">=</span> <span class="n">basicprobe</span>
+</pre></div>
+</div>
+<p>The only keywords accepted are “versaprobe” and “basicprobe” (no quote marks). Any other, or none at all, will start the GUI with no probing page.</p>
+<div class="figure" id="id1">
+<a class="reference internal image-reference" href="_images/versaprobe.png"><img alt="QtDragon Versa Probe" src="_images/versaprobe.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Probe page showing VersaProbe</span></p>
+</div>
+<div class="figure" id="id2">
+<a class="reference internal image-reference" href="_images/basicprobe.png"><img alt="QtDragon Basic Probe" src="_images/basicprobe.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text">Probe page showing BasicProbe</span></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="runfromline.html" class="btn btn-neutral float-right" title="RUN FROM LINE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="spindle.html" class="btn btn-neutral float-left" title="SPINDLE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Jim Sloot
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

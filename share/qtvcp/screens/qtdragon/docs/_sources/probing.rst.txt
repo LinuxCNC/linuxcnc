@@ -1,0 +1,37 @@
+=======
+PROBING
+=======
+The probe screen has been through basic testing but there could still be some minor bugs. When running probing routines, 
+use extreme caution until you are familiar with how everything works. Probe routines run without blocking the main GUI. 
+This gives the operator the opportunity to watch the DROs and stop the routine at any time.
+
+.. Note:: Probing is very unforgiving of mistakes; be sure to check settings before using.
+
+There are 2 probe interfaces available - VersaProbe and BasicProbe. The user can choose which one to use by a setting in the INI file.
+For example:
+
+.. code-block:: python
+
+  [PROBE]
+  USE_PROBE = versaprobe
+
+or
+
+.. code-block:: python
+
+  [PROBE]
+  USE_PROBE = basicprobe
+
+The only keywords accepted are "versaprobe" and "basicprobe" (no quote marks). Any other, or none at all, will start the GUI with no probing page.
+
+.. figure:: images/versaprobe.png
+  :width: 800
+  :alt: QtDragon Versa Probe
+
+  Probe page showing VersaProbe
+
+.. figure:: images/basicprobe.png
+  :width: 800
+  :alt: QtDragon Basic Probe
+
+  Probe page showing BasicProbe

@@ -1,0 +1,54 @@
+===============
+GETTING STARTED
+===============
+
+If your configuration is not currently set up to use QtDragon, you can change it by editing the INI file.
+In the section [DISPLAY] change the DISPLAY line to:
+
+.. code-block:: python
+
+  [DISPLAY]
+  DISPLAY = qtvcp qtdragon
+
+To keep track of preferences, QtDragon looks for a preference text file.
+Add the following entry under the [DISPLAY] heading. (other options are possible, see the qtvcp’s screenoption widget docs.)
+
+.. code-block:: python
+
+  [DISPLAY]
+  PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
+
+You can specify where to save the history/log file:
+In the section [DISPLAY] add:
+
+.. code-block:: python
+
+  MDI_HISTORY_FILE = mdi_history.dat
+  MACHINE_LOG_PATH = machine_log.dat
+  LOG_FILE = qtdragon.log
+
+There are sample configuration files in sim/qtvcp_screens/qtdragon/ to illustrate different axis configurations. The QtDragon interface
+supports the following configurations:
+
+- XYZ      3 linear axes
+- XYZA     3 linear and 1 rotary axis
+- XYZY     3 axis with tandem Y
+- XYZYA    3 axis tandem Y and 1 rotary
+
+The specific configuration is set by the INI file. For example:
+
+.. code-block:: python
+
+  [KINS]
+  KINEMATICS = trivkins coordinates=XYZ kinstype=BOTH
+  JOINTS = 3
+
+  [TRAJ]
+  COORDINATES = XYZ
+
+User defined macros can be specified as:
+
+.. code-block:: python
+
+  [RS274NGC]
+  SUBROUTINE_PATH = /path_to_macros/macros

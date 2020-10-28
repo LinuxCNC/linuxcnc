@@ -1,0 +1,13 @@
+======
+STYLES
+======
+Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss stylesheet file. 
+The file can be edited manually or through the stylesheet dialog widget in the GUI. 
+To call up the dialog, press F12 on the main window. New styles can be applied temporarily and then saved to a new qss file, or overwrite the current qss file.
+
+.. figure:: images/brushed_metal.png
+  :width: 800
+  :alt: QtDragon Main Page
+
+  QtDragon brushed metal style
+  

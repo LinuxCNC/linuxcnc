@@ -1,0 +1,14 @@
+============
+INTRODUCTION
+============
+QtDragon is built with the QTVCP framework. Much of it is based on the excellent work of others in the LinuxCNC community.
+It's primary intended use is to provide an example of what can be created with qtvcp and qt designer, but is suitable for use on small 
+CNC machines running linuxcnc as the controller software.
+
+.. note:: QtDragon and QtVcp are new programs added into linuxcnc. Bugs and oddities are possible. Please test carefully when using a dangerous machine. Please forward reports to the forum or maillist.
+
+.. figure:: images/main_page.png
+  :width: 800
+  :alt: QtDragon Main Page
+
+  QtDragon Main page

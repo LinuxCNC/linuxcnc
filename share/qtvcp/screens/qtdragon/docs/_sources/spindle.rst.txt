@@ -1,0 +1,34 @@
+=======
+SPINDLE
+=======
+QtDragon was designed to interface to a VFD, but will work without it for simulation purposes. 
+There are a number of VFD drivers included in the linuxcnc distribution, including hy_gt_vfd and mb2hal. A custom HAL component has been
+created for use with QtDragon, called hy_gt_vfd.py (same name as the linuxcnc version)
+The following is an example of what must be added to the qtdragon_postgui.hal file:
+
+.. code-block:: python
+
+  loadusr -Wn gt_vfd ./hy_gt_vfd.py -d /dev/ttyUSB0
+  net spindle-on           gt_vfd.spindle-on <= spindle.0.on
+  net spindle-rps          gt_vfd.speed-fb => spindle.0.speed-in
+  net spindle-rps          near.0.in1
+  net spindle-amps         gt_vfd.output-amps => qtdragon.spindle_amps
+  net spindle-volts        gt_vfd.output-volts => qtdragon.spindle_volts
+  net spindle-fault        gt_vfd.fault-info => qtdragon.spindle_fault
+  net spindle-cmd          gt_vfd.speed-cmd <= spindle.0.speed-out-abs
+  net spindle-cmd-rps      near.0.in2 <= spindle.0.speed-out-rps
+  net spindle-pause        qtdragon.spindle_pause => spindle.0.inhibit
+  net modbus-errors        gt_vfd.modbus-errors => qtdragon.modbus-errors
+  net at-speed             near.0.out => and2.0.in0
+  net spindle-fwd          spindle.0.forward => and2.0.in1
+  net at-speed-fwd         spindle.0.at-speed <= and2.0.out
+
+This will vary according to the particular machine configuration.
+
+.. note:: The hy_gt_vfd.py module requires the library package minimalmodbus to be installed. (https://minimalmodbus.readthedocs.io/en/stable/installation.html)
+
+When a running program is paused, the SPINDLE PAUSE button is enabled. When clicked, it will cause the spindle to stop and the Z axis will
+move up by a distance determined by the EOFFSET value in the SETTINGS page. This allows the operator to clear chips or whatever without 
+having the spindle running. When ready to resume, press the SPINDLE PAUSE button again and note the popup dialog warning to wait for the spindle
+to resume speed before pressing the RESUME button. If the LED on the SPINDLE PAUSE button lights up, it means the Z axis didn't move the
+full distance due to axis travel limitations. ie. Zmin

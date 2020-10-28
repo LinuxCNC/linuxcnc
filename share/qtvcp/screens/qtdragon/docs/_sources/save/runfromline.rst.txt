@@ -1,0 +1,11 @@
+=============
+RUN FROM LINE
+=============
+A gcode program can be started at any line by clicking on the desired line in the gcode display while in AUTO mode.
+It is the operator’s responsibility to ensure the machine is in the desired operational mode.
+A dialog will be shown allowing the spindle direction and speed to be preset.
+The start line is indicated in the box labelled LINE, next to the CYCLE START button.
+The run from line feature can be disabled in the settings page.
+
+- Note - Linuxcnc’s run-from-line is not very user friendly. eg. It does not start the spindle or confirm the proper tool. It does not handle subroutines well. If used it is best to start on a rapid move.
+

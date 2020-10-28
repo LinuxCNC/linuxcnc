@@ -1,0 +1,6 @@
+=======
+SPINDLE
+=======
+The screen is intended to interface to a VFD, but will still work without it. 
+There are a number of VFD drivers included in the linuxcnc distribution. 
+It is up to the end user to supply the appropriate driver and HAL file connections according to his own machine setup.

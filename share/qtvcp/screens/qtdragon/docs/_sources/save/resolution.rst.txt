@@ -1,0 +1,4 @@
+=================
+SCREEN RESOLUTION
+=================
+This GUI was initially developed for a screen with 1440 x 900 resolution. It is not resizable. It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.

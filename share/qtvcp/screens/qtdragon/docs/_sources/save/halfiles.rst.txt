@@ -1,0 +1,5 @@
+=========
+HAL FILES
+=========
+The HAL files supplied are for simulation only. A real machine needs its own custom HAL files. 
+The QtDragon screen works with 3 or 4 axes with one joint per axis or 3 or 4 axes in a gantry configuration. (2 joints on 1 axis)

@@ -1,0 +1,10 @@
+===================
+MANUAL TOOL CHANGES
+===================
+
+If your machine requires manual tool changes, QtDragon can pop a message box to direct you.
+You must connect the proper HAL pin in the post_gui file. For example:
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number

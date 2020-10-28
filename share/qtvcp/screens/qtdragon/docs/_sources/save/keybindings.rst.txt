@@ -1,0 +1,13 @@
+===========
+KEYBINDINGS
+===========
+
+QtDragon is not intended to primarily use a keyboard for machine control.
+There are several key presses that will control the machine for convenience.
+
+F1 - Estop on/off
+F2 - Machine on/off
+F12 - Style Editor
+Home - Home All Joints of the Machine
+Escape - Abort Movement
+Pause -Pause Machine Movement

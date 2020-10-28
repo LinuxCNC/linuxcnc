@@ -1,0 +1,67 @@
+=========
+HAL FILES
+=========
+
+There are 2 HAL files required to make the signal connections for QtDragon. There are several pins specific to the QtDragon screen, There are of course many more HAL pins
+that must be connected for linuxcnc to function.
+
+- qtdragon.hal
+  Used to make signal connections during the creation of the GUI
+  These include setting up such things as the motion controller and real time HAL components
+
+- qtdragon_postgui.hal
+  Set up HAL signals after the GUI has been created.
+  These include connections for external limit and homing switches, probe switch
+
+If you need a manual tool change prompt, add these lines in the qtdragon_postgui.hal file.
+
+.. code-block:: python
+
+  net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
+  net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+  net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+This input pin should be connected to indicate probe state:
+
+.. code-block:: python
+
+  qtdragon.led_probe
+
+These pins can be connected to indicate home switch states:
+
+.. code-block:: python
+
+  qtdragon.btn_home_x-led
+  qtdragon.btn_home_y-led
+  qtdragon.btn_home_z-led
+
+These pins are inputs related to spindle VFD indicating:
+
+.. code-block:: python
+
+  qtdragon.modbus-errors
+  qtdragon.spindle_amps
+  qtdragon.spindle_fault
+  qtdragon.spindle_volts
+
+This pin is an output to the spindle control to pause it:
+
+.. code-block:: python
+
+  qtdragon.spindle_pause
+
+This output pins can be connected to turn on a laser:
+
+.. code-block:: python
+
+  qtdragon.btn_laser_on
+
+These pins are related to external offsets if they are used:
+
+.. code-block:: python
+
+  qtdragon.eoffset_clear
+  qtdragon.eoffset_count
+  qtdragon.eoffset_enable
+  qtdragon.eoffset_value
+  qtdragon.btn_spindle_pause-led
