@@ -4465,8 +4465,7 @@ class Gscreen:
         self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
-        except Exception as e:
-            print("spindle bar err-->>>", e)
+        except:
             global update_spindle_bar_error_ct,update_spindle_bar_error_ct_max
             if update_spindle_bar_error_ct < update_spindle_bar_error_ct_max:
                 print("%2d/%2d update_spindle_bar error"%(
