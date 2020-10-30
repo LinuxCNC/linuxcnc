@@ -826,15 +826,15 @@ class Private_Data:
         [S.SSR0,103],#22 - SSR
         [S.SSR0,104],#23 - SSR
         [S.SSR0,105],#24 - SSR
-        [S.NUSED,0],#25 - SSR, AC internal
-        #26 - internal not used, InMux Addr0
-        #27 - internal not used, InMux Addr1
-        #28 - internal not used, InMux Addr2
-        #29 - internal not used, InMux Addr3
-        #30 - internal not used, InMux Data0
+        [S.NUSED,0],#25 - internal, SSR, AC Ref
+        [S.NUSED,0],#26 - internal, InMux Addr0
+        [S.NUSED,0],#27 - internal, InMux Addr1
+        [S.NUSED,0],#28 - internal, InMux Addr2
+        [S.NUSED,0],#29 - internal, InMux Addr3
+        [S.NUSED,0],#30 - internal, InMux Data0
         [S.RXDATA0,0],#31 - SSerial RXData0 (TB4 15,16)
         [S.TXDATA0,0],#32 - SSerial TXData0 (TB4 17,18)
-        [S.TXEN0,0],#33 - internal not used, SSerial TXEn0
+        [S.TXEN0,0],#33 - internal, SSerial TXEn0
         
         # TAB 3 - P1
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
