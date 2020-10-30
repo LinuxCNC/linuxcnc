@@ -698,7 +698,7 @@ class Private_Data:
         [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth',
+    ['7i92-Internal Data', '7i92', '7i77x2 with one 7i77', '7i92', 'hm2_eth',
         6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
@@ -794,6 +794,51 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    # 7i97 ####################
+    ['7i97-Internal Data', '7i97', '7i97d', '7i97', 'hm2_eth',
+        6,3, 0,0, 6,3, 0,0, 0,0, 1,6, [],0,0,0,0,0,0,0, 1, 50, 100, 200, [1,2,3],        #THIS LINE NEEDS TO BE DOUBLE CHECKED
+        # TAB 1 - TB1/2/3 IO
+        [S.PWMP,0],#0 - PWM out 0 (TB3 4)
+        [S.PWMP,1],#1 - PWM out 1 (TB3 8)
+        [S.PWMP,2],#2 - PWM out 2 (TB3 12)
+        [S.PWMP,3],#3 - PWM out 3 (TB3 16)
+        [S.PWMP,4],#4 - PWM out 4 (TB3 20)
+        [S.PWME,4],#5 - Enable PWM out 4
+        [S.PWMP,5],#6 - PWM out 5 (TB3 24)
+        [S.PWME,5],#7 - Enable PWM out 5
+        [S.PWME,0],#8 - Enable PWM out 0,1,2,3
+        [S.MXE0,0],#9 - ENC0A
+        [S.MXE1,0],#10 - ENC0B
+        [S.MXEI,0],#11 - END0IDX
+        [S.MXE0,1],#12 - ENC1A
+        [S.MXE1,1],#13 - ENC1B
+        [S.MXEI,1],#14 - ENC1IDX
+        [S.MXE0,2],#15 - ENC2A
+        [S.MXE1,2],#16 - ENC2B
+        
+        # TAB 2 - TB4/5 IO
+        [S.MXEI,2],#17 - ENC2IDX
+        [S.MXES,0],#18 - MuxedQCountSel, internal
+        [S.SSR0,100],#19 - SSR
+        [S.SSR0,101],#20 - SSR
+        [S.SSR0,102],#21 - SSR
+        [S.SSR0,103],#22 - SSR
+        [S.SSR0,104],#23 - SSR
+        [S.SSR0,105],#24 - SSR
+        [S.NUSED,0],#25 - SSR, AC internal
+        #26 - internal not used, InMux Addr0
+        #27 - internal not used, InMux Addr1
+        #28 - internal not used, InMux Addr2
+        #29 - internal not used, InMux Addr3
+        #30 - internal not used, InMux Data0
+        [S.RXDATA0,0],#31 - SSerial RXData0 (TB4 15,16)
+        [S.TXDATA0,0],#32 - SSerial TXData0 (TB4 17,18)
+        [S.TXEN0,0],#33 - internal not used, SSerial TXEn0
+        
+        # TAB 3 - P1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],],
 
     ]
 
@@ -992,6 +1037,7 @@ class Private_Data:
         '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,
                 'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
+        '7i97':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':5,}'
         '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
         }
 
