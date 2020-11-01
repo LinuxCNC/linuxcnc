@@ -765,6 +765,17 @@ def user_button_pressed(button,commands):
             hal.set_p('plasmac_run.cut-type','0')
             w(fbuttons + '.button' + button,'configure','-bg',bgc,'-activebackground',abgc,'-text','Pierce\n & Cut')
         Popen('axis-remote -r', stdout = PIPE, shell = True)
+    elif 'toggle-halpin' in commands.lower() and hal.get_value('halui.program.is-idle'):
+        global button_bg
+        if button_bg == 'none':
+            button_bg = w(fbuttons + '.button' + button,'cget','-bg')
+        halpin = commands.lower().split('toggle-halpin')[1].strip()
+        pinstate = hal.get_value(halpin)
+        hal.set_p(halpin, str(not pinstate))
+        if pinstate:
+            w(fbuttons + '.button' + button,'configure','-bg',button_bg,'-activebackground','green')
+        else:
+            w(fbuttons + '.button' + button,'configure','-bg','green','-activebackground',button_bg)
     else:
         for command in commands.split('\\'):
             if command.strip()[0] == '%':
@@ -1026,6 +1037,7 @@ torchPulse = 0
 torch_height = 0
 cutType = 0
 pm_cycles = 0
+button_bg = 'none'
 hal.set_p('plasmac.torch-enable','0')
 hal.set_p('plasmac.height-override','%f' % (torch_height))
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
