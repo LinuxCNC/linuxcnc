@@ -112,6 +112,7 @@ class plasmacTest:
 
     def torch_changed(self, halpin):
         if halpin.get():
+            time.sleep(0.1)
             if hal.get_value('plasmac.mode') == 0 or hal.get_value('plasmac.mode') == 1:
                 self.B.get_object('arcVoltage').set_value(100.0)
                 self.B.get_object('arcVoltageAdj').set_lower(90.0)
