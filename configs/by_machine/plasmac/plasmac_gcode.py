@@ -66,6 +66,7 @@ customLen = False
 torchEnable = True
 pierceOnly = False
 scribing = False
+spotting = False
 offsetG41 = False
 feedWarning = False
 
@@ -612,6 +613,16 @@ with open(inCode, 'r') as fRead:
                 continue
         # if pierce only mode
         if pierceOnly:
+            # Don't pierce spotting operations
+            if line.startswith('m3$2'):
+                spotting = True
+                print('(Ignoring spotting operation as pierce-only is active)')
+                continue
+            # Ignore spotting blocks when pierceOnly
+            if spotting:
+                if line.startswith('m5$2'):
+                    spotting = False
+                continue
             if line.startswith('g0'):
                 rapidLine = line
                 continue
