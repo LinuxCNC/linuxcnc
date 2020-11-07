@@ -758,42 +758,29 @@ static void dialog_realtime_not_running(void)
     }
 }
 
-void file_ok_sel( GtkWidget        *w,
-                  GtkFileSelection *fs )
+void log_popup(GtkWindow *parent)
 {
-    //scope_log_t* log_prefs;
-    //log_prefs = &(ctrl_usr->log);
-    //log_prefs->filename = 
-    //    (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs));
-    //g_print ("filename is: %s\n", log_prefs->filename); 
-    
-    write_log_file( (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
-    //gtk_widget_destroy( w);
-}
-
-void log_popup(int junk)
-{
-    //generic selection dialog, straight from the gtk tutorial
     GtkWidget *filew;
-    filew = gtk_file_selection_new(_("Pick log file to write to:"));
-    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
-        (GtkSignalFunc) gtk_widget_destroy, &filew);
-    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-                        "clicked", (GtkSignalFunc) file_ok_sel, filew );
-    //link ok to destroy, otherwise the window stays open
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->ok_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->cancel_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
-                                     "halscope.log");
-    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
-    gtk_widget_show(filew);
+    GtkFileChooser *chooser;
 
+    filew = gtk_file_chooser_dialog_new(_("Pick log file to write to:"),
+                                        parent, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
+
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(filew), "halscope.log");
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Halscope log", "*.log");
+    gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(filew));
+        write_log_file(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
 static void acquire_popup(GtkWidget * widget, gpointer gdata)

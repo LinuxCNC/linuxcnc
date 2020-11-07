@@ -153,4 +153,7 @@ void clear_list(GtkWidget *list);
 */
 void mark_selected_row(GtkWidget *list, const int row);
 
+/* Set a file filter for the open and save dialog boxes. */
+void set_file_filter(GtkFileChooser *chooser, const char *str, const char *ext);
+
 #endif /* MISCGTK_H */

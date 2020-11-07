@@ -447,77 +447,64 @@ static void about(int junk) {
             NULL);
 }
 
-static char *halscope_suffix(GtkFileSelection *fs) {
-    static char buf[256];
-    int len;
-    char *suffix;
-    strncpy(buf, gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)), 
-            sizeof(buf)-10);
-    len = strlen(buf);
-
-    suffix = strstr(buf, ".halscope");
-    if(!suffix || suffix != buf + len - 9) rtapi_strxcat(buf, ".halscope");
-    return buf;
-}    
-
-static void do_open_configuration(GtkWidget *w, GtkFileSelection *fs) {
+static void do_open_configuration(char *filename)
+{
     int n;
     for (n = 0; n < 16; n++) {
 	ctrl_usr->chan[n].data_source_type = -1;
         ctrl_usr->chan[n].data_len = 0;
         ctrl_usr->vert.data_offset[n] = -1;
     }
-    read_config_file(halscope_suffix(fs));
+    read_config_file(filename);
     channel_changed();
     refresh_display();
 }
 
-static void open_configuration(int junk) {
+static void open_configuration(GtkWindow *parent)
+{
     GtkWidget *filew;
-    filew = gtk_file_selection_new(_("Open Configuration File:"));
-    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
-        (GtkSignalFunc) gtk_widget_destroy, &filew);
-    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-                        "clicked", (GtkSignalFunc) do_open_configuration, filew );
-    //link ok to destroy, otherwise the window stays open
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->ok_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->cancel_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
-    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
-    gtk_file_selection_complete(GTK_FILE_SELECTION(filew), "*.halscope");
-    gtk_dialog_run(GTK_DIALOG(filew));
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Open Configuration File:"),
+                                          parent, GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                          _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Halscope", "*.halscope");
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+
+        filename = gtk_file_chooser_get_filename(chooser);
+        do_open_configuration(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
-static void do_save_configuration(GtkWidget *w, GtkFileSelection *fs) {
-    write_config_file(halscope_suffix(fs));
-}
-
-
-static void save_configuration(int junk) {
+static void save_configuration(GtkWindow *parent)
+{
     GtkWidget *filew;
-    filew = gtk_file_selection_new(_("Open Configuration File:"));
-    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
-        (GtkSignalFunc) gtk_widget_destroy, &filew);
-    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-                        "clicked", (GtkSignalFunc) do_save_configuration, filew );
-    //link ok to destroy, otherwise the window stays open
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->ok_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->cancel_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
-    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
-    gtk_dialog_run(GTK_DIALOG(filew));
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Save Configuration File:"),
+                                        parent, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Halscope", "*.halscope");
+    gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+
+        filename = gtk_file_chooser_get_filename(chooser);
+        write_config_file(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
 

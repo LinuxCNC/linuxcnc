@@ -375,6 +375,25 @@ void mark_selected_row(GtkWidget *list, const int row)
 
     gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(list), path, NULL, TRUE, 0.5, 0.5);
 }
+
+void set_file_filter(GtkFileChooser *chooser, const char *str, const char *ext)
+{
+    GtkFileFilter *filter_all;
+    GtkFileFilter *filter_spes;
+
+    filter_all = gtk_file_filter_new();
+    filter_spes = gtk_file_filter_new();
+
+    gtk_file_filter_set_name(filter_all, "All files");
+    gtk_file_filter_add_pattern(filter_all, "*");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), filter_all);
+
+    gtk_file_filter_set_name(filter_spes, str);
+    gtk_file_filter_add_pattern(filter_spes, ext);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), filter_spes);
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(chooser), filter_spes);
+}
+
 /***********************************************************************
 *                        LOCAL FUNCTION CODE                           *
 ************************************************************************/

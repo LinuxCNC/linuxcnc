@@ -295,5 +295,5 @@ int set_trigger_polarity(int setting);
 int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
-void log_popup(int);
+void log_popup(GtkWindow *parent);
 #endif /* HALSC_USR_H */
