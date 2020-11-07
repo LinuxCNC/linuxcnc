@@ -621,13 +621,9 @@ static void define_scope_windows(void)
 {
     GtkWidget *vbox, *hbox, *vboxtop, *vboxbottom, *vboxleft, *vboxright, *hboxright;
 
-    /* create main window, set its size */
+    /* create main window, set its minimum size and title */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    /* set the minimum size */
-    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
-    /* allow the user to expand it */
-    gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
-    /* set main window title */
+    gtk_widget_set_size_request(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */

@@ -503,12 +503,12 @@ static void dialog_realtime_not_linked(void)
 	msg = _("Select a thread name and multiplier then click 'OK'\n"
 	    "or\n" "Click 'Quit' to exit HALSCOPE");
     }
-    /* create dialog window, disable resizing */
+    /* create dialog window, disable resizing and set title */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, FALSE, FALSE);
-    /* set title */
+    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);

@@ -719,8 +719,6 @@ static gboolean dialog_set_offset(int chan_num)
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
     dialog.app_data = &data;
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
     /* window should appear in center of screen */
     gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
@@ -1032,14 +1030,12 @@ static gboolean dialog_select_source(int chan_num)
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
     dialog.app_data = &chan_num;
-    /* set initial height of window */
-    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 300);
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
+    /* set size and title of window */
+    gtk_widget_set_size_request(GTK_WIDGET(dialog.window), -1, 300);
+    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     /* window should appear in center of screen */
     gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    /* set title */
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);

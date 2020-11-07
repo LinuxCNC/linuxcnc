@@ -301,15 +301,13 @@ static void dialog_select_trigger_source(void)
     if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
     title = _("Trigger Source");
     msg = _("Select a channel to use for triggering.");
-    /* create dialog window, disable resizing */
+
+    /* create dialog window, disable resizing, set size and title */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
-    /* set initial height of window */
-    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 400);
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
-    /* set title */
+    gtk_widget_set_size_request(GTK_WIDGET(dialog.window), -1, 400);
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);

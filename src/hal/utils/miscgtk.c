@@ -209,7 +209,7 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
     /* how big is the label with the new text? */
     gtk_widget_size_request(GTK_WIDGET(label), &req);
     /* freeze it at this size */
-    gtk_widget_set_usize(GTK_WIDGET(label), req.width, req.height);
+    gtk_widget_set_size_request(GTK_WIDGET(label), req.width, req.height);
     /* restore the old text */
     gtk_label_set_text(label, text_buf);
     /* free the buffer */
@@ -230,7 +230,7 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     dialog.retval = 0;
     /* create dialog window, disable resizing */
     dialog.window = gtk_dialog_new();
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, FALSE, FALSE);
+    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
     /* set title */
     if (title != NULL) {
 	gtk_window_set_title(GTK_WINDOW(dialog.window), title);
