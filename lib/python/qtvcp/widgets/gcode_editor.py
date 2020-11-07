@@ -31,10 +31,10 @@ import sys
 import os
 
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject
-from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
+from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon, QPalette
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
          QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
-            QFileDialog, QFrame, QLabel
+            QFileDialog, QFrame, QLabel, QStyleOption
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -242,6 +242,7 @@ class EditorBase(QsciScintilla):
 
         # default gray background
         self.set_background_color('#C0C0C0')
+        self._stylebackgroundColor = '#C0C0C0'
 
         # not too small
         self.setMinimumSize(200, 100)
@@ -268,7 +269,7 @@ class EditorBase(QsciScintilla):
         self.lexer = QsciLexerPython()
         self.lexer.setDefaultFont(self.font)
         self.setLexer(self.lexer)
-        self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
+        #self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
 
     def set_gcode_lexer(self):
         self.lexer = GcodeLexer(self)
@@ -305,6 +306,20 @@ class EditorBase(QsciScintilla):
     def search_Next(self):
         self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
         self.findNext()
+
+        # follow stylesheet changes
+        # eg: editorBase{background-color: rgb(255, 25, 25);}
+    def paintEvent(self, event):
+        super(EditorBase, self).paintEvent(event)
+        opt = QStyleOption()
+        opt.initFrom(self);
+        c = opt.palette.color(QPalette.Window)
+        # this should allow changing color directly too
+        # as well as saving recoloring when it's already colored
+        if self._stylebackgroundColor != c.name():
+            self.set_background_color(c.name())
+            self.setMarginsBackgroundColor(c.darker(110))
+            self._stylebackgroundColor = c.name()
 
 ##########################################################
 # Gcode display widget (intended read-only)
@@ -782,6 +797,14 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def set_margin_width(self,width):
         self.editor.set_margin_width(width)
+
+    def set_font(self, font):
+        self.editor.font = font
+        for i in range(0,4):
+            self.editor.lexer.setFont(font,i)
+
+    def set_background_color(self, color):
+        self.editor.set_background_color(color)
 
     # designer recognized getter/setters
     # auto_show_mdi status

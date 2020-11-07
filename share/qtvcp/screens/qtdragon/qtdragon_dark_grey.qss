@@ -420,3 +420,6 @@ QMenu::item {
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: blue;
 }
+GcodeDisplay{
+background-color: #CAF9C7
+}

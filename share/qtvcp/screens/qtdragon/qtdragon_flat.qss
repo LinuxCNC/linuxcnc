@@ -214,3 +214,6 @@ EntryDialog QPushButton, CloseDialog QPushButton{
     width: 80px;
     height: 40px;
 }
+GcodeDisplay{
+background-color: #D7F6F6
+}
