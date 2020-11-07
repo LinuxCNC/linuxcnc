@@ -536,46 +536,46 @@ static void define_menubar(GtkWidget *vboxtop) {
     sep2 = gtk_separator_menu_item_new();
 
     fileopenconfiguration = gtk_menu_item_new_with_mnemonic(_("_Open Configuration..."));
-    gtk_menu_append(GTK_MENU(filemenu), fileopenconfiguration);
-    gtk_signal_connect_object(GTK_OBJECT(fileopenconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(open_configuration), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopenconfiguration);
+    g_signal_connect_swapped(fileopenconfiguration, "activate",
+            G_CALLBACK(open_configuration), 0);
     gtk_widget_show(fileopenconfiguration);
     
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
-    gtk_menu_append(GTK_MENU(filemenu), filesaveconfiguration);
-    gtk_signal_connect_object(GTK_OBJECT(filesaveconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(save_configuration), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesaveconfiguration);
+    g_signal_connect_swapped(filesaveconfiguration, "activate",
+            G_CALLBACK(save_configuration), 0);
     gtk_widget_show(filesaveconfiguration);
 
-    gtk_menu_append(GTK_MENU(filemenu), sep1);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
     gtk_widget_show(sep1);
     
     fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Data File..."));
-    gtk_menu_append(GTK_MENU(filemenu), fileopendatafile);
-    gtk_signal_connect_object(GTK_OBJECT(fileopendatafile), "activate", 
-            GTK_SIGNAL_FUNC(menuitem_response), "file/open datafile");
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
+    g_signal_connect_swapped(fileopendatafile, "activate",
+            G_CALLBACK(menuitem_response), "file/open datafile");
     gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
     gtk_widget_show(fileopendatafile);
     
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Data File..."));
-    gtk_menu_append(GTK_MENU(filemenu), filesavedatafile);
-    gtk_signal_connect_object(GTK_OBJECT(filesavedatafile), "activate", 
-            GTK_SIGNAL_FUNC(log_popup), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
+    g_signal_connect_swapped(filesavedatafile, "activate",
+            G_CALLBACK(log_popup), 0);
     gtk_widget_show(filesavedatafile);
     
-    gtk_menu_append(GTK_MENU(filemenu), sep2);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);
     gtk_widget_show(sep2);
 
     filequit = gtk_menu_item_new_with_mnemonic(_("_Quit"));
-    gtk_menu_append(GTK_MENU(filemenu), filequit);
-    gtk_signal_connect_object(GTK_OBJECT(filequit), "activate", 
-            GTK_SIGNAL_FUNC(quit), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filequit);
+    g_signal_connect_swapped(filequit, "activate",
+            G_CALLBACK(quit), 0);
     gtk_widget_show(filequit);
 
     helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));
-    gtk_menu_append(GTK_MENU(helpmenu), helpabout);
-    gtk_signal_connect_object(GTK_OBJECT(helpabout), "activate",
-            GTK_SIGNAL_FUNC(about), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(helpmenu), helpabout);
+    g_signal_connect_swapped(helpabout, "activate",
+            G_CALLBACK(about), 0);
     gtk_widget_show(helpabout);
 
     file_rootmenu = gtk_menu_item_new_with_mnemonic(_("_File"));
@@ -594,8 +594,8 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 2);
     gtk_widget_show(menubar);
 
-    gtk_menu_bar_append(GTK_MENU_BAR(menubar), file_rootmenu);
-    gtk_menu_bar_append(GTK_MENU_BAR(menubar), help_rootmenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file_rootmenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help_rootmenu);
 }
 
 /** 'define_scope_windows()' defines the overall layout of the main
