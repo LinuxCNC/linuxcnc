@@ -11,14 +11,15 @@ import subprocess
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
 
-from qtvcp.core import Status, Info, QComponent, Path
-from qtvcp.lib import xembed
-
 # Set up the base logger
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
+LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+
+
+from qtvcp.core import Status, Info, QComponent, Path
+from qtvcp.lib import xembed
 
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
@@ -94,9 +95,9 @@ class QTVCP:
         from qtvcp import qt_makepins, qt_makegui
 
         # ToDo: pass specific log levels as an argument, or use an INI setting
-        if not opts.debug:
+        if opts.debug:
             # Log level defaults to DEBUG, so set higher if not debug
-            logger.setGlobalLevel(logger.INFO)
+            logger.setGlobalLevel(logger.DEBUG)
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or

@@ -15,7 +15,7 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class XEmbeddable(QWidget, _HalWidgetBase):

@@ -23,8 +23,8 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
-LOG.setLevel(logger.WARNING) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.WARNING) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###########################
 """ Set of base classes """

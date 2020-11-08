@@ -32,7 +32,7 @@ AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
 WIDGETS = VCPWindow()
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 CONFIGDIR = os.environ['CONFIG_DIR']

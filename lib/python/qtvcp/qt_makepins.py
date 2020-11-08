@@ -27,8 +27,8 @@ from PyQt5.QtWidgets import QDesktopWidget
 # Set up logging
 from . import logger
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
-LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
     def __init__(self,halcomp,path,window,debug):

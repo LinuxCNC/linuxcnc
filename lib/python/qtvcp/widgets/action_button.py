@@ -39,7 +39,7 @@ INFO = Info()
 AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class ActionButton(Indicated_PushButton, _HalWidgetBase):

@@ -5,8 +5,8 @@ import collections
 # Set up logging
 from . import logger
 log = logger.getLogger(__name__)
-# Set the log level for this module
-log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']

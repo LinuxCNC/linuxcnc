@@ -8,8 +8,8 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Set up logging
 from . import logger
 log = logger.getLogger(__name__)
-# Set the log level for this module
-log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self,methods):
