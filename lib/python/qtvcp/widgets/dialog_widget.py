@@ -656,6 +656,7 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         v = QVBoxLayout()
         h = QHBoxLayout()
         self._o = OFFVIEW_WIDGET()
+        self._o.setObjectName('__dialogOffsetViewWidget')
         self._o._hal_init()
         self.setLayout(v)
         v.addWidget(self._o)
@@ -755,6 +756,7 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
         self.setMinimumSize(200, 200)
 
         self._o = TOOLVIEW_WIDGET()
+        self._o.setObjectName('__dialogToolViewWidget')
         self._o._hal_init()
 
         buttonBox = QDialogButtonBox()
