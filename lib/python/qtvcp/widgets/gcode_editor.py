@@ -74,12 +74,6 @@ class GcodeLexer(QsciLexerCustom):
             }
         for key, value in self._styles.items():
             setattr(self, value, key)
-        font = QFont()
-        font.setFamily('Courier')
-        font.setFixedPitch(True)
-        font.setPointSize(12)
-        font.setBold(True)
-        self.setFont(font, 2)
 
     # Paper sets the background color of each style of text
     def setPaperBackground(self, color, style=None):
@@ -187,6 +181,7 @@ class GcodeLexer(QsciLexerCustom):
         except Exception as e:
             print(e)
 
+
 ##########################################################
 # Base editor class
 ##########################################################
@@ -273,9 +268,7 @@ class EditorBase(QsciScintilla):
 
     def set_gcode_lexer(self):
         self.lexer = GcodeLexer(self)
-        self.lexer.setDefaultFont(self.font)
         self.setLexer(self.lexer)
-        self.set_background_color('#C0C0C0')
 
     def new_text(self):
         self.setText('')
@@ -320,6 +313,67 @@ class EditorBase(QsciScintilla):
             self.set_background_color(c.name())
             self.setMarginsBackgroundColor(c.darker(110))
             self._stylebackgroundColor = c.name()
+
+    # this allows setting these properties in a stylesheet
+    def getColor0(self):
+        return self.lexer.color(0)
+    def setColor0(self, value):
+        self.lexer.setColor(value,0)
+    styleColor0 = pyqtProperty(QColor, getColor0, setColor0)
+
+    def getColor1(self):
+        return self.lexer.color(1)
+    def setColor1(self, value):
+        self.lexer.setColor(value,1)
+    styleColor1 = pyqtProperty(QColor, getColor1, setColor1)
+
+    def getColor2(self):
+        return self.lexer.color(2)
+    def setColor2(self, value):
+        self.lexer.setColor(value,2)
+    styleColor2 = pyqtProperty(QColor, getColor2, setColor2)
+
+    def getColor3(self):
+        return self.lexer.color(3)
+    def setColor3(self, value):
+        self.lexer.setColor(value,3)
+    styleColor3 = pyqtProperty(QColor, getColor3, setColor3)
+
+    def getColor4(self):
+        return self.lexer.color(4)
+    def setColor4(self, value):
+        self.lexer.setColor(value,4)
+    styleColor4 = pyqtProperty(QColor, getColor4, setColor4)
+
+    def getFont0(self):
+        return self.lexer.font(0)
+    def setFont0(self, value):
+        self.lexer.setFont(value,0)
+    styleFont0 = pyqtProperty(QFont, getFont0, setFont0)
+
+    def getFont1(self):
+        return self.lexer.font(1)
+    def setFont1(self, value):
+        self.lexer.setFont(value,1)
+    styleFont1 = pyqtProperty(QFont, getFont1, setFont1)
+
+    def getFont2(self):
+        return self.lexer.font(2)
+    def setFont2(self, value):
+        self.lexer.setFont(value,2)
+    styleFont2 = pyqtProperty(QFont, getFont2, setFont2)
+
+    def getFont3(self):
+        return self.lexer.font(3)
+    def setFont3(self, value):
+        self.lexer.setFont(value,3)
+    styleFont3 = pyqtProperty(QFont, getFont3, setFont3)
+
+    def getFont4(self):
+        return self.lexer.font(4)
+    def setFont4(self, value):
+        self.lexer.setFont(value,4)
+    styleFont4 = pyqtProperty(QFont, getFont4, setFont4)
 
 ##########################################################
 # Gcode display widget (intended read-only)
