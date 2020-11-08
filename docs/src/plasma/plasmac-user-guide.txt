@@ -2672,6 +2672,28 @@ The user can create a complete backup of the machine configuration to aid in fau
 
 == PlasmaC Advanced Topics
 
+=== Tuning Void Sensing
+
+Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
+
+The parameter for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the parameter and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
+
+----
+setp plasmac.kerf-error-max 3
+----
+
+=== Lost Arc Delay
+
+Some plasmac machines may lose the Arc OK signal momentarily during a cut causing PlasmaC to go into a lost arc error. There is a HAL pin to enable a delay time which will prevent a short Arc OK loss such as this. The pin is named plasmac.arc-lost-delay and this pin sets the amount of time (in seconds) PlasmaC will wait after losing the arc during a cut until it extinguishes the Arc OK signal and displays an error message. The following code would set a delay of 0.1 seconds.
+
+----
+setp plasmac.arc-lost-delay 0.1
+----
+
+The recommended place to put this code is in the <machine_name>_connections.hal file.
+
+This setting should only be used if the plasma machine exhinits the above symptoms.
+
 === PlasmaC State Outputs
 
 PlasmaC has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide PlasmaC's current state.
@@ -2710,16 +2732,6 @@ The different states PlasmaC could encounter are as follows:
 |===
 
 The DEBUG state is for testing purposes only and will not normally be encountered.
-
-=== Tuning Void Sensing
-
-Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
-
-The parameter for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the parameter and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
-
-----
-setp plasmac.kerf-error-max 3
-----
 
 == Appendix
 
