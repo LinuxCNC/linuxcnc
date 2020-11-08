@@ -507,7 +507,36 @@ It is based on pyQT's QLabel
 
 === GcodeDisplay
 
-It is based on pyQT's
+The GcodeDisplay properties can be set in a stylesheet with the following code added to the .qss file. +
+
+----
+EditorBase{
+background: lightblue;
+qproperty-styleColor0: black;
+qproperty-styleColor1: #000000; /* black */
+qproperty-styleColor2: red;
+qproperty-styleColor3: black;
+qproperty-styleColor4: yellow;
+qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont1: "Times,18,-1,0,90,1,0,0,0,0";
+qproperty-styleFont2: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont3: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont4: "Times,12,-1,0,90,0,0,0,0,0";
+}
+----
+
+For gcodeDisplay widget's default Gcode lexer: +
+
+* styleColor0 = Default = digit characters
+* styleColor1 = Comments = characters inside of 'msg()'
+* styleColor2 = Key = alphabetic characters
+* styleColor3 = Assignment = ('%', '<', '>', '#', '=')
+* styleColor4 = Value = ('[', ']')
+
+Font definitions:
+"style name, size, -1, 0, bold setting (0-99), italics (0-1), underline (0-1),0,0,0"
+
+It is based on pyQT's  QsciScintilla
 
 === GcodeEditor Widget
 This displays Gcode in text form. It will highlight the currently running line. +
@@ -518,7 +547,7 @@ into the MDILine widget. +
 It has a signal percentDone(int) that that can be connected to a slot (such as a +
 progressBar to display percent run)
 
-It is based on pyQT's QsciScintilla +
+It is based on pyQT's widget which incorporates GcodeDisplay widget +
 
 === GCodeGraphics Widget
 
