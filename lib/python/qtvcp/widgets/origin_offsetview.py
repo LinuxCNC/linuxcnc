@@ -18,7 +18,7 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
 import linuxcnc
 
@@ -40,7 +40,7 @@ ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -57,6 +57,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
+        self.dialog_code = 'CALCULATOR'
         self.table = self.createTable()
 
     def _hal_init(self):
@@ -70,6 +71,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         STATUS.connect('user-system-changed', self._convert_system)
+        STATUS.connect('general',self.return_value)
+
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
         for num, let in conversion.items():
             if let in (INFO.AVAILABLE_AXES):
@@ -137,6 +140,29 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
+        # row 0 is not editable (absolute position)
+        # column 9 is the descritive text column 
+        if item.column() <9 and item.row() > 0:
+            self.callDialog(text,item)
+
+    def callDialog(self, text,item):
+        axis = self.tablemodel.headerdata[item.column()]
+        system = self.tablemodel.Vheaderdata[item.row()]
+        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':float(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
+                'ITEM':item}
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        LOG.debug('message returned:{}'.format (message))
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        item = message.get('ITEM')
+        if code and name and num is not None:
+            self.tablemodel.setData(item, num, None)
 
     #############################################################
 
@@ -295,6 +321,20 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
             self.reload_offsets()
         return True
 
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    ########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 #########################################
 # custom model

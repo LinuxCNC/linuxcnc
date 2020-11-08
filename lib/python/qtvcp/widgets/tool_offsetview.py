@@ -19,7 +19,7 @@ import os
 import locale
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -41,8 +41,8 @@ INFO = Info()
 TOOL = Tool()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
-LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # custom spinbox controls for editing
 class ItemEditorFactory(QItemEditorFactory):
@@ -77,6 +77,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
+        self.dialog_code = 'CALCULATOR'
 
         # create table
         self.createAllView()
@@ -91,6 +92,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('diameter-mode', lambda w, data: self.diameterMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
+        STATUS.connect('general',self.return_value)
+
         conversion = {5:"Y", 6:'Y', 7:"Z", 8:'Z', 9:"A", 10:"B", 11:"C", 12:"U", 13:"V", 14:"W"}
         for num, let in conversion.items():
             if let in (INFO.AVAILABLE_AXES):
@@ -158,6 +161,30 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
+        # row 0 is not editable (absolute position)
+        # column 9 is the descritive text column 
+        if item.column() <9 and item.column() > 0:
+            self.callDialog(text,item)
+
+    def callDialog(self, text,item):
+        axis = self.tablemodel.headerdata[item.column()]
+        tool = self.tablemodel.arraydata[item.row()][1]
+        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':float(text), 'TITLE':'Tool {} Offset of {},{}'.format(tool, axis,text),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        LOG.debug('message returned:{}'.format (message))
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        item = message.get('ITEM')
+        if code and name and num is not None:
+            self.tablemodel.setData(item, num, None)
 
     #############################################################
 
@@ -199,6 +226,21 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     def get_checked_list(self):
         return self.tablemodel.listCheckedTools()
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    ########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 #########################################
 # custom model
