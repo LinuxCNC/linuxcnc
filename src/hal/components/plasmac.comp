@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.181 - 2020 Nov 01
+0.182 - 2020 Nov 08
 
 .I SUMMARY:
 .br
@@ -25,7 +25,8 @@ All machinery must be designed to comply with local and national safety codes, a
 """;
 
 /* INPUT PINS */
-pin in  float   arc_fail_delay              "arc failure timeout (seconds)";
+pin in  float   arc_fail_delay              "arc start failure timeout (seconds)";
+pin in  float   arc_lost_delay              "arc lost delay during a cut (seconds)";
 pin in  float   arc_ok_high                 "maximum voltage level for Arc OK signal [mode 0] (volts)";
 pin in  bit     arc_ok_in                   "external arc ok input signal [mode 1 & mode 2]";
 pin in  float   arc_ok_low                  "minimum voltage level for Arc OK signal [mode 0] (volts)";
@@ -159,6 +160,7 @@ pin out float   z_relative                  "distance of Z from last probed heig
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_fail_timer;             /* arc failure timer */
+variable float  arc_lost_timer;             /* arc lost timer */
 variable float  arc_voltage_raw;            /* filtered arc voltage to be scaled */
 variable float  arc_valid_timer;            /* timer to wait for valid arc_voltage_in */
 variable float  axis_x_finish;              /* axis x position at end of cut */
@@ -527,11 +529,23 @@ FUNCTION(_) {
     /* set arc ok from either arc ok input of from actual arc voltage
      * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
     if(mode > 0){
-        arc_ok_out = arc_ok_in;
-    }else if(arc_voltage_out >= arc_ok_low && arc_voltage_out <= arc_ok_high){
-        arc_ok_out = TRUE;
+        if(arc_ok_in){
+            arc_ok_out = TRUE;
+            arc_lost_timer = arc_lost_delay;
+        }else if(arc_lost_timer > 0){
+            arc_lost_timer -= fperiod; 
+        }else{
+            arc_ok_out = FALSE;
+        }
     }else{
-        arc_ok_out = FALSE;
+        if(arc_voltage_out >= arc_ok_low && arc_voltage_out <= arc_ok_high){
+            arc_ok_out = TRUE;
+            arc_lost_timer = arc_lost_delay;
+        }else if(arc_lost_timer > 0){
+            arc_lost_timer -= fperiod; 
+        }else{
+            arc_ok_out = FALSE;
+        }
     }
 
     /* reset program states */
@@ -1306,6 +1320,7 @@ FUNCTION(_) {
                 if(!probe_test || probe_test_error){
                     if(z_offset_counts == offset_max){
                         if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 && 
+                        if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 &&
                            (int)floor(z_offset_current / offset_scale) >= offset_max - 1){
                             if(stop_type == WAIT){
                                 feed_hold = FALSE;
