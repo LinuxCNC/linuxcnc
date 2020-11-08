@@ -1320,7 +1320,6 @@ FUNCTION(_) {
                 if(!probe_test || probe_test_error){
                     if(z_offset_counts == offset_max){
                         if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 && 
-                        if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 &&
                            (int)floor(z_offset_current / offset_scale) >= offset_max - 1){
                             if(stop_type == WAIT){
                                 feed_hold = FALSE;
