@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import math
+import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
@@ -56,7 +57,11 @@ class Calculator(QDialog):
                     self.digitClicked))
 
         self.pointButton = self.createButton(".", self.pointClicked)
-        self.changeSignButton = self.createButton("\N{PLUS-MINUS SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{PLUS-MINUS SIGN}")
+        else:
+            text = u"\N{PLUS-MINUS SIGN}".encode('utf-8')
+        self.changeSignButton = self.createButton(text,
                 self.changeSignClicked)
 
         self.axisButton = self.createAxisButton("Axis X",
@@ -71,16 +76,28 @@ class Calculator(QDialog):
         self.setMemoryButton = self.createButton("MS", self.setMemory)
         self.addToMemoryButton = self.createButton("M+", self.addToMemory)
 
-        self.divisionButton = self.createButton("\N{DIVISION SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{DIVISION SIGN}")
+        else:
+            text = u"\N{DIVISION SIGN}".encode('utf-8')
+        self.divisionButton = self.createButton(text,
                 self.multiplicativeOperatorClicked)
-        self.timesButton = self.createButton("\N{MULTIPLICATION SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{MULTIPLICATION SIGN}")
+        else:
+            text = u"\N{MULTIPLICATION SIGN}".encode('utf-8')
+        self.timesButton = self.createButton(text,
                 self.multiplicativeOperatorClicked)
         self.minusButton = self.createButton("-", self.additiveOperatorClicked)
         self.plusButton = self.createButton("+", self.additiveOperatorClicked)
 
         self.squareRootButton = self.createButton("Sqrt",
                 self.unaryOperatorClicked)
-        self.powerButton = self.createButton("x\N{SUPERSCRIPT TWO}",
+        if sys.version_info.major > 2:
+            text = str("\N{SUPERSCRIPT TWO}")
+        else:
+            text = u"\N{SUPERSCRIPT TWO}".encode('utf-8')
+        self.powerButton = self.createButton(text,
                 self.unaryOperatorClicked)
         self.reciprocalButton = self.createButton("1/x",
                 self.unaryOperatorClicked)
