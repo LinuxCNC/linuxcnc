@@ -1266,7 +1266,7 @@ NOTE: Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
 PlasmaC allows two different cut modes:
 
 . *Pierce and Cut* - runs the loaded G-Code program to pierce then cut.
-. *Pierce Only* - converts the loaded G-Code program and then runs the program to pierce the material at the M3 command positions only.
+. *Pierce Only* - converts the loaded G-Code program and then runs the program to pierce the material at the *M3 S1* or *M3 $0 S1* command positions only. Scribe (*M3 $1 S1*) and Spotting (*M3 $2 S1*) commands will be ignored and no pierce will take place in those locations.
 
 *Pierce Only* mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced and cleaned off before cutting.
 
@@ -2109,7 +2109,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of six special functions, <<button-toggle, Toggle HAL Pin>>, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>>, <<button-consumables, Change Consumables>> or <<button-touchoff, Touch Off X & Y>>.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of six special functions, <<button-toggle, Toggle HAL Pin>>, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>>, <<button-consumables, Change Consumables>>, or <<button-touchoff, Touch Off X & Y>>.
 
 In addition to this, buttons 10-19 in the Extras panel can run the special functions <<button-recovery, Cut Recovery>>, <<button-load, Load G-Code>> program as well as display a custom image instead of the button name.
 
@@ -2162,11 +2162,13 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 
 [underline]*Toggle HAL Pin*
 
-This button if selected will toggle between the two states of the named HAL bit pin.
+The following code will allow the user to use a button to invert the current state of a HAL bit pin (this code is required to be used as a single command and may only control one HAL bit pin per button):
 
 ----
 BUTTON_n_CODE = toggle-halpin my-hal-pin-name
 ----
+
+After setting the code, upon clicking, the button will turn green, invert the pin state, and stay "latched" until it is clicked again. Clicking again will return the button to the original color and invert the pin state.
 
 [[button-probe]]
 
@@ -2684,15 +2686,17 @@ setp plasmac.kerf-error-max 3
 
 === Lost Arc Delay
 
-Some plasmac machines may lose the Arc OK signal momentarily during a cut causing PlasmaC to go into a lost arc error. There is a HAL pin to enable a delay time which will prevent a short Arc OK loss such as this. The pin is named plasmac.arc-lost-delay and this pin sets the amount of time (in seconds) PlasmaC will wait after losing the arc during a cut until it extinguishes the Arc OK signal and displays an error message. The following code would set a delay of 0.1 seconds.
+Some plasma power sources/machine configurations may lose the Arc OK signal either momentarily during a cut, or permanently near the end of a cut causing PlasmaC to pause the program and report a "valid arc lost" error. There is a HAL pin named *plasmac.arc-lost-delay* that may be used to set a delay (in seconds) that will prevent a paused program/error if the lost Arc OK signal is regained, or the *M5* command is reached before the set delay period expires.
+
+The following code would set a delay of 0.1 seconds:
 
 ----
 setp plasmac.arc-lost-delay 0.1
 ----
 
-The recommended place to put this code is in the <machine_name>_connections.hal file.
+It is recommended that the user set this parameter in the <machine_name>_connections.hal file.
 
-This setting should only be used if the plasma machine exhinits the above symptoms.
+This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
 
 === PlasmaC State Outputs
 
