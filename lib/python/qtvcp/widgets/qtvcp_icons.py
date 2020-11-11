@@ -6,7 +6,7 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # Force the log level for this module
-#log.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+log.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Icon:
     def __init__(self):
@@ -21,5 +21,5 @@ class Icon:
             if os.path.isfile(path):
                 return path
             elif i == 'error':
-                log.warning("Missing icon for '{}' widget".format(widgetname))
+                log.debug("Missing icon for '{}' widget".format(widgetname))
                 return self.LCNC_ICON
