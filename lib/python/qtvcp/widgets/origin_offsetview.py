@@ -80,6 +80,33 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 continue
             self.hideColumn(num)
 
+        # If there is a preference file object use it to load the hi/low toggle points
+        if self.PREFS_:
+            self.tabledata[4][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G54', 'User System 1', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[5][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G55', 'User System 2', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[6][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G56', 'User System 3', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[7][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G57', 'User System 4', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[8][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G58', 'User System 5', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[9][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59', 'User System 6', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[10][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.1', 'User System 7', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[11][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.2', 'User System 8', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[12][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.3', 'User System 9', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tablemodel.layoutChanged.emit()
+
+    # when qtvcp closes this gets called
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            self.PREFS_.putpref(self.HAL_NAME_+'-G54', self.tabledata[4][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G55', self.tabledata[5][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G56', self.tabledata[6][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G57', self.tabledata[7][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G58', self.tabledata[8][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59', self.tabledata[9][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.1', self.tabledata[10][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.2', self.tabledata[11][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.3', self.tabledata[12][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+
     def _convert_system(self, w, data):
         convert = ("None", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
         self.current_system = convert[int(data)]

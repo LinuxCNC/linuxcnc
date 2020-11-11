@@ -532,6 +532,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import OriginOffsetDialog
         w = self.QTVCP_INSTANCE_
         w.originOffsetDialog_ = OriginOffsetDialog(w)
+        w.registerHalWidget(w.originOffsetDialog_)
         w.originOffsetDialog_.setObjectName('originOffsetDialog_')
         w.originOffsetDialog_.hal_init(HAL_NAME='')
         w.originOffsetDialog_.overlay_color = self._originOffsetDialogColor

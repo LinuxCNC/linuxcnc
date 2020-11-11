@@ -698,6 +698,9 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
+    def closing_cleanup__(self):
+        self._o.closing_cleanup__()
+
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
     def __getitem__(self, item):
