@@ -44,6 +44,9 @@
       <property name="fileDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="keyboardDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="versaProbeDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -58,6 +61,9 @@
       </property>
       <property name="machineLogDialog_option" stdset="0">
        <bool>true</bool>
+      </property>
+      <property name="runFromLineDialog_option" stdset="0">
+       <bool>false</bool>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="leftMargin">
