@@ -58,6 +58,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
         self.dialog_code = 'CALCULATOR'
+        self.text_dialog_code = 'KEYBOARD'
         self.table = self.createTable()
 
     def _hal_init(self):
@@ -141,9 +142,21 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # display in title bar for convenience
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
-        # column 9 is the descritive text column 
-        if item.column() <9 and item.row() > 0:
+        # column 9 is the descritive text column
+        if item.column() == 9:
+            self.callTextDialog(text,item)
+        elif item.column() <9 and item.row() > 0:
             self.callDialog(text,item)
+
+    # alphanumerical
+    def callTextDialog(self, text,item):
+        text = self.tablemodel.arraydata[item.row()][9]
+        system = self.tablemodel.Vheaderdata[item.row()]
+        mess = {'NAME':self.text_dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':text, 'TITLE':'{} System Description Entry'.format(system),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
 
     def callDialog(self, text,item):
         axis = self.tablemodel.headerdata[item.column()]
@@ -160,8 +173,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
+        name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')
-        if code and name and num is not None:
+        if code and (name or name2) and num is not None:
             self.tablemodel.setData(item, num, None)
 
     #############################################################
@@ -271,6 +285,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # Hack to not edit any rotational offset but Z axis
         if row == 1 and not col == 2: return
+
+        # dont evaluate text column
+        if col ==9 :return
 
         # set the text style based on unit type
         if self.metric_display:

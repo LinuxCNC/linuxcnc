@@ -78,6 +78,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
         self.dialog_code = 'CALCULATOR'
+        self.text_dialog_code = 'KEYBOARD'
 
         # create table
         self.createAllView()
@@ -162,10 +163,23 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         # display in title bar for convenience
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
-        # column 9 is the descritive text column 
-        if item.column() <9 and item.column() > 0:
+        # column 19 is the descritive text column
+        if item.column() == 19:
+            self.callTextDialog(text,item)
+        elif item.column() <19 and item.column() > 0:
             self.callDialog(text,item)
 
+    # alphanumerical
+    def callTextDialog(self, text,item):
+        text = self.tablemodel.arraydata[item.row()][19]
+        tool = self.tablemodel.arraydata[item.row()][1]
+        mess = {'NAME':self.text_dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':text, 'TITLE':'Tool {} Description Entry'.format(tool),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+    # numerical only
     def callDialog(self, text,item):
         axis = self.tablemodel.headerdata[item.column()]
         tool = self.tablemodel.arraydata[item.row()][1]
@@ -182,8 +196,11 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
+        name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')
         if code and name and num is not None:
+            self.tablemodel.setData(item, num, None)
+        elif code and name2 and num is not None:
             self.tablemodel.setData(item, num, None)
 
     #############################################################
@@ -193,7 +210,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         row = new.row()
         col = new.column()
         data = self.tablemodel.data(new)
-        print('Entered data:', data, row,col)
+        #print('Entered data:', data, row,col)
         # now update linuxcnc to the change
         try:
             if STATUS.is_status_valid():
@@ -241,6 +258,14 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_keyboard_code(self, data):
+        self.dialog_code = data
+    def get_keyboard_code(self):
+        return self.dialog_code
+    def reset_keyboard_code(self):
+        self.dialog_code = 'KEYBOARD'
+    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
 
 #########################################
 # custom model
