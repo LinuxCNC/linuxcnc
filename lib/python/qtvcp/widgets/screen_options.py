@@ -104,6 +104,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tool_dialog = False
         self.add_file_dialog = False
         self.add_focus_overlay = False
+        self.add_keyboard_dialog = False
         self.add_versaprobe_dialog = False
         self.add_macrotab_dialog = False
         self.add_camview_dialog = False
@@ -124,6 +125,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
+        self._keyboardDialogColor = QtGui.QColor(0, 0, 100, 150)
         self._versaProbeDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._macroTabDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
@@ -158,6 +160,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_focus_overlay:
             self.init_focus_overlay()
+
+        if self.add_keyboard_dialog:
+            self.init_keyboard_dialog()
 
         if self.add_versaprobe_dialog:
             self.init_versaprobe_dialog()
@@ -482,6 +487,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.setObjectName('focusOverlay_')
         w.focusOverlay_.hal_init(HAL_NAME='')
 
+    def init_keyboard_dialog(self):
+        from qtvcp.widgets.dialog_widget import KeyboardDialog
+        w = self.QTVCP_INSTANCE_
+        w.keyboardDialog_ = KeyboardDialog(w)
+        w.keyboardDialog_.setObjectName('keyboardDialog_')
+        w.keyboardDialog_.hal_init(HAL_NAME='')
+        w.keyboardDialog_.overlay_color = self._keyboardDialogColor
+
     def init_versaprobe_dialog(self):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
@@ -778,6 +791,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_fileDialogColor(self, value):
         self._fileDialogColor = value
     file_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
+
+    def set_keyboardDialog(self, data):
+        self.add_keyboard_dialog = data
+    def get_keyboardDialog(self):
+        return self.add_keyboard_dialog
+    def reset_keyboardDialog(self):
+        self.add_keyboard_dialog = False
+    keyboardDialog_option = QtCore.pyqtProperty(bool, get_keyboardDialog, set_keyboardDialog, reset_keyboardDialog)
+    def get_keyboardDialogColor(self):
+        return self._keyboardDialogColor
+    def set_keyboardDialogColor(self, value):
+        self._keyboardDialogColor = value
+    keyboard_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_keyboardDialogColor, set_keyboardDialogColor)
 
     def set_versaProbeDialog(self, data):
         self.add_versaprobe_dialog = data
