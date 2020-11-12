@@ -7,6 +7,7 @@ from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.core import Status, Action, Info, Path
@@ -20,6 +21,7 @@ INFO = Info()
 ACTION = Action()
 PATH = Path()
 STYLEEDITOR = SSE()
+WRITER = writer.Main()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -137,9 +139,9 @@ class HandlerClass:
             if self.w.web_view:
                 self.toolBar = QtWidgets.QToolBar(self.w)
                 self.w.layout_setup.addWidget(self.toolBar)
+
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
                 self.backBtn.clicked.connect(self.back)
                 self.toolBar.addWidget(self.backBtn)
@@ -147,9 +149,14 @@ class HandlerClass:
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
-
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
+
+                self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
+                self.writeBtn.setEnabled(True)
+                self.writeBtn.clicked.connect(self.writer)
+                self.toolBar.addWidget(self.writeBtn)
+
                 self.w.layout_setup.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
@@ -780,7 +787,7 @@ class HandlerClass:
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         elif fname.endswith(".html"):
             try:
-                self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(fname))
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
@@ -927,6 +934,10 @@ class HandlerClass:
     def forward(self):
         self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
         #self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+
+    def writer(self):
+        WRITER.show()
+
     #####################
     # KEY BINDING CALLS #
     #####################
