@@ -86,6 +86,10 @@ class QTVCP:
 
         (opts, args) = parser.parse_args()
 
+        if sys.version_info.major > 2:
+            # so web engine can load local images
+            sys.argv.append("--disable-web-security")
+
         # initialize QApp so we can pop up dialogs now. 
         self.app = QtWidgets.QApplication(sys.argv)
 
