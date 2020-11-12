@@ -310,6 +310,71 @@ void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr)
     gtk_main_quit();
 }
 
+void add_to_list(GtkWidget *list, char *strs[], const int num_cols)
+{
+    GtkListStore *store;
+    GtkTreeIter iter;
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+
+    /* Hardcoded to only support one and two columns. */
+    gtk_list_store_append(store, &iter);
+    if (num_cols == 1) {
+        gtk_list_store_set(store, &iter, 0, strs[0], -1);
+    } else if (num_cols == 2) {
+        gtk_list_store_set(store, &iter, 0, strs[0], 1, strs[1], -1);
+    } else {
+        printf("Failed to add item, to TreeView list\n");
+    }
+}
+
+void init_list(GtkWidget *list, char *titles[], const int len)
+{
+    GtkCellRenderer *renderer;
+    GtkListStore *store;
+
+    int i;
+
+    for (i = 0; i < len; i++) {
+        renderer = gtk_cell_renderer_text_new ();
+        gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(list),
+                -1, titles[i], renderer, "text", i, NULL);
+    }
+
+    store = gtk_list_store_new(len, G_TYPE_STRING, G_TYPE_STRING);
+
+    gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(store));
+
+    g_object_unref(store);
+}
+
+void clear_list(GtkWidget *list)
+{
+    GtkListStore *store;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+
+    if (gtk_tree_model_get_iter_first(model, &iter) == FALSE) {
+        return;
+    }
+
+    gtk_list_store_clear(store);
+}
+
+void mark_selected_row(GtkWidget *list, const int row)
+{
+    GtkTreePath *path;
+    GtkTreeSelection *selection;
+
+    path = gtk_tree_path_new_from_indices(row, -1);
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    gtk_tree_selection_select_path(selection, path);
+
+    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(list), path, NULL, TRUE, 0.5, 0.5);
+}
 /***********************************************************************
 *                        LOCAL FUNCTION CODE                           *
 ************************************************************************/
