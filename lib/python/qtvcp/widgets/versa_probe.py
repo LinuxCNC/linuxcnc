@@ -176,23 +176,43 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         self.process_busy = False
-        if "ERROR" in line:
-            print(line)
-        elif "DEBUG" in line:
-            print(line)
-        elif "INFO" in line:
-            print(line)
-        elif "COMPLETE" in line:
-            LOG.info("Probing routine completed without errors")
-            return_data = line.rstrip().split('$')
-            data = json.loads(return_data[1])
-            self.show_results(data)
-        elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            LOG.info("Probe history updated to machine log")
+        if sys.version_info.major > 2:
+            if bytes("ERROR" ,'utf-8') in line:
+                print(line)
+            elif bytes("DEBUG", 'utf-8') in line:
+                print(line)
+            elif bytes("INFO", 'utf-8') in line:
+                print(line)
+            elif bytes("COMPLETE", 'utf-8') in line:
+                LOG.info("Probing routine completed without errors")
+                return_data = line.rstrip().split('$')
+                data = json.loads(return_data[1])
+                self.show_results(data)
+            elif bytes("HISTORY", 'utf-8') in line:
+                temp = line.strip('HISTORY$')
+                STATUS.emit('update-machine-log', temp, 'TIME')
+                LOG.info("Probe history updated to machine log")
+            else:
+                LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+
         else:
-            LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+            if "ERROR" in line:
+                print(line)
+            elif "DEBUG" in line:
+                print(line)
+            elif "INFO" in line:
+                print(line)
+            elif "COMPLETE" in line:
+                LOG.info("Probing routine completed without errors")
+                return_data = line.rstrip().split('$')
+                data = json.loads(return_data[1])
+                self.show_results(data)
+            elif "HISTORY" in line:
+                temp = line.strip('HISTORY$')
+                STATUS.emit('update-machine-log', temp, 'TIME')
+                LOG.info("Probe history updated to machine log")
+            else:
+                LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
         message ='_ErroR_ {},{} \n'.format(kind,text)
