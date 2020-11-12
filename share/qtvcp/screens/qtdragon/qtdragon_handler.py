@@ -336,6 +336,9 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSET_VIEW):
                     flag = True
                     break
+                if isinstance(receiver2, writer):
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
 
             if flag:
