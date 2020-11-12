@@ -7,7 +7,7 @@ from PyQt5 import QtPrintSupport
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
 
-from ext import *
+from .ext import *
 from qtvcp.core import Info
 INFO = Info()
 filepath = os.path.join(INFO.LIB_PATH, 'images/widgets/writer')
