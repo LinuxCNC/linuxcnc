@@ -178,7 +178,7 @@ class FileManager(QWidget, _HalWidgetBase):
         if fname is None:
             self._getPathActivated()
             return
-        self.recordBookKeeping(fname)
+        self.recordBookKeeping()
         ACTION.OPEN_PROGRAM(fname)
         STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
 
