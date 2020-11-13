@@ -755,10 +755,10 @@ class HandlerClass:
     # settings tab
     def chk_override_limits_checked(self, state):
         if state:
-            print("Override limits set")
+            self.add_status("Override limits set")
             ACTION.SET_LIMITS_OVERRIDE()
         else:
-            print("Override limits not set")
+            self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
         self.w.gcodegraphics.set_inhibit_selection(not state)
@@ -912,9 +912,7 @@ class HandlerClass:
 
     def update_rpm(self, speed):
         if self.max_spindle_rpm < int(speed) < self.min_spindle_rpm:
-            print("Spindle out of range")
             if STATUS.is_spindle_on():
-                print("Spindle is on")
                 self.w.lbl_spindle_set.setProperty('in_range', False)
                 self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
                 self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
