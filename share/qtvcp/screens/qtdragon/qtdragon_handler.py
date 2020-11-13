@@ -243,6 +243,12 @@ class HandlerClass:
             self.w.btn_keyboard.hide()
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_recall')
 
+        if not INFO.MACHINE_IS_METRIC:
+            self.w.lbl_jog_linear.setText('JOG RATE\nINCH/MIN')
+            self.w.lbl_tool_sensor_B2W.setText('INCH')
+            self.w.lbl_tool_sensor_B2S.setText('INCH')
+            self.w.lbl_touchheight_units.setText('INCH')
+
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
         if isinstance(receiver, QtWidgets.QLineEdit):

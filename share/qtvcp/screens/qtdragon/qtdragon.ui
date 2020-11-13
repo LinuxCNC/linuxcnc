@@ -482,7 +482,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_47">
+                    <widget class="QLabel" name="lbl_tool_sensor_B2W">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -590,7 +590,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_36">
+                    <widget class="QLabel" name="lbl_tool_sensor_B2S">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -13468,7 +13468,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>10:36:48 PM</string>
+                  <string>08:49:50 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
