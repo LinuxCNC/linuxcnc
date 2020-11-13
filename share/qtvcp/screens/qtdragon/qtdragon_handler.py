@@ -55,7 +55,6 @@ class HandlerClass:
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
-        self.max_linear_velocity = INFO.MAX_LINEAR_VELOCITY * 60
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
         self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0)
         self.slow_jog_factor = 10
@@ -248,23 +247,17 @@ class HandlerClass:
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-        self.w.slider_jog_linear.setMaximum(self.max_linear_velocity)
         self.w.slider_jog_linear.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
-        self.w.slider_jog_angular.setMaximum(INFO.MAX_ANGULAR_JOG_VEL)
         self.w.slider_jog_angular.setValue(INFO.DEFAULT_ANGULAR_JOG_VEL)
-        self.w.slider_maxv_ovr.setMaximum(self.max_linear_velocity)
-        self.w.slider_maxv_ovr.setValue(self.max_linear_velocity)
-        self.w.slider_feed_ovr.setMaximum(INFO.MAX_FEED_OVERRIDE)
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL)
         self.w.slider_feed_ovr.setValue(100)
-        self.w.slider_rapid_ovr.setMaximum(100)
         self.w.slider_rapid_ovr.setValue(100)
         self.w.slider_spindle_ovr.setMinimum(INFO.MIN_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setMaximum(INFO.MAX_SPINDLE_OVERRIDE)
         self.w.slider_spindle_ovr.setValue(100)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
-        self.w.lbl_max_rapid.setText(str(self.max_linear_velocity))
+        self.w.lbl_max_rapid.setText(str(INFO.MAX_LINEAR_JOG_VEL))
         self.w.lbl_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
         self.w.lbl_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
         self.w.cmb_gcode_history.addItem("No File Loaded")
@@ -422,10 +415,10 @@ class HandlerClass:
     def metric_mode_changed(self, mode):
         if mode is False:
             self.w.lbl_jog_linear.setText('JOG RATE\nIN/MIN')
-            maxvel = float(self.max_linear_velocity) / 25.4
+            maxvel = float(INFO.MAX_LINEAR_JOG_VEL) / 25.4
         else:
             self.w.lbl_jog_linear.setText('JOG RATE\nMM/MIN')
-            maxvel = float(self.max_linear_velocity)
+            maxvel = float(INFO.MAX_LINEAR_JOG_VEL)
         self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
 
     def file_loaded(self, obj, filename):
@@ -612,21 +605,21 @@ class HandlerClass:
             self.w[slider].setPageStep(100)
 
     def slider_maxv_changed(self, value):
-        maxpc = (float(value) / self.max_linear_velocity) * 100
+        maxpc = (float(value) / INFO.MAX_LINEAR_JOG_VEL) * 100
         self.w.lbl_maxv_percent.setText("{:3.0f} %".format(maxpc))
 
     def slider_rapid_changed(self, value):
         if STATUS.is_metric_mode():
-            rapid = (float(value) / 100) * self.max_linear_velocity
+            rapid = (float(value) / 100) * INFO.MAX_LINEAR_JOG_VEL
         else:
-            rapid = (float(value) / 100) * (self.max_linear_velocity / 25.4)
+            rapid = (float(value) / 100) * (INFO.MAX_LINEAR_JOG_VEL / 25.4)
         self.w.lbl_max_rapid.setText("{:4.0f}".format(rapid))
 
     def btn_maxv_100_clicked(self):
-        self.w.slider_maxv_ovr.setValue(self.max_linear_velocity)
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL)
 
     def btn_maxv_50_clicked(self):
-        self.w.slider_maxv_ovr.setValue(self.max_linear_velocity / 2)
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL / 2)
 
     # file tab
     def btn_gcode_edit_clicked(self, state):
