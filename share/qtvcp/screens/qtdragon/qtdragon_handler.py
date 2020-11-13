@@ -317,6 +317,7 @@ class HandlerClass:
             # then check if it's one we want the keypress events to go to
             flag = False
             receiver2 = receiver
+
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
                     flag = True
@@ -336,7 +337,7 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSET_VIEW):
                     flag = True
                     break
-                if isinstance(receiver2, writer):
+                if isinstance(receiver2, writer.Main):
                     flag = True
                     break
                 receiver2 = receiver2.parent()
@@ -782,12 +783,23 @@ class HandlerClass:
     #####################
     def load_code(self, fname):
         if fname is None: return
-        if fname.endswith(".ngc") or fname.endswith(".py"):
+        filename, file_extension = os.path.splitext(fname)
+        if file_extension.lower() not in (".ngc", ".py", '.html'):
+            self.add_status("Unknown or invalid filename extension {}".format(file_extesion))
+            return
+        if file_extension.lower() in (".ngc", ".py"):
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.w.filemanager.recordBookKeeping()
+            # adjust ending to check for related setup files
+            fname = filename+'.html'
+            if os.path.exists(fname):
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.add_status("Loaded HTML file : {}".format(fname))
+            return
         elif fname.endswith(".html"):
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
@@ -798,8 +810,7 @@ class HandlerClass:
                 self.w.jogging_frame.hide()
             except Exception as e:
                 print("Error loading HTML file : {}".format(e))
-        else:
-            self.add_status("Unknown or invalid filename")
+
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
