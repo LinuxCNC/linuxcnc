@@ -684,6 +684,8 @@ class FilterProgram:
         if not r:
             return True
         stderr_line = self.p.stderr.readline()
+        if sys.version_info.major > 2:
+            stderr_line = stderr_line.decode("utf-8")
         m = progress_re.match(stderr_line)
         if m:
             pass #progress.update(int(m.group(1)), 1)
@@ -695,10 +697,12 @@ class FilterProgram:
     def finish(self):
         # .. might be something left on stderr
         for line in self.p.stderr:
+            if sys.version_info.major > 2:
+                line = line.decode("utf-8")
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)
-                sys.stderr.write(line)
+                #sys.stderr.write(sLine)
         r = self.p.returncode
         if r:
             self.error(r, "".join(self.stderr_text))
