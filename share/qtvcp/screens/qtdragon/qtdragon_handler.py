@@ -267,6 +267,19 @@ class HandlerClass:
         self.w.gcode_editor.hide()
         self.w.filemanager.list.setAlternatingRowColors(False)
         self.w.filemanager_usb.list.setAlternatingRowColors(False)
+        if INFO.MACHINE_IS_METRIC:
+            self.w.lbl_tool_sensor_B2W.setText('INCH')
+            self.w.lbl_tool_sensor_B2S.setText('INCH')
+            self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_max_probe_units.setText('INCH')
+            self.w.lbl_search_vel_units.setText('INCH/<sup> MIN</sup>')
+            self.w.lbl_probe_vel_units.setText('INCH/<sup> MIN</sup>')
+            self.w.lbl_z_ext_offset.setText('INCH')
+            self.w.lbl_tool_sensor_loc.setText('INCH')
+            self.w.lbl_laser_offset.setText('INCH')
+            self.w.lbl_camera_offset.setText('INCH')
+            self.w.lbl_tool_diam.setText('INCH')
+            self.w.lbl_touchheight_units.setText('INCH')
         #set up gcode list
         self.gcodes.setup_list()
 
@@ -414,10 +427,10 @@ class HandlerClass:
 
     def metric_mode_changed(self, mode):
         if mode is False:
-            self.w.lbl_jog_linear.setText('JOG RATE\nIN/MIN')
+            self.w.lbl_jog_linear.setText('INCH/<sup> MIN</sup>')
             maxvel = float(INFO.MAX_LINEAR_JOG_VEL) / 25.4
         else:
-            self.w.lbl_jog_linear.setText('JOG RATE\nMM/MIN')
+            self.w.lbl_jog_linear.setText('MM/<sup> MIN</sup>')
             maxvel = float(INFO.MAX_LINEAR_JOG_VEL)
         self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
 

@@ -475,7 +475,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_47">
+                    <widget class="QLabel" name="lbl_tool_sensor_B2W">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -589,7 +589,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_36">
+                    <widget class="QLabel" name="lbl_tool_sensor_B2S">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -899,7 +899,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_67">
+                    <widget class="QLabel" name="lbl_tool_sensor_loc">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1038,7 +1038,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_68">
+                    <widget class="QLabel" name="lbl_laser_offset">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1171,7 +1171,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_69">
+                    <widget class="QLabel" name="lbl_camera_offset">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1662,7 +1662,7 @@ SENSOR</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_11">
+                    <widget class="QLabel" name="lbl_tool_diam">
                      <property name="minimumSize">
                       <size>
                        <width>50</width>
@@ -5678,7 +5678,7 @@ TO FILE</string>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_14">
+                            <widget class="QLabel" name="lbl_z_ext_offset">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -13053,7 +13053,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:38:35 PM</string>
+            <string>09:58:52 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13111,52 +13111,9 @@ ZERO</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
-   <class>AxisToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.axis_tool_button</header>
-  </customwidget>
-  <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
-  </customwidget>
-  <customwidget>
-   <class>MachineLog</class>
-   <extends>QTextEdit</extends>
-   <header>qtvcp.widgets.machine_log</header>
-  </customwidget>
-  <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
    <class>GCodeGraphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MDILine</class>
-   <extends>QLineEdit</extends>
-   <header>qtvcp.widgets.mdi_line</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -13166,15 +13123,15 @@ ZERO</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ToolOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.tool_offsetview</header>
-   <container>1</container>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
   </customwidget>
   <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>StateLabel</class>
@@ -13182,14 +13139,19 @@ ZERO</string>
    <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
-   <class>ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
+   <class>AxisToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
   <customwidget>
    <class>ScreenOptions</class>
@@ -13198,9 +13160,14 @@ ZERO</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>MachineLog</class>
+   <extends>QTextEdit</extends>
+   <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
    <class>CamView</class>
@@ -13208,14 +13175,47 @@ ZERO</string>
    <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
   <customwidget>
-   <class>SystemToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.system_tool_button</header>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.tool_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
+   <class>SystemToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -13968,7 +13968,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
