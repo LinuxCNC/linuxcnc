@@ -57,7 +57,8 @@ class _IStat(object):
         self.JOG_INCREMENTS = None
         self.ANGULAR_INCREMENTS = None
 
-        self.MAX_LINEAR_VELOCITY = 60
+        self.MAX_TRAJ_VELOCITY = 60
+
         self.DEFAULT_LINEAR_VELOCITY = 15.0
 
         self.AVAILABLE_SPINDLES = 1
@@ -241,6 +242,9 @@ class _IStat(object):
         self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","DEFAULT_ANGULAR_VELOCITY",6)) * 60
         self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ANGULAR_VELOCITY",1)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
+        log.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
+        log.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
+        log.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
 
         self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
         self.SPINDLE_INCREMENT = int(self.INI.find("DISPLAY","SPINDLE_INCREMENT")or 100)
