@@ -88,6 +88,7 @@ class HandlerClass:
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
+        STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
 
         self.html = """<html>
 <head>
@@ -442,6 +443,14 @@ class HandlerClass:
             self.w.lbl_runtime.setText("00:00:00")
         else:
             self.add_status("Filename not valid")
+
+    def updateProgress(self, p,text):
+        if p <0:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('PROGRESS')
+        else:
+            self.w.progressBar.setValue(p)
+            self.w.progressBar.setFormat('{}: {}%'.format(text, p))
 
     def percent_loaded_changed(self, fraction):
         if fraction <0:

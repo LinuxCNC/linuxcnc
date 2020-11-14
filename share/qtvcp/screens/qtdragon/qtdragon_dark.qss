@@ -292,10 +292,10 @@ QSlider::handle:horizontal:disabled,  QSlider::handle:vertical:disabled{
     border: 1px solid #aaa;
     border-radius: 4px;
 }
-ToolDialog,CloseDialog,EntryDialog{
+LcncDialog,ToolDialog,CloseDialog,EntryDialog{
 background-color: gray;
 }
-ToolDialog QPushButton{
+LcncDialog QPushButton,ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
