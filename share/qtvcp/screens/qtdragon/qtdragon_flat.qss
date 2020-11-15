@@ -57,6 +57,17 @@ QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_a
     color: blue;
 }
 
+DROLabel {
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: black;
+}
+
+DROLabel[homed=false] {
+    color: red;
+}
+
 QLabel#lbl_cycle_start, QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
 }
