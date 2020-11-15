@@ -559,18 +559,18 @@ class HandlerClass:
             self.w[slider].setPageStep(100)
 
     def slider_maxv_changed(self, value):
-        maxpc = (float(value) / self.max_linear_velocity) * 100
+        maxpc = (float(value) / INFO.MAX_TRAJ_VELOCITY) * 100
         self.w.lbl_maxv_percent.setText("{:3.0f} %".format(maxpc))
 
     def slider_rapid_changed(self, value):
-        rapid = (float(value) / 100) * self.max_linear_velocity
+        rapid = (float(value) / 100) * INFO.MAX_TRAJ_VELOCITY
         self.w.lbl_max_rapid.setText("{:4.0f}".format(rapid))
 
     def btn_maxv_100_clicked(self):
-        self.w.slider_maxv_ovr.setValue(self.max_linear_velocity)
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_TRAJ_VELOCITY)
 
     def btn_maxv_50_clicked(self):
-        self.w.slider_maxv_ovr.setValue(self.max_linear_velocity / 2)
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_TRAJ_VELOCITY / 2)
 
     # file tab
     def btn_gcode_edit_clicked(self, state):

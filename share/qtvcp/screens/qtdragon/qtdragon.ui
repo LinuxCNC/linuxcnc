@@ -13468,7 +13468,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>08:49:50 PM</string>
+                  <string>01:15:32 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13880,8 +13880,8 @@ ALL</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>507</y>
+     <x>508</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13896,8 +13896,8 @@ ALL</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>279</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13912,8 +13912,8 @@ ALL</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>345</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14104,8 +14104,8 @@ ALL</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>478</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>500</x>
@@ -14120,8 +14120,8 @@ ALL</string>
    <slot>chk_alpha_mode_clicked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>296</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -14136,8 +14136,8 @@ ALL</string>
    <slot>chk_inhibit_display_selection_clicked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>322</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>558</x>
@@ -14184,8 +14184,8 @@ ALL</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1092</x>
-     <y>139</y>
+     <x>508</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1762</x>
@@ -14200,8 +14200,8 @@ ALL</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1102</x>
-     <y>202</y>
+     <x>508</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1677</x>
@@ -14222,6 +14222,22 @@ ALL</string>
     <hint type="destinationlabel">
      <x>929</x>
      <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>slider_rapid_ovr</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slider_rapid_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>986</x>
+     <y>668</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1019</x>
+     <y>866</y>
     </hint>
    </hints>
   </connection>
@@ -14291,7 +14307,7 @@ ALL</string>
   <slot>percent_completed_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
