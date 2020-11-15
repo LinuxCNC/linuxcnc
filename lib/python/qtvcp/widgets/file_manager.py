@@ -36,6 +36,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
         self.user_path = (os.path.join('/media'))
         self.currentPath = None
+        self.EXT = INFO.PROGRAM_FILTERS_EXTENSIONS
         self.initUI()
 
     def initUI(self):
@@ -46,7 +47,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.model.setRootPath(QDir.currentPath())
         self.model.setFilter(QDir.AllDirs | QDir.NoDot | QDir.Files)
         self.model.setNameFilterDisables(False)
-        self.model.setNameFilters(["*.ngc",'*.py'])
+        self.model.setNameFilters(self.EXT)
 
         self.list = QListView()
         self.list.setModel(self.model)
@@ -60,7 +61,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
         self.cb = QComboBox()
         self.cb.currentTextChanged.connect(self.filterChanged)
-        self.cb.addItems(sorted({'*.ngc','*.py','*'}))
+        self.cb.addItems(self.EXT)
         #self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.button = QPushButton()
