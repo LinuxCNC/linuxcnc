@@ -647,7 +647,6 @@ class _Lcnc_Action(object):
 
 class Progress:
     def __init__(self, phases, total):
-        print phases, total
         self.num_phases = phases
         self.phase = 0
         self.total = total or 1
