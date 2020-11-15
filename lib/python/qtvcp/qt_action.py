@@ -702,8 +702,8 @@ class FilterProgram:
 
         self.p = p
         self.stderr_text = []
-        self.program_filter = os.path.split(infilename_q)[1]
-        self.filtered_program =  infilename_q
+        self.program_filter = os.path.split(program_filter)[1]
+        self.filtered_program =  os.path.split(infilename_q)[1]
         self.callback = callback
 
         self.progress = Progress(1, 100)
@@ -752,7 +752,8 @@ class FilterProgram:
 
     # request an error dialog box
     def error(self, exitcode, stderr):
-        message = _('The filter program %(program)r exited with an error')% {'program': self.program_filter}
+        message = '''The filter program '{}' that was filtering '{}' 
+                        exited with an error'''.format(self.program_filter,self.filtered_program)
         if stderr != '':
             more = _("The error messages it produced are shown below:")
         else:
