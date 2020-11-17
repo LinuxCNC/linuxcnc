@@ -6,7 +6,10 @@ import linuxcnc
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
-else: import gobject as GObject
+    import glib
+else:
+    import gobject as GObject
+
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
@@ -81,12 +84,17 @@ class QComponent:
     def newpin(self, *a, **kw):
         return QPin(_hal.component.newpin(self.comp, *a, **kw))
 
-    def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
+    def getpin(self, *a, **kw):
+        return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
-    def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
+    def exit(self, *a, **kw):
+        return self.comp.exit(*a, **kw)
 
-    def __getitem__(self, k): return self.comp[k]
-    def __setitem__(self, k, v): self.comp[k] = v
+    def __getitem__(self, k):
+        return self.comp[k]
+
+    def __setitem__(self, k, v):
+        self.comp[k] = v
 
 
 ################################################################
@@ -115,7 +123,7 @@ class Status(GStat):
     _instance = None
     _instanceNum = 0
     __gsignals__ = {
-        'toolfile-stale': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'toolfile-stale': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
 
     # only make one instance of the class - pass it to all other
@@ -139,8 +147,11 @@ class Status(GStat):
     # TODO why do we need to do this with qt5 and not qt4?
     # seg fault without it
     def set_timer(self):
-        GObject.threads_init()
-        GObject.timeout_add(100, self.update)
+        # TODO Seems to run fine in python3 with out this?
+        # Can it be deprecated?
+        pass
+        # GObject.threads_init() -Deprecated
+        # GStat.timeout_add(100, self.update)
 
 
 ################################################################
@@ -167,10 +178,12 @@ from qtvcp.qt_tstat import _TStat as _TStatParent
 class Tool(_TStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
 
 ################################################################
 # PStat class
@@ -180,6 +193,7 @@ from qtvcp.qt_pstat import _PStat as _PStatParent
 class Path(_PStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
