@@ -673,7 +673,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             result = self.killCheck()
             if result:
                 self.editor.new_text()
-
+        else:
+            self.editor.new_text()
     def openCall(self):
         self.open()
     def open(self):
