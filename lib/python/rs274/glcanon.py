@@ -1097,14 +1097,14 @@ class GlCanonDraw:
         self.show_icon_home_list  = []
         self.show_icon_limit_list = []
 
-    def show_icon(self,idx,icon):
+    def show_icon(self, idx, icon):
         # only show icon once for idx for home,limit icons
         #   accomodates hal_gremlin override format_dro()
         #   and prevents display for both Rad and Dia
-        if icon is homeicon:
+        if icon == homeicon:
             if idx in self.show_icon_home_list: return
             self.show_icon_home_list.append(idx)
-        if icon is limiticon:
+        if icon == limiticon:
             if idx in self.show_icon_limit_list: return
             self.show_icon_limit_list.append(idx)
         glBitmap(13, 16, 0, 3, 17, 0, icon.tostring())
