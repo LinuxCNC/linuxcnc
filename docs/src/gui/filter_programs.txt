@@ -1,0 +1,174 @@
+
+= Filter Programs
+
+== Introduction
+Most of Linuxcnc's screens have the ability to send loaded files through a 'filter program' or +
+use the filter program to make Gcode. +
+This filter can do any desired task: Something as simple as making sure +
+the file ends with 'M2', or something as complicated as generating +
+G-Code from an image. +
+
+== Setting  up the INI for Program Filters +
+The '[FILTER]'  section of the ini file controls how filters work. +
+First, for each type of file, write a 'PROGRAM_EXTENSION' line. +
+Then, specify the program to execute for each type of file. +
+This program is given the name of the input file as its first argument, +
+and must write rs274ngc code to standard output. This output is what  +
+will be displayed in the text area, previewed in the display area, and +
+executed by LinuxCNC when 'Run'. The following lines add support for the +
+'image-to-gcode' converter included with LinuxCNC: +
+
+----
+[FILTER]
+PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+png = image-to-gcode
+gif = image-to-gcode
+----
+
+It is also possible to specify an interpreter:
+
+----
+PROGRAM_EXTENSION = .py Python Script
+py = python
+----
+
+In this way, any Python script can be opened, and its output is +
+treated as g-code. One such example script is available at +
+'nc_files/holecircle.py'. This script creates g-code for drilling a +
+series of holes along the circumference of a circle. +
+
+.Circular Holes
+
+image::images/holes.png[align="center", alt="Circular Holes"]
+
+If the filter program sends lines to stderr of the form:
+
+----
+FILTER_PROGRESS=10
+----
+
+It will set the screens progress bar to the given (10 in this case) percentage. +
+This feature should be used by any filter that runs for a long time. +
+
+== Making Python Based Filter Programs
+
+Here is a very basic example of the filtering mechanics:
+When run through a Linucnc screen that offers program filtering, +
+it will produce and write a line of gcode every 100th of a second to standard output. +
+It also sends a progress message out to the Unix standard error stream. +
+If there was an error it would post an error message and exit with an exitcode of 1. +
+
+[source,python]
+----
+import time
+import sys
+
+for i in range(0,100):
+    try:
+        # simulate calculation time
+        time.sleep(.1)
+
+        # output a line of gcode
+        print >>sys.stdout, 'G0 X1'
+
+        # update progress
+        print >>sys.stderr, 'FILTER_PROGRESS={}'.format(i)
+    except:
+        # This causes an error message
+        print >>sys.stderr, 'Error; But this was only a test'
+        raise SystemExit(1)
+
+----
+
+Here is a similar program but it actually could filters. +
+It puts up a Pyqt5 dialog with a cancel button. +
+Then it reads the program line by line and passes it to standard output. +
+As it does along it updates any process listening to standard error output'
+[source,python]
+----
+#!/usr/bin/python
+
+import sys
+import os
+import time
+
+from PyQt5.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+                            QVBoxLayout,QDialogButtonBox)
+from PyQt5.QtCore import QTimer, Qt
+
+class CustomDialog(QDialog):
+
+    def __init__(self, path):
+        super(CustomDialog, self).__init__(None)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.setWindowTitle("Filter-with-GUI Test")
+
+        QBtn = QDialogButtonBox.Cancel
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+        self.line = 0
+        self._percentDone = 0
+
+        if not os.path.exists(path):
+            print >>sys.stderr, "Path: '{}' doesn't exist:".format(path)
+            raise SystemExit(1)
+
+        self.infile = open(path, "r")
+        self.temp = self.infile.readlines()
+
+        # calculate percent update interval
+        self.bump = 100/float(len(self.temp))
+
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.process)
+        self._timer.start(100)
+
+    def reject(self):
+        # This provides an error message
+        print >>sys.stderr, 'You asked to cancel before finished.'
+        raise SystemExit(1)
+
+    def process(self):
+        try:
+            # get next line of code
+            codeLine = self.temp[self.line]
+
+            # process the line somehow
+
+            # push out processed code
+            print >>sys.stdout, codeLine
+            self.line +=1
+
+            # update progress
+            self._percentDone += self.bump
+            print >>sys.stderr, 'FILTER_PROGRESS={}'.format(int(self._percentDone))
+
+            # if done end with no error/error message
+            if self._percentDone >= 99:
+                print >>sys.stderr, 'FILTER_PROGRESS=-1'
+                self.infile.close()
+                raise SystemExit(0)
+
+        except Exception as e:
+            # This provides an error message
+            print >>sys.stderr, 'Something bad happened:',e
+            # this signals the error message should be shown
+            raise SystemExit(1)
+
+if __name__ == "__main__":
+    if (len(sys.argv)>1):
+        path = sys.argv[1]
+    else:
+        path = None
+    app = QApplication(sys.argv)
+    w = CustomDialog(path=path)
+    w.show()
+    sys.exit( app.exec_() )
+
+----
