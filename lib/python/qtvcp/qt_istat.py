@@ -89,6 +89,7 @@ class _IStat(object):
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
+        self.PROGRAM_FILTERS_EXTENSIONS = self.get_filters_extensions()
         self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
         try:
             # check the ini file if UNITS are set to mm"
@@ -392,6 +393,21 @@ class _IStat(object):
             return self.INI.find("FILTER", ext[1:])
         else:
             return None
+
+    def get_filters_extensions(self):
+        all_extensions = [['GCode (*.ngc)',['*.ngc']]]
+        try:
+            for k, v in self.PROGRAM_FILTERS:
+                k = k.replace('.',' *.')
+                k = k.replace(' ','')
+                temp =[]
+                for q in k.split(','):
+                    temp.append('{}'.format(q))
+                all_extensions.append( ['{}'.format(v),temp] )
+            all_extensions.append(['All (*)', ['*']])
+            return all_extensions
+        except:
+            return [['GCode (*.ngc)',['*.ngc']],['All (*)',['*']]]
 
     # get filter extensions in QT format
     def get_qt_filter_extensions(self,):

@@ -644,6 +644,41 @@ class _Lcnc_Action(object):
         return setattr(self, item, value)
 
 #############################
+
+class Progress:
+    def __init__(self, phases, total):
+        self.num_phases = phases
+        self.phase = 0
+        self.total = total or 1
+        self.lastcount = 0
+        self.text = None
+
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
+            fraction = (self.phase + count * 1. / self.total) / self.num_phases
+            self.lastcount = count
+            self.emit_percent(int(fraction *100))
+
+    # Send out progress
+    def emit_percent(self, percent):
+        STATUS.emit('progress',percent,self.text)
+
+    def nextphase(self, total):
+        self.phase += 1
+        self.total = total or 1
+        self.lastcount = -100
+        self.update(0, True)
+
+    def done(self):
+        self.emit_percent(-1)
+
+    # text for filter progress bar
+    def set_text(self, text):
+        if text is None:
+            self.text = "Filter Progress"
+        else:
+            self.text = text
+
 ###########################################
 # Filter Class
 ########################################################################
@@ -658,43 +693,50 @@ class FilterProgram:
         import subprocess
         outfile = open(outfilename, "w")
         infilename_q = infilename.replace("'", "'\\''")
-        env = dict(os.environ)
-        env['AXIS_PROGRESS_BAR'] = '1'
+
         p = subprocess.Popen(["sh", "-c", "%s '%s'" % (program_filter, infilename_q)],
                               stdin=subprocess.PIPE,
                               stdout=outfile,
-                              stderr=subprocess.PIPE,
-                              env=env)
+                              stderr=subprocess.PIPE)
         p.stdin.close()  # No input for you
+
         self.p = p
         self.stderr_text = []
-        self.program_filter = program_filter
+        self.program_filter = os.path.split(program_filter)[1]
+        self.filtered_program =  os.path.split(infilename_q)[1]
         self.callback = callback
+
+        self.progress = Progress(1, 100)
+        self.progress.set_text("Filtering...")
         self.gid = STATUS.connect('periodic', self.update)
-        #progress = Progress(1, 100)
-        #progress.set_text(_("Filtering..."))
 
     def update(self, w):
+        # check if done
         if self.p.poll() is not None:
             self.finish()
             STATUS.disconnect(self.gid)
             return False
-
+        # check if there is something to read or pass
         r,w,x = select.select([self.p.stderr], [], [], 0)
         if not r:
             return True
+        # process message from standard error
         stderr_line = self.p.stderr.readline()
         if sys.version_info.major > 2:
             stderr_line = stderr_line.decode("utf-8")
+        # compare to pre compiled re string
+        # if true : update progress
+        # else add it too error message string for later
         m = progress_re.match(stderr_line)
         if m:
-            pass #progress.update(int(m.group(1)), 1)
+            self.progress.update(int(m.group(1)), 1)
         else:
             self.stderr_text.append(stderr_line)
             sys.stderr.write(stderr_line)
         return True
 
     def finish(self):
+        self.progress.done()
         # .. might be something left on stderr
         for line in self.p.stderr:
             if sys.version_info.major > 2:
@@ -702,17 +744,20 @@ class FilterProgram:
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)
-                #sys.stderr.write(sLine)
         r = self.p.returncode
         if r:
             self.error(r, "".join(self.stderr_text))
         if self.callback:
             self.callback(r)
 
-    # pop a (probable) dialog box
+    # request an error dialog box
     def error(self, exitcode, stderr):
-        message = _('The filter program %(program)r exited with an error')% {'program': self.program_filter}
-        more = _("Any error messages it produced are shown below:")
+        message = '''The filter program '{}' that was filtering '{}' 
+                        exited with an error'''.format(self.program_filter,self.filtered_program)
+        if stderr != '':
+            more = _("The error messages it produced are shown below:")
+        else:
+            more = None
         mess = {'NAME':'MESSAGE','ID':'ACTION_ERROR__',
             'MESSAGE':message,
             'MORE': more,

@@ -193,6 +193,7 @@ DOC_SRCS_FR := \
 	gcode/rs274ngc_fr.txt \
 	gcode/tool_compensation_fr.txt \
 	gui/axis_fr.txt \
+	gui/filter_programs.txt \
 	gui/gladevcp_fr.txt \
 	gui/image-to-gcode_fr.txt \
 	gui/ngcgui_fr.txt \

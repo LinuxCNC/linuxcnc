@@ -88,6 +88,7 @@ class HandlerClass:
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
+        STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
 
         self.html = """<html>
 <head>
@@ -443,6 +444,14 @@ class HandlerClass:
         else:
             self.add_status("Filename not valid")
 
+    def updateProgress(self, p,text):
+        if p <0:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('PROGRESS')
+        else:
+            self.w.progressBar.setValue(p)
+            self.w.progressBar.setFormat('{}: {}%'.format(text, p))
+
     def percent_loaded_changed(self, fraction):
         if fraction <0:
             self.w.progressBar.setValue(0)
@@ -790,10 +799,10 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
-        if file_extension.lower() not in (".ngc", ".py", '.html'):
-            self.add_status("Unknown or invalid filename extension {}".format(file_extesion))
+        if '*'+ file_extension.lower() not in (INFO.PROGRAM_FILTERS_EXTENSIONS):
+            self.add_status("Unknown or invalid filename extension {}".format(file_extension))
             return
-        if file_extension.lower() in (".ngc", ".py"):
+        if not fname.endswith(".html"):
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
@@ -805,8 +814,10 @@ class HandlerClass:
             if os.path.exists(fname):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
+            else:
+                self.w.web_view.setHtml(self.html)
             return
-        elif fname.endswith(".html"):
+        else:
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))

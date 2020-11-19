@@ -63,6 +63,10 @@ QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_a
     color: #00FF00;
 }
 
+DROLabel[homed=false] {
+    color: red;
+}
+
 QLabel#lbl_cycle_start, QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
     color: white;
@@ -292,10 +296,10 @@ QSlider::handle:horizontal:disabled,  QSlider::handle:vertical:disabled{
     border: 1px solid #aaa;
     border-radius: 4px;
 }
-ToolDialog,CloseDialog,EntryDialog{
+LcncDialog,ToolDialog,CloseDialog,EntryDialog{
 background-color: gray;
 }
-ToolDialog QPushButton{
+LcncDialog QPushButton,ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
