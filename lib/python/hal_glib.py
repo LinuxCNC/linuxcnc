@@ -195,6 +195,7 @@ class _GStat(GObject.GObject):
         'error': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
         'general': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (go_run_first, GObject.TYPE_NONE, ()),
+        'progress': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT))
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
