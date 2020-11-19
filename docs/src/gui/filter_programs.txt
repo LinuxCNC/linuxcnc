@@ -1,5 +1,5 @@
 
-= AXIS GUI
+= Filter Programs
 
 == Introduction
 Most of Linuxcnc's screens have the ability to send loaded files through a 'filter program' or +
