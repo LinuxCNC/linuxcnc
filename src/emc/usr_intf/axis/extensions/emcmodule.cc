@@ -17,6 +17,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #define __STDC_FORMAT_MACROS
+#include <Python.h>
 #include "py3c/py3c.h"
 #include <structseq.h>
 #include <pthread.h>
@@ -934,7 +935,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
 static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_PLAN_EXECUTE m;
     char *cmd;
-    Py_ssize_t len;
+    int len;
     if(!PyArg_ParseTuple(o, "s#", &cmd, &len)) return NULL;
     if(unsigned(len) > sizeof(m.command) - 1) {
         PyErr_Format(PyExc_ValueError, "MDI commands limited to %zu characters", sizeof(m.command) - 1);
@@ -1159,7 +1160,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
 
     EMC_TASK_PLAN_OPEN m;
     char *file;
-    Py_ssize_t len;
+    int len;
 
     if(!PyArg_ParseTuple(o, "s#", &file, &len)) return NULL;
     if(unsigned(len) > sizeof(m.file) - 1) {

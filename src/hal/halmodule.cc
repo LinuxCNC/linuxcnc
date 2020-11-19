@@ -17,6 +17,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "py3c/py3c.h"
+#include <Python.h>
 #include <structmember.h>
 #include <string>
 #include <map>

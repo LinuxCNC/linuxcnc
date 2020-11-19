@@ -24,7 +24,7 @@ SOFTWARE.
 
 #ifndef _PY3COMPAT_H_
 #define _PY3COMPAT_H_
-#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 
 #include <py3c/comparison.h>
