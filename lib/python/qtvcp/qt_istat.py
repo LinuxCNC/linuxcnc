@@ -395,18 +395,19 @@ class _IStat(object):
             return None
 
     def get_filters_extensions(self):
-        all_extensions = [("*.ngc")]
+        all_extensions = [['GCode (*.ngc)',['*.ngc']]]
         try:
             for k, v in self.PROGRAM_FILTERS:
-                each = k.split(',')
-                for i in each:
-                    i = i.replace('.','*.')
-                    i = i.replace(',',' ')
-                    all_extensions.append( ('%s'%(i)) )
-            all_extensions.append(('*'))
+                k = k.replace('.',' *.')
+                k = k.replace(' ','')
+                temp =[]
+                for q in k.split(','):
+                    temp.append('{}'.format(q))
+                all_extensions.append( ['{}'.format(v),temp] )
+            all_extensions.append(['All (*)', ['*']])
             return all_extensions
         except:
-            return ('*.ngc','*')
+            return [['GCode (*.ngc)',['*.ngc']],['All (*)',['*']]]
 
     # get filter extensions in QT format
     def get_qt_filter_extensions(self,):
