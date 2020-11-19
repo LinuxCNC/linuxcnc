@@ -6,7 +6,10 @@ import linuxcnc
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
-else: import gobject as GObject
+    gobj_run_first = GObject.SignalFlags.RUN_FIRST
+else:
+    import gobject as GObject
+    gobj_run_first = GObject.SIGNAL_RUN_FIRST
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
@@ -115,7 +118,7 @@ class Status(GStat):
     _instance = None
     _instanceNum = 0
     __gsignals__ = {
-        'toolfile-stale': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'toolfile-stale': (gobj_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
 
     # only make one instance of the class - pass it to all other
@@ -136,11 +139,10 @@ class Status(GStat):
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
 
     # we override this function from hal_glib
-    # TODO why do we need to do this with qt5 and not qt4?
-    # seg fault without it
     def set_timer(self):
-        GObject.threads_init()
-        GObject.timeout_add(100, self.update)
+        pass
+    #     GObject.threads_init()
+    #     GObject.timeout_add(100, self.update)
 
 
 ################################################################
