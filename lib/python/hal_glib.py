@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
 import _hal, hal
@@ -9,9 +9,11 @@ import math
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
+    go_run_first = GObject.SignalFlags.RUN_FIRST
 else:
     import gobject as GObject
     GObject.Object = GObject.GObject
+    go_run_first = GObject.SIGNAL_RUN_FIRST
 
 # constants
 JOGJOINT  = 1
@@ -26,7 +28,7 @@ except:
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
-    __gsignals__ = {'value-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ())}
+    __gsignals__ = {'value-changed': (go_run_first, GObject.TYPE_NONE, ())}
 
     REGISTRY = []
     UPDATE = False
@@ -88,111 +90,111 @@ class GComponent:
 class _GStat(GObject.GObject):
     '''Emits signals based on linuxcnc status '''
     __gsignals__ = {
-        'periodic': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-estop': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-estop-reset': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-on': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-off': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'periodic': (go_run_first, GObject.TYPE_NONE, ()),
+        'state-estop': (go_run_first, GObject.TYPE_NONE, ()),
+        'state-estop-reset': (go_run_first, GObject.TYPE_NONE, ()),
+        'state-on': (go_run_first, GObject.TYPE_NONE, ()),
+        'state-off': (go_run_first, GObject.TYPE_NONE, ()),
 
-        'homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'unhomed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'all-homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'not-all-homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'override-limits-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
+        'homed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'unhomed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'all-homed': (go_run_first, GObject.TYPE_NONE, ()),
+        'not-all-homed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'override-limits-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'hard-limits-tripped': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
+        'hard-limits-tripped': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'mode-manual': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'mode-auto': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'mode-mdi': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'mode-manual': (go_run_first, GObject.TYPE_NONE, ()),
+        'mode-auto': (go_run_first, GObject.TYPE_NONE, ()),
+        'mode-mdi': (go_run_first, GObject.TYPE_NONE, ()),
 
-        'command-running': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'command-stopped': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'command-error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'command-running': (go_run_first, GObject.TYPE_NONE, ()),
+        'command-stopped': (go_run_first, GObject.TYPE_NONE, ()),
+        'command-error': (go_run_first, GObject.TYPE_NONE, ()),
 
-        'interp-run': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-idle': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-paused': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-reading': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-waiting': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-run': (go_run_first, GObject.TYPE_NONE, ()),
+        'interp-idle': (go_run_first, GObject.TYPE_NONE, ()),
+        'interp-paused': (go_run_first, GObject.TYPE_NONE, ()),
+        'interp-reading': (go_run_first, GObject.TYPE_NONE, ()),
+        'interp-waiting': (go_run_first, GObject.TYPE_NONE, ()),
 
-        'jograte-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'jograte-angular-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'jogincrement-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
-        'jogincrement-angular-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
+        'jograte-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jograte-angular-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jogincrement-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
+        'jogincrement-angular-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
 
-        'joint-selection-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'axis-selection-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'joint-selection-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'axis-selection-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'program-pause-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'optional-stop-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'block-delete-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'program-pause-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'optional-stop-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'block-delete-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'file-loaded': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'reload-display': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'line-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'file-loaded': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'reload-display': (go_run_first, GObject.TYPE_NONE, ()),
+        'line-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
 
-        'tool-in-spindle-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'tool-prep-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'tool-info-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'current-tool-offset': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'tool-in-spindle-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-prep-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-info-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'current-tool-offset': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
-        'motion-mode-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'spindle-control-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,GObject.TYPE_INT)),
-        'current-feed-rate': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'current-x-rel-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'current-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
+        'motion-mode-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'spindle-control-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,GObject.TYPE_INT)),
+        'current-feed-rate': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-x-rel-position': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-position': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
                             GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
-        'current-z-rotation': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'requested-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'actual-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-z-rotation': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'requested-spindle-speed-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'actual-spindle-speed-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'spindle-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'feed-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'rapid-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'max-velocity-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'spindle-override-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'feed-override-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'rapid-override-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'feed-hold-enabled-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'feed-hold-enabled-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'itime-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpm-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpr-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'css-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'rpm-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'radius-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'diameter-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'flood-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'mist-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'itime-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpm-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpr-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'css-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'rpm-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'radius-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'diameter-mode': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'flood-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'mist-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'm-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'g-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'm-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'g-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'metric-mode-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'user-system-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'metric-mode-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'user-system-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'mdi-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'gcode-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-loading-progress': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-gcode-error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'graphics-gcode-properties': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'graphics-view-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
-        'mdi-history-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'machine-log-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'update-machine-log': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'move-text-lineup': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'move-text-linedown': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'dialog-request': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'focus-overlay-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
+        'mdi-line-selected': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'gcode-line-selected': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-line-selected': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-loading-progress': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-gcode-error': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'graphics-gcode-properties': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-view-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
+        'mdi-history-changed': (go_run_first, GObject.TYPE_NONE, ()),
+        'machine-log-changed': (go_run_first, GObject.TYPE_NONE, ()),
+        'update-machine-log': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'move-text-lineup': (go_run_first, GObject.TYPE_NONE, ()),
+        'move-text-linedown': (go_run_first, GObject.TYPE_NONE, ()),
+        'dialog-request': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'focus-overlay-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
                             GObject.TYPE_PYOBJECT)),
-        'play-sound': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'virtual-keyboard': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'dro-reference-change-request': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'show-preference': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'shutdown': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
-        'general': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'forced-update': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'play-sound': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'virtual-keyboard': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'dro-reference-change-request': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'show-preference': (go_run_first, GObject.TYPE_NONE, ()),
+        'shutdown': (go_run_first, GObject.TYPE_NONE, ()),
+        'error': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
+        'general': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'forced-update': (go_run_first, GObject.TYPE_NONE, ()),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
