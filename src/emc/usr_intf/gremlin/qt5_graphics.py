@@ -7,6 +7,8 @@ import math
 
 import warnings
 
+from gettext import gettext as _
+
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
@@ -370,17 +372,19 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.percentLoaded.emit(percent)
 
     def calculate_gcode_properties(self, canon):
-        def dist(xxx_todo_changeme, xxx_todo_changeme1):
-            (x,y,z) = xxx_todo_changeme
-            (p,q,r) = xxx_todo_changeme1
+        def dist(point1, point2):
+            (x, y, z) = point1
+            (p, q, r) = point2
             return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
+
         def from_internal_units(pos, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
             lu = (unit or 1) * 25.4
 
             lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
-            return [a*b for a, b in zip(pos, lus)]
+            return [aa*bb for aa, bb in zip(pos, lus)]
+
         def from_internal_linear_unit(v, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
@@ -685,7 +689,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             #self.draw_small_origin(genList)
             #GL.glCallList(genList)
             # display something - probably in QtDesigner
-            GL.glCallList(self.object)
+            # GL.glCallList(self.object)
 
     # replaces glcanoon function
     def redraw_perspective(self):
@@ -1003,7 +1007,7 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         inifilename = sys.argv[1]
     else:
-        usage()
+        os.open('usage()')
     window = Window(inifilename)
     window.show()
     sys.exit(app.exec_())
