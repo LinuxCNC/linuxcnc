@@ -237,7 +237,7 @@ class IniFile(object):
                     os.rename(self.filename,badfilename)
                     retries -= 1
                     if retries:
-                        raise UselessIniError("cant make sense of '%s', renamed to '%s'"
+                        raise UselessIniError("can not make sense of '%s', renamed to '%s'"
                                               % (self.filename, badfilename))
                     else:
                         raise Exception(error)

@@ -340,7 +340,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self._flip_state(False)
 
     # arbitraray python commands are possible using 'INSTANCE' in the string
-    # gives acess to widgets and handler functions 
+    # gives access to widgets and handler functions 
     def python_command(self, state = None):
         if self._python_command:
             if state:

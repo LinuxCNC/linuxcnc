@@ -15,7 +15,7 @@
 
 # Action buttons are used to change linuxcnc behaivor do to button pushing.
 # By making the button 'checkable' in the designer editor,
-# the buton will toggle.
+# the button will toggle.
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 
@@ -247,8 +247,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 self.pressed.connect(lambda: self.jog_selected_action(-1))
                 self.released.connect(lambda: self.jog_selected_action(0))
 
-            # jog button use diferent action signals so
-            # leave early to aviod the standard 'clicked' signal
+            # jog button use different action signals so
+            # leave early to avoid the standard 'clicked' signal
             return
 
         elif True in(self.zero_axis, self.zero_g5x,self.zero_g92, self.run, self.zero_zrot,
@@ -604,7 +604,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self.QTVCP_INSTANCE_.close()
         elif self.machine_log_dialog:
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
-        # defult error case
+        # default error case
         else:
             if state is not None:
                 self.safecheck(state)

@@ -25,7 +25,7 @@ import math
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
-# not allow to use them in glade without linuxcnc beeing started
+# not allow to use them in glade without linuxcnc being started
 from .hal_widgets import _HalJogWheelBase
 
 class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
@@ -33,7 +33,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     The JogWheel Widget simulates a real jog wheel
 
     show counts = bool     , whether you want to display the counts in the widget or not 
-    size        = interger , the size of the widget in pixel, 
+    size        = integer , the size of the widget in pixel, 
                              allowed values are in the range from 100 to 500, 
                              default is 300
     cpr         = integer  , The counts per revolution, 
@@ -119,7 +119,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.dot_pitch_radius = self.inner_radius - self.dot_radius
 
         # create the cairo window
-        # I do not know why this workes without importing cairo
+        # I do not know why this works without importing cairo
         self.cr = widget.window.cairo_create()
 
         # the area of reactions
@@ -157,7 +157,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.cr.arc(0, 0, filldia, 0, 2*math.pi)
         self.cr.fill()
 
-        # draw a smaler circle with a finer line
+        # draw a smaller circle with a finer line
         linewith = self._size / 200
         if linewith < 1:
             linewith = 1

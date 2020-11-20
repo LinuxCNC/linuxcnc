@@ -83,7 +83,7 @@ class Notify:
 
 
 #####################################################
-# actualy build the notices
+# actually build the notices
 #####################################################
 
     def build_error_notification(self, icon=None):

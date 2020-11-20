@@ -639,7 +639,7 @@ class BoxCenteredXY(Box):
         Box.__init__(self, -xw/2.0, -yw/2.0, 0, xw/2.0, yw/2.0, zw)
 
 # capture current transformation matrix
-# note that this tranforms from the current coordinate system
+# note that this transforms from the current coordinate system
 # to the viewport system, NOT to the world system
 class Capture(object):
     def __init__(self):
@@ -819,7 +819,7 @@ class O(rs274.OpenGLTk.Opengl):
         # so lets also invert the work2view matrix
         view2work = invert(self.work2view.t)
 
-        # since backplot lines only need vertexes, not orientation,
+        # since backplot lines only need vertices, not orientation,
         # and the tooltip is at the origin, getting the tool coords
         # is easy
         tx, ty, tz = self.tool2view.t[12:15]

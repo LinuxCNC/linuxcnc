@@ -25,7 +25,7 @@ from math import pi
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
-# not allow to use them in glade without linuxcnc beeing started
+# not allow to use them in glade without linuxcnc being started
 from .hal_widgets import _HalSpeedControlBase
 
 class SpeedControl(gtk.VBox, _HalSpeedControlBase):

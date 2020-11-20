@@ -26,7 +26,7 @@ LOG = logger.getLogger(__name__)
 
 # BASE is the absolute path to linuxcnc base
 # LIBDIR is the path to qtvcp python files
-# DATADIR is where the standarad UI files are
+# DATADIR is where the standard UI files are
 # IMAGEDIR is for icons
 class _PStat(object):
     def __init__(self):
@@ -216,7 +216,7 @@ class _PStat(object):
             return
         else:
             LOG.debug("Checking for resources.py in: yellow<{}>".format(defaultqrcpy))
-            # if there is a defult resource file or a QRC to compile it from:
+            # if there is a default resource file or a QRC to compile it from:
             if os.path.exists(defaultqrcpy) or self.QRC_IS_LOCAL is not None:
                 if os.path.exists(defaultqrcpy):
                     LOG.info("Using DEFAULT resources.py file from yellow<{}>".format(defaultqrcpy))

@@ -279,7 +279,7 @@ class GeneralHALOutputPlugin(QPyDesignerCustomWidgetPlugin):
     def toolTip(self):
         return "Generalized HAL Output Pin Widget"
     def whatsThis(self):
-        return "Used to add HAl Pins to Arbritrary widgets"
+        return "Used to add HAl Pins to Arbitrary widgets"
     def isContainer(self):
         return True
     def domXml(self):
@@ -312,7 +312,7 @@ class GeneralHALInputPlugin(QPyDesignerCustomWidgetPlugin):
     def toolTip(self):
         return "Generalized HAL Input Pin Widget"
     def whatsThis(self):
-        return "Used to add HAl Pins to Arbritrary widgets"
+        return "Used to add HAl Pins to Arbitrary widgets"
     def isContainer(self):
         return True
     def domXml(self):

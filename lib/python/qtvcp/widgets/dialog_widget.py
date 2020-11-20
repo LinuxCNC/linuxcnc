@@ -62,7 +62,7 @@ LOG = logger.getLogger(__name__)
     # This general function parses the geometry string and places
     # the dialog based on what it finds.
     # there are directive words allowed.
-    # If there are no letters in thw string , it will check the
+    # If there are no letters in the string, it will check the
     # preference file (if there is one) to see what the last position
     # was. If all else fails it uses it's natural Designer stated
     # geometry
@@ -106,7 +106,7 @@ class GeometryMixin(_HalWidgetBase):
                 self.setGeometry(geom)
                 return
             elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
+                # move to bottom left of parent
                 ph = self.topParent.geometry().height()
                 px = self.topParent.geometry().x()
                 py = self.topParent.geometry().y()
@@ -351,10 +351,10 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self.setStandardButtons(QMessageBox.Ok)
         self.useDesktopDialog = False
 
-    # We want the tool change HAL pins the same as whats used in AXIS so it is
+    # We want the tool change HAL pins the same as what's used in AXIS so it is
     # easier for users to connect to.
     # So we need to trick the HAL component into doing this for these pins,
-    # but not anyother Qt widgets.
+    # but not any other Qt widgets.
     # So we record the original base name of the component, make our pins, then
     # switch it back
     def _hal_init(self):
@@ -374,7 +374,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         else:
             LOG.warning("""Detected hal_manualtoolchange component already loaded
    Qtvcp recommends to allow use of it's own component by not loading the original. 
-   Qtvcp Intergrated toolchange dialog will not show untill then""")
+   Qtvcp Integrated toolchange dialog will not show until then""")
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
             self.speak = self.PREFS_.getpref('toolDialog_speak', True, bool, 'DIALOG_OPTIONS')

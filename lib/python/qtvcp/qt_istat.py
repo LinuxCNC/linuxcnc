@@ -119,7 +119,7 @@ class _IStat(object):
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION ))
 
         axes = self.INI.find("TRAJ", "COORDINATES")
-        if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
+        if axes is not None: # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
             log.debug('TRAJ COORDINATES: {}'.format(axes))
             self.AVAILABLE_AXES = []
@@ -148,7 +148,7 @@ class _IStat(object):
                 else:
                     self.GET_JOG_FROM_NAME[c] = num
 
-                # list of availble joint numbers
+                # list of available joint numbers
                 self.AVAILABLE_JOINTS.append(num)
 
                 # AXIS sanity check
@@ -171,7 +171,7 @@ class _IStat(object):
 
         # home all check
         self.HOME_ALL_FLAG = 1
-        # set Home All Flage only if ALL joints specify a HOME_SEQUENCE
+        # set Home All Flag only if ALL joints specify a HOME_SEQUENCE
         jointcount = len(self.AVAILABLE_JOINTS)
         self.JOINT_SEQUENCE_LIST = {}
         for j in range(jointcount):
@@ -193,7 +193,7 @@ class _IStat(object):
                 self.JOINT_TYPE_INT[j] = 2
             self.JOINT_SEQUENCE[j]  = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
-        # jog syncronized sequence
+        # jog synchronized sequence
         templist = []
         for j in self.AVAILABLE_JOINTS:
             temp = []
@@ -407,7 +407,7 @@ class _IStat(object):
         c = self.MACHINE_UNIT_CONVERSION_9
         return list(map(lambda x,y: x*y, v, c))
 
-    # This finds the filter program's initilizing
+    # This finds the filter program's initializing
     # program eg python for .py from INI
     def get_filter_program(self, fname):
         ext = os.path.splitext(fname)[1]
