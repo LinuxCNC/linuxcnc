@@ -87,9 +87,12 @@ class _IStat(object):
             self.MACRO_PATH = None
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
+
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
         self.PROGRAM_FILTERS_EXTENSIONS = self.get_filters_extensions()
+        self.VALID_PROGRAM_EXTENSIONS = self.get_all_valid_extensions()
+
         self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
         try:
             # check the ini file if UNITS are set to mm"
@@ -394,8 +397,21 @@ class _IStat(object):
         else:
             return None
 
+    def get_all_valid_extensions(self):
+        temp = []
+        try:
+            for i in(self.PROGRAM_FILTERS):
+                for q in i[0].split(','):
+                        temp.append('{}'.format(q))
+            if not '.ngc' in temp:
+                temp.append('.ngc')
+            return temp
+        except Exception as e:
+            log.warning('Valid Extension Parsing Error: {}\n Using Default: *'.format(e))
+            return ('*')
+
     def get_filters_extensions(self):
-        all_extensions = [['GCode (*.ngc)',['*.ngc']]]
+        all_extensions = []
         try:
             for k, v in self.PROGRAM_FILTERS:
                 k = k.replace('.',' *.')
@@ -406,12 +422,13 @@ class _IStat(object):
                 all_extensions.append( ['{}'.format(v),temp] )
             all_extensions.append(['All (*)', ['*']])
             return all_extensions
-        except:
-            return [['GCode (*.ngc)',['*.ngc']],['All (*)',['*']]]
+        except Exception as e:
+            log.warning('filter Extension Parsing Error: {}\n Using Default: ALL (*)'.format(e))
+            return [['All (*)',['*']]]
 
     # get filter extensions in QT format
-    def get_qt_filter_extensions(self,):
-        all_extensions = [("G code (*.ngc)")]
+    def get_qt_filter_extensions(self):
+        all_extensions = []
         try:
             for k, v in self.PROGRAM_FILTERS:
                 k = k.replace('.',' *.')
@@ -422,8 +439,17 @@ class _IStat(object):
             for i in all_extensions:
                 temp = '%s %s'%(temp ,i)
             return temp
-        except:
+        except Exception as e:
+            log.warning('Qt filter Extension Parsing Error: {}\n Using Default: ALL (*)'.format(e))
             return ('All (*)')
+
+    def program_extension_valid(self, fname):
+        filename, file_extension = os.path.splitext(fname)
+        if '*' in self.VALID_PROGRAM_EXTENSIONS:
+            return True
+        elif file_extension.lower() in (self.VALID_PROGRAM_EXTENSIONS):
+            return True
+        return False
 
     def __getitem__(self, item):
         return getattr(self, item)

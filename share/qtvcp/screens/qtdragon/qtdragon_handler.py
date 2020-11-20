@@ -799,10 +799,10 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
-        if '*'+ file_extension.lower() not in (INFO.PROGRAM_FILTERS_EXTENSIONS):
-            self.add_status("Unknown or invalid filename extension {}".format(file_extension))
-            return
         if not fname.endswith(".html"):
+            if not (INFO.program_extension_valid(fname)):
+                self.add_status("Unknown or invalid filename extension {}".format(file_extension))
+                return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
