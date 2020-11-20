@@ -140,9 +140,13 @@ class Status(GStat):
 
     # we override this function from hal_glib
     def set_timer(self):
-        pass
-    #     GObject.threads_init()
-    #     GObject.timeout_add(100, self.update)
+        if sys.version_info.major > 2:
+            return
+        # TODO Python 2 needs the threads_init. Python3 this is deprecated and not needed
+        # View new functionality here: https://pygobject.readthedocs.io/en/latest/guide/threading.html
+        # If we want to keep the time out it is now GLib.timeout_add(100, self.update)
+        GObject.threads_init()
+        GObject.timeout_add(100, self.update)
 
 
 ################################################################
