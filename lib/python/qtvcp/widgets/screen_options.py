@@ -221,6 +221,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.catch_errors:
             STATUS.connect('periodic', self.on_periodic)
             STATUS.connect('error', self.process_error)
+            STATUS.connect('graphics-gcode-error', lambda w, data: self.process_error(None, linuxcnc.OPERATOR_ERROR, data))
 
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
