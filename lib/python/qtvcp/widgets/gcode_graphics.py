@@ -183,7 +183,6 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         error_str = gcode.strerror(result)
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
-        print(errortext)
         STATUS.emit("graphics-gcode-error", errortext)
 
     # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
