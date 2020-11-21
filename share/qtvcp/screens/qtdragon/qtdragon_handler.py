@@ -351,9 +351,9 @@ class HandlerClass:
 
             if flag:
                 if isinstance(receiver2, GCODE):
-                    # if in manual do our keybindings - otherwise
+                    # if in manual or in readonly mode do our keybindings - otherwise
                     # send events to gcode widget
-                    if STATUS.is_man_mode() == False:
+                    if STATUS.is_man_mode() == False or not receiver2.isReadOnly():
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
