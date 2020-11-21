@@ -332,7 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x9b, "Lead", ""), //0x9b  is  ssend from device
+    lead(0x1c, "Lead", ""), //0x1b is sent from device XHC-WHB04B-6 else all the logic is broken inside the compoent for feed and spindle override
+    //lead(0x9b, "Lead", ""), //0x9b  is sent from device i don't know why the change to 9b was done but this is not correct with XHC-WHB04B-6
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
