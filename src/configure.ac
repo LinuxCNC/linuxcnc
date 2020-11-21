@@ -1030,7 +1030,7 @@ AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     AS_HELP_STRING(
         [--enable-build-documentation[=FORMAT]],
-        [Build documentation.  FORMAT may be "pdf" or "html" if only one format is desired.]
+        [Build documentation.  FORMAT may be "Y" for both or "pdf" or "html" if only one format is desired.]
     ),
     [
         case "$enableval" in
@@ -1246,25 +1246,6 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
-
-AC_MSG_CHECKING([for sincos function])
-sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
-        1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
-AC_MSG_RESULT([$sincos_ok])
-
-AC_CHECK_FUNCS(__sincos)
-LIBS=$LIBS_hold
 
 AC_MSG_CHECKING([for optreset])
 AC_TRY_LINK(
@@ -1756,7 +1737,9 @@ AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
-AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-doc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 

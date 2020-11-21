@@ -1,0 +1,82 @@
+:lang: es
+[[cha:other-codes]]
+
+= Otros códigos
+
+[[sec:set-feed-rate]]
+== F: Establecer velocidad de alimentación
+(((F: Establecer velocidad de alimentación)))
+
+'Fx' - establece la velocidad de avance a 'x'. 'x' usualmente está en unidades máquina
+(pulgadas o milímetros) por minuto.
+
+La aplicación de la velocidad de alimentación es como se describe en la Sección 
+<<sub:feed-rate, Velocidad de alimentación>>, a menos que estén vigentes 'modo de velocidad de alimentación de tiempo inverso' o 'modo de avance por revolución', en cuyo caso la velocidad de avance
+es como se describe en la  Sección <<gcode:g93-g94-g95,G93 G94 G95>>.
+
+[[sec:set-spindle-speed]]
+== S: Establecer la velocidad de husillo
+(((S: Establecer velocidad del husillo)))
+
+'Sx [$n]' - establece la velocidad del husillo a 'x' revoluciones por minuto (RPM).
+Con el $ opcional establece la velocidad del husillo para un husillo específico. Sin el $,
+el comando pasará por defecto a spindle.0
+
+Los husillos o husillo seleccionado girarán a esa velocidad cuando un 'M3' o 'M4'
+esté en efecto. Está bien programar una palabra S si el husillo está girando o
+no. Si el interruptor de ajuste de velocidad está habilitado y no está configurado al 100%, la velocidad
+será diferente de lo programado.
+
+Está bien programar S0; el husillo no girará.
+
+Es un error si:
+
+* el número S es negativo.
+
+[[sec:select-tool]]
+== T: Seleccionar herramienta
+(((T: Seleccionar herramienta)))
+
+'Tx': prepára el cambio a la herramienta 'x'.
+
+La herramienta no se cambia hasta que se programa un 'M6' (consulte la sección
+<<mcode:m6,M6>>). La palabra T puede aparecer en la misma línea que el
+'M6' o en una línea anterior. Está bien si las palabras T aparecen en dos o más
+líneas sin cambio de herramienta. Solo la palabra T más reciente tomará
+efecto en el siguiente cambio de herramienta.
+
+NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio (consulte
+la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section, EMCIO>>), 
+'T0' tiene un manejo especial: no se seleccionará ninguna herramienta. Esto
+es útil si desea que el husillo quede vacío después de un cambio de herramienta.
+
+NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio (consulte
+la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section,EMCIO>>), 'T0' no recibe 
+ningún tratamiento especial: T0 es una herramienta válida como cualquier otra. Es costumbre 
+usar T0 en un cambiador de herramientas aleatorio
+para rastrear una ranura vacía, para que se comporte como cambiador de herramientas
+no aleatorio y descargue el husillo.
+
+Es un error si:
+
+* se usa un número T negativo,
+
+* Se utiliza un número T que no aparece en el archivo de la tabla de herramientas (con
+    la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
+    como se señaló anteriormente).
+
+En algunas máquinas, el carrusel se moverá cuando se programe una palabra T,
+Al mismo tiempo, se está mecanizando. En tales máquinas, la programación
+de la palabra T varias líneas antes de un cambio de herramienta ahorrará tiempo. Una práctica común
+de programación para tales máquinas es poner la palabra T para la
+siguiente herramienta que se utilizará en la línea después de un cambio de herramienta. Esto maximiza
+el tiempo disponible para que el carrusel se mueva.
+
+Los movimientos rápidos después de una 'T<n>' no se mostrarán en la vista previa de AXIS hasta después
+un movimiento de alimentación. Esto es para máquinas que viajan largas distancias para cambiar
+la herramienta, como un torno. Esto puede ser muy confuso al principio. Para desactivar
+esta característica para la herramienta actual, programe un G1 sin ningún
+movimiento después de 'T<n>'.
+
+// vim: set syntax = asciidoc:
+

@@ -1,0 +1,32 @@
+.TH INVERT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+invert \- Compute the inverse of the input signal
+.SH SYNOPSIS
+The output will be the mathematical inverse of the input, ie \fBout\fR = 1/\fBin\fR.
+The parameter \fBdeadband\fR can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  \fBdeadband\fR must be at least 1e-8, and must be positive.
+.SH FUNCTIONS
+.TP
+\fBinvert.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B invert.\fIN\fB.in\fR float in \fR
+Analog input value
+.TP
+.B invert.\fIN\fB.out\fR float out \fR
+Analog output value
+.SH PARAMETERS
+.TP
+.B invert.\fIN\fB.deadband\fR float rw \fR
+The \fBout\fR will be zero if \fBin\fR is between -\fBdeadband\fR and +\fBdeadband\fR
+.SH LICENSE
+
+GPL

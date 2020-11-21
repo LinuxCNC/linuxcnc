@@ -107,12 +107,50 @@ class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
 
+class Progress:
+    def __init__(self, phases, total):
+        self.num_phases = phases
+        self.phase = 0
+        self.total = total or 1
+        self.lastcount = 0
+        self.text = None
+
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
+            fraction = (self.phase + count * 1. / self.total) / self.num_phases
+            self.lastcount = count
+            self.emit_percent(int(fraction *100))
+
+    # this is class patched
+    def emit_percent(self, percent):
+        pass
+
+    def nextphase(self, total):
+        self.phase += 1
+        self.total = total or 1
+        self.lastcount = -100
+        self.update(0, True)
+
+    def done(self):
+        self.emit_percent(-1)
+
+    # not sure if this is used - copied from AXIS code
+    def set_text(self, text):
+        if self.text is None:
+            self.text = ".info.progress"
+        else:
+            print(".info.progress", text)
+
 class StatCanon(glcanon.GLCanon, interpret.StatMixin):
-    def __init__(self, colors, geometry, lathe_view_option, stat, random):
+    def __init__(self, colors, geometry, lathe_view_option, stat, random, text, linecount, progress, arcdivision):
         glcanon.GLCanon.__init__(self, colors, geometry)
         interpret.StatMixin.__init__(self, stat, random)
-        self.progress = DummyProgress()
         self.lathe_view_option = lathe_view_option
+        self.text = text
+        self.linecount = linecount
+        self.progress = progress
+        self.aborted = False
+        self.arcdivision = arcdivision
 
     def is_lathe(self): return self.lathe_view_option
 
@@ -120,10 +158,28 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
         glcanon.GLCanon.change_tool(self,pocket)
         interpret.StatMixin.change_tool(self,pocket)
 
+    # not sure if this is used - copied from AXIS code
+    def do_cancel(self, event):
+        self.aborted = True
+
+    # not sure if this is used - copied from AXIS code
+    def check_abort(self):
+        #root_window.update()
+        if self.aborted: raise KeyboardInterrupt
+
+    def next_line(self, st):
+        glcanon.GLCanon.next_line(self, st)
+        self.progress.update(self.lineno)
+        # not sure if this is used - copied from AXIS code
+        if self.notify:
+            print("info",self.notify_message)
+            self.notify = 0
+
 ###############################
 # widget for graphics plotting
 ###############################
 class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
+    percentLoaded = pyqtSignal(int)
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
     zRotationChanged = pyqtSignal(int)
@@ -252,11 +308,31 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         elif not filename and not s.file:
             return
 
+
+        lines = open(filename).readlines()
+        progress = Progress(2, len(lines))
+        progress.emit_percent = self.emit_percent
+
+        code = []
+        i = 0
+        for i, l in enumerate(lines):
+            l = l.expandtabs().replace("\r", "")
+            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            if i % 1000 == 0:
+                del code[:]
+                progress.update(i)
+        if code:
+            pass
+        progress.nextphase(len(lines))
+
+
         td = tempfile.mkdtemp()
         self._current_file = filename
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-            canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
+            arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
+            text = ''
+            canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, text, random, i, progress, arcdivision)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
             temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
@@ -268,12 +344,21 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)
-        except:
+        except Exception as e:
+            print e
             self.gcode_properties = None
         finally:
             shutil.rmtree(td)
-
+            if canon:
+                canon.progress = DummyProgress()
+            try:
+                progress.done()
+            except UnboundLocalError:
+                pass
         self._redraw()
+
+    def emit_percent(self, percent):
+        self.percentLoaded.emit(percent)
 
     def calculate_gcode_properties(self, canon):
         def dist((x,y,z),(p,q,r)):
@@ -743,7 +828,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # Also stop the display from pausing plotting update while searching
     # probably needs a thread - strange that Tkinter and GTK don't suffer...
     def select_fire(self):
-        if self.inhibt_selection: return
+        if self.inhibit_selection: return
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
@@ -776,7 +861,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & Qt.RightButton:
-            self.clear_live_plotter()
+            self.logger.clear()
 
     def mouseMoveEvent(self, event):
         # move
@@ -821,20 +906,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         y4 = +0.22 * factor
 
         # cross
-        self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
+        self.quad(x1, y1, x2, y2, y2, x2, y1, x1, z= .05, color = self.Green)
         # vertical line
-        self.quad(x3, y3, x4, y4, y4, x4, y3, x3)
+        self.quad(x3, y3, x4, y4, y4, x4, y3, x3, z= .05, color = self.Green)
 
         # cross depth
-        self.extrude(x1, y1, x2, y2)
-        self.extrude(x2, y2, y2, x2)
-        self.extrude(y2, x2, y1, x1)
-        self.extrude(y1, x1, x1, y1)
+        self.extrude(x1, y1, x2, y2, z= .05, color = self.Green)
+        self.extrude(x2, y2, y2, x2, z= .05, color = self.Green)
+        self.extrude(y2, x2, y1, x1, z= .05, color = self.Green)
+        self.extrude(y1, x1, x1, y1, z= .05, color = self.Green)
 
         # vertical depth
-        self.extrude(x3, y3, x4, y4)
-        self.extrude(x4, y4, y4, x4)
-        self.extrude(y4, x4, y3, x3)
+        self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
+        self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
+        self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
   
         NumSectors = 200
   
@@ -852,36 +937,50 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             x8 = 0.30 * math.sin(angle2) * factor
             y8 = 0.30 * math.cos(angle2) * factor
   
-            self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
+            self.quad(x5, y5, x6, y6, x7, y7, x8, y8, z= .05, color = self.Green)
   
-            self.extrude(x6, y6, x7, y7)
-            self.extrude(x8, y8, x5, y5)
+            self.extrude(x6, y6, x7, y7, z= .05, color = self.Green)
+            self.extrude(x8, y8, x5, y5, z= .05, color = self.Green)
   
         GL.glEnd()
         GL.glEndList()
   
         return genList
   
-    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        self.qglColor(self.Green)
+    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, -0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x3, y3, -0.05)
-        GL.glVertex3d(x4, y4, -0.05)
+        GL.glVertex3d(x1, y1, -z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x3, y3, -z)
+        GL.glVertex3d(x4, y4, -z)
   
-        GL.glVertex3d(x4, y4, +0.05)
-        GL.glVertex3d(x3, y3, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x1, y1, +0.05)
+        GL.glVertex3d(x4, y4, +z)
+        GL.glVertex3d(x3, y3, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x1, y1, +z)
+
+    def lathe_quad(self, x1, x2, x3, x4, z1, z2, z3, z4, color):
+        self.qglColor(color)
   
-    def extrude(self, x1, y1, x2, y2):
-        self.qglColor(self.Green.darker(250 + int(100 * x1)))
+        GL.glVertex3d(x1, 0, z1)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x4, 0, z4)
+
+        # defeat back face cull
+        GL.glVertex3d(x4, 0, z4)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x1, 0, z1)
+
+    def extrude(self, x1, y1, x2, y2, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x1, y1, -0.05)
+        GL.glVertex3d(x1, y1, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x1, y1, -z)
 
 ###########
 # Testing

@@ -1,0 +1,68 @@
+.TH BIQUAD "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+biquad \- Biquad IIR filter
+.SH SYNOPSIS
+.HP
+.B loadrt biquad [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+Biquad IIR filter. Implements the following transfer function:
+H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)
+.SH FUNCTIONS
+.TP
+\fBbiquad.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B biquad.\fIN\fB.in\fR float in \fR
+Filter input.
+.TP
+.B biquad.\fIN\fB.out\fR float out \fR
+Filter output.
+.TP
+.B biquad.\fIN\fB.enable\fR bit in \fR(default: \fI0\fR)
+Filter enable. When false, the \fBin\fR pin is passed to the \fBout\fR pin without any filtering.  A \fBtransition from false to true\fR causes filter coefficients to be calculated according to the current \fBtype\fR and the describing pin and parameter settings
+.TP
+.B biquad.\fIN\fB.valid\fR bit out \fR(default: \fI0\fR)
+When false, indicates an error occurred when calculating filter coefficients (require 2>\fBQ\fR>0.5 and \fBf0\fR>sampleRate/2)
+.TP
+.B biquad.\fIN\fB.type\fR u32 in \fR(default: \fI0\fR)
+Filter type determines the type of filter coefficients calculated.  When 0, coefficients must be loaded directly from the \fBn0,n1,n2,d1\fR params.  When 1, a low pass filter is created specified by the \fBf0,Q\fR pins.  When 2, a notch filter is created specified by the \fBf0,Q\fR pins.
+.TP
+.B biquad.\fIN\fB.f0\fR float in \fR(default: \fI250.0\fR)
+The corner frequency of the filter.
+.TP
+.B biquad.\fIN\fB.Q\fR float in \fR(default: \fI0.7071\fR)
+The Q of the filter.
+.TP
+.B biquad.\fIN\fB.s1\fR float out \fR(default: \fI0.0\fR)
+1st-delayed internal state (for debug only)
+.TP
+.B biquad.\fIN\fB.s2\fR float out \fR(default: \fI0.0\fR)
+2nd-delayed internal state (for debug only)
+.SH PARAMETERS
+.TP
+.B biquad.\fIN\fB.d1\fR float rw \fR(default: \fI0.0\fR)
+1st-delayed denominator coef
+.TP
+.B biquad.\fIN\fB.d2\fR float rw \fR(default: \fI0.0\fR)
+2nd-delayed denominator coef
+.TP
+.B biquad.\fIN\fB.n0\fR float rw \fR(default: \fI1.0\fR)
+non-delayed numerator coef
+.TP
+.B biquad.\fIN\fB.n1\fR float rw \fR(default: \fI0.0\fR)
+1st-delayed numerator coef
+.TP
+.B biquad.\fIN\fB.n2\fR float rw \fR(default: \fI0.0\fR)
+2nd-delayed numerator coef
+.SH LICENSE
+
+GPL

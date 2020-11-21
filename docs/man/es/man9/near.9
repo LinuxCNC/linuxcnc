@@ -1,0 +1,37 @@
+.TH NEAR "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+near \- Determine whether two values are roughly equal.
+.SH SYNOPSIS
+.HP
+.B loadrt near [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBnear.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B near.\fIN\fB.in1\fR float in \fR
+.TQ
+.B near.\fIN\fB.in2\fR float in \fR
+.TQ
+.B near.\fIN\fB.out\fR bit out \fR
+
+\fBout\fR is true if \fBin1\fR and \fBin2\fR are within a factor of
+\fBscale\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
+if their absolute difference is no greater than \fBdifference\fR (i.e.,
+|in1-in2| <= difference).  \fBout\fR is false otherwise.
+.SH PARAMETERS
+.TP
+.B near.\fIN\fB.scale\fR float rw \fR(default: \fI1\fR)
+.TQ
+.B near.\fIN\fB.difference\fR float rw \fR(default: \fI0\fR)
+.SH LICENSE
+
+GPL

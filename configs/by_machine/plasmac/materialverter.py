@@ -250,7 +250,7 @@ class materialConverter:
                         self.materialNum = ''
                         self.materialName = 'NAME               = '
                         self.materialKerf = 'KERF_WIDTH         = '
-                        self.materialTHC = 'THC                = 0'
+                        self.materialTHC = 'THC                = 1'
                         self.materialPierceH = 'PIERCE_HEIGHT      = '
                         self.materialPierceD = 'PIERCE_DELAY       = '
                         self.materialPuddleH = 'PUDDLE_JUMP_HEIGHT = 0'
@@ -304,6 +304,9 @@ class materialConverter:
                     elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
                         self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
+                    elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                        a,b = line.split('=',1)
+                        self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
                     count += 1
                 if valid:
                     self.output()

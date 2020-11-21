@@ -22,28 +22,24 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <string.h>
-#include "cpuinfo.h"
 
 char *get_cpuinfo_revision(char *revision)
 {
    FILE *fp;
    char buffer[1024];
-   char hardware[1024];
+   char model[1024];
    int  rpi_found = 0;
 
    if ((fp = fopen("/proc/cpuinfo", "r")) == NULL)
       return 0;
 
    while(!feof(fp)) {
-      fgets(buffer, sizeof(buffer) , fp);
-      sscanf(buffer, "Hardware	: %s", hardware);
-      if (strcmp(hardware, "BCM2708") == 0)
+      if (fgets(buffer, sizeof(buffer) , fp)){
+      sscanf(buffer, "Model           : %s", model);
+      if (strncmp(model, "Raspberry",9) == 0)
          rpi_found = 1;
-      else if (strcmp(hardware, "BCM2709") == 0)
-         rpi_found = 1;
-      else if (strcmp(hardware, "BCM2835") == 0)
-         rpi_found = 1;
-      sscanf(buffer, "Revision	: %s", revision);
+      sscanf(buffer, "Revision  : %s", revision);
+      }
    }
    fclose(fp);
 
@@ -51,6 +47,7 @@ char *get_cpuinfo_revision(char *revision)
       revision = NULL;
    return revision;
 }
+
 
 int get_rpi_revision(void)
 {
@@ -82,8 +79,10 @@ int get_rpi_revision(void)
       return 4;
    else if ((strcmp(revision, "a03111") == 0) ||
             (strcmp(revision, "b03111") == 0) ||
+            (strcmp(revision, "b03112") == 0) ||
             (strcmp(revision, "c03111") == 0) ||
-            (strcmp(revision, "c03112") == 0))
+            (strcmp(revision, "c03112") == 0) ||
+            (strcmp(revision, "d03114") == 0))
       return 5;
    else // assume rev 6
       return 6;

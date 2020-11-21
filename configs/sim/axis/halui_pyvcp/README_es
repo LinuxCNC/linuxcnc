@@ -1,0 +1,7 @@
+Configuración de muestra para halui y pyvcp.
+
+pyvcp = El panel de control virtual HAL es una forma de definir botones virtuales y controles deslizantes; se crearán como botones en una GUI, pero se comportarán
+como hardware real. Consulte el Manual de Integradores para más detalles.
+
+halui = HAL User Interface es una herramienta para permitir que LinuxCNC sea controlado por paneles de hardware (mandos, interruptores, leds, etc.).
+

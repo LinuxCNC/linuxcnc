@@ -33,6 +33,7 @@
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "edit_gtk.h"
+#include <rtapi_string.h>
 
 GtkWidget *ManagerWindow;
 GtkWidget *SectionsList;
@@ -77,10 +78,11 @@ char buffer_debug[ 50 ];
 			}
 			if ( pSection->SubRoutineNumber>=0 )
 			{
-				sprintf( BufferForSRx, "SR%d", pSection->SubRoutineNumber );
+				size_t ret = snprintf(BufferForSRx, sizeof(BufferForSRx), "SR%d", pSection->SubRoutineNumber );
+				if (ret >= sizeof(BufferForSRx)) snprintf(BufferForSRx, sizeof(BufferForSRx), "<toolong>");
 				RowList[ 2 ] = BufferForSRx;
 			}
-sprintf( buffer_debug, "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
+snprintf(buffer_debug, sizeof(buffer_debug), "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
 RowList[ 3 ] = buffer_debug;
 			gtk_clist_append( GTK_CLIST(SectionsList), RowList );
 			OneSectionExists = TRUE;
@@ -115,11 +117,11 @@ void ButtonAddSectionDoneClickSignal( )
 	char BuffLanguage[ 30 ];
 	int Language = SECTION_IN_LADDER;
 	// get language type
-	strcpy( BuffLanguage , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleLanguage)->entry) );
-	if ( strcmp( BuffLanguage, _("Sequential") )==0 )
+	rtapi_strxcpy( BuffLanguage , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleLanguage)->entry) );
+	if ( strcmp( BuffLanguage, "Sequential" )==0 )
 		Language = SECTION_IN_SEQUENTIAL;
 	// get if main or sub-routine (and which number if sub, used in the 'C'all coils)
-	strcpy( SubNbrValue , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleSubRoutineNbr)->entry) );
+	rtapi_strxcpy( SubNbrValue , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleSubRoutineNbr)->entry) );
 	if ( SubNbrValue[ 0 ]=='S' && SubNbrValue[ 1 ]=='R' )
 		SubNbr = atoi( &SubNbrValue[2] );
 

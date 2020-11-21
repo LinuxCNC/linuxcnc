@@ -1,0 +1,139 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH SAMPLER "9" "2006-11-18" "Documentación LinuxCNC" "Manual de usuario de HAL"
+.SH NOMBRE
+sampler \- muestreo de datos HAL en tiempo real
+.SH SINOPSIS
+.B loadrt sampler
+.BI depth= depth1[,depth2...]
+.BI cfg= string1[,string2...]
+
+.SH DESCRIPCIÓN
+.B sampler
+y
+.BR halsampler (1)
+se usan juntos para muestrear datos HAL en tiempo real y almacenarlos en un archivo.
+.B sampler es un componente HAL en tiempo real que exporta pines HAL y crea un FIFO en la memoria compartida. Luego comienza a muestrear datos de HAL y los almacena en el FIFO.
+.B halsampler es un programa de espacio de usuario que copia datos de FIFO a stdout, donde puede redirigirse a un archivo o canalizarse a otro programa.
+
+.SH OPCIONES
+.TP
+.BI depth= depth1[,depth2...]
+establece la profundidad del realtime->user FIFO que
+.B sampler
+crea para almacenar los datos en tiempo real. Múltiples valores de
+.I depth
+(separados por comas) se puede especificar si necesita más de un FIFO (por ejemplo, si desea muestrear datos de dos hilos diferentes en tiempo real).
+.TP
+.BI cfg= string1[,string2...]
+define el juego de pines HAL que
+.B sampler
+exporta y luego muestrea datos de ellos. Una
+.I string
+debe suministrarse para cada FIFO, separadas por comas.
+.B sampler
+exporta un pin para cada caracter en la
+.I string.
+Los caracteres legales son:
+.IP "" 7
+.B F, f
+(float pin)
+.IP "" 7
+.B B, b
+(bit pin)
+.IP "" 7
+.B S, s
+(s32 pin)
+.IP "" 7
+.B U, u
+(u32 pin)
+
+.SH FUNCIONES
+.TP
+.BI sampler. N
+Se crea una función por FIFO, numerada desde cero.
+
+.SH PINES
+.TP
+\fBsampler.\fIN\fB.pin.\fIM\fR input
+Pin para los datos que terminarán en la columna
+.I M
+del FIFO
+.I N
+(y en columna
+.I M
+del archivo de salida). El tipo de pin depende de la cadena de configuración.
+.TP
+\fBsampler.\fIN\fB.curr\-depth\fR out s32
+Número actual de muestras en el FIFO. Cuando esto alcanza
+.I depth
+los nuevos datos comenzarán a sobrescribir los datos antiguos y se perderán algunas muestras.
+.TP
+\fBsampler.\fIN\fB.full\fR bit out
+TRUE cuando el FIFO
+.I N
+está lleno, FALSE cuando hay espacio para otra muestra.
+.TP
+\fBsampler.\fIN\fB.enable\fR bit input
+Cuando es TRUE, las muestras se capturan y se colocan en FIFO \fIN\fR, cuando es FALSE, no se obtienen muestras. El valor predeterminado es TRUE.
+
+.SH PARÁMETROS
+.TP
+\fBsampler.\fIN\fB.overruns\fR s32 rw
+El número de veces que
+.B sampler
+ha intentado escribir datos en los pines HAL pero no encontró espacio en el FIFO. Se incrementa cada vez que
+.B full
+es cierto y se puede restablecer mediante el comando
+.B setp .
+
+.TP
+\fBsampler.\fIN\fB.sample\-num\fR s32 rw
+Un número que identifica la muestra. Se incrementa automáticamente para cada muestra y se puede restablecer usando el comando
+.B setp .
+El número de muestra puede imprimirse opcionalmente en la primera columna de la salida de
+.BR halsampler, utilizando la opcion
+.I \-t
+(ver
+.BR "man 1 halsampler")
+
+.SH "VER TAMBIÉN"
+.BR halsampler (1)
+.BR streamer (9)
+.BR halstreamer (1)
+
+.SH HISTORIA
+
+.SH ERRORES
+
+.SH AUTOR
+Versión original de John Kasunich, como parte del proyecto LinuxCNC. Mejoras por varios otros miembros del equipo de desarrollo de LinuxCNC.
+.SH REPORTE DE ERRORES
+Informar errores a los usuarios de jmkasunich AT DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \ (co 2006 John Kasunich.
+.br
+Esto es software libre; vea la fuente para las condiciones de copia. No hay garantía; ni siquiera para COMERCIABILIDAD o APTITUD PARA UN PROPÓSITO EN PARTICULAR.

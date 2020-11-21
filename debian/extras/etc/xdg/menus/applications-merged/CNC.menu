@@ -1,0 +1,26 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+"http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <Menu>
+    <Name>CNC</Name>
+    <Directory>linuxcnc-cnc.directory</Directory>
+    <Include>
+		<Category>X-CNC</Category>
+    </Include>
+    <Menu>
+		<Name>G-Code Quick-Reference</Name>
+		<Directory>linuxcnc-ref.directory</Directory>
+		<Include>
+		<Category>X-CNC-REF</Category>
+		</Include>
+	</Menu>
+	<Menu>
+		<Name>Documentation</Name>
+		<Directory>linuxcnc-doc.directory</Directory>
+		<Include>
+			<Category>X-CNC-DOC</Category>
+		</Include>
+	</Menu>
+  </Menu>
+</Menu>

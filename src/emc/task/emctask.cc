@@ -34,6 +34,7 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include "motion.h"
+#include <rtapi_string.h>
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -66,8 +67,8 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
-    strcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
-    strcat(fmt, " %f %f");
+    rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
+    rtapi_strxcat(fmt, " %f %f");
     snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
     interp_list.append(system_cmd);
 }
@@ -140,14 +141,17 @@ int emcTaskInit()
 		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
 			 mdir[dct]);
             }
-	    snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
-	    if (0 == stat(path, &buf)) {
+	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
+	    if (ret < sizeof(path) && 0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
-		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
+		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]),
 			     "%s/M1%%02d", expanddir); // update global
+		    if(ret >= sizeof(user_defined_fmt[0])){
+			return -EMSGSIZE; // name truncated
+		    } else {
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: adding user-defined function %s\n",
@@ -155,6 +159,7 @@ int emcTaskInit()
 		    }
 	            user_defined_function_dirindex[num] = dct;
 	            break; // use first occurrence found for num
+		    }
 	        } else {
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
@@ -212,6 +217,7 @@ int emcTaskAbort()
     {
 	int was_open = taskplanopen;
 	emcTaskPlanClose();
+        emcTaskPlanReset();  // Flush any unflushed segments
 	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 		      __LINE__);
@@ -695,7 +701,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // readLine set in main
 
     char buf[LINELEN];
-    strcpy(stat->file, interp.file(buf, LINELEN));
+    rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes

@@ -1,0 +1,410 @@
+:lang: es
+
+[[cha:componentes-hal]]
+
+= Componentes HAL
+
+== Comandos y componentes de espacio de usuario
+
+Todos los comandos en la siguiente lista tienen páginas de manual.
+Algunos tendrán descripciones ampliadas y otros, limitadas.
+Con estas listas se sabe qué componentes existen. Usar 'man n nombre' para obtener información adicional.
+Para ver la información en la página de manual, por ejemplo de Axis, escriba en una ventana de terminal:
+
+----
+man axis (o tal vez 'man 1 axis' si su sistema lo requiere) 
+----
+
+axis:: Interfaz gráfica de usuario AXIS para LinuxCNC (The Enhanced Machine Controller) 
+axis-remote:: Interface AXIS Remote.
+comp:: Construye, compila e instala componentes HAL de LinuxCNC.
+gladevcp:: Panel de control virtual para LinuxCNC basado en widgets Glade, Gtk y HAL.
+gs2:: Componente HAL de espacio de usuario para VDF Automation Direct GS2.
+halcmd:: Manipula HAL del controlador de máquina mejorado desde la línea de comandos.
+hal_input:: Controlar los pines HAL con cualquier dispositivo de entrada de Linux, incluidos los dispositivos USB HID.
+halmeter:: Observar pines, señales y parámetros de HAL.
+halrun:: Manipular HAL del controlador de máquina mejorado desde la línea de comandos.
+halsampler:: Muestreo de datos de HAL en tiempo real.
+halstreamer:: Transmitir archivos de datos a HAL en tiempo real.
+halui:: Observar los pines HAL y dar ordenes a LinuxCNC a través de NML.
+io:: Acepta comandos de E/S NML e interactúa con HAL en el espacio de usuario.
+iocontrol:: Acepta comandos de E/S NML e interactúa con HAL en el espacio de usuario.
+linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
+pyvcp:: Panel de control virtual para LinuxCNC.
+shuttle:: controla los pines HAL con los dispositivos ShuttleXpress y ShuttlePRO fabricados por Contour Design.
+
+[[sec:realtime-components]]
+
+== Lista de componentes en tiempo real
+
+Todos los comandos en la siguiente lista tienen páginas de manual.
+Algunos tendrán descripciones ampliadas y otros, limitadas.
+Con estas dos listas se sabe qué componentes existen. Usar 'man n name' para obtener información adicional. 
+
+[NOTE]
+Si el componente requiere un hilo de punto flotante, suele ser el hilo servo, más lento.
+
+=== Componentes principales de LinuxCNC
+
+motion:: (((motion))) Acepta comandos de movimiento NML e interactúa con HAL en tiempo real.
+
+axis:: (((axis))) Acepta comandos de movimiento NML e interactúa con HAL en tiempo real.
+
+classicladder:: (((classicladder))) Software PLC en tiempo real basado en lógica de escalera.
+Consulte el capítulo <<cha:classicladder,ClassicLadder>> para obtener más información.
+
+gladevcp:: (((gladevcp))) Muestra paneles de control virtuales construidos con GTK/Glade.
+
+threads:: (((threads))) Crea hilos HAL en tiempo real.
+
+=== Componentes lógicos y enfocados a bits (bitwise)
+
+and2:: (((and2))) Puerta AND de dos entradas.  Para devolver TRUE, ambas entradas deben ser ciertas.
+
+not:: (((not))) Inversor.
+
+or2:: (((or2))) Puerta OR de dos entradas.
+
+xor2:: (((xor2))) Puerta XOR (OR exclusivo) de dos entradas.
+
+debounce:: (((debounce))) Filtra ruido en las entradas digitales.
+
+edge:: (((borde))) Detector de flanco.
+
+flipflop:: (((flipflop))) flip-flop tipo D.
+
+oneshot:: (((oneshot))) Generador de disparos de un pulso.
+
+logic:: (((logic))) Componente de función lógica general.
+
+lut5:: (((lut5))) Función lógica de 5 entradas basada en tabla de consulta (look-up table).
+
+match8:: (((match8))) Detector de coincidencia binaria de 8 bits.
+
+select8:: (((select8))) Detector de coincidencia binaria de 8 bits.
+ 
+=== Componentes aritméticos y de punto flotante
+
+abs:: [[sub:abs]](((abs))) Calcula el valor absoluto y el signo de la señal de entrada.
+
+blend:: (((blend))) Realiza interpolación lineal entre dos valores.
+
+comp:: (((comp))) Comparador de dos entradas con histéresis.
+
+constant:: (((constant))) Use un parámetro para establecer el valor de un pin.
+
+sum2:: (((sum2))) Suma de dos entradas (cada una con una ganancia) y un desplazamiento.
+
+counter:: (((counter))) Cuenta los pulsos de entrada (obsoleto).
+Utilice el componente <<sec:encoder,encoder>>.
+
+updown:: (((updown))) Cuenta hacia arriba o hacia abajo, con límites opcionales y comportamiento envolvente.
+
+ddt:: (((ddt))) Calcula la derivada de la función de entrada.
+
+deadzone:: (((deadzone))) Devuelve el centro si está dentro del umbral.
+
+hypot:: (((hypot))) Calculadora de hipotenusa de tres entradas (distancia euclidiana).
+
+mult2:: (((mult2))) Producto de dos entradas.
+
+mux16:: (((mux16))) Selecciona uno de entre dieciséis valores de entrada.
+
+mux2:: (((mux2))) Selecciona uno entre dos valores de entrada.
+
+mux4:: (((mux4))) Selecciona uno de entre cuatro valores de entrada.
+
+mux8:: (((mux8))) Selecciona uno de entre ocho valores de entrada.
+
+near:: (((near))) Determina si dos valores son aproximadamente iguales.
+
+offset:: (((offset))) Agrega un desplazamiento a una entrada y lo resta del valor de realimentación.
+
+integ:: (((integ))) Integrador.
+
+invert:: (((invert))) Calcula el inverso de la señal de entrada.
+
+wcomp:: (((wcomp))) Comparador de ventana.
+
+weighted_sum:: (((weighted_sum))) Convierte un grupo de bits a un entero.
+
+biquad:: (((biquad))) Filtro Biquad IIR 
+
+lowpass:: (((paso bajo))) filtro de paso bajo
+
+limit1:: (((limit1))) Limita la señal de salida para que caiga entre mín y máx. footnote:[Cuando la entrada
+es una posición, esto significa que la 'posición' está limitada.]
+
+limit2:: (((limit2))) Limita la señal de salida para que caiga entre min y max.
+Limita la velocidad de giro a menos de maxv por segundo. footnote:[Cuando la entrada
+es una posición, esto significa que 'posición' y 'velocidad' están limitadas.]
+
+limit3:: (((limit3))) Limita la señal de salida para que caiga entre min y max.
+Limita su velocidad de giro a menos de maxv por segundo.
+Limita su segunda derivada a menos de MaxA por segundo al cuadrado. footnote:[Cuando
+la entrada es una posición, esto significa que la 'posición', 'velocidad', y 'aceleración' están limitadas.]
+
+maj3:: (((maj3))) Calcula la mayor de 3 entradas.
+
+scale:: (((scale))) Aplica una escala y un desplazamiento a su entrada.
+
+=== Conversion de tipos
+
+conv_bit_s32:: (((conv_bit_s32))) Convierte un valor bit a s32.
+
+conv_bit_u32:: (((conv_bit_u32))) Convierte un valor bit a u32.
+
+conv_float_s32:: (((conv_float_s32))) Convierte un valor float a s32.
+
+conv_float_u32:: (((conv_float_u32))) Convierte un valor float a u32.
+
+conv_s32_bit:: (((conv_s32_bit))) Convierte un valor s32 a bit.
+
+conv_s32_float:: (((conv_s32_float))) Convierte un valor s32 a float.
+
+conv_s32_u32:: (((conv_s32_u32))) Convierte un valor s32 a u32.
+
+conv_u32_bit:: (((conv_u32_bit))) Convierte un valor u32 a bit.
+
+conv_u32_float:: (((conv_u32_float))) Convierte un valor u32 a float.
+
+conv_u32_s32:: (((conv_u32_s32))) Convierte un valor u32 a s32.
+
+=== Controladores de hardware
+
+hm2_7i43:: (((hm2_7i43))) Controlador HAL para tarjetas EPP Anything Mesa Electronics 7i43 EPP con HostMot2.
+
+hm2_pci:: (((hm2_pci))) controlador HAL para Mesa Electronics 5i20, 5i22, 5i23, 4i65, 4i68 o cualquier placa de E/S, con firmware HostMot2.
+
+hostmot2:: (((hostmot2))) controlador HAL para el firmware Mesa Electronics HostMot2.
+
+mesa_7i65:: (((7i65))) Soporte para la tarjeta servo de ocho ejes Mesa 7i65.
+
+pluto_servo:: (((pluto_servo))) Controlador de hardware y firmware para la FPGA de puerto paralelo Pluto-P, para utilizar con servos.
+
+pluto_step:: (((pluto_step))) Controlador de hardware y firmware para la FPGA de puerto paralelo Pluto-P, para utilizar con steppers.
+
+thc:: (((control de la altura de la antorcha))) Control de la altura de antorcha utilizando una tarjeta Mesa THC. 
+
+serport:: (((serport))) Controlador de hardware para los bits de E/S digitales del puerto serie 8250 y 16550. 
+
+
+=== Cinemática
+
+kins:: (((kins))) Definiciones de cinemática para LinuxCNC.
+
+gantrykins:: (((gantrykins))) Un módulo de cinemática que mapea un eje a múltiples articulaciones.
+
+genhexkins:: (((genhexkins))) Da seis grados de libertad en posición y orientación (XYZABC). La ubicación de los motores
+se define en tiempo de compilación.
+
+genserkins:: (((genserkins))) Cinemática que puede modelar un manipulador general de eslabones en serie con hasta
+6 articulaciones angulares.
+
+maxkins:: (((maxkins))) Cinemática para una fresadora de 5 ejes llamada 'max' con cabezal de inclinación (eje B) y rotativo horizontal montado sobre la mesa (eje C). Proporciona movimiento UVW en el sistema de coordenadas rotado. El archivo
+fuente, maxkins.c, puede ser un punto de inicio útil para otros sistemas de 5 ejes.
+
+tripodkins:: (((tripodkins))) Las articulaciones representan la distancia del punto controlado desde tres ubicaciones 
+predefinidas (los motores), dando tres grados de libertad en posición (XYZ).
+
+trivkins:: (((trivkins))) Las fresadoras y tornos estándar utilizan el módulo de cinemática trivial.
+Hay una correspondencia 1:1 entre articulaciones y ejes. 
+
+pumakins:: (((pumakins))) Cinemática para robots estilo PUMA.
+
+rotatekins:: (((rotatekins))) Los ejes X e Y se giran 45 grados en comparación con las articulaciones 0 y 1.
+
+scarakins:: (((scarakins))) Kinematics para robots tipo SCARA.
+
+=== Control del motor
+
+at_pid:: (((at_pid))) Controlador proporcional/integral/derivativo con ajuste automático.
+
+pid:: Controlador proporcional/integral/derivativo.
+
+pwmgen:: (((pwmgen))) Software de generación PWM/PDM. 
+
+encoder:: (((encoder))) Conteo por software de señales de encoder en cuadratura.
+
+stepgen:: (((stepgen))) Generación de pulsos de pasos de software.
+
+=== BLDC y control de motores trifásicos
+
+bldc_hall3:: (((bldc_hall3))) Controlador de motor BLDC bipolar de 3 cables, de conmutación trapezoidal, que utiliza sensores Hall.
+
+clarke2:: (((clarke2))) Versión de dos entradas de la transformada de Clarke.
+
+clarke3:: (((clarke3))) Transformada Clarke (3 fases a cartesiana) .
+
+clarkeinv:: (((clarkeinv))) Transformada Clarke inversa.
+
+=== Otros componentes
+
+charge_pump:: (((charge_pump))) Crea una onda cuadrada para la entrada de 'bomba de carga' de algunas placas controladoras.
+La 'bomba de carga' debe agregarse a la función hilo base.  Cuando está habilitada, la salida está activada durante
+un período y desactivada durante otro.  Para calcular la frecuencia de la salida 1/(período de tiempo en segundos x 2) = hz.
+Por ejemplo, si tiene un período base de 100.000 ns, o 0,0001 segundos, la fórmula sería 1/(0,0001 x 2) = 5000 hz o 5 Khz.
+
+encoder_ratio:: (((encoder_ratio))) Engranaje electrónico para sincronizar dos ejes.
+
+estop_latch:: (((estop_latch))) ESTOP latch.
+
+feedcomp:: (((feedcomp))) Multiplica la entrada por la relación de la velocidad actual a la velocidad de alimentación.
+
+gearchange:: (((gearchange))) Seleccion de uno de dos rangos de velocidad. 
+
+[[sec:ilowpass]] (((ilowpass)))
+
+ilowpass:: Si bien puede encontrar otras aplicaciones, este componente se escribió para crear un movimiento más suave con un MPG. 
++ 
+En una máquina con alta aceleración, un jog corto puede comportarse casi como una funcion paso.
+Al poner el componente ilowpass entre l a salida de cuentas del codificador MPG
+y la entrada de jog-count del eje, se puede suavizar.
++ 
+Elija la escala de forma conservadora para que durante una sesión nunca sea más de aproximadamente 2e9/escala pulsos vistos en el MPG.
+Elija la ganancia de acuerdo al nivel de suavizado deseado.  Divida los valores de axis.N.jog-scale por escala.
+
+joyhandle:: (((joyhandle))) Establece movimientos de joypad no lineales, bandas muertas y escalas.
+
+knob2float:: (((knob2float))) Convierte los conteos (probablemente de un mando codificador) a un valor de punto flotante.
+
+minmax:: (((minmax))) Realiza un seguimiento de los valores mínimo y máximo de la entrada a las salidas.
+
+sample_hold:: (((sample_hold))) Muestreo y retencion.
+
+sampler:: (((sampler))) Muestrea datos HAL en tiempo real.
+
+siggen:: Generador de señal.
+
+sim_encoder:: (((sim_encoder))) codificador de cuadratura simulado.
+
+sphereprobe:: (((sphereprobe))) Sondeo de una semiesfera.
+
+steptest:: (((steptest))) Utilizado por Stepconf para permitir la prueba de los valores de aceleración y velocidad de un eje.
+
+streamer:: (((streamer))) Transmite archivos de datos HAL en tiempo real.
+
+supply:: (((supply))) Establece los pines de salida con valores de parámetros (en desuso).
+
+threadtest:: (((threadtest))) Componente para probar el comportamiento del hilo.
+
+time:: (((time))) Temporizador acumulado de tiempo de ejecución que cuenta HH:MM:SS de entrada 'activa'.
+
+timedelay:: (((timedelay))) El equivalente a un relé con retardo de tiempo.
+
+timedelta:: (((timedelta))) Componente que mide el comportamiento del tiempo de programación de subprocesos.
+
+toggle2nist:: (((toggle2nist))) Botón alternante para logica nist.
+
+toggle:: (((toggle))) Push-on, push-off de pulsadores momentáneos.
+
+tristate_bit:: (((tristate_bit))) Coloca una señal en un pin de E/S solo cuando esté habilitado, similar a un
+buffer triestado en electrónica.
+
+tristate_float:: (((tristate_float))) Coloca una señal en un pin de E/S solo cuando esté habilitado, similar a un
+buffer triestado en electrónica.
+
+watchdog:: (((watchdog))) Monitorea de una a treinta y dos entradas para un 'latido'.
+
+== Llamadas API HAL
+....
+hal_add_funct_to_thread.3hal
+hal_bit_t.3hal
+hal_create_thread.3hal
+hal_del_funct_from_thread.3hal
+hal_exit.3hal
+hal_export_funct.3hal
+hal_float_t.3hal
+hal_get_lock.3hal
+hal_init.3hal
+hal_link.3hal
+hal_malloc.3hal
+hal_param_bit_new.3hal
+hal_param_bit_newf.3hal
+hal_param_float_new.3hal
+hal_param_float_newf.3hal
+hal_param_new.3hal
+hal_param_s32_new.3hal
+hal_param_s32_newf.3hal
+hal_param_u32_new.3hal
+hal_param_u32_newf.3hal
+hal_parport.3hal
+hal_pin_bit_new.3hal
+hal_pin_bit_newf.3hal
+hal_pin_float_new.3hal
+hal_pin_float_newf.3hal
+hal_pin_new.3hal
+hal_pin_s32_new.3hal
+hal_pin_s32_newf.3hal
+hal_pin_u32_new.3hal
+hal_pin_u32_newf.3hal
+hal_ready.3hal
+hal_s32_t.3hal
+hal_set_constructor.3hal
+hal_set_lock.3hal
+hal_signal_delete.3hal
+hal_signal_new.3hal
+hal_start_threads.3hal
+hal_type_t.3hal
+hal_u32_t.3hal
+hal_unlink.3hal
+intro.3hal
+indocument.3hal
+....
+
+== Llamadas RTAPI
+....
+EXPORT_FUNCTION.3rtapi
+MODULE_AUTHOR.3rtapi
+MODULE_DESCRIPTION.3rtapi
+MODULE_LICENSE.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+intro.3rtapi
+rtapi_app_exit.3rtapi
+rtapi_app_main.3rtapi
+rtapi_clock_set_period.3rtapi
+rtapi_delay.3rtapi
+rtapi_delay_max.3rtapi
+rtapi_exit.3rtapi
+rtapi_get_clocks.3rtapi
+rtapi_get_msg_level.3rtapi
+rtapi_get_time.3rtapi
+rtapi_inb.3rtapi
+rtapi_init.3rtapi
+rtapi_module_param.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+rtapi_mutex.3rtapi
+rtapi_outb.3rtapi
+rtapi_print.3rtap
+rtapi_prio.3rtapi
+rtapi_prio_highest.3rtapi
+rtapi_prio_lowest.3rtapi
+rtapi_prio_next_higher.3rtapi
+rtapi_prio_next_lower.3rtapi
+rtapi_region.3rtapi
+rtapi_release_region.3rtapi
+rtapi_request_region.3rtapi
+rtapi_set_msg_level.3rtapi
+rtapi_shmem.3rtapi
+rtapi_shmem_delete.3rtapi
+rtapi_shmem_getptr.3rtapi
+rtapi_shmem_new.3rtapi
+rtapi_snprintf.3rtapi
+rtapi_task_delete.3rtpi
+rtapi_task_new.3rtapi
+rtapi_task_pause.3rtapi
+rtapi_task_resume.3rtapi
+rtapi_task_start.3rtapi
+rtapi_task_wait.3rtapi
+.... 
+

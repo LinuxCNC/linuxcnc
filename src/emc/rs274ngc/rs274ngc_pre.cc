@@ -89,6 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
+#include <rtapi_string.h>
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -114,7 +115,8 @@ const char *Interp::interp_status(int status) {
     static const char *msgs[] = { "INTERP_OK", "INTERP_EXIT",
 	    "INTERP_EXECUTE_FINISH", "INTERP_ENDFILE", "INTERP_FILE_NOT_OPEN",
 	    "INTERP_ERROR" };
-    sprintf(statustext, "%s%s%d", ((status >= INTERP_OK) && (status
+    snprintf(statustext, sizeof(statustext),
+            "%s%s%d", ((status >= INTERP_OK) && (status
 	    <= INTERP_ERROR)) ? msgs[status] : "unknown interpreter error",
 	    (status > INTERP_MIN_ERROR) ? " - error: " : " - ", status);
     return statustext;
@@ -861,7 +863,7 @@ int Interp::init()
       if (inifile.Open(iniFileName) == false) {
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
-
+          bool opt;
           const char *inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
@@ -871,8 +873,29 @@ int Interp::init()
           inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-          inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
           inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+
+          // First the features that default to ON
+          opt = true;
+          inifile.Find(&opt, "INI_VARS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_INI_VARS;
+          opt = true;
+          inifile.Find(&opt, "HAL_PIN_VARS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_HAL_PIN_VARS;
+
+          // Now those that (currently) default to off
+          opt = false;
+          inifile.Find(&opt, "RETAIN_G43", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_RETAIN_G43;
+          opt = false;
+          inifile.Find(&opt, "OWORD_NARGS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_OWORD_N_ARGS;
+          opt = false;
+          inifile.Find(&opt, "NO_DOWNCASE_OWORD", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
+          opt = false;
+          inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
           if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
               _setup.a_indexer_jnum = atol(inistring);
@@ -952,7 +975,7 @@ int Interp::init()
                  _setup.subroutines[dct] = NULL;
             }
 
-            strcpy(tmpdirs,inistring);
+            rtapi_strxcpy(tmpdirs,inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
@@ -1057,7 +1080,7 @@ int Interp::init()
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
   if (filename[0] == 0)
-    strcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
+    rtapi_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
   CHP(restore_parameters(filename));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
@@ -1416,7 +1439,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
     _setup.percent_flag = false;
     _setup.sequence_number = 0; // Going back to line 0
   }
-  strcpy(_setup.filename, filename);
+  rtapi_strxcpy(_setup.filename, filename);
   reset();
   return INTERP_OK;
 }
@@ -1690,7 +1713,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 		_setup.file_pointer = fopen(sub->filename, "r");
 		logDebug("unwind_call: reopening '%s' at %ld",
 			 sub->filename, sub->position);
-		strcpy(_setup.filename, sub->filename);
+		rtapi_strxcpy(_setup.filename, sub->filename);
 	    }
 	    fseek(_setup.file_pointer, sub->position, SEEK_SET);
 	}
@@ -1936,7 +1959,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          sprintf(line, "%d\t%f\n", k, parameters[k]);
+          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
             required = _required_parameters[index++];
@@ -1944,7 +1967,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           break;
         } else if (k == required)       // know (k < variable)
         {
-          sprintf(line, "%d\t%f\n", k, parameters[k]);
+          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           required = _required_parameters[index++];
         }
@@ -1954,7 +1977,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   fclose(infile);
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      sprintf(line, "%d\t%f\n", k, parameters[k]);
+      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
       fputs(line, outfile);
       required = _required_parameters[index++];
     }
@@ -2529,32 +2552,36 @@ int Interp::on_abort(int reason, const char *message)
 // config file parsing (REMAP... ngc=<basename>)
 FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
 {
-    FILE *newFP;
+    FILE *newFP = NULL;
     char tmpFileName[PATH_MAX+1];
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
 
     // look for a new file
-    sprintf(tmpFileName, "%s.ngc", basename);
+    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", basename);
 
     // find subroutine by search: program_prefix, subroutines, wizard_root
     // use first file found
 
     // first look in the program_prefix place
-    sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
-    newFP = fopen(newFileName, "r");
+    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
+    if (chk < sizeof(newFileName)){
+        newFP = fopen(newFileName, "r");
+    }
 
     // then look in the subroutines place
     if (!newFP) {
 	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
 	    if (!settings->subroutines[dct])
 		continue;
-	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
-	    newFP = fopen(newFileName, "r");
-	    if (newFP) {
-		// logOword("fopen: |%s|", newFileName);
-		break; // use first occurrence in dir search
+	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
+        if (chk <  sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+            if (newFP) {
+            // logOword("fopen: |%s|", newFileName);
+            break; // use first occurrence in dir search
+            }
 	    }
 	}
     }
@@ -2565,9 +2592,9 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 
 	if (INTERP_OK == ret) {
 	    // create the long name
-	    sprintf(newFileName, "%s/%s",
+	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
 		    foundPlace, tmpFileName);
-	    newFP = fopen(newFileName, "r");
+	    if (chk < sizeof(newFileName)) newFP = fopen(newFileName, "r");
 	}
     }
     if (foundhere && (newFP != NULL)) 

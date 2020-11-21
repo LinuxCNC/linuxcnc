@@ -1,5 +1,10 @@
 <RCC>
-  <qresource prefix="newPrefix">
-    <file>qtdragon.qrc</file>
+  <qresource prefix="buttons">
+    <file>../../images/qtdragon/images/a_minus_jog_button.png</file>
+  </qresource>
+  <qresource prefix="images">
+    <file>../../images/qtdragon/images/brushed_metal.png</file>
+    <file>../../images/qtdragon/checked.png</file>
+    <file>../../images/qtdragon/unchecked.png</file>
   </qresource>
 </RCC>

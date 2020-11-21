@@ -259,7 +259,7 @@ FUNCTION(_){
         state = 1;
         ready = 0;
     case 1: // choose direction
-        if (pocket_number < 1 || pocket_number > inst_pockets) {
+        if (mod_pocket < 1 || mod_pocket > inst_pockets) {
             state = 0;
             return;
         }

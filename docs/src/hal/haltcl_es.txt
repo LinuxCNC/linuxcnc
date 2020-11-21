@@ -1,0 +1,244 @@
+:lang: es
+
+[[cha:haltcl]]
+
+= Archivos HALTCL
+
+El lenguaje halcmd sobresale en la especificación de componentes y conexiones, pero
+no ofrece capacidades computacionales. Como resultado, los archivos ini están limitados en
+la claridad y la brevedad que es posible con lenguajes de nivel superior.
+
+La instalación haltcl proporciona un medio para usar scripts tcl y sus características para
+cálculos, bucles, bifurcaciones, procedimientos, etc. en archivos ini. Para usar estas
+funcionalidades, se usa el lenguaje tcl y la extensión .tcl para halfiles.
+
+La extensión .tcl es entendida por el script principal (linuxcnc) que procesa
+archivos ini. Los archivos haltcl se identifican en la sección HAL de los archivos ini.
+(al igual que los archivos .hal).
+
+.Ejemplo
+----
+[HAL]
+HALFILE = archivo_convencional.hal
+HALFILE = archivo_tcl.tcl
+-----
+
+Con el cuidado adecuado, los archivos .hal y .tcl se pueden mezclar.
+
+== Compatibilidad
+
+El lenguaje halcmd utilizado en los archivos .hal tiene una sintaxis simple que en realidad es un
+subconjunto del lenguaje de scripting tcl de propósito general, más poderoso.
+
+
+== Comandos Haltcl
+
+Los archivos haltcl utilizan el lenguaje de scripting tcl aumentado con 
+comandos específicos de la capa de abstracción de hardware (HAL) de LinuxCNC. Los comandos especificos
+de hal son:
+
+....
+addf, alias,
+delf, delsig,
+getp, gets
+ptype,
+stype,
+help,
+linkpp, linkps, linksp, list, loadrt, loadusr, lock,
+net, newsig,
+save, setp, sets, show, source, start, status, stop,
+unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
+waitusr
+....
+
+Hay dos casos especiales para los comandos 'gets' y 'list' debido a
+conflictos con los comandos internos de tcl. Para haltcl, estos
+comandos deben ir precedidos de la palabra clave 'hal'.
+
+....
+halcmd   haltcl
+------   ------
+gets     hal gets
+list     hal list
+....
+
+
+== Variables Ini Haltcl 
+
+Las variables ini son accesibles tanto por halcmd como por haltcl pero con
+sintaxis diferente
+
+Los archivos ini de LinuxCNC utilizan los especificadores de SECTION e ITEM para identificar
+elementos de configuración.
+
+----
+[SECTION_A]
+ITEM1 = value_1
+ITEM2 = value_2
+...
+[SECTION_B]
+...
+----
+
+Los valores de los archivos ini son accesibles por sustituciones de texto en archivos .hal utilizando la
+forma.
+
+----
+[SECTION]ITEM
+----
+
+Los mismos valores de archivo ini son accesibles en archivos .tcl usando la forma de una variable global de matriz tcl.
+
+----
+$::SECTION(ITEM)
+----
+
+Por ejemplo, un elemento de archivo ini como:
+
+----
+[JOINT_0]
+MAX_VELOCITY = 4
+----
+
+se expresa como [JOINT_0]MAX_VELOCITY en archivos .hal para halcmd +
+y como $::JOINT_0(MAX_VELOCITY) en archivos .tcl para haltcl +
+
+Debido a que los inifiles pueden repetir el mismo ITEM en la misma SECCIÓN varias veces,
+$::SECTION(ITEM) es en realidad una lista Tcl de cada valor individual.
+
+Cuando hay un solo valor y es un valor simple (todos los valores que son
+solo letras y números sin espacios en blanco están en este grupo), entonces es
+posible tratar $::SECTION(ITEM) como si no fuera una lista.
+
+Cuando el valor puede contener caracteres especiales - comillas,
+corchetes, espacios en blanco incrustados y otros caracteres que
+tiene un significado especial en Tcl - es necesario distinguir entre la lista de
+valores y el valor inicial (y posiblemente unico) en la lista.
+
+En Tcl, esto se escribe `[lindex $::SECTION(ITEM) 0]`.
+
+Por ejemplo: dados los siguientes valores ini
+----
+[HOSTMOT2]
+DRIVER=hm2_eth
+IPADDR="10.10.10.10"
+BOARD=7i92
+CONFIG="num_encoders=0 num_pwmgens=0 num_stepgens=6"
+----
+Y este comando loadrt:
+----
+loadrt $::HOSTMOT2(DRIVER) board_ip=$::HOSTMOT2(IPADDR) config=$::HOSTMOT2(CONFIG)
+----
+este sera el comando real que se ejecuta:
+----
+loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 num_stepgens=6"}
+----
+Esto falla porque loadrt no reconoce las llaves.
+
+Por tanto, para obtener los valores tal como se ingresaron en el archivo ini, vuelva a escribir la línea loadrt así:
+----
+loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[lindex $::HOSTMOT2(CONFIG) 0]
+----
+
+== Convertir archivos .hal a archivos .tcl
+
+Los archivos .hal existentes se pueden convertir en archivos .tcl mediante la edición manual para adaptar
+las diferencias mencionadas anteriormente. El proceso puede ser automatizado con scripts,
+que los convierten utilizando estas sustituciones:
+
+----
+[SECTION]ITEM ---> $::SECTION(ITEM)
+gets          ---> hal gets
+list          ---> hal list
+----
+
+== Notas para Haltcl
+
+En haltcl, el argumento de valor para los comandos 'sets' y 'setp'
+se trata implícitamente como una expresión en el lenguaje tcl.
+
+.Ejemplo
+----
+# establecer ganancia para convertir grados/segundos a unidades/min para el radio JOINT_0
+setp scale.0.gain 6.28/360.0*$::JOINT_0(radius)*60.0
+----
+
+No se permite espacios en blanco en la expresión simple; use comillas
+para ello:
+
+----
+setp scale.0.gain "6.28 / 360.0 * $::JOINT_0(radius) * 60.0"
+----
+
+En otros contextos, como 'loadrt', debe usar explícitamente
+el comando tcl expr, '([expr {}])' para expresiones computacionales.
+
+.Ejemplo
+----
+loadrt motion base_period=[expr {500000000/$::TRAJ(MAX_PULSE_RATE)}]
+----
+
+== Ejemplos de Haltcl
+
+Consideremos el asunto 'stepgen headroom'. El software stepgen funciona mejor con una
+restricción de aceleración que sea "un poco más alta" que la utilizada por el planificador de movimiento.
+Por lo tanto, cuando se utilizan archivos halcmd, forzamos a los archivos ini a tener un valor calculado manualmente.
+
+----
+[JOINT_0]
+MAXACCEL = 10.0
+STEPGEN_MAXACCEL = 10.5
+----
+
+Con haltcl, puede usar los comandos tcl para hacer el cálculo y
+eliminar el elemento inifile STEPGEN_MAXACCEL por completo.
+
+----
+setp stepgen.0.maxaccel $::JOINT_0(MAXACCEL)*1.05
+----
+
+Otra característica haltcl es bucle y prueba. Por ejemplo, las configuraciones de muchos simuladores
+usan los archivos hal "core_sim.hal" o "core_sim9.hal". Estos difieren
+debido a la necesidad de conectar más o menos ejes. En el siguiente haltcl,
+el código funcionaría para cualquier combinación de ejes en una máquina con cinematica trivkins.
+
+----
+# Crear señales de posición, velocidad y aceleración para cada eje.
+set ddt 0
+for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
+  # 'list pin' devuelve una lista vacía si el pin no existe
+  if {[hal list pin joint.${jnum}.motor-pos-cmd] == {}} {
+    continue
+  }
+  net ${jnum}pos joint.${jnum}.motor-pos-cmd => joint.$axno.motor-pos-fb \
+                                             => ddt.$ddt.in
+  net ${axis}vel <= ddt.$ddt.out
+  incr ddt
+  net ${axis}vel => ddt.$ddt.in
+  net ${axis}acc <= ddt.$ddt.out
+  incr ddt
+}
+puts [show sig *vel]
+puts [show sig *acc]
+----
+
+== Haltcl Interactivo
+
+El comando halrun reconoce archivos haltcl. Con la opción -T,
+haltcl puede ejecutarse de forma interactiva como intérprete de tcl. Esta
+capacidad es útil para pruebas y para aplicaciones hal independientes.
+
+.Ejemplo
+----
+$ halrun -T haltclfile.tcl
+----
+
+
+== Ejemplos Haltcl de la distribución de (sim)
+
+El directorio configs /sim/axis/simtcl incluye un archivo ini que usa un archivo .tcl
+para demostrar una configuración haltcl junto con el uso de
+procesamiento twopass. El ejemplo muestra el uso de procedimientos tcl, bucles,
+uso de comentarios, y salida al terminal.
+
+

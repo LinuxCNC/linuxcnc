@@ -1,0 +1,154 @@
+.TH HM2_ETH "9" "2008-05-13" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+
+hm2_eth \- Controlador HAL de LinuxCNC para las tarjetas Mesa Electronics Ethernet Anything IO, con firmware HostMot2.
+.SH SINOPSIS
+
+.HP
+.B loadrt hm2_eth [config=\fI"str[,str...]"\fB] [board_ip=\fIip[,ip...]\fB] [board_mac=\fImac[,mac...]\fB]
+.RS 4
+.TP
+\fBconfig\fR [predeterminado: ""]
+Cadenas de configuración de HostMot2, descritas en la página de manual de hostmot2 (9).
+.TP
+\fBboard_ip\fR [predeterminado: ""]
+La dirección IP de la (s) tarjeta (s), separadas por comas. En una tarjeta nueva, la dirección es 192.168.1.121.
+.SH DESCRIPCIÓN
+
+hm2_eth es un controlador de dispositivo que interconecta tarjetas Mesa's ethernet
+based Anything I/O (con el firmware HostMot2) y LinuxCNC HAL
+
+Las tarjetas compatibles son: 7i76E, 7I80DB, 7I80HD, 7i92, 7i93, 7i96.
+
+La tarjeta debe tener su hardware cargado en la tarjeta mediante el programa mesaflash (1).
+
+hm2_eth solo está disponible cuando linuxcnc está configurado con "uspace" en tiempo real.
+
+.SH CONFIGURACIÓN DE INTERFAZ
+
+hm2_eth debe usarse en una interfaz de red dedicada, con solo un cable
+entre la PC y la tarjeta. Las interfaces de red inalámbricas y USB no son
+adecuadas.
+
+Estas instrucciones asumen que su interfaz de red dedicada es "eth1",
+192.168.1/24 es una red privada no utilizada, que la tarjeta hostmot2 está utilizando la dirección predeterminada de 192.168.1.121, que está utilizando Debian 7 o similar, y que no usa iptables. Si alguno de estos es falso, usted
+necesita modificar las instrucciones en consecuencia. Después de seguir todas las
+instrucciones, reinicie para que los cambios surtan efecto.
+
+Es particularmente importante verificar que la red 192.168.1/24 no sea la red privada utilizada por su enrutador de Internet, porque este es un valor de uso común. Si usa otra red, también necesitará
+reconfigurar la tarjeta hostmot2 para usar una dirección IP en esa red utilizando la utilidad mesaflash (1) y cambiar la configuración de puentes. Por lo general, elegirá una de las redes en el
+.UR http://en.wikipedia.org/wiki/IPv4#Private_networks
+espacio privado de direcciones IPv4.
+.UE
+Una alternativa común es la dirección PC 10.10.10.1, y la dirección hostmot2 10.10.10.10.
+
+El uso de la interfaz Ethernet dedicada mientras linuxcnc se está ejecutando puede causar violación de garantías en tiempo real. hm2_eth mitigará automáticamente la mayoría de causas accidentales de interferencia.
+
+.SS Configurar red con dirección estática
+Agregue estas líneas al archivo /etc/network/interfaces para configurar eth1 con una dirección estática:
+
+.EX
+auto eth1
+iface eth1 inet static
+    address 192.168.1.1
+    hardware\-irq\-coalesce\-rx\-usecs 0
+.EE
+
+.SH PÉRDIDA DE PAQUETES
+Si bien Ethernet es bastante resistente al ruido eléctrico, muchos sistemas tienen una recepción de paquetes 100% perfecta.
+El controlador hm2_eth tiene una capacidad limitada para manejar paquetes perdidos. 
+La pérdida de paquetes se detecta transmitiendo un recuento de paquetes esperados de lectura o escritura con cada solicitud y verificando el valor con cada respuesta de lectura. Cuando se detecta un paquete perdido, el pin
+.B packet\-error
+se activa en ese ciclo, se aumenta el pin
+.B packet\-error\-level
+, y si alcanza un umbral, entonces se señala un error de E/S de bajo nivel permanente.
+
+Sin embargo, no todas las funciones especiales de hm2 saben cómo recuperarse adecuadamente de la pérdida de paquetes. Por ejemplo, la función especial del encoder no gestiona correctamente la función de índice cuando se pierden paquetes. El autor cree que esto puede conducir a fallas raras en home-to-index, lo que puede tener graves consecuencias.
+
+Por otro lado, los sistemas pid-stepper se ejecutarán correctamente durante períodos prolongados de tiempo con pérdida de paquetes del orden de .01%, siempre que el error de siguimiento se aumentó lo suficiente como para tener retroalimentación de posición obsoleta no desencadena error de seguimiento. Alterando la configuración HAL para que durante la pérdida transitoria de paquetes el valor de retroalimentación de movimiento y pid es igual al valor del comando,
+en lugar del valor de retroalimentación obsoleto, parece mejorar la sintonía. Esto puede ser logrado con un componente
+.B mux2 (9)
+para cada señal de retroalimentación, utilizando
+.B packet\-error
+como entrada
+.B sel
+del mux2.
+
+.SH PINES
+Además de los pines documentados en
+.BR hostmot2 (9) ", " hm2_eth (9)
+crea pines adicionales:
+
+.TP
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error
+Este pin es VERDADERO cuando el ciclo más reciente detectó un error de lectura o escritura, y FALSO en otros momentos.
+.TP
+(s32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-level
+Este pin muestra el nivel de error actual, con números más altos que indican un mayor número de errores detectados recientemente. El nivel de error siempre está en
+el rango de 0 a paquete\-error\-limit, inclusive.
+.TP
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-exceeded
+Este pin es VERDADERO cuando el nivel de error actual es igual al máximo, y FALSO en otros momentos.
+
+.SH PARÁMETROS
+Además de los parámetros documentados en
+.BR hostmot2 (9) ", " hm2_eth (9)
+crea parámetros adicionales:
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-decrement
+La cantidad deducida de \fIpacket\-error\-level\fR en un ciclo sin errores de lectura o escritura detectados, sin bajar de cero.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-increment
+La cantidad agregada a \fIpacket\-error\-level\fR en un ciclo sin deteccion de errores de lectura o escritura, sin sobrepasar packet\-error\-limit.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-limit
+El nivel en el que un error de lectura o escritura detectado se trata como error permanente. Cuando se alcanza este nivel de error, el pin \fIio\-error\fR de la tarjeta se convierte en VERDADERO y la condición debe restablecerse manualmente.
+
+.TP
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-read\-timeout
+El tiempo que debe transcurrir antes de que se agote el tiempo de espera de una solicitud de lectura.
+Si el valor es menor o igual a 0, se interpreta como el 80% del período del hilo. Si el valor es inferior a 100, se interpreta como un porcentaje del período del hilo. De lo contrario, se interpreta como un tiempo en nanosegundos. En
+En cualquier caso, el tiempo de espera nunca es inferior a 100 microsegundos.
+
+Establecer este valor demasiado bajo puede causar errores de lectura espurios. Configurándolo demasiado alto puede causar errores de retraso en tiempo real.
+
+
+.SH NOTAS
+hm2_eth usa una cadena de iptables llamada "hm2\-eth\-rules\-output" para controlar el acceso a la interfaz de red mientras hal se está ejecutando. La cadena se crea si no existe, y se inserta un salto a ella al comienzo de la cadena OUTPUT si ya no está allí. Si tiene una configuración de iptables existente, puede insertar un salto directo OUTPUT a hm2\-eth\-rules\-output en un orden apropiado para
+su red local
+
+En la salida (normal), hm2_eth eliminará las reglas. Después de un CRASH, puede
+borrar manualmente las reglas con \fBsudo iptables \-F hm2\-eth\-rules\-output\fR;
+Las reglas también se eliminan mediante un reinicio.
+
+"hardware\-irq\-coalesce\-rx\-usecs" disminuye el tiempo de espera para recibir un paquete en la mayoría de los sistemas, pero al menos en algunos NIC Marvel-chipset es dañino.
+Si la línea no mejora el rendimiento del sistema, quítela. Un reinicio es necesario para que el valor se restablezca a su valor predeterminado de encendido. Esto requiere que se instale el paquete ethtool.
+
+.SH ERRORES
+Algunas funciones hostmot2, como uart, están codificadas de una manera que provoca
+latencia cuando se usa con hm2_eth.
+
+En la 7i92, los pines HAL para los LED se llaman CR01..CR04, pero las serigrafías son CR3..CR6. Dependiendo del firmware FPGA, los LED pueden inicialmente estar bajo el control del motor ethernet. Esto se puede cambiar hasta el ciclo de encendido con
+
+.EX
+elbpcom 01D914000000
+.EE
+
+Dependiendo de la versión del firmware, este controlador puede causar el error de hardware de que LED se encenderá aunque el controlador y el hardware funcionen normalmente.
+Según los informes, esto se solucionará en futuras actualizaciones de bitfiles de Mesa.
+
+.SH VER TAMBIÉN
+
+.BR hostmot2 "(9)," elbpcom (1)
+.SH LICENCIA
+
+GPL

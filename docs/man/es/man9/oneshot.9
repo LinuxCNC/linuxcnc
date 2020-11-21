@@ -1,0 +1,57 @@
+.TH ONESHOT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+oneshot \- one-shot pulse generator
+.SH SYNOPSIS
+.HP
+.B loadrt oneshot [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+creates a variable-length output pulse when the input changes 
+state. This function needs to run in a thread which supports floating point
+(typically the servo thread). This means that the pulse length has to be a
+multiple of that thread period, typically 1mS. 
+For a similar function that can run in the base thread, and which offers higher 
+resolution, see "edge".
+.SH FUNCTIONS
+.TP
+\fBoneshot.\fIN\fB\fR (requires a floating-point thread)
+Produce output pulses from input edges
+.SH PINS
+.TP
+.B oneshot.\fIN\fB.in\fR bit in \fR
+Trigger input
+.TP
+.B oneshot.\fIN\fB.reset\fR bit in \fR
+Reset
+.TP
+.B oneshot.\fIN\fB.out\fR bit out \fR
+Active high pulse
+.TP
+.B oneshot.\fIN\fB.out-not\fR bit out \fR
+Active low pulse
+.TP
+.B oneshot.\fIN\fB.width\fR float in \fR(default: \fI0\fR)
+Pulse width in seconds
+.TP
+.B oneshot.\fIN\fB.time-left\fR float out \fR
+Time left in current output pulse
+.SH PARAMETERS
+.TP
+.B oneshot.\fIN\fB.retriggerable\fR bit rw \fR(default: \fITRUE\fR)
+Allow additional edges to extend pulse
+.TP
+.B oneshot.\fIN\fB.rising\fR bit rw \fR(default: \fITRUE\fR)
+Trigger on rising edge
+.TP
+.B oneshot.\fIN\fB.falling\fR bit rw \fR(default: \fIFALSE\fR)
+Trigger on falling edge
+.SH LICENSE
+
+GPL

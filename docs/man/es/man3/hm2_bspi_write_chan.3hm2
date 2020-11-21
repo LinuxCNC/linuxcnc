@@ -1,0 +1,41 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_bspi_write_chan "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_bspi_write_chan \- escribe datos en un canal Hostmot2 con buffer SPI
+
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+hm2_bspi_write_chan (char *name, int chan, u32 val)
+
+.SH DESCRIPCIÓN
+\fBhm2_bspi_write_chan\fR escribe datos únicos en el canal bspi "chan" en la
+instancia bspi "name". "name" es una cadena única dada a cada canal bspi
+durante la instalación de hostmot2. Los nombres de los canales disponibles
+se imprimen en la salida estándar durante el proceso de carga del controlador y
+toman la forma:
+hm2_<nombre de placa>.<índice de placa>.bspi.<índice> 
+Por ejemplo hm2_5i23.0.bspi.0
+
+Esta función realiza una escritura única de datos en el canal especificado.
+Normalmente se usa para fines de configuración y habilitación de chips. No debe usarse
+en el bucle principal para transferencias de datos regulares (pero es apropiado 
+usarlo en cambios de configuración al vuelo).
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real.
+No disponible en componentes de espacio de usuario.
+
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito y \-1 en caso de error.
+
+.SH VER TAMBIÉN
+\fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_set_write_function(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
+Consulte src/hal/drivers mesa_7i65.comp para ver un ejemplo de uso.

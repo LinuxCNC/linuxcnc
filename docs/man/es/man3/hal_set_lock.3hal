@@ -1,0 +1,21 @@
+.TH hal_set_lock "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_set_lock, hal_get_lock \- Establece u obtiene el nivel de bloqueo HAL
+
+.SH SINTAXIS
+.HP
+int hal_set_lock (unsigned char \fIlock_type\fR)
+
+.HP
+int hal_get_lock ()
+
+.SH ARGUMENTOS
+.IP \fIlock_type\fR
+El tipo de bloqueo deseado, que puede ser una combinación de bits de: \fBHAL_LOCK_LOAD\fR, \fBHAL_LOCK_CONFIG\fR, \fBHAL_LOCK_PARAMS\fR, o \fBHAL_LOCK_PARAMS\fR. \fBHAL_LOCK_NONE\fR o 0 que no bloquea nada, y \fBHAL_LOCK_ALL \fB que bloquea todo.
+
+.SH DESCRIPCIÓN
+
+.SH VALOR DEVUELTO
+\fBhal_set_lock\fR Devuelve un código de estado HAL. \fBhal_get_lock\fR devuelve el
+nivel de bloqueo HAL actual o un código de estado HAL.

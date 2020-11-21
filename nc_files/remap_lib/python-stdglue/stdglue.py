@@ -124,7 +124,7 @@ def prepare_epilog(self, **words):
             if self.return_value > 0:
                 self.selected_tool = int(self.params["tool"])
                 self.selected_pocket = int(self.params["pocket"])
-                emccanon.SELECT_POCKET(self.selected_pocket, self.selected_tool)
+                emccanon.SELECT_TOOL(self.selected_tool)
                 return INTERP_OK
             else:
                 self.set_errormsg("T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value))
@@ -157,7 +157,7 @@ def change_prolog(self, **words):
             return INTERP_ERROR
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
-        self.params["current_pocket"] = self.current_pocket # this is probably nonsense
+        self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
     except Exception, e:
@@ -370,3 +370,100 @@ def cycle_epilog(self,**words):
 # this should be called from TOPLEVEL __init__()
 def init_stdglue(self):
     self.sticky_params = dict()
+
+#####################################
+# pure python remaps
+#####################################
+
+# REMAP=M6 python=ignore_m6
+#
+# m5 silently ignored
+#
+def ignore_m6(self,**words):
+    try:
+        return INTERP_OK
+    except Exception, e:
+        return "Ignore M6 failed: %s" % (e)
+
+# REMAP=T python=index_lathe_tool_with_wear
+#
+# uses T101 for tool 1, wear 1 no M6 needed
+# tool offsets for tool 1 and tool 10001 are added together.
+#
+def index_lathe_tool_with_wear(self,**words):
+    # only run this if we are really moving the machine
+    # skip this if running task for the screen
+    if not self.task:
+        return INTERP_OK
+    try:
+        # check there is a tool number from the Gcode
+        cblock = self.blocks[self.remap_level]
+        if not cblock.t_flag:
+            self.set_errormsg("T requires a tool number")
+            return INTERP_ERROR
+        tool_raw = int(cblock.t_number)
+
+        # interpet the raw tool number into tool and wear number
+        # If it's less then 100 someone forgot to add the wear #, so we added it automatically
+        # separate out tool number (tool) and wear number (wear), add 10000 to wear number
+        if tool_raw <100:
+            tool_raw=tool_raw*100
+        tool = int(tool_raw/100)
+        wear = 10000 + tool_raw % 100
+
+        # uncomment for debugging
+        #print'***tool#',cblock.t_number,'toolraw:',tool_raw,'tool split:',tool,'wear split',wear
+        if tool:
+            # check for tool number entry in tool file
+            (status, pocket) = self.find_tool_pocket(tool)
+            if status != INTERP_OK:
+                self.set_errormsg("T%d: tool entry not found" % (tool))
+                return status
+        else:
+            tool = -1
+            pocket = -1
+            wear = -1
+        self.params["tool"] = tool
+        self.params["pocket"] = pocket
+        self.params["wear"] =  wear
+
+        # index tool immediately to tool number
+        self.selected_tool = int(self.params["tool"])
+        self.selected_pocket = int(self.params["pocket"])
+        emccanon.SELECT_TOOL(self.selected_tool)
+        if self.selected_pocket < 0:
+            self.set_errormsg("T0 not valid")
+            return INTERP_ERROR
+        if self.cutter_comp_side:
+            self.set_errormsg("Cannot change tools with cutter radius compensation on")
+            return INTERP_ERROR
+        self.params["tool_in_spindle"] = self.current_tool
+        self.params["selected_tool"] = self.selected_tool
+        self.params["current_pocket"] = self.current_pocket
+        self.params["selected_pocket"] = self.selected_pocket
+
+        # change tool
+        try:
+            self.selected_pocket =  int(self.params["selected_pocket"])
+            emccanon.CHANGE_TOOL(self.selected_pocket)
+            self.current_pocket = self.selected_pocket
+            self.selected_pocket = -1
+            self.selected_tool = -1
+            # cause a sync()
+            self.set_tool_parameters()
+            self.toolchange_flag = True
+        except:
+            self.set_errormsg("T change aborted (return code %.1f)" % (self.return_value))
+            return INTERP_ERROR
+
+        # add tool offset
+        self.execute("g43 h%d"% tool)
+        # if the wear offset is specified, add it's offset
+        if wear>10000:
+            self.execute("g43.2 h%d"% wear)
+        return INTERP_OK
+
+    except Exception, e:
+        print e
+        self.set_errormsg("T%d index_lathe_tool_with_wear: %s" % (int(words['t']), e))
+        return INTERP_ERROR

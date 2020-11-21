@@ -1,0 +1,46 @@
+.TH rtapi_task_pause "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_task_pause, rtapi_task_resume \- pausa y reanuda las tareas en tiempo real
+
+.SH SINTAXIS
+.HP
+void rtapi_task_pause(int \fItask_id\fR)
+.HP
+void rtapi_task_resume(int \fItask_id\fR)
+
+.SH ARGUMENTOS 
+.IP \fItask_id\fR
+Un identificador de tarea RTAPI devuelto por una llamada anterior a \fBrtapi_task_new\fR.
+.SH DESCRIPCIÓN
+\fBrtapi_task_resume\fR inicia una tarea en modo de ejecución libre.
+La tarea debe estar en el estado "en pausa".
+
+Una tarea de ejecución libre se ejecuta continuamente hasta que:
+.IP 1)
+Está precedida por una tarea de mayor prioridad. Se reanudará tan pronto como la tarea prioritaria mas alta
+libera la CPU.
+.IP 2)
+Se llama a una función de bloqueo, como \fBrtapi_sem_take\fR. Se reanudará cuando
+la función desbloquea.
+.IP 3)
+\fBrtapi_task_pause\fR la devuelve al estado "en pausa". Puede ser llamads
+desde el código de inicio/limpieza, y desde dentro de las tareas en tiempo real.
+
+\fBrtapi_task_pause\fR hace que una tarea detenga la ejecución y cambie
+al estado "en pausa". La tarea puede ser de ejecución libre o periódica.
+Tenga en cuenta que \fBrtapi_task_pause\fR se puede llamar desde cualquier tarea o desde init
+o código de limpieza, no solo de la tarea que se va a pausar.
+La tarea reanudará la ejecución cuando \fBrtapi_task_resume\fR o se llama a
+\fBrtapi_task_start\fR (dependiendo de si se trata de una tarea de ejecución libre o periódica).
+
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde dentro de las tareas en tiempo real.
+
+.SH VALOR DEVUELTO
+Un código de estado RTAPI.
+
+.SH VER TAMBIÉN
+\fBrtapi_task_new(3rtapi)\fR, \fBrtapi_task_start(3rtapi)\fR
+

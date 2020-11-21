@@ -1,0 +1,269 @@
+:lang: es
+
+[[cha:integrator-concepts]]
+
+= Conceptos para Integradores
+
+== Ubicaciones de archivos
+
+LinuxCNC busca la configuración y los archivos de código G en un lugar específico.
+La ubicación depende de cómo ejecute LinuxCNC.
+
+=== LinuxCNC Instalado
+
+Si está ejecutando LinuxCNC desde el LiveCD o si lo instaló a través de un deb y usa el
+selector de configuración 'LinuxCNC' del menú LinuxCNC, mire en los siguientes directorios:
+
+* El directorio LinuxCNC se encuentra en '/home/dir-de-usuario/linuxcnc'.
+* Los directorios de configuración se encuentran en '/home/dir-de-usuario/linuxcnc/configs'.
+** Los archivos de configuración se encuentran en '/home/dir-de-usuario/linuxcnc/configs/name-of-config'.
+* Los archivos de código G se encuentran en /home/dir-de-usuario/linuxcnc/nc_files '.
+
+Por ejemplo, para una configuración llamada mill y nombre de usuario Fred, los directorios
+y la estructura de archivos se vería así.
+
+* '/home/fred/linuxcnc'
+* '/home/fred/linuxcnc/nc_files'
+* '/home/fred/linuxcnc/configs/mill'
+** '/home/fred/linuxcnc/configs/mill/mill.ini'
+** '/home/fred/linuxcnc/configs/mill/mill.hal'
+** '/home/fred/linuxcnc/configs/mill/mill.var'
+** '/home/fred/linuxcnc/configs/mill/tool.tbl'
+
+=== LinuxCNC desde la Línea de Comandos
+
+Si ejecuta LinuxCNC desde la línea de comandos y especifica el nombre y la ubicación del
+archivo INI, las ubicaciones de los archivos pueden estar en un lugar diferente. Para ver
+las opciones para ejecutar LinuxCNC desde la línea de comandos ejecute 'linuxcnc -h'.
+
+[NOTE]
+Las ubicaciones opcionales para algunos archivos se pueden configurar en el archivo INI. Ver las
+secciones <<sec:display-section,DISPLAY>> y <<sec:rs274ngc-section,RS274NGC>>.
+
+
+== Archivos
+
+Cada directorio de configuración requiere al menos los siguientes archivos:
+
+* Un archivo INI .ini
+* Un archivo HAL .hal o un archivo HALTCL .tcl especificado en la sección
+  <<sec:hal-section,HAL>> del archivo INI.
+
+[NOTE]
+Otros archivos pueden ser necesarios para algunas GUI.
+
+Opcionalmente también puede tener:
+
+* Un archivo de variables .var
+** Si omite un archivo .var en un directorio pero incluye
+   [<<sec:rs274ngc-section,RS274NGC>>]PARAMETER_FILE=algunFichero.var, el archivo
+   se creará para usted cuando se inicie LinuxCNC.
+** Si omite un archivo .var y omite el elemento [RS274NGC]PARAMETER_FILE, se creará el archivo var
+   rs274ngc.var  cuando se inicie LinuxCNC. Puede haber algunos mensajes confusos si se omite [RS274NGC]PARAMETER_FILE.
+* Un archivo de tabla de herramientas .tbl si [<<sec:emcmot-section,EMCMOT>>]TOOL_TABLE ha sido
+  especificado en el archivo INI. Algunas configuraciones no necesitan una tabla de herramientas.
+
+== Sistemas steppers
+
+=== Período Base
+
+BASE_PERIOD es el 'latido' de su sistema LinuxCNC. footnote:[Esta
+sección se refiere al uso de *stepgen*, generador de pasos incorporado en LinuxCNC.
+Algunos dispositivos de hardware tienen su propio generador de pasos
+y no usan el incorporado de LinuxCNC. En ese caso, consulte
+su manual de hardware.] En cada período, el
+generador de pasos software decide si es hora de otro pulso de paso.
+Un período más corto le permitirá generar más pulsos por segundo,
+dentro de los limites. Pero si se hace muy corto, la computadora gastará mucho
+mucho tiempo generando pulsos de paso y todo lo demás se relentizara, o tal vez incluso se bloqueara.
+Los requisitos de latencia y de los drivers afectarán el período más corto que pueda usar.
+
+Las latencias, en el peor de los casos, solo pueden ocurrir unas pocas veces por minuto, y las
+probabilidades de que ocurra una mala latencia justo cuando el motor está cambiando de dirección
+son bajas. Por lo tanto, puede obtener errores muy raros que arruinan una pieza de vez en cuando
+y son imposibles de solucionar.
+
+La forma más sencilla de evitar este problema es elegir un BASE_PERIOD que
+sea la suma del requisito de tiempo más largo de su driver, y el
+peor caso de latencia de su computadora. Esto no siempre es la mejor opción.
+Por ejemplo, si está usando un driver con un requisito de tiempo de retención de señal de dirección de 20 us,
+y su prueba de latencia dice que tiene una latencia máxima de
+11 us, entonces si configura BASE_PERIOD en 20 + 11 = 31 us obtendrá unos
+32,258 pasos por segundo en un modo y 16,129 pasos por
+segundo en otro modo. Estos numeros son demasiado bajos.
+
+El problema está con el requisito de tiempo de espera de 20 us. Eso, más los 11 us de
+latencia es lo que nos obliga a usar un período lento de 31 us. Pero el
+generador de pasos de software LinuxCNC tiene algunos parámetros que le permiten aumentar
+de un período a varios. Por ejemplo, si 'steplen' footnote:[steplen
+se refiere a un parámetro que ajusta el rendimiento del generador de pasos incorporado de LinuxCNC,
+'stepgen', que es un componente HAL. Este parámetro ajusta la longitud del
+pulso de paso en sí mismo. Sigue leyendo, todo se explicará.] es
+cambiado de 1 a 2, entonces habrá dos períodos entre el
+principio y final del pulso de paso. Del mismo modo, si 'dirhold' footnote:[dirhold
+se refiere a un parámetro que ajusta la duración del tiempo de retención de la dirección.] es
+cambiado de 1 a 3, habrá al menos tres períodos entre el pulso de paso
+y un cambio del pin de dirección.
+
+Si podemos usar 'dirhold' para cumplir con el requisito de tiempo de espera de 20 us, entonces el
+siguiente tiempo más largo es el tiempo alto de 4.5 us. Agregue la latencia de 11 us
+a los 4.5 us de tiempo en alto, y se obtiene un período mínimo de 15.5 us. Cuando se intenta
+15.5 us, se vera que la computadora es lenta, por lo que se ajustará a 16 us.
+Si dejamos 'dirhold' en 1 (el valor predeterminado), entonces el tiempo mínimo entre
+paso y dirección es el período de 16 us menos la latencia de 11 us = 5 us,
+lo cual no es suficiente, Necesitamos otros 15 us. Como el período es de 16 us,
+se necesita un período más. Entonces cambiamos 'dirhold' de 1 a 2. Ahora el mínimo
+tiempo desde el final del pulso de paso hasta el cambio del pin de dirección es
+5 + 16 = 21 us, y no tenemos que preocuparnos de que el driver tome una
+dirección incorrecta debido a la latencia.
+
+Para obtener más información sobre stepgen, consulte <<sec:stepgen,la sección stepgen>>.
+
+=== Temporizacion de pasos
+
+Step Timing y Step Space son diferentes en algunos drivers. En este caso
+el punto de paso se vuelve importante. Si el driver manda pasos en
+borde descendente, entonces el pin de salida debe invertirse.
+
+== Servosistemas
+
+=== Operación básica
+
+Los servosistemas tienen mayor velocidad y precisión que los sistemas paso a paso equivalentes,
+pero son más costosos y complejos.
+A diferencia de los sistemas paso a paso, los servosistemas requieren algún tipo de dispositivo de
+retroalimentación de posición, y debe ajustarse o 'tunearse', ya que no
+funcionan directamente como un sistema paso a paso. Estas diferencias
+existen porque los servos son sistemas de 'lazo cerrado',
+a diferencia de los motores paso a paso que generalmente funcionan en 'lazo abierto'. Que significa
+'lazo cerrado'?. Veamos un diagrama simplificado de cómo está conectado un sistema servomotor.
+
+.Servo Loop
+image::images/servo-feedback.png[alt="diagrama simplificado de cómo se conecta un sistema servomotor"]
+
+Este diagrama muestra que la señal de entrada (y la señal de retroalimentación) alimentan
+un amplificador sumador, el amplificador sumador acciona el amplificador de potencia,
+el amplificador de potencia impulsa el motor, el motor impulsa la carga
+(y el dispositivo de retroalimentación) y el dispositivo de retroalimentación (y la señal de entrada)
+vuelven a manejar el motor. Esto se parece mucho a un círculo (un lazo cerrado) donde
+A controla B, B controla C, C controla D y D controla A.
+
+Si no ha trabajado antes con servosistemas, sin duda esto parecerá una
+idea muy extraña al principio, especialmente en comparación con la electrónica normal
+de circuitos donde las entradas preceden a las salidas y nunca van hacia atras.
+footnote:[Si sirve de ayuda, el equivalente más cercano a esto en el mundo digital
+son las 'máquinas de estado', 'máquinas secuenciales' y demás, donde lo que están haciendo
+las salidas 'ahora', depende de lo que las entradas (y las salidas)
+estaban haciendo 'antes'. Si no ayuda, no importa.] Si 'todo'
+controla 'todo lo demás', cómo puede funcionar eso; ¿quién está a cargo?.
+La respuesta es que LinuxCNC 'puede' controlar este sistema,
+pero tiene que hacerlo mediante algun método de control.
+El método de control que utiliza LinuxCNC, uno de los más simples y mejores, se llama PID.
+
+PID significa Proporcional, Integral y Derivativo.
+El valor proporcional determina la reacción al error actual, el valor integral
+determina la reacción en función de la suma de los errores recientes, y el
+valor derivado determina la reacción en función de la velocidad a la que
+el error ha estado cambiando. Son tres técnicas matemáticas comunes
+que se aplican a la tarea de lograr que un proceso de trabajo sigan un
+punto de trabajo o consigna. En el caso de LinuxCNC, el proceso que queremos controlar es la
+posición real del eje y el punto de trabajo o consigna es la posición ordenada del eje.
+
+.PID Loop
+image::images/pid-feedback.png[alt="PID Loop, PID significa Proporcional, Integral y Derivado"]
+
+Al 'ajustar' las tres constantes en el algoritmo del controlador PID, el
+el controlador puede proporcionar acciones de control diseñadas para requisitos de procesos específicos.
+La respuesta del controlador puede describirse en términos de la capacidad de respuesta frente a un error, el grado con
+el que el controlador sobrepasa el punto de ajuste (overshoot) y el grado de oscilación del sistema.
+
+=== Término proporcional
+
+El término proporcional (a veces llamado ganancia) hace un cambio en la
+salida que es proporcional al valor de error actual. Una ganancia proporcional alta
+resulta en un gran cambio en la salida para un determinado cambio en el error.
+Si la ganancia proporcional es demasiado alta, el sistema puede volverse inestable.
+En contraste, una pequeña ganancia resulta en una pequeña respuesta de salida a un gran error de entrada.
+Si la ganancia proporcional es demasiado baja, la acción de control puede ser demasiado pequeña al responder
+el sistema a los disturbios.
+
+En ausencia de perturbaciones, el control proporcional puro no puede
+estabilizarse en su valor objetivo, pero retendrá un error de estado estable que
+es una función de la ganancia proporcional y la ganancia del proceso. A pesar del
+offset en estado estacionario, tanto la teoría de afinacion como la práctica industrial
+indican que es el término proporcional el que debe contribuir en mayor parte al cambio de la salida.
+
+=== Término integral
+
+La contribución del término integral (a veces llamado reset) es
+proporcional tanto a la magnitud del error como a la duración del mismo.
+Sumando el error instantáneo en el tiempo (integrando el
+error) se proporciona el offset acumulado que debería haberse corregido
+previamente. El error acumulado se multiplica por la ganancia integral
+y se agrega a la salida del controlador.
+
+El término integral (cuando se agrega junto al término proporcional) acelera
+el movimiento del proceso hacia el punto de ajuste y elimina el
+error residual de estado estacionario que ocurre con una controlador solo proporcional.
+Sin embargo, dado que el término integral responde a errores acumulados del pasado, puede causar que el valor presente
+sobrepase el valor del punto de ajuste (cruzar sobre el punto de ajuste y luego crear una desviación en la otra dirección).
+
+=== Término derivado
+
+La tasa de cambio del error de proceso se calcula determinando
+la pendiente del error en el tiempo (es decir, su primera derivada con
+respecto al tiempo) y multiplicando esta tasa de cambio por la ganancia derivativa.
+
+El término derivado reduce la velocidad de cambio de la salida del controlador
+y este efecto es más notable cerca del punto de ajuste del controlador.
+Por lo tanto, el control derivativo se utiliza para reducir la magnitud del
+sobreimpulso (overshoot) producido por el componente integral y mejorar 
+estabilidad de la combinación proceso / controlador.
+
+=== Ajuste de bucle
+
+Si los parámetros del controlador PID (las ganancias de los términos proporcional,
+integral y derivado) se eligen incorrectamente, la entrada controlada
+del proceso puede ser inestable, es decir, su salida diverge, con o
+sin oscilación, y está limitada solo por saturación o rotura mecánica.
+Sintonizar un bucle de control es el ajuste de sus parámetros de control
+(ganancia / banda proporcional, ganancia integral / reset, ganancia derivada
+ / tasa) a los valores óptimos para la respuesta de control deseada.
+
+=== Sintonización manual
+
+Un método de ajuste simple es establecer primero los valores I y D en cero.
+Aumente la P hasta que la salida del bucle oscile. Luego 
+debe establecerse la P en aproximadamente la mitad de ese valor, buscando una respuesta del tipo
+'decaimiento de un cuarto de amplitud'. Despues se aumenta I hasta que cualquier offset se
+corrija en tiempo suficiente para el proceso. Sin embargo, demasiad a I
+causará inestabilidad. Finalmente, aumente D, si es necesario, hasta que el ciclo sea
+aceptablemente rápido para alcanzar su referencia después de una perturbación de carga.
+Sin embargo, demasiada D causará una respuesta excesiva y un sobredisparo.
+La sintonización del bucle PID generalmente sobredispara ligeramente para alcanzar el punto de ajuste más
+rapidamente; sin embargo, algunos sistemas no pueden aceptar el sobreimpulso, en cuyo caso
+se requiere un sistema de lazo cerrado 'sobre-amortiguado', que requerirá una P
+significativamente menor de la mitad de la configuración de P que causa
+oscilación.
+
+== RTAI
+
+La interfaz de aplicación en tiempo real (RTAI) se utiliza para proporcionar el mejor
+rendimiento en tiempo real (RT). El kernel parcheado RTAI le permite escribir
+aplicaciones con restricciones de tiempo estrictas. RTAI da la habilidad
+tener cosas como la generación de pasos software que requieren gran precisión de
+sincronización.
+
+=== ACPI
+
+La Interfaz avanzada de configuración y energía (ACPI) tiene muchas
+funciones diferentes, la mayoría de las cuales interfieren con el rendimiento RT (por
+ejemplo: administración de energía, apagado de CPU, escala de frecuencia de CPU, etc.)
+El núcleo LinuxCNC (y probablemente todos los núcleos parcheados con RTAI) tiene ACPI
+deshabilitado. ACPI también se encarga de apagar el sistema después de que
+se ha iniciado el apagado, y por eso es posible que deba presionar el botón de encendido
+para apagar completamente su computadora. El grupo RTAI ha estado
+mejorando esto en versiones recientes, por lo que su sistema LinuxCNC puede apagarse
+en sí mismo después de todo.
+
+

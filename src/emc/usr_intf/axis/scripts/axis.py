@@ -1356,7 +1356,15 @@ widgets = nf.Widgets(root_window,
 # context in Tcl's typeless value system.
 # https://github.com/LinuxCNC/linuxcnc/issues/146
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=834783
+widgets.axis_x.configure(value="x")
 widgets.axis_y.configure(value="y")
+widgets.axis_z.configure(value="z")
+widgets.axis_a.configure(value="a")
+widgets.axis_b.configure(value="b")
+widgets.axis_c.configure(value="c")
+widgets.axis_u.configure(value="u")
+widgets.axis_v.configure(value="v")
+widgets.axis_w.configure(value="w")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
@@ -2707,7 +2715,7 @@ class TclCommands(nf.TclCommands):
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
 
@@ -2749,7 +2757,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         lnum = 10 + vars.tto_g11.get()
-        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L%d P%d %c[[%s]*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
         c.mdi("G43")
@@ -3601,9 +3609,10 @@ for a in range(linuxcnc.MAX_AXIS):
         pass
     else:
         if f != 0:
-            step_size_tmp = min(step_size, 1. / f)
-            if a < 3: step_size = astep_size = step_size_tmp
-            else: astep_size = step_size_tmp
+           step_size_tmp = min(step_size, 1. / f)
+           if a in 'XYZ': step_size = astep_size = step_size_tmp
+           elif a in 'ABC': astep_size = step_size_tmp
+           else: step_size = step_size_tmp
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)

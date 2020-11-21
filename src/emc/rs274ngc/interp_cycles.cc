@@ -1197,7 +1197,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
     block->p_number == -1.0 ? settings->cycle_p : block->p_number;
     if (block->dollar_flag){
         CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
-            (_("Invalid spindle ($) numberin G74/G84 cycle")));
+            (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
     }
     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,

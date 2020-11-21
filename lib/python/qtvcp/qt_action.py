@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
 
@@ -213,18 +215,35 @@ class _Lcnc_Action(object):
                 STATUS.emit('file-loaded',fname)
 
     def SAVE_PROGRAM(self, source, fname):
+        # no gcode - ignore
         if source == '': return
-        if '.' not in fname:
-            fname += '.ngc'
-        name, ext = fname.rsplit('.')
+
+        # normalize to absolute path
         try:
-            outfile = open(name + '.' + ext.lower(),'w')
+            path = os.path.abspath(fname)
+            if '.' not in path:
+                path += '.ngc'
+            name, ext = path.rsplit('.')
+            npath = name + '.' + ext.lower()
+        except Exception as e:
+            log.debug('save error: {}'.format(e))
+            log.debug('Original save path: {}'.format(fname))
+
+        log.debug('SAVE_PROGRAM write to: {}'.format(npath))
+
+        # ok write the file
+        try:
+            outfile = open(npath,'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
             print e
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
-            outfile.close()
+            try:
+                outfile.close()
+            except:
+                pass
 
     def SET_AXIS_ORIGIN(self,axis,value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -311,13 +330,47 @@ class _Lcnc_Action(object):
         for jnum in range(STATUS.stat.joints):
             self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(number)]: return
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur + (INFO.SPINDLE_INCREMENT * dir)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MAX_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur + (INFO.SPINDLE_INCREMENT * dir)), i)
+
     def SET_SPINDLE_SLOWER(self, number = 0):
-        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur - (INFO.SPINDLE_INCREMENT * dir)) <= INFO['MIN_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MIN_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
     def SET_SPINDLE_STOP(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 
@@ -402,7 +455,7 @@ class _Lcnc_Action(object):
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
     def STOP_JOG(self, jointnum):
-        if STATUS.machine_is_on():
+        if STATUS.machine_is_on() and STATUS.is_man_mode():
             jjogmode,j_or_a = self.get_jog_info(jointnum)
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 
@@ -448,7 +501,7 @@ class _Lcnc_Action(object):
                 'overlay_dro_on','overlay_dro_off',
                 'overlay-offsets-on','overlay-offsets-off',
                 'inhibit-selection-on','inhibit-selection-off',
-                'alpha-mode-on','alpha-mode-off'):
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
@@ -584,6 +637,12 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 #############################
 ###########################################
 # Filter Class
@@ -660,4 +719,19 @@ class FilterProgram:
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
 
+# For testing purposes
+
+if __name__ == "__main__":
+
+    from qtvcp.core import Action
+    testcase = Action()
+
+    # print status caught errors
+    def mess(error,text):
+        print 'STATUS caught:',text
+
+    STATUS.connect("error", lambda w, n, d: mess(n,d))
+
+    # test case
+    testcase.SAVE_PROGRAM('hi','/../../home')
 

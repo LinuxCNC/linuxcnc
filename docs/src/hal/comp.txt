@@ -791,6 +791,49 @@ which creates the following pins:
  - 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00,
    logic.2.in-01, logic.2.in-02
 
+=== general functions
+
+This example shows how to call functions from the main function. +
+it also shows how to pass reference of HAL pins to those functions. +
+
+[source,c]
+----
+component example;
+pin in s32 in;
+pin out bit out1;
+pin out bit out2;
+
+function _;
+license "GPL";
+;;
+
+// general pin set true function
+void set(hal_bit_t *p){
+    *p = 1;
+}
+
+// general pin set false function
+void unset(hal_bit_t *p){
+    *p = 0;
+}
+
+//main function
+FUNCTION(_) {
+    if (in < 0){
+        set(&out1);
+        unset(&out2);
+    }else if (in >0){
+        unset(&out2);
+        set(&out2);
+    }else{
+        unset(&out1);
+        unset(&out2);
+    }
+    
+}
+----
+
+This component uses two general function to manipulate a HAL bit pin referenced to it. +
 
 == Command Line Usage
 

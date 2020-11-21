@@ -1563,7 +1563,6 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    int pocket;
     int tool;
 };
 

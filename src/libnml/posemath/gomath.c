@@ -71,8 +71,8 @@ int go_sph_cart_convert(const go_sph * s, go_cart * v)
 {
   go_real sth, cth, sph, cph;
 
-  sincos(s->theta, &sth, &cth);
-  sincos(s->phi, &sph, &cph);
+  pm_sincos(s->theta, &sth, &cth);
+  pm_sincos(s->phi, &sph, &cph);
 
   v->x = s->r * cth * sph;
   v->y = s->r * sth * sph;
@@ -85,7 +85,7 @@ int go_sph_cyl_convert(const go_sph * s, go_cyl * c)
 {
   go_real sph, cph;
 
-  sincos(s->phi, &sph, &cph);
+  pm_sincos(s->phi, &sph, &cph);
 
   c->theta = s->theta;
   c->r = s->r * sph;
@@ -138,7 +138,7 @@ int go_rvec_quat_convert(const go_rvec * r, go_quat * q)
 
   (void) go_cart_mag(&vec, &mag);
 
-  sincos(0.5 * mag, &sh, &(q->s));
+  pm_sincos(0.5 * mag, &sh, &(q->s));
 
   if (q->s >= 0) {
     q->x = uvec.x * sh;
@@ -175,7 +175,7 @@ int go_rvec_mat_convert(const go_rvec * r, go_mat * m)
 
   (void) go_cart_mag(&vec, &mag);
 
-  sincos(mag, &s, &c);
+  pm_sincos(mag, &s, &c);
   omc = 1 - c;
 
   m->x.x = c + go_sq(uvec.x) * omc;
@@ -3629,8 +3629,8 @@ int go_dh_pose_convert(const go_dh * dh, go_pose * p)
   go_real sth, cth;		/* sin, cos theta[i] */
   go_real sal, cal;		/* sin, cos alpha[i-1] */
 
-  sincos(dh->theta, &sth, &cth);
-  sincos(dh->alpha, &sal, &cal);
+  pm_sincos(dh->theta, &sth, &cth);
+  pm_sincos(dh->alpha, &sal, &cal);
 
   h.rot.x.x = cth, h.rot.y.x = -sth, h.rot.z.x = 0.0;
   h.rot.x.y = sth*cal, h.rot.y.y = cth*cal, h.rot.z.y = -sal;

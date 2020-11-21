@@ -4,36 +4,95 @@
 
 == Minimum Requirements
 
-The minimum system to run LinuxCNC and Ubuntu may vary depending on the
-exact usage. Stepper systems in general require faster threads to
-generate step pulses than servo systems. Using the Live-CD you can test
-the software before committing a computer. Keep in mind that the
-Latency Test numbers are more important than the processor speed for
-software step generation. More information on the Latency Test is 
-<<latency-test,here>>.
+The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending
+on the exact usage. Stepper systems in general require faster threads to
+generate step pulses than servo systems. You can use the Live-CD to test
+the software before committing to a permanent installation on a computer.
+Keep in mind that the Latency Test numbers are more important than the
+processor speed for software step generation. More information on the
+Latency Test is <<latency-test,here>>.
+In addition LinuxCNC needs to be run on an operating system that uses a
+specially modified kernel. See <<kernel_and_version_requirements,Kernel and Version Requirements>>
 
 Additional information is on the LinuxCNC Wiki site:
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
-
-LinuxCNC and Ubuntu should run reasonably well on a computer with the
-following minimum hardware specification. These numbers are not the
+LinuxCNC and Debian Linux should run reasonably well on a computer with
+the following minimum hardware specification. These numbers are not the
 absolute minimum but will give reasonable performance for most stepper
 systems.
 
-* 700 MHz x86 processor (1.2 GHz x86 processor recommended)
-* 384 MB of RAM (512 MB up to 1 GB recommended)
+* 700 MHz x86 processor (1.2 GHz x86 processor recommended) or Raspberry
+  Pi 4 or better.
+* To run LinuxCNC 2.8 and Debian Buster from the LiveCD the system should
+  be 64-bit capable.
+* 512 MB or more of RAM
 * 8 GB hard disk
 * Graphics card capable of at least 1024x768 resolution, which is not
-   using the NVidia or ATI fglrx proprietary drivers, and which is not an
-   onboard video chipset that shares main memory with the CPU
+   using the NVidia or ATI fglrx proprietary drivers. Modern onboard
+   graphic chipsets seem to generally be OK.
 * A network or Internet connection (not strictly needed, but very useful
-   for updates and for communicating with the LinuxCNC community)
+  for updates and for communicating with the LinuxCNC community)
 
-Minimum hardware requirements change as Ubuntu evolves so check the 
-https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD you're using.
-Older hardware may benefit from selecting an older version of the LiveCD when
-available.
+Minimum hardware requirements change as Linux distributions evolve so
+check the https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]
+web site for details on the LiveCD you're using. Older hardware may
+benefit from selecting an older version of the LiveCD when available.
+
+[[kernel_and_version_requirements]]
+== Kernel and Version requirements
+
+LinuxCNC requires a kernel modified for realtime use to control real
+machine hardware. It can, however run on a standard kernel in simulation
+mode for purposes such as checking G-code, testing config files and
+learning the system.
+To work with these kernel versions there are two versions of LinuxCNC
+distributed. The package names are "linuxcnc" and "linuxcnc-uspace"
+
+The realtime kernel options are preempt-rt, RTAI and Xenomai.
+
+You can discover the kernel version of your system with the command
+
+ uname -a
+
+If you see (as above) `-rt-` in the kernel name then you are running the
+preempt-rt kernel and should install the "uspace" version of linuxcnc.
+You should also install uspace for "sim" configs on non-realtime kernels
+
+If you see `-rtai-` in the kernel name then you are running RTAI
+realtime. See below for the linuxcnc version to install.
+
+=== Preempt-RT with linuxcnc-uspace
+
+Preempt-RT is the newst of the realtime systems, and is also the version
+that is closest to a mainline kernel. Preempt-RT kernels are available
+as precompiled packages from the main repositories. The search term
+"PREEMPT_RT" will find them, and one can be downloaded and installed
+just like any other package.
+Preempt-RT will generally have the best driver support and is the only
+option for systems using the Mesa ethernet-connected hardware driver
+cards. In general preempt-rt has the worst latency of the available
+systems, but there are exceptions.
+
+=== RTAI with linuxcnc
+
+RTAI has been the mainstay of LinuxCNC distributions for many years. It
+will generally give the best realtime performance in terms of low
+latency, but might have poorer peripheral support and not as many screen
+resolutions. An RTAI kernel is available from the LinuxCNC package
+repository. If you installed from the Live/Install image then switching
+kernel and LinuxCNC flavour is described in [Installing-RTAI].
+
+=== Xenomai with linuxcnc-uspace
+
+Xenomai is also supported, but you will have to find or build the kernel
+and compile LinuxCNC from source to utilise it.
+
+=== RTAI with linuxcnc-uspace
+
+It is also possible to run linuxCNC with RTAI in user-space mode. As
+with Xenomai you will need to compile from source to do this.
+
 
 == Problematic Hardware
 
@@ -46,8 +105,9 @@ the info you need to determine suitability.
 === Video Cards
 
 If your installation pops up with 800 x 600 screen resolution then
-most likely Ubuntu does not recognize your video card or monitor.
-Onboard video many times causes bad real time performance.
+most likely Debian does not recognize your video card or monitor. This
+can sometimes be worked-around by installing drivers or creating /
+editing Xorg.conf files.
 
 // vim: set syntax=asciidoc:
 

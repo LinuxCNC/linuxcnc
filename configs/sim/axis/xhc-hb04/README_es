@@ -1,0 +1,262 @@
+Estas configuraciones de simulación demuestran el uso de un colgante MPG inalámbrico XHC-HB04 en LinuxCNC usando un módulo HAL creado por Frederic Rible (frible@teaser.fr) (Copyright (C) 2013).  Ref:
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
+
+El módulo HAL está diseñado para el XHC-HB04 V3.0 identificado como dispositivo USB 10CE:EB70.
+Se manejan la mayoría de las características del colgante:
+- botones convertidos a pines hal
+- jog de volante con escala variable (use el pin stepsize-up o stepsize-down para cambiar la secuencia)
+- Las secuencias proporcionadas incluyen:
+     (0.001,0.010,0.100,1.000)  tipico para máquinas en mm
+     (0.001,0.005,0.010,0.020)  tipico para máquina  en pulgadas
+- Pantalla LCD que muestra las posiciones relativas y máquina.
+
+Se proporcionan configuraciones Sim para dos configuraciones de botón conocidas:
+
+layout1 -- 16 buttons
+layout2 -- 18 buttons (más comunes)
+
+Los nombres de los botones se definen en los archivos LIB:xhc-hb04-layout*.cfg en una estrofa etiquetada XHC-HB04 con definiciones como BUTTON=XX:nombre donde XX es un código hexadecimal utilizado por el dispositivo.
+
+Ejemplo:
+   [XHC-HB04]
+   BUTTON=01:button-stop
+   BUTTON=03:button-rewind
+   ...
+
+Se crea un pin hal (Type = bit, Dir = OUT) para cada botón, por ejemplo:
+   xhc-hb04.button-stop
+   xhc-hb04.button-rewind
+   ...
+
+Si el archivo de configuración incluye botones nombrados:
+  button-zero
+  button-goto-zero
+  button-half
+entonces el driver crea botones adicionales para los que están activos solo si la articulacion se selecciona con el interruptor giratorio. Estos botones sintetizados son:
+  button-zero-x
+  button-zero-y
+  button-zero-z
+  button-zero-a
+  button-goto-zero-x
+  button-goto-zero-y
+  button-goto-zero-z
+  button-goto-zero-a
+  button-half-x
+  button-half-y
+  button-half-z
+  button-half-a
+Al igual que con los botones reales, los botones sintetizados tienen pines hal llamados:
+  xhc-hb04.button-zero-x
+  xhc-hb04.button-zero-y
+  etc.
+
+
+Los pines hal adicionales son creados por el controlador xhc-hb04 y conectados según lo requerido por el halfile incluido para las configuraciones de demostración.
+
+Se requiere un dispositivo xhc-hb04 en funcionamiento y conectado para las configuraciones de demostración. Si no está conectado, las configuraciones de sim se iniciarán sin la funcionalidad del colgante.
+
+----------------------------------
+
+Se necesita un archivo de reglas udev para otorgar los permisos correctos para el acceso USB. Con una instalación deb, el archivo de reglas se instala como /lib/udev/rules.d/99-xhc.rules
+
+Si usa una compilación Run-In-Place (RIP), cree un archivo en la ubicación para las reglas instaladas por el usuario: /etc/udev/rules.d/99-xhc.rules e incluya una regla para especificar Códigos del producto y el proveedor correspondiente  y permitir tanto el acceso de lectura como de escritura al usuario.
+
+Ejemplo de regla udev:
+ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"
+
+Esta regla usa el modo 0666 para proporcionar acceso de lectura y escritura al propietario, grupo, mundo, --- todos.
+
+----------------------------------
+Las configuraciones sim utilizan un solo halfile: LIB:xhc-hb04.tcl. Este halfile utiliza un archivo comp personalizado (xhc_hb04_util.comp) y se puede agregar a las configuraciones existentes agregando una entrada de archivo ini para:
+  [HAL]HALFILE = LIB:xhc-hb04.tcl
+
+Esta entrada HALFILE debe seguir a otras entradas HALFILE.
+
+Los elementos del archivo ini de configuración opcional y los valores predeterminados son:
+
+[XHC_HB04_CONFIG]
+threadname = servo-thread (opcional, por defecto: servo-thread)
+layout     = 2            (opcional, 1: 16 botones o 2: 18 botones, por defecto: 2)
+coords     = x y z a      (opcional, 4 max, por defecto: x y z a)
+coefs      = 1 1 1 1      (opcional, filtro coefs 0 <coef <1, predeterminado: 1 1 1 1)
+mpg_accels = 1 2 2 200    (opcional: aceleraciones reducidas para jogging)
+                          (en machine_units/sec/sec como:)
+                          ( [AXIS_L]MAX_ACCELERATION,[JOINT_n]MAX_ACCELERATION)
+scales     = 1 1 1 1      (opcional, factores más/menos, por defecto: 1 1 1 1)
+require_pendant = yes     (opcional, yes | no, predeterminado: yes)
+inch_or_mm = in           (opcional, in o mm para el icono de pantalla, predeterminado: mm)
+jogmode    = normal       (opcional, normal o vnormal, por defecto: normal)
+sequence   = 1            (opcional, 1 o 2 o 3 o 4 o 5, predeterminado: 1)
+                           1: 0.001,0.010,0.100,1.000 (tipico para máquina en mm)
+                           2: 0.001,0.005,0.010,0.020 (tipico para máquina en pulgadas)
+                           3: 0.001,0.010,0.100
+                           4: 0.001,0.005,0.010,0.020,0.050,0.100
+                           5: 0.001,0.010,0.050,0.100,1.000
+
+Los coefs de filtro se pueden usar para retardar la respuesta a los pasos de rueda, pero generalmente no son necesarios ya que el componente xhc-hb04 implementa el suavizado.
+
+El movimiento por incremento de rueda normalmente se controla conectando el botón STEP al pin hal xhc-hb04.stepsize-up (o xhc-hb04.stepsize-down). Cada vez que presione el botón STEP, el incremento de la rueda aumentará de acuerdo con la secuencia especificada. La secuencia comienza de nuevo después de alcanzar el valor máximo.
+
+El factor de escala para cada articulación se puede establecer con el item de escalas.
+
+Cuando require_pendant = no, los pines hal xhc-hb04 se crearán incluso si el colgante no está conectado al inicio. Se admite una nueva conexión, una desconexión y una reconexión.
+----------------------------------
+jogmodes:
+  normal: modo de posición, la articulación se moverá exactamente sin importar cuánto tiempo lleve. Cuidado: la máquina puede seguir moviéndose después de que deje de girar la rueda de desplazamiento.
+
+  vnormal: modo de velocidad, la articulación se detendrá cuando la rueda se detenga. Cuidado: la cantidad movida por la detención de la rueda puede ser menor que la especificada si la velocidad y la aceleración de la máquina no pueden realizar el movimiento a tiempo.
+
+----------------------------------
+secuencia: por lo general, utilice 1 para máquinas basadas en mm, 2 para máquinas basadas en pulgadas
+
+----------------------------------
+Los botones del colgante están conectados a los pines hal con elementos de archivo ini.
+Ejemplos:
+[XHC_HB04_BUTTONS]
+stop        = halui.program.stop
+goto-zero   = halui.mdi-command-00
+step        = xhc-hb04.stepsize-up
+rewind      = halui.program.step
+macro-1     = halui.mdi-command-01
+mode        = ""  (placeholder)
+
+Con los elementos anteriores, las conexiones se realizan como:
+  Nombre señal              Pin Fuente                   Pin Destino
+  ----------------- ---------------------------- ------------------------
+  pendant:stop      <== xhc-hb04.button-stop      ==> halui.program.stop
+  pendant:goto-zero <== xhc-hb04.button-goto-zero ==> halui.mdi-command-00
+  pendant:step      <== xhc-hb04.button-step      ==> xhc-hb04.stepsize-up
+  etc ...
+
+
+Nota: los comandos MDI de halui se definen en un parrafo [HALUI]:
+[HALUI]
+MDI_COMMAND = G0 X0 Y0 Z0
+MDI_COMMAND = M101
+
+
+Los comandos se asignan a los pines (Tipo=bit, Dir=IN) llamados halui.mdi-command-nn donde
+nn corresponde a su apariencia ordenada que comienza con nn=00. (man halui para más información)
+----------------------------------
+Se incluye una aplicación llamada monitor-xhc-hb04 para monitorear desconexiones y reconexiones del colgante. Esta secuencia de comandos se ejecuta en segundo plano y mostrará un mensaje cuando el colgante se desconecte o vuelva a conectarse. El uso es opcional; si se usa se especifica con la entrada del archivo ini:
+  [APPLICATIONS]APP = monitor-xhc-hb04
+
+(Nota: cuando se utiliza require_pendant=1, se detectan desconexiones pero no se admiten las reconexiones)
+----------------------------------
+Consulte la página de manual de xhc-hb04 para obtener detalles sobre el componente xhc-hb04
+----------------------------------
+
+Los archivos demo ini son ejemplos que utilizan la gui Axis en una configuración de simulador.
+Estos archivos utilizan directivas #INCLUDE para incluir archivos para la máquina básica
+y para el diseño del colgante.
+
+Por ejemplo, la organización para el archivo xhc-hb04-layout2.ini es:
+
+   #INCLUDE inch_base.inc     | Items convencionales para un simulador basado en pulgadas.
+   #INCLUDE layout2.inc       | Todos los items de botón ([XHC_HB04_BUTTONS],[HALUI])
+
+   [EMC]                      | Identificador de la máquina
+   MACHINE =                  |
+
+   [HAL]                      | Items HAL
+   HALFILE =                  |
+   ...                        |
+   HALFILE =                  |
+   HALFILE = LIB:xhc-hb04.tcl | script de configuración xhc-hb04
+   HALUI   = halui            | Especificador halui
+
+   [XHC_HB04_CONFIG]          | Todos los items de configuración utilizados por LIB:xhc-hb04.tcl
+   layout =                   |
+   coords =                   |
+   coefs =                    |
+   scales =                   |
+   jogmode =                  |
+   sequence =                 |
+   require_pendant =          |
+   inch_or_mm =               |
+   mpg_accels =               |
+
+   [APPLICATIONS]             | Scripts auxiliares opcionales
+   APP = monitor-xhc-hb04     | Script de monitor de conexión
+
+----------------------------------
+
+Añadiendo un xhc-hb04 a una configuración existente.
+
+El procedimiento recomendado es crear una nueva configuración basada en una configuración existente.
+
+  Copie todos los archivos de un directorio de configuración existente (en funcionamiento)
+  a un nuevo directorio y edite la configuración del archivo ini para:
+    a) agregue [HAL]HALFILE=LIB:xhc-hb04.tcl
+       (esta entrada debe seguir a otras entradas de HALFILE)
+    b) (opcional) agregue [APPLICATIONS]APP=monitor-xhc-hb04
+       para monitorizar desconexiones/conexiones de colgante
+    c) agregue la estrofa [XHC_HB04_CONFIG] para configurar el colgante
+    d) incluir las estrofas [XHC_HB04_BUTTONS] y [HALUI] para
+       definir acciones de botón (estas pueden estar en un
+       archivo #INCLUDE - vea los ejemplos de demostración)
+
+   Las entradas en las estrofas nuevas o actualizadas deben personalizarse para su máquina.
+
+----------------------------------
+Nota: Para cinemática de identidad (trivkins), el script LIB:xhc-hb04.tcl se conecta
+ejes y pines de articulacion que tienen una correspondencia uno a uno para soportar jog
+en ambos modos de movimiento, articulacion y teleop.
+
+Para cinemáticas desconocidas (por ejemplo, cinemáticas sin identidad), el script LIB:xhc-hb04
+conecta la coordenada del eje especificada por:
+   [XHC_HB04_CONFIG]coords=
+para el jogging modo mundial (teleop). No se hacen conexiones para articulaciones individuales
+en modo jogging de articulaciones .
+Si se desea jogging wheel para articulaciones en modo de movimiento de articulación para configuraciones con
+cinemática sin identidad, utilice conexiones Hal adicionales para conectar los
+pines jog articulacion apropiados.
+
+Ejemplo: cinemática sin identidad que tiene un eje rotativo (c) con una
+correspondencia uno a uno a una sola articulación (3). El script LIB:xhc-hb04.tcl
+hace conexiones Hal para el eje c como:
+
+                  pendant:jog-c <= xhc-hb04.jog.enable-a
+                                => axis.c.jog-enable
+              pendant:jog-scale <= pendant_util.divide-by-k-out
+                                => axis.c.jog-scale
+pendant:wheel-counts-c-filtered <= pendant_util.out3
+                                => axis.c.jog-counts
+
+Para agregar jogging de articulaciones para la articulación 3 (con una escala idéntica a la escala mundial),
+agregar comandos hal suplementarios:
+
+net                   pendant:jog-c => joint.3.jog-enable
+net               pendant:jog-scale => joint.3.jog-scale
+net pendant:wheel-counts-c-filtered => joint.3.jog-counts
+
+Estas conexiones podrían agregarse en un [HAL]HALFILE= adicional
+o utilizando [HAL]HALCMD= en el archivo ini
+
+Se podrían hacer conexiones similares para otras articulaciones que tienen 
+correspondencia uno a uno a una coordenada de eje.
+
+Para articulaciones que no tienen una correspondencia directa con una coordenada de eje,
+se pueden hacer conexiones articulacion pin jog como en el ejemplo anterior, pero las 
+conexiones alteradas pueden requerir una escala adecuada. Haga las conexiones articulaciones jog pin
+utilizando una letra de coordenadas de eje para una posición del interruptor giratorio selector de eje del colgante.
+Se producirá jogging de articulacion para esa posición de conmutador cuando LinuxCNC esté en
+modo de movimiento de articulacion.
+
+----------------------------------
+Notas:
+
+ 1) En versiones anteriores de xhc-hb04.tcl, mpg_accels usaba un 
+    script de ayuda (xhc-hb04-accels) para multiplexar valores de aceleración reducidos durante
+    modo mundial de jogging.
+    La implementación actual utiliza ahora pines proporcionados por el 
+    módulo motion:
+         axis.L.jog-accel-fraction
+         joint.N.jog-accel-fraction
+
+ 2) El soporte para la regulacion del husillo se admite utilizando los
+    pines halui: halui.spindle.0.override. * según corresponde a
+    uso por defecto de un solo husillo.
+
+

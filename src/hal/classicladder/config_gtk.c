@@ -35,6 +35,7 @@
 //#include "hardware.h"
 #include "global.h"
 #include "config_gtk.h"
+#include <rtapi_string.h>
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 #define NBR_OBJECTS 19
@@ -105,89 +106,90 @@ GtkWidget * CreateGeneralParametersPage( void )
 		switch( NumObj )
 		{ 
 			case 0:
-				sprintf( BuffLabel, _("Rung Refresh Rate (milliseconds)") );
-				sprintf( BuffValue, "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Rung Refresh Rate (milliseconds)") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
 				break;
 			case 1:
 				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_rungs;
-				sprintf( BuffLabel, _("Number of rungs (%d%c used      "), InfoUsed,'%' );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of rungs (%d%c used      "), InfoUsed,'%' );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
 				break;
 			case 2:
-				sprintf( BuffLabel, _("Number of Bits                  ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Bits                  ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
                         case 3:
-				sprintf( BuffLabel, _("Number of Error Bits                  ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Error Bits                  ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
 				break;
 			case 4:
-				sprintf( BuffLabel, _("Number of Words                 ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_words );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Words                 ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
 			case 5:
-				sprintf( BuffLabel, _("Number of Counters              ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Counters              ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
 			case 6:
-				sprintf( BuffLabel, _("Number of Timers IEC            ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers IEC            ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 7:
-				sprintf( BuffLabel, _("Number of Arithmetic Expressions ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Arithmetic Expressions ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
-				sprintf( BuffLabel, _("Number of Sections (%d%c used)   "), InfoUsed,'%' );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Sections (%d%c used)   "), InfoUsed,'%' );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
 			case 9:
-				sprintf( BuffLabel, _("Number of Symbols                ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Symbols                ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case 10:
-				sprintf( BuffLabel, _("Number of Timers                 ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers                 ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
 				break;
 			case 11:
-				sprintf( BuffLabel, _("Number of Monostables            ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Monostables            ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
                         case 12:
-				sprintf( BuffLabel, _("Number of BIT Inputs HAL pins           ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Inputs HAL pins           ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 13:
-				sprintf( BuffLabel, _("Number of BIT Outputs HAL pins          ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Outputs HAL pins          ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
 			case 14:
-				sprintf( BuffLabel, _("Number of S32in HAL pins             ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32in HAL pins             ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
 				break;
 			case 15:
-				sprintf( BuffLabel, _("Number of S32out HAL pins            ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32out HAL pins            ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 				break;
                         case 16:
-				sprintf( BuffLabel, _("Number of floatin HAL pins             ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatin HAL pins             ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
 				break;
 			case 17:
-				sprintf( BuffLabel, _("Number of floatout HAL pins            ") );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatout HAL pins            ") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
 				break;
                         case 18:
-				sprintf( BuffLabel, _("Current path/filename") );
-                                sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
-                                //sprintf( BuffValue, "Not available yet" );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
+				size_t ret = snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
+				if (ret >= sizeof(BuffLabel)) snprintf(BuffValue, sizeof(BuffValue), "<path too long>");
+                                //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
 				break;                                
 			default:
-				sprintf( BuffLabel, "???" );
-				sprintf( BuffValue, "???" );
+				snprintf(BuffLabel, sizeof(BuffLabel), "???" );
+				snprintf(BuffValue, sizeof(BuffValue), "???" );
 				break;
 		}
 
@@ -394,18 +396,18 @@ GtkWidget * CreateModbusModulesIO( void )
 							switch( NumObj )
 							{
 								case 0:
-									strcpy( BuffValue, pConf->SlaveAdr );
+									rtapi_strxcpy( BuffValue, pConf->SlaveAdr );
 									PixelsLength = 120;
 									break;
 								case 2:
-									sprintf( BuffValue, "%d", pConf->FirstModbusElement );
+									snprintf(BuffValue, sizeof(BuffValue), "%d", pConf->FirstModbusElement );
 									break;
 								case 3:
-									sprintf( BuffValue, "%d", pConf->NbrModbusElements );
+									snprintf(BuffValue, sizeof(BuffValue), "%d", pConf->NbrModbusElements );
                                                                         PixelsLength = 70;
 									break;
 								case 5:
-									sprintf( BuffValue, "%d", pConf->OffsetVarMapped );
+									snprintf(BuffValue, sizeof(BuffValue), "%d", pConf->OffsetVarMapped );
 									PixelsLength = 140;
 									break;
 							}
@@ -439,7 +441,7 @@ void GetModbusModulesIOSettings( void )
 		int MaxVars = 0;
 		char DoVerify = FALSE;
 		pConf = &ModbusMasterReq[ NumLine ];
-		strcpy( pConf->SlaveAdr, "" );
+		rtapi_strxcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
 
 		for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
@@ -449,7 +451,7 @@ void GetModbusModulesIOSettings( void )
 			{
 				case 0://slave address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-					strcpy( BuffValue, text );
+					rtapi_strxcpy( BuffValue, text );
 					break;
 				case 1://type of request
 					pConf->TypeReq = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry), ModbusReqType );
@@ -500,8 +502,8 @@ switch( pConf->TypeReq )
 			if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>MaxVars )
 			{
 				printf(_("Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected...ASKED=%i,MAX=%i\n"),  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
-				strcpy( BuffValue, "" );
-				ShowMessageBox(_("Error"),_("Overflow error for I,B,Q,IQ or WQ mapping detected..."),_("Ok"));
+				rtapi_strxcpy( BuffValue, "" );
+				ShowMessageBox(_("Error"),_("Overflow error for I,B,Q,IQ or WQ mapping detected..."),"Ok");
 			}
 		}
 		
@@ -627,54 +629,54 @@ GtkWidget * CreateModbusComParametersPage( void )
 		switch( NumLine )
 		{
 			case 0:
-				sprintf( BuffLabel, _("Serial port (blank = IP mode)") );
-				strcpy( BuffValue, ModbusSerialPortNameUsed );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Serial port (blank = IP mode)") );
+				rtapi_strxcpy( BuffValue, ModbusSerialPortNameUsed );
 				break;
 			case 1:
-				sprintf( BuffLabel, _("Serial baud rate") );
-				sprintf( BuffValue, "%d", ModbusSerialSpeed );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Serial baud rate") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusSerialSpeed );
                                 
 				break;
                         case 2:
-				sprintf( BuffLabel, _("After transmit pause - milliseconds") );
-				sprintf( BuffValue, "%d", ModbusTimeAfterTransmit );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("After transmit pause - milliseconds") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeAfterTransmit );
 				break;
 			
 			case 3:
-				sprintf( BuffLabel, _("After receive pause - milliseconds") );
-				sprintf( BuffValue, "%d", ModbusTimeInterFrame );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("After receive pause - milliseconds") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeInterFrame );
 				break;
 			case 4:
-				sprintf( BuffLabel, _("Request Timeout length - milliseconds") );
-				sprintf( BuffValue, "%d", ModbusTimeOutReceipt );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Request Timeout length - milliseconds") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeOutReceipt );
 				break;
 			case 5:
-				sprintf( BuffLabel, _("Use RTS to send") );
-				sprintf( BuffValue, "%d", ModbusSerialUseRtsToSend );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Use RTS to send") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusSerialUseRtsToSend );
 				break;
 			case 6:
-				sprintf( BuffLabel, _("Modbus element offset") );
-				sprintf( BuffValue, "%d", ModbusEleOffset );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Modbus element offset") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusEleOffset );
 				break;
 			case 7:
-				sprintf( BuffLabel, _("Debug level") );
-				sprintf( BuffValue, "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Debug level") );
+				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
 				break;
                         case 8:
-				sprintf( BuffLabel, _("Read Coils/inputs map to") );
-				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Read Coils/inputs map to") );
+				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
 				break;
                         case 9:
-				sprintf( BuffLabel, _("Write Coils map from") );
-				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Write Coils map from") );
+				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
 				break;
                         case 10:
-				sprintf( BuffLabel, _("Read register/holding map to") );
-				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Read register/holding map to") );
+				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
 				break;
                         case 11:
-				sprintf( BuffLabel, _("Write registers map from") );
-				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Write registers map from") );
+				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
 				break;
 		}
             switch( NumLine )
@@ -947,11 +949,11 @@ void GetModbusComParameters( void )
         if ( strncmp( string, "IP port", strlen("IP port") )==0 )           
              {    
                    if ( strncmp( ModbusSerialPortNameUsed, " ", strlen(" ") )!=0 )  
-                      {   update=TRUE;   strcpy( ModbusSerialPortNameUsed,"" );  }
+                      {   update=TRUE;   rtapi_strxcpy( ModbusSerialPortNameUsed,"" );  }
              }else{
                     if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 ) 
                        {
-       	                strcpy( ModbusSerialPortNameUsed,string );update=TRUE;
+       	                rtapi_strxcpy( ModbusSerialPortNameUsed,string );update=TRUE;
                        }
                   }
       // printf("port name: ->%s<-->%s<-\n",ModbusSerialPortNameUsed, string);

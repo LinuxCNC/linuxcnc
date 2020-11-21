@@ -1,0 +1,48 @@
+.TH BITWISE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+bitwise \- Computes various bitwise operations on the two input values
+.SH SYNOPSIS
+.HP
+.B loadrt bitwise [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBbitwise.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B bitwise.\fIN\fB.in0\fR u32 in \fR
+First input value
+.TP
+.B bitwise.\fIN\fB.in1\fR u32 in \fR
+Second input value
+.TP
+.B bitwise.\fIN\fB.out-and\fR u32 out \fR
+The bitwise AND of the two inputs
+.TP
+.B bitwise.\fIN\fB.out-or\fR u32 out \fR
+The bitwise OR of the two inputs
+.TP
+.B bitwise.\fIN\fB.out-xor\fR u32 out \fR
+The bitwise XOR of the two inputs
+.TP
+.B bitwise.\fIN\fB.out-nand\fR u32 out \fR
+The inverse of the bitwise AND
+.TP
+.B bitwise.\fIN\fB.out-nor\fR u32 out \fR
+The inverse of the bitwise OR
+.TP
+.B bitwise.\fIN\fB.out-xnor\fR u32 out \fR
+The inverse of the bitwise XOR
+.SH AUTHOR
+
+Andy Pugh
+.SH LICENSE
+
+GPL 2+

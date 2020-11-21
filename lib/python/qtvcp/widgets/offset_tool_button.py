@@ -46,7 +46,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
         self.dialog_code = 'CALCULATOR'
         self.display_units_mm = 0
 
-        self.settingMenu = QMenu()
+        self.settingMenu = QMenu(self)
         self.setMenu(self.settingMenu)
 
         Button = QAction(QIcon('exit24.png'), 'Set Current Tool Position', self)

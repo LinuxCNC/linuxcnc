@@ -1,0 +1,98 @@
+.TH IOCONTROL "1" "2007-08-25" "Documentacion de LinuxCNC" "Componentes HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+iocontrol \- acepta comandos de E/S NML, interactua con HAL en el espacio de usuario
+
+.SH SINOPSIS
+\fBloadusr io [\-ini \fIinifile\fB]
+
+
+.SH DESCRIPCION
+Estos pines son creados por el controlador IO de espacio de usuario, que generalmente se encuentra en $LINUXCNC_HOME/bin/io
+.PP
+Las se\[~n]ales se activan y desactivan en el espacio de usuario: si tiene  requisitos de tiempo estrictos o simplemente necesita mas I/O, considere usar la I/O sincronizada en tiempo real proporcionada por \fBmotion \fR(9).
+.PP
+El archivo inifile se busca en el directorio desde donde se ejecuto halcmd, a menos que se especifique una ruta absoluta.
+
+.SH PINES
+
+.TP
+\fBiocontrol.0.coolant\-flood
+(Bit, Out) TRUE cuando se solicita refrigerante de inundacion
+
+.TP
+\fBiocontrol.0.coolant\-mist
+(Bit, Out) TRUE cuando se solicita refrigerante de niebla
+
+.TP
+\fBiocontrol.0.emc\-enable\-in
+(Bit, In) Se debe activar FALSE cuando existe una condicion Estop externa.
+
+.TP
+\fBiocontrol.0.lube
+(Bit, Out) TRUE cuando se solicita lubricante. Este pin pasa a TRUE cuando
+el controlador sale de E-stop, y cuando el comando "Lube On"
+se envia al controlador. Es FALSE cuando el controlador
+recibe E-stop, y cuando se envia el comando "Lube Off".
+
+.TP
+\fBiocontrol.0.lube_level
+(Bit, in.) Se debe poner en FALSE cuando el tanque de lubricacion esta vacio.
+
+.TP
+\fBiocontrol.0.tool\-change
+(Bit, Out) Se debe poner en TRUE cuando se solicita un cambio de herramienta
+
+.TP
+\fBiocontrol.0.tool\-changed
+(Bit, In) Se debe poner en TRUE cuando se completa un cambio de herramienta.
+
+.TP
+\fBiocontrol.0.tool\-number
+(s32, Out) Numero de herramienta actual
+
+.TP
+\fBiocontrol.0.tool\-prep\-number
+(s32, Out) El numero de la siguiente herramienta de la palabra T
+
+.TP
+\fBiocontrol.0.tool\-prep\-pocket
+(s32, Out) Este es el numero de ranura (ubicacion en el almacenamiento del mecanismo de herramientas)
+de la herramienta solicitada por la palabra T mas reciente.
+
+.TP
+\fBiocontrol.0.tool\-prepare
+(Bit, Out) TRUE cuando se solicita la preparacion de la herramienta T\fIn\fR
+
+.TP
+\fBiocontrol.0.tool\-prepared
+(Bit, In) Debe ponerse en TRUE cuando se completa la preparacion de una herramienta.
+
+.TP
+\fBiocontrol.0.user\-enable\-out
+(Bit, Out) FALSE cuando existe una condicion de detencion interna
+
+.TP
+\fBiocontrol.0.user\-request\-enable
+(Bit, Out) TRUE cuando el usuario ha solicitado que se elimine la detencion
+
+.SH PARAMETROS
+
+.TP
+\fBiocontrol.0.tool\-prep\-index
+(s32, RO) indice de matriz interna de IO de la herramienta preparada solicitada
+por la palabra T mas reciente. 0 si no hay ninguna herramienta preparada.
+En maquinas con cambiador de herramientas random, este es el numero de ranura de la herramienta (es decir, el mismo que
+tool\-prep\-pocket pin). En maquinas de cambiador de herramientas no random, esto es
+un numero entero que corresponde a la ubicacion de la herramienta en la representacion interna
+de la tabla de herramientas. Este parametro vuelve a 0 despues de un
+cambio de herramienta con exito (M6).
+
+.SH VER TAMBIEN
+\fBmotion\ fR (9)
+

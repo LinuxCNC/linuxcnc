@@ -138,6 +138,7 @@ struct halcmd_command halcmd_commands[] = {
     {"alias",   FUNCT(do_alias_cmd),   A_THREE },
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
+    {"debug",   FUNCT(do_set_debug_cmd),A_ONE },
     {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
@@ -754,7 +755,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		replacement = getenv(var);
 		if (replacement == NULL) 
                 {
-                    snprintf(info, sizeof(info), "%s", var);
+                    size_t ret = snprintf(info, sizeof(info), "%s", var);
+		    if (ret >= sizeof(info)) return -7;
                     *detail = info;
 		    return -4;
                 }
@@ -796,7 +798,8 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		}
 		if (replacement==NULL) {
                     *detail = info;
-                    snprintf(info, sizeof(info), "[%s]%s", sec, var);
+                    size_t ret = snprintf(info, sizeof(info), "[%s]%s", sec, var);
+		    if (ret >= sizeof(info)) return -7;
 		    return -5;
                 }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)

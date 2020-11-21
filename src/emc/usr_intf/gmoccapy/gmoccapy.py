@@ -40,6 +40,7 @@ import linuxcnc            # to get our own error system
 import gobject             # needed to add the timer for periodic
 import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
+from collections import OrderedDict # needed for proper jog button arrangement
 
 from gladevcp.gladebuilder import GladeBuilder
 
@@ -89,7 +90,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.8.2"
+_RELEASE = " 3.0.9.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -501,6 +502,7 @@ class gmoccapy(object):
         if self.lathe_mode:
             # we do need to know also if we have a backtool lathe
             self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
+
         # check if the user want actual or commanded for the DRO
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
         # the given Jog Increments
@@ -520,6 +522,10 @@ class gmoccapy(object):
         # get the values for the sliders
         self.rabbit_jog = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
+
+        self.min_ang_vel = self.get_ini_info.get_min_ang_jog_vel()
+        self.default_ang_vel = self.get_ini_info.get_default_ang_jog_vel()
+        self.max_ang_vel = self.get_ini_info.get_max_ang_jog_vel()
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
@@ -1063,8 +1069,15 @@ class gmoccapy(object):
 
         # if shift = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
+        # This can only happen on keyboard jogging, not with the on screen jog button
+        # We just only use one function for both cases
         if shift:
-            value = self.stat.max_velocity
+            # There are no keyboard shortcuts to home angular axis, but 
+            # we implement the possibility for future options
+            if button_name[0] in "abc":
+                value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
+            else:
+                value = self.stat.max_velocity
         else:
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
@@ -1143,7 +1156,7 @@ class gmoccapy(object):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog button")
 
-        self.jog_button_dic = {}
+        self.jog_button_dic = OrderedDict()
 
         for axis in self.axis_list:
             for direction in ["+","-"]:
@@ -1333,19 +1346,14 @@ class gmoccapy(object):
         # but we have to show this one
         self.widgets.rbt_view_y2.show()
 
-        # we check the preferences, on purpose with the default p value
-        # if we recieve a p, that mean first start, otherwise we get y or Y2
-        view = self.prefs.getpref("view", "p", str)
+        if self.backtool_lathe:
+            view = "y2"
+        else:
+            view = "y"
+        self.prefs.putpref("view", view)
 
-        if view == "p":
-            if self.backtool_lathe:
-                view = "y2"
-            else:
-                view = "y"
-            self.prefs.putpref("view", view)
-
-        self.widgets.gremlin.set_property("view", view)
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
+        self.widgets.gremlin.set_property("view", view)
 
         self._switch_to_g7(False)
 
@@ -1543,6 +1551,8 @@ class gmoccapy(object):
             elif btn_name == "z-":
                 col = 3
                 row = 2
+            # order of the data in the dict matters for extra buttons.
+            # This is why we use ordered dict for self.jog_button_dic
             else:
                 if count < 2:
                     col = 2
@@ -1684,6 +1694,10 @@ class gmoccapy(object):
         # hide the angular jog vel if no angular joint is used
         if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
             self.widgets.spc_ang_jog_vel.hide()
+        else:
+            self.widgets.spc_ang_jog_vel.set_property("min", self.min_ang_vel)
+            self.widgets.spc_ang_jog_vel.set_property("max", self.max_ang_vel)
+            self.widgets.spc_ang_jog_vel.set_value(self.default_ang_vel)
 
 # =============================================================
 # Dynamic tabs handling Start

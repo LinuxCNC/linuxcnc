@@ -1,0 +1,33 @@
+.TH GRAY2BIN "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+gray2bin \- convert a gray-code input to binary
+.SH SYNOPSIS
+.HP
+.B loadrt gray2bin [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+Converts a gray-coded number into the corresponding binary value
+.SH FUNCTIONS
+.TP
+\fBgray2bin.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B gray2bin.\fIN\fB.in\fR u32 in \fR
+gray code in
+.TP
+.B gray2bin.\fIN\fB.out\fR u32 out \fR
+binary code out
+.SH AUTHOR
+
+andy pugh
+.SH LICENSE
+
+GPL

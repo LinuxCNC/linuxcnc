@@ -1,0 +1,46 @@
+.TH DEMUX "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+demux \- Select one of several output pins selected either by
+.SH SYNOPSIS
+an integer input or individual bits. Or even both
+.SH DESCRIPTION
+
+This component creates a number of output bits defined
+by the "personality" command-line parameter. One of these bits will be
+set based on interpreting the bit-inputs as a binary number and then
+adding on the integer input. Most uses will use only one
+or the other, but it is possible to use the bits as a ""shift"" if
+required.
+An optional operating mode is enabled by setting the "bargraph"
+parameter to true, in this case all bits up to the selected bit will be
+set, as might be required for an LED bargraph display
+.SH FUNCTIONS
+.TP
+\fBdemux.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B demux.\fIN\fB.sel-bit-\fIMM\fB\fR bit in  (MM=00..04) \fR
+Binary-number bit selectors
+.TP
+.B demux.\fIN\fB.sel-u32\fR u32 in \fR
+Integer selection input
+.TP
+.B demux.\fIN\fB.out-\fIMM\fB\fR bit out  (MM=00..personality) \fR
+The set of output bits
+.SH PARAMETERS
+.TP
+.B demux.\fIN\fB.bargraph\fR bit rw \fR(default: \fI0\fR)
+.SH AUTHOR
+
+andypugh
+.SH LICENSE
+
+GPL 2+

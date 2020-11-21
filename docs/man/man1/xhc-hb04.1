@@ -1,6 +1,6 @@
 .TH XHC-HB04 "1" "2015-03-06" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
-xhc\-hb04 \- User-space HAL component for the xhc-hb04 pendant.
+xhc-hb04 \- User-space HAL component for the xhc-hb04 pendant.
 
 .SH DESCRIPTION
 The xhc-hb04 component supports a common USB pendant that provides a
@@ -188,10 +188,10 @@ start\-up (50 counts per wheel revolution).
 (typically connect to axis.N.jog\-counts (lowpass filtering may be helpful))
 .TP
 (s32 out) \fIxhc\-hb04.jog.counts\-neg\fR The value of the
-xhc\-hb04.jog.counts multipled by \-1.
+xhc\-hb04.jog.counts multiplied by \-1.
 .TP
 (float out) \fIxhc\-hb04.jog.scale\fR  Value is the current stepsize
-multipled by 0.001.
+multiplied by 0.001.
 (typically connect to axis.N.jog\-scale)
 
 .SH Experimental: Pins for halui plus/minus jogging

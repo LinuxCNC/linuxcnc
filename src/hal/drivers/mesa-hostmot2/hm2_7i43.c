@@ -117,7 +117,7 @@ static inline rtapi_u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
 
 static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
     if (board->epp_wide) {
-	outl(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+	rtapi_outl(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
     } else {
         hm2_7i43_epp_write((w) & 0xFF, board);

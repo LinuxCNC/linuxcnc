@@ -1,0 +1,36 @@
+﻿:lversion: {sys: cat ../VERSION}
+Manual del Desarrollador V{lversion}, {localdate}
+=================================================
+
+:ascii-ids:
+:lang: es
+:masterdir: {indir}
+
+
+== Introducción
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf_es.txt[]
+
+
+:leveloffset: 1
+
+include::code/code-notes_es.txt[]
+
+include::code/nml-messages_es.txt[]
+
+include::code/style-guide_es.txt[]
+
+include::code/building-linuxcnc_es.txt[]
+
+include::code/adding-configs_es.txt[]
+
+include::code/contributing-to-linuxcnc_es.txt[]
+
+include::common/glossary_es.txt[]
+
+include::common/gpld-copyright_es.txt[]
+
+// vim: set syntax=asciidoc:
+

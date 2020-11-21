@@ -232,9 +232,9 @@ The kinematics use Denavit-Hartenberg definition for the joint and
 links. The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
 manipulator are defined by hal pins.
-Note that this uses a convention sometimes known as "Modified DH Paremeters"
+Note that this uses a convention sometimes known as "Modified DH Parameters"
 and this must be borne in mind when setting up the system. 
-https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters#Modified_DH_parameters
+https://w.wiki/NcY
 .TP
 .B genserkins.A\-\fIN
 .TQ
@@ -359,4 +359,9 @@ XYZBC (5 Joints)
 
 .SH SEE ALSO
 \fIKinematics\fR section in the LinuxCNC documentation
+
+The hal component \fBuserkins.comp\fR is a template for making
+kinematic modules using the halcompile tool.  The unmodified
+template supports an identity xyz configuration that uses
+3 joints.  See the \fBuserkins\fR man page for more info.
 

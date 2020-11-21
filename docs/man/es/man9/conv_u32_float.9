@@ -1,0 +1,25 @@
+.TH CONV_U32_FLOAT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+conv_u32_float \- Convert a value from u32 to float
+.SH SYNOPSIS
+.HP
+.B loadrt conv_u32_float [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconv-u32-float.\fIN\fB\fR (requires a floating-point thread)
+Update 'out' based on 'in'
+.SH PINS
+.TP
+.B conv-u32-float.\fIN\fB.in\fR u32 in \fR
+.TQ
+.B conv-u32-float.\fIN\fB.out\fR float out \fR
+.SH LICENSE
+
+GPL

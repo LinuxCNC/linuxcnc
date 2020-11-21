@@ -122,7 +122,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcLubeOff)
     EXPAND1(emcIoSetDebug,int,debug)
 
-    EXPAND2(emcToolPrepare,int, p, int, tool)
+    EXPAND1(emcToolPrepare, int, tool)
     EXPAND(emcToolLoad)
     EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)

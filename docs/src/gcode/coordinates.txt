@@ -11,7 +11,7 @@ These include:
 * Nine Coordinate System Offsets (G54-G59.3)
 * Global Offsets (G92) and Local Offsets (G52)
 
-[[sec.machine-corrdinate-system]]
+[[sec.machine-coordinate-system]]
 
 == Machine Coordinate System
 

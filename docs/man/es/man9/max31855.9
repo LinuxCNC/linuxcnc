@@ -1,0 +1,75 @@
+.TH MAX31855 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+max31855 \- Support for the MAX31855 Thermocouple-to-Digital converter using bitbanged spi
+.SH SYNOPSIS
+.HP
+.B loadrt max31855 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+The component requires at least 3 pins to bitbang spi protocol, for example:
+
+\fB loadrt max31855 personality=1\fR
+
+\fB setp hm2_6i25.0.gpio.023.is_output true\fR
+\fB setp hm2_6i25.0.gpio.024.is_output true\fR
+
+\fB net spi.clk.in    hm2_6i25.0.gpio.023.out     max31855.0.clk.out\fR
+\fB net spi.cs.in     hm2_6i25.0.gpio.024.out     max31855.0.cs.out\fR
+\fB net spi.data0.in  hm2_6i25.0.gpio.033.in_not  max31855.0.data.0.in\fR
+
+\fB addf max31855.0.bitbang-spi servo-thread \fR
+
+
+The MAX31855 supports a range of -270C to 1800C, however linearization data 
+is only available for the -200C to 1350C range, beyond which raw temperature is returned.
+
+Temperature pins are provided for readings in Celsius, Fahrenheit and Kelvin,
+temperature values are not updated while a fault condition is present.
+
+The personality parameter is used to indicate the number of sensors.
+Multiple sensors share the clk and cs pins, but connect to discrete data input pins.
+A maximum of 15 sensors are supported.
+
+
+.SH FUNCTIONS
+.TP
+\fBmax31855.\fIN\fB.bitbang-spi\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B max31855.\fIN\fB.data.\fIM\fB.in\fR bit in  (M=0..( personality & 0xf )) \fR
+Pin(s) connected to data out.
+.TP
+.B max31855.\fIN\fB.cs.out\fR bit out \fR
+Pin connected to cs, pulled low to shift data, pulled high for data refresh.
+.TP
+.B max31855.\fIN\fB.clk.out\fR bit out \fR
+Pin connected to clk.
+.TP
+.B max31855.\fIN\fB.temp-celsius.\fIM\fB\fR float out  (M=0..( personality & 0xf )) \fR
+Temperature output values in Celsius.
+.TP
+.B max31855.\fIN\fB.temp-fahrenheit.\fIM\fB\fR float out  (M=0..( personality & 0xf )) \fR
+Temperature in Fahrenheit.
+.TP
+.B max31855.\fIN\fB.temp-kelvin.\fIM\fB\fR float out  (M=0..( personality & 0xf )) \fR
+Temperature in Kelvin.
+.TP
+.B max31855.\fIN\fB.fault.\fIM\fB\fR bit out  (M=0..( personality & 0xf )) \fR
+Fault condition detected.
+.TP
+.B max31855.\fIN\fB.fault-flags.\fIM\fB\fR u32 out  (M=0..( personality & 0xf )) \fR
+Fault flags: 0x1  = open sensor, 0x2 short to gnd, 0x3 short to vcc.
+.SH AUTHOR
+
+Joseph Calderon
+.SH LICENSE
+
+GPL

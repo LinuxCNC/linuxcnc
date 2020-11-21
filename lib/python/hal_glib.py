@@ -98,6 +98,10 @@ class _GStat(gobject.GObject):
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-mdi': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
+        'command-running': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'command-stopped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'command-error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
         'interp-run': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-idle': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -161,6 +165,7 @@ class _GStat(gobject.GObject):
         'mdi-line-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
         'gcode-line-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'graphics-line-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'graphics-loading-progress': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'graphics-gcode-error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'graphics-gcode-properties': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'graphics-view-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
@@ -229,6 +234,7 @@ class _GStat(gobject.GObject):
         gobject.timeout_add(100, self.update)
 
     def merge(self):
+        self.old['command-state'] = self.stat.state
         self.old['state'] = self.stat.task_state
         self.old['mode']  = self.stat.task_mode
         self.old['interp']= self.stat.interp_state
@@ -344,21 +350,35 @@ class _GStat(gobject.GObject):
         self._status_active = True
         old = dict(self.old)
         self.merge()
+        cmd_state_old = old.get('command-state')
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new != cmd_state_old:
+            if cmd_state_new == linuxcnc.RCS_EXEC:
+                self.emit('command-running')
+            elif cmd_state_new == linuxcnc.RCS_DONE:
+                self.emit('command-stopped')
+            elif cmd_state_new == linuxcnc.RCS_ERROR:
+                self.emit('command-error')
 
         state_old = old.get('state', 0)
         state_new = self.old['state']
         if state_new != state_old:
-            if state_new > linuxcnc.STATE_ESTOP:
-                self.emit('state-estop-reset')
-            else:
-                self.emit('state-estop')
-            self.emit('state-off')
-            self.emit('interp-idle')
 
-        if state_new != state_old:
-            if state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
+            # set machine estop/clear
+            if state_old == linuxcnc.STATE_ESTOP and state_new == linuxcnc.STATE_ESTOP_RESET:
+                self.emit('state-estop-reset')
+                self.emit('interp-idle')
+            elif state_new == linuxcnc.STATE_ESTOP:
+                self.emit('state-estop')
+                self.emit('interp-idle')
+
+            # set machine on/off
+            if state_new == linuxcnc.STATE_ON:
+                self.emit('state-on')
+            elif state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
-            self.emit(self.STATES[state_new])
+
+            # reset modes/interpeter on machine on
             if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
@@ -475,7 +495,7 @@ class _GStat(gobject.GObject):
 
         # calculate position offsets (native units)
         p,rel_p,dtg = self.get_position()
-        self.emit('current_position',p, rel_p, dtg, self.stat.joint_actual_position)
+        self.emit('current-position',p, rel_p, dtg, self.stat.joint_actual_position)
 
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
@@ -616,6 +636,14 @@ class _GStat(gobject.GObject):
             # Reschedule
             return True
         self.merge()
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new == linuxcnc.RCS_EXEC:
+            self.emit('command-running')
+        elif cmd_state_new == linuxcnc.RCS_DONE:
+            self.emit('command-stopped')
+        elif cmd_state_new == linuxcnc.RCS_ERROR:
+            self.emit('command-error')
+
         state_new = self.old['state']
         if state_new > linuxcnc.STATE_ESTOP:
             self.emit('state-estop-reset')
@@ -712,6 +740,23 @@ class _GStat(gobject.GObject):
         tool_info_new = self.old['tool-info']
         self.emit('tool-info-changed', tool_info_new)
 
+        # homing
+        homed_joints = 0
+        unhomed_joints = ""
+        for joint in range(0, self.stat.joints):
+            if self.stat.homed[joint]:
+                homed_joints += 1
+                self.emit('homed', joint)
+            else:
+                self.emit('unhomed', joint)
+                unhomed_joints += str(joint)
+        if homed_joints == self.stat.joints:
+            self._is_all_homed = True
+            self.emit('all-homed')
+        else:
+            self._is_all_homed = False
+            self.emit('not-all-homed', unhomed_joints)
+
         # update external ojects
         self.emit('forced-update')
 
@@ -801,6 +846,9 @@ class _GStat(gobject.GObject):
     def get_jog_increment(self):
         return self.current_jog_distance
 
+    def get_max_velocity(self):
+        return self.old['max-velocity-or'] * 60
+
     def set_selected_joint(self, data):
         self.selected_joint = int(data)
         self.emit('joint-selection-changed', data)
@@ -814,6 +862,11 @@ class _GStat(gobject.GObject):
 
     def get_selected_axis(self):
         return self.selected_axis
+
+    def is_joint_homed(self, joint):
+        self.stat.poll()
+        return self.stat.homed[joint]
+
     def is_all_homed(self):
         return self._is_all_homed
 

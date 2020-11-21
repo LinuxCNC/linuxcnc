@@ -1,0 +1,64 @@
+.TH rtapi_get_time "3rtapi" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+rtapi_get_time \- obtiene la hora actual
+
+.SH SINTAXIS
+.HP
+long long rtapi_get_time()
+.HP
+long long rtapi_get_clocks()
+
+.SH DESCRIPCIÓN
+\fBrtapi_get_time\fR devuelve la hora actual en nanosegundos. Dependiendo del
+RTOS, este puede ser el tiempo desde el arranque, o el tiempo desde que se estableció 
+el período de reloj, u otro momento. Su valor absoluto no significa nada, pero 
+aumenta monotónicamente y se puede usar para programar eventos futuros o para cronometrar 
+la duración de alguna actividad. Devuelve un valor de 64 bits. La resolución de la 
+devolución puede ser tan buena como un nano-segundo, o tan pobre como varios microsegundos.
+Se puede llamar desde el código de inicio/limpieza y desde dentro de las tareas en tiempo real.
+
+\fBrtapi_get_clocks\fR devuelve la hora actual en clocks de CPU. Esto es
+rápido, ya que solo lee el TSC en la CPU en lugar de llamar al kernel o a una función RTOS. 
+Por supuesto, los tiempos medidos en clocks de CPU no son tan convenientes, pero para mediciones 
+relativas esto funciona bien.
+Su valor absoluto no significa nada, pero aumenta monotónicamente y se puede utilizar para 
+programar eventos futuros o para programar la duración de alguna actividad (en máquinas SMP, dos 
+TSC pueden no estar sincronizados, por lo que si una tarea lee el TSC, se cambia a la otra CPU, y 
+lee de nuevo, el valor puede disminuir. RTAPI intenta forzar todas las tareas de RT para que se 
+ejecuten en una sola CPU).
+Devuelve un valor de 64 bits. La resolución del valor devuelto es un clock de CPU, que suele 
+ser desde unos pocos nanosegundos a una fracción de nanosegundo.
+
+Tenga en cuenta que las matemáticas \fIlong long\fR pueden ser poco compatibles en algunas 
+plataformas, especialmente en el espacio del kernel. También tenga en cuenta que rtapi_print() 
+NO imprime \fBLong long\fRs. La mayoría de las mediciones de tiempo son relativas, 
+y deberían hacerse así:
+.RS
+deltat = (long int)(end_time \- start_time);
+.RE
+donde end_time y start_time son valores long devueltos por rtapi_get_time,
+y deltat es un int long ordinario (32 bits). Esto funcionará para tiempos de hasta
+un segundo más o menos, dependiendo de la frecuencia del reloj de la CPU. Sin embargo, se usa mejor 
+para las mediciones en escala de milisegundos y microsegundos
+
+.SH VALOR DEVUELTO
+Devuelve la hora actual en nanosegundos o clocks de CPU.
+.SH NOTAS
+Ciertas versiones del kernel de Linux proporcionan una variable global \fBcpu_khz\fR.
+El cálculo
+.RS
+deltat = (end_clocks \- start_clocks) / cpu_khz:
+.RE
+da la duración medida en milisegundos. Con el cálculo
+.RS
+deltat = (end_clocks \- start_clocks) * 1000000 / cpu_khz:
+.RE
+se obtiene la duración medida en nanosegundos para deltas inferiores a aproximadamente 9
+billones de clocks (por ejemplo, 3000 segundos a 3GHz).
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real.
+No disponible en componentes de espacio de usuario.
+
+

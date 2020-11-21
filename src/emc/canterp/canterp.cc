@@ -248,7 +248,7 @@ int Canterp::read() {
 
 int Canterp::execute(const char *line) {
     int retval;
-    double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
+    double d1 = 0, d2 = 0, d3 = 0, d4 = 0, d5 = 0, d6 = 0, d7 = 0, d8 = 0, d9 = 0, d10 = 0, d11 = 0;
     int i1, i2, ln=-1;
     char s1[256];
 
@@ -406,11 +406,11 @@ int Canterp::execute(const char *line) {
     }
 #endif
 
-    if (!strcmp(the_command_name, "SELECT_POCKET")) {
+    if (!strcmp(the_command_name, "SELECT_TOOL")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
 	    return INTERP_ERROR;
 	}
-	SELECT_POCKET(i1, i1);
+	SELECT_TOOL(i1);
 	return 0;
     }
 

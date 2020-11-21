@@ -80,7 +80,11 @@ install: build
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
+	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual_es.pdf \
+		debian/tmp/usr/share/doc/linuxcnc-dev/
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
+	# Until we can actually build LinuxCNC_Getting_Started_cn.pdf
+	cp docs/LinuxCNC_Getting_Started_cn.pdf debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_cn.pdf
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
@@ -114,7 +118,7 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
-	dh_shlibdeps -l debian/@MAIN_PACKAGE_NAME@/usr/lib
+	dh_shlibdeps -u--warnings=0 -l debian/@MAIN_PACKAGE_NAME@/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

@@ -23,7 +23,7 @@ M5
 G0 X1 Y4
 M3 $0 S1 (select plasma torch)
 G1 X5
-M5
+M5 $0
 
 G0 X0 Y0
 M2

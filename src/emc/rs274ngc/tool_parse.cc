@@ -19,6 +19,7 @@
 #include "emcglb.h"
 #include "emctool.h"
 #include "tool_parse.h"
+#include <rtapi_string.h>
 
 
 /********************************************************************
@@ -144,7 +145,7 @@ int loadToolTable(const char *filename,
         if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
             break;
         }
-        strcpy(orig_line, buffer);
+        rtapi_strxcpy(orig_line, buffer);
 
         toolno = -1;
         diameter = frontangle = backangle = 0.0;

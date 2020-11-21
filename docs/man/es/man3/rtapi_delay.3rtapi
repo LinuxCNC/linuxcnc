@@ -1,0 +1,36 @@
+.TH rtapi_delay "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_delay \- Busy-loop para retrasos cortos
+
+.SH SINTAXIS
+.HP
+void rtapi_delay(long int \fInsec\fR)
+.HP
+void rtapi_delay_max()
+
+.SH ARGUMENTOS
+.IP \fInsec\fR
+La longitud de retraso deseada en nanosegundos
+
+.SH DESCRIPCIÓN
+\fBrtapi_delay\fR es un retraso simple. Está destinado solo para
+retrasos cortos, ya que simplemente se repite, desperdiciando ciclos de CPU.
+
+\fBrtapi_delay_max\fR devuelve el retraso máximo permitido (generalmente
+aproximadamente 1/4 del período del reloj). Cualquier llamada a \fBrtapi_delay\fR
+solicitando un retraso mayor que el máximo se retrasará solo por el tiempo máximo.
+
+Se debe llamar a \fBrtapi_delay_max\fR antes de usar \fBrtapi_delay\fR para
+asegúrese de que se puedan lograr los retrasos requeridos. La resolución real
+del retraso puede ser tan buena como un nano-segundo, o tan mala como varios
+microsegundos
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde dentro de las tareas en tiempo real.
+
+.SH VALOR DEVUELTO
+\fBrtapi_delay_max\fB devuelve el retraso máximo permitido.
+
+.SH VER TAMBIÉN
+\fBrtapi_clock_set_period (3rtapi)\fR

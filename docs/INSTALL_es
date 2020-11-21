@@ -1,0 +1,115 @@
+Descripción básica
+------------------
+Desde el directorio de nivel superior, cambie al directorio de fuentes:
+
+cd src
+
+En el directorio de fuentes, compile LinuxCNC:
+
+./autogen.sh (esto construye el script de configuración)
+./configure [--with-realtime = uspace | /usr/rtai ...]
+make clean
+make
+sudo make setuid
+
+para ejecutar el software, regrese al directorio de nivel superior y ordene:
+
+source scripts/rip-environment
+linuxcnc
+
+
+Descripción detallada
+=====================
+
+Script de tiempo de ejecución
+=============================
+
+El script de tiempo de ejecución se llama linuxcnc, lo que le permite escribir simplemente 
+'linuxcnc' en una instalacion para hacerlo funcionar. En un sistema de ejecución in situ (RIP)
+(por ejemplo, el que acaba de obtener de git), el script de ejecución es scripts/linuxcnc.
+Cuando compruebe una copia nueva de LinuxCNC, verá que no hay
+'scripts/linuxcnc', solo 'scripts/linuxcnc.in'. Al ejecutar configure
+este ultimo será cambiado a 'scripts/linuxcnc'. configure también
+reemplaza algunos valores predeterminados para su sistema (carpetas, rutas, etc.).
+
+
+Script configure
+=================
+
+   El script de shell `configure 'intenta adivinar los valores correctos de
+varias variables dependientes del sistema utilizadas durante la compilación. Usa
+esos valores para crear un archivo `Makefile.inc '.
+Finalmente, crea un script de shell `config.status' que puede ejecutar
+en el futuro para recrear la configuración actual, un archivo
+`config.cache' que guarda los resultados de sus pruebas para acelerar la
+reconfiguración, y un archivo `config.log' que contiene la salida del compilador
+(útil principalmente para depurar `configure').
+
+   El archivo `configure.ac' se usa para crear `configure' mediante un programa
+llamado `autoconf'. Solo necesita `configure.ac' si desea cambiar
+o regenerar `configure' usando una versión más reciente de `autoconf'.
+
+La forma más sencilla de compilar este paquete es:
+
+  1. `cd' al directorio que contiene el código fuente del paquete y teclee
+     `./configure' para configurar el paquete para su sistema. Si esta
+     usando `csh' en una versión anterior de System V, es posible que necesite escribir
+     `sh ./configure' en su lugar para evitar que `csh' intente ejecutar
+     `configure' en sí mismo.
+
+     Ejecutar `configure' toma un tiempo. Mientras se ejecuta, imprime algunos
+     mensajes que dicen qué características está buscando.
+
+  2. Escriba `make' para compilar el paquete.
+
+  3. Escriba `scripts/linuxcnc` para probar el software.
+  
+
+Características opcionales
+==========================
+   LinuxCNC puede operar hardware solo si ha sido instalado un sistema de 
+tiempo real. Ya sea RT-PREEMPT o RTAI. Si no tiene ninguno instalado,
+no puede ejecutar LinuxCNC para controlar ninguna máquina. Por favor instale uno
+de los parches RT (consulte la documentación del proyecto sobre cómo
+lograr eso).
+
+    Sin embargo, es posible probar LinuxCNC sin un sistema en tiempo real. Esto es
+posible utilizando un modo simulador, que no permite el control del hardware. Este es
+un modo alternativo de `uspace` en tiempo real.
+
+    Para especificar RT-PREEMPT o no-tiempo-real, use --with-realtime=uspace.
+De lo contrario, use --with-realtime=[ubicación donde rtai está instalado].
+
+Si no desea generar la documentación desde las fuentes:
+  --disable-build-documentation        No compila documentación automáticamente
+
+configure también acepta otros argumentos. Use --help para ver la lista.
+
+
+Controles de operación
+======================
+
+   `configure' reconoce las siguientes opciones para controlar cómo
+opera.
+
+`--cache-file=FILE'
+     Utilizar y guardar los resultados de las pruebas en FILE en lugar de en
+     `./config.cache'. Para depuración de `configure', haga FILE como `/dev/null 'para 
+     deshabilitar el almacenamiento en caché, 
+
+`--help '
+     Imprime un resumen de las opciones de 'configure' y sale.
+
+`--quiet '
+`--silent '
+`-q '
+     No imprime mensajes que indiquen qué chequeos se están realizando. Para
+     suprimir toda la salida normal, redirigirla a `/dev/null' (cualquier mensaje
+     de error se mostrara todavia).
+
+`--srcdir=DIR '
+     Buscar el código fuente del paquete en el directorio DIR. Generalmente
+     `configure' puede determinar ese directorio automáticamente.
+
+`--version '
+     Imprimir la versión de Autoconf utilizada para generar el script`configure' y sale.

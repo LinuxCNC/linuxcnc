@@ -5,6 +5,8 @@ import shutil
 import traceback
 import hal
 import signal
+import subprocess
+
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
 from qtvcp.core import Status, Info, QComponent, Path
@@ -213,6 +215,17 @@ Pressing cancel will close linuxcnc.""" % target)
         # All Widgets should be added now - synch them to linuxcnc
         STATUS.forced_update()
 
+        # call a HAL file after widgets built
+        if opts.halfile:
+            if opts.halfile[-4:] == ".tcl":
+                cmd = ["haltcl", opts.halfile]
+            else:
+                cmd = ["halcmd", "-f", opts.halfile]
+            res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+            if res:
+                print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+                sys.exit(res)
+
         # User components are set up so report that we are ready
         LOG.debug('Set HAL ready')
         self.halcomp.ready()
@@ -338,7 +351,7 @@ Pressing cancel will close linuxcnc.""" % target)
                     + "information may be useful in troubleshooting:\n"
                     + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
         if ERROR_COUNT > 5:
-            LOG.critical("Too many errors: {}".format(message))
+            LOG.critical("Too Manu Errors \n {}\n{}\n".format(message,''.join(lines)))
             self.shutdown()
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Critical)
@@ -346,10 +359,10 @@ Pressing cancel will close linuxcnc.""" % target)
         msg.setInformativeText("QTvcp ERROR! Message # %d"%ERROR_COUNT)
         msg.setWindowTitle("Error")
         msg.setDetailedText(''.join(lines))
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
         msg.show()
         retval = msg.exec_()
-        if retval == 4194304: #cancel button
+        if retval == QtWidgets.QMessageBox.Abort: #cancel button
             LOG.critical("Canceled from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
             self.shutdown()
 

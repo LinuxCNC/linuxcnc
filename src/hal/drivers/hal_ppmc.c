@@ -298,7 +298,7 @@ typedef struct {
   hal_float_t scale;          /* parameter: scale factor */
   hal_bit_t *index;           /* output: index flag */
   hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-  signed long oldreading;     /* used to detect overflow / underflow of the counter */
+  hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
   unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
   hal_float_t *vel;             /* output: scaled velocity */
@@ -1078,7 +1078,7 @@ static void read_encoders(slot_data_t *slot)
   int i, byteindex, byteindx2;
   double vel;                    // local temporary velocity
     union pos_tag {
-        signed long l;
+      hal_s32_t l;              // JE001
         struct byte_tag {
             signed char b0;
             signed char b1;

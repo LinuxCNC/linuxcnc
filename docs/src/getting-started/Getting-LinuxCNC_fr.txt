@@ -122,7 +122,8 @@ La commande md5sum doit retourner une simple ligne après le calcul de la somme
     de contrôle. 
 Sur une machine lente le calcul peut prendre plusieurs minutes: 
 ----
-76dc2416b917679b71255e464ede84ec ubuntu-10.04-linuxcnc3-i386.iso
+md5sum: 41b71c4956c0c89033a99a590ebaefec
+sha256sum: a542092aa9f399d3ad50bbb2f0f4dd63ad9332c23d8387f6061bdd186d1df3b0
 ----
 
 Il reste à comparer avec la somme md5 fournie sur la page de téléchargement.

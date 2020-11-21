@@ -84,6 +84,8 @@ endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -120,6 +122,7 @@ SUBDIRS := \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
+	hal/user_comps/xhc-whb04b-6 \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
@@ -191,9 +194,11 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
+DEBUG := $(DEBUG) -g -Wall -Werror=implicit-function-declaration
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
@@ -250,8 +255,11 @@ INFILES = \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
-	 ../lib/python/nf.py \
-	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
+	../lib/python/nf.py \
+	../share/desktop-directories/linuxcnc-doc.directory \
+	../share/desktop-directories/linuxcnc-ref.directory \
+	../share/desktop-directories/linuxcnc-cnc.directory \
+	../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
@@ -613,7 +621,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
@@ -692,6 +700,7 @@ install-python: install-dirs
 	$(EXE) ../bin/pyui $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mitsub_vfd $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pmx485 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -767,6 +776,7 @@ EXTRA_CFLAGS += -msse
 EXTRA_CFLAGS += -g
 endif
 endif
+EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o

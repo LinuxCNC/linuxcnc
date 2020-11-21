@@ -35,11 +35,6 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
          QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
             QFileDialog, QFrame, QLabel
-try:
-    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
-except ImportError as e:
-    LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
-    sys.exit(1)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -57,6 +52,12 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# load this after Logging set up so we get a nice dialog.
+try:
+    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
+except ImportError as e:
+    LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
+    sys.exit(1)
 
 ##############################################################
 # Simple custom lexer for Gcode
@@ -336,6 +337,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         STATUS.connect('file-loaded', self.load_program)
         STATUS.connect('line-changed', self.highlight_line)
         STATUS.connect('graphics-line-selected', self.highlight_line)
+        STATUS.connect('command-stopped', lambda w: self.run_stopped())
 
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
@@ -409,6 +411,9 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def emit_percent(self, percent):
         pass
+
+    def run_stopped(self):
+        self.emit_percent(-1)
 
     def set_line_number(self, line):
         STATUS.emit('gcode-line-selected', line)
@@ -668,7 +673,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             result = self.killCheck()
             if result:
                 self.editor.new_text()
-
+        else:
+            self.editor.new_text()
     def openCall(self):
         self.open()
     def open(self):
@@ -712,6 +718,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         # name the top and bottom frames so it's easier to style
         self.bottomMenu.setObjectName('%sBottomButtonFrame'% self.objectName())
         self.topMenu.setObjectName('%sTopButtonFrame'% self.objectName())
+        self.editor.setObjectName('{}_display'.format( self.objectName()))
 
     def editMode(self):
         self.topMenu.show()

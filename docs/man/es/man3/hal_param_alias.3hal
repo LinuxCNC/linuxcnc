@@ -1,0 +1,32 @@
+.TH hal_param_alias "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_param_alias \- crea un nombre alternativo para un parámetro
+
+.SH SINTAXIS
+.HP
+Int
+.BR hal_param_alias "(const char *" original_name ", const char *" alias );
+
+.SH ARGUMENTOS
+.IP \fIoriginal_name\fR
+El nombre original del parametro.
+
+.IP \fIalias\fR
+El nombre alternativo que se puede usar para referirse al parámetro, o NULL para eliminar
+cualquier nombre alternativo
+
+.SH DESCRIPCIÓN
+Un parámetro puede tener dos nombres: el nombre original (el que se pasó a una funcion
+\fBhal_param_new\fR) y un alias.
+
+Por lo general, los alias son para conveniencia de los usuarios y deben crearse
+y destruirse a través de halcmd. Sin embargo, en algunos casos es sensato crear
+alias directamente en un componente. Estos casos incluyen el caso donde un parámetro es
+renombrado, para preservar la compatibilidad con versiones anteriores.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH VER TAMBIÉN
+.BR hal_pin_alias (3)

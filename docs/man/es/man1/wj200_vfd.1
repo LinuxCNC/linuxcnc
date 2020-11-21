@@ -1,0 +1,53 @@
+.TH WJ200_VFD "1" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+wj200_vfd \- Hitachi wj200 modbus driver
+.SH SYNOPSIS
+.B wj200_vfd
+.SH PINS
+.TP
+.B wj200-vfd.\fIN\fB.commanded-frequency\fR float in \fR
+Frequency of vfd
+.TP
+.B wj200-vfd.\fIN\fB.reverse\fR bit in \fR
+1 when reverse 0 when forward
+.TP
+.B wj200-vfd.\fIN\fB.run\fR bit in \fR
+run the vfd
+.TP
+.B wj200-vfd.\fIN\fB.enable\fR bit in \fR
+1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.
+.TP
+.B wj200-vfd.\fIN\fB.is-running\fR bit out \fR
+1 when running
+.TP
+.B wj200-vfd.\fIN\fB.is-at-speed\fR bit out \fR
+1 when running at assigned frequency
+.TP
+.B wj200-vfd.\fIN\fB.is-ready\fR bit out \fR
+1 when vfd is ready to run
+.TP
+.B wj200-vfd.\fIN\fB.is-alarm\fR bit out \fR
+1 when vfd alarm is set
+.TP
+.B wj200-vfd.\fIN\fB.motor-current\fR float out \fR
+Output current in amps
+.TP
+.B wj200-vfd.\fIN\fB.heatsink-temp\fR float out \fR
+Temperature of drive heatsink
+.TP
+.B wj200-vfd.\fIN\fB.watchdog-out\fR bit out \fR
+Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.
+.SH PARAMETERS
+.TP
+.B wj200-vfd.\fIN\fB.mbslaveaddr\fR u32 rw \fR
+Modbus slave address
+.SH LICENSE
+
+GPLv2 or greater

@@ -1,0 +1,8 @@
+This folder contains a number of simulated lathe configs.
+
+the "lathemacro" config offers a number of simple macros to perform
+the most common lathe operations. 
+
+The GUI that controls the macros can be viewed by clicking the "Cycles"
+tab top left of the graphical preview window. 
+

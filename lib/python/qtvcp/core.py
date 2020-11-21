@@ -15,7 +15,7 @@ log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal([int], [float], [bool] )
+    value_changed = pyqtSignal('PyQt_PyObject')
 
     REGISTRY = []
     UPDATE = False
