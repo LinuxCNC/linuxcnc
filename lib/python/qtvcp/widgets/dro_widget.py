@@ -62,6 +62,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         if self.joint_number == 10:
             STATUS.connect('current-z-rotation', self.update_rotation)
         else:
+            self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(self.joint_number)
+            if self._jointNum is None:
+                LOG.critical('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.joint_number, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
+                raise Exception('Axis-index to joint-number error in widget: {}'.format(self.objectName()))
+
             STATUS.connect('motion-mode-changed',self.motion_mode)
             STATUS.connect('current-position', self.update)
             STATUS.connect('metric-mode-changed', self._switch_units)
@@ -69,7 +74,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 STATUS.connect('diameter-mode', self._switch_modes)
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
-            self._joint_type  = STATUS.stat.joint[self.joint_number]['jointType']
+            self._joint_type  = STATUS.stat.joint[self._jointNum]['jointType']
 
         if self._joint_type == linuxcnc.ANGULAR:
             self._current_text_template =  self.angular_text_template
@@ -103,7 +108,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         try:
             if self.reference_type == 0:
                 if not self._mode and STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                    self.setText(tmpl(joint[self.joint_number]))
+                    self.setText(tmpl(joint[self._jointNum]))
                 else:
                     self.setText(tmpl(absolute[self.joint_number]*self._scale))
             elif self.reference_type == 1:

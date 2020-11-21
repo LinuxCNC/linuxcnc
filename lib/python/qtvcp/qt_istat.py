@@ -153,6 +153,17 @@ class _IStat(object):
                 aa = self.INI.find('AXIS_%s'% letter.upper(), 'MAX_ACCELERATION') or None
                 if av is None or aa is None:
                     log.critical('MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
+
+        # convert joint number to axis index
+        # used by dro_widget
+        self.GET_AXIS_INDEX_FROM_JOINT_NUM = {}
+        self.GET_JOINT_NUM_FROM_AXIS_INDEX = {}
+        for i in self.AVAILABLE_JOINTS:
+            let = self.GET_NAME_FROM_JOINT[i][0]
+            axisnum = "XYZABCUVW".index(let)
+            self.GET_AXIS_INDEX_FROM_JOINT_NUM[int(i)] = int(axisnum)
+            self.GET_JOINT_NUM_FROM_AXIS_INDEX[int(axisnum)] = int(i)
+
         self.NO_HOME_REQUIRED = int(self.INI.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
         # home all check
