@@ -253,6 +253,7 @@ int loadToolTable(const char *filename,
             if (ttcomments && comment)
                 strcpy(ttcomments[pocket], comment);
         } else {
+             printf("File: %s Unrecognized line skipped: %s\n",filename, orig_line);
         }
         if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
             toolTable[0] = toolTable[pocket];
