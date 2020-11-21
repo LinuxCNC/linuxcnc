@@ -209,6 +209,55 @@ void hm2_encoder_write(hostmot2_t *hm2) {
         }
     }
 
+    if (*hm2->encoder.hal->pin.hires_timestamp != hm2->encoder.written_hires_timestamp) {    // 
+        // Set the Timestamp Divisor Register
+        // 
+        // We want the timestamp to count as quickly as possible, so we get the
+        // best temporal resolution.
+        // 
+        // But we want it to count slow enough that the 16-bit counter doesnt
+        // overrun between successive calls to the servo thread (easy), and
+        // even slower so that we can do good low-speed velocity estimation
+        // (long between roll-overs).
+        //
+        // A reasonably slow servo thread runs at 1 KHz.  A fast one runs at 10
+        // KHz.  The actual servo period is unknown at loadtime, and is likely 
+        // to fluctuate slightly when the system is under load. The TSC must 
+        // not count beyond 32767 counts per servo period or the overflow logic will
+        // fail.
+        // 
+        // A default frequency of 2 MHz allows lots of margin for slow servo threads
+        // down to 200 Hz or so and a "hires" value of 10 MHz still has lots of margin
+        // at the standard 1 KHz servo thread    
+        //
+        // From the HM2 RegMap:
+        // 
+        //     Timestamp count rate is ClockLow/(TSDiv+2).
+        //     Any divisor with MSb set = divide by 1
+        // 
+        // This gives us:
+        // 
+        //     rate = 2 MHz = 2e6 = ClockLow / (TSDiv+2)
+        // 
+        //     TSDiv+2 = ClockLow / 2e6
+        // 
+        //     TSDiv = (ClockLow / 2e6) - 2
+        //
+        //     seconds_per_clock = 1 / rate = (TSDiv+2) / ClockLow
+        //
+
+        if (*hm2->encoder.hal->pin.hires_timestamp == 0) {
+            hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 2e6) - 2;
+        } else {
+            hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 1e7) - 2;
+        }
+        
+        hm2->encoder.seconds_per_tsdiv_clock = (double)(hm2->encoder.timestamp_div_reg + 2) / (double)hm2->encoder.clock_frequency;
+
+        hm2->encoder.written_hires_timestamp = *hm2->encoder.hal->pin.hires_timestamp;
+        goto force_write;
+    }
+
     if(hm2->encoder.dpll_timer_num_addr) {
         int32_t dpll_timer_num = *hm2->encoder.hal->pin.dpll_timer_num;
         if(dpll_timer_num < -1 || dpll_timer_num > 4) dpll_timer_num = -1;
@@ -426,6 +475,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->encoder.hal->pin.dpll_timer_num) = -1;
         }
 
+        rtapi_snprintf(name, sizeof(name), "%s.encoder.hires-timestamp", hm2->llio->name);
+        r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.hal->pin.hires_timestamp), hm2->llio->comp_id);
+        if (r < 0) {
+            HM2_ERR("error adding pin %s, aborting\n", name);
+            goto fail1;
+        }
+
         for (i = 0; i < hm2->encoder.num_instances; i ++) {
             // pins
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.rawcounts", hm2->llio->name, i);
@@ -519,7 +575,8 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
+
+          rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.quadrature_error_enable), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
@@ -619,48 +676,11 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         }
     }
 
+    // initialize with hires off and force update 
+    // (with somewhat shady trick to force update if set true in halfile)
+    *hm2->encoder.hal->pin.hires_timestamp = 0;    
+     hm2->encoder.written_hires_timestamp = 666; 
 
-    // 
-    // Set the Timestamp Divisor Register
-    // 
-    // We want the timestamp to count as quickly as possible, so we get the
-    // best temporal resolution.
-    // 
-    // But we want it to count slow enough that the 16-bit counter doesnt
-    // overrun between successive calls to the servo thread (easy), and
-    // even slower so that we can do good low-speed velocity estimation
-    // (long between roll-overs).
-    //
-    // A resonably slow servo thread runs at 1 KHz.  A fast one runs at 10
-    // KHz.  The actual servo period is unknown at loadtime, and is likely 
-    // to fluctuate slightly when the system is under load.
-    // 
-    // Peter suggests a Quadrature Timestamp clock rate of 1 MHz.  This
-    // means that a 1 KHz servo period sees about 1000 clocks per period.
-    //     
-    //
-    // From the HM2 RegMap:
-    // 
-    //     Timestamp count rate is ClockLow/(TSDiv+2).
-    //     Any divisor with MSb set = divide by 1
-    // 
-    // This gives us:
-    // 
-    //     rate = 1 MHz = 1e6 = ClockLow / (TSDiv+2)
-    // 
-    //     TSDiv+2 = ClockLow / 1e6
-    // 
-    //     TSDiv = (ClockLow / 1e6) - 2
-    //
-    //     seconds_per_clock = 1 / rate = (TSDiv+2) / ClockLow
-    //
-    //
-    // The 7i43 has a 50 MHz ClockLow, giving TSDiv = 48 and 1 us/clock
-    // The PCI cards have a 33 MHz ClockLow, giving TSDiv = 31 and again 1 us/clock
-    //
-
-    hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 1e6) - 2;
-    hm2->encoder.seconds_per_tsdiv_clock = (double)(hm2->encoder.timestamp_div_reg + 2) / (double)hm2->encoder.clock_frequency;
 
     if (md->gtag == HM2_GTAG_ENCODER) {
         *hm2->encoder.hal->pin.sample_frequency = 25000000;
@@ -703,7 +723,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity_rpm = 0.0;
         *hm2->encoder.instance[i].hal.pin.quadrature_error = 0;
-
+ 
         hm2->encoder.instance[i].zero_offset = count;
 
         hm2->encoder.instance[i].prev_reg_count = count;

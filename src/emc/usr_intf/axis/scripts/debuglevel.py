@@ -2,10 +2,16 @@
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+if sys.version_info[0] == 3:
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
+else:
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import linuxcnc
-import Tkinter
+if sys.version_info[0] == 3:
+    import tkinter
+else:
+    import Tkinter as tkinter
 import time
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
@@ -18,7 +24,7 @@ s = linuxcnc.stat()
 s.poll()
 c = linuxcnc.command()
 
-t = Tkinter.Tk(className="LinuxCNCDebugLevel")
+t = tkinter.Tk(className="LinuxCNCDebugLevel")
 t.wm_title(_("LinuxCNC Debug Level"))
 t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
@@ -41,6 +47,7 @@ bits = [
     (linuxcnc.DEBUG_MOTION_TIME, _('Motion Time')),
     (linuxcnc.DEBUG_INTERP, _('Interpreter')),
     (linuxcnc.DEBUG_INTERP_LIST, _('Interpreter List')),
+    (linuxcnc.DEBUG_STATE_TAGS, _('State Tags')),
 ]
 
 def showdebug(value):
@@ -57,7 +64,7 @@ def update_buttons_from_emc():
     except linuxcnc.error: # linuxcnc exited?
         raise SystemExit
     debug = s.debug
-    for k, v in vars.items():
+    for k, v in list(vars.items()):
         if debug & k: v.set(k)
         else: v.set(0)
     showdebug(debug)
@@ -67,22 +74,22 @@ def update_buttons_from_emc():
 def setdebug():
     blackout = time.time() + 1
     value = 0
-    for k, v in vars.items():
+    for k, v in list(vars.items()):
         value = value | v.get()
     c.debug(value)
     showdebug(value)
 
 for k, v in bits:
-    vv = Tkinter.IntVar(t)
+    vv = tkinter.IntVar(t)
     vars[k] = vv
-    b = Tkinter.Checkbutton(text = v, onvalue = k, offvalue = 0,
+    b = tkinter.Checkbutton(text = v, onvalue = k, offvalue = 0,
                         command=setdebug, variable=vv, anchor="nw")
     b.pack(side="top", anchor="nw", fill="x", expand=0)
-l = Tkinter.Label(text=_("  * This option can only be enabled in the inifile"))
+l = tkinter.Label(text=_("  * This option can only be enabled in the inifile"))
 l.pack(side="top", anchor="nw")
 
-d = Tkinter.StringVar(t)
-l = Tkinter.Label(textvariable=d)
+d = tkinter.StringVar(t)
+l = tkinter.Label(textvariable=d)
 l.pack(side="top", anchor="nw")
 
 showdebug(s.debug)

@@ -5,7 +5,7 @@ setp gladevcp.settings 1
 setp gladevcp.commands 1
 
 # show the current spindle speed in the top hoizontal bar
-net spindle-speed motion.spindle-speed-out => gladevcp.spindle-rpm-hbar
+net spindle-speed spindle.0.speed-out => gladevcp.spindle-rpm-hbar
 
 # the first and second labels show prepared and current tool
 # unlinkp iocontrol.0.tool-prep-number

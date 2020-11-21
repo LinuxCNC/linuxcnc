@@ -1,0 +1,1216 @@
+:lang: es
+:toc:
+
+[[cha:updating-linuxcnc]]
+
+= Actualizando LinuxCNC
+
+Actualizar LinuxCNCa una nueva versión menor (es decir, a una nueva versión en
+la misma serie estable, por ejemplo de 2.8.0 a 2.8.1) con su PC conectado a
+internet es un proceso automático. Verá un mensaje de actualización después del
+lanzamiento de una version menor nueva, junto con otras actualizaciones de software.
+Si no tiene internet en su PC vea <<getting-started:update-no-network,actualizando sin red>>
+
+== Actualizar a la nueva versión
+
+Esta sección describe cómo actualizar LinuxCNC de la versión 2.7 a la
+nueva 2.8.x versión. Se supone que tiene una instalación 2.7 existente que
+quiere actualizar.
+
+Para actualizar LinuxCNC desde una versión anterior a 2.7, primero debe
+http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[actualizar
+su instalación anterior a 2.7]; luego siga estas instrucciones para actualizar a
+la nueva versión.
+
+Si no tiene una versión anterior de LinuxCNC para actualizar, entonces es
+mejor hacer una nueva instalación de la nueva versión como se describe en la
+sección <<cha:getting-linuxcnc,Obtener LinuxCNC>>.
+
+Para actualizar versiones principales como 2.6 a 2.7 cuando tiene una conexión de red en
+la máquina, necesita deshabilitar las fuentes apt antiguas de linuxcnc.org y agregar una nueva
+fuente apt linuxcnc.org para 2.7, luego actualice LinuxCNC.
+
+Los detalles dependerán de la plataforma en la que se esté ejecutando. Abra un
+<<faq:terminal,terminal>> y escriba `lsb_release -ic` para encontrar esta información:
+
+----
+lsb_release -ic
+Distributor ID: Debian
+Codename:       wheezy
+----
+
+Debería estar ejecutando Debian Wheezy (como arriba) o Ubuntu Precise,
+o Ubuntu Lucid.
+
+[[_setting_apt_sources]]
+=== Configuracion de fuentes apt
+
+* Abra la ventana `Repositorios` o 'Fuentes de software'. El proceso para hacer esto
+  se diferencia ligeramente en las tres plataformas soportadas:
+
+** Debian Wheezy:
+
+*** Haga clic en `Menú de aplicaciones`, luego en `Sistema`, luego en
+  `Gestor de Paquetes Synaptic`.
+
+*** En Synaptic, haga clic en el menú `Configuración`, luego haga clic en `Repositorios`
+  para abrir la ventana `Repositorios`.
+
+** Ubuntu Precise:
+
+*** Haga clic en el icono `Dash Home` en la esquina superior izquierda.
+
+*** En el campo `Buscar`, escriba "software", luego haga clic en el icono `Ubuntu
+  Software Center`.
+
+*** En la ventana del Centro de software de Ubuntu, haga clic en el menú `Editar`,
+  luego haga clic en `Fuentes de software ...` para abrir la ventana `Fuentes de software`.
+
+** Ubuntu Lucid:
+
+*** Haga clic en el menú `Sistema`, luego en` Administración`, luego
+  `Administrador de paquetes Synaptic`.
+
+*** En Synaptic, haga clic en el menú `Configuración`, luego haga clic en `Repositorios`
+  para abrir la ventana `Fuentes de software`.
+
+* En la ventana `Fuentes de software`, seleccione la pestaña `Otro software`.
+
+* Eliminar o desmarcar todas las entradas de linuxcnc.org antiguas (dejar todas
+  las demas líneas no-linuxcnc.org como estan).
+
+* Haga clic en el botón `Agregar` y agregue una nueva línea apt. La linea sera
+  ligeramente diferente en las diferentes plataformas:
+
+[options="header"]
+|====
+| Platform                | apt source line
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
+|====
+
+image::images/upgrading-to-2.8.png[align="left", alt="Configurando las fuentes de apt"]
+
+* Haga clic en `Agregar fuente`, luego` Cerrar` en la ventana de Fuentes de software.
+  Si aparece una ventana que le dice que la información sobre
+  el software disponible está desactualizada, haga clic en el botón "Recargar".
+
+=== Actualizando a la nueva version
+
+Ahora su computadora sabe dónde obtener la nueva versión del software.
+A continuación tenemos que instalarlo.
+
+El proceso nuevamente difiere según su plataforma.
+
+==== Debian Wheezy y Ubuntu Lucid
+
+Debian Wheezy y Ubuntu Lucid usan Synaptic.
+
+* Abra Synaptic usando las instrucciones en <<_setting_apt_sources,Configurando
+  fuentes apt>> más arriba.
+
+* Haga clic en el botón "Recargar".
+
+* Use la función de búsqueda para buscar `linuxcnc`.
+
+* Haga clic en la casilla de verificación para marcar los nuevos paquetes linuxcnc y linuxcnc-doc-*
+  para actualización. El administrador de paquetes puede seleccionar un número de
+  paquetes adicionales que también se instalarán, para satisfacer las dependencias que tiene
+  el nuevo paquete linuxcnc.
+
+* Haga clic en el botón "Aplicar" y deje que su computadora instale el nuevo
+  paquete. El viejo paquete linuxcnc se actualizará automáticamente al
+  nuevo.
+
+=== Ubuntu Precise
+
+* Haga clic en el icono `Dash Home` en la esquina superior izquierda.
+
+* En el campo `Buscar`, escriba "actualizar", luego haga clic en el icono
+  `Administrador de actualizaciones`.
+
+* Haga clic en el botón 'Verificar' para obtener la lista de paquetes disponibles.
+
+* Haga clic en el botón `Instalar actualizaciones` para instalar las nuevas versiones de
+  todos los paquetes.
+
+== Actualizacion sin red
+[[getting-started:update-no-network]]
+
+Para actualizar sin una conexión de red, necesita descargar un paquete deb y luego instalarlo.
+con dpkg. buildbot crea nuevos debs cada vez que se actualiza algo y los almacena en http://buildbot.linuxcnc.org/dists/
+
+Tiene que profundizar en el enlace anterior para encontrar el deb correcto para su
+instalación. Abra un <<faq:terminal,terminal>> y escriba 'lsb_release -ic'
+para encontrar el nombre de su sistema operativo. Deberia ser algo como:
+
+----
+> lsb_release -ic
+Distributor ID: Debian
+Codename: buster
+----
+
+Elija el sistema operativo de la lista y luego elija la versión principal que desea, como 2.7-rt para
+en tiempo real o 2.7-sim solo para el simulador.
+
+A continuación, elija el tipo de computadora que tenga; i386 para 32 bits o amd64 para 64 bits.
+
+A continuación, elija la versión que desee de la parte inferior de la lista como
+'linuxcnc-uspace_2.8.0_amd64.deb'. Descargue el deb y cópielo a su
+directorio de usuario. Puede cambiar el nombre del archivo a algo un poco más corto con el
+administrador de archivos, como 'linuxcnc_2.8.0.deb'. Luego abra un terminal e instálelo con el
+gestor de paquetes con este comando
+
+----
+sudo dpkg -i linuxcnc_2.8.0.deb
+----
+
+== Actualización de archivos de configuración (para 2.8.x)
+
+La nueva versión de LinuxCNC difiere de la versión 2.7 en algunos aspectos que
+puede requerir cambios en la configuración de su máquina.
+
+=== Configuraciones de distribucion (actualizacion para las articulaciones-ejes)
+
+La distribución de LinuxCNC incluye muchas configuraciones de ejemplo organizadas en
+jerarquías de directorio llamadas by_machine, by_interface, y sim (maquinas simuladas).
+Estas configuraciones se utilizan a menudo como puntos de partida para hacer una
+nueva configuración, como ejemplos de estudio, o como máquinas simuladas completas que
+pueden ejecutarse sin hardware especial o kernels en tiempo real.
+
+Los archivos de configuración en estos árboles de directorio se han actualizado para los
+cambios requeridos para las actualizaciones de articulaciones-ejes.
+
+=== Actualizaciones automaticas (script update_ini para articulaciones-ejes)
+
+Dado que las actualizaciones de articulaciones-ejes requieren una serie de cambios en los archivos ini del usuario y
+sus halfiles relacionados, se proporciona un script llamado update_ini para convertir automáticamente
+configuraciones de usuario.
+
+Este script se invoca cuando un usuario inicia una configuración existente por
+primera vez después de actualizar LinuxCNC. El script busca el elemento [EMC]VERSION en el archivo ini
+de usuario. Si este elemento 1) no existe, o 2) existe y está configurado
+al valor histórico CVS "$Revision$", o es un valor numérico menor que
+1.0, el script update_ini abrirá un cuadro de diálogo para ofrecer la edicion de los
+archivos y crear una configuración actualizada. Si el usuario acepta,
+se actualizará la configuración.
+
+Por ejemplo, si la configuración de usuario se llama bigmill.ini, el archivo bigmill.ini
+y sus archivos hal locales asociados se editarán para incorporar los cambios articulaciones-ejes.
+Todos los archivos de la configuración inicial se guardarán en un nuevo directorio
+con el nombre de la configuración original, y con el sufijo ".old" (bigmill.old en el
+ejemplo).
+
+El script update_ini maneja todos los elementos de usuario comunes que se encuentran en
+máquinas basicas que emplean cinemática de identidad. Elementos menos comunes usados ​​en maquinas más complejas
+no pueden ser convertidos automáticamente. Ejemplos de maquinas complejas incluyen:
+
+* Pórticos con dos articulaciones para un eje.
+* máquinas con jogwheels
+* Robots con cinemática no de identidad.
+* Configuraciones utilizando archivos haltcl.
+
+Las siguientes subsecciones y la sección 'Cambios de Hal' enumeran elementos que
+puede requerir ediciones de usuario adicionales de los archivos ini o hal.
+
+=== Soporte de husillos multiples
+
+LinuxCNC admite ahora hasta 8 husillos (y puede volver a compilarse para tener más).
+El código G existente se ejecutará sin modificaciones y la mayoría de las configuraciones
+se establecerán de forma predeterminada con husillo único. Para añadir husillos, tanto el modparam
+"num_spindles" del módulo motion en el archivo HAL, como la entrada [TRAJ]SPINDLES en el archivo INI
+se deben cambiar/agregar para elegir el número requerido. Ambos 'deben' coincidir.
+
+Los nombres de los pines de control del husillo se han cambiado para hacer que los husillos se parezcan 
+más a ejes y articulaciones. Por ejemplo, motion.spindle-speed-out ahora es spindle.0.speed-out.
+El script de actualización automática se hará cargo de estos cambios.
+
+Para controlar husillos adicionales, los códigos G y M que controlan la velocidad de husillo
+aceptan ahora un argumento "$" adicional, por ejemplo M3 $2 para iniciar el tercer husillo. "$" fue elegido
+para evitar conflictos con cualquier letra de código existente. Debería ser posible crear códigos G
+personalizados para que coincidan con cualquier otro controlador de husillo múltiple.
+Consulte los manuales de código G y código M para los cambios de código, y la pagina 'man motion'
+para los cambios en los pines HAL.
+
+=== Nombres de aceleraciones y velocidades en TRAJ 
+ 
+Con la incorporación de la funcionalidad articulaciones-ejes, algunos nombres fueron
+cambiados para aclarar la nueva funcionalidad disponible.
+
+----
+antes: [TRAJ]MAX_VELOCITY          ahora es: [TRAJ]MAX_LINEAR_VELOCITY
+antes: [TRAJ]DEFAULT_VELOCITY      ahora es: [TRAJ]DEFAULT_LINEAR_VELOCITY
+
+antes: [TRAJ]MAX_ACCELERATION      ahora es: [TRAJ]MAX_LINEAR_ACCELERATION
+antes: [TRAJ]DEFAULT_ACCELERATION  ahora es: [TRAJ]DEFAULT_LINEAR_ACCELERATION
+----
+
+=== Modulos cinematicos
+
+Los módulos de cinemática gentrivkins y gantrykins se han eliminado ya que
+su funcionalidad está disponible ahora en el módulo trivkins actualizado.
+
+El módulo gentrivkins solo ha estado disponible en ramas anteriores.
+Para convertir, es necesario cambiar el nombre.
+
+Ejemplos de archivos Hal:
+
+----
+antes   : loadrt gentrivkins
+ahora es: loadrt trivkins
+
+antes   : loadrt gentrivkins coordinates=xyyz
+ahora es: loadrt trivkins coordinates=xyyz
+----
+
+Las configuraciones que usaban gantrykins deben actualizarse para usar trivkins con el
+parámetro kinstype=  establecido en BOTH (para KINEMATICS_BOTH).
+
+Ejemplo de archivo Hal:
+
+----
+antes   : loadrt gantrykins coordinates=xyyz
+ahora es: loadrt trivkins coordinates=xyyz kinstype=BOTH
+----
+
+Consulte la página 'man trivkins' para obtener información adicional.
+
+Nota: La forma mejor soportada de especificar cinemática en articulaciones_ejes
+es establecer los valores en la sección [KINS] del archivo ini y luego
+hacer referencia a ellos dentro de los [HAL]HALFILES especificados (archivos .hal .tcl). Por
+ejemplo:
+
+----
+inifile:    [KINS]
+            KINEMATICS = trivkins
+            JOINTS = 3
+            ...
+
+halfile:    loadrt [KINS]KINEMATICS
+
+haltclfile: loadrt $::KINS(KINEMATICS)
+----
+
+=== Configuraciones de Torno
+
+Antes de la incorporación de articulaciones_ejes, los tornos a menudo se configuraban como si
+fuesen máquinas de tres ejes (XYZ) con un eje no utilizado (Y). Esto fue conveniente
+para compartir archivos Hal (especialmente para configuraciones de simulación) pero se requiere
+la especificación [TRAJ]AXES = 3, una sección AXIS_Y 'ficticia', y disposiciones para
+el homing de la coordenada Y no utilizada. Estos arreglos ya no son ni necesarios
+ni recomendados.
+
+Las configuraciones históricas de torno utilizaron las opciones predeterminadas para los módulo de cinemática
+trivkins. Estas opciones predeterminadas configuran todas las letras de los ejes (XYZABCUVW). 
+Con la incorporacion de articulaciones_ejes, una especificación cinemática más adecuada
+establece las coordenadas a las exactamente utilizadas (XZ) y establece el
+número de uniones en 2. No es necesario una sección de archivo ini [AXIS_Y]
+y solo necesitan ser definidas dos secciones [JOINT_N].
+
+Ejemplo de elementos de archivo ini para un torno (solo se muestran las secciones relevantes para cinemática):
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xz
+JOINTS = 2
+
+[TRAJ]
+COORDINATES = XZ
+...
+
+[AXIS_X]
+...
+
+[AXIS_Z]
+...
+
+[JOINT_0]
+...
+
+[JOINT_1]
+...
+----
+
+Tenga en cuenta que algunas configuraciones de simulación todavía usan configuración histórica de torno.
+
+=== Especificaciones de articulaciones-ejes consistentes
+
+Los elementos del archivo ini que afectan el uso de articulaciones y ejes deben ser consistentes.
+
+El módulo de cinemática de movimiento normalmente cargado con '[KINS]KINEMATICS=' debe
+usar un número de articulaciones igual al número especificado con '[KINS]JOINTS='.
+
+El módulo de cinemática debe implementar letras de eje que sean consistentes con la
+especificación utilizada por el elemento del módulo de tareas '[TRAJ]COORDINATES='.
+
+Ejemplos:
+
+Máquina cartesiana de tres ejes utilizando trivkins (KINEMATICS_IDENTITY):
+-----
+  [KINS]KINEMATICS  = trivkins
+  [KINS]JOINTS      = 3
+  [TRAJ]COORDINATES = XYZ
+-----
+
+Torno de dos ejes utilizando trivkins (KINEMATICS_IDENTITY) con letras del eje no consecutivas:
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XZ
+  [KINS]JOINTS      = 2
+  [TRAJ]COORDINATES = XZ
+-----
+
+Portico utilizando trivkins con letras de eje duplicadas y KINEMATICS_BOTH para
+permitir posicionamiento de articulaciones individuales (para homing):
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYYZ
+-----
+
+Portico usando trivkins (KINEMATICS_BOTH) con letras de eje duplicadas
+y un eje rotativo con letras de eje saltadas (A, B saltadas):
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
+  [KINS]JOINTS      = 5
+  [TRAJ]COORDINATES = XYYZC
+-----
+
+Robot Delta lineal con cinematica no-identidad (KINEMATICS_BOTH) que trabaja en un marco cartesiano
+con una coordenada rotativa adicional:
+-----
+  [KINS]KINEMATICS  = lineardeltakins
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYZA
+-----
+
+Nota: algunos módulos de cinemática de propósito general (como trivkins) implementan
+      cinemática de identidad con soporte para especificación de coordenadas (letras de eje).
+      Las letras de eje pueden ser omitidas. Las letras de eje pueden ser duplicadas.
+      Las articulaciones se asignan a las letras de los ejes de una manera definida ('$ man trivkins').
+
+Nota: para la carga del módulo trivkins, no incluya espacios entre el signo = y las letras:
+
+      Esto es correcto:    [KINS]KINEMATICS = trivkins coordinates=XZ
+      Esto NO es correcto: [KINS]KINEMATICS = trivkins coordinates = XZ
+
+Nota: los módulos de cinemática personalizados que implementan cinemáticas de no-identidad (como
+      lineardeltakins) definen relaciones específicas de la máquina entre un conjunto
+      de coordenadas y un conjunto de articulaciones. Normalmente, los módulos de cinemática personalizados
+      calculan las relaciones de los ejes y las articulaciones dentro del módulo personalizado, pero es
+      importante utilizar configuraciones consistentes para los elementos de ini relacionados: '[KINS]JOINTS'
+      y '[TRAJ]COORDINATES'. Los detalles serán explicados en la
+      página de manual del módulo (por ejemplo, '$ man lineardeltakins').
+
+
+=== Secuencias Home
+
+Se pueden usar valores *negativos* para los elementos del archivo ini
+'[JOINT_n]HOME_SEQUENCE'. Antes de la incorporacion de articulaciones_ejes, un valor
+de -1, o la omisión del elemento, indicaba que no se aplicaba ninguna secuencia.
+Ahora, solo la omisión del elemento se usa para ese propósito.
+Consulte el capítulo <<cha:homing-configuration,'Configuración de Homing'>>
+para más información.
+
+=== Bloqueo de indexador rotativo (actualizaciones articulaciones-ejes)
+
+Con articulaciones_ejes, un indexador es una articulación que puede ser homeada (modo de articulacion)
+pero también debe ser desbloqueada desde gcode. Esto requiere una correspondencia uno a uno
+entre una unica articulación y un unico eje.
+
+Especifique el número de articulacion que corresponde a un eje rotativo (donde L = A, B o C)
+con una configuración en el archivo ini para el eje como:
+
+----
+  [AXIS_L]LOCKING_INDEXER_JOINT = numero_articulacion_del_indexer
+----
+
+Especifique que la articulacion (N es el numero_articulacion_del_indexer) es un indexador 
+bloqueable con una configuración de archivo ini para la articulación como:
+
+----
+  [JOINT_N]LOCKING_INDEXER = 1
+----
+
+Se pueden crear pines Hal para el uso coordinado de un indicador de bloqueo de articulacion:
+
+----
+   joint.N.unlock      (BIT salida desde Hal)
+   joint.N.is-unlocked (BIT entrada a Hal)
+----
+
+Para crear estos pines hal para bloqueo de articulaciones, especifique todas las articulaciones que
+se utilizaran como indexadores bloqueables con el parámetro 'unlock_joints_mask' para
+el módulo motmod. (bit0(LSB)==>joint0, bit1==>joint1, etc.)
+
+----
+  [EMCMOT]
+  EMCMOT = motmod unlock_joints_mask=BITMASK
+----
+
+Como ejemplo, considere una máquina que utiliza cinemática trivkins con coordenadas
+XYZB, donde B es un indexador bloqueable. Para trivkins, los números de articulacion (a partir de
+0) se asignan consecutivamente a las coordenadas especificadas
+(las letras de eje sin uso pueden ser omitidas). Para este ejemplo, X==>joint0, Y==>joint1,
+Z==>joint2, B==>joint3. La máscara para especificar la unión 3 es 000001000(binario) == 0x08(hexadecimal)
+
+Las entradas de archivo ini requeridas para este ejemplo XYZB de trivkins son:
+----
+  [KINS]
+  JOINTS = 4
+  KINEMATICS = trivkins coordinates=XYZB
+  ...
+
+  [TRAJ]
+  COORDINATES = XYZB
+  ...
+
+  [EMCMOT]
+  EMCMOT = motmod unlock_joints_mask=0x08
+  ...
+
+  [AXIS_B]
+  LOCKING_INDEXER_JOINT = 3
+  ...
+
+  [JOINT_3]
+  LOCKING_INDEXER = 1
+  ...
+----
+
+Para una cinemática más compleja, seleccione el número de articulacion según sea necesario; debe
+haber una correspondencia uno a uno entre el eje rotativo y el número de articulación.
+
+(Consulte la página 'man motion' para obtener más información sobre motmod)
+
+=== Sintaxis estricta de archivos INI 
+
+Las líneas con variables INI numéricas ya no pueden seguirse de texto.
+En versiones anteriores de LinuxCNC, cualquier texto después del número era
+ignorado silenciosamente, pero a partir de esta versión, tal texto está totalmente prohibido.
+Esto incluye caracteres hash ("#"), que en esta posición son parte del valor, no un carácter de comentario.
+
+Por ejemplo, líneas como esta ya no serán aceptadas:
+-----
+MAX_VELOCITY = 7.5 # Esta es la velocidad máxima del eje.
+-----
+
+Podrían transformarse en pares de líneas como esta:
+-----
+# Esta es la velocidad máxima del eje.
+MAX_VELOCITY = 7.5
+-----
+
+=== Configuraciones [TRAJ]
+
+En las versiones 2.7.x, la configuración de planificación de trayectoria ([TRAJ]) incluía:
+
+----
+[TRAJ]
+DECELULT_ACCELERATION
+MAX_ACCELERATION
+----
+
+El trabajo provisional preparado para distintos elementos lineales y angulares
+renombraba estos elementos como:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCEL
+MAX_LINEAR_ACCEL
+----
+
+Como estos nombres abreviados eran inconsistentes con otras
+convenciones y la implementación del script update_ini,
+los nombres provisionales se han corregido para usar:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCELERATION
+MAX_LINEAR_ACCELERATION
+----
+
+[NOTE]
+
+No se han implementado soporte para especificar la planificación de trayectoria angular 
+predeterminada y aceleraciones máximas.
+
+
+== Cambios de Hal (actualizacion articulaciones-ejes 2.8.x)
+
+=== Rueda o MPG (generador de impulsos manual) de jogging
+
+Antes de la incorporación de las actualizaciones de articulaciones_ejes, el jog de volante
+se soportaba solo en modo articulacion y controlado con pines hal:
+
+----
+   bit   IN  axis.M.jog-enable
+   float IN  axis.M.jog-scale
+   s32   IN  axis.M.jog-counts
+   bit   IN  axis.M.jog-vel-mode
+----
+
+donde 'M' es un número correspondiente a una letra de eje (0==>X, 1==>Y, etc.)
+
+Con la incorporación de las actualizaciones de articulaciones_ejes, el jogging está disponible
+para articulaciones en modo de articulacion y para cada eje de coordenadas en modo teleop. Los
+pines hal de control son:
+
+----
+   bit   IN  joint.N.jog-enable
+   float IN  joint.N.jog-scale
+   s32   IN  joint.N.jog-counts
+   bit   IN  joint.N.jog-vel-mode
+
+   bit   IN  axis.L.jog-enable
+   float IN  axis.L.jog-scale
+   s32   IN  axis.L.jog-counts
+   bit   IN  axis.L.jog-vel-mode
+----
+
+donde 'N' es un número de articulacion y 'L' es una letra de eje.
+
+Para utilizar un MPG en configuraciones de cinematica de identidad, donde hay correspondencia uno a uno
+de un número de articulacion y una letra de eje, puede ser conveniente
+conectar los pines hal correspondientes. Por ejemplo, si la articulación 1 corresponde
+exactamente al eje Y:
+
+----
+   net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
+   net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale
+   net jora_1_y_counts   => joint.1.jog-counts => axis.y.jog-counts
+   net jora_1_y_vel-mode => joint.1.jog-counts => axis.y.jog-vel-mode
+----
+
+(Los nombres de las señales jora_1_y_* son ejemplos, los nombres anteriores a la conversión
+articulaciones_ejes dependerá de los detalles de configuración específicos.)
+
+Las configuraciones con cinemática de no-identidad y configuraciones que utilizan
+letras de eje duplicadas (por ejemplo, pórticos que usan más de una articulación para una
+eje coordenado) requerirán una lógica de control independiente apropiada para admitir
+Jogging tanto de articulacion como teleop.
+
+=== Pines Ini Hal
+
+Los pines Hal se crean para los elementos del archivo ini para [JOINT_N] y [AXIS_L]:
+
+  Desde N = 0, hasta [KINS](JOINTS-1)
+  Item en Ini                nombre pin hal
+  [JOINT_N]BACKLASH          ini.N.backlash
+  [JOINT_N]FERROR            ini.N.ferror
+  [JOINT_N]MIN_FERROR        ini.N.min_ferror
+  [JOINT_N]MIN_LIMIT         ini.N.min_limit
+  [JOINT_N]MAX_LIMIT         ini.N.max_limit
+  [JOINT_N]MAX_VELOCITY      ini.N.max_velocity
+  [JOINT_N]MAX_ACCELERATION  ini.N.max_acceleration
+  [JOINT_N]INICIO            ini.N.home
+  [JOINT_N]HOME_OFFSET       ini.N.home_offset
+
+  Para L = x y z a b c u v w:
+  Item en Ini                nombre pin hal
+  [AXIS_L]MIN_LIMIT          ini.L.min_limit
+  [AXIS_L]MAX_LIMIT          ini.L.max_limit
+  [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
+  [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
+
+Nota: En versiones anteriores de LinuxCNC (antes de las actualizaciones de articulaciones_ejes),
+      los nombres de los pines hal 'ini.N.*' se referian a los ejes con 0==>x, 1==>y, etc.
+      (los pines fueron creados para los 9 ejes)
+      Vea la página man ('$ man milltask') para más información.
+
+== Cambios Hal (Otros)
+
+=== halcompile
+
+El número de instancias names=  se limitaba anteriormente a 16. Ahora,
+para los componentes en tiempo real (loadrt), las instancias se asignan
+dinámicamente sin límite incorporado. El limite de 16 todavia
+se aplica a items names=  para componentes de espacio de usuario (loadusr).
+
+Para los componentes que usan 'personality', el número máximo ahora se
+puede configurar mediante una opción de línea de comando -P|--personalities.
+
+=== Cambios Parametro a Pin
+
+Los siguientes pines de salida hal fueron cambiados de parámetros a pines
+para que puedan conectarse a señales:
+
+----
+   motion.servo.last-period    (último periodo servo en clks)
+   motion.servo.last-period_ns (disponibilidad dependiente del kernel)
+----
+
+== Cambios de interfaz para articulaciones-ejes 2.8.x
+
+=== modulo python linuxcnc 
+
+La interfaz jog() incluye una 'bandera de articulacion (joint-flag)' para especificar
+jogging de articulacion (True) o teleop (False):
+
+----
+jog(comando, joint-flag, eje-o-número-articulacion, velocidad[, distancia]])
+
+jog(linuxcnc.JOG_STOP, joint-flag, eje-o-número-articulacion)
+jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocidad)
+jog(linuxcnc.JOG_INCREMENT, joint-flag, eje-o-número-articulacion, velocidad, distancia)
+----
+
+== GUIs (actualizaciones para articulaciones-ejes 2.8.x)
+
+=== Notas sobre el jogging de articulaciones-ejes, homing y cinematica
+
+Con la incorporación de las actualizaciones de articulaciones_ejes, LinuxCNC hace cumplir la
+distinciones de articulaciones y ejes (letras de coordenadas), pero algunas
+guis (como Axis) puede ocultar algunas de las distinciones para
+máquinas simples.
+
+En la mayoría de los casos, puede pensar en las articulaciones como 'motores'.
+
+Las relaciones entre articulaciones y ejes de coordenadas son
+determinadas por las funciones cinemáticas matemáticas que describen un
+movimiento de la máquina.
+
+Las coordenadas universales (X, Y, Z, A, B, C, U, V, W) se determinan aplicando
+operaciones de cinemática 'DIRECTA' a posiciones articulares (motor).
+
+Al moverse en el espacio universal (por ejemplo, movimientos de código G), se requiere que
+las posiciones de articulaciones (motor) se determinen aplicando
+operaciones de cinemática 'INVERSA' a las coordenadas solicitadas para el movimiento
+en el espacio universal.
+
+Moverse en el espacio universal es posible solo después de homing.
+
+Para máquinas simples (como fresadoras y tornos) hay una
+equivalencia uno a uno de articulaciones y ejes de coordenadas. Por ejemplo,
+en una fresadora XYZ, las relaciones son típicamente: axisX == joint0,
+axisY == joint1, axisZ = joint2. Esta correspondencia 
+se caracteriza como cinemática 'IDENTIDAD' y el módulo de cinemática que
+se utiliza habitualmente es trivkins (cinemática trivial). (Ver
+página man '$ man trivkins')
+
+El jogging de articulacion (por número de articulacion 0,1, ...) se utiliza en modo articulacion
+(usado generalmente solo 'ANTES' de homing). Cuando se completa homing,
+el modo de jogging se cambia "AUTOMÁTICAMENTE" del modo articulacion al
+al modo universal y se usa el jogging de ejes (letra de coordenada X, Y, ...).
+Esto es apropiado para todos los movimientos gcode solicitados por los comandos MDI
+o por programas gcode.
+
+Aunque el jogging en modo articulacion a menudo no se requiere después de
+homing, algunas guis (como Axis) proporcionan un atajo de teclado ('$')
+para permitir alternar entre los modos articulacion y universal (teleop) para
+máquinas que utilizan cinemática 'NO-IDENTIDAD'.
+
+En muchas situaciones comunes, el jogging de articulacion no es necesario ya que
+la orientación se lleva a cabo utilizando los interruptores de home y/o los diferentes
+métodos proporcionados por LinuxCNC. Simplemente se enciende
+la máquina, se emite el comando Home-All y la máquina hace home y
+cambia al modo universal automáticamente. Ver
+<<cha:homing-configuration,Configuración de Homing>>
+
+Las máquinas que no usan interruptores home pueden requerir un jogging manual
+en modo articulacion antes de volver a home cada articulación. Tambien es
+posible utilizar home inmediato (ver los documentos de homing) para articulaciones
+que no requieren homing en una posición fija.
+
+Aunque una gui puede ocultar las distinciones de articulaciones/ejes para 
+máquinas de cinemática 'IDENTIDAD', por lo general es importante completar homing
+para ejecutar programas o usar funciones provistas por una gui.
+
+Por defecto, el módulo trivkins se declara como si tuviera cinemática de
+'IDENTIDAD'. Las distincion de operaciones articulacion/universal
+pueden hacerse visibles en la gui Axis al usar
+trivkins configurando el tipo de cinemática a un tipo 'NO-IDENTIDAD'
+utilizando 'kinstype=both'. El ajuste 'both' indica que ambas
+funciones de cinemática, directa e inversa, están disponibles y no deben ser empleadas
+las disposiciones de la gui que esconden las distinciones de articulaciones y ejes.
+Por ejemplo, para una configuración xyz, especificar:
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xyz kinstype=both
+----
+
+Con este ajuste, se utilizará la cinemática de identidad pero la
+gui Axis podra:
+
+. Mostrar los números de articulacion antes del homing.
+. Mostrar las letras de los ejes después de homing correcto
+. soporte para alternar entre los modos articulacion y teleop con la tecla '$'
+
+=== Halui
+
+Halui ahora admite el jogging teleop que da como resultado algunos nombres de pin modificados y
+numerosos nombres nuevos para pines relacionados con el jogging.
+
+Consulte la página man ('$ man halui') para ver todos los nombres de los pines.
+
+==== jogging TELEOP o universal
+
+Los nuevos pines para jogging teleop son:
+
+----
+      halui.axis.jog-speed
+      halui.axis.jog-deadband
+
+      halui.axis.L.plus
+      halui.axis.L.minus
+           ... etc.
+----
+
+donde 'L' es una letra correspondiente a una de las letras de eje especificadas por
+[TRAJ]COORDINATES o 'seleccionadas' para el eje seleccionado por los pines
+halui.axis.L.select.
+
+==== Jogging de articulacion
+
+Todos los pines para jogging de articulacion fueron renombrados por especificidad:
+
+----
+      antes: halui.jog-speed      ahora es: halui.joint.jog-speed
+      antes: halui.jog-deadband   ahora es: halui.joint.jog-deadband
+
+      antes: halui.jog.N.plus     ahora es: halui.joint.N.plus
+      antes: halui.jog.N.minus    ahora es: halui.joint.N.minus
+           ...  etcétera                  ...etcétera.
+----
+
+donde 'N' es un número de articulacion (0 ... num_joints-1) o 'seleccionado'
+para la articulación seleccionada por los pines halui.joint.N.select.
+
+==== Renombrado de pin adicionales
+
+Los pines hal para articulaciones "seleccionadas" fueron renombrados por consistencia
+con pines relacionados.
+
+----
+      antes:    halui.joint.selected.is_homed
+      ahora es: halui.joint.selected.is-homed
+
+      antes:    halui.joint.selected.on-soft-limit
+      ahora es: halui.joint.selected.on-soft-min-limit
+----
+
+=== GUI AXIS 
+
+==== Cinematica de identidad
+
+La gui Axis sigue soportando configuraciones de cinemática de identidad. Esta gui
+oculta las distinciones de ejes y articulaciones para simplificar la visualización y
+utilización de máquinas simples.
+
+==== Cinematica de casos especiales.
+
+Algunas máquinas, típicamente pórticos, pueden usar una configuración con más de
+una articulación asignada a una letra de eje. Esto se puede hacer con el
+módulo de cinemática trivkins utilizando letras de coordenadas repetidas. Por ejemplo, una
+máquina configurada con ajustes ini:
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=XYYZ kinstype=BOTH
+...
+[TRAJ]
+COORDINATES = XYYZ
+...
+----
+
+Esta máquina, después del homing, tiene una correspondencia de uno a uno entre una sola
+letra del eje (Y) y un par de articulaciones (1,2). Usando 'kinematics=BOTH' se permite
+el control individual en modo de articulación 'si/cuando es necesario'.
+
+==== Cinematica no-identidad.
+
+La gui Axis admite configuraciones que utilizan cinemáticas no-identidad con:
+
+. Teclas conmutadora ('$') para alternar el modo articulacion o teleop
+. Vista previa de la pestaña de articulaciones o ejes según el modo de articulación o teleop
+. Vista preliminar de la pestaña de los íconos 'Home' y 'Límite' en modo articulación
+. Vista previa de la pestaña 'All-homed' e ícono 'Any-limit' en modo teleop
+. pestaña DRO de articulación o ejes según modo de articulación o teleop
+. El jogging es compatible con los modos de movimiento articulación y teleop
+. Se detectan los cambios externos en el modo de movimiento articulación/teleop.
+
+==== Iconos Home
+
+Para la cinemática de identidad, se muestran los iconos 'Home' para la correspondiente
+letra de eje (uno a uno) cuando una articulación está homeada.
+
+Para cinemáticas no-identidad, se muestran los íconos 'Home' para articulaciones individuales cuando
+una articulación está homeada en modo de visualización de articulaciones. Se muestra un icono 'All-homed' para
+todas las letras de los ejes cuando TODAS las articulaciones están ubicadas en modo de visualización mundial.
+
+==== Iconos de Limite 
+
+Para las cinemáticas de identidad, se muestran los íconos de 'Límite' para las correspondientes
+letra de eje (uno a uno) cuando un límite de articulacion está activo.
+
+Para cinemáticas sin identidad, se muestran los íconos 'Limite' para articulaciones individuales cuando
+el límite de articulacion está activo en el modo de visualización de articulaciones. Se muestra un icono 'Cualquier límite'
+si alguna articulacion está en un límite en el modo de visualización teleop.
+
+==== Teclas conmutadoras para un cuarto eje
+
+En la interfaz gráfica de AXIS, las teclas de jogging se asignan a los ejes en un modo configurable.
+Para máquinas de 3 ejes, máquinas XYZA y tornos, el valor predeterminado es
+lo mismo que en 2.7. Para otras máquinas, los 4 pares de teclas de jogging son
+asignados a los primeros 4 ejes que existen en el orden XYZ ABC UVW.
+Estas asignaciones pueden ser controladas por nuevas directivas inifile en la
+<<sec:display-section,sección [DISPLAY] del archivo ini>>.
+
+Tenga en cuenta que los parámetros utilizados para jogging pueden no ser apropiados para ambos modos
+en máquinas con cinemática no-identidad.
+
+
+=== tklinuxcnc
+
+La gui tklinuxcnc admite cinemáticas tanto de identidad como de no identidad, incluye
+botones de radio y una combinación de teclas ('$') para alternar los modos de conexión articulacion y teleop.
+Se detectan cambios externos de modo de movimiento articulacion o teleop.
+El jogging se admite en los modos de movimiento articulacion y teleop.
+Tenga en cuenta que los parámetros utilizados para jogging pueden no ser apropiados para ambos modos
+en máquinas con cinemática no-identidad.
+
+OpenGL no es utilizado por tklinuxcnc, por lo que puede usarse para aislar problemas y
+dependencias del sistema que se producen con guis más modernas como Axis.
+
+Una rudimentaria gui con backplot está disponible para su uso con configuraciones
+de máquina con cinemáticas de identidad (xyz).
+
+==== comandos emcsh
+
+El código de emcsh.cc proporciona el conjunto de comandos tcl utilizados por tklinuxcnc.
+Los comandos están disponibles para las aplicaciones tcl como el paquete tcl denominado 'Linuxcnc'.
+Una serie de comandos requerían previamente el uso de un argumento numérico para
+especificar una coordenada de eje (0--> X, 1--> Y, ..., 8--> W). Estos comandos se han
+simplificado para usar un argumento que es solo la letra de la coordenada.
+
+Los comandos que ahora usan un argumento de letra de coordenada son:
+
+. emc_pos_offset
+. emc_abs_cmd_pos
+. emc_abs_act_pos
+. emc_rel_cmd_pos
+. emc_rel_act_pos
+. emc_tool_offset
+. emc_probed_pos
+
+=== touchy
+
+La interfaz touchy sigue soportando las configuraciones de cinemática de identidad
+que soportaba antes de la incorporación de articulaciones_ejes. El jogging se realiza en
+modo teleop.
+
+=== gscreen
+
+Gscreen continúa soportando las configuraciones de cinemática de identidad
+que soportaba antes de la incorporación de articulaciones_ejes. El jogging se realiza en
+modo teleop.
+
+=== gmoccapy
+
+La interfaz gráfica de gmoccapy sigue siendo compatible con las configuraciones de cinemática de identidad
+que soportaba antes de la incorporación de articulaciones_ejes. El jogging se realiza en
+modo teleop.
+
+
+=== Renombrado del Controlador `shuttlexpress` a `shuttle`
+
+El controlador HAL para el dispositivo Contour Designs ShuttleXpress ha sido
+renombrado de "shuttlexpress" a solo "shuttle". Si sus archivos hal incluyen
+alguna variante de "loadusr shuttlexpress", reemplace "shuttlexpress" con
+"shuttle".
+
+Se ha agregado soporte para ShuttlePRO, una versión más grande de
+ShuttleXpress, por lo que el antiguo nombre del driver ya no es exacto.
+
+
+=== linuxcncrsh
+
+"Home All" ahora es compatible con el subcomando home set
+usando -1 para el número de articulacion.
+
+Los comandos de jogging se han modificado para acomodar ambos joggings, de articulacion (free)
+y teleop (universal).
+
+----
+    antes: 	    set jog      joint_number             speed
+    ahora es: 	set jog      joint_number|axis_letter speed
+
+    antes: 	    set jog_incr joint_number             speed increment
+    ahora es: 	set jog_incr joint_number|axis_letter speed increment
+
+    antes:  	set jog_stop
+    ahora es: 	set jog_stop joint_number|axis_letter
+----
+
+Nota: Pruebe el modo teleop usando el comando: get teleop_enable
+      Si TELEOP_ENABLE = YES, use axis_letter
+      de lo contrario use joint_number
+
+Nota: Anteriormente, el comando 'set jog 0 1.234' activaría el
+eje cero (X) con velocidad solicitada = 1.234 en cualquier modo (libre o teleop).
+Este comando ahora intenta desplazar la articulacion cero (Joint0) si
+el modo es free (no teleop). Para mover el eje X, el modo
+debe ser teleop y el comando correspondiente es: 'set jog x 1.234'
+
+== Herramientas
+
+=== Calibración (emccalib.tcl)
+
+La calibración/ajuste de herramienta ahora admite estrofa:
+
+  [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
+
+donde N es un número de articulacion (0 .. ([KINS] JOINTS-1)),
+L es una letra de coordenadas del eje (X, Y, Z, A, B, C, U, V, W),
+y S es un número de husillo (0 .. 9)
+
+[NOTE]
+
+El número de husillos permitidos es 8 pero las configuraciones heredadas
+puede incluir una estrofa [SPINDLE_9] no relacionada con un número de husillo real.
+
+[NOTE]
+
+La estrofa [TUNE] puede usarse para especificar elementos ajustables
+no relevante para las otras estrofas admitidas.
+
+== Guis obsoletas (eliminadas en 2.8.x)
+
+Los guis 'mini', 'keystick' y 'xlinuxcnc' se han eliminado
+conjuntamente con la incorporación de articulaciones_ejes. Todo el código fuente relacionado,
+los ejemplos y la documentación están disponibles en el repositorio de git.
+
+== Guis en desuso (marcadas en 2.8.x)
+
+La gui 'linuxcnclcd' es candidata para su eliminación.
+Si se eliminara este componente, todo el código fuente relacionado, ejemplos,
+y la documentación estará disponible en el repositorio de git.
+
+== Configuraciones de simulador (actualizacion de articulaciones-ejes)
+
+=== Pre-articulaciones-ejes
+
+Antes de la incorporación de articulaciones_ejes, los halfile utilizados en las configuraciones sim
+normalmente eran compatibles con una fresadora común: un sistema cartesiano con
+cinemática trivial y tres ejes denominados 'X Y Z'. Un halfile típico
+tenia estas entradas:
+
+----
+[HAL]
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+----
+
+Las configuraciones de torno a menudo compartían los mismos halfile y usaban el expeditivo
+método de especificar 3 ejes con 'Y' sin usar. Configuraciones de simulación más complejas
+proporcionaron conjuntos específicos de valores de acuerdo al propósito de la configuración.
+
+=== Post-articulaciones/ejes
+
+Con la incorporación de la funcionalidad articulaciones_ejes, muchas sims proporcionadas
+en la distribución aprovechan ahora un halfile de propósito general que
+soporta numerosas configuraciones automáticamente. En una configuración típica sim,
+la especificación HALFILE es:
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl
+----
+
+El HALFILE basic_sim.tcl soporta una cantidad de funciones requeridas
+normalmente, para cualquier número de articulaciones según lo especificado por:
+
+----
+[KINS]
+...
+JOINTS = número_de_articulaciones
+...
+----
+
+Las funciones soportadas incluyen:
+
+. 'ddts' - los componentes de diferenciacion hal son cargados y conectados
+para cada articulacion (xy, xyz para máquinas trivkins)
+
+. 'simulated_home' - un componente hal sim_home_switch se carga y
+conecta a cada articulación. Las condiciones de home son especificadas por los
+habituales elementos del archivo ini [JOINT_n]HOME_*.
+
+. 'use_hal_manualtoolchange' - El componente de espacio de usuario hal_manualtoolchange
+se carga y se conecta.
+
+. 'sim_spindle' - el componente sim_spindle se carga y se conecta a
+componentes hal adicionales cargados para simular la inercia de rotación
+de la masa del husillo.
+
+Las funciones están activadas por defecto pero pueden ser excluidas usando las
+opciones: '-no_make_ddts', '-no_simulated_home', '-no_use_hal_manualtoolchange',
+'-no_sim_spindle'.
+
+Por ejemplo, para omitir la creación de ddts:
+
+----
+HALFILE = LIB:basic_sim.tcl -no_make_ddts
+----
+
+Omitir una o más de las funciones principales permite realizar pruebas sin
+la función, o la adición de nuevos HALFILE para implementar o ampliar la
+funcionalidad por defecto omitida
+
+==== Archivo de comandos Hal equivalentes
+
+Cuando se usa LIB:basic_sim.tcl, se crea un halfile equivalente (en el
+directorio de configuración) para mostrar los comandos halcmd emitidos. El nombre del archivo
+se basa en el nombre del archivo inifile con '_cmds' anexado al
+nombre base y una extensión de archivo '.hal' convencional. Ejemplo:
+
+----
+inifilename:			        ejemplo.ini
+nombre_de_archivo_equivalente:	ejemplo_cmds.hal
+----
+
+El archivo halfile equivalente reemplaza instancias anteriores de archivos con
+el mismo nombre de archivo. Sustituciones de variables especificadas en el inifile 
+e interpretadas por halcmd se sustituyen automáticamente en el
+halfile *_cmds.hal creado. Si hay [HAL]HALFILEs especificados antes de
+LIB:basic_sim.tcl, sus comandos halcmd también están incluidos en *_cmds.hal.
+
+El halfile equivalente se puede utilizar para crear una nueva configuración basada en
+la configuración original, pero hecha con LIB:basic_sim.tcl con los
+siguientes pasos:
+
+1) Ejecutar la configuración del simulador para crear un nuevo halfile equivalente,
+por ejemplo: 'ejemplo_cmds.hal'.
+
+Para utilizar este nuevo halfile equivalente en el inifile de configuración original del simulador
+(o una copia de él), edite y cambie:
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl other_parameters
+----
+
+a:
+
+----
+[HAL]
+HALFILE = ./ejemplo_cmds.hal
+----
+
+==== Notas
+
+Todos los componentes y conexiones realizadas por LIB:basic_sim.tcl se pueden ver
+utilizando halcmd. La configuración completa de hal (excepto para los componentes de espacio de usuario
+cargados con loadusr) se pueden guardar en un archivo usando:
+
+----
+$ halcmd save > hal.save
+----
+
+El uso de LIB:basic_sim.tcl reduce el esfuerzo necesario para realizar una configuracion de
+simulación, ya que maneja la mayor parte de la carga de componentes requerida y
+conexiones hal.
+
+La configuración sim 'Configuraciones de muestra /sim/axis/minimal_xyz.ini'
+demuestra una configuración xyz en funcionamiento que usa LIB:basic_sim.tcl
+con un número mínimo de configuraciones de archivos ini.
+
+== Actualizaciones miscelaneas para 2.8.x
+
+Los commits a las ramas no liberadas pueden realizar cambios que afectan a los evaluadores
+y los primeros en adoptar el software inédito.
+
+=== Pines de movimiento
+
+Nuevos pines (ver la página del hombre de movimiento para más información):
+
+---
+axis.L.jog-accel-fraction
+joint.N.jog-accel-fraction
+---
+
+=== Pines Hal
+
+Cambios de nombre:
+
+----
+antes:    axis.L.vel-cmd
+ahora es: axis.l.teleop-vel-cmd
+----
+
+Nuevos pines:
+
+----
+motion.homing-inhibit (ver la página man motion)
+----
+
+=== Actualizaciones de componentes Hal
+
+. siggen: nuevo pin 'reset' para establecer los valores de la señal de salida en un estado predefinido
+. biquad: tipo de pins,  'f0, Q, s1, s2' eran anteriormente params
+
+=== Soporte para volante colgante XHC-HB04
+
+==== xhc_hb04_util.comp (componente auxiliar)
+
+Retirado el pin no utilizado 'jogenable-off'
+
+Agregado el pin 'amux-enable' para que las reducciones de aceleración multiplexadas estén ahora
+habilitada por un ANDing de los pines: 'is-manual' y 'amux-enable'. Estos dos pines
+normalmente están conectados a 'halui.mode.is-manual' y 'halui.mode.is-teleop'
+respectivamente.
+
+==== xhc_hb04.tcl (halfile 'LIB' de configuración opcional)
+
+Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
+
+Soporta nuevos pines motion para reducir las aceleraciones
+(axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) para jogging de volante.
+El uso de [APPLICATIONS]APP=xhc-hb04-accels ya no es compatible.
+Se aplican reducciones de aceleración solo para jogging de volante (no para comandos nml)
+emitido por guis).
+
+=== Soporte para el colgante XHC-WHB04B-6
+
+Vea la documentacion del componente xhc-whb04b-6.
+
+=== bldc3_hall
+
+El componente bldc_hall3 se ha eliminado. El componente *bldc* es mas
+flexible y mejor probado.
+
+=== [JOINT_n]HOME_SEQUENCE Valores iniciales
+
+Los valores iniciales de secuencia pueden ser 0, 1 (o -1) solamente. Ver la
+Documentación de "Configuración de Homing" para más información.
+
+=== [JOINT_n]HOME_SEQUENCE Valores negativos
+
+Las articulaciones que usan un HOME_SEQUENCE negativo no están autorizadas a correr en
+modo articulacion para evitar la desalineación en pórticos.
+Como siempre, las máquinas con cualquier tipo de cinemática deben ser
+homeadas antes de habilitar el modo jogging universal convencional.
+
+=== Compatibilidad TWOPASS para la configuracion compleja de elementos loadrt
+
+Se ha agregado la compatibilidad con twopass para loadrt config modparams con múltiples
+configuraciones separadas por espacios en blanco y entre comillas. Ejemplo:
+
+----
+loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
+----
+
+== Cambios 2.8.x
+
+Las versiones futuras de este documento tendrán en cuenta los cambios realizados en la rama de 
+desarrollo posteriores a la ultima versión 2.8.x.
+
+// vim: establece la sintaxis = asciidoc:
+

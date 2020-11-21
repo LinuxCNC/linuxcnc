@@ -29,7 +29,7 @@ class emc_control:
                 self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
-                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
+                    raise SystemExit("\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n")
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -246,7 +246,7 @@ class emc_control:
                     self.emccommand.auto(self.emc.AUTO_STEP)
                     return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        print self.restart_line_number
+                        print(self.restart_line_number)
                         self.emccommand.auto(self.emc.AUTO_RUN, self.restart_line_number)
                 self.restart_line_number = self.restart_reset_line
 
@@ -327,7 +327,7 @@ class emc_status:
         # angular axes are always 1 - They are not converted.
         def convert_units_list(self,v):
                 c = self.unit_convert
-                return map(lambda x,y: x*y, v, c)
+                return list(map(lambda x,y: x*y, v, c))
 
         # This converts the given data units if the current display mode (self.mm)
         # is not the same as the machine's basic units.

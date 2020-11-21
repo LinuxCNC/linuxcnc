@@ -20,12 +20,12 @@ class Aux_program_loader:
 
     # opens halshow
     def load_halshow(self,*args):
-        print "halshow",TCLPATH
+        print("halshow",TCLPATH)
         p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
 
     # opens the calibration program
     def load_calibration(self):
-        print "calibration --%s"% INIPATH
+        print("calibration --%s"% INIPATH)
         p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH, INIPATH), "w")
 
     # opens the linuxcnc status program
@@ -34,7 +34,7 @@ class Aux_program_loader:
 
     # opens a halmeter
     def load_halmeter(self,*args):
-        print "halmeter"
+        print("halmeter")
         p = os.popen("halmeter &")
 
     # opens the halscope
@@ -57,6 +57,6 @@ class Aux_program_loader:
             else:
                 return True
         except:
-            print 'Onboard keyboard could not be loaded by aux_program_loader'
+            print('Onboard keyboard could not be loaded by aux_program_loader')
             return False
 

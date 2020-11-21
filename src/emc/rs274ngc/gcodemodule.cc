@@ -17,6 +17,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h>
+#include "py3c/py3c.h"
 #include <structmember.h>
 
 #include "rs274ngc.hh"
@@ -28,6 +29,21 @@
 int _task = 0; // control preview behaviour when remapping
 
 char _parameter_file_name[LINELEN];
+
+#if PY_MAJOR_VERSION >=3
+
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+extern "C" struct _inittab builtin_modules[];
+struct _inittab builtin_modules[] = {
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { NULL, NULL }
+};
+
+#else
+
 extern "C" void initinterpreter();
 extern "C" void initemccanon();
 extern "C" struct _inittab builtin_modules[];
@@ -37,6 +53,7 @@ struct _inittab builtin_modules[] = {
     // any others...
     { NULL, NULL }
 };
+#endif
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
@@ -93,8 +110,7 @@ static PyMemberDef LineCodeMembers[] = {
 };
 
 static PyTypeObject LineCodeType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                      /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "gcode.linecode",       /*tp_name*/
     sizeof(LineCode),       /*tp_basicsize*/
     0,                      /*tp_itemsize*/
@@ -412,7 +428,9 @@ void PROGRAM_END() {}
 void FINISH() {}
 void ON_RESET() {}
 void PALLET_SHUTTLE() {}
+void SELECT_TOOL(int tool) {}
 void SELECT_POCKET(int pocket, int tool) {}
+void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
@@ -496,6 +514,7 @@ void RIGID_TAP(int line_number,
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
@@ -526,7 +545,7 @@ void SET_PARAMETER_FILE_NAME(const char *name)
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
     if(!result) { name[0] = 0; return; }
-    char *s = PyString_AsString(result);    
+    char *s = (char*)PyStr_AsString(result);
     if(!s) { name[0] = 0; return; }
     memset(name, 0, max_size);
     strncpy(name, s, max_size - 1);
@@ -638,14 +657,14 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
 static bool PyInt_CheckAndError(const char *func, PyObject *p)  {
     if(PyInt_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
-            "%s: Expected int, got %s", func, p->ob_type->tp_name);
+            "%s: Expected int, got %s", func, Py_TYPE(p)->tp_name);
     return false;
 }
 
 static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
-            "%s: Expected float, got %s", func, p->ob_type->tp_name);
+            "%s: Expected float, got %s", func, Py_TYPE(p)->tp_name);
     return false;
 }
 
@@ -752,7 +771,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         {
             PyObject *item = PyList_GetItem(initcodes, i);
             if(!item) return NULL;
-            char *code = PyString_AsString(item);
+            const char *code = PyStr_AsString(item);
             if(!code) return NULL;
             result = pinterp->read(code);
             if(!RESULT_OK) goto out_error;
@@ -812,7 +831,7 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
     if(!PyArg_ParseTuple(o, "i", &err)) return nullptr;
     pinterp->error_text(err, savedError, LINELEN);
-    return PyString_FromString(savedError);
+    return PyStr_FromString(savedError);
 }
 
 static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
@@ -1046,14 +1065,23 @@ static PyMethodDef gcode_methods[] = {
     {NULL}
 };
 
-PyMODINIT_FUNC
-initgcode(void) {
-    PyObject *m = Py_InitModule3("gcode", gcode_methods,
-                "Interface to EMC rs274ngc interpreter");
+static struct PyModuleDef gcode_moduledef = {
+    PyModuleDef_HEAD_INIT,                    /* m_base    */
+    "gcode",                                  /* m_name    */
+    "Interface to EMC rs274ngc interpreter",  /* m_doc     */
+    -1,                                       /* m_size    */
+    gcode_methods                             /* m_methods */
+};
+
+MODULE_INIT_FUNC(gcode)
+{
+
+    PyObject *m = PyModule_Create(&gcode_moduledef);
     PyType_Ready(&LineCodeType);
     PyModule_AddObject(m, "linecode", (PyObject*)&LineCodeType);
     PyObject_SetAttrString(m, "MAX_ERROR", PyInt_FromLong(maxerror));
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
+    return m;
 }
 // vim:ts=8:sts=4:sw=4:et:

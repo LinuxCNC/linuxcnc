@@ -1,4 +1,5 @@
-#############################################################################
+#!/usr/bin/python3
+############################################################################
 ##
 ## Copyright (C) 2010 Hans-Peter Jansen <hpj@urpla.net>.
 ## Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
@@ -39,6 +40,7 @@
 ###########################################################################
 
 import os
+import sys
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
@@ -63,38 +65,55 @@ class StyleSheetEditor(QDialog):
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
+        self.styleSheetCombo.setFixedWidth(200)
 
-        self.setWindowTitle('Style SHeet Editor Dialog');
+        self.setWindowTitle('Style Sheet Editor Dialog');
         self.parent = parent
         if PATH:
             self.setPath()
         self.styleSheetCombo.currentIndexChanged.connect(self.selectionChanged)
+        self.preferencePath = 'DEFAULT'
 
     def load_dialog(self):
+        if WIDGETS.PREFS_:
+            path =  WIDGETS.PREFS_.getpref('style_QSS_Path', 'DEFAULT' , str, 'BOOK_KEEPING')
+            self.preferencePath = path
+            self.loadedItem.setData( path, role = QtCore.Qt.UserRole + 1)
+            self.styleSheetCombo.setToolTip('<b>{}</b>'.format(path))
         self.origStyleSheet = self.parent.styleSheet()
         self.styleTextView.setPlainText(self.origStyleSheet)
         self.show()
         self.activateWindow()
 
+    # keep areference to loadedItem because the path will be added when the
+    # dialog is shown.
+    # Model holds a title and a path
+    # search in the builtin folder for the screen and
+    # in the users's config directory
     def setPath(self):
-        self.styleSheetCombo.addItem('Default')
         model = self.styleSheetCombo.model()
+        self.loadedItem = QtGui.QStandardItem('As Loaded')
+        self.loadedItem.setData( 'As Loaded', role = QtCore.Qt.UserRole + 1)
+        model.appendRow(self.loadedItem)
+        item = QtGui.QStandardItem('None')
+        item.setData( 'None', role = QtCore.Qt.UserRole + 1)
+        model.appendRow(item)
         # check for default qss from qtvcp's default folders
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
             BNAME = PATH.BASENAME
         else:
-            DIR =PATH.PANELDIR
+            DIR = PATH.PANELDIR
             BNAME = PATH.BASENAME
         qssname = os.path.join(DIR, BNAME)
         try:
             fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
             for i in(fileNames):
                 item = QtGui.QStandardItem(i)
-                item.setData(qssname, role = QtCore.Qt.UserRole + 1)
+                item.setData(os.path.join(qssname, i), role = QtCore.Qt.UserRole + 1)
                 model.appendRow(item)
         except Exception as e:
-            print e
+            print(e)
 
         # check for qss in the users's config folder 
         localqss = PATH.CONFIGPATH
@@ -102,19 +121,16 @@ class StyleSheetEditor(QDialog):
             fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
             for i in(fileNames):
                 item = QtGui.QStandardItem(i)
-                item.setData(localqss, role = QtCore.Qt.UserRole + 1)
+                item.setData(os.path.join(localqss, i), role = QtCore.Qt.UserRole + 1)
                 model.appendRow(item)
         except Exception as e:
-            print e
+            print(e)
 
     def selectionChanged(self,i):
         path = self.styleSheetCombo.itemData(i,role = QtCore.Qt.UserRole + 1)
         name = self.styleSheetCombo.itemData(i,role = QtCore.Qt.DisplayRole)
-        if name == 'Default':
-            sheetName = name
-        else:
-            sheetName = os.path.join(path, name)
-        self.loadStyleSheet(sheetName)
+        self.styleSheetCombo.setToolTip('<b>{}</b>'.format(path))
+        self.loadStyleSheet(path)
 
     @pyqtSlot()
     def on_styleTextView_textChanged(self):
@@ -122,10 +138,19 @@ class StyleSheetEditor(QDialog):
 
     @pyqtSlot()
     def on_applyButton_clicked(self):
+        self.parent.setStyleSheet("")
         if self.tabWidget.currentIndex() == 0:
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
+            if WIDGETS.PREFS_:
+                index = self.styleSheetCombo.currentIndex()
+                path = self.styleSheetCombo.itemData(index,role = QtCore.Qt.UserRole + 1)
+                WIDGETS.PREFS_.putpref('style_QSS_Path', path , str, 'BOOK_KEEPING')
         else:
-           self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
+            self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
+
+        # styles can have affect on the dialog widgets
+        # make sure one can still read the combo box
+        self.styleSheetCombo.setFixedWidth(200)
 
     @pyqtSlot()
     def on_openButton_clicked(self):
@@ -133,22 +158,26 @@ class StyleSheetEditor(QDialog):
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
         else:
-            DIR =PATH.PANELDIR
-        print DIR
+            DIR = PATH.PANELDIR
         dialog.setDirectory(DIR)
         fileName, _ = dialog.getOpenFileName()
         if fileName:
             file = QFile(fileName)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            try:
+            if sys.version_info.major > 2:
+                styleSheet = str(styleSheet, encoding='utf8')
+            else:
                 # Python v2.
                 styleSheet = unicode(styleSheet, encoding='utf8')
-            except NameError:
-                # Python v3.
-                styleSheet = str(styleSheet, encoding='utf8')
+
 
             self.styleTextView.setPlainText(styleSheet)
+            model = self.styleSheetCombo.model()
+            item = QtGui.QStandardItem(os.path.basename(fileName))
+            item.setData( fileName, role = QtCore.Qt.UserRole + 1)
+            model.appendRow(item)
+            self.styleSheetCombo.setCurrentIndex(self.styleSheetCombo.count()-1)
 
     @pyqtSlot()
     def on_saveButton_clicked(self):
@@ -177,7 +206,14 @@ class StyleSheetEditor(QDialog):
             self.styleTextEdit.insertPlainText(Color)
 
     def loadStyleSheet(self, sheetName):
-        if not sheetName == 'Default':
+        if sheetName == 'None':
+            self.styleTextView.setPlainText('')
+            styleSheet = ''
+            self.styleTextView.setPlainText(styleSheet)
+            return
+        if sheetName == 'As Loaded':
+            styleSheet = self.origStyleSheet
+        else:
             if PATH.IS_SCREEN:
                 DIR = PATH.SCREENDIR
                 BNAME = PATH.BASENAME
@@ -188,15 +224,11 @@ class StyleSheetEditor(QDialog):
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            try:
-                # Python v2.
-                styleSheet = unicode(styleSheet, encoding='utf8')
-            except NameError:
+            if sys.version_info.major > 2:
                 # Python v3.
                 styleSheet = str(styleSheet, encoding='utf8')
-        else:
-            styleSheet = self.origStyleSheet
-
+            else:
+                styleSheet = str(styleSheet)
         self.styleTextView.setPlainText(styleSheet)
 
     def saveStyleSheet(self, fileName):

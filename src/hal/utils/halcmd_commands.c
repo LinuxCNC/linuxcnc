@@ -43,6 +43,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
+#include <rtapi_string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,6 +241,15 @@ int do_unlinkp_cmd(char *pin)
         halcmd_error("unlink failed\n");
     }
     return retval;
+}
+
+int do_set_debug_cmd(char* level){
+    int new_level = atoi(level);
+    if (new_level < 0 || new_level > 5){
+        halcmd_error("Debug level must be >=0 and <= 5\n");
+        return -EINVAL;
+    }
+    return rtapi_set_msg_level(atoi(level));
 }
 
 int do_source_cmd(char *hal_filename) {
@@ -1262,7 +1272,7 @@ int do_unloadusr_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 0 && comp->pid != ourpid) {
+	if ( comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
 	    /* found a userspace component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, send it SIGTERM */
@@ -1294,7 +1304,7 @@ int do_unloadrt_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -1375,17 +1385,17 @@ int do_unload_cmd(char *mod_name) {
         return do_unloadrt_cmd(mod_name);
     } else {
         hal_comp_t *comp;
-        int type = -1;
+        component_type_t type = COMPONENT_TYPE_UNKNOWN;
         rtapi_mutex_get(&(hal_data->mutex));
         comp = halpr_find_comp_by_name(mod_name);
         if(comp) type = comp->type;
         rtapi_mutex_give(&(hal_data->mutex));
-        if(type == -1) {
+        if(type == COMPONENT_TYPE_UNKNOWN) {
             halcmd_error("component '%s' is not loaded\n",
                 mod_name);
             return -1;
         }
-        if(type == 1) return do_unloadrt_cmd(mod_name);
+        if(type == COMPONENT_TYPE_REALTIME) return do_unloadrt_cmd(mod_name);
         else return do_unloadusr_cmd(mod_name);
     }
 }
@@ -1590,7 +1600,7 @@ int do_waitusr_cmd(char *comp_name)
 	halcmd_info("component '%s' not found or already exited\n", comp_name);
 	return 0;
     }
-    if (comp->type != 0) {
+    if (comp->type != COMPONENT_TYPE_USER) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("'%s' is not a userspace component\n", comp_name);
 	return -EINVAL;
@@ -1630,16 +1640,16 @@ static void print_comp_info(char **patterns)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( match(patterns, comp->name) ) {
-            if(comp->type == 2) {
+            if(comp->type == COMPONENT_TYPE_OTHER) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
                 halcmd_output("    INST %s %s",
                         comp1 ? comp1->name : "(unknown)", 
                         comp->name);
             } else {
                 halcmd_output(" %5d  %-4s  %-*s",
-                    comp->comp_id, (comp->type ? "RT" : "User"),
+                    comp->comp_id, (comp->type == COMPONENT_TYPE_REALTIME) ? "RT" : "User",
                     HAL_NAME_LEN, comp->name);
-                if(comp->type == 0) {
+                if(comp->type == COMPONENT_TYPE_USER) {
                         halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
                                 "ready" : "initializing");
                 } else {
@@ -1932,7 +1942,12 @@ static void print_thread_info(char **patterns)
             hal_sig_t *sig;
             void *dptr;
   
-            snprintf(name, sizeof(name), "%s.time",tptr->name);
+            size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+            if (ret >=  sizeof(name)){
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "unexpected: pin name too long for buffer %s",tptr->name);
+            } else {
+
             pin = halpr_find_pin_by_name(name);
             if (pin) {
                 if (pin->signal != 0) {
@@ -1953,6 +1968,7 @@ static void print_thread_info(char **patterns)
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      "unexpected: cannot find time pin for %s thread",tptr->name);
+            }
             }
 
 
@@ -2479,7 +2495,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             ncomps ++;
         }
 	next = comp->next_ptr;
@@ -2489,7 +2505,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             *compptr++ = SHMPTR(next);
         }
 	next = comp->next_ptr;
@@ -2913,6 +2929,16 @@ int do_help_cmd(char *command)
 	printf("  'type' is 'lock', 'mem', or 'all'. \n");
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
+    } else if (strcmp(command, "debug")==0){
+    printf("debug [level]\n");
+    printf("   set the messaging level for the realtime API (calls rtapi_set_msg_level)\n");
+    printf("   levels are \n");
+    printf("   0 = None\n");
+	printf("   1 = Errors only (default)\n");
+	printf("   2 = Warnings and above\n");
+	printf("   3 = Info and above\n");
+	printf("   4 = Debug and above\n");
+	printf("   5 = All messages\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type] [filename]\n");
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
@@ -2991,6 +3017,7 @@ static void print_help_commands(void)
     printf("  list                Display names of HAL objects\n");
     printf("  source              Execute commands from another .hal file\n");
     printf("  status              Display status information\n");
+    printf("  debug               Set the rtapi message level\n");
     printf("  save                Print config as commands\n");
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");

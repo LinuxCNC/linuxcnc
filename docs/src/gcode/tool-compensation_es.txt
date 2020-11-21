@@ -1,0 +1,295 @@
+﻿:lang:es
+
+[[cha:herramienta-compensación]]
+
+= Compensación de herramientas
+
+== Compensación de longitud de herramienta
+
+=== Touch Off (((Touch Off)))
+
+Usando Touch Off en la interfaz AXIS puede actualizar la
+tabla de herramientas de forma automática.
+
+Los pasos típicos para actualizar la tabla de herramientas son:
+
+* Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
+* Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y
+   medida.
+* Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón
+   Fin en su teclado).
+* Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
+* Ingrese el valor calibrado o la dimensión medida y seleccione OK.
+
+La tabla de herramientas se cambiará con la longitud Z correcta para que el
+DRO muestre la posición Z correcta y se emitirá un comando G43 para
+para que la longitud Z de la nueva herramienta esté vigente. Touch Off de la tabla de herramientas solo
+está disponible cuando una herramienta se carga con 'Tn M6'.
+
+.Touch Off de tabla de herramientas
+
+image::images/ToolTable-TouchOff.png[align="center", alt="Touch Off de Tabla de herramientas"]
+
+=== Usando G10 L1/L10/L11
+
+Los comandos G10 L1/L10/L11 se pueden usar para establecer las compensaciones de la tabla de herramientas:
+
+* 'G10 L1 Pn' -  Establece los offsets en un valor. Posición actual irrelevante.
+                      (vea <<gcode:g10-l1,G10 L1>> para más detalles)
+
+* 'G10 L10 Pn' - Establece los offsets de modo que la posición actual respecto a fijaciones 1-8 se convierta en un valor.
+                      (vea <<gcode:g10-l10,G10 L10>> para más detalles)
+
+* 'G10 L11 Pn' - Establece los offsets de modo que la posición actual respecto a fijacion 9 se convierta en un valor.
+                      (vea <<gcode:g10-l11,G10 L11>> para más detalles)
+
+[[sec:tool-table]]
+
+== Tabla de herramientas
+
+
+La 'Tabla de herramientas' es un archivo de texto que contiene información sobre cada
+herramienta. El archivo está ubicado en el mismo directorio que su configuración
+y se llama 'tool.tbl'. Las herramientas pueden estar en un cambiador de herramientas o simplemente
+ser cambiadas manualmente. El archivo puede editarse con un editor de texto o ser
+actualizado con G10 L1. Vea la sección <<sec:lathe-tool-table, tabla de herramientas de torno>>
+para un ejemplo del formato de tabla de herramientas de torno.
+El número máximo de entradas en la tabla de herramientas es 1000.
+El número máximo de herramienta y de ranura es 99999.
+
+<<cha:tooledit-gui,Tool Editor>> o un editor de texto se pueden usar para editar la
+tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a cargar la tabla en la GUI
+
+=== Formato de tabla de herramientas
+(((Tool-Table-Format)))
+
+.Formato de tabla de herramientas
+
+[width="100%", options="header"]
+|====
+|T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |AF |AP |Ori |Com
+|; 15+^|(sin datos después de punto y coma)
+|T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;com
+|T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;com
+|T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;com
+|====
+
+En general, el nuevo formato de línea de la tabla de herramientas es:
+
+ -; - punto y coma de apertura, sin datos
+ - T - número de herramienta, 0-99999 (los números de herramienta deben ser únicos)
+ - P - número de ranura, 1-99999 (los números de ranura deben ser únicos)
+ - X..W - offset de herramienta en el eje especificado - punto flotante
+ - D - diámetro de la herramienta - coma flotante, valor absoluto
+ - I - ángulo frontal (solo torno) - punto flotante
+ - J - ángulo posterior (solo torno) - punto flotante
+ - Q - orientación de la herramienta (solo torno) - entero, 0-9
+ - ; - comienzo del comentario o anotacion - texto
+
+El archivo consta de un punto y coma de apertura en la primera línea,
+seguido de hasta un máximo de 1000 entradas de herramientas.
+
+[NOTE]
+Aunque se permiten números de herramienta hasta 99999, el número de entradas en
+la tabla de herramientas, por el momento, todavía está limitada a un máximo de 1000 herramientas por
+razones técnicas. Los desarrolladores de LinuxCNC planean eliminar esa limitación.
+Si tiene un cambiador de herramientas muy grande, sea paciente.
+
+Las versiones anteriores de LinuxCNC tenían dos formatos de tabla de herramientas diferentes para
+fresadoras y tornos, pero desde la versión 2.4.x, el mismo formato de tabla de herramientas
+se utiliza para todas las máquinas. Simplemente ignore las partes de la tabla de herramientas
+que no pertenecen a su máquina, o que no necesita usar.
+
+Cada línea del archivo de tabla de herramientas después del punto y coma de apertura contiene
+los datos para una herramienta. Una línea puede contener hasta 16 entradas,
+pero probablemente contendrá muchas menos.
+
+Las unidades utilizadas para la longitud, diámetro, etc., están en unidades de máquina.
+
+Probablemente desee mantener las entradas de la herramienta en orden ascendente,
+especialmente si va a usar un cambiador de herramientas aleatorio,
+aunque la tabla de herramientas permite números de herramienta en cualquier orden.
+
+Cada línea puede tener hasta 16 entradas. Se requieren las dos primeras entradas.
+La última entrada (un comentario o anotación, precedido por un punto y coma) es
+opcional. La lectura se facilita si las entradas están organizadas en
+columnas, como se muestra en la tabla, pero el único requisito de formato es
+que haya al menos un espacio o tabulador después de cada una de las entradas en
+una línea y un carácter de nueva línea al final de cada entrada.
+
+Los significados de las entradas y el tipo de datos que se colocarán en cada uno son
+como sigue:
+
+.Número de herramienta (requerido)
+La columna 'T' contiene el número (entero sin signo) que
+representa un número de código para la herramienta. El usuario puede usar cualquier código para
+cualquier herramienta, siempre que los códigos sean enteros sin signo.
+
+.Número de ranura (requerido)
+La columna 'P' contiene el número (entero sin signo) que
+representa el número de ranura del cambiador de herramientas
+donde se puede encontrar la herramienta. Las entradas en esta columna deben ser todas
+diferentes.
+
+Los números de ranura generalmente comenzarán en 1 y subirán hasta la ranura más alta
+disponible en su cambiador de herramientas. Pero no todos los cambiadores de herramientas siguen
+este patrón. Sus números de ranura serán determinados por los números.
+que su cambiador de herramientas utiliza para referirse a las ranuras. Por tanto,
+los números de ranura que use estarán determinados por el esquema de numeración
+utilizado en su cambiador de herramientas, y los números de ranura que usa deben
+tener sentido en su máquina.
+
+.Números de datos de offsets (opcional)
+Las columnas 'Datos de Offset' (XYZABCUVW) contienen números reales que
+representar los offsets de herramientas en cada eje. Este número se usará si la herramienta
+utiliza offset de longitud y está seleccionada.
+Estos números pueden ser positivos, cero o negativos, y de hecho son
+completamente opcionales. Aunque probablemente querrá hacer al menos
+una entrada aquí, de lo contrario no tendría mucho sentido hacer un
+entrada en la tabla de herramientas para empezar.
+
+En una fresadora típica, probablemente desee una entrada para Z (offset de longitud de la herramienta).
+En un torno típico, probablemente desee una entrada para X
+(offset de herramienta X) y Z (offset de herramienta Z). En una fresadora típica usando
+compensación del diámetro del cortador (comp. del cortador), probablemente también desee
+agregar una entrada para D (diámetro del cortador). En un torno típico usando
+compensación del diámetro de la punta de la herramienta (comp. herramienta), probablemente también desee
+agregar una entrada para D (diámetro de la punta de la herramienta).
+
+Un torno también requiere información adicional para describir la forma y
+orientación de la herramienta. Probablemente desee tener entradas para I (
+ángulo frontal) y J (ángulo posterior) de la herramienta. Probablemente también desee una entrada para Q
+(orientación de la herramienta).
+
+Vea el capítulo <<cha:lathe-user-information, Información del usuario de torno>> para
+mas detalles.
+
+La columna 'Diámetro' contiene un número real. Este número solo se usa
+si la compensación del cortador está activada con esta herramienta. Si
+la ruta programada durante la compensación es el borde del material que se está
+cortando, este debe ser un número real positivo que represente la medida del
+diámetro de la herramienta. Si la ruta programada durante la compensación es la
+trayectoria de una herramienta cuyo diámetro es nominal, este debe ser un número pequeño
+(positivo o negativo, pero cercano a cero) que representa solo la diferencia
+entre el diámetro medido de la herramienta y el diámetro nominal.
+Si la compensación del cortador no se usa con una herramienta, no
+importa qué número hay en esta columna.
+
+La columna 'Comentario' puede usarse opcionalmente para describir la herramienta. Cualquier
+tipo de descripción estará bien. Esta columna es solo para lectores humanos.
+El comentario debe ir precedido de un punto y coma.
+
+[[sec:tool-changers]]
+
+=== Cambiadores de herramientas
+
+LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
+y 'ubicación fija'. Información sobre la configuración de un cambiador de herramientas LinuxCNC
+está en la <<sec:emcio-section,Sección EMCIO>> del capítulo INI.
+
+.Cambiador de herramientas manual
+
+El cambiador manual de herramientas (cambiar la herramienta a mano) se trata como un
+cambiador de herramienta de ubicación fija y el número P se ignora. Utilizar
+el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que
+permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia
+preservando así la ubicación de la herramienta en el husillo. Máquinas con R-8
+o los portaherramientas de tipo collar de enrutadores no conservan la ubicación de
+la herramienta y el cambiador de herramientas manual no debe usarse.
+
+.Cambiadores de herramientas de ubicación fija
+
+Los cambiadores de herramientas de ubicación fija siempre devuelven las herramientas a una
+posición fija en el cambiador de herramientas. Esto también incluiría
+diseños como torretas de torno. Cuando LinuxCNC está configurado para un
+cambiador de herramientas de ubicación fija se ignora el número 'P' (pero se lee, se conserva
+y se reescribe), por lo que puede usar P para cualquier número que quiera.
+
+.Cambiadores de herramientas de ubicación aleatoria.
+
+Los cambiadores de herramientas de ubicación aleatoria intercambian la herramienta en el eje con
+una del cambiador. Con este tipo de cambiador de herramientas, la herramienta
+siempre esta en un ranura diferente después de un cambio de herramienta. Cuando una herramienta se cambia,
+LinuxCNC reescribe el número de ranura para realizar un seguimiento de dónde están las herramientas.
+T puede ser cualquier número pero P debe ser un número que tenga sentido para la máquina.
+
+[[sec:cutter-compensation]]
+
+== Compensación del cortador
+
+La compensación de cortador permite al programador programar la trayectoria de la herramienta
+sin conocer el diámetro exacto de la misma. La única advertencia es que
+el programador debe programar el movimiento de entrada para que sea al menos tan largo como el
+radio de herramienta más grande que podría usarse.
+
+Hay dos caminos posibles que el cortador puede tomar segun
+la compensación esté en el lado izquierdo o derecho de una línea en la
+dirección del movimiento vista desde detrás del cortador. Para visualizar esto,
+imagine que está subido en la pieza caminando detrás de la herramienta mientras
+progresa su corte. G41 es su lado izquierdo de la línea y G42
+es el lado derecho de la línea.
+
+El punto final de cada movimiento depende del siguiente movimiento. Si el siguiente movimiento
+crea una esquina exterior, el movimiento será hasta el punto final de la
+línea de corte compensada. Si el siguiente movimiento crea una esquina interior el
+el movimiento se detendrá brevemente para no dañar la pieza. La siguiente figura
+muestra cómo el movimiento compensado se detendrá en diferentes puntos dependiendo
+del próximo movimiento
+
+.Punto final de compensación
+
+image::images/comp-path_en.svg[align="center", alt="Punto final de compensación"]
+
+=== Descripción general
+
+.Tabla de herramientas
+
+La compensación del cortador utiliza los datos de la tabla de herramientas para
+determinar el desplazamiento necesario. Los datos se pueden configurar en tiempo de ejecución con G10
+L1
+
+.Programación de movimientos de entrada
+
+Cualquier movimiento que sea lo suficientemente largo como para realizar la compensación funcionará como
+movimiento de entrada. La longitud mínima es el radio de corte. Esto puede ser un
+movimiento rápido sobre la pieza de trabajo. Si se emiten varios movimientos rápidos
+después de un G41/42 solo el último moverá la herramienta a la posición compensada.
+
+En la siguiente figura puede ver que el movimiento de entrada se compensa
+a la derecha de la línea. Esto coloca el centro de la herramienta a la derecha
+de X0 en este caso. Si tuviera que programar un perfil y el final está en
+X0, el perfil resultante dejaría una protuberancia debido al offset del
+movimiento de entrada.
+
+.Movimiento de entrada
+
+image::images/comp02_en.svg[alt="Movimiento de entrada"]
+
+.Movimientos Z
+
+El movimiento del eje Z puede tener lugar mientras se sigue el contorno en
+el plano XY. Se pueden omitir partes del contorno retrayendo el
+eje Z sobre la pieza y extendiendo el eje Z en el siguiente punto de inicio.
+
+.Movimientos rápidos
+
+Se pueden programar movimientos rápidos mientras la compensación está activada.
+
+.Buenas practicas
+
+ - Inicie un programa con G40 para asegurarse de que la compensación esté desactivada.
+
+=== Ejemplos
+
+.Perfil externo
+
+.Perfil externo
+
+image::images/outside-comp.png[alt="Perfil externo"]
+
+.Perfil interno
+
+.Perfil interno
+
+image::images/inside-comp.png[alt="Perfil interno"]
+

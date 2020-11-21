@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 '''
 M190
@@ -25,29 +25,33 @@ import time
 
 from subprocess import Popen,PIPE
 
-materialnum = int(float(sys.argv[1]))
+materialNum = int(float(sys.argv[1]))
+timeout = 0.5
 
 def get_material():
     return int(Popen(['halcmd getp plasmac_run.material-change-number'], stdout=PIPE, shell=True).communicate()[0].strip())
 
-def get_change():
-    return int(Popen(['halcmd getp plasmac_run.material-change'], stdout=PIPE, shell=True).communicate()[0].strip())
-
 def set_material(material):
     Popen(['halcmd setp plasmac_run.material-change-number %d' %(material)], shell=True)
+
+def get_change():
+    return int(Popen(['halcmd getp plasmac_run.material-change'], stdout=PIPE, shell=True).communicate()[0].strip())
 
 def set_change(value):
     Popen(['halcmd setp plasmac_run.material-change %d' %(value)], shell=True)
 
-set_change(0)
-if materialnum != get_material():
-    set_material(materialnum)
-    start = time.time()
-    while get_change() == 0:
-        if time.time() > start + 3:
-            print("T{}: timeout waiting for material-change".format(materialnum))
-            break
-    if get_change() < 0:
-        print("Material #{}: does not exist".format(materialnum))
+def set_timeout():
+    Popen(['halcmd setp plasmac_run.material-change-timeout 1'], shell=True)
+
+set_change(1)
+start = time.time()
+# if material already loaded set a phantom material
+if materialNum == get_material():
+    materialNum = materialNum * -1
+set_material(materialNum)
+while get_change() == 1:
+    if time.time() > start + timeout:
+        set_timeout()
+        break
 set_change(0)
 exit()

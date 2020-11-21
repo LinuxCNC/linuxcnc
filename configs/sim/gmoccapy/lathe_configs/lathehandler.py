@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    savestate.py copyright 2013 Andy Pugh

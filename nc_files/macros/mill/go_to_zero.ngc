@@ -1,0 +1,18 @@
+; MACROCOMMAND=
+; MACRODEFAULTS=
+; MACROIMAGE=go_to_zero.png
+; will jog the machine to zero
+
+o<go_to_zero> sub
+
+ o<100> if [#5422 LT 0]
+   G0 Z0
+   G0 X0 Y0
+ o<100> else if [#5422 GE 0]
+   G0 X0 Y0
+   G0 Z0
+ o<100> endif
+
+o<go_to_zero> endsub
+
+M2

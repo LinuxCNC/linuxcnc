@@ -1,4 +1,4 @@
-/** This file, 'halsc_trig.c', contains the portion of halscope
+/** This file, 'scope_trig.c', contains the portion of halscope
     that deals with triggering
 */
 

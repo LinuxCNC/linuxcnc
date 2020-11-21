@@ -263,7 +263,7 @@ char* sockGetError(void)
 
   err = WSAGetLastError();
 
-  sprintf(retString, "Error code %ld: ", err);
+  snprintf(retString, sizeof(retString), "Error code %ld: ", err);
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
                 FORMAT_MESSAGE_FROM_SYSTEM | 
                 FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -306,7 +306,7 @@ int sockPrintfError(int fd, const char *format, .../*args*/ )
   va_list ap;
   int size = 0;
 
-  strncpy(buf, huh, sizeof(huh)); // note: sizeof(huh) < MAXMSG
+  strncpy(buf, huh, sizeof(buf));
 
   va_start(ap, format);
   size = vsnprintf(buf + (sizeof(huh)-1), sizeof(buf) - (sizeof(huh)-1), format, ap);

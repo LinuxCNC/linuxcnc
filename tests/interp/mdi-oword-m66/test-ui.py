@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import linuxcnc_util
@@ -46,17 +46,17 @@ c.mdi("O<obug> call [0]")
 c.wait_complete()
 s.poll()
 if s.position[0] != 0:
-    print "ended at wrong location (did O-call terminate with error?)"
+    print("ended at wrong location (did O-call terminate with error?)")
     sys.exit(1)
 
 c.mdi("O<obug> call [1]")
 c.wait_complete()
 s.poll()
 if abs(s.position[0] - 1) > 1e-5:
-    print "ended at wrong location (did O-call terminate with error?)"
-    print s.position
+    print("ended at wrong location (did O-call terminate with error?)")
+    print(s.position)
     sys.exit(1)
-print "done! it all worked"
+print("done! it all worked")
 
 # if we get here it all worked!
 sys.exit(0)

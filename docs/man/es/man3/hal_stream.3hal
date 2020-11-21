@@ -1,0 +1,213 @@
+.TH hal_stream "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.de FU
+.sp
+.ti -4
+\\$*
+..
+.de FF
+.br
+.ti -4
+\\$*
+..
+.SH NOMBRE
+
+hal_stream \ - streams en tiempo real sin bloqueo
+
+.SH SINOPSIS
+
+.FU .B #include <hal.h>
+.FU int hal_stream_create(hal_stream_t *stream, int comp_id, int key, int depth, const char *typestring);
+.FF void hal_stream_destroy(hal_stream_t *stream);
+.FF int hal_stream_attach(hal_stream_t *stream, int comp_id, int key, const char *typestring);
+.FF int hal_stream_detach(hal_stream_t *stream);
+
+.FU int hal_stream_element_count(hal_stream_t *stream);
+.FF hal_type_t hal_stream_element_type(hal_stream_t *stream, int idx);
+.FF int hal_stream_depth(hal_stream_t *stream);
+.FF int hal_stream_maxdepth(hal_stream_t *stream);
+.FF int hal_stream_num_underruns(hal_stream_t *stream);
+.FF int hal_stream_num_overruns(hal_stream_t *stream);
+
+.FU int hal_stream_read(hal_stream_t *stream, union hal_stream_data *buf, unsigned *sampleno);
+.FF bool hal_stream_readable(hal_stream_t *stream);
+
+.FU int hal_stream_write(hal_stream_t *stream, union hal_stream_data *buf);
+.FF bool hal_stream_writable(hal_stream_t *stream);
+
+.FU .B #ifdef ULAPI
+.FF void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
+.FF void hal_stream_wait_readable(hal_stream_t *stream, sig_atomic_t *stop);
+.FF .B #endif
+
+
+.SH DESCRIPCIÓN
+Un stream HAL proporciona una capacidad limitada para que dos componentes se comuniquen datos que no se
+ajustan al modelo de pines HAL. Un lector y un escritor deben acordar una
+.I clave
+(Identificador entero de 32 bits) y una estructura de datos especificada por
+.I typestring
+. También deben acordar qué componente (el primero cargado)
+será
+.B hal_stream_create
+y qué componente (el segundo cargado)
+.B hal_stream_attach
+a la secuencia ya creada.
+
+La parte del espacio de usuario puede ser
+.BR halstreamer " o " halsampler.
+En el caso de
+.B halstreamer
+la clave es 0x48535430 más el número de canal. En el caso de
+.B halsampler
+la clave es 0x48534130 más el número de canal.
+
+.SS \fBhal_stream_create\fR
+Crea el flujo dado, inicializando el \fIstream\fR que se pasa por
+referencia. Si es un error no diagnosticado si ya se ha creado una secuencia con la misma \fIkey\fR.
+
+.SS \fBhal_stream_destroy\fR
+Destruye el stream dado. Es un error no diagnosticado si el stream todavía está conectada por otro 
+componente. Es un error no diagnosticado si la secuencia se adjuntó con
+.B hal_stream_attach
+en lugar de creado con
+.BR hal_stream_create.
+Es un error no diagnosticado si la llamada a
+.B hal_stream_destroy
+se omite.
+
+.SS \fBhal_stream_attach\fR
+Adjunta la secuencia dada, que ya fue creada por
+.BR hal_stream_create.
+Si se especifica typestring, esta llamada falla si no coincide con la cadena de texto con la que se creó la secuencia. Si el argumento typetring es NULL,
+entonces se acepta cualquier typestring.
+
+.SS \fBhal_stream_detach\fR
+Separa la secuencia dada. Es un error no diagnosticado si la secuencia se creó con
+.B hal_stream_create
+en lugar de adjuntarla con
+.BR hal_stream_attach.
+Es un error no diagnosticado si la llamada a
+.B hal_stream_detach
+se omite.
+
+.SS \fBhal_stream_element_count\fR
+Devuelve el número de pines.
+
+.SS \fBhal_stream_element_type\fR
+Devuelve el tipo del número de pin dado.
+
+.SS \fBhal_stream_readable\fR
+Devuelve verdadero si la secuencia tiene al menos una muestra para leer
+.SS \fBhal_stream_read\fR
+Si la secuencia tiene una muestra para leer, la almacena en buf.
+.SS \fBhal_stream_writable\fR
+Devuelve true si la secuencia tiene espacio para que se escriba al menos una muestra.
+.SS \fBhal_stream_depth\fR
+Devuelve el número de muestras que esperan ser leídas.
+.SS \fBhal_stream_maxdepth\fR
+Devuelve el argumento
+.B depth
+con el que se creó la secuencia.
+.SS \fBhal_stream_num_overruns\fR
+Devuelve un número que se incrementa cada vez que
+.B hal_stream_write
+se llama sin espacio disponible.
+.SS \fBhal_stream_num_underruns\fR
+Devuelve un número que se incrementa cada vez que
+.B hal_stream_read
+se llama sin una muestra disponible.
+
+.SS \fBhal_stream_wait_readable\fR
+Espera hasta que la stream sea legible o se establezca el indicador de detención.
+
+.SS \fBhal_stream_wait_writable\fR
+Espera hasta que la stream se pueda escribir o se establezca el indicador de detención.
+
+.SS \fBhal_stream_read\fR
+Lee un registro desde la stream. Si tiene éxito, se almacena
+en el búfer dado. Opcionalmente, se puede recuperar el número de muestra.
+Si no hay muestra disponible,
+.I num_underruns
+se incrementa. Es un error no detectado si más de un componente o
+funciones en tiempo real llaman a 
+.B hal_stream_read
+concurrentemente
+
+.SS \fBhal_stream_write\fR
+Escribe un registro en la stream. Si tiene éxito, se copió del buffer dado. Si no hay espacio disponible,
+.I num_overruns
+se incrementa. En cualquier caso, el valor interno
+.I sampleno
+se incrementa.
+Es un error no detectado si más de un componente o
+funciones en tiempo real llaman a 
+.B hal_stream_write
+concurrentemente
+
+.SH ARGUMENTOS
+.IP \fIstream\fR
+Un puntero a un objeto stream. En el caso de
+.BR hal_stream_create " y " hal_stream_attach
+esta es una stream no inicializada; en otros casos, debe ser una stream
+creada o adjuntada por una llamada anterior y aún no separada o destruida.
+
+.IP \fIhal_id\fR
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+
+.IP \fIkey\fR
+La clave para el segmento de memoria compartida.
+
+.IP \fIdepth\fR
+El número de muestras que pueden no leerse antes de que se pierdan muestras (desbordamiento)
+
+.IP \fItypestring\fR
+Una typestring es una cadena que no distingue entre mayúsculas y minúsculas que consta de uno o más de los siguientes tipos de caracteres:
+.RS 4
+.IP B
+para bool / hal_bit_t
+.IP S
+para int32_t / hal_s32_t
+.IP U
+para uint32_t / hal_u32_t
+.IP F
+para real_t / hal_float_t
+.RE
+Una typestring está limitada a 16 caracteres.
+.IP \fIbuf\fR
+Un búfer lo suficientemente grande como para contener todos los datos en una muestra.
+
+.IP \fIsampleno\fR
+Si no es NULL, el último número de muestra se almacena aquí. Brechas en esta secuencia indican que se produjo un desbordamiento entre la lectura anterior y esta. Si es NULL, el número de muestra no se recupera.
+
+.IP \fIstop\fR
+Puntero a un valor que se supervisa mientras espera. Si no es cero,
+la operación de espera vuelve pronto. Esto permite que una llamada en espera sea terminada en forma segura en el caso de una señal.
+
+.SH CÓDIGO DE MUESTRA
+En el árbol fuente debajo
+.IR src/hal/components ,
+.BR sampler.c " y " streamer.c
+hay componentes en tiempo real que leen y escriben streams hal.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+.BR hal_stream_read ", " hal_stream_readable ", " hal_stream_write ", " hal_stream_writable ", " hal_stream_element_count ", " hal_tream_pin_type ", " hal_stream_depth ", " hal_stream_maxdepth ", " hal_stream_num_underruns ", " hal_stream_num_underruns ", " hal_stream_num_underruns ", " hal_stream_num_underruns ",
+se pueden llamar desde código en tiempo real.
+
+.BR hal_stream_wait_writable ", " hal_stream_wait_writable
+se puede llamar desde el código ULAPI.
+
+Se pueden invocar otras funciones en cualquier contexto, incluidos los contextos en tiempo real.
+.SH VALOR DEVUELTO
+.BR hal_stream_create ", " hal_stream_attach ", " hal_stream_read ", " hal_stream_write ", " hal_stream_detach "y " hal_stream_destroy " devuelven un código de estado RTAPI. Los valores de retorno de otras funciones se explicaron anteriormente.
+
+.SH ERRORES
+La sobrecarga de memoria de una secuencia puede ser grande. Cada elemento en un registro usa 8 bytes, y el número de muestra implícito también usa 8 bytes. Como resultado, una stream que se usa para transportar valores de 8 bits usa el 94% de su memoria como sobrecarga.
+Sin embargo, para tamaños de stream modestos, esta sobrecarga no es importante. (esta memoria es parte de su propia región de memoria compartida y no cuenta en contra de la región HAL de memoria compartida utilizada para pines, parámetros y señales)
+
+.SH VER TAMBIÉN
+.BR sampler (9),
+.BR streamer (9),
+.BR halsampler (1),
+.BR halstreamer (1)
+
+

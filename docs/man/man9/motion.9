@@ -121,10 +121,11 @@ a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
 \fBmotion.feed\-hold\fR IN BIT
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
+Note: feed-hold applies to gcode commands -- not jogs.
+
 .TP
 \fBmotion.feed\-inhibit\fR IN BIT
-When this pin is TRUE, machine motion is inhibited (this includes jogs,
-programmed feeds, and programmed rapids, aka traverse moves).
+When this pin is TRUE, machine motion is inhibited for gcode commands.
 
 If the machine is performing a spindle synchronized move when this
 pin goes TRUE, the spindle synchronized motion will finish, and any
@@ -136,6 +137,16 @@ when this pin goes TRUE, the machine will decelerate to a stop at the
 maximum allowed acceleration rate.
 
 Motion resumes when this pin goes FALSE.
+
+Note: feed-inhibit applies to gcode commands -- not jogs.
+
+.TP
+\fBmotion.feed\-upm\fR OUT FLOAT
+Current feed rate in machine units per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the program F value multiplied by the current feed override
+value and the motion.adaptive-feed setting (if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.homing\-inhibit\fR IN BIT
@@ -188,7 +199,7 @@ lines while single stepping.
 .TP
 \fBmotion.requested\-vel\fR OUT FLOAT
 The current requested velocity in user units per second.  This value is
-the F-word setting from the G-code file, possibly reduced to accomodate
+the F-word setting from the G-code file, possibly reduced to accommodate
 machine velocity and acceleration limits. The value on this pin does
 not reflect the feed override or any other adjustments.
 

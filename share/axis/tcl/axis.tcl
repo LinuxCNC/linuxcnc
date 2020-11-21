@@ -1250,21 +1250,6 @@ setup_widget_accel $_tabs_mdi.go [_ Go]
 vspace $_tabs_mdi.vs2 \
 	-height 12
 
-label $_tabs_mdi.gcodel
-setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
-
-text $_tabs_mdi.gcodes \
-	-height 2 \
-	-width 40 \
-	-undo 0 \
-	-wrap word
-
-$_tabs_mdi.gcodes insert end {}
-$_tabs_mdi.gcodes configure -state disabled
-
-vspace $_tabs_mdi.vs3 \
-	-height 12
-
 # Grid widget $_tabs_mdi.command
 grid $_tabs_mdi.command \
 	-column 0 \
@@ -1276,19 +1261,6 @@ grid $_tabs_mdi.commandl \
 	-column 0 \
 	-row 3 \
 	-sticky w
-
-# Grid widget $_tabs_mdi.gcodel
-grid $_tabs_mdi.gcodel \
-	-column 0 \
-	-row 6 \
-	-sticky w
-
-# Grid widget $_tabs_mdi.gcodes
-grid $_tabs_mdi.gcodes \
-	-column 0 \
-	-row 7 \
-	-columnspan 2 \
-	-sticky new
 
 # Grid widget $_tabs_mdi.go
 grid $_tabs_mdi.go \
@@ -1318,10 +1290,6 @@ grid $_tabs_mdi.vs2 \
 	-column 0 \
 	-row 5
 
-# Grid widget $_tabs_mdi.vs3
-grid $_tabs_mdi.vs3 \
-	-column 0 \
-	-row 8
 grid columnconfigure $_tabs_mdi 0 -weight 1
 grid rowconfigure $_tabs_mdi 1 -weight 1
 
@@ -1412,6 +1380,18 @@ pack ${pane_bottom}.t.text \
 pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
+
+label ${pane_top}.gcodel
+setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
+
+text ${pane_top}.gcodes \
+	-height 2 \
+	-width 40 \
+	-undo 0 \
+	-wrap word
+
+${pane_top}.gcodes insert end {}
+${pane_top}.gcodes configure -state disabled
 
 frame ${pane_top}.ajogspeed
 label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
@@ -1683,6 +1663,9 @@ grid ${pane_top}.maxvel \
 	-column 0 \
 	-row 7 \
 	-sticky new
+
+grid ${pane_top}.gcodel -column 0 -row 8 -sticky nw
+grid ${pane_top}.gcodes -column 0 -row 9 -sticky new
 
 # Grid widget .info
 grid .info \
@@ -2240,8 +2223,13 @@ proc update_recent {args} {
             -command [list open_file_name $f]
         incr i
     }
+    if {0 != [llength $args]} {
+        .menu.file.recent add separator
+        .menu.file.recent add command \
+                -command clear_recent_files
+        setup_menu_accel .menu.file.recent end [_ "_Clear Recents List"]
+    }
 }
-
 
 bind . <Configure> {
     if {"%W" == "."} {

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -14,32 +14,32 @@ import re
 
 def print_status(status):
     status.poll()
-    print "status.axis[0]:", status.axis[0]
-    print "status.axis[1]:", status.axis[1]
-    print "status.joint[0]:", status.joint[0]
-    print "status.joint[1]:", status.joint[1]
-    print "status.current_vel:", status.current_vel
-    print "status.echo_serial_number:", status.echo_serial_number
-    print "status.enabled:", status.enabled
-    print "status.estop:", status.estop
-    print "status.exec_state:", status.exec_state
-    print "status.inpos:", status.inpos
-    print "status.interp_state:", status.interp_state
-    print "status.interpreter_errcode:", status.interpreter_errcode
-    print "status.limit:", status.limit
-    print "status.motion_mode:", status.motion_mode
-    print "status.motion_type:", status.motion_type
-    print "status.position:", status.position
-    print "status.state:", status.state
-    print "status.task_mode:", status.task_mode
-    print "status.task_state:", status.task_state
-    print "status.velocity:", status.velocity
+    print("status.axis[0]: {}".format(status.axis[0]))
+    print("status.axis[1]: {}".format(status.axis[1]))
+    print("status.joint[0]: {}".format(status.joint[0]))
+    print("status.joint[1]: {}".format(status.joint[1]))
+    print("status.current_vel: {}".format(status.current_vel))
+    print("status.echo_serial_number: {}".format(status.echo_serial_number))
+    print("status.enabled: {}".format(status.enabled))
+    print("status.estop: {}".format(status.estop))
+    print("status.exec_state: {}".format(status.exec_state))
+    print("status.inpos: {}".format(status.inpos))
+    print("status.interp_state: {}".format(status.interp_state))
+    print("status.interpreter_errcode: {}".format(status.interpreter_errcode))
+    print("status.limit: {}".format(status.limit))
+    print("status.motion_mode: {}".format(status.motion_mode))
+    print("status.motion_type: {}".format(status.motion_type))
+    print("status.position: {}".format(status.position))
+    print("status.state: {}".format(status.state))
+    print("status.task_mode: {}".format(status.task_mode))
+    print("status.task_state: {}".format(status.task_state))
+    print("status.velocity: {}".format(status.velocity))
     sys.stdout.flush()
 
 
 def assert_wait_complete(command):
     r = command.wait_complete()
-    print "wait_complete() returns", r
+    print("wait_complete() returns {}".format(r))
     assert((r == linuxcnc.RCS_DONE) or (r == linuxcnc.RCS_ERROR))
 
 
@@ -79,14 +79,14 @@ c.wait_complete()
 start_time = time.time()
 s.poll()
 all_homed = s.homed[0]+s.homed[1]+s.homed[2]
-while (all_homed is not 3) and (time.time() - start_time < 5):
+while (all_homed != 3) and (time.time() - start_time < 5):
     time.sleep(0.100)
     s.poll()
     all_homed = s.homed[0]+s.homed[1]+s.homed[2]
 
-if all_homed is not 3:
-    print "failed to home"
-    print "s.homed:", s.homed
+if all_homed != 3:
+    print("failed to home")
+    print("s.homed: {}".format(s.homed))
     sys.exit(1)
 
 c.teleop_enable(0)
@@ -108,10 +108,10 @@ while (old_x == s.position[0]) and (time.time() - start_time < 5):
     s.poll()
 
 if old_x == s.position[0]:
-    print "no jog movement"
+    print("no jog movement")
     sys.exit(1)
 
-print "x started moving (%.6f to %.6f)" % (old_x, s.position[0])
+print("x started moving (%.6f to %.6f)" % (old_x, s.position[0]))
 print_status(s)
 
 # verify that Status reflects the situation
@@ -138,14 +138,14 @@ while (time.time() - start_time < 5):
         if error[1] == expected_error:
             break
         else:
-            print "linuxcnc sent other error %d: %s" % (error[0], error[1])
+            print("linuxcnc sent other error %d: %s" % (error[0], error[1]))
     time.sleep(0.1)
 
 if error == None or error[1] != expected_error:
-    print "no limit switch error from LinuxCNC"
+    print("no limit switch error from LinuxCNC")
     sys.exit(1)
 
-print "linuxcnc sent error %d: %s" % (error[0], error[1])
+print("linuxcnc sent error %d: %s" % (error[0], error[1]))
 print_status(s)
 
 # verify that we're stopping
@@ -156,10 +156,10 @@ while (s.joint[0]['velocity'] != 0.0) and (time.time() - start_time < 5):
     s.poll()
 
 if s.joint[0]['velocity'] != 0.0:
-    print "limit switch didn't stop movement"
+    print("limit switch didn't stop movement")
     sys.exit(1)
 
-print "x stopped moving (pos=%.6f, vel=%.6f)" % (s.position[0], s.joint[0]['velocity'])
+print("x stopped moving (pos=%.6f, vel=%.6f)" % (s.position[0], s.joint[0]['velocity']))
 print_status(s)
 
 # verify that Status reflects the situation
@@ -179,7 +179,7 @@ c.override_limits()
 time.sleep(1)
 s.poll()
 print_status(s)
-print "command.serial:", c.serial
+print("command.serial: {}".format(c.serial))
 # this fails in 2.6.12 due to the stat RCS message having a status of
 # RCS_EXEC...  as if though the override_limits command didnt set status
 # back to RCS_DONE when it finished.
@@ -213,10 +213,10 @@ while (old_x == s.position[0]) and (time.time() - start_time < 5):
     s.poll()
 
 if old_x == s.position[0]:
-    print "no jog movement"
+    print("no jog movement")
     sys.exit(1)
 
-print "x started moving (%.6f to %.6f)" % (old_x, s.position[0])
+print("x started moving (%.6f to %.6f)" % (old_x, s.position[0]))
 print_status(s)
 
 # un-trip the limit switch
@@ -254,10 +254,10 @@ while (old_x != s.position[0]) and (time.time() - start_time < 5):
     s.poll()
 
 if old_x != s.position[0]:
-    print "JOG_STOP didn't stop movement"
+    print("JOG_STOP didn't stop movement")
     sys.exit(1)
 
-print "x stopped moving (%.6f)" % s.position[0]
+print("x stopped moving (%.6f)" % s.position[0])
 print_status(s)
 
 # verify that Status reflects the new situation

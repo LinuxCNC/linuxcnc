@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 #
 # Qtvcp Widgets
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -20,7 +20,7 @@ import os
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.entry_widget import TouchInputWidget
+from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -41,7 +41,7 @@ if not INFO.LINUXCNC_IS_RUNNING:
 try:
     from PyQt5 import QtSvg
 except:
-    LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
+    LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt5.qtsvg installed?")
 
 ###############################################################
 # helper widget for SVG display on Button
@@ -121,6 +121,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # id names for what dialog we want launched
         self.load_dialog_code = 'LOAD'
         self.save_dialog_code = 'SAVE'
+        self._request_name = 'CALCULATOR'
 
         self.stack = QtWidgets.QStackedWidget()
 
@@ -159,7 +160,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         self.runButton.setEnabled(False)
-        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
+        STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.runButton.setEnabled(STATUS.machine_is_on()
+                                                                and (STATUS.is_all_homed()
+                                                                or INFO.NO_HOME_REQUIRED)))
+        STATUS.connect('interp-run', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False or INFO.NO_HOME_REQUIRED))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
         STATUS.connect('general',self.returnFromDialog)
 
@@ -189,7 +196,10 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 # of these arrays
                 for i, tName in enumerate(tabName):
                     # make a widget that is added to the stack
-                    w = TouchInputWidget()
+                    w = TouchInterface(self)
+                    w.keyboard_enable = True
+                    # redirect Touchinterface call to our function
+                    w.callDialog = self.getNumbers
                     hbox = QtWidgets.QHBoxLayout(w)
                     #hbox.addStretch(1)
                     vbox = QtWidgets.QVBoxLayout()
@@ -197,6 +207,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        # if no list of names then continue looking
+                        if name[0]=='':continue
                         l = QtWidgets.QLabel(name[0])
                         if name[1].lower() in('false', 'true'):
                             self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
@@ -216,7 +228,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
                     else:
                         try:
-                            print self[tName][1][1]
+                            #print(self[tName][1][1])
                             imgpath = os.path.join(path, self[tName][1][1])
                         except:
                             imgpath = os.path.join(path, img_info[0])
@@ -263,8 +275,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             else:
                 imgpath = os.path.join(path, svg_name)
                 btn = QtWidgets.QPushButton()
-                btn.setIcon(QtGui.QIcon(imgpath))
-                btn.setIconSize(QtCore.QSize(30, 30)) 
+                btn.setStyleSheet("border-image: url(" + imgpath + ");")
             btn.setToolTip('Macro: {}'.format(tName))
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
@@ -383,6 +394,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
+            # check for macro that needs no data
+            if i == ('', ''):break
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
             if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
@@ -454,7 +467,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             readLine = file.readLine()
             try:
                 # Python v2.
-                readLine = unicode(readLine, encoding='utf8')
+                readLine = str(readLine, encoding='utf8')
             except NameError:
                 # Python v3.
                 readLine = str(readLine, encoding='utf8')
@@ -496,6 +509,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def setTitle(self, string):
         self.setWindowTitle(string)
 
+    # get numeric data
+    def getNumbers(self,widget,ktype):
+        mess = {'NAME':self._request_name,'ID':'%s__macro',
+                'PRELOAD':float(widget.text()),
+            'TITLE':'Macro Entry Calculator','WIDGET':widget}
+        STATUS.emit('dialog-request', mess)
+
     # request the system to pop a load path picker dialog
     # do this so the system is consistant and things like dialog
     # placement are done.
@@ -528,6 +548,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             code = bool(message.get('ID') == '%s__'% self.objectName())
             if path and code:
                 self.saveReturn(path)
+        elif message.get('NAME') == self._request_name:
+            num = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__macro')
+            widget = message.get('WIDGET')
+            if code and widget is not None:
+                if num is not None:
+                    widget.setText(str(num))
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]

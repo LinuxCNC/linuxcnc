@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 # -*- encoding: utf-8 -*-
 #
 #    This is stepconf, a graphical configuration editor for LinuxCNC
@@ -27,6 +27,7 @@
 
 #import gtk
 #import gtk.glade
+from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -44,13 +45,22 @@ import hashlib
 import math
 import errno
 import textwrap
-import commands
 import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
-reload(sys)
-sys.setdefaultencoding('utf8')
+
+try:
+    from defusedexpat import pyexpat as expat
+except ImportError:
+    from xml.parsers import expat
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -79,7 +89,11 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+if sys.version_info[0] == 3:
+    gettext.install(domain, localedir=LOCALEDIR)
+else:
+    gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -90,7 +104,7 @@ wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
+    print("cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir))
     sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
@@ -120,7 +134,7 @@ debug = False
 def makedirs(d):
     try:
         os.makedirs(d)
-    except os.error, detail:
+    except os.error as detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
@@ -481,7 +495,7 @@ class Data:
         elif self.axes == 4:
             pps = max(xhz, yhz)
         else:
-            print 'error in ideal period calculation - number of axes unrecognized'
+            print('error in ideal period calculation - number of axes unrecognized')
             return
         if self.doublestep():
             base_period = 1e9 / pps
@@ -503,7 +517,7 @@ class Data:
         filename = os.path.expanduser("~/.stepconf-preferences")
         if os.path.exists(filename):
             version = 0.0
-            d = xml.dom.minidom.parse(open(filename, "r"))
+            d = xml.dom.minidom.parse(open(filename, "rt"))
             for n in d.getElementsByTagName("property"):
                 name = n.getAttribute("name")
                 text = n.getAttribute('value')
@@ -527,7 +541,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print filename
+        print(filename)
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -568,7 +582,7 @@ class Data:
         n2.setAttribute('name', "machinename")
         n2.setAttribute('value', str("%s"%self.machinename))
 
-        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        d2.writexml(open(filename, "wt"), addindent="  ", newl="\n")
 
     def load(self, filename, app=None, force=False):
         def str2bool(s):
@@ -601,12 +615,12 @@ class Data:
                 dialog.destroy()
             else:
                 for para in warnings:
-                    for line in textwrap.wrap(para, 78): print line
-                    print
-                print
+                    for line in textwrap.wrap(para, 78): print(line)
+                    print()
+                print()
                 if force: return
-                response = raw_input(_("Continue? "))
-                if response[0] not in _("yY"): raise SystemExit, 1
+                response = input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit(1)
 
         for p in (10,11,12,13,15):
             pin = "pin%d" % p
@@ -625,28 +639,28 @@ class Data:
                 original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
                 if os.path.exists(filename):     
                   if os.path.exists(original):
-                     print "custom file already exists"
+                     print("custom file already exists")
                      shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
-                     print "made backup of existing custom"
+                     print("made backup of existing custom")
                   shutil.copy( filename,original)
-                  print "copied ladder program to usr directory"
-                  print"%s" % filename
+                  print("copied ladder program to usr directory")
+                  print("%s" % filename)
                 else:
-                     print "Master or temp ladder files missing from configurable_options dir"
+                     print("Master or temp ladder files missing from configurable_options dir")
 
         if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
            originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
-                     print "custom PYVCP file already exists"
+                     print("custom PYVCP file already exists")
                      shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print "made backup of existing custom"
+                     print("made backup of existing custom")
                   shutil.copy( panelname,originalname)
-                  print "copied PYVCP program to usr directory"
-                  print"%s" % panelname
+                  print("copied PYVCP program to usr directory")
+                  print("%s" % panelname)
            else:
-                  print "Master PYVCP files missing from configurable_options dir"
+                  print("Master PYVCP files missing from configurable_options dir")
 
         filename = "%s.stepconf" % base
 
@@ -654,7 +668,7 @@ class Data:
                             None, "stepconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.iteritems()):
+        for k, v in sorted(self.__dict__.items()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -667,12 +681,12 @@ class Data:
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+
+        d.writexml(open(filename, "wt"), addindent="  ", newl="\n")
         print("%s" % base)
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
@@ -688,18 +702,18 @@ class Data:
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
-            print >>file,"Icon=%s"% linuxcncicon
+            print("[Desktop Entry]", file=file)
+            print("Version=1.0", file=file)
+            print("Terminal=false", file=file)
+            print("Name=" + _("launch %s") % self.machinename, file=file)
+            print("Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename ), file=file)
+            print("Type=Application", file=file)
+            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf"), file=file)
+            print("Icon=%s"% linuxcncicon, file=file)
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
+            os.chmod(filename,0o775)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -715,11 +729,11 @@ class Widgets:
         self._xml = xml
     def __getattr__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise AttributeError, "No widget %r" % attr
+        if r is None: raise AttributeError("No widget %r" % attr)
         return r
     def __getitem__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise IndexError, "No widget %r" % attr
+        if r is None: raise IndexError("No widget %r" % attr)
         return r
 
 class StepconfApp:
@@ -733,6 +747,8 @@ class StepconfApp:
         # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
+        # Try find parport
+        self.d.lparport = self.find_parport()
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.set_translation_domain(domain)
@@ -758,7 +774,20 @@ class StepconfApp:
         image.set_from_file(wizard)
         wiz_pic = image.get_pixbuf()
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
-        self.d.load_preferences()
+        try:
+            self.d.load_preferences()
+        except expat.ExpatError as ee:
+            message = _("Loading configuration error:\n\n{}").format(str(ee))
+            dialog = Gtk.MessageDialog(
+                         parent=window,
+                         modal=True,
+                         message_type=Gtk.MessageType.WARNING,
+                         buttons=Gtk.ButtonsType.OK,
+                         text=message)
+            dialog.show_all()
+            dialog.run()
+            dialog.destroy()
+
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
@@ -800,7 +829,7 @@ class StepconfApp:
     def dbg(self,str):
         global debug
         if not debug: return
-        print "DEBUG: %s"%str
+        print("DEBUG: %s"%str)
 
     # Check for realtime-capable LinuxCNC.
     # Returns True if the running version of LinuxCNC is realtime-capable
@@ -820,8 +849,8 @@ class StepconfApp:
                 else:
                     is_realtime_capable = True
         except:
-            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
-            print sys.exc_info()
+            print('STEPCONF WARNING: check-for-realtime function failed - continuing anyways.')
+            print(sys.exc_info())
             return True
 
         if is_realtime_capable or debug:
@@ -901,6 +930,51 @@ class StepconfApp:
             self.w.dirhold.set_sensitive(1)
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
+        
+    # parport io preset
+    def find_parport(self):
+        # Try to find parallel port
+        lparport=[]
+        # Try /proc/sys/dev/parport/parport#/base-addr
+        parport_path="/proc/sys/dev/parport"
+        if(os.path.isdir(parport_path)):
+            parport_list=os.listdir(parport_path)
+            for current_parport in parport_list:
+                if(current_parport == "default"):
+                    continue
+                # find port number
+                find_string="parport"
+                if(current_parport.find(find_string) == 0):
+                    try:
+                        port_number=current_parport.split(find_string)[1]
+                        lparport.append(port_number)
+                    except:
+                        continue
+                # find base-addr file
+                # Not used, but I want to be sure there is a real parport
+                baseaddr=os.path.join(parport_path, current_parport, "base-addr")
+                if(os.path.exists(baseaddr) == True):
+                    try:
+                        in_file = open(baseaddr,"r")
+                    except:
+                        print ("Unable to open %s" % baseaddr )
+                        continue
+                    # read base-addr file
+                    try:
+                        for line in in_file:
+                            # get init_address (Not used)
+                            lline=line.split()
+                            dec_address=lline[0].strip()
+                            init_address=hex(int(dec_address))
+                    except:
+                        print ("Error read %s" % baseaddr)
+                        in_file.close()
+                        continue
+                    in_file.close()
+        if lparport == []:
+            print ("No parport found")
+            return([])
+        return(lparport)
 
     # preset out pins
     def preset_sherline_outputs(self):
@@ -1055,7 +1129,7 @@ class StepconfApp:
         # Really I have not found a better way to change the background color
         # I hate the person who removed the get_background_color function in GTK3...
         provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
+        provider.load_from_data(bytes(mystyle.encode()))
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(),
             provider,
@@ -1179,7 +1253,7 @@ class StepconfApp:
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.w.radiobutton5.get_active() == True:
-            print 'no sample requested'
+            print('no sample requested')
             return True
         if self.w.radiobutton6.get_active() == True:
             panel = "spindle.xml"

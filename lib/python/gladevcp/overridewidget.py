@@ -127,7 +127,7 @@ class Override(gtk.HScale):
     # A user can use this too using goobject 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -135,7 +135,7 @@ class Override(gtk.HScale):
     # This is used by GLADE editor to set values
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         if name == 'override_type':
             self.set_type(value)
@@ -173,10 +173,10 @@ def main():
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
-       print "ok"
+       print("ok")
     else:
-       print "cancel"
+       print("cancel")
 
-if __name__ == "__main__":	
+if __name__ == "__main__":
     main()
 

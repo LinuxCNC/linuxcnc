@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
 
@@ -5,7 +7,7 @@ import linuxcnc
 import hal
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -68,7 +70,7 @@ class _Lcnc_Action(object):
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
                 for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
-                    print j, num, len(INFO.JOINT_SEQUENCE_LIST)
+                    print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
                     # at the end so all homed
                     if num == length -1:
                         self.home_all_warning_flag = False
@@ -213,18 +215,35 @@ class _Lcnc_Action(object):
                 STATUS.emit('file-loaded',fname)
 
     def SAVE_PROGRAM(self, source, fname):
+        # no gcode - ignore
         if source == '': return
-        if '.' not in fname:
-            fname += '.ngc'
-        name, ext = fname.rsplit('.')
+
+        # normalize to absolute path
         try:
-            outfile = open(name + '.' + ext.lower(),'w')
-            outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+            path = os.path.abspath(fname)
+            if '.' not in path:
+                path += '.ngc'
+            name, ext = path.rsplit('.')
+            npath = name + '.' + ext.lower()
         except Exception as e:
-            print e
+            log.debug('save error: {}'.format(e))
+            log.debug('Original save path: {}'.format(fname))
+
+        log.debug('SAVE_PROGRAM write to: {}'.format(npath))
+
+        # ok write the file
+        try:
+            outfile = open(npath,'w')
+            outfile.write(source)
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
+        except Exception as e:
+            print(e)
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
-            outfile.close()
+            try:
+                outfile.close()
+            except:
+                pass
 
     def SET_AXIS_ORIGIN(self,axis,value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -311,13 +330,47 @@ class _Lcnc_Action(object):
         for jnum in range(STATUS.stat.joints):
             self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(number)]: return
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur + (INFO.SPINDLE_INCREMENT * dir)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MAX_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur + (INFO.SPINDLE_INCREMENT * dir)), i)
+
     def SET_SPINDLE_SLOWER(self, number = 0):
-        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur - (INFO.SPINDLE_INCREMENT * dir)) <= INFO['MIN_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MIN_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
     def SET_SPINDLE_STOP(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 
@@ -354,7 +407,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):
-        if isinstance(data, (int, long)):
+        if isinstance(data, int):
             STATUS.set_selected_joint(data)
         else:
             log.error( 'Selected joint must be an integer: {}'.format(data))
@@ -369,7 +422,7 @@ class _Lcnc_Action(object):
     # use joint number for joint or letter for axis jogging
     def DO_JOG(self, joint_axis, direction):
         angular = False
-        if isinstance(joint_axis, (int, long)):
+        if isinstance(joint_axis, int):
             if STATUS.stat.joint[joint_axis]['jointType'] == linuxcnc.ANGULAR:
                 angular =  True
             jointnum = joint_axis
@@ -402,7 +455,7 @@ class _Lcnc_Action(object):
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
     def STOP_JOG(self, jointnum):
-        if STATUS.machine_is_on():
+        if STATUS.machine_is_on() and STATUS.is_man_mode():
             jjogmode,j_or_a = self.get_jog_info(jointnum)
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 
@@ -448,7 +501,7 @@ class _Lcnc_Action(object):
                 'overlay_dro_on','overlay_dro_off',
                 'overlay-offsets-on','overlay-offsets-off',
                 'inhibit-selection-on','inhibit-selection-off',
-                'alpha-mode-on','alpha-mode-off'):
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
@@ -584,7 +637,48 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 #############################
+
+class Progress:
+    def __init__(self, phases, total):
+        self.num_phases = phases
+        self.phase = 0
+        self.total = total or 1
+        self.lastcount = 0
+        self.text = None
+
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
+            fraction = (self.phase + count * 1. / self.total) / self.num_phases
+            self.lastcount = count
+            self.emit_percent(int(fraction *100))
+
+    # Send out progress
+    def emit_percent(self, percent):
+        STATUS.emit('progress',percent,self.text)
+
+    def nextphase(self, total):
+        self.phase += 1
+        self.total = total or 1
+        self.lastcount = -100
+        self.update(0, True)
+
+    def done(self):
+        self.emit_percent(-1)
+
+    # text for filter progress bar
+    def set_text(self, text):
+        if text is None:
+            self.text = "Filter Progress"
+        else:
+            self.text = text
+
 ###########################################
 # Filter Class
 ########################################################################
@@ -599,57 +693,71 @@ class FilterProgram:
         import subprocess
         outfile = open(outfilename, "w")
         infilename_q = infilename.replace("'", "'\\''")
-        env = dict(os.environ)
-        env['AXIS_PROGRESS_BAR'] = '1'
+
         p = subprocess.Popen(["sh", "-c", "%s '%s'" % (program_filter, infilename_q)],
                               stdin=subprocess.PIPE,
                               stdout=outfile,
-                              stderr=subprocess.PIPE,
-                              env=env)
+                              stderr=subprocess.PIPE)
         p.stdin.close()  # No input for you
+
         self.p = p
         self.stderr_text = []
-        self.program_filter = program_filter
+        self.program_filter = os.path.split(program_filter)[1]
+        self.filtered_program =  os.path.split(infilename_q)[1]
         self.callback = callback
+
+        self.progress = Progress(1, 100)
+        self.progress.set_text("Filtering...")
         self.gid = STATUS.connect('periodic', self.update)
-        #progress = Progress(1, 100)
-        #progress.set_text(_("Filtering..."))
 
     def update(self, w):
+        # check if done
         if self.p.poll() is not None:
             self.finish()
             STATUS.disconnect(self.gid)
             return False
-
+        # check if there is something to read or pass
         r,w,x = select.select([self.p.stderr], [], [], 0)
         if not r:
             return True
+        # process message from standard error
         stderr_line = self.p.stderr.readline()
+        if sys.version_info.major > 2:
+            stderr_line = stderr_line.decode("utf-8")
+        # compare to pre compiled re string
+        # if true : update progress
+        # else add it too error message string for later
         m = progress_re.match(stderr_line)
         if m:
-            pass #progress.update(int(m.group(1)), 1)
+            self.progress.update(int(m.group(1)), 1)
         else:
             self.stderr_text.append(stderr_line)
             sys.stderr.write(stderr_line)
         return True
 
     def finish(self):
+        self.progress.done()
         # .. might be something left on stderr
         for line in self.p.stderr:
+            if sys.version_info.major > 2:
+                line = line.decode("utf-8")
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)
-                sys.stderr.write(line)
         r = self.p.returncode
         if r:
             self.error(r, "".join(self.stderr_text))
         if self.callback:
             self.callback(r)
 
-    # pop a (probable) dialog box
+    # request an error dialog box
     def error(self, exitcode, stderr):
-        message = _('The filter program %(program)r exited with an error')% {'program': self.program_filter}
-        more = _("Any error messages it produced are shown below:")
+        message = '''The filter program '{}' that was filtering '{}' 
+                        exited with an error'''.format(self.program_filter,self.filtered_program)
+        if stderr != '':
+            more = _("The error messages it produced are shown below:")
+        else:
+            more = None
         mess = {'NAME':'MESSAGE','ID':'ACTION_ERROR__',
             'MESSAGE':message,
             'MORE': more,
@@ -660,4 +768,19 @@ class FilterProgram:
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
 
+# For testing purposes
+
+if __name__ == "__main__":
+
+    from qtvcp.core import Action
+    testcase = Action()
+
+    # print status caught errors
+    def mess(error,text):
+        print('STATUS caught:',text)
+
+    STATUS.connect("error", lambda w, n, d: mess(n,d))
+
+    # test case
+    testcase.SAVE_PROGRAM('hi','/../../home')
 

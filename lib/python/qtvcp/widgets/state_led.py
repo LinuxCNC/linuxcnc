@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # Qtvcp widget
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -16,6 +16,7 @@
 #################################################################################
 
 from PyQt5.QtCore import pyqtProperty
+import hal
 from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
 from qtvcp import logger
@@ -26,7 +27,7 @@ from qtvcp import logger
 STATUS = Status()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -34,7 +35,6 @@ class StateLED(LED):
 
     def __init__(self, parent=None):
         super(StateLED, self).__init__(parent)
-        self.has_hal_pins = False
         self.setState(False)
 
         self.is_estopped = False
@@ -55,15 +55,21 @@ class StateLED(LED):
         self.is_spindle_stopped = False
         self.is_spindle_fwd = False
         self.is_spindle_rev = False
+        self.is_spindle_at_speed = False
 
         self.joint_number = 0
+
+        self._override = 1
+        self._at_speed_percent = .1
 
     def _hal_init(self):
         def only_false(data):
             if data:
                 return
             self._flip_state(False)
-
+        # optional output HAL pin reflecting state
+        if self._halpin_option:
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
         if self.is_estopped:
             STATUS.connect('state-estop', lambda w: self._flip_state(True))
             STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))
@@ -98,11 +104,20 @@ class StateLED(LED):
             STATUS.connect('mode-auto', lambda w: self.mode_changed(2))
         elif self.is_spindle_stopped or self.is_spindle_fwd or self.is_spindle_rev:
             STATUS.connect('spindle-control-changed',  lambda w, state, speed: self.spindle_changed(speed))
+        elif self.is_spindle_at_speed:
+            STATUS.connect('requested-spindle-speed-changed', lambda w, speed: self.spindle_requested_changed(speed))
+            STATUS.connect('spindle-override-changed', lambda w, rate: self.spindle_override_changed(rate))
+            STATUS.connect('actual-spindle-speed-changed',lambda w, speed: self.spindle_actual_changed(speed))
 
     def _flip_state(self, data):
             if self.invert_state:
                 data = not data
             self.change_state(data)
+
+    def change_state(self, state):
+        super(StateLED, self).change_state(state)
+        if self._halpin_option:
+            self.hal_pin.set(state)
 
     def joint_homed(self, joint):
         if int(joint) == self.joint_number:
@@ -139,6 +154,41 @@ class StateLED(LED):
         else:
             self._flip_state(False)
 
+    def spindle_off(self, state):
+        if state == 0:
+            if self.invert_state:
+                self.change_state(True)
+            else:
+                self.change_state(False)
+
+    def spindle_requested_changed(self, speed):
+        self._requested = speed
+        state = STATUS.is_spindle_on()
+        self.setState(state)
+
+    def spindle_override_changed(self, rate):
+        self._override = rate/100.0
+
+    def spindle_actual_changed(self, speed):
+        self._actual = speed
+        if not STATUS.is_spindle_on():
+            if self._halpin_option:
+                self.hal_pin.set(False)
+            return
+        flash = self.spindle_near_check()
+        self.setFlashing(flash)
+        if self._halpin_option:
+            self.hal_pin.set(not flash)
+
+    def spindle_near_check(self):
+        req = self._requested * self._override
+        upper = abs(req * (1+self._at_speed_percent))
+        lower = abs(req * (1-self._at_speed_percent))
+        value = abs(self._actual)
+        if lower <= value <= upper:
+            return False
+        return True
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -152,7 +202,7 @@ class StateLED(LED):
                 'is_flood', 'is_mist', 'is_block_delete', 'is_optional_stop',
                 'is_joint_homed', 'is_limits_overridden','is_manual',
                 'is_mdi', 'is_auto', 'is_spindle_stopped', 'is_spindle_fwd',
-                'is_spindle_rev')
+                'is_spindle_rev','is_spindle_at_speed')
 
         for i in data:
             if not i == picked:
@@ -338,6 +388,16 @@ class StateLED(LED):
     def reset_is_spindle_rev(self):
         self.is_spindle_rev = False
 
+    # machine is spindle_at_speed status
+    def set_is_spindle_at_speed(self, data):
+        self.is_spindle_at_speed = data
+        if data:
+            self._toggle_properties('is_spindle_at_speed')
+    def get_is_spindle_at_speed(self):
+        return self.is_spindle_at_speed
+    def reset_is_spindle_at_speed(self):
+        self.is_spindle_at_speed = False
+
     # Non bool
 
     # machine_joint_number status
@@ -369,6 +429,7 @@ class StateLED(LED):
     is_spindle_stopped_status = pyqtProperty(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
     is_spindle_fwd_status = pyqtProperty(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
     is_spindle_rev_status = pyqtProperty(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
+    is_spindle_at_speed_status = pyqtProperty(bool, get_is_spindle_at_speed, set_is_spindle_at_speed, reset_is_spindle_at_speed)
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)

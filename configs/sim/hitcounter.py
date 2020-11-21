@@ -15,7 +15,7 @@ class HandlerClass:
             user data passed if any - this is currently unused but
             the convention should be retained just in case
         '''
-        print "on_button_press called"
+        print ("on_button_press called")
         self.nhits += 1
         self.builder.get_object('hits').set_label("Hits: %d" % (self.nhits))
 

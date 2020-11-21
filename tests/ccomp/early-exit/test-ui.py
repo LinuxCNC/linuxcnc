@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -67,7 +67,7 @@ c.mdi('g0 x0.9  ; surprise motion on Y and Z, to 0!!')
 c.wait_complete()
 
 s.poll()
-print "position:", s.position
+print("position: {}".format(s.position))
 assert(math.fabs(s.position[0] - 0.9) < 0.0000001)
 assert(math.fabs(s.position[1] - 0.2) < 0.0000001)
 assert(math.fabs(s.position[2] - 0.3) < 0.0000001)

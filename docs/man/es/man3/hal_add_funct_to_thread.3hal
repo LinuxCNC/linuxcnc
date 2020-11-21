@@ -1,0 +1,41 @@
+.TH hal_add_funct_to_thread "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_add_funct_to_thread \- hace que una función se ejecute a intervalos regulares
+
+.SH SINTAXIS
+.HP
+int hal_add_funct_to_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR,
+ int position)
+
+int hal_del_funct_from_thread(const char *\fIfunct_name\fR, const char *\fIthread_name\fR)
+
+.SH  ARGUMENTOS
+.IP \fIfunct_name\fR
+El nombre de la función
+
+.IP \fIthread_name\fR
+El nombre del hilo.
+
+.IP \fIposition\fR
+La ubicación deseada dentro del hilo. Esto determina cuándo ejecutar la función
+en relación con otras funciones en el hilo. Un número positivo indica
+la ubicación deseada medida desde el principio del hilo, y uno
+negativo, medida desde el final. Por tanto, +1 significa que esta función se convertirá en
+la primero en ejecutarse, +5 significa que será la quinta en ejecutarse, \-2 significa que será
+la penúltima y \-1 significa que será la última. Cero es ilegal.  
+
+.SH DESCRIPCION
+\fBhal_add_funct_to_thread\fR agrega una función exportada por un componente HAL en tiempo real
+a un hilo en tiempo real. Esto determina con qué frecuencia y en qué orden
+se ejecutan las funciones  
+
+\fBhal_del_funct_from_thread\fR elimina una función de un hilo.
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de inicio en tiempo real, no desde el espacio de usuario o el código en tiempo real.
+
+.SH VER TAMBIÉN
+\fBhal_thread_new(3hal)\fR, \fBhal_export_funct(3hal)\fR

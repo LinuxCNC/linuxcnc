@@ -129,7 +129,7 @@ int rtapi_app_main(void)
 
     /* validate config info */
     for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
-	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
+	if (( cfg[n] == NULL ) || ( *(cfg[n]) == '\0' ) || ( depth[n] <= 0 )) {
 	    break;
 	}
 	retval = hal_stream_create(&streams[n].fifo, comp_id, STREAMER_SHMEM_KEY+n, depth[n], cfg[n]);

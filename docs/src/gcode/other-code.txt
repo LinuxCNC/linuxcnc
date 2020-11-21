@@ -20,7 +20,7 @@ is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> Section.
 
 'Sx [$n]' - set the speed of the spindle to 'x' revolutions per minute (RPM)
 with the optional $ set the spindle speed for a specific spindle. Without the $
-all spindles will be set at the S speed.
+the command will default to spindle.0
 
 The spindle(s) or selected spindle will turn at that speed when a 'M3' or 'M4'
 is in effect. It is OK to program an S word whether the spindle is turning or

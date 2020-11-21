@@ -1,0 +1,61 @@
+.TH funct "3" "2006-10-12" "Documentación LinuxCNC" "libposemath"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.SH NAME
+
+PM_CARTESIAN \- Posición cartesiana de tres ejes
+
+.SH SINTAXIS
+.HP
+.B #include "posemath.h"
+.HP
+.B struct PM_CARTESIAN;
+
+.SH CONSTRUCTORES
+.TP
+.B PM_CARTESIAN()
+Construir el punto <0,0,0>
+.TP
+.B PMCARTESIAN(double \fIx\fB, double \fIy\fB, double \fIz\fB)
+Construir el punto <\fIx\fB,\fIy\fB,\fIz\fB>
+.TP
+.B PMCARTESIAN(const PM_CARTESIAN &v)
+Construir una copia del punto \fIv\fR
+
+.SH DATOS
+.B double \fIx\fB, \fIy\fB, \fIz
+
+.SH OPERADORES
+.TP
+.B operator[](int n);
+Devuelve el componente \fIn\fRsimo del vector (x=0, y=1, z=2)
+.TP
+.B int operator==(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B int operator!=(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+Operador de igualdad y desigualdad de elementos
+.TP
+.B PM_CARTESIAN operator+(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
+.TQ
+.B PM_CARTESIAN operator\-(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN\fIv2\fB)
+Suma y resta de vectores
+.TP
+.B PM_CARTESIAN operator*(double \fIs\fB, PM_CARTESIAN \fIv\fB)
+.TQ
+.B PM_CARTESIAN operator*(PM_CARTESIAN \fIv\fB, double \fIs\fB)
+Multiplicación escalar
+.TP
+.B PM_CARTESIAN operator/(PM_CARTESIAN \fIv\fB, double \fIs\fB)
+Multiplicación escalar por \fI1/s\fR
+.SH OTRAS FUNCIONES EN OBJETOS PM_CARTESIAN
+.TP
+.B double dot(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B PM_CARTESIAN cross(PM_CARTESIAN \fIv1\fB, PM_CARTESIAN \fIv2\fB)
+.TQ
+.B PM_CARTESIAN norm(PM_CARTESIAN \fIv\fB)
+
+.SH VER TAMBIÉN

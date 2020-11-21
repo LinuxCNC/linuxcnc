@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -17,26 +17,26 @@ def introspect():
 
 
 def wait_for_pin_value(pin_name, value, timeout=1):
-    print "waiting for %s to go to %f (timeout=%f)" % (pin_name, value, timeout)
+    print("waiting for %s to go to %f (timeout=%f)" % (pin_name, value, timeout))
 
     start = time.time()
     while (h[pin_name] != value) and ((time.time() - start) < timeout):
         time.sleep(0.1)
 
     if h[pin_name] != value:
-        print "timeout!  pin %s is %f, didn't get to %f" % (pin_name, h[pin_name], value)
+        print("timeout!  pin %s is %f, didn't get to %f" % (pin_name, h[pin_name], value))
         introspect()
         sys.exit(1)
 
-    print "pin %s went to %f!" % (pin_name, value)
+    print("pin %s went to %f!" % (pin_name, value))
 
 
 def verify_pin_value(pin_name, value):
     if (h[pin_name] != value):
-        print "pin %s is %f, not %f" % (pin_name, h[pin_name], value)
+        print("pin %s is %f, not %f" % (pin_name, h[pin_name], value))
         sys.exit(1);
 
-    print "pin %s is %f" % (pin_name, value)
+    print("pin %s is %f" % (pin_name, value))
 
 
 def get_interp_param(param_number):
@@ -55,27 +55,27 @@ def get_interp_param(param_number):
         if kind == linuxcnc.OPERATOR_DISPLAY:
             return float(text)
 
-        print text
+        print(text)
 
-    print "error getting parameter %d" % param_number
+    print("error getting parameter %d" % param_number)
     return None
 
 
 def verify_interp_param(param_number, expected_value):
     param_value = get_interp_param(param_number)
-    print "interp param #%d = %f (expecting %f)" % (param_number, param_value, expected_value)
+    print("interp param #%d = %f (expecting %f)" % (param_number, param_value, expected_value))
     if param_value != expected_value:
-        print "ERROR: interp param #%d = %f, expected %f" % (param_number, param_value, expected_value)
+        print("ERROR: interp param #%d = %f, expected %f" % (param_number, param_value, expected_value))
         sys.exit(1)
 
 
 def verify_stable_pin_values(pins, duration=1):
     start = time.time()
     while (time.time() - start) < duration:
-        for pin_name in pins.keys():
+        for pin_name in list(pins.keys()):
             val = h[pin_name]
             if val != pins[pin_name]:
-                print "ERROR: pin %s = %f (expected %f)" % (pin_name, val, pin[pin_name])
+                print("ERROR: pin %s = %f (expected %f)" % (pin_name, val, pin[pin_name]))
                 sys.exit(1)
         time.sleep(0.010)
 
@@ -87,9 +87,9 @@ def verify_tool_number(tool_number):
     # verify stat buffer
     s.poll()
     if s.tool_in_spindle != tool_number:
-        print "ERROR: stat buffer .tool_in_spindle is %f, should be %f" % (s.tool_in_spindle, tool_number)
+        print("ERROR: stat buffer .tool_in_spindle is %f, should be %f" % (s.tool_in_spindle, tool_number))
         sys.exit(1)
-    print "stat buffer .tool_in_spindle is %f" % s.tool_in_spindle
+    print("stat buffer .tool_in_spindle is %f" % s.tool_in_spindle)
 
 
 def do_tool_change_handshake(tool_number, pocket_number):
@@ -104,9 +104,9 @@ def do_tool_change_handshake(tool_number, pocket_number):
 
     time.sleep(0.1)
     s.poll()
-    print "tool prepare done, s.pocket_prepped = ", s.pocket_prepped
+    print("tool prepare done, s.pocket_prepped = ", s.pocket_prepped)
     if s.pocket_prepped != pocket_number:
-        print "ERROR: wrong pocket prepped in stat buffer (got %d, expected %d)" % (s.pocket_prepped, pocket_number)
+        print("ERROR: wrong pocket prepped in stat buffer (got %d, expected %d)" % (s.pocket_prepped, pocket_number))
         sys.exit(1)
 
     # change tool
@@ -164,14 +164,14 @@ verify_tool_number(0)
 # test m6 to get a baseline
 #
 
-print "*** starting 'T1 M6' tool change"
+print("*** starting 'T1 M6' tool change")
 
 c.mdi('t1 m6')
 c.wait_complete()
 
 do_tool_change_handshake(tool_number=1, pocket_number=1)
 
-print "*** tool change complete"
+print("*** tool change complete")
 verify_tool_number(1)
 
 verify_interp_param(5401, 0)      # tlo x
@@ -220,7 +220,7 @@ introspect()
 # now finally test m61
 #
 
-print "*** starting 'M61 Q10' tool change"
+print("*** starting 'M61 Q10' tool change")
 
 c.mdi('m61 q10')
 c.wait_complete()
@@ -279,7 +279,7 @@ verify_interp_param(5428, 0)      # current w
 # use M6 to unload the spindle (T0)
 #
 
-print "*** using 'T0 M6' to unload the spindle"
+print("*** using 'T0 M6' to unload the spindle")
 c.mdi("t0 m6")
 c.wait_complete()
 do_tool_change_handshake(tool_number=0, pocket_number=0)
@@ -290,7 +290,7 @@ verify_tool_number(0)
 # use M61 to load T1 in the spindle again
 #
 
-print "*** using 'M61 Q1' to load a tool again"
+print("*** using 'M61 Q1' to load a tool again")
 c.mdi("m61 q1")
 c.wait_complete()
 verify_tool_number(1)
@@ -300,7 +300,7 @@ verify_tool_number(1)
 # use M61 to unload the spindle (T0)
 #
 
-print "*** using 'M61 Q0' to unload the spindle again"
+print("*** using 'M61 Q0' to unload the spindle again")
 c.mdi("m61 q0")
 c.wait_complete()
 verify_tool_number(0)

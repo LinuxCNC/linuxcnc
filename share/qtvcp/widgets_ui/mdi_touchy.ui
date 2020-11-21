@@ -6,18 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>414</height>
+    <width>530</width>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>3</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item>
       <widget class="QPushButton" name="pushButton_20">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
        <property name="text">
         <string>Set Tool</string>
        </property>
@@ -25,13 +49,25 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_22">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
        <property name="text">
         <string>Set Origin</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_21">
+      <widget class="QPushButton" name="pushButton_macro">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
        <property name="text">
         <string>Macro</string>
        </property>
@@ -41,6 +77,12 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item row="3" column="7">
       <widget class="QPushButton" name="pushButton_5">
        <property name="sizePolicy">
@@ -264,6 +306,9 @@
      </item>
      <item row="1" column="0" rowspan="5">
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>3</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_0">
          <property name="text">
@@ -725,7 +770,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_21</sender>
+   <sender>pushButton_macro</sender>
    <signal>clicked()</signal>
    <receiver>Form</receiver>
    <slot>macroClicked()</slot>

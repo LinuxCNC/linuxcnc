@@ -1,0 +1,45 @@
+.TH DIFFERENTIAL "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+differential \- kinematics for a differential transmission
+.SH SYNOPSIS
+.HP
+.B loadrt differential [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBdifferential.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B differential.\fIN\fB.roll-cmd\fR float in \fR
+position command for roll (in degrees)
+.TP
+.B differential.\fIN\fB.pitch-cmd\fR float in \fR
+position command for pitch (in degrees)
+.TP
+.B differential.\fIN\fB.roll-fb\fR float out \fR
+position feedback for roll (in degrees)
+.TP
+.B differential.\fIN\fB.pitch-fb\fR float out \fR
+position feedback for pitch (in degrees)
+.TP
+.B differential.\fIN\fB.motor0-cmd\fR float out \fR
+position command to motor0 (based on roll & pitch inputs)
+.TP
+.B differential.\fIN\fB.motor1-cmd\fR float out \fR
+position command to motor1 (based on roll & pitch inputs)
+.TP
+.B differential.\fIN\fB.motor0-fb\fR float in \fR
+position feedback from motor0
+.TP
+.B differential.\fIN\fB.motor1-fb\fR float in \fR
+position feedback from motor1
+.SH LICENSE
+
+GPL

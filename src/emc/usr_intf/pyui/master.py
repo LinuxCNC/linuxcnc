@@ -17,7 +17,7 @@ except:
             CONFIGPATH = os.path.expanduser("~")
             CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
         except:
-            print 'PANELUI ERROR: No _panelui.ini found.'
+            print('PANELUI ERROR: No _panelui.ini found.')
             sys.exit(0)
 
 P='Pressed'
@@ -25,7 +25,7 @@ R='Released'
 DBG_state = 0
 def DBG(str,level=1):
     if DBG_state >= level:
-        print str
+        print(str)
 
 class keyboard():
     def __init__(self, filename=CONFIGDIR):
@@ -103,7 +103,7 @@ class keyboard():
                     else:
                         continue
             else:
-                print 'PANELUI INFO: %s not defined'% basewidget
+                print(('PANELUI INFO: %s not defined'% basewidget))
 
         self.hal.ready()
         for k in self.r_c:
@@ -117,17 +117,17 @@ class keyboard():
         try:
             DBG('%s %s %s'% ( button, self.r_c[button], P if state else R ),1)
             self.widgets[self.r_c[button]].toggle_state(state)
-        except  Exception, e:
+        except  Exception as e:
             if DBG_state >1:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 formatted_lines = traceback.format_exc().splitlines()
-                print
-                print "****PYUI verbose debugging:",formatted_lines[0]
+                print()
+                print(("****PYUI verbose debugging:",formatted_lines[0]))
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print formatted_lines[-1]
+                print((formatted_lines[-1]))
             elif DBG_state >0:
-                print 'PYUI ERROR: no button or command assigned to keycode %s?'% button
-                print e
+                print(('PYUI ERROR: no button or command assigned to keycode %s?'% button))
+                print(e)
             else:
                 pass
 
@@ -138,7 +138,7 @@ class keyboard():
             self.cmd.periodic()
 
     def exit(self):
-        print 'Python exit'
+        print('Python exit')
         self.hal.exit()
 
     def __getitem__(self, item):
@@ -148,7 +148,7 @@ class keyboard():
 
 
 def main():
-    print 'main'
+    print('main')
     key=keyboard()
     a=key.build()
     b=key.loop()

@@ -18,7 +18,9 @@ debian/*.debhelper.log
 rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
-share/desktop-directories/cnc.directory
+share/desktop-directories/linuxcnc-cnc.directory
+share/desktop-directories/linuxcnc-ref.directory
+share/desktop-directories/linuxcnc-doc.directory
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
@@ -36,5 +38,8 @@ cscope.*
 oprofile*
 *.log
 position.txt
-*.9
+# *.9
 *.glade.h
+# Ignore test results
+*.result
+

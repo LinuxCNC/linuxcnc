@@ -1,0 +1,51 @@
+.TH CLARKE3 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+clarke3 \- Clarke (3 phase to cartesian) transform
+.SH SYNOPSIS
+.HP
+.B loadrt clarke3 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system (plus a homopolar component
+if the three phases don't sum to zero).
+.P
+\fBclarke3\fR implements
+the general case of the transform, using all three phases.  If the
+three phases are known to sum to zero, see \fBclarke2\fR for a
+simpler version.
+.SH FUNCTIONS
+.TP
+\fBclarke3.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B clarke3.\fIN\fB.a\fR float in \fR
+.TQ
+.B clarke3.\fIN\fB.b\fR float in \fR
+.TQ
+.B clarke3.\fIN\fB.c\fR float in \fR
+three phase input vector
+.TP
+.B clarke3.\fIN\fB.x\fR float out \fR
+.TQ
+.B clarke3.\fIN\fB.y\fR float out \fR
+cartesian components of output
+.TP
+.B clarke3.\fIN\fB.h\fR float out \fR
+homopolar component of output
+.SH SEE ALSO
+
+\fBclarke2\fR for the 'a+b+c=0' case, \fBclarkeinv\fR for
+the inverse transform.
+.SH LICENSE
+
+GPL

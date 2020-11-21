@@ -29,6 +29,7 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to pncconf.py
 
+from __future__ import print_function
 import gtk
 import os
 import gobject
@@ -44,6 +45,8 @@ class Pages:
         debug = self.a.debugstate
         global dbg
         dbg = self.a.dbg
+        # can only save data after selecting a config name
+        self.savable_flag = False
 
 #********************
 # Notebook Controls
@@ -58,9 +61,17 @@ class Pages:
         self.a.print_image('map_7i76')
     def on_print_7i77_button_clicked(self,widget):
         self.a.print_image('map_7i77')
+    def on_button_save_clicked(self, widget):
+        self.a.save()
 
     def on_window1_destroy(self, *args):
-        if self.a.warning_dialog (self._p.MESS_ABORT,False):
+        if self.savable_flag:
+            if self.a.quit_dialog():
+                gtk.main_quit()
+                return True
+            else:
+                return True
+        elif self.a.warning_dialog(self._p.MESS_QUIT,False):
             gtk.main_quit()
             return True
         else:
@@ -195,6 +206,7 @@ class Pages:
         self.w.xencoderscale.realize()
         self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
         self.w.window1.set_geometry_hints(min_width=750)
+        self.w.button_save.set_visible(False)
 
 #************
 # INTRO PAGE
@@ -210,6 +222,7 @@ class Pages:
     def start_prepare(self):
         self.d.help = "help-load.txt"
         # search for firmware packages
+        self.w.button_save.set_visible(False)
 
     def start_finish(self):
 
@@ -219,6 +232,7 @@ class Pages:
             state = True
         else:
             state = False
+        self.w.input_tab.set_visible(state)
         self.d.advanced_option = state
         self.page_set_state(['options','external','realtime'],state)
         self.d.createsymlink = self.w.createsymlink.get_active()
@@ -269,6 +283,8 @@ class Pages:
         self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
         self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
         self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
+        #self.w.button_save.set_visible(True)
+        self.savable_flag = True
 
     def base_finish(self):
         machinename = self.w.machinename.get_text()
@@ -1029,7 +1045,7 @@ class Pages:
             self.d[p] = signal
             self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
-        print '** pport** ',self.d.pp1_direction
+        print('** pport** ',self.d.pp1_direction)
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
@@ -1200,6 +1216,7 @@ class Pages:
 #************
     def z_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def z_axis_finish(self):
         self.a.axis_done('z')
 #************
@@ -1224,6 +1241,7 @@ class Pages:
 #************
     def a_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def a_axis_finish(self):
         self.a.axis_done('a')
 #************
@@ -1354,6 +1372,7 @@ different program to copy to your configuration file.\nThe edited program will b
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
             self.d._components_is_prepared = True
+        self.savable_flag = True
 
     def realtime_finish(self):
         self.d.userneededpid = int(self.w.userneededpid.get_value())
@@ -1394,6 +1413,8 @@ different program to copy to your configuration file.\nThe edited program will b
     def finished_finish(self):
         self.a.clean_unused_ports()
         self.a.buid_config()
+        self.savable_flag = False
+
 #**************
 # tune test
 #**************
@@ -1435,6 +1456,7 @@ different program to copy to your configuration file.\nThe edited program will b
 ######################
     def on_discovery_interface_combobox_changed(self,w):
         self.a.discovery_interface_combobox_changed(w)
+
 # BOILER CODE
     def __getitem__(self, item):
         return getattr(self, item)

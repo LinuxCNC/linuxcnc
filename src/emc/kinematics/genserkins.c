@@ -342,7 +342,7 @@ int kinematicsForward(const double *joint,
     pos->tran.z = world->tran.z;
 
     // pos will be the world location
-    // jcopy: joitn position in radians
+    // jcopy: joint position in radians
     ret = genser_kin_fwd(KINS_PTR, jcopy, pos);
     if (ret < 0)
 	return ret;
@@ -357,6 +357,11 @@ int kinematicsForward(const double *joint,
     world->a = rpy.r * 180 / PM_PI;
     world->b = rpy.p * 180 / PM_PI;
     world->c = rpy.y * 180 / PM_PI;
+
+    //pass through unused axis
+    world->u = joint[6];
+    world->v = joint[7];
+    world->w = joint[8];
 
     if (changed) {
 //	rtapi_print("kinematicsForward(world: %f %f %f %f %f %f)\n", world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
@@ -492,7 +497,10 @@ int kinematicsInverse(const EmcPose * world,
 
 	/* push the Cartesian velocity vector through the inverse Jacobian */
 	go_matrix_vector_mult(&Jinv, dvw, dj);
-
+	//pass through unused axis
+	joints[6] = world->u;
+	joints[7] = world->v;
+	joints[8] = world->w;
 	/* check for small joint increments, if so we're done */
 	for (link = 0, smalls = 0; link < genser->link_num; link++) {
 	    if (GO_QUANTITY_LENGTH == linkout[link].quantity) {

@@ -1,0 +1,564 @@
+.TH MOTION "9" "" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+motion \- acepta comandos NML de movimiento, interactúa con HAL en tiempo real
+.SH SINOPSIS
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
+
+Los límites para los siguientes elementos se configuran en tiempo de compilación:
+.TP
+\fBnum_joints\fR: establece el número máximo de articulaciones EMCMOT_MAX_JOINTS.
+.TP
+\fBnum_dio\fR: establece el número máximo de entradas digitales EMCMOT_MAX_DIO.
+.TP
+\fBnum_aio\fR: establece el número máximo de entradas analógicas EMCMOT_MAX_AIO.
+.TP
+\fBnum_spindles\fR: establece el número máximo de husillos EMCMOT_MAX_SPINDLES.
+
+.P
+Opcionalmente, el número de E/S digitales se establece con num_dio y el de analógicas con num_aio. El valor predeterminado es 4 para cada uno.
+
+.P
+Los nombres de pines que comienzan con "\fBjoint\fR" o "\fBaxis\fR" son leídos y actualizados por la función \fBmotion-controller\fR.
+
+.SH DESCRIPCIÓN
+Por defecto, el hilo base no admite punto flotante. El paso a paso por software, el conteo software de codificador y el pwm software no utilizan punto flotante. \fBbase_thread_fp\fR se puede usar para habilitar el punto flotante en el hilo base (por ejemplo, para el control de motor de CC sin escobillas).
+
+.P
+Los pines y parámetros son creados por el módulo en tiempo real\fBmotmod\fR. Este módulo proporciona una interfaz HAL para el lanificador de movimiento de LinuxCNC. Básicamente,\fBmotmod\fR toma una lista de puntos de referencia o waypoints y genera una secuencia correcta de posiciones correspondientes de articulaciónes, conformes con las restricciones de la maquina, que alimentan los drivers de los motores.
+
+.P
+El parámetro opcional \fBnum_extrajoints\fR especifica una cierta cantidad de articulaciones que participan en el homing, pero que no son utilizadas por las transformaciones cinemáticas.
+Después del homing, el control de una articulación 'extra' se transfiere a un pin hal (joint.N.posthome-cmd) y se ignora el valor retroalimentado del motor. Las articulaciones 'extra' deben ser manejadas por planificadores/controladores de movimiento independientes (normalmente usando componentes hal limit3). Las articulaciones adicionales pueden estar sin home solo cuando el movimiento está desactivado.
+
+El valor máximo de \fBnum_extrajoints\fR es igual al valor de \fBnum_joints\fR (tenga en cuenta que el uso del valor máximo no permitiría ninguna operación en coordenadas mundiales). El valor de \fBnum_joints\fR debe ser igual a la suma del número de articulaciones utilizadas para los cálculos cinemáticos más el número de articulaciones 'extra'.
+
+El parámetro \fBnum_joints\fR se establece convencionalmente utilizando la configuración del archivo ini \fB [KINS]JOINTS =\fRvalor. \fBnum_extrajoints\fR se establece mediante el parámetro motmod adicional \fB[EMCMOT] motmod num_extrajoints=\fRvalue.
+La numeración de pines Hal para todas las articulaciones está basada en cero [\fB0 ... num_joints-1\fR].
+Cuando se especifican, a las articulaciones 'extra' se les asigna el último\fBnum_extrajoints\fR en la secuencia de numeración. Por ejemplo, al especificar [KINS]JOINTS=5 y [EMCMOT] motmod num_extrajoints=2 para una configuración trivkins de 3 articulaciones \fB[KINS]KINEMATICS= trivkins coordinates=xyz\fR, se utiliza las articulaciones 0,1,2 para las articulaciones cinemáticas y las articulaciones 3,4 para las articulaciones 'extra'.
+
+.SH PINES DE MOTION
+
+.TP
+\fBmotion-command-handler.time\fR OUT S32
+Tiempo (en clocks de CPU) para el módulo de movimiento motion-command-handler
+
+.TP
+\fBmotion-controller.time\fR OUT S32
+Tiempo (en clocks de CPU) para el módulo de movimiento motion-controller.
+
+.TP
+\fBmotion.adaptive\-feed\fR IN FLOAT
+Cuando la alimentación adaptativa está habilitada con M52 P1, la velocidad comandada se multiplica por este valor. Este efecto es multiplicativo con los valores de ajuste de alimentación de nivel NML y motion.feed\-hold.
+Los valores negativos son válidos y ejecutarán la ruta del código G a la inversa.
+
+.TP
+\fBmotion.analog\-in\-\fINN\fR IN FLOAT
+Estos pines son utilizados por el modo wait-for-input M66 Enn (input de entrada analogica).
+
+.TP
+\fBmotion.analog\-out\-\fINN\fR OUT float
+Estos pines son utilizados por M67-68 (salida analogica) .
+
+.TP
+\fBmotion.coord\-error\fR OUT BIT
+TRUE cuando el movimiento ha encontrado un error, tal como exceder un límite soft
+
+.TP
+\fBmotion.coord\-mode\fR OUT BIT
+TRUE cuando el movimiento está en "modo coordinado", en oposición al "modo teleop"
+
+.TP
+\fBmotion.current\-vel\fR OUT float
+Velocidad cartesiana actual
+
+.TP
+\fBmotion.digital\-in\-\fINN\fR IN BIT
+Estos pines son utilizados por el modo M66 Pnn de espera para entrada digital.
+
+.TP
+\fBmotion.digital\-out\-\fINN\fR OUT BIT
+Estos pines están controlados por las palabras M62 a M65, de salida digital.
+
+.TP
+\fBmotion.distance\-to\-go\fR OUT float
+Distancia restante en el movimiento actual
+
+.TP
+\fBmotion.enable\fR IN BIT
+Si este bit se pone FALSE, el movimiento se detiene, la máquina se coloca en el estado "máquina apagada" y se muestra un mensaje para el operador. Para movimiento normal, ponga este bit a TRUE.
+
+.TP
+\fBmotion.eoffset-active\fR OUT BIT
+Indica que las compensaciones externas están activas (no son cero)
+
+.TP
+\fBmotion.eoffset-limited\fR OUT BIT
+Indica que el movimiento con offsets externos estaba limitado por una restricción de límite soft ([AXIS_L]MIN_LIMIT, MAX_LIMIT).
+
+.TP
+\fBmotion.feed\-hold\fR IN BIT
+Cuando Feed Stop Control está habilitado con M53 P1, y este bit es TRUE, la velocidad de avance se establece en 0.
+
+.TP
+\fBmotion.feed\-inhibit\fR IN BIT
+Cuando este pin es TRUE, se inhibe el movimiento de la máquina (esto incluye jog y avances y rápidos programados, también conocidos como movimientos traverse).
+
+Si la máquina está realizando un movimiento sincronizado del husillo cuando este pin se vuelve TRUE, el movimiento sincronizado del husillo finalizará y se inhibirán los siguientes movimientos (esto es para evitar daños a la máquina, la herramienta o la pieza de trabajo).
+
+Si la máquina está en medio de un movimiento (sin husillo sincronizado) cuando este pin se vuelve TRUE, la máquina desacelerará hasta detenerse a la tasa de aceleración máxima permitida.
+
+El movimiento se reanuda cuando este pin se vuelve FALSE.
+
+.TP
+\fBmotion.homing\-inhibit\fR IN BIT
+Si este bit es TRUE, el inicio de cualquier movimiento home de articulación (incluido "Home Todos") no se permite y se informa un error. De manera predeterminada, el homing se permite en modo articulación siempre que el movimiento esté habilitado.
+
+.TP
+\fBmotion.in\-position\fR OUT BIT
+TRUE si la máquina está en posición (es decir, actualmente no se mueve hacia la posición ordenada).
+
+.TP
+\fBmotion.motion\-enabled\fR OUT BIT
+
+.TP
+\fBmotion.motion\-type\fR OUT S32
+Estos valores estan en src/emc/nml_intf/motion_types.h
+.RS
+.RS
+.TP
+0: inactivo (sin movimiento)
+.P
+1: traverse (jog, avance o rapido)
+.P
+2: avance lineal
+.P
+3: avance arco
+.P
+4: cambio de herramienta
+.P
+5: sondeo
+.P
+6: Desbloqueo rotatorio para traverse
+.RE
+.RE
+
+.TP
+\fBmotion.on\-soft\-limit\fR OUT BIT
+
+.TP
+\fBmotion.probe\-input\fR IN BIT
+G38.n usa el valor en este pin para determinar cuándo ha hecho contacto la sonda. TRUE para el contacto de sonda cerrado (en contacto), FALSE para el contacto de la sonda abierto.
+
+.TP
+\fBmotion.program\-line\fR OUT S32
+Línea del programa actual durante la ejecución. Cero si no se está ejecutando o entre líneas durante ejecucion a pasos.
+
+.TP
+\fBmotion.requested\-vel\fR OUT float
+La velocidad actual solicitada en unidades de usuario por segundo. Este valor es la configuración de la palabra F del archivo de código G, posiblemente reducida para acomodarse a los límites de velocidad y aceleración de la máquina. El valor en este pin no refleja el ajuste de alimentación ni ningún otro ajuste.
+.TP
+\fBmotion.servo.last\-period\fR OUT U32
+El número de clocks de CPU entre invocaciones del hilo servo. Por lo general, este número dividido por la velocidad de la CPU proporciona el tiempo en segundos y se puede usar para determinar si el controlador de movimiento en tiempo real cumple con sus limitaciones de tiempo
+
+.TP
+\fBmotion.teleop\-mode\fR OUT BIT
+El modo de movimiento es teleop ( disponible jogging coordinado de ejes).
+
+.TP
+\fBmotion.tooloffset.L\fR OUT float
+offset de herramienta actual para cada eje donde (\fBL\fR es la letra del eje, una de entre:\fBx y z a b c u v w\fR)
+
+.TP
+\fBmotion.tp\-reverse\fR OUT BIT
+Se invierte la planificación de trayectoria (ejecución inversa)
+
+.SH PINES DE EJE
+(\fBL\fR es la letra del eje, una de entre:\fBx y z a b c u v w\fR)
+
+.TP
+\fBaxis.\fIL\fB.eoffset\fR OUT float
+Offset externo actual.
+
+.TP
+\fBaxis.\fIL\fB.eoffset-clear\fR IN BIT
+Borrar solicitud de offset externa
+
+.TP
+\fBaxis.\fIL\fB.eoffset-count\fR IN S32
+Entrada de cuenta para offset externo.
+Los recuentos de offset se transfieren a un registro interno. El offset externo aplicado es el producto de los recuentos en registro y el valor de eoffset-scale. El registro es \fBreseteado a cero en cada inicio de máquina\fR. Si la máquina se apaga con un offset externo activo, el pin eoffset-count debe establecerse en cero antes de reiniciar.
+
+.TP
+\fBaxis.\fIL\fB.eoffset-enable\fR IN BIT
+Habilitacion para offset externo (también requiere la configuración del archivo ini [AXIS_L]OFFSET_AV_RATIO)
+
+.TP
+\fBaxis.\fIL\fB.eoffset-request\fR OUT FLOAT
+Pin de depuración para el offset externo solicitado.
+
+.TP
+\fBaxis.\fIL\fB.eoffset-scale\fR IN FLOAT
+Escala para offset externo.
+
+.TP
+\fBaxis.\fIL\fB.jog\-accel\-fraction\fR IN FLOAT
+Establece la aceleración para el jogging de volante en una fracción del valor ini max_acceleration para el eje. Se ignoran los valores mayores que 1 o menores que cero.
+
+.TP
+\fBaxis.\fIL\fB.jog\-counts\fR IN S32
+Conéctese al pin "recuentos" de un codificador externo para usar un volante de jog físico.
+
+.TP
+\fBaxis.\fIL\fB.jog\-enable\fR IN BIT
+Cuando es TRUE (y en modo manual), cualquier cambio en "jog\-counts" dará lugar a un movimiento. Cuando es FALSE, "jog\-counts" se ignora.
+
+.TP
+\fBaxis.\fIL\fB.jog\-scale\fR IN float
+Establece la distancia recorrida para cada recuento en "jog\-counts", en unidades de máquina.
+
+.TP
+\fBaxis.\fIL\fB.jog\-vel\-mode\fR IN BIT
+Cuando es FALSE (el valor predeterminado), el volante funciona en modo de posición. El eje se moverá exactamente jog\-scale unidades para cada recuento, independientemente de cuánto tiempo pueda tomar. Cuando es TRUE, la rueda funciona en modo de velocidad; el movimiento se detiene cuando la rueda se detiene, incluso si eso significa que el movimiento ordenado no se ha completado.
+
+.TP
+\fBaxis.\fIL\fB.kb\-jog\-active\fR OUT BIT
+(planificador libre de eje activo (teclado o halui))
+
+.TP
+\fBaxis.\fIL\fB.pos\-cmd\fR OUT float
+Posición comandada del eje. Puede haber varios offsets entre el eje y las coordenadas del motor; backlash, de error de tornillo y de home. Las compensaciones externas se informan por separado (eje.\fBL\fR.eoffset).
+
+.TP
+\fBaxis.\fIL\fB.teleop\-pos\-cmd\fR OUT float
+
+.TP
+\fBaxis.\fIL\fB.teleop\-tp\-enable\fR OUT BIT
+TRUE cuando el "planificador teleop" está habilitado para este eje
+
+.TP
+\fBaxis.\fIL\fB.teleop\-vel\-cmd\fR OUT float
+Velocidad comandada del eje
+
+.TP
+\fBaxis.\fIL\fB.teleop\-vel\-lim\fR OUT float
+Límite de velocidad para el planificador teleop
+
+.TP
+\fBaxis.\fIL\fB.wheel\-jog\-active\fR OUT BIT
+
+.SH PINES de articulación
+\fBN\fR es el número articulación (\fB0\fR ...\fBnum_joints\-1\fR))
+.TP
+(\fBNota:\fR los pines marcados\fB(DEBUG)\fR sirven como ayudas de depuración y están sujetos a cambios o eliminación en cualquier momento).
+
+.TP
+\fBjoint.\fIN\fB.joint\-acc\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+Aceleración comandada de la articulación
+
+.TP
+\fBjoint.\fIN\fB.active\fR OUT BIT \fB(DEBUG)\fR
+TRUE cuando esta articulación está activa
+
+.TP
+\fBjoint.\fIN\fB.amp\-enable\-out\fR OUT BIT
+TRUE si el amplificador para esta articulación debe estar habilitado
+
+.TP
+\fBjoint.\fIN\fB.amp\-fault\-in\fR IN BIT
+Debe ponerse en TRUE si se detecta un fallo externo del amplificador de esta articulación
+
+.TP
+\fBjoint.\fIN\fB.backlash\-corr\fR OUT FLOAT \fB(DEBUG)\fR
+Valor bruto de backlash o compensacion de tornillo
+
+.TP
+\fBjoint.\fIN\fB.backlash\-filt\fR OUT FLOAT \fB(DEBUG)\fR
+Valor filtrado de backlash o compensacion de tornillo (respetando los límites de movimiento)
+
+.TP
+\fBjoint.\fIN\fB.backlash\-vel\fR OUT FLOAT \fB(DEBUG)\fR
+Velocidad de backlash o compensacion de tornillo
+
+.TP
+\fBjoint.\fIN\fB.coarse\-pos\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+
+.TP
+\fBjoint.\fIN\fB.error\fR OUT BIT \fB(DEBUG)\fR
+TRUE cuando esta articulación ha encontrado un error, como la activacion de un interruptor de límite
+
+.TP
+\fBjoint.\fIN\fB.f\-error\fR OUT FLOAT \fB(DEBUG)\fR
+Error de seguimiento actual
+
+.TP
+\fBjoint.\fIN\fB.f\-error\-lim\fR OUT FLOAT \fB(DEBUG)\fR
+Límite de error de seguimiento
+
+.TP
+\fBjoint.\fIN\fB.f\-errored\fR OUT BIT \fB(DEBUG)\fR
+TRUE cuando esta articulación ha excedido el límite de error de seguimiento
+
+.TP
+\fBjoint.\fIN\fB.faulted\fR OUT BIT \fB(DEBUG)\fR
+
+.TP
+\fBjoint.\fIN\fB.free\-pos\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+Posición comandad por "planificador libre" para esta articulación.
+
+.TP
+\fBjoint.\fIN\fB.free\-tp\-enable\fR OUT BIT \fB(DEBUG)\fR
+TRUE cuando el "planificador libre" está habilitado para esta articulación
+
+.TP
+\fBjoint.\fIN\fB.free\-vel\-lim\fR OUT FLOAT \fB(DEBUG)\fR
+Límite de velocidad para el planificador libre
+
+.TP
+\fBjoint.\fIN\fB.home\-state\fR OUT S32\fB (DEBUG)\fR
+Estatus de la máquina de estados de homing
+
+.TP
+\fBjoint.\fIN\fB.home\-sw\-in\fR IN BIT
+Debe hacerse TRUE si el interruptor home para esta articulación está cerrado
+
+.TP
+\fBjoint.\fIN\fB.homed\fR OUT BIT \fB(DEBUG)\fR
+TRUE si la articulación ha sido homeada
+
+.TP
+\fBjoint.\fIN\fB.homing\fR OUT BIT
+TRUE si la articulación está actualmente homeada
+
+.TP
+\fBjoint.\fIN\fB.in\-position\fR OUT BIT \fB(DEBUG)\fR
+TRUE si la articulación está utilizando el "planificador libre" y se ha detenido
+
+.TP
+\fBjoint.\fIN\fB.index\-enable\fR IO BIT
+Debe estar conectado al pin index\-enable del codificador de la articulación para permitir homing al pulso index.
+
+.TP
+\fBjoint.N.is\-unlocked\fR IN BIT
+Indica que la articulación está desbloqueada (ver PINES DE DESBLOQUEO DE ARTICULACION).
+
+.TP
+\fBjoint.\fIN\fB.jog\-accel\-fraction\fR IN FLOAT
+Establece la aceleración para jog de volante en una fracción del ini max_acceleration para la articulación. Se ignoran los valores mayores que 1 o menores que cero.
+
+.TP
+\fBjoint.\fIN\fB.jog\-counts\fR IN S32
+Conéctese al pin "counts" de un codificador externo para usar un volante jog físico.
+
+.TP
+\fBjoint.\fIN\fB.jog\-enable\fR IN BIT
+Cuando es TRUE (y en modo manual), cualquier cambio en "jog\-counts" dará lugar a un movimiento. Cuando es FALSE, "jog\-counts" se ignora.
+
+.TP
+\fBjoint.\fIN\fB.jog\-scale\fR IN FLOAT
+Establece la distancia recorrida para cada cuenta en "jog\-counts", en unidades de máquina.
+
+.TP
+\fBjoint.\fIN\fB.jog\-vel\-mode\fR IN BIT
+Cuando es FALSE (el valor predeterminado), el volante jog funciona en modo de posición. La articulación se moverá exactamente jog\-scale unidades para cada cuenta, independientemente de cuánto tiempo pueda tomar. Cuando es TRUE, la rueda funciona en modo de velocidad; el movimiento se detiene cuando la rueda se detiene, incluso si eso significa que el movimiento ordenado no se ha completado.
+
+.TP
+\fBjoint.\fIN\fB.kb\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
+(planificador libre de jogging de articulación activo (teclado o halui))
+
+.TP
+\fBjoint.\fIN\fB.motor\-offset\fR OUT FLOAT \fB(DEBUG)\fR
+offset del motor de la articulación establecido cuando se homea la articulación
+
+.TP
+\fBjoint.\fIN\fB.motor\-pos\-cmd\fR OUT float
+Posición comandada para esta articulación.
+
+.TP
+\fBjoint.\fIN\fB.motor\-pos\-fb\fR IN float
+Posición real de esta articulación.
+
+.TP
+\fBjoint.\fIN\fB.neg\-hard\-limit\fR OUT BIT \fB(DEBUG)\fR
+Límite hard negativo para la articulación
+
+.TP
+\fBjoint.\fIN\fB.neg\-lim\-sw\-in\fR IN BIT
+Debe ponerse en TRUE si se dispara el interruptor de límite negativo para esta articulación.
+
+.TP
+\fBjoint.\fIN\fB.pos\-cmd\fR OUT float
+Posición comandada de la articulación (en oposición al motor). Puede haber varios offsets entre las coordenadas de la articulación y del motor; backlash, error de tornillo y offset de home.
+
+.TP
+\fBjoint.\fIN\fB.pos\-fb\fR OUT float
+Retroalimentación de la posición de articulación. Este valor se calcula a partir de la posición real del motor menos las compensaciones de articulaciones. Útil para la visualización de máquinas.
+
+.TP
+\fBjoint.\fIN\fB.pos\-hard\-limit\fR OUT BIT \fB(DEBUG)\fR
+Límite hard positivo para la articulación
+
+.TP
+\fBjoint.\fIN\fB.pos\-lim\-sw\-in\fR IN BIT
+Debe ponerse en TRUE si se dispara el interruptor de límite positivo para esta articulación.
+
+.TP
+\fBjoint.\fIN\fB.unlock\fR OUT BIT
+TRUE si el eje es una articulación con bloqueo (generalmente una rotativa) y se ordena un movimiento (ver PINES DE DESBLOQUEO DE LA ARTICULACION)
+
+.TP
+\fBjoint.\fIN\fB.joint\-vel\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
+Velocidad comandada de la articulación
+
+.TP
+\fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
+
+.SH Pines de articulación posthome
+Cada articulación designada como articulación 'extra' está provista de un pin hal \fBjoint.N.posthome-cmd\fR. El valor del pin se ignora antes del homing.
+Después del homing, el valor del pin aumenta con el valor de offset del motor y se enruta a \fBjoint.N.motor-pos-cmd\fR.
+
+.SH Pines de desbloqueo JOINT 
+Los pines de articulación utilizados para desbloquear una articulación (\fBjoint.N.unlock\fR,\fBjoint.N.is-unlocked\fR), se crean de acuerdo con el parámetro\fBunlock_joints_mask=\fRjointmask para motmod. Estos pines pueden ser necesarios para bloquear los indexadores (generalmente una articulación rotativa)
+
+Los bits de la máscara articulación son: (lsb)0: articulación0, 1: articulación1, 2: articulación2, ...
+
+.TP
+Ejemplo: loadrt motmod ...\fBunlock_joints_mask=\fR0x38 crea pines de desbloqueo para las articulaciones 3,4,5
+
+.SH PINES DE HUSILLO
+(\fBM\fR es el número de husillo (\fB0\fR ...\fBnum_spindles\-1\fR))
+
+.TP
+\fBspindle.M\fB.amp\-fault\-in\fR IN BIT
+Debe ponerse a TRUE si se detecta un fallo externa con el amplificador para este husillo
+
+.TP
+\fBspindle.M.at\-speed\fR IN BIT
+El movimiento se detendrá hasta que este pasador sea TRUE, en las siguientes condiciones: antes del primer movimiento de alimentación después de cada arranque del husillo o cambio de velocidad; antes del comienzo de cada cadena de movimiento spindle\-synchronized y, si está en modo CSS, en cada transición rapid\->feed.
+
+.TP
+\fBspindle.M.brake\fR OUT BIT
+TRUE cuando se debe aplicar el freno del husillo
+
+.TP
+\fBspindle.M.forward\fR OUT BIT
+TRUE cuando el huso debe girar hacia adelante
+
+.TP
+\fBspindle.M.index\-enable\fR I/O BIT
+Para el correcto funcionamiento de los movimientos sincronizados del cabezal, esta señal debe estar conectada al pin index\-enable del codificador del husillo.
+
+.TP
+\fBspindle.M.inhibit\fR IN BIT
+Cuando es TRUE, la velocidad del husillo se establece y se mantiene en 0.
+
+.TP
+\fBspindle.M.is\-orientad\fR IN BIT
+Pin de confirmacion spindle\-orient. Completa el ciclo de orientación. Si spindle\-orient era TRUE cuando se confirmó spindle\-is\-orientd, se borra el pin spindle\-orient y se activa el pin spindle\-locked. Además, se afirma el pin spindle\-brake de freno.
+
+.TP
+\fBspindle.M.locked\fR OUT BIT
+Pin de orientacion de husillo completada. Limpiado por cualquiera de M3, M4, M5.
+
+.TP
+\fBspindle.M.on\fR OUT BIT
+TRUE cuando el husillo debe girar
+
+.TP
+\fBspindle.M.orient\fR OUT BIT
+Indica el inicio del ciclo de orientación del husillo. Establecido por M19. Autorizado por cualquiera de M3, M4, M5.
+
+Si spindle\-orient\-fault no es cero durante spindle\-orient true, el comando M19 falla con un mensaje de error.
+
+.TP
+\fBspindle.M.orient\-angle\fR OUT FLOAT
+Orientación deseada del husillo para M19. Valor del parámetro de palabra M19 R más el valor del parámetro ini [RS274NGC]ORIENT_OFFSET.
+
+.TP
+\fBspindle.M.orient\-fault\fR IN S32
+Entrada del código de fallo para el ciclo de orientación. Cualquier valor que no sea cero hará que el ciclo de orientación se cancele.
+
+.TP
+\fBspindle.M.orient\-mode\fR OUT BIT
+Modo de rotación deseado del husillo. Refleja la palabra del parámetro M19 P.
+
+.TP
+\fBspindle.M.reverse\fR OUT BIT
+TRUE cuando el eje debe girar en inverso.
+
+.TP
+\fBspindle.M.revs\fR IN FLOAT
+Para el correcto funcionamiento de los movimientos sincronizados del husillo, esta señal debe conectarse al pin de posición del codificador del husillo.
+
+.TP
+\fBspindle.M.speed\-cmd\-rps\fR FLOAT OUT
+Velocidad del husillo comandada en unidades de revoluciones por segundo
+
+.TP
+\fBspindle.M.speed\-in\fR IN FLOAT
+Retroalimentación de velocidad real del husillo en revoluciones por segundo. Se utiliza para los modos G96 (velocidad de superficie constante) y G95 (avance por revolución).
+
+.TP
+\fBspindle.M.speed\-out\fR OUT FLOAT
+Velocidad del husillo deseada en rotaciones por minuto
+
+.TP
+\fBspindle.M.speed\-out\-abs\fR OUT float
+Velocidad del husillo deseada en rotaciones por minuto, siempre positiva independientemente de la dirección del husillo.
+
+.TP
+\fBspindle.M.speed\-out\-rps\fR OUT float
+Velocidad del husillo deseada en rotaciones por segundo
+
+.TP
+\fBspindle.M.speed\-out\-rps\-abs\fR OUT float
+Velocidad del husillo deseada en rotaciones por segundo, siempre positiva independientemente de la dirección del husillo.
+
+.SH PARÁMETROS DE MOVIMIENTO 
+
+Muchos de los parámetros sirven como ayudas para la depuración y están sujetos a cambios o eliminación en cualquier momento.
+
+.TP
+\fBmotion\-command\-handler.tmax\fR RW S32
+Muestra información sobre el tiempo de ejecución de estas funciones HAL en clocks de CPU
+
+.TP
+\fBmotion\-command\-handler.tmax\-increased\fR RO S32
+
+.TP
+\fBmotion\-controller.tmax\fR RW S32
+Muestra información sobre el tiempo de ejecución de estas funciones HAL en clocks de CPU
+
+.TP
+\fBmotion\-controller.tmax\-increased\fR RO BIT
+
+.TP
+\fBmotion.debug\-\fI*\fR
+Estos valores se utilizan con fines de depuración.
+
+.SH FUNCIONES
+
+Generalmente, estas funciones se agregan al hilo servo en el orden que se muestra.
+
+.TP
+\fBmotion\-command\-handler\fR
+Procesa comandos de movimiento provenientes del espacio del usuario.
+El pin llamado \fBmotion-command-handler.time\fR y los parámetros \fBmotion-command-handler.tmax, tmax-Increment\fR se crean para esta función.
+
+.TP
+\fBmotion\-controller\fR
+Ejecuta el controlador de movimiento LinuxCNC.
+El pin llamado \fBmotion-controller.time\fR y los parámetros \fBmotion-controller.tmax,tmax-increased\fR se crean para esta función.
+
+.SH ERRORES
+Esta página del manual está incompleta.
+.TP
+La identificación de pines categorizados con \fB(DEBUG)\fR es dudosa.
+
+.SH VER TAMBIÉN
+iocontrol (1), milltask (1)

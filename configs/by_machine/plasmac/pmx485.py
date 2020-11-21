@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 '''
 pmx485.py
@@ -129,6 +129,13 @@ def open_machine():
     current = write_register(rCurrent, '{:04X}'.format(int(pmx485.current_set * 64.0)))
     # set pressure
     pressure = write_register(rPressure, '{:04X}'.format(int(pmx485.pressure_set * 128.0)))
+    if mode and current and pressure:
+        return True
+    else:
+        return False
+
+# get settings limits
+def get_limits():
     # get minimum current setting
     cMin = read_register(rCurrentMin)
     if cMin:
@@ -145,18 +152,16 @@ def open_machine():
     pMax = read_register(rPressureMax)
     if pMax:
         pmx485.pressure_max = round(int(pMax, 16) / 128.0, 1)
-    if mode and current and pressure and cMin and cMax and pMax:
-
+    if cMin and cMax and pMin and pMax:
 # debugging
-        print('\nPowermax Settings:')
-        print('    Mode Force = {}'.format(int(pmx485.mode_set)))
-        print(' Current Force = {}'.format(int(pmx485.current_set)))
-        print('Pressure Force = {}'.format(int(pmx485.pressure_set)))
-        print('   Current Min = {}'.format(pmx485.current_min))
-        print('   Current Max = {}'.format(pmx485.current_max))
-        print('  Pressure Min = {}'.format(pmx485.pressure_min))
-        print('  Pressure Max = {}\n'.format(pmx485.pressure_max))
-    
+        # print('\nPowermax Settings:')
+        # print('    Mode Force = {}'.format(int(pmx485.mode_set)))
+        # print(' Current Force = {}'.format(int(pmx485.current_set)))
+        # print('Pressure Force = {}'.format(int(pmx485.pressure_set)))
+        # print('   Current Min = {}'.format(pmx485.current_min))
+        # print('   Current Max = {}'.format(pmx485.current_max))
+        # print('  Pressure Min = {}'.format(pmx485.pressure_min))
+        # print('  Pressure Max = {}\n'.format(pmx485.pressure_max))
         return True
     else:
         return False
@@ -178,14 +183,17 @@ try:
                         comms.open()
                     if open_machine():
                         started = True
+                    if started and get_limits():
+                        started = True
                     else:
-                        pass
+                        started = False
                 else:
                     # set mode
                     if pmx485.mode_set != pmx485.mode:
                         mode = write_register(rMode,  '{:04X}'.format(int(pmx485.mode_set)))
                         if mode:
                             pmx485.mode = pmx485.mode_set
+                            get_limits()
                     # get mode
                     else:
                         mode = read_register(rMode)
@@ -221,20 +229,18 @@ try:
                         errorCount = 0
                     else:
                         errorCount += 1
-
-#----------------------- temporary for testing ---------------------------------
-                        print('\nPMX485 STATUS ERROR #{}'.format(errorCount))
-                        if not mode:
-                            print('    Mode: set={:5.1f}   get={:5.1f}'.format(pmx485.mode_set, pmx485.mode))
-                        if not current:
-                            print(' Current: set={:5.1f}   get={:5.1f}'.format(pmx485.current_set, pmx485.current))
-                        if not pressure:
-                            print('Pressure: set={:5.1f}   get={:5.1f}'.format(pmx485.pressure_set, pmx485.pressure))
-                        if not fault:
-                            print('   Fault:             get={:5.1f}'.format(pmx485.fault))
-#-------------------------------------------------------------------------------
-
+# debugging
+                        # print('\nPMX485 STATUS ERROR #{}'.format(errorCount))
+                        # if not mode:
+                        #     print('    Mode: set={:5.1f}   get={:5.1f}'.format(pmx485.mode_set, pmx485.mode))
+                        # if not current:
+                        #     print(' Current: set={:5.1f}   get={:5.1f}'.format(pmx485.current_set, pmx485.current))
+                        # if not pressure:
+                        #     print('Pressure: set={:5.1f}   get={:5.1f}'.format(pmx485.pressure_set, pmx485.pressure))
+                        # if not fault:
+                        #     print('   Fault:             get={:5.1f}'.format(pmx485.fault))
                         if errorCount > 2:
+                            print('Closing pmx485.py, error count exceeded')
                             errorCount = 0
                             comms.close()
                             pmx485.status = False

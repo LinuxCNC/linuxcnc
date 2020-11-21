@@ -1,1 +1,21 @@
-This is a simulation of an XYZBC 5 axis bridge mill.
+This is a simulation of an XYZBCW 5 axis bridge mill.
+
+Example demo:
+
+ 1) $ linuxcnc 5axis.ini
+ 2) F1 ---------- Estop off
+    F2 ---------- Machine on
+    CTRL-HOME --- home all
+    F5 ---------- MDI tab
+ 3) orient vismach gui as required
+ 4) g0w10   ; retract w
+ 5) g43h100 ; tool offset (100)
+ 6) g0b45   ; tilt 45 deg wrt z
+ 7) g0c30   ; rotate 30 deg in xy
+ 8) g0w-10  ; simulate drill
+ 9) g0w10   ; retract drill
+10) etc
+
+Note: W is for tool motion at b,c angles 
+      Configure a joint for W (6 total) to
+      allow display of W values

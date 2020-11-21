@@ -1,0 +1,52 @@
+.TH hal_signal_new "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_signal_new, hal_signal_delete, hal_link, hal_unlink \- Manipular señales HAL
+
+.SH SINTAXIS
+.HP
+int hal_signal_new(const char *\fIsignal_name\fR, hal_type_t \fItype\fR)
+
+.HP
+int hal_signal_delete(const char *\fIsignal_name\fR)
+
+.HP
+int hal_link(const char *\fIpin_name\fR, const char * \fIsignal_name\fR)
+
+.HP
+int hal_unlink(const char *\fIpin_name\fR)
+.SH ARGUMENTOS
+.IP \fIsignal_name\fR
+El nombre de la señal
+
+.IP \fIpin_name\fR
+El nombre del pin
+
+.IP \fItype\fR
+El tipo de señal, como se especifica en \fBhal_type_t(3hal)\fR.
+
+.SH DESCRIPCIÓN
+\fBhal_signal_new\fR crea un nuevo objeto de señal. Una vez que una señal ha sido
+creada, los pines se pueden vincular con \fBhal_link\fR. El objeto señal
+contiene el almacenamiento real para los datos de la señal. Los objetos pin vinculados 
+a la señal tiene punteros que apuntan a los datos. 'name' es el nombre de la nueva señal.
+No puede tener más de HAL_NAME_LEN caracteres. Si ya hay
+una señal con el mismo nombre, fallará la llamada.
+
+\fBhal_link\fR vincula un pin a una señal. Si el pin ya está vinculado a la
+señal deseada, el comando tiene éxito. Si el pin ya está vinculado a alguna
+otra señal, es un error. En cualquier caso, la conexión existente no es
+modificada. (Use 'hal_unlink' para romper una conexión existente). Si la señal
+ya tiene otros pines vinculados, no se ven afectados: una señal puede ser
+vinculada a muchos pines, pero un pin puede vincularse a una sola señal.
+
+\fBhal_unlink\fR desvincula cualquier señal del pin especificado.
+
+\fBhal_signal_delete\fR elimina un objeto de señal. Cualquier pin vinculado al objeto queda desvinculado
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+
+.SH VER TAMBIÉN
+\fBhal_type_t(3hal)\fR
+

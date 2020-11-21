@@ -18,11 +18,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import print_function
 import os
+import sys
 import errno
 import hashlib
-import commands
 import xml.dom.minidom
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
 
 def md5sum(filename):
     try:
@@ -629,6 +635,7 @@ class Data:
             self[temp+"dirsetup"]= 10000
             self[temp+"homepos"]= 0
             self[temp+"homesw"]=  0
+            self[temp+"hometandemsw"]=  0
             self[temp+"homefinalvel"]= 0
             self[temp+"latchdir"]= 0
             self[temp+"searchdir"]= 0
@@ -870,12 +877,12 @@ If you have a REALLY large config that you wish to convert to this newer version
             dialog.destroy()
         else:
             for para in warnings:
-                for line in textwrap.wrap(para, 78): print line
-                print
-            print
+                for line in textwrap.wrap(para, 78): print(line)
+                print()
+            print()
             if force: return
-            response = raw_input(_("Continue? "))
-            if response[0] not in _("yY"): raise SystemExit, 1
+            response = input(_("Continue? "))
+            if response[0] not in _("yY"): raise SystemExit(1)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -897,10 +904,10 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         filename = os.path.join(base, "tool.tbl")
         file = open(filename, "w")
-        print >>file, "T0 P0 ;"
-        print >>file, "T1 P1 ;"
-        print >>file, "T2 P2 ;"
-        print >>file, "T3 P3 ;"
+        print("T0 P0 ;", file=file)
+        print("T1 P1 ;", file=file)
+        print("T2 P2 ;", file=file)
+        print("T3 P3 ;", file=file)
         file.close()
 
         filename = "%s.pncconf" % base
@@ -909,7 +916,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             None, "pncconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.iteritems()):
+        for k, v in sorted(self.__dict__.items()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -924,11 +931,11 @@ If you have a REALLY large config that you wish to convert to this newer version
             n.setAttribute('value', str(v))
         
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        print "%s" % base
+        print("%s" % base)
 
         # write pncconf hidden preference file
         filename = os.path.expanduser("~/.pncconf-preferences")
-        print filename
+        print(filename)
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -994,7 +1001,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             #print "Setting TOUCHY preferences"
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
-            for key,value in templist.iteritems():
+            for key,value in templist.items():
                 prefs.putpref(value, self[key], str)
             if self.touchyposition[0] or self.touchysize[0]:
                     pos = size = ""
@@ -1021,22 +1028,22 @@ If you have a REALLY large config that you wish to convert to this newer version
                     if self.axissize[0]:
                         size = "%dx%d"% (self.axissize[1],self.axissize[2])
                     geo = "%s%s"%(size,pos)
-                    print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
+                    print("""root_window.tk.call("wm","geometry",".","%s")"""%(geo), file=f1)
                 if self.axisforcemax:
                     #print "Setting AXIS forcemax option"
-                    print >>f1,"""# Find the largest size possible and set AXIS to it"""
-                    print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
-                    print >>f1,"""try:"""
-                    print >>f1,"""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
-                    print >>f1,"""except:"""
-                    print >>f1,"""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])"""
-                    print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
-                    print >>f1,"""# Uncomment for fullscreen"""
-                    print >>f1,"""#root_window.attributes('-fullscreen', True)"""
+                    print("""# Find the largest size possible and set AXIS to it""", file=f1)
+                    print("""maxgeo=root_window.tk.call("wm","maxsize",".")""", file=f1)
+                    print("""try:""", file=f1)
+                    print("""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]""", file=f1)
+                    print("""except:""", file=f1)
+                    print("""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])""", file=f1)
+                    print("""root_window.tk.call("wm","geometry",".",fullsize)""", file=f1)
+                    print("""# Uncomment for fullscreen""", file=f1)
+                    print("""#root_window.attributes('-fullscreen', True)""", file=f1)
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
@@ -1052,18 +1059,18 @@ If you have a REALLY large config that you wish to convert to this newer version
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by PNCconf")
-            print >>file,"Icon=%s"% _PD.LINUXCNCICON
+            print("[Desktop Entry]", file=file)
+            print("Version=1.0", file=file)
+            print("Terminal=false", file=file)
+            print("Name=" + _("launch %s") % self.machinename, file=file)
+            print("Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename ), file=file)
+            print("Type=Application", file=file)
+            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by PNCconf"), file=file)
+            print("Icon=%s"% _PD.LINUXCNCICON, file=file)
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
+            os.chmod(filename,0o775)
 
     def __getitem__(self, item):
         return getattr(self, item)

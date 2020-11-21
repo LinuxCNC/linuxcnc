@@ -39,10 +39,10 @@ class EmcInterface(object):
 
     def __init__(self):
         try:
-            self.s = linuxcnc.stat();
+            self.s = linuxcnc.stat()
             self.c = linuxcnc.command()
-        except Exception, msg:
-            print "cant initialize EmcInterface: %s - LinuxCNC not running?" %(msg)
+        except Exception as msg:
+            print("cant initialize EmcInterface: %s - LinuxCNC not running?" %(msg))
 
     def running(self,do_poll=True):
         if do_poll: self.s.poll()
@@ -110,15 +110,15 @@ class HandlerClass:
 
     def on_manual_mode(self,widget,data=None):
         if self.e.ensure_mode(linuxcnc.MODE_MANUAL):
-            print "switched to manual mode"
+            print("switched to manual mode")
         else:
-            print "cant switch to manual in this state"
+            print("cant switch to manual in this state")
 
     def on_mdi_mode(self,widget,data=None):
         if self.e.ensure_mode(linuxcnc.MODE_MDI):
-            print "switched to MDI mode"
+            print("switched to MDI mode")
         else:
-            print "cant switch to MDI in this state"
+            print("cant switch to MDI in this state")
 
     def _query_emc_status(self,data=None):
         (task_mode, task_state, exec_state, interp_state) = self.e.emc_status()
@@ -143,13 +143,13 @@ class HandlerClass:
 
         self.previous_mode = self.e.s.task_mode
         if self.e.s.task_state != linuxcnc.STATE_ON:
-            print "machine not turned on"
+            print("machine not turned on")
             return
         if not self.e.s.homed[axis]:
-            print "%s axis not homed" %(chr(axis + ord('X')))
+            print("%s axis not homed" %(chr(axis + ord('X'))))
             return
         if self.e.running(do_poll=False):
-            print "cant do that now - intepreter running"
+            print("cant do that now - intepreter running")
             return
 
         self.e.ensure_mode(linuxcnc.MODE_MDI)
@@ -197,7 +197,7 @@ def get_handlers(halcomp,builder,useropts):
 
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     set_debug(debug)
 

@@ -420,7 +420,7 @@ class ProbeScreenClass:
                 return -1
         return 0
 
-    def ocode(self,s, data = None):	
+    def ocode(self,s, data = None):
         self.command.mdi(s)
         self.stat.poll()
         while self.stat.exec_state == 7 or self.stat.exec_state == 3 :

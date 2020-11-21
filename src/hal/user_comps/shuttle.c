@@ -250,22 +250,22 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
     }
 
     for (int i = 0; i < s->contour_type->num_buttons; i ++) {
-        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button[i]), hal_comp_id, "%s.%d.button-%d", s->contour_type->name, num_devices, i);
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button[i]), hal_comp_id, "%s.%d.button-%d", modname, num_devices, i);
         if (r != 0) goto fail1;
         *s->hal->button[i] = 0;
 
-        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_not[i]), hal_comp_id, "%s.%d.button-%d-not", s->contour_type->name, num_devices, i);
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_not[i]), hal_comp_id, "%s.%d.button-%d-not", modname, num_devices, i);
         if (r != 0) goto fail1;
         *s->hal->button_not[i] = 1;
     }
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", s->contour_type->name, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", s->contour_type->name, num_devices);
+    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", s->contour_type->name, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", modname, num_devices);
     if (r != 0) goto fail1;
 
     *s->hal->counts = 0;

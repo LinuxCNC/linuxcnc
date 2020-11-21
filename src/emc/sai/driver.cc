@@ -36,6 +36,7 @@
 #include <readline/history.h>
 #include <glob.h>
 #include <wordexp.h>
+#include <rtapi_string.h>
 
 #include <saicanon.hh>
 
@@ -549,6 +550,9 @@ int main (int argc, char ** argv)
   char *inifile = NULL;
   int log_level = -1;
   std::string interp;
+
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
 
   do_next = 2;  /* 2=stop */
   block_delete = OFF;

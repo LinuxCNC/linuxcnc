@@ -28,8 +28,8 @@ def io_output_M65(self,**words):
 def io_input_M66(self,**words):
 
     self.execute("M66 %(inp)s%(wait_mode)s" % dict(
-            inp = ("P0" if words.has_key('p') else "E0"),
-            wait_mode = (" L%d" % words['l'] if words.has_key('l') else ""),
+            inp = ("P0" if 'p' in words else "E0"),
+            wait_mode = (" L%d" % words['l'] if 'l' in words else ""),
             ))
     yield interpreter.INTERP_EXECUTE_FINISH
 

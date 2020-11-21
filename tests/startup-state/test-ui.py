@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import linuxcnc_util
@@ -19,93 +19,93 @@ def print_status(status):
     """Prints all the fields of the status buffer.  Does not call
     poll()."""
 
-    print "acceleration:", status.acceleration
-    print "active_queue:", status.active_queue
-    print "actual_position:", status.actual_position
-    print "adaptive_feed_enabled:", status.adaptive_feed_enabled
-    print "ain:", status.ain
-    print "angular_units:", status.angular_units
-    print "aout:", status.aout
-    print "axes:", status.axes
-    print "axis:", status.axis
-    print "axis_mask:", status.axis_mask
-    print "block_delete:", status.block_delete
-    print "call_level:", status.call_level
-    print "command:", status.command
-    print "current_line:", status.current_line
-    print "current_vel:", status.current_vel
-    print "cycle_time:", status.cycle_time
-    print "debug:", status.debug
-    print "delay_left:", status.delay_left
-    print "din:", status.din
-    print "distance_to_go:", status.distance_to_go
-    print "dout:", status.dout
-    print "dtg:", status.dtg
-    print "echo_serial_number:", status.echo_serial_number
-    print "enabled:", status.enabled
-    print "estop:", status.estop
-    print "exec_state:", status.exec_state
-    print "feed_hold_enabled:", status.feed_hold_enabled
-    print "feed_override_enabled:", status.feed_override_enabled
-    print "feedrate:", status.feedrate
-    print "file:", status.file
-    print "flood:", status.flood
-    print "g5x_index:", status.g5x_index
-    print "g5x_offset:", status.g5x_offset
-    print "g92_offset:", status.g92_offset
-    print "gcodes:", status.gcodes
-    print "homed:", status.homed
-    print "id:", status.id
-    print "inpos:", status.inpos
-    print "input_timeout:", status.input_timeout
-    print "interp_state:", status.interp_state
-    print "interpreter_errcode:", status.interpreter_errcode
-    print "joint:", status.joint
-    print "joint_actual_position:", status.joint_actual_position
-    print "joint_position:", status.joint_position
-    print "joints:", status.joints
-    print "kinematics_type:", status.kinematics_type
-    print "limit:", status.limit
-    print "linear_units:", status.linear_units
-    print "lube:", status.lube
-    print "lube_level:", status.lube_level
-    print "max_acceleration:", status.max_acceleration
-    print "max_velocity:", status.max_velocity
-    print "mcodes:", status.mcodes
-    print "mist:", status.mist
-    print "motion_line:", status.motion_line
-    print "motion_mode:", status.motion_mode
-    print "motion_type:", status.motion_type
-    print "optional_stop:", status.optional_stop
-    print "paused:", status.paused
-    print "pocket_prepped:", status.pocket_prepped
-    print "position:", status.position
-    print "probe_tripped:", status.probe_tripped
-    print "probe_val:", status.probe_val
-    print "probed_position:", status.probed_position
-    print "probing:", status.probing
-    print "program_units:", status.program_units
-    print "queue:", status.queue
-    print "queue_full:", status.queue_full
-    print "queued_mdi_commands:", status.queued_mdi_commands
-    print "rapidrate:", status.rapidrate
-    print "read_line:", status.read_line
-    print "rotation_xy:", status.rotation_xy
-    print "settings:", status.settings
-    print "spindle_brake:", status.spindle[0]['brake']
-    print "spindle_direction:", status.spindle[0]['direction']
-    print "spindle_enabled:", status.spindle[0]['enabled']
-    print "spindle_override_enabled:", status.spindle[0]['override_enabled']
-    print "spindle_speed:", status.spindle[0]['speed']
-    print "spindlerate:", status.spindle[0]['override']
-    print "state:", status.state
-    print "task_mode:", status.task_mode
-    print "task_paused:", status.task_paused
-    print "task_state:", status.task_state
-    print "tool_in_spindle:", status.tool_in_spindle
-    print "tool_offset:", status.tool_offset
-    print "tool_table:", status.tool_table
-    print "velocity:", status.velocity
+    print("acceleration: {}".format(status.acceleration))
+    print("active_queue: {}".format(status.active_queue))
+    print("actual_position: {}".format(status.actual_position))
+    print("adaptive_feed_enabled: {}".format(status.adaptive_feed_enabled))
+    print("ain: {}".format(status.ain))
+    print("angular_units: {}".format(status.angular_units))
+    print("aout: {}".format(status.aout))
+    print("axes: {}".format(status.axes))
+    print("axis: {}".format(status.axis))
+    print("axis_mask: {}".format(status.axis_mask))
+    print("block_delete: {}".format(status.block_delete))
+    print("call_level: {}".format(status.call_level))
+    print("command: {}".format(status.command))
+    print("current_line: {}".format(status.current_line))
+    print("current_vel: {}".format(status.current_vel))
+    print("cycle_time: {}".format(status.cycle_time))
+    print("debug: {}".format(status.debug))
+    print("delay_left: {}".format(status.delay_left))
+    print("din: {}".format(status.din))
+    print("distance_to_go: {}".format(status.distance_to_go))
+    print("dout: {}".format(status.dout))
+    print("dtg: {}".format(status.dtg))
+    print("echo_serial_number: {}".format(status.echo_serial_number))
+    print("enabled: {}".format(status.enabled))
+    print("estop: {}".format(status.estop))
+    print("exec_state: {}".format(status.exec_state))
+    print("feed_hold_enabled: {}".format(status.feed_hold_enabled))
+    print("feed_override_enabled: {}".format(status.feed_override_enabled))
+    print("feedrate: {}".format(status.feedrate))
+    print("file: {}".format(status.file))
+    print("flood: {}".format(status.flood))
+    print("g5x_index: {}".format(status.g5x_index))
+    print("g5x_offset: {}".format(status.g5x_offset))
+    print("g92_offset: {}".format(status.g92_offset))
+    print("gcodes: {}".format(status.gcodes))
+    print("homed: {}".format(status.homed))
+    print("id: {}".format(status.id))
+    print("inpos: {}".format(status.inpos))
+    print("input_timeout: {}".format(status.input_timeout))
+    print("interp_state: {}".format(status.interp_state))
+    print("interpreter_errcode: {}".format(status.interpreter_errcode))
+    print("joint: {}".format(status.joint))
+    print("joint_actual_position: {}".format(status.joint_actual_position))
+    print("joint_position: {}".format(status.joint_position))
+    print("joints: {}".format(status.joints))
+    print("kinematics_type: {}".format(status.kinematics_type))
+    print("limit: {}".format(status.limit))
+    print("linear_units: {}".format(status.linear_units))
+    print("lube: {}".format(status.lube))
+    print("lube_level: {}".format(status.lube_level))
+    print("max_acceleration: {}".format(status.max_acceleration))
+    print("max_velocity: {}".format(status.max_velocity))
+    print("mcodes: {}".format(status.mcodes))
+    print("mist: {}".format(status.mist))
+    print("motion_line: {}".format(status.motion_line))
+    print("motion_mode: {}".format(status.motion_mode))
+    print("motion_type: {}".format(status.motion_type))
+    print("optional_stop: {}".format(status.optional_stop))
+    print("paused: {}".format(status.paused))
+    print("pocket_prepped: {}".format(status.pocket_prepped))
+    print("position: {}".format(status.position))
+    print("probe_tripped: {}".format(status.probe_tripped))
+    print("probe_val: {}".format(status.probe_val))
+    print("probed_position: {}".format(status.probed_position))
+    print("probing: {}".format(status.probing))
+    print("program_units: {}".format(status.program_units))
+    print("queue: {}".format(status.queue))
+    print("queue_full: {}".format(status.queue_full))
+    print("queued_mdi_commands: {}".format(status.queued_mdi_commands))
+    print("rapidrate: {}".format(status.rapidrate))
+    print("read_line: {}".format(status.read_line))
+    print("rotation_xy: {}".format(status.rotation_xy))
+    print("settings: {}".format(status.settings))
+    print("spindle_brake: {}".format(status.spindle[0]['brake']))
+    print("spindle_direction: {}".format(status.spindle[0]['direction']))
+    print("spindle_enabled: {}".format(status.spindle[0]['enabled']))
+    print("spindle_override_enabled: {}".format(status.spindle[0]['override_enabled']))
+    print("spindle_speed: {}".format(status.spindle[0]['speed']))
+    print("spindlerate: {}".format(status.spindle[0]['override']))
+    print("state: {}".format(status.state))
+    print("task_mode: {}".format(status.task_mode))
+    print("task_paused: {}".format(status.task_paused))
+    print("task_state: {}".format(status.task_state))
+    print("tool_in_spindle: {}".format(status.tool_in_spindle))
+    print("tool_offset: {}".format(status.tool_offset))
+    print("tool_table: {}".format(status.tool_table))
+    print("velocity: {}".format(status.velocity))
     sys.stdout.flush()
 
 
@@ -179,7 +179,7 @@ l = linuxcnc_util.LinuxCNC()
 # Wait for LinuxCNC to initialize itself so the Status buffer stabilizes.
 l.wait_for_linuxcnc_startup()
 
-print "status at boot up"
+print("status at boot up")
 s.poll()
 print_status(s)
 
@@ -242,7 +242,7 @@ assert(math.fabs(s.g92_offset[1] - 2.000) < 0.0000001)
 assert(math.fabs(s.g92_offset[2] - 4.000) < 0.0000001)
 assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
-assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80))
+assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80, 923))
 
 assert(not (1 in s.homed))
 assert(s.id == 0)
@@ -303,13 +303,14 @@ assert(s.rapidrate == 1.0)
 assert(s.read_line == 0)
 assert(s.rotation_xy == 0.0)
 
-assert(s.settings == (0.0, 0.0, 0.0))
+assert(s.settings == (0.0, 0.0, 0.0, 0.0, 0.0))
 assert(s.spindle[0]['brake'] == 1)
 assert(s.spindle[0]['direction'] == 0)
 assert(s.spindle[0]['enabled'] == 0)
 assert(s.spindle[0]['override_enabled'] == True)
 assert(s.spindle[0]['speed'] == 0.0)
 assert(s.spindle[0]['override'] == 1.0)
+
 assert(s.state == linuxcnc.STATE_ESTOP)
 
 assert(s.task_mode == linuxcnc.MODE_MANUAL)

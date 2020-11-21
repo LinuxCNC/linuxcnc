@@ -1,0 +1,335 @@
+:lang: es
+= Linux FAQ
+
+[[cha:linux-faq]]
+
+Estos son algunos comandos básicos y técnicas para nuevos usuarios de
+linux. Información más completa se puede encontrar en la web o mediante
+las páginas del manual con el comando man.
+
+== Login automatico (((Automatic Login)))
+
+Al instalar linuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
+sesión cada vez que encienda el ordenador. Para activar autentificacion automática
+vaya a 'System > Administration > Login Window'. Si se trata
+de una instalación nueva, la ventana de inicio de sesión puede tardar
+unos segundo en aparecer. Usted tiene que tener la contraseña que utilizo
+para la instalación para acceder a la ventana de configuracion de inicio.
+En la pestaña seguridad marque habilitar acceso automático y elija un nombre de
+usuario de la lista (seleecione su nombre de usuario).
+
+N.T. Debian Stretch usa por defecto el entorno de escritorio Xfce, con el gestor
+de pantallas lightDM. Para obtener acceso automatico con Stretch:
+
+* En un terminal, use el comando:
+ 
+----
+$ /usr/sbin/lightdm --show-config
+----
+
+* Anote el path absoluto del archivo de configuracion lightdm.conf.
+* Edite ese archivo con un editor de texto puro (gedit, nano, etc), como root.
+* Busque y descomente las lineas:
+
+----
+#autologin-user=
+#autologin-user-timeout=0
+----
+
+* Haga autologin-user=su_nombre_usuario
+* Guarde y reinicie.
+
+== Inicio automatico de LinuxCNC (((Automatic Startup)))
+
+Para tener un inicio automático de linuxCNC con su configuración después
+de encender el equipo vaya a 'System > Preferences > Sessions > Startup Applications',
+seleccione la opcion agregar nuevo.
+Vaya a su carpeta de configuración y
+seleccione el archivo .ini. Cuando el cuadro de dialogo selector de
+archivos se cierra, añadir linuxcnc y un espacio al frente de la ruta a su archivo .ini.
+
+Ejemplo:
+
+----
+linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
+----
+
+N.T. En Debian Stretch, vaya a 'Aplicaciones > Configuracion > Administrador de Configuracion > Sesion e Inicio'.
+En la pestaña 'Autoarranque de aplicaciones', use el boton 'Añadir'. De un nombre, una descripcion y una orden similar
+al ejemplo anterior. En el proximo reinicio, LinuxCNC arrancara automaticamente.
+
+[[faq:terminal]]
+
+== Terminal
+
+Hay que hacer muchas cosas desde la terminal, como verificar el búfer de mensajes 
+del núcleo con 'dmesg'. Ubuntu y Linux Mint tienen un atajo de teclado Ctrl + Alt + t.
+N.T. Debia Stretch no tiene definido ningun atajo de teclado. Se puede crear facilmente
+con el 'Administrador de Configuracion'. 
+
+La mayoría de los administradores de archivos modernos admiten el boton derecho para 
+abrir un terminal; solo asegúrese de hacer clic derecho en un área en blanco o en un 
+directorio.
+
+La mayoría de los sistemas operativos tienen el terminal como elemento de menú, 
+generalmente en 'Accesorios'.
+
+== Paginas de manual [[sec:Man-Pages]]
+
+(((Man Pages)))
+
+Las páginas del manual son generadas automáticamente en la mayoría de los casos.
+Las páginas del manual estan generalmente disponibles para la
+mayoría de los programas y comandos de linux.
+
+Para abrir una página del manual utilice una terminal.
+La terminal se puede abrir usando la ruta  'Applications >
+Accessories > Terminal'. 
+Por ejemplo si quiere encontrar
+algo acerca del comando de busqueda "find" tecle:
+
+----
+man find
+----
+
+Utilice las teclas 'página-arriba y 'pagina-abajo' para ver las páginas del manual
+y la tecla Q para salir de la visualizacion.
+
+
+== Lista de modulos
+
+A veces, para soluciónar algun problema, usted necesita obtener una
+lista de los módulos que se encuentran cargados. En una ventana de terminal teclee:
+
+----
+lsmod
+----
+
+Si desea enviar la salida de lsmod a un archivo de texto teclee:
+
+----
+lsmod > mymod.txt
+----
+
+El archivo de texto resultante, 'mymod.txt', se colocara en el directorio home
+si usted no cambio de directorio cuando abrio la terminal y
+será nombrado mymod.txt, o como usted lo haya nombrado.
+
+
+== Edicion de archivos de root [[sec:Editing-a-Root-File]]
+
+(((Editing a Root File)))
+
+Al abrir el explorador de archivos y ver que el propietario del
+archivo es el usuario root, se tienen que hacer algunos pasos adicionales para modificar ese archivo.
+La edición de algunos archivos puede tener malos resultados. Tenga cuidado
+al editar los archivos de root; generalmente usted puede ver y abrir los archivos root
+en modo de 'solo lectura'.
+
+
+=== Con la linea de comandos
+
+(((sudo gedit)))
+
+En una ventana de terminal teclee.
+
+----
+sudo gedit
+----
+
+Abrir el archivo con el menu File > Open > Edit, y proceda a editar.
+
+=== Usando la interface grafica
+
+(((gksudo)))
+
+ .Haga clic derecho sobre el escritorio y seleccione 'Crear lanzador'
+ .Escriba un nombre como 'editar sudo'
+ .Escriba 'gksudo "gnome-open %u"' como el comando y guarde el lanzador
+  en su escritorio.
+ .Arrastré el archivo a su lanzador para abrir y editar.
+
+=== Acceso tipo super usuario
+
+
+En Ubuntu (o Debian) puede convertirse en super usuario tecleando "sudo -i" en una terminal.
+Debera escribir su contraseña. Tenga
+cuidado porque usted puede dañar su instalacion si no sabe lo que esta haciendo.
+
+== Comandos en la terminal [[sec:Terminal-Commands]]
+
+(((Terminal Commands)))
+
+=== Directorio de trabajo (((Working Directory)))(((pwd)))
+
+Para encontrar la ruta del directorio actual de trabajo en la terminal, teclee:
+
+----
+pwd
+----
+
+=== Cambiar de directorios
+
+(((Changing Directories)))(((cd)))
+
+Para subir un nivel en la terminal teclee:
+
+----
+cd ..
+----
+
+Para subir dos niveles en la terminal teclee:
+
+----
+cd ../..
+----
+
+Para desplazarse hacia abajo hacia el subdirectorio linuxcnc/configs en la terminal teclee:
+
+----
+cd linuxcnc/configs
+----
+
+=== Listado de los archivos en un directorio
+
+(((Listing files in a directory)))(((dir)))(((ls)))
+
+Para ver una lista de todos los archivos y subdirecciones en la terminal teclee:
+
+----
+dir
+----
+
+ó
+
+----
+ls
+----
+
+=== Encontrar un archivo
+
+(((Finding a File)))(((find)))
+
+El comando 'find' puede ser un poco confuso para un usuario nuevo de linux.
+La sintaxis básica es la siguiente:
+
+----
+find directorio-inicio parametros acciones
+----
+
+Por ejemplo para encontrar todos los archivos .ini en el directorio de linuxcnc
+primero tiene que usar el comando pwd para ver el directorio. + abra una ventana de
+terminal y escriba.
+
+----
+pwd
+----
+
+y pwd podría devolver el siguiente resultado:
+ 
+----
+/home/joe
+----
+
+Con esta información se pondrá el comando conjunto de esta manera:
+
+----
+find /home/joe/linuxcnc -name \*.ini -print
+----
+
+Aqui, -name es el nombre del archivo que se busca y -print hace que se muestre
+el resultado en la ventana de terminal. El nombre \*.ini indica 'devolver
+todos los archivos que tienen la extensión .ini'.
+La diagonal se requiere para escapar los metacaracteres de la consola.
+Si desea mas informacion al respecto, vea las paginas man de 'find'.
+
+=== Busqueda de texto
+
+(((Searching for Text)))(((grep)))
+
+----
+grep -irl 'buscar' *
+----
+
+Este comando encuentra todos los archivos que contienen el texto 'buscar'
+en el directorio actual y todos los subdirectorios por debajo de este,
+sin tener en cuenta el uso de mayusculas. La -i es para ignorar mayusculas, la -r es recursivo
+(incluir todos los subdirectorios en la búsqueda) y la opcion -l retornara una lista de los nombres de archivo. Si no se usa -l tambien se obtendra el texto donde fue encontrada la ocurrencia de lo buscado dentro de 'buscar'.
+El * es un comodín para buscar todos los archivos.
+
+=== Mensaje de arranque
+
+Para ver los mensajes de arranque usar "dmesg" en la ventana de comandos.
+Para guardar los mensajes de arranque en un archivo use el operador de redirección,
+de esta manera:
+
+----
+dmesg > bootmsg.txt
+----
+
+El contenido de este archivo puede ser copiado y pegado en línea para
+compartir con la gente que le este intentando ayudar a diagnosticar un problema.
+
+Para borrar el buffer de mensajes, teclee:
+
+----
+sudo dmesg -c
+----
+
+Esto puede ser útil justo antes del arranque de LinuxCNC, por lo que solo
+habra un registro de información relacionada con el lanzamiento actual de LinuxCNC.
+
+Para encontrar la direccion de un puerto paralelo integrado use grep para
+filtrar la información producida por dmesg.
+
+Después del arranque abrir una terminal y escribir:
+
+-----
+dmesg|grep parport
+-----
+
+== Items convenientes
+
+=== Iniciador de terminal
+
+Si quiere añadir un iniciador de terminal en la barra del panel en la parte superior
+de la pantalla normalmente puede hacer clic derecho en el panel en la parte superior
+de la pantalla y seleccionar "añadir al panel". Seleccione lanzador de aplicación
+personalizado y agregar. Dele un nombre y use el comando gnome-terminal en la caja de comando.
+
+== Problemas de Hardware
+
+=== Informacion Hardware
+
+Para encontrar que hardware está conectado a la placa base,
+en una ventana de terminal teclee.
+
+----
+lspci -v
+----
+
+=== Resolucion del monitor
+
+
+Durante la instalación, ubuntu intentara detectar la configuración del monitor. Si esto no funciona
+el sistema se instalara con un máximo de resolución 800x600.
+
+Instrucciones para arreglar esto, se encuentra aquí:
+
+https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
+== Paths
+.Paths relativos
+Los phats relativos se basan en el directorio de arranque que contiene
+el archivo ini. Usar paths relativos puede facilitar la relocalizacion
+de archivos de configuracion pero requiere una buena comprensión de los especificadores de path linux.
+
+....
+   ./f0        es lo mismo que f0, e.g., un archivo llamado f0 en el directorio
+   ../f1       se refiere a un archivo llamado f1 en el directorio padre
+   ../../f2    se refiere a un archivo llamado f2 en el directorio padre del padre
+   ../../../f3 etc.
+....
+
+
+// vim: set syntax=asciidoc:

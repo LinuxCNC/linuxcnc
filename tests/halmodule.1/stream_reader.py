@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 import hal
 import time
 c = hal.component("stream_reader")
@@ -11,7 +11,7 @@ for i in range(9):
 assert reader.read() is None
 assert reader.num_underruns == 1
 c.ready()
-print "pass"
+print("pass")
 
 try:
     while 1: time.sleep(1)

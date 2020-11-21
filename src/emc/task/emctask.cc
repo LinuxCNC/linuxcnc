@@ -34,6 +34,7 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include "motion.h"
+#include <rtapi_string.h>
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -46,6 +47,43 @@ InterpBase *pinterp=0;
 #define interp (*pinterp)
 setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
 
+
+// Print error messages thrown by interpreter
+static char interp_error_text_buf[LINELEN];
+static char interp_stack_buf[LINELEN];
+
+static void print_interp_error(int retval)
+{
+    int index = 0;
+    if (retval == 0) {
+	return;
+    }
+
+    if (0 != emcStatus) {
+	emcStatus->task.interpreter_errcode = retval;
+    }
+
+    interp_error_text_buf[0] = 0;
+    interp.error_text(retval, interp_error_text_buf, LINELEN);
+    if (0 != interp_error_text_buf[0]) {
+	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
+    }
+    emcOperatorError(0, "%s", interp_error_text_buf);
+    index = 0;
+    if (emc_debug & EMC_DEBUG_INTERP) {
+	rcs_print("Interpreter stack: \t");
+	while (index < 5) {
+	    interp_stack_buf[0] = 0;
+	    interp.stack_name(index, interp_stack_buf, LINELEN);
+	    if (0 == interp_stack_buf[0]) {
+		break;
+	    }
+	    rcs_print(" - %s ", interp_stack_buf);
+	    index++;
+	}
+	rcs_print("\n");
+    }
+}
 
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
@@ -66,8 +104,8 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
-    strcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
-    strcat(fmt, " %f %f");
+    rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
+    rtapi_strxcat(fmt, " %f %f");
     snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
     interp_list.append(system_cmd);
 }
@@ -140,14 +178,17 @@ int emcTaskInit()
 		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
 			 mdir[dct]);
             }
-	    snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
-	    if (0 == stat(path, &buf)) {
+	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
+	    if (ret < sizeof(path) && 0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
-		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
+		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]),
 			     "%s/M1%%02d", expanddir); // update global
+		    if(ret >= sizeof(user_defined_fmt[0])){
+			return -EMSGSIZE; // name truncated
+		    } else {
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: adding user-defined function %s\n",
@@ -155,6 +196,7 @@ int emcTaskInit()
 		    }
 	            user_defined_function_dirindex[num] = dct;
 	            break; // use first occurrence found for num
+		    }
 	        } else {
 		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
@@ -170,6 +212,20 @@ int emcTaskInit()
 
 int emcTaskHalt()
 {
+    return 0;
+}
+
+int emcTaskStateRestore()
+{
+    int res;
+    // Do NOT restore on MDI command
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+        // Validity of state tag checked within restore function
+        res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+	if (res != INTERP_OK)
+	    // Print error but don't bail
+	    print_interp_error(res);
+    }
     return 0;
 }
 
@@ -202,6 +258,7 @@ int emcTaskAbort()
     {
 	int was_open = taskplanopen;
 	emcTaskPlanClose();
+        emcTaskPlanReset();  // Flush any unflushed segments
 	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 		      __LINE__);
@@ -374,42 +431,6 @@ static int determineState()
 }
 
 static int waitFlag = 0;
-
-static char interp_error_text_buf[LINELEN];
-static char interp_stack_buf[LINELEN];
-
-static void print_interp_error(int retval)
-{
-    int index = 0;
-    if (retval == 0) {
-	return;
-    }
-
-    if (0 != emcStatus) {
-	emcStatus->task.interpreter_errcode = retval;
-    }
-
-    interp_error_text_buf[0] = 0;
-    interp.error_text(retval, interp_error_text_buf, LINELEN);
-    if (0 != interp_error_text_buf[0]) {
-	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
-    }
-    emcOperatorError(0, "%s", interp_error_text_buf);
-    index = 0;
-    if (emc_debug & EMC_DEBUG_INTERP) {
-	rcs_print("Interpreter stack: \t");
-	while (index < 5) {
-	    interp_stack_buf[0] = 0;
-	    interp.stack_name(index, interp_stack_buf, LINELEN);
-	    if (0 == interp_stack_buf[0]) {
-		break;
-	    }
-	    rcs_print(" - %s ", interp_stack_buf);
-	    index++;
-	}
-	rcs_print("\n");
-    }
-}
 
 int emcTaskPlanInit()
 {
@@ -685,13 +706,26 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // readLine set in main
 
     char buf[LINELEN];
-    strcpy(stat->file, interp.file(buf, LINELEN));
+    rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes
-    interp.active_g_codes(&stat->activeGCodes[0]);
-    interp.active_m_codes(&stat->activeMCodes[0]);
-    interp.active_settings(&stat->activeSettings[0]);
+    // Start by assuming that we can't unpack a state tag from motion
+    int res_state = INTERP_ERROR;
+    if (emcStatus->task.interpState != EMC_TASK_INTERP_IDLE) {
+        res_state = interp.active_modes(&stat->activeGCodes[0],
+					&stat->activeMCodes[0],
+					&stat->activeSettings[0],
+					emcStatus->motion.traj.tag);
+    } 
+    // If we get an error from trying to unpack from the motion state, always
+    // use interp's internal state, so the active state is never out of date
+    if (emcStatus->task.mode != EMC_TASK_MODE_AUTO ||
+	res_state == INTERP_ERROR) {
+        interp.active_g_codes(&stat->activeGCodes[0]);
+        interp.active_m_codes(&stat->activeMCodes[0]);
+        interp.active_settings(&stat->activeSettings[0]);
+    }
 
     //update state of optional stop
     stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();

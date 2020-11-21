@@ -1,0 +1,112 @@
+.TH milltask 1 "30 de septiembre de 2014" "" "EMC Controlador de maquina mejorado"
+.SH NOMBRE
+\fBmilltask\fR \- Controlador de tareas de espacio de usuario para LinuxCNC
+.SH DESCRIPCION
+
+\fBmilltask\fR es un proceso interno de LinuxCNC. Generalmente no
+se invoca directamente, sino mediante una configuracion de archivo: \fB[TASK]TASK=milltask\fR.
+El proceso \fBmilltask\fR crea los pines HAL \fBini.*\fR enumerados a continuacion, que son
+propiedad del componente de usuario \fBinihal\fR. Estos pines pueden ser modificados
+mientras LinuxCnC se esta ejecutando para alterar los valores que normalmente se especifican
+en un inifile
+
+Los pines \fBinihal\fR se \fBmuestrean\fR en cada ciclo de tareas, sin embargo, los comandos
+afectados por sus valores suelen utilizar el valor presente en el momento
+cuando se procesa el comando. Tales comandos incluyen todos los codigos manejados
+por el interprete (programas \fBGcode\fR y comandos \fBMDI\fR comandos) y comandos NML
+\fBjogging\fR emitidos por una GUI (incluida \fBhalui\fR).
+\fBEl volante de jogging\fR se implementa en el modulo de movimiento en tiempo real de forma que
+\fBinihal\fR los cambios en pines (por ejemplo, ini.*.max_velocity,
+ini.*.max_acceleration) puede ser tratados tan pronto como los valores alterados sean
+conocidos por el modulo de movimiento.
+
+.SH PINES
+.SS Pines por articulacion (N == numero de articulacion)
+.TP
+\fBini.\fIN\fB.backlash
+Permite el ajuste de \fB[JOINT_\fIN\fB]BACKLASH
+.TP
+\fBini.\fIN \fB.ferror
+Permite el ajuste de \fB[JOINT_\fIN\fB]FERROR
+.TP
+\fBini.\fIN \fB.min_ferror
+Permite el ajuste de \fB[JOINT_\fIN\fB]MIN_FERROR
+.TP
+\fBini.\fIN \fB.min_limit
+Permite el ajuste de \fB[JOINT_\fIN\fB]MIN_LIMIT
+.TP
+\fBini.\fIN \fB.max_limit
+Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_LIMIT
+.TP
+\fBini.\fIN \fB.max_velocity
+Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_VELOCITY
+.TP
+\fBini.\fIN \fB.max_acceleration
+Permite el ajuste de \fB[JOINT_\fIN\fB]MAX_ACCELERATION
+.TP
+\fBini.\fIN \fB.home
+Permite el ajuste de \fB[JOINT_\fIN\fB]HOME
+.TP
+\fBini.\fIN \fB.home_offset
+Permite el ajuste de \fB[JOINT_\fIN\fB]HOME_OFFSET
+.TP
+\fBini.\fIN \fB.home_offset
+Permite el ajuste de \fB[JOINT_\fIN\fB]HOME_SEQUENCE
+
+.SS pines por eje (L == eje de la letra)
+.TP
+\fBini.\fIL \fB.min_limit
+Permite el ajuste de \fB[AXIS_\fIL\fB]MIN_LIMIT
+.TP
+\fBini.\fIL \fB.max_limit
+Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_LIMIT
+.TP
+\fBini.\fIL \fB.max_velocity
+Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_VELOCITY
+.TP
+\fBini.\fIL \fB.max_acceleration
+Permite el ajuste de \fB[AXIS_\fIL\fB]MAX_ACCELERATION
+
+.SS Pines Globales
+.TP
+\fBini.traj_default_acceleration
+Permite el ajuste de \fB[TRAJ]DEFAULT_ACCELERATION
+.TP
+\fBini.traj_default_velocity
+Permite el ajuste de \fB[TRAJ]DEFAULT_VELOCITY
+.TP
+\fBini.traj_max_acceleration
+Permite el ajuste de \fB[TRAJ]MAX_ACCELERATION
+.TP
+\fBini.traj_max_velocity
+Permite el ajuste de \fB[TRAJ]MAX_VELOCITY
+
+.SS Pines Globales (planificador de trayectoria arc_blend)
+.TP
+\fBini.traj_arc_blend_enable
+Permite el ajuste de \fB[TRAJ]ARC_BLEND_ENABLE
+.TP
+\fBini.traj_arc_blend_fallback_enable
+Permite el ajuste de \fB[TRAJ]ARC_BLEND_FALLBACK_ENABLE
+.TP
+\fBini.traj_arc_blend_gap_cycles
+Permite el ajuste de \fB[TRAJ]ARC_OPTIMIZATION_DEPTH
+.TP
+\fBini.traj_arc_blend_optimization_depth
+Permite el ajuste de \fB[TRAJ]ARC_BLEND_GAP_CYCLES
+.TP
+\fBini.traj_arc_blend_ramp_freq
+Permite el ajuste de \fB[TRAJ]ARC_BLEND_RAMP_FREQ
+
+.SH NOTAS
+
+Los pines \fBinihal\fR no pueden vincularse o establecerse en un halfile que es
+especificado por un elemento inifile \fB[HAL]HALFILE\fR porque no se crean
+hasta que se inicie \fBmilltask\fR. Los valores de pines \fBinihal\fR pueden ser
+alterados por programas independientes de halcmd especificados por elementos
+\fB[APPLICATION]APP\fR o por GUIs que soportan un
+\fB[HAL]POSTGUI_HALFILE\fR.
+
+El archivo inifile no se actualiza automaticamente con los valores alterados por configuracionws de pines de
+\fBinihal\fR, pero se puede actualizar utilizando el programa de calibracion
+(emccalib.tcl) cuando se usa \fB[HAL]POSTGUI_HALFILE\fR.

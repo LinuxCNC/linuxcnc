@@ -1,0 +1,59 @@
+:lang: es
+
+﻿[[cha:rs274]]
+
+= Intérprete independiente
+
+El intérprete autónomo rs274 está disponible para su uso a través de la línea de comandos.
+
+== Uso
+
+----
+Uso: rs274 [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0 | 1 | 2]
+          [-b] [-s] [-g] [archivo de entrada [archivo de salida]]
+
+    -p: especifique el intérprete conectable a utilizar
+    -t: especifique el archivo .tbl (tabla de herramientas) a usar
+    -v: especifique el archivo .var (parámetros) a usar
+    -n: especifique el modo de continuación:
+           0: continuar
+           1: ingresar al modo MDI
+           2: detener (predeterminado)
+    -b: Activa o desactiva el indicador de "eliminación de bloque" (predeterminado: DESACTIVADO)
+    -s: Activa o desactiva el indicador 'pila de impresión' (predeterminado: DESACTIVADO)
+    -g: Activa o desactiva el indicador 'ir (modo por lotes)' (predeterminado: DESACTIVADO)
+    -i: especifique el archivo .ini (predeterminado: sin archivo ini)
+    -T: llamar a task_init()
+    -l: especifique el log_level (predeterminado: -1)
+----
+
+== Ejemplo
+
+Para ver la salida de un bucle, por ejemplo, podemos ejecutar rs274 en el siguiente archivo
+y ver que el ciclo nunca termina. Para salir del bucle, use Ctrl+Z.
+Se necesitan los siguientes archivos para ejecutar el ejemplo.
+
+.test.ngc
+----
+#<test> = 123.352
+
+o101 while [[#<test> MOD 60 ] NE 0]
+(debug,#<test>)
+    #<test> = [#<test> + 1]
+o101 endwhile
+
+M2
+----
+
+.test.tbl
+----
+T1 P1 Z0.511 D0.125; fresa 1/8
+T2 P2 Z0.1 D0.0625; fresa de extremo 1/16
+T3 P3 Z1.273 D0.201; taladro de rosca n°7
+----
+
+.comando
+----
+rs274 -g test.ngc -t test.tbl
+----
+

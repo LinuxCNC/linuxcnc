@@ -23,20 +23,26 @@ axis-remote: trigger commands in a running AXIS GUI
 Usage: axis-remote --clear|--ping|--reload|--quit|--mdi command|filename
        axis-remote -c|-p|-r|-q|-m command|filename"""
 
-import sys, getopt, Tkinter, os
+import sys, getopt, os
 
-UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = range(7)
+if sys.version_info[0] == 3:
+    import tkinter
+    import _thread
+else:
+    import Tkinter as tkinter
+
+UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = list(range(7))
 mode = UNSPECIFIED
 
 def usage(exitval=0):
-    print __doc__
-    raise SystemExit, exitval
+    print(__doc__)
+    raise SystemExit(exitval)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
                         ['help','ping', 'reload', 'quit', 'clear', 'mdi'])
-except getopt.GetoptError, detail:
-    print detail
+except getopt.GetoptError as detail:
+    print(detail)
     usage(99)
 
 for o, a in opts:
@@ -75,15 +81,15 @@ else:
     if len(args) != 0:
         usage(99)
 
-t = Tkinter.Tk(); t.wm_withdraw()
+t = tkinter.Tk(); t.wm_withdraw()
 
 msg = ""
 try:
     if mode == PING:
         try:
             t.tk.call("send", "axis", "expr", "1")
-        except Tkinter.TclError, detail:
-            raise SystemExit, 1
+        except tkinter.TclError as detail:
+            raise SystemExit(1)
     # cmds below are checked for suitability by axis remote() function
     #      return "" if ok
     elif mode == OPEN:
@@ -96,9 +102,9 @@ try:
         msg = t.tk.call("send", "axis", ("remote","clear_live_plot"))
     elif mode == QUIT:
         msg = t.tk.call("send", "axis", ("remote","destroy"))
-except Tkinter.TclError,detail:
-    raise SystemExit,detail
+except tkinter.TclError as detail:
+    raise SystemExit(detail)
 
 if msg:
-    raise SystemExit,msg
+    raise SystemExit(msg)
 # vim:sw=4:sts=4:et:

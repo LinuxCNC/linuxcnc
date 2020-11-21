@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env linuxcnc-python
 
 import sys
 import math
@@ -29,19 +29,19 @@ for line in result_file.readlines():
     #
 
     if out_value > max_value:
-        print "max=%.3f, out=%.3f, position violation on line %s" % (max_value, out_value, line)
+        print(("max=%.3f, out=%.3f, position violation on line %s" % (max_value, out_value, line)))
         retval = 1
 
     if out_value < min_value:
-        print "min=%.3f, out=%.3f, position violation on line %s" % (min_value, out_value, line)
+        print(("min=%.3f, out=%.3f, position violation on line %s" % (min_value, out_value, line)))
         retval = 1
 
     if math.fabs(out_vel) > max_vel:
-        print "max_vel=%.3f, out_vel=%.3f, velocity violation on line %s" % (max_vel, out_vel, line)
+        print(("max_vel=%.3f, out_vel=%.3f, velocity violation on line %s" % (max_vel, out_vel, line)))
         retval = 1
 
     if math.fabs(out_accel) > max_accel:
-        print "max_accel=%.3f, out_accel=%.3f, acceleration violation on line %s" % (max_accel, out_accel, line)
+        print(("max_accel=%.3f, out_accel=%.3f, acceleration violation on line %s" % (max_accel, out_accel, line)))
         retval = 1
 
 
@@ -51,7 +51,7 @@ for line in result_file.readlines():
 
     error = math.fabs(in_value - out_value)
     if error > 0.0:
-        print "input=%.6f, output=%.6f, error=%.6f, threshold=%.6f, following failure on line %s" % (in_value, out_value, error, threshold, line)
+        print(("input=%.6f, output=%.6f, error=%.6f, threshold=%.6f, following failure on line %s" % (in_value, out_value, error, threshold, line)))
         retval = 1
 
 sys.exit(retval)

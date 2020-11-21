@@ -17,7 +17,7 @@ import gobject
 import gtk
 
 import hal
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 from hal_glib import GStat
 
 GSTAT = GStat()
@@ -58,14 +58,14 @@ class State_Label(gtk.Label, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -86,9 +86,9 @@ def main():
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
-       print "ok"
+       print("ok")
     else:
-       print "cancel"
+       print("cancel")
 
-if __name__ == "__main__":	
+if __name__ == "__main__":
     main()

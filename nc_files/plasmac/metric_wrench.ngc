@@ -29,6 +29,6 @@ F[#<_hal[plasmac.cut-feed-rate]> * .6]
 G2 X[18.92+#<x_offset>] Y[36.189+#<y_offset>] I1.653 J2.055
 F#<_hal[plasmac.cut-feed-rate]>
 G1 Y[38.7+#<y_offset>]
-M5
+M5 $0
 G0 X0 Y0
 M2

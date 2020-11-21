@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp tab widgets with adjustable tab height
 #
 # Copyright (c) 2019  Chris Morley <chrisinnanaimo@hotmail.com>

@@ -20,16 +20,16 @@ sys.path.insert(0, libdir)
 themedir = "/usr/share/themes"
 try:
         import pygtk
-  	pygtk.require("2.0")
+        pygtk.require("2.0")
 except:
-  	pass
+        pass
 try:
-	import gtk
-  	import gtk.glade
+        import gtk
+        import gtk.glade
         import gobject
         import pango
 except:
-	sys.exit(1)
+        sys.exit(1)
 
 import atexit
 import tempfile
@@ -46,19 +46,19 @@ gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
 gtk.glade.textdomain("linuxcnc")
 
 def set_active(w, s):
-	if not w: return
-	os = w.get_active()
-	if os != s: w.set_active(s)
+        if not w: return
+        os = w.get_active()
+        if os != s: w.set_active(s)
 
 def set_label(w, l):
-	if not w: return
-	ol = w.get_label()
-	if ol != l: w.set_label(l)
+        if not w: return
+        ol = w.get_label()
+        if ol != l: w.set_label(l)
 
 def set_text(w, t):
-	if not w: return
-	ot = w.get_label()
-	if ot != t: w.set_label(t)
+        if not w: return
+        ot = w.get_label()
+        if ot != t: w.set_label(t)
 
 import linuxcnc
 from touchy import emc_interface
@@ -81,7 +81,7 @@ invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
         def __init__(self, inifile):
-		# System default Glade file:
+                # System default Glade file:
                 self.gladefile = os.path.join(datadir, "touchy.glade")
                 if inifile:
                         self.ini = linuxcnc.ini(inifile)
@@ -92,18 +92,18 @@ class touchy:
                         self.ini = None
 
 
-	        self.wTree = gtk.glade.XML(self.gladefile) 
+                self.wTree = gtk.glade.XML(self.gladefile)
 
-		for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
-				'wheelx', 'wheely', 'wheelz',
-				'wheela', 'wheelb', 'wheelc',
-				'wheelu', 'wheelv', 'wheelw']:
-			self.wTree.get_widget(w).get_child().set_property('width-chars', 6)
+                for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
+                                'wheelx', 'wheely', 'wheelz',
+                                'wheela', 'wheelb', 'wheelc',
+                                'wheelu', 'wheelv', 'wheelw']:
+                        self.wTree.get_widget(w).get_child().set_property('width-chars', 6)
 
-		for widget in self.wTree.get_widget_prefix(''):
-			widget.unset_flags(gtk.CAN_FOCUS)
-		self.wTree.get_widget('MainWindow').set_flags(gtk.CAN_FOCUS)
-		self.wTree.get_widget('MainWindow').grab_focus()
+                for widget in self.wTree.get_widget_prefix(''):
+                        widget.unset_flags(gtk.CAN_FOCUS)
+                self.wTree.get_widget('MainWindow').set_flags(gtk.CAN_FOCUS)
+                self.wTree.get_widget('MainWindow').grab_focus()
 
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
@@ -150,7 +150,7 @@ class touchy:
                     self.wTree.get_widget("theme_choice").set_active(temp)
 
                 if self.window_geometry == "default":
-		            self.wTree.get_widget("MainWindow").window.maximize()
+                            self.wTree.get_widget("MainWindow").window.maximize()
                 else:
                     self.wTree.get_widget("MainWindow").parse_geometry(self.window_geometry)
                     if self.window_max:
@@ -292,7 +292,7 @@ class touchy:
                 else:
                         self.linuxcnc.opstop_off(0)                        
 
-		self.linuxcnc.emccommand.program_open(empty_program.name)
+                self.linuxcnc.emccommand.program_open(empty_program.name)
 
                 self.linuxcnc.max_velocity(self.mv_val)
                                 
@@ -381,9 +381,9 @@ class touchy:
                         }
                 self.wTree.signal_autoconnect(dic)
 
-		for widget in self.wTree.get_widget_prefix(''):
-			if isinstance(widget, gtk.Button):
-				widget.connect_after('released',self.hack_leave)
+                for widget in self.wTree.get_widget_prefix(''):
+                        if isinstance(widget, gtk.Button):
+                                widget.connect_after('released',self.hack_leave)
 
                 self._dynamic_childs = {}
                 atexit.register(self.kill_dynamic_childs)
@@ -625,10 +625,10 @@ class touchy:
                                 w = w.child
                                 w.modify_font(self.control_font)
 
-		notebook = self.wTree.get_widget('notebook1')
-		for i in range(notebook.get_n_pages()):
-			w = notebook.get_nth_page(i)
-			notebook.get_tab_label(w).modify_font(self.control_font)
+                notebook = self.wTree.get_widget('notebook1')
+                for i in range(notebook.get_n_pages()):
+                        w = notebook.get_nth_page(i)
+                        notebook.get_tab_label(w).modify_font(self.control_font)
 
                 # labels
                 for i in range(self.num_mdi_labels):
@@ -715,9 +715,9 @@ class touchy:
                                 w = self.wTree.get_widget(b)
                                 if not (am & (1<<i)):
                                         at.remove(w)
-                        if (am & 0700) == 0:
+                        if (am & 0o700) == 0:
                                 at.resize(3, 2)
-                                if (am & 070) == 0:
+                                if (am & 0o70) == 0:
                                         at.resize(3, 1)
                                         self.wTree.get_widget("wheel_hbox").set_homogeneous(1)
                         self.resized_wheelbuttons = 1
@@ -769,7 +769,7 @@ class touchy:
                 set_label(self.wTree.get_widget("wheelinc2").child, incs[1])
                 set_label(self.wTree.get_widget("wheelinc3").child, incs[2])
 
-                self.hal.jogincrement(self.wheelinc, map(float,incs))
+                self.hal.jogincrement(self.wheelinc, list(map(float,incs)))
 
                 d = self.hal.wheel()
                 if self.wheel == "fo":
@@ -792,9 +792,9 @@ class touchy:
                                 self.linuxcnc.max_velocity(self.mv_val)
                                 self.linuxcnc.continuous_jog_velocity(self.mv_val)
                         
-		if self.wheel == "scrolling":
-			d0 = d * 10 ** (2-self.wheelinc)
-			if d != 0: self.listing.next(None, d0)
+                if self.wheel == "scrolling":
+                        d0 = d * 10 ** (2-self.wheelinc)
+                        if d != 0: self.listing.next(None, d0)
                 set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
                 set_label(self.wTree.get_widget("so").child, "SO: %d%%" % self.so_val)
                 set_label(self.wTree.get_widget("mv").child, "MV: %d" % self.mv_val)
@@ -802,68 +802,78 @@ class touchy:
                         
                 return True
 
-	def hack_leave(self,w):
-		if not self.invisible_cursor: return
-		w = self.wTree.get_widget("MainWindow").window
-		d = w.get_display()
-		s = w.get_screen()
-		x, y = w.get_origin()
-		d.warp_pointer(s, x, y)
+        def hack_leave(self,w):
+                if not self.invisible_cursor: return
+                w = self.wTree.get_widget("MainWindow").window
+                d = w.get_display()
+                s = w.get_screen()
+                x, y = w.get_origin()
+                d.warp_pointer(s, x, y)
 
-	def _dynamic_tab(self, notebook, text):
-		s = gtk.Socket()
-		notebook.append_page(s, gtk.Label(" " + text + " "))
-		return s.get_id()
+        def _dynamic_tab(self, notebook, text):
+                s = gtk.Socket()
+                notebook.append_page(s, gtk.Label(" " + text + " "))
+                return s.get_id()
 
-	def set_dynamic_tabs(self):
-		from subprocess import Popen
+        def set_dynamic_tabs(self):
+                from subprocess import Popen
 
-		if not self.ini:
-			return
+                if not self.ini:
+                        return
 
-		tab_names = self.ini.findall("DISPLAY", "EMBED_TAB_NAME")
-		tab_cmd   = self.ini.findall("DISPLAY", "EMBED_TAB_COMMAND")
+                tab_names = self.ini.findall("DISPLAY", "EMBED_TAB_NAME")
+                tab_cmd   = self.ini.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
-		if len(tab_names) != len(tab_cmd):
-			print "Invalid tab configuration" # Complain somehow
+                if len(tab_names) != len(tab_cmd):
+                        print("Invalid tab configuration") # Complain somehow
 
-		nb = self.wTree.get_widget('notebook1')
-		for t,c in zip(tab_names, tab_cmd):
-			xid = self._dynamic_tab(nb, t)
-			if not xid: continue
-			cmd = c.replace('{XID}', str(xid))
-			child = Popen(cmd.split())
-			self._dynamic_childs[xid] = child
-			child.send_signal(signal.SIGCONT)
-			print "XID = ", xid
-		nb.show_all()
+                nb = self.wTree.get_widget('notebook1')
+                for t,c in zip(tab_names, tab_cmd):
+                        xid = self._dynamic_tab(nb, t)
+                        if not xid: continue
+                        cmd = c.replace('{XID}', str(xid))
+                        child = Popen(cmd.split())
+                        self._dynamic_childs[xid] = child
+                        child.send_signal(signal.SIGCONT)
+                        print("XID = ", xid)
+                nb.show_all()
 
-	def kill_dynamic_childs(self):
-		for c in self._dynamic_childs.values():
-			c.terminate()
+        def kill_dynamic_childs(self):
+                for c in list(self._dynamic_childs.values()):
+                        c.terminate()
 
         def save_maxvel_pref(self):
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
-	def postgui(self):
-		postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
-		return postgui_halfile,sys.argv[2]
+        def postgui(self):
+                postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
+                return postgui_halfile,sys.argv[2]
+ 
+        def trivkins(self):
+                kins = self.ini.find("KINS", "KINEMATICS")
+                if kins:
+                        if "coordinates" in kins:
+                                return kins.replace(" ","").split("coordinates=")[1].upper()
+                return "XYZABCUVW"
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
-            print "ini", sys.argv[2]
+            print("ini", sys.argv[2])
             hwg = touchy(sys.argv[2])
         else:
             hwg = touchy()
-	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
-	if res: raise SystemExit, res
-	# load a postgui file if one is present in the INI file
-	postgui_halfile,inifile = touchy.postgui(hwg)
-	print "TOUCHY postgui filename:",postgui_halfile
-	if postgui_halfile:
-		if postgui_halfile.lower().endswith('.tcl'):
-			res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
-		else:
-			res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
-		if res: raise SystemExit, res
-	gtk.main()
+        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
+        if res: raise SystemExit(res)
+        #Attempt to support trivkins with non-default axis to joint assignments
+        emc_interface.coordinates = touchy.trivkins(hwg)
+        print("COORDINATES = %s" % emc_interface.coordinates)
+        # load a postgui file if one is present in the INI file
+        postgui_halfile,inifile = touchy.postgui(hwg)
+        print("TOUCHY postgui filename:",postgui_halfile)
+        if postgui_halfile:
+                if postgui_halfile.lower().endswith('.tcl'):
+                        res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
+                else:
+                        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+                if res: raise SystemExit(res)
+        gtk.main()

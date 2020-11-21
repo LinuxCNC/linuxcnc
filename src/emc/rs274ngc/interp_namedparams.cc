@@ -16,6 +16,7 @@
 #define _GNU_SOURCE
 #endif
 
+#include "py3c/py3c.h"
 #define BOOST_PYTHON_MAX_ARITY 4
 #include "python_plugin.hh"
 #include <boost/python/dict.hpp>
@@ -43,7 +44,6 @@ namespace bp = boost::python;
 
 // for HAL pin variables
 #include "hal.h"
-#include "hal/hal_priv.h"
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -231,14 +231,15 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
     int retval;
-    int type = 0;
+    hal_type_t type = HAL_TYPE_UNINITIALIZED;
     hal_data_u* ptr;
-    char hal_name[LINELEN];
+    bool conn;
+    char hal_name[HAL_NAME_LEN];
 
     *status = 0;
     if (!comp_id) {
-	char hal_comp[LINELEN];
-	sprintf(hal_comp,"interp%d",getpid());
+	char hal_comp[HAL_NAME_LEN];
+	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
 	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
 	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
 	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
@@ -249,9 +250,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
 	int closeBracket = s - nameBuf;
-	hal_pin_t *pin;
-	hal_sig_t *sig;
-	hal_param_t *param;
 
 	strncpy(hal_name, &nameBuf[5], closeBracket);
 	hal_name[closeBracket - 5] = '\0';
@@ -267,29 +265,17 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	// rtapi_mutex_get(&(hal_data->mutex)); 
         // rtapi_mutex_give(&(hal_data->mutex));
 
-	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
-            if (pin && !pin->signal) {
+        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+            if (!conn)
 		logOword("%s: no signal connected", hal_name);
-	    } 
-	    type = pin->type;
-	    if (pin->signal != 0) {
-		sig = (hal_sig_t *) SHMPTR(pin->signal);
-		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
-	    } else {
-		ptr = (hal_data_u *) &(pin->dummysig);
-	    }
 	    goto assign;
 	}
-	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
-	    if (!sig->writers) 
+        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+	    if (!conn)
 		logOword("%s: signal has no writer", hal_name);
-	    type = sig->type;
-	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
 	    goto assign;
 	}
-	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
-	    type = param->type;
-	    ptr = (hal_data_u *) SHMPTR(param->data_ptr);
+        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
 	    goto assign;
 	}
 	*status = 0;
@@ -303,6 +289,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     case HAL_U32: *value = (double) (ptr->u); break;
     case HAL_S32: *value = (double) (ptr->s); break;
     case HAL_FLOAT: *value = (double) (ptr->f); break;
+    default: return -1;
     }
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;
@@ -371,13 +358,13 @@ int Interp::find_named_param(
 	       "named param - pycall(%s):\n%s", nameBuf,
 	       python_plugin->last_exception().c_str());
 	  CHKS(retval.ptr() == Py_None, "Python namedparams.%s returns no value", nameBuf);
-	  if (PyString_Check(retval.ptr())) {
+      if (PyStr_Check(retval.ptr())) {
 	      // returning a string sets the interpreter error message and aborts
 	      *status = 0;
 	      char *msg = bp::extract<char *>(retval);
 	      ERS("%s", msg);
 	  }
-	  if (PyInt_Check(retval.ptr())) { // widen
+      if (PyInt_Check(retval.ptr())) { // widen
 	      *value = (double) bp::extract<int>(retval);
 	      *status = 1;
 	      return INTERP_OK;
@@ -393,7 +380,7 @@ int Interp::find_named_param(
 	  Py_XDECREF(res_str);
 	  ERS("Python call %s.%s returned '%s' - expected double, int or string, got %s",
 	      NAMEDPARAMS_MODULE, nameBuf,
-	      PyString_AsString(res_str),
+          PyStr_AsString(res_str),
 	      retval.ptr()->ob_type->tp_name);
       } else {
 	  *value = pv->value;
@@ -657,11 +644,26 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SELECTED_POCKET:
-	*value = _setup.selected_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+        *value = _setup.selected_pocket;
+    }
+    else{//non random get it from the tool table
+        if(_setup.tool_table[_setup.selected_pocket].pocketno == 0){//pocket 0 is special on non-random changers
+            *value = -1;
+        }
+        else{
+	        *value = _setup.tool_table[_setup.selected_pocket].pocketno;
+        }
+    }
 	break;
 
     case NP_CURRENT_POCKET:
-	*value = _setup.current_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+	    *value = _setup.current_pocket;
+    }
+    else{//non random get it from the tool table
+        *value = _setup.tool_table[_setup.current_pocket].pocketno;
+    }
 	break;
 
     case NP_SELECTED_TOOL:

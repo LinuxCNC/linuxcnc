@@ -32,6 +32,10 @@ Usage:
     $P -a
         If the currently running kernel has realtime extensions, use it.
         Otherwise use any available realtime kernel it can find.
+
+  Extra options:
+    no-docs
+        Skip building documentation
 EOF
 }
 
@@ -80,6 +84,8 @@ BUILD_RTAI=false
 BUILD_XENOMAI=false
 BUILD_AUTO=true
 
+ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
+
 # Specialize these based on DISTRIB_NAME as needed
 # These do not run-time depend on a specific package because
 # the whole point is to allow a range of kernels to work, and we don't know
@@ -127,6 +133,7 @@ while test $# -ne 0; do
     rtai) BUILD_RTAI=true ;;
     rtai=*) BUILD_RTAI=true; RTAI_DEV=${1#rtai=} ;;
     xenomai) BUILD_XENOMAI=true ;;
+    no-docs) unset ENABLE_BUILD_DOCUMENTATION ;;
     *) echo 1>&2 "Unknown feature: $1"; exit 99 ;;
     esac
     shift
@@ -146,7 +153,17 @@ else
 	EXTRAS=extras
 fi
 
-DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, python-lxml, source-highlight, texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, w3c-linkchecker, xsltproc'
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
+        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
+        python-lxml, source-highlight, w3c-linkchecker, xsltproc, \
+        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
+        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
+        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended'
+else
+    DOC_DEPENDS=''
+fi
+
 MODUTILS_DEPENDS=kmod
 PYTHON_PACKAGING_DEPENDS=dh-python
 PYTHON_PACKAGING=dh_python2
@@ -155,6 +172,7 @@ TCLTK_VERSION=8.6
 PYTHON_IMAGING="python${PYTHON_VERSION}-imaging | python-imaging | python-pil"
 PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk | python-pil.imagetk"
 YAPPS_RUNTIME="yapps2-runtime"
+STANDARDS_VERSION="3.9.3"
 
 case $DISTRIB_NAME in
     Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
@@ -162,36 +180,37 @@ case $DISTRIB_NAME in
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         EXTRA_BUILD=python-yapps
         YAPPS_RUNTIME="python-yapps"
+        STANDARDS_VERSION="3.9.8"
         ;;
-Debian-9.*|Debian-10|Debian-10.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*|Ubuntu-18.*)
+    Debian-9.*|Raspbian-9.*|LinuxMint-19.*|Ubuntu-18.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+        STANDARDS_VERSION="3.9.8"
         ;;
-Debian-8.*|Raspbian-8.*) # Jessie
+    Debian-8.*|Raspbian-8.*) # Jessie
+        STANDARDS_VERSION="3.9.6"
         ;;
-Debian-7.*|Raspbian-7) # Wheezy
+    Debian-7.*|Raspbian-7) # Wheezy
         EXTRA_BUILD=libgnomeprintui2.2-dev
         PYTHON_PACKAGING_DEPENDS=python-support
         PYTHON_PACKAGING=dh_pysupport
         TCLTK_VERSION=8.5
+        STANDARDS_VERSION="3.9.4"
         ;;
-Ubuntu-18.*) # Bionic Beaver
-        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+    Ubuntu-1[456].*|LinuxMint-1[78]*) # Trusty through Xenial, LinuxMint 17 and 18
         ;;
-Ubuntu-1[456].*|LinuxMint-1[78]*) # Trusty through Xenial, LinuxMint 17 and 18
-	;;
-Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
+    Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
         EXTRA_BUILD=libgnomeprintui2.2-dev
         MODUTILS_DEPENDS=module-init-tools
         PYTHON_PACKAGING_DEPENDS=python-support
         PYTHON_PACKAGING=dh_pysupport
-	TCLTK_VERSION=8.5
-	;;
-*)
+        TCLTK_VERSION=8.5
+        ;;
+    *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "detected dependencies may be incomplete or wrong"
         echo "please consider fixing it and submitting a pull request"
-	;;
+        ;;
 esac
 
 TARGET_EXTRA=
@@ -225,6 +244,7 @@ case $TARGET in
 	KERNEL_DEPENDS=libudev-dev,iptables
 	KERNEL_HEADERS=
 	KERNEL_VERSION=uspace
+        MODUTILS_DEPENDS=
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=uspace-$DISTRIB_NAME
@@ -232,8 +252,11 @@ case $TARGET in
         OTHER_MAIN_PACKAGE_NAME=linuxcnc
 
         EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
+        CONFIGURE_REALTIME_ARG=--with-realtime=uspace
     ;;
-    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*) ;;
+    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*)
+        CONFIGURE_REALTIME_ARG=--with-realtime=/usr/realtime-$KERNEL_VERSION
+    ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
@@ -264,9 +287,12 @@ sed \
     -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
+    -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
     -e "s#@TCLTK_VERSION@#$TCLTK_VERSION#g" \
     -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
     -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
+    -e "s#@ENABLE_BUILD_DOCUMENTATION@#$ENABLE_BUILD_DOCUMENTATION#g" \
+    -e "s#@STANDARDS_VERSION@#$STANDARDS_VERSION#g" \
     $*
 }
 
@@ -286,7 +312,7 @@ if [ "$TARGET" == "uspace" ]; then
 fi
 
 echo >> control
-subst control.bottom.in >> control
+subst control.main-pkg.in >> control
 
 if [ "$TARGET" == "uspace" ]; then
     cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
@@ -303,14 +329,18 @@ else
     subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
 fi
 
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es})
-for P in $DOCS_PACKAGES; do
-    if [ -f $EXTRAS/$P.files ]; then
-        cat $P.files.in $EXTRAS/$P.files > $P.files
-    else
-        cat $P.files.in > $P.files
-    fi
-done
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
+    for P in $DOCS_PACKAGES; do
+        if [ -f $EXTRAS/$P.files ]; then
+            cat $P.files.in $EXTRAS/$P.files > $P.files
+        else
+            cat $P.files.in > $P.files
+        fi
+    done
+    subst control.docs.in >> control
+fi
+
 
 rm -f ../build-stamp
 echo "successfully configured for '$DISTRIB_NAME'-'$TARGET$TARGET_EXTRA'.."

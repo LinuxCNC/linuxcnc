@@ -16,12 +16,18 @@
 ## image-to-gcode.py is Copyright (C) 2006 Jeff Epler
 ## jepler@unpy.net
 
+from __future__ import print_function
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
-import gettext;
-gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+import gettext
+if sys.version_info[0] == 3:
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
+    def cmp(a, b):
+        return (a > b) - (a < b) 
+else:
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 try:
     from PIL import Image
@@ -201,8 +207,8 @@ unitcodes = ['G20', 'G21']
 convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]
 
 def progress(a, b):
-    if os.environ.has_key("AXIS_PROGRESS_BAR"):
-        print >>sys.stderr, "FILTER_PROGRESS=%d" % int(a*100./b+.5)
+    if "AXIS_PROGRESS_BAR" in os.environ:
+        print("FILTER_PROGRESS=%d" % int(a*100./b+.5), file=sys.stderr)
         sys.stderr.flush()
 
 class Converter:
@@ -276,7 +282,7 @@ class Converter:
             w1 = w + tw
             h1 = h + th
             nim1 = numpy.zeros((w1, h1), dtype=numpy.float32) + base_image.min()
-            nim1[tw/2:tw/2+w, th/2:th/2+h] = base_image
+            nim1[int(tw/2):int(tw/2+w), int(th/2):int(th/2+h)] = base_image
             self.image = numpy.zeros((w,h), dtype=numpy.float32)
             for j in range(0, w):
                 progress(j,w)
@@ -324,9 +330,9 @@ class Converter:
     def mill_rows(self, convert_scan, primary):
         w1 = self.w1; h1 = self.h1;
         pixelsize = self.pixelsize; pixelstep = self.pixelstep
-        jrange = range(0, w1, pixelstep)
+        jrange = list(range(0, w1, pixelstep))
         if w1-1 not in jrange: jrange.append(w1-1)
-        irange = range(h1)
+        irange = list(range(h1))
 
         for j in jrange:
             progress(jrange.index(j), len(jrange))
@@ -347,8 +353,8 @@ class Converter:
     def mill_cols(self, convert_scan, primary):
         w1 = self.w1; h1 = self.h1;
         pixelsize = self.pixelsize; pixelstep = self.pixelstep
-        jrange = range(0, h1, pixelstep)
-        irange = range(w1)
+        jrange = list(range(0, h1, pixelstep))
+        irange = list(range(w1))
         if h1-1 not in jrange: jrange.append(h1-1)
         jrange.reverse()
 
@@ -414,7 +420,7 @@ class ArcEntryCut:
         z0 = p1[2]
 
         lim = int(ceil(self.max_radius / conv.pixelsize))
-        r = range(1, lim)
+        r = list(range(1, lim))
 
         if self.feed:
             conv.g.set_feed(self.feed)
@@ -494,8 +500,11 @@ class ArcEntryCut:
             conv.g.set_feed(conv.feed)
 
 def ui(im, nim, im_name):
-    import Tkinter
-    
+    if sys.version_info[0] == 3:
+        import tkinter
+    else:
+        import Tkinter as tkinter
+
     try:
         from PIL import ImageTk
     except ImportError:    
@@ -504,7 +513,7 @@ def ui(im, nim, im_name):
     import pickle
     import nf
 
-    app = Tkinter.Tk()
+    app = tkinter.Tk()
     rs274.options.install(app)
     app.tk.call("source", os.path.join(BASE, "share", "axis", "tcl", "combobox.tcl"))
 
@@ -519,14 +528,14 @@ def ui(im, nim, im_name):
 
     ui_image = im.resize((nw,nh), Image.ANTIALIAS)
     ui_image = ImageTk.PhotoImage(ui_image, master = app)
-    i = Tkinter.Label(app, image=ui_image, compound="top",
+    i = tkinter.Label(app, image=ui_image, compound="top",
         text=_("Image size: %(w)d x %(h)d pixels\n"
                 "Minimum pixel value: %(min)d\nMaximum pixel value: %(max)d")
             % {'w': im.size[0], 'h': im.size[1], 'min': nim.min(), 'max': nim.max()},
         justify="left")
-    f = Tkinter.Frame(app)
-    g = Tkinter.Frame(app)
-    b = Tkinter.Frame(app)
+    f = tkinter.Frame(app)
+    g = tkinter.Frame(app)
+    b = tkinter.Frame(app)
     i.grid(row=0, column=0, sticky="nw")
     f.grid(row=0, column=1, sticky="nw")
     b.grid(row=1, column=0, columnspan=2, sticky="ne")
@@ -550,31 +559,31 @@ def ui(im, nim, im_name):
     validate_posfloat = "expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_posint   = "expr {![regexp {^([0-9]+|)$} %P]}"
     def floatentry(f, v):
-        var = Tkinter.DoubleVar(f)
+        var = tkinter.DoubleVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_float, validate="key", width=10)
+        w = tkinter.Entry(f, textvariable=var, validatecommand=validate_float, validate="key", width=10)
         return w, var
 
     def intentry(f, v):
-        var = Tkinter.IntVar(f)
+        var = tkinter.IntVar(f)
         var.set(v)
-        w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_int, validate="key", width=10)
+        w = tkinter.Entry(f, textvariable=var, validatecommand=validate_int, validate="key", width=10)
         return w, var
 
     def checkbutton(k, v):
-        var = Tkinter.BooleanVar(f)
+        var = tkinter.BooleanVar(f)
         var.set(v)
-        g = Tkinter.Frame(f)
-        w = Tkinter.Checkbutton(g, variable=var, text=_("Yes"))
+        g = tkinter.Frame(f)
+        w = tkinter.Checkbutton(g, variable=var, text=_("Yes"))
         w.pack(side="left")
         return g, var 
 
     def intscale(k, v, min=1, max = 100):
-        var = Tkinter.IntVar(f)
+        var = tkinter.IntVar(f)
         var.set(v)
-        g = Tkinter.Frame(f, borderwidth=0)
-        w = Tkinter.Scale(g, orient="h", variable=var, from_=min, to=max, showvalue=False)
-        l = Tkinter.Label(g, textvariable=var, width=3)
+        g = tkinter.Frame(f, borderwidth=0)
+        w = tkinter.Scale(g, orient="h", variable=var, from_=min, to=max, showvalue=False)
+        l = tkinter.Label(g, textvariable=var, width=3)
         l.pack(side="left")
         w.pack(side="left", fill="x", expand=1)
         return g, var
@@ -593,9 +602,9 @@ def ui(im, nim, im_name):
             v = 0
             opt = options[0]
 
-        var = Tkinter.IntVar(f)    
+        var = tkinter.IntVar(f)    
         var.set(v)
-        svar = Tkinter.StringVar(f)
+        svar = tkinter.StringVar(f)
         svar.set(options[v])
         svar.trace("w", trace)
         wp = f._w.rstrip(".") + ".c" + svar._name
@@ -603,7 +612,7 @@ def ui(im, nim, im_name):
                 max(len(opt) for opt in options)+3, "-textvariable", svar._name,
                 "-background", "white")
         f.tk.call(wp, "list", "insert", "end", *options)
-        w = nf.makewidget(f, Tkinter.Widget, wp)
+        w = nf.makewidget(f, tkinter.Widget, wp)
         return w, var
 
     def optionmenu(*options): return lambda f, v: _optionmenu(f, v, *options)
@@ -687,7 +696,7 @@ def ui(im, nim, im_name):
     for j, (k, con) in enumerate(constructors):
         v = defaults[k]
         text = texts.get(k, k.replace("_", " "))
-        lab = Tkinter.Label(f, text=text)
+        lab = tkinter.Label(f, text=text)
         widgets[k], vars[k] = con(f, v)
         lab.grid(row=j, column=0, sticky="w")
         widgets[k].grid(row=j, column=1, sticky="ew")
@@ -719,10 +728,10 @@ def ui(im, nim, im_name):
     trace_bounded()
     trace_offset()
 
-    status = Tkinter.IntVar()
-    bb = Tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
+    status = tkinter.IntVar()
+    bb = tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
     bb.pack(side="left", padx=4, pady=4)
-    bb = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
+    bb = tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
     bb.pack(side="left", padx=4, pady=4)
     
     app.bind("<Escape>", lambda evt: status.set(-1))
@@ -736,7 +745,7 @@ def ui(im, nim, im_name):
     app.wait_variable(status)
 
 
-    for k, v in vars.items():
+    for k, v in list(vars.items()):
         defaults[k] = v.get()
 
     app.destroy()
@@ -752,14 +761,20 @@ def main():
     if len(sys.argv) > 1:
         im_name = sys.argv[1]
     else:
-        import tkFileDialog, Tkinter
+        if sys.version_info[0] == 3:
+            import tkinter
+            import tkinter.filedialog as tkFileDialog
+        else:
+            import Tkinter as tkinter
+            import tkFileDialog
+
         im_name = tkFileDialog.askopenfilename(defaultextension=".png",
             filetypes = (
                 (_("Depth images"), ".gif .png .jpg"),
                 (_("All files"), "*")))
         if not im_name: raise SystemExit
-        Tkinter._default_root.destroy()
-        Tkinter._default_root = None
+        tkinter._default_root.destroy()
+        tkinter._default_root = None
     im = Image.open(im_name)
     size = im.size
     im = im.convert("L") #grayscale

@@ -37,12 +37,16 @@ Allows one to adjust a HAL pins using a sliding pointer. +
 
 === LED Widget
 
+.LED
+image::images/qtvcp_ledWidget.png["QTvcp led",scale="25%"]
+
 An indicator that optionally follows a HAL pin's logic. +
 
 * halpin_option -selects if the LED follows an input HAL pin or program state.
 * diameter -diameter of the LED
 * color - Color of the LED when on.
-* alignment - Qt Aliment hint.
+* off_color - Color of the LED when off.
+* alignment - Qt Alignment hint.
 * state -current state of LED
 * flashing -turns flashing option on and off.
 * flashRate -sets the flash rate.
@@ -75,10 +79,106 @@ It is based on pyQT's QRadioButton
 
 This widget allows a user to set a HAL pin true or false. +
 as an option it can be a toggle button. +
+It also has other options: +
+
+==== LED indicator option
+
+.Indicated Action Button
+image::images/qtvcp_actionButton.png["QTvcp led Action Button",scale="25%"]
+
+Indicator_option puts a 'LED' on the top of the button. +
+It can be a triangle, circle, top bar or side bar. +
+The size and position can be adjusted +
+It will indicated the current state of the button, the state of a HAL pin or linuxcnc status. +
+Use properties to customized the indicator (not all are applicable to every LED shape). +
+
+----
+on_color
+off_color
+indicator_size
+circle_diameter
+shape_option
+right_edge_offset
+top_edge_offset
+height_fraction
+width_fraction
+corner_radius
+----
+
+The LED indicator color can be defined in a stylesheet with the following code added to the .qss file. +
+
+----
+Indicated_PushButton{
+qproperty-on_color: #000;
+qproperty-off_color: #444;
+}
+----
+
+or for a particular button: 
+----
+Indicated_PushButton #button_estop{
+qproperty-on_color: black;
+qproperty-off_color: yellow;
+}
+----
+
+Indicated PushButtons have exclusive options: +
+
+* indicator_HAL_pin_option
+* indicator_status_option
+
+Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
+button indicator state. +
+
+indicator_status_option will make the LED indicate the state of these selectable linuxcnc status: +
+----
+Is Estopped
+Is On
+All Homed
+Is Joint Homed
+Idle
+Paused
+Flood
+Mist
+Block Delete
+Optional Stop
+Manual
+MDI
+Auto
+Spindle Stopped
+Spindle Fwd
+Spindle Reverse
+On Limits
+----
+==== Text changes on state
+
+Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
+on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
+to specify the text for each state. +
+
+==== Call python commands on state
+
+The python_command_option allow small snippets of python code to be run from the push of a button, +
+with out having to edit the handler file. (though it can call functions in the handler file) +
+When using the command_string properties. +
+'true_python_cmd_string' - a python command that will be called when the button is toggled true +
+'false_python_cmd_string' - a python command that will be called when the button is toggled false +
+ +
+The capitalized word 'INSTANCE' will give access to the widgets instances and handler functions. +
+eg. 'INSTANCE.my_handler_function_call(True)' +
+The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
+eg. 'ACTION.TOGGLE_FLOOD()' +
+The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
+eg. 'PROGRAM_LOADER.load_halshow()' +
+The capitalized word 'HAL' will give access to HAL's python module. +
+eg. 'HAL.set_p('motion.probe-input','1')' +
 
 It is based on pyQT's QpushButton
 
 === Focus Overlay Widget
+
+.Focus overlay example for confirm close prompt
+image::images/qtvcp_focusOverlay.png["QTvcp foucus overlay",scale="25%"]
 
 This widget places a coloured overlay over the screen usually while a dialog is showing. +
 Used to create a 'focused' feel and to draw attention to critical information. +
@@ -93,11 +193,49 @@ disabled widgets are typically a different colour and do not respond to actions.
 
 It is based on pyQT's QGridLayout
 
+=== HAL Label Widget
+This widget displays values sent to it from HAL pins, programically or a QtSignal. +
+The input pin can be selected as Bit, S32, Float or no pin selected. +
+There is a text Template property to set the rich text and/or to format the text. +
+Basic formatting might be, for bool: %r, for interger: %d, for float: %0.4f. +
+A rich text example might be:
+
+[source,python]
+----
+self.w.my_hal_label.setProperty(textTemplate,"""
+<html><head/><body><p><span style=" font-size:12pt;
+font-weight:600; color:#f40c11;">%0.4f</span></p></body></html>
+""")
+
+----
+The 'setDisplay' slot can be connected to a integer, float or bool signal. +
+If the property 'pin_name' is not set the widet name will be used. +
+
+There are function calls to display values: +
+
+* [HALLabelName].setDisplay(some_value) can be used to set the display if no HAL pin is selected.
+* [HALLabelName].setProperty(textTemplate,"%d") - set the template of the display.
+
+It is based on pyQT's QLabel
+
 === LCD Number Widget
 
 This widget displays HAL float values in a LCD looking way. +
 
 It is based on pyQT's QLCDNumber
+
+=== DoubleScale Widget
+This widget is a spin button entry widget. +
+used for setting a s32 and float HAL pin. +
+It has an internal scale factor, set to a default of 1, that can be set programmically or using a QtSignal. +
+The scale defaults to 1 +
+he 'setInput' slot can be connected to a integer, or float signal. +
+
+There is a function call to change the internal scaling factor: +
+
+* [HALLabelName].setInput(some_value)
+
+The HAL pins will be set to the value of the internal scale times the widget displayed value. +
 
 === CamView Widget
 
@@ -160,7 +298,7 @@ These buttons are used to control action of the machine controller. +
 They are built on top of indicator_buttons so can have LEDs overlaid. +
 
 [NOTE]
-If you right click on this widget you can launch a dialog +
+If you left double click on this widget you can launch a dialog +
 to set any of these action. The dialogs will help to set the +
 right related data to the selected action. +
 You can also change these properties directly in the property editor. +
@@ -172,6 +310,8 @@ You can select one of these actions: +
 'mdi' +
 'manual' +
 'run' +
+'run_from_line status' (gets line number from STATUS message gcode-line-selected) +
+'run_from_line slot' (gets line number from designer int/str slot setRunFromLine) +
 'abort' +
 'pause' +
 'load dialog' (requires a dialog widget present) +
@@ -241,9 +381,11 @@ Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
 Action buttons are subclasssed from indicated_PushButton +
 
 ==== LED indicator option
-Indicator_option puts a triangle or round 'LED' on the top right corner of the button. +
-It will indicated the current state of the button, a HAL pin or linuxcnc status. +
-Use the properties to customized the indicator. +
+Indicator_option puts a 'LED' on the top of the button. +
+It can be a triangle, circle, top bar or side bar. +
+The size and position can be adjusted +
+It will indicated the current state of the button, the state of a HAL pin or linuxcnc status. +
+Use properties to customized the indicator (not all are applicable to every LED shape). +
 
 ----
 on_color
@@ -251,6 +393,11 @@ off_color
 indicator_size
 circle_diameter
 shape_option
+right_edge_offset
+top_edge_offset
+height_fraction
+width_fraction
+corner_radius
 ----
 
 The LED indicator color can be defined in a stylesheet with the following code added to the .qss file. +
@@ -270,7 +417,7 @@ qproperty-off_color: yellow;
 }
 ----
 
-Indicated PushButtons have options: +
+Indicated PushButtons have exclusive options: +
 
 * indicator_HAL_pin_option
 * indicator_status_option
@@ -278,8 +425,26 @@ Indicated PushButtons have options: +
 Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
 button indicator state. +
 
-indicator_status_option will make the LED indicate the state of selectable linuxcnc status. +
-
+indicator_status_option will make the LED indicate the state of these selectable linuxcnc status: +
+----
+Is Estopped
+Is On
+All Homed
+Is Joint Homed
+Idle
+Paused
+Flood
+Mist
+Block Delete
+Optional Stop
+Manual
+MDI
+Auto
+Spindle Stopped
+Spindle Fwd
+Spindle Reverse
+On Limits
+----
 ==== Text changes on state
 
 Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
@@ -300,7 +465,8 @@ The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
 eg. 'ACTION.TOGGLE_FLOOD()' +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
 eg. 'PROGRAM_LOADER.load_halshow()' +
-
+The capitalized word 'HAL' will give access to HAL's python module. +
+eg. 'HAL.set_p('motion.probe-input','1')' +
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
 === RoundButton
@@ -341,7 +507,36 @@ It is based on pyQT's QLabel
 
 === GcodeDisplay
 
-It is based on pyQT's
+The GcodeDisplay properties can be set in a stylesheet with the following code added to the .qss file. +
+
+----
+EditorBase{
+background: lightblue;
+qproperty-styleColor0: black;
+qproperty-styleColor1: #000000; /* black */
+qproperty-styleColor2: red;
+qproperty-styleColor3: black;
+qproperty-styleColor4: yellow;
+qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont1: "Times,18,-1,0,90,1,0,0,0,0";
+qproperty-styleFont2: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont3: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFont4: "Times,12,-1,0,90,0,0,0,0,0";
+}
+----
+
+For gcodeDisplay widget's default Gcode lexer: +
+
+* styleColor0 = Default = digit characters
+* styleColor1 = Comments = characters inside of 'msg()'
+* styleColor2 = Key = alphabetic characters
+* styleColor3 = Assignment = ('%', '<', '>', '#', '=')
+* styleColor4 = Value = ('[', ']')
+
+Font definitions:
+"style name, size, -1, 0, bold setting (0-99), italics (0-1), underline (0-1),0,0,0"
+
+It is based on pyQT's  QsciScintilla
 
 === GcodeEditor Widget
 This displays Gcode in text form. It will highlight the currently running line. +
@@ -352,9 +547,13 @@ into the MDILine widget. +
 It has a signal percentDone(int) that that can be connected to a slot (such as a +
 progressBar to display percent run)
 
-It is based on pyQT's QsciScintilla +
+It is based on pyQT's widget which incorporates GcodeDisplay widget +
 
 === GCodeGraphics Widget
+
+.Graphics Display
+image::images/qtvcp_gcodeGraphics.png["QTvcp Gcode Graphics",scale="25%"]
+
 This Displays the current Gcode in a graphical form. +
 
 _view
@@ -385,6 +584,13 @@ overlay-dro-on
 overlay-dro-off
 overlay-offsets-on
 overlay-offsets-off
+alpha-mode-on
+alpha-mode-off
+inhibit-selection-on
+inhibit-selection-off
+dimensions-on
+dimensions-off
+grid-size
 P
 X
 Y
@@ -428,6 +634,37 @@ User System  +
 
 It is based on pyQT's QLabel
 
+=== StatusImageSwicher Widget
+Status image switcher will switch between images based on linuxcnc states. +
+'watch spindle' would toggle between 3 images ( stop, fwd, revs) +
+'watch axis homed' would toggle between 2 images ( axis not homed, axis homed) +
+'watch all homed' would toggle between 2 images ( not all homed, all homed) +
+'watch hard limits' would toggle between 2 images or one per joint +
+
+Here is an example of using it to display an icon of Z axis homing state: +
+
+image::images/statusImageSwitcher.png["QTvcp Status Image Switcher",scale="25%"]
+
+In the properties section notice that: +
+'watch axis homed' is checked +
+'axis letter' is set to Z +
+
+If you double click the 'image list' a dialog will show and allow you to add image paths to. +
+If you have one image as an icon and one clear image then that will look like it shows and hides the icon. +
+
+Selecting image paths can be done by selecting the 'pixmap' property and selecting an image. +
+Note: The pixmap setting is for test display only and will be ignored outside of Designer. +
+Right click the image name and you should see 'copy path' +
+Click 'copy path' +
+Now double click the 'image list' property so the dialog shows. +
+Click the 'New' button +
+Paste the image path in the entry box +
+Do that again for the next image - use a clear image to represent a hidden icon. +
+
+You can test display the images from the image list by changing the 'image number' +
+In this case 0 is unhomed 1 would be homed +
+This is for test display only and will be ignored outside of Designer. +
+
 ===  StatusStacked
 This widget displays one of three panels based on linuxcnc's mode. +
 This allows you to automatically display different widgets on Manual, MDI and Auto modes. +
@@ -468,8 +705,8 @@ playing sounds using 'beep', 'espeak' and the system sound
 
 * 'use_pref_file_option':
 setting up a preference filepath +
-Using the magic word 'CONFIGFOLDER' in the preference file path will be replaced with +
-the launched configuration path ie. CONFIGFOLDER/my_preferences
+Using the magic word 'WORKINGFOLDER' in the preference file path will be replaced with +
+the launched configuration path ie. WORKINFOLDER/my_preferences
 
 * 'embedded_program_option':
 Embed programs defined in the INI. There is a property for a default +
@@ -528,16 +765,42 @@ This widget allow the user to adjust linuxcnc setting via a slide. +
 
 It is based on pyQT's QSlider
 
-===  Led State Widget
+===  State LED Widget
 
-This widget gives status on linuxcnc's selected state. +
+This widget gives status on the selected linuxcnc state. +
 
-* diameter -diameter of the LED
+The state options are: +
+
+* is_paused_status
+* is_estopped_status
+* is_on_status
+* is_idle_status_
+* is_homed_status
+* is_flood_status
+* is_mist_status
+* is_block_delete_status
+* is_optional_stop_status
+* is_joint_homed_status
+* is_limits_overridden_status
+* is_manual_status
+* is_mdi_status
+* is_auto_status
+* is_spindle_stopped_status
+* is_spindle_fwd_status
+* is_spindle_rev_status
+* is_spindle_at_speed_status
+
+There are properties that can be changed:
+
+* halpin_option - Adds an output pin that reflects selected state
+* invert_state_status - Invert the LED state compared to the linuxcnc state.
+* diameter -Diameter of the LED
 * color - Color of the LED when on.
+* off_color - Color of the LED when off.
 * alignment - Qt Aliment hint.
-* state -current state of LED
-* flashing -turns flashing option on and off.
-* flashRate -sets the flash rate.
+* state - Current state of LED (for testing in designer)
+* flashing - Turns flashing option on and off.
+* flashRate - Sets the flash rate.
 
 The LED properties can be defined in a stylesheet with the following code added to the .qss file. +
 The name_of_led would be the name defined Designer's editor. +
@@ -575,9 +838,18 @@ It is based on pyQT's QToolButton
 
 ===  MacroTab Widget
 
+.Macrotab
+image::images/qtvcp_macro.png["QTvcp led",scale="25%"]
+
 This Widget allows a user to select and adjust special macro programs for 
 doing small jobs. +
 It uses images for visual representation of the macro and for an icon. +
+It searches for special macros using the INI definition: +
+[source,INI]
+----
+[RS274NGC]
+SUBROUTINE_PATH = 
+----
 The macros are Oword subroutine with special comments to work with the launcher. +
 The first three lines must have the keywords: (The forth is optional) +
 Here is a sample fr the forst four lines in an Oword file: +
@@ -593,6 +865,7 @@ Here is a sample fr the forst four lines in an Oword file: +
 This is the first line in the Oword file. +
 It is a comma separated list of text to display above an entry. +
 There will be one for every variable required in the Oword function. +
+If the macro does not require variables, only add '; MACROCOMMAND='
 
 ==== MACRODEFAULT
 
@@ -604,7 +877,8 @@ If you use the word 'true' or 'false' in the list, a checkbutton will be shown.
 
 This must be the third line in the Oword file. +
 if using a SVG image file, the must end b .svg +
-It can use layers to define different images for macro and icon. +
+The image must be added to an svg layer. +
+It uses layers to define different images for macro and icon. +
 The first entry will be the SVG image file name. +
 It is assumed to be in the same folder as the Oword file. +
 The second item will be the image layer. +
@@ -630,7 +904,7 @@ It is a comma separated list of keyword and data. +
 
 One can enter MDI commands here. A popup keyboard is available +
 There are also embedded commands available from this Widget. +
-Type, in all capitols, any of these commands to load the respective program: +
+Type, in all capitals, any of these commands to load the respective program: +
 
 * HALMETER +
 * HALSHOW +
@@ -638,19 +912,106 @@ Type, in all capitols, any of these commands to load the respective program: +
 * STATUS +
 * CALIBRATION +
 * CLASSICLADDER +
-* PREFERENCDE - Loads the preference file onto the gcodeEditor+
+* PREFERENCE - Loads the preference file onto the gcodeEditor +
 
 It is based on pyQT's QLineEdit +
 
 === MDIHistory
 
 Displays a scrollable list of past MDI command. +
-A edit line is embedded for commands. +
+A edit line is embedded for MDI commands. +
+There are also embedded commands available from this Widget +
+Type, in all capitals, any of these commands to load the respective program: +
+
+* HALMETER +
+* HALSHOW +
+* HALSCOPE +
+* STATUS +
+* CALIBRATION +
+* CLASSICLADDER +
+* PREFERENCE - Loads the preference file onto the gcodeEditor +
+
+The history is recorded on a file defined in the INI. +
+under the heading [DISPLAY] (this shows the default) +
+
+[source,ini]
+----
+MDI_HISTORY_FILE = '~/.axis_mdi_history'
+----
 
 === MDITouchy
 
+.MDI Touchy
+image::images/qtvcp_mdiTouchy.png["QTvcp MDI Touchy",scale="25%"]
+
 This widget display button and entry lines for use with entering MDI commands. +
-It is based on Linuxcnc's Touchy screen's process. +
+It is based on Linuxcnc's Touchy screen's MDI entry process. +
+It's large buttons are most useful for touch screens. +
+ +
+To use MDITouchy, first press one of the 'G/XY', 'G/RO', 'M' or 'T' button. +
+On the left, will show the current line that can be filled out, then press 'Next' for the next line. +
+'Calc' will pop up a calculator dialog. +
+'Clear' clears th ecurrent entry. +
+'Back' allows you to change previous line entries. +
+ +
+The widget requires an explicied call to MDITouchu's python code to actually run the MDI command +
+For handler file code: if the widget was named mditouchy in designer, this command would +
+run the displayed MDI command. +
+
+[source,python]
+----
+self.w.mditouchy.run_command()
+----
+
+For action button use: if the widget was named mditouchy in designer, +
+use the action button's 'Call python commands' option and enter: +
+[source,python]
+----
+INSTANCE.mditouchy.run_command()
+----
+
+The macro button will cycle though macro's defined in the INI heading [DISPLAY] +
+add one or more 'MACRO = ' lines.  Each should be of the format: +
+
+[source,ini]
+----
+MACRO = increment xinc yinc
+----
+In this example, increment is the name of the macro, and it accepts two
+parameters, named xinc and yinc.
+
+Now, place the macro in a file named 'increment.ngc', in the +
+'PROGRAM_PREFIX' directory or any directory in the 'SUBROUTINE_PATH'. +
+(specified in the INI file) +
+
+It should look like: +
+
+----
+O<increment> sub
+G91 G0 X#1 Y#2
+G90
+O<increment> endsub
+----
+
+Notice the name of the sub matches the file name and macro name exactly, +
+including case. +
+
+When you invoke the macro by pressing the Macro button +
+you can enter values for xinc and yinc.  These are +
+passed to the macro as '#1' and '#2' respectively.  Parameters you +
+leave empty are passed as value 0. +
+
+If there are several different macros, press the Macro button +
+repeatedly to cycle through them. +
+
+In this simple example, if you enter -1 for xinc and invoke the running of the +
+MDI cycle, a rapid 'G0' move will be invoked, moving one unit to +
+the left. +
+
+This macro capability is useful for edge/hole probing and other setup +
+tasks, as well as perhaps hole milling or other simple operations +
+that can be done from the panel without requiring specially-written +
+gcode programs. +
 
 ===  OriginOffsetView Widget
 
@@ -691,9 +1052,24 @@ You can watch: +
 It is based on pyQT's
 
 ===  FileManager
+.FileManager
+image::images/qtvcp_fileManager.png["QTvcp File Manager Widget",scale="25%"]
+
 This widget is used to select files to load. +
-It has a the ability to scroll the names with hardware such as a MIG. +
-You can add user selectable filters. +
+It has a the ability to scroll the names with hardware such as a MPG. +
+
+one can class patch the function 'load(self,fname):' to customize file loading. +
+
+the function 'getCurrentSelected()' will return a python touple, containing +
+the file path and whether it's a file. +
+
+[source,python]
+----
+temp = FILEMANAGER.getCurrentSelected()
+print 'filepath={}'.fomat(temp[0])
+if temp[1]:
+    print 'Is a file'
+----
 
 It is based on pyQT's
 
@@ -701,6 +1077,15 @@ It is based on pyQT's
 
 It is based on pyQT's
   
+
+=== BasicProbe
+
+.BasicProbe
+image::images/qtvcp_basicProbe.png["QTvcp basicProbe widget",scale="25%"]
+
+Widget for probing on a mill.
+
+requires extra analog motion pins for probe settings.
 
 
 == Dialog Widgets
@@ -777,6 +1162,10 @@ When using STATUS's 'request-dialog' function, the default launch name is 'MESSA
 It is based on pyQT's QMessagebox
 
 ===  Dialog Tool Change Widget
+
+.Manual Tool Change
+image::images/qtvcp_toolChange.png["QTvcp Manual Tool Change Dialog",scale="25%"]
+
 This is used as a manual tool change prompt. +
 It has HAL pins to connect to the machine controller +
 The pins are named the same as the original AXIS manual tool prompt and works the same. +
@@ -786,6 +1175,10 @@ If there is a Focus Overlay widget present, it will signal it to display. +
 It is based on pyQT's QMessagebox
 
 ===  Dialog File Chooser Widget
+
+.File Dialog
+image::images/qtvcp_fileDialog.png["QTvcp file dialog",scale="25%"]
+
 This is used to load Gcode files +
 If there is a Focus Overlay widget present, it will signal it to display. +
 When using STATUS's 'request-dialog' function, the default launch names are 'LOAD' or 'SAVE' +
@@ -821,6 +1214,10 @@ ACTION.CALL_DIALOG(mess)
 It is based on pyQT's QMessagebox
 
 ===  Dialog Origin Offset Widget
+
+.Offsets
+image::images/qtvcp_offsetpage.png["QTvcp origin Offset Page",scale="25%"]
+
 This widget allows one to modify User System origin offsets directly +
 It is in a dialog form +
 If there is an Focus Overlay widget present, it will signal it to display. +
@@ -829,6 +1226,10 @@ When using STATUS's 'request-dialog' function, the default launch name is 'ORIGI
 It is based on pyQT's QDialog
 
 ===  Dialog tool Offset Widget
+
+.Tool Offsets
+image::images/qtvcp_toolOffset.png["QTvcp Tool Offset Page",scale="25%"]
+
 This widget allows one to modify Tool offsets directly +
 It is in a dialog form +
 If there is an Focus Overlay widget present, it will signal it to display. +
@@ -861,20 +1262,46 @@ It is based on pyQT's QDialog
 
 ===  Dialog Calculator
 
+.Calculator
+image::images/qtvcp_calculator.png["QTvcp Calculator",scale="25%"]
+
 This is a dialog to display a calculator for numeric entry, such as origin offset. +
 It returns the entry via STATUS messages using a python DICT. +
 The DICT contains at minimum, the name of the dialog requested and an id code. +
 When using STATUS's 'request-dialog' function, the default launch name is 'CALCULATOR' +
 It is based on pyQT's QDialog
 
+=== Dialog Run From Line
+
+.Run-from-line Dialog
+image::images/qtvcp_runFromLine.png["QTvcp Run-from-line",scale="25%"]
+
+Dialog to preset  spindle settings before running a program from a specific line.
+
 ===  Dialog VersaProbe
+
+.Versa Probe Dialog
+image::images/qtvcp_versaProbe.png["QTvcp Versa Probe",scale="25%"]
 
 This is a dialog to display A probing screen based on Versa Probe. +
 It is based on pyQT's QDialog
 
 ===  Dialog MachineLogDialog
 
+.Machine Log Dialog
+image::images/qtvcp_machineLog.png["QTvcp MachineLog Dialog",scale="25%"]
+
 This is a dialog to display the user machine log and qtvcp's debugging log. +
 It is based on pyQT's QDialog
 
+== Other
+Other available widgets
+
+=== Nurbs Editor
+
+.Nurbs Editor
+image::images/qtvcp_nurbsEditor.png["QTvcp nurbs editor",scale="25%"]
+
+The Nurbs editor allows you to manipulate a nurbs based geometry on screen and then +
+convert this to gcode. you can edit the gcode on screen and then send it to linuxcnc.
 

@@ -1,0 +1,172 @@
+#!/bin/bash
+
+# This script creates a file in /tmp and
+# opens it with first visual editor found in a search list for editors
+
+# Copyright: 2014
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ofile=/tmp/linuxcnc_info.txt
+PROG=$(basename $0)
+
+usage () {
+  cat <<EOF
+$PROG creates file $ofile
+USAGE:
+  $PROG [options]
+  options:
+    -s  silent (suppress automatic opening of file)
+    -h  help
+EOF
+exit 1
+}
+
+git_commit () {
+  dir=$(dirname $0)
+  if [ "${dir}" = "/usr/bin" ] ; then
+    echo NA
+  else
+    echo $(cd $dir; git rev-parse --short HEAD 2>/dev/null)
+  fi
+}
+
+# try to find a visual editor to show created file
+# use list with existing preference first, then other common editors
+editors="$VISUAL gedit mousepad geany nedit gvim abiword"
+for e in $editors ; do
+  if [  -x "$(which $e)" ] ; then
+    VIEWER=$e
+    break #use first editor found
+  fi
+done
+
+while getopts hs OPT; do
+  case $OPT in
+    s) VIEWER="";;
+    h) usage;;
+    *) usage;;
+  esac
+done
+
+# all subsequent output:
+exec 1>$ofile
+exec 2>&1
+
+function show () {
+  if [ -z "$1" ] ; then
+    echo
+    return
+  fi
+  name=$1
+  shift
+  value=$*
+  printf "%20s: %s\n" "$name" "$value"
+}
+
+function parse_cpuinfo () {
+  cat /proc/cpuinfo|grep "$1"|head -1|cut -d: -f2-
+}
+
+function parse_after_colon () {
+  echo "$*"|cut -d: -f2-
+}
+
+function tryversion () {
+  prog="$1"
+  if [ $(which "$prog") ] ; then
+     ans=$($prog --version 2>/dev/null)
+     if [ -z "$ans" ] ; then
+       echo "?"
+     else
+       echo "$ans"
+     fi
+  else
+     echo "not_in_PATH"
+  fi
+}
+
+cat <<EOF
+The file:    $ofile
+can be posted to a forum or a web site like:
+     http://pastebin.com
+in order to provide information about the linuxcnc
+system and configuration.
+
+EOF
+
+[ -n "$VIEWER" ] && echo VIEWER=$VIEWER
+
+show "            Date" $(date)
+show "        UTC Date" $(date -u)
+show "    this program" $0
+show "          uptime" $(uptime)
+show " lsb_release -sa" $(lsb_release -sa 2>/dev/null)
+show "  which linuxcnc" $(which linuxcnc)
+show "             pwd" $(pwd -P)
+show "            USER" $USER
+show "         LOGNAME" $LOGNAME
+show "            HOME" $HOME
+show "          EDITOR" $EDITOR
+show "          VISUAL" $VISUAL
+show "        LANGUAGE" $LANGUAGE
+show "            TERM" $TERM
+show "       COLORTERM" $COLORTERM
+show "         DISPLAY" $DISPLAY
+show "         DESKTOP" $DESKTOP_SESSION
+show "    display size" $(parse_after_colon $(xdpyinfo|grep dimensions))
+show "            PATH" $PATH
+echo
+echo "uname items:"
+show "     nodename -n" $(uname -n)
+show "  kernel-name -s" $(uname -s)
+show "  kernel-vers -v" $(uname -v)
+show "      machine -m" $(uname -m)
+show "    processor -p" $(uname -p)
+show "     platform -i" $(uname -i)
+show "  oper system -o" $(uname -o)
+show ""
+echo "/proc items:"
+show "         cmdline" $(< /proc/cmdline)
+show "      model name" $(parse_cpuinfo "model name")
+show "           cores" $(parse_cpuinfo "cpu cores")
+show "         cpu MHz" $(parse_cpuinfo "cpu MHz")
+show "         parport" $(cat /proc/ioports|grep parport)
+show "          serial" $(cat /proc/ioports|grep serial)
+echo
+echo "Versions:"
+show "             gcc" $(gcc --version|head -1)
+show "          python" $(@PYTHON@ --version 2>&1)
+show "             git" $(tryversion git)
+show "      git commit" $(git_commit)
+show "             tcl" $(echo "puts $::tcl_version"|tclsh)
+show "              tk" $(echo "puts $::tk_version;destroy ."|wish)
+show "           glade" $(tryversion glade)
+show "      glade-gtk2" $(tryversion glade-gtk2)
+echo
+echo "linuxcnc_var all:"
+echo
+for n in $(linuxcnc_var all) ; do
+   show "${n%%=*}" ${n##*=}
+done
+
+echo
+echo "dpkg -l '*linuxcnc*':"
+dpkg -l '*linuxcnc*'
+echo
+
+[ -n "$VIEWER" ] && $VIEWER "$ofile"
+exit 0

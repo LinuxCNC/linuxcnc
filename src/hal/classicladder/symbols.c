@@ -34,6 +34,7 @@
 #include "classicladder.h"
 #include "global.h"
 #include "symbols.h"
+#include <rtapi_string.h>
 
 
 void InitSymbols( void )
@@ -137,7 +138,7 @@ char * ConvVarNameToSymbol( char * VarNameParam )
 		{
 			char * pAttrStart = VarNameParam;
 			// copy partial symbol
-			strcpy( tcBufferResult, pSymbol->Symbol );
+			rtapi_strxcpy( tcBufferResult, pSymbol->Symbol );
 			// search the '.' separator
 			do
 			{
@@ -151,7 +152,7 @@ char * ConvVarNameToSymbol( char * VarNameParam )
 		else
 		{
 			// simple copy (a symbol = a var name directly)
-			strcpy( tcBufferResult, pSymbol->Symbol );
+			rtapi_strxcpy( tcBufferResult, pSymbol->Symbol );
 		}
 		return tcBufferResult;
 	}
@@ -172,7 +173,7 @@ char * ConvSymbolToVarName( char * SymbolParam )
 		{
 			char * pAttrStart = SymbolParam;
 			// copy partial symbol
-			strcpy( tcBufferResult, pSymbol->VarName );
+			rtapi_strxcpy( tcBufferResult, pSymbol->VarName );
 			// search the '.' separator
 			do
 			{
@@ -186,7 +187,7 @@ char * ConvSymbolToVarName( char * SymbolParam )
 		else
 		{
 			// simple copy (a symbol = a var name directly)
-			strcpy( tcBufferResult, pSymbol->VarName );
+			rtapi_strxcpy( tcBufferResult, pSymbol->VarName );
 		}
 		return tcBufferResult;
 	}

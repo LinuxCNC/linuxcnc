@@ -449,12 +449,16 @@ proc watchLoop {} {
               u32 - s32  {set varnumtype int}
               float      {set varnumtype float}
             }
-            set value [expr $ret] ;# supersede if format provided
-            if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
-               set value [format "$::ffmt" $ret]
-            }
-            if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
-               set value [format "$::ifmt" $ret]
+            if [catch { set value [expr $ret] } ] {
+               set value $ret ;# allow display of a nan
+            } else {
+               # use format if provided
+               if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
+                  set value [format "$::ffmt" $ret]
+               }
+               if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
+                  set value [format "$::ifmt" $ret]
+               }
             }
             $::cisp itemconfigure text$cnum -text $value
         }

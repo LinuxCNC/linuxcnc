@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import sys
 import os
@@ -77,10 +77,10 @@ for line in lines:
 
 # verify that X starts at 0.000000
 if samples[0][1] != 0.000000:
-    print "sample 0: X starts at %.6f, not at 0.000000" % samples[0][1]
+    print("sample 0: X starts at %.6f, not at 0.000000" % samples[0][1])
     sys.exit(1)
 
-print "line 0: X starts at 0.000000"
+print("line 0: X starts at 0.000000")
 
 
 # find where X starts moving (X is the second column, column 1)
@@ -88,7 +88,7 @@ i = 0
 while samples[i][1] == samples[i+1][1]:
     i += 1
 
-print "line %d: accel phase starts" % i
+print("line %d: accel phase starts" % i)
 
 
 # now i is the sample before it starts moving
@@ -109,32 +109,32 @@ for i in range(i, len(samples)):
 
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 
-        print "line %d: detected accel constraint violation!" % i
-        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second))
-        print "max accel %.6f i/s^2)" % max_acceleration_ips2
+        print("line %d: detected accel constraint violation!" % i)
+        print("detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second)))
+        print("max accel %.6f i/s^2)" % max_acceleration_ips2)
         sys.exit(1)
 
     if (new_v_ipc - max_velocity_ipc) > 0.0000001:
-        print "line %d: detected vel constraint violation!" % i
-        print "detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second)
-        print "max vel %.6f i/c (%.6f i/s)" % (max_velocity_ipc, max_velocity_ips)
+        print("line %d: detected vel constraint violation!" % i)
+        print("detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second))
+        print("max vel %.6f i/c (%.6f i/s)" % (max_velocity_ipc, max_velocity_ips))
         sys.exit(1)
 
     if accel_ipc2 == 0:
-        print "line %d: accel phase over" % i
+        print("line %d: accel phase over" % i)
         break
 
     old_v_ipc = new_v_ipc
 
 # verify highest seen accel is very close to max accel
 if abs(max_acceleration_ipspc - (highest_seen_accel_ipc2 * cycles_per_second)) > 0.0000001:
-    print "accel only reached %.6f i/c^2 (%.6f i/s^2)" % (highest_seen_accel_ipc2, (highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second))
-    print "max accel is %.6f i/s^2" % max_acceleration_ips2
+    print("accel only reached %.6f i/c^2 (%.6f i/s^2)" % (highest_seen_accel_ipc2, (highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second)))
+    print("max accel is %.6f i/s^2" % max_acceleration_ips2)
     sys.exit(1)
 
-print "    accel reached but did not exceed 1/2 of max accel of %.6f i/s^2" % max_acceleration_ips2
+print("    accel reached but did not exceed 1/2 of max accel of %.6f i/s^2" % max_acceleration_ips2)
 
-print "line %d: entering cruise phase, vel=%.6f i/s, max_accel = %.6f i/s^2" % (i, new_v_ipc * cycles_per_second, highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second)
+print("line %d: entering cruise phase, vel=%.6f i/s, max_accel = %.6f i/s^2" % (i, new_v_ipc * cycles_per_second, highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second))
 
 
 # now i is the first sample of the cruise phase
@@ -148,7 +148,7 @@ for i in range(i, len(samples)):
 
     old_v_ipc = new_v_ipc
 
-print "line %d: decel phase starting, old_v=%.6f i/s, new_v=%.6f i/s" % (i, old_v_ipc * cycles_per_second, new_v_ipc * cycles_per_second)
+print("line %d: decel phase starting, old_v=%.6f i/s, new_v=%.6f i/s" % (i, old_v_ipc * cycles_per_second, new_v_ipc * cycles_per_second))
 
 # now i is the sample before it starts decel
 # verify accel does not exceed maxaccel
@@ -167,55 +167,55 @@ for i in range(i, len(samples)):
 
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 
-        print "line %d: detected accel constraint violation!" % i
-        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, accel_ipc2 * cycles_per_second * cycles_per_second)
-        print "max accel %.6f i/s^2)" % max_acceleration_ips2
+        print("line %d: detected accel constraint violation!" % i)
+        print("detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, accel_ipc2 * cycles_per_second * cycles_per_second))
+        print("max accel %.6f i/s^2)" % max_acceleration_ips2)
         sys.exit(1)
 
     if (new_v_ipc - max_velocity_ipc) > 0.0000001:
-        print "line %d: detected vel constraint violation!" % i
-        print "detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second)
-        print "max vel %.6f i/c (%.6f i/s)" % (max_velocity_ipc, max_velocity_ips)
+        print("line %d: detected vel constraint violation!" % i)
+        print("detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second))
+        print("max vel %.6f i/c (%.6f i/s)" % (max_velocity_ipc, max_velocity_ips))
         sys.exit(1)
 
     if new_v_ipc < -0.0000001:
-        print "line %d: detected vel undershoot!" % i
-        print "detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second)
+        print("line %d: detected vel undershoot!" % i)
+        print("detected vel %.6f i/c (%.6f i/s)" % (new_v_ipc, new_v_ipc * cycles_per_second))
         sys.exit(1)
 
     if new_v_ipc == 0:
-        print "line %d: decel phase over" % i
+        print("line %d: decel phase over" % i)
         break
 
     old_v_ipc = new_v_ipc
 
 # verify highest seen accel is very close to max accel
 if abs(max_acceleration_ipspc + (highest_seen_accel_ipc2 * cycles_per_second)) > 0.0000001:
-    print "accel only reached %.6f i/c^2 (%.6f i/s^2)" % (highest_seen_accel_ipc2, (highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second))
-    print "max accel is %.6f i/s^2" % max_acceleration_ips2
+    print("accel only reached %.6f i/c^2 (%.6f i/s^2)" % (highest_seen_accel_ipc2, (highest_seen_accel_ipc2 * cycles_per_second * cycles_per_second)))
+    print("max accel is %.6f i/s^2" % max_acceleration_ips2)
     sys.exit(1)
 
-print "    decel reached but did not exceed 1/2 of max accel of %.6f i/s^2" % max_acceleration_ips2
+print("    decel reached but did not exceed 1/2 of max accel of %.6f i/s^2" % max_acceleration_ips2)
 
 
 # verify X stopped at 1.000000
 if samples[i][1] != 1.000000:
-    print "line %d: X stopped at %.6f, not at 1.000000!" % (i, samples[i][1])
+    print("line %d: X stopped at %.6f, not at 1.000000!" % (i, samples[i][1]))
     sys.exit(1)
 
-print "    X reached target of 1.0000"
+print("    X reached target of 1.0000")
 
 
 # verify X doesn't move from now on
 for i in range(i, len(samples) - 1):
     if samples[i][1] != samples[i+1][1]:
-        print "line %d: X moved!" % i
+        print("line %d: X moved!" % i)
         sys.exit(1)
 
 
-print "line %d: X did not move after reaching target" % i
+print("line %d: X did not move after reaching target" % i)
 
-print "success!\n"
+print("success!\n")
 sys.exit(0)
 
 

@@ -1,0 +1,110 @@
+:lang: es
+= Acerca de LinuxCNC
+
+== El software
+
+* LinuxCNC (“Enhanced Machine Control” o Control de Máquina Mejorado) es un sistema de software para
+  control de máquinas herramientas como fresadoras y tornos, robots
+  tipos puma y scara y otras máquinas controladas por computadora, de hasta 9 ejes.
+* LinuxCNC es un software gratuito con código fuente abierto. Las versiones actuales de LinuxCNC
+  están completamente licenciadas bajo la Licencia Pública General de GNU (GPL) y Lesser GNU 
+  General Public License (LGPL)
+* LinuxCNC proporciona:
+** una interfaz gráfica de usuario (en realidad, varias interfaces entre las que elegir)
+** un intérprete para 'código G' (lenguaje de programación de máquinas herramienta RS-274)
+** un sistema de planificación de movimiento en tiempo real con análisis de instrucción siguiente
+** operación de la electrónica de bajo nivel de la máquina, como sensores y motores
+** una capa que actua como 'breadboard', fácil de usar, para crear rápidamente una
+ configuración unica para su máquina
+** un PLC en software, programable, con diagramas de escalera
+** instalación fácil con un Live-CD
+* No proporciona herramientas de dibujo (CAD - Diseño asistido por computadora) ni funciones
+ de generación de código G a partir de dibujos (CAM - Fabricación automatizada por computadora)
+* Puede mover simultáneamente hasta 9 ejes y admite una variedad de interfaces
+* El control puede operar servos verdaderos (analógicos o PWM) con retroalimentación
+ de bucle cerrado por el software LinuxCNC en la computadora, o bucle abierto, con
+  servomotores o motores paso a paso.
+* Las características de control de movimiento incluyen: compensación del radio de corte y longitud
+ de herramienta, desviación de trayectoria limitada a una tolerancia especificada, roscado en torno,
+ movimientos de eje sincronizados, avance adaptativo, control de ajuste de avance por el operador
+ y control de velocidad constante.
+* Soporte para sistemas de movimiento no cartesianos, a través de
+ módulos cinemáticos personalizados. Las arquitecturas disponibles incluyen hexapodos (
+plataformas Stewart y conceptos similares) y sistemas con articulaciones rotativas para
+ proporcionar movimiento como robots PUMA o SCARA.
+* LinuxCNC se ejecuta en Linux usando extensiones en tiempo real.
+
+== El sistema operativo
+
+LinuxCNC está disponible como paquetes listos para usar en distribuciones para Ubuntu y Debian
+
+
+== Obtener ayuda
+
+=== IRC
+
+IRC significa Internet Relay Chat. Es una conexión en vivo con otros usuarios de LinuxCNC.
+El canal IRC LinuxCNC es #linuxcnc en freenode.
+
+La forma más sencilla de acceder al IRC es usar el cliente Java incrustado en esta
+https://webchat.freenode.net/?channels=%23linuxcnc[pagina].
+
+Reglas de comportamiento en IRC::
+
+* Haga preguntas específicas ... Evite preguntas como "¿Puede alguien ayudarme?".
+* Si es realmente nuevo en todo esto, piense un poco en su pregunta
+ antes de escribirla. Asegúrese de dar suficiente información para que
+ alguien puede resolver su pregunta.
+* Tenga paciencia al esperar una respuesta; a veces se necesita un tiempo
+ mientras se formula una respuesta o todos pueden estar ocupados trabajando o
+ alguna otra cosa.
+* Configure su cuenta IRC con su nombre único para que las personas sepan quién
+ es usted. Si usa el cliente java, use el mismo nombre cada vez que
+ inicie sesión. Esto ayuda a las personas a recordar quién es usted y si ha estado
+ conectado antes, muchos recordarán las discusiones pasadas, lo que
+ ahorrará tiempo a todos.
+
+Compartir archivos::
+
+La forma más común de compartir archivos en el IRC es cargar el archivo
+a uno de los siguientes servicios, o similares, y pegar el enlace:
+
+* 'Para texto':     http://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'Para imágenes':  http://imagebin.org/, http://imgur.com/, http://bayimg.com/
+* 'Para archivos':  https://filedropper.com/, http://filefactory.com/, http://1fichier.com/
+
+=== Lista de correo
+
+Una lista de correo de Internet es una forma de hacer preguntas a todos los miembros
+de esa lista para que las vean y respondan a su conveniencia. Es mejor
+la exposición de sus preguntas en una lista de correo que en el IRC pero
+las respuestas tardan más. En pocas palabras, envíe un mensaje de correo electrónico a la lista y
+reciba resúmenes diarios o respuestas individuales dependiendo de cómo
+ha configurado usted su cuenta.
+
+Puede suscribirse a la lista de correo emc-users en:
+https://lists.sourceforge.net/lists/listinfo/emc-users
+
+=== Foro web
+
+Puede encontrar un foro web en https://forum.linuxcnc.org o siguiendo el enlace en
+parte superior de la página de inicio de linuxcnc.org.
+
+Es bastante activo, pero la demografia está más sesgada al usuario que la
+lista de correo. Si desea asegurarse de que su mensaje sea visto por los
+desarrolladores, entonces es preferible la lista de correo.
+
+=== Wiki LinuxCNC
+
+Un sitio Wiki es un sitio web mantenido por el usuario
+en el que cualquiera puede agregar o editar.
+
+El sitio Wiki LinuxCNC mantenido por el usuario contiene una
+gran cantidad de información y consejos en:
+link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
+
+=== Informes de errores
+
+Para informar de errores en LinuxCNC use el
+link:http:///github.com/LinuxCNC/linuxcnc/issues[rastreador de errores github].
+

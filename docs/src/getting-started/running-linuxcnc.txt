@@ -13,7 +13,7 @@ or select it in the Applications - CNC menu.
 == Configuration Launcher
 
 When starting LinuxCNC from the CNC menu or from the command line without
-specifiying an ini file the Configuration Selector dialog starts.
+specifying an ini file the Configuration Selector dialog starts.
 
 The Configuration Selector dialog allows the user to pick one of their
 existing configurations (My Configurations) or select a new one (from the Sample
@@ -161,7 +161,7 @@ configuration specific information in a text file named after
 a specific configuration (inifilename.txt).  That latter two
 files are displayed when using the Configuration Selector.
 
-The supplied sample configurations may specifiy HALFILEs
+The supplied sample configurations may specify HALFILEs
 in the configuration ini file that are not present in the
 copied directory because they are found in the system
 Halfile library.  These files can be copied to the user

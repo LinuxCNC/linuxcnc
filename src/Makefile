@@ -18,6 +18,10 @@ endif
 EXTRAFLAGS :=
 EXTRA_DEBUG ?=
 
+ifndef DESTDIR
+DESTDIR :=
+endif
+
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
 # to trace make execution of make in more detail:
 # make VV=1
@@ -96,7 +100,9 @@ $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+	     > /dev/null 2>&1; then echo "$(1)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -147,6 +153,8 @@ SUBDIRS := \
     po \
     \
     ../docs/src ../docs/src/source-highlight \
+    \
+    ../tests \
 
 
 
@@ -206,13 +214,15 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(QUIETFLAGS) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS) $(CXXQUIETFLAGS) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
+CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
+LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS) $(LDFLAGS)
 else
-LDFLAGS := -Wl,-rpath-link,../lib $(LIBTIRPC_LIBS)
+LDFLAGS := -Wl,-rpath-link,../lib $(LIBTIRPC_LIBS) $(LDFLAGS)
 endif
 
 # Rules to make .o (object) files
@@ -261,15 +271,21 @@ config.h: config.h.in config.status
 
 INFILES = \
         ../scripts/linuxcnc ../scripts/realtime \
+	../scripts/linuxcnc-python \
+	../scripts/linuxcnc_info \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
-	 ../lib/python/nf.py \
-	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
+	../lib/python/nf.py \
+	../share/desktop-directories/linuxcnc-doc.directory \
+	../share/desktop-directories/linuxcnc-ref.directory \
+	../share/desktop-directories/linuxcnc-cnc.directory \
+	../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
 	../scripts/halcmd_twopass \
+	../scripts/runtests \
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -304,6 +320,7 @@ HEADERS := \
     emc/motion/emcmotcfg.h \
     emc/motion/motion.h \
     emc/motion/simple_tp.h \
+    emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
@@ -320,6 +337,7 @@ HEADERS := \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/interp_fwd.hh \
     emc/rs274ngc/interp_base.hh \
+    emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
     emc/rs274ngc/saicanon.hh \
     hal/hal.h \
@@ -393,7 +411,8 @@ HEADERS := \
     rtapi/rtapi_stdint.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
+    rtapi/rtapi_string.h \
+    rtapi/rtapi_vsnprintf.h
 
 # the "headers" target installs all the header files in ../include
 .PHONY: headers
@@ -495,6 +514,28 @@ clean: depclean modclean
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
 
+pycheck-python-files:
+	@echo 'Checking *.py files for python2 and python3 compatibility...'
+	@for d in ./hal; do \
+		filelist=$(shell mktemp) && \
+		find $$d -name '*.py' -type f > $$filelist && \
+		cat $$filelist | xargs /usr/bin/env python2 -m py_compile && \
+		cat $$filelist | xargs /usr/bin/env python3 -m py_compile && \
+		rm -f $$filelist; \
+	done
+
+pycheck-python-script:
+	@echo 'Checking "text/x-python" (by MIME type) files for python2 and python3 compatibility...'
+	@for d in ../tests; do \
+		filelist=$(shell mktemp) && \
+		find $$d -type f -exec file -F ':' -i {} \; | grep 'text/x-python' | awk -F ':' '{print $$1}' > $$filelist && \
+		cat $$filelist | xargs /usr/bin/env python2 -m py_compile && \
+		cat $$filelist | xargs /usr/bin/env python3 -m py_compile && \
+		rm -f $$filelist; \
+	done
+
+pycheck: pycheck-python-files pycheck-python-script
+
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
@@ -553,16 +594,8 @@ NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-ifeq ($(DESTDIR),)
-install:
-	$(Q)echo "'make install' is only supported for building packages,"
-	$(Q)echo "and it doesn't look like that is what is going on because"
-	$(Q)echo "you have not set DESTDIR."
-	$(Q)exit 99
-else
 install: install-kernel-dep install-kernel-indep
-	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
-endif
+	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
@@ -603,6 +636,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halcmd_twopass $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcnc-python $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
@@ -626,7 +660,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
@@ -705,6 +739,7 @@ install-python: install-dirs
 	$(EXE) ../bin/pyui $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mitsub_vfd $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pmx485 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -780,6 +815,7 @@ EXTRA_CFLAGS += -msse
 EXTRA_CFLAGS += -g
 endif
 endif
+EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -909,6 +945,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/pktuart.o   \
     hal/drivers/mesa-hostmot2/pwmgen.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/rcpwmgen.o  \
     hal/drivers/mesa-hostmot2/resolver.o  \
     hal/drivers/mesa-hostmot2/sserial.o   \
     hal/drivers/mesa-hostmot2/ssr.o       \
@@ -1075,7 +1112,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -I../include \
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI \
 		$(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@

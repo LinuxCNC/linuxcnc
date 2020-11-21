@@ -18,11 +18,11 @@
 # self.gcodes = (0, 10, 20, 30, 40, 50, 51, 52, 53, 70, 80, 100,
 #                170, 171, 180, 181, 190, 191, 200, 210, 280, 281,
 #                300, 301, 330, 331, 382, 383, 384, 385, 400, 410,
-#                411, 420, 421, 430, 431, 490, 530, 540, 550, 560,
-#                570, 580, 590, 591, 592, 593, 610, 611, 640, 730,
-#                760, 800, 810, 820, 830, 840, 850, 860, 870, 880,
-#                890, 900, 901, 910, 911, 920, 921, 922, 923, 930,
-#                940, 950, 960, 970, 980, 990)
+#                411, 420, 421, 430, 431, 432, 490, 530, 540, 550,
+#                560, 570, 580, 590, 591, 592, 593, 610, 611, 640,
+#                730, 760, 800, 810, 820, 830, 840, 850, 860, 870,
+#                880, 890, 900, 901, 910, 911, 920, 921, 922, 923,
+#                930,940, 950, 960, 970, 980, 990)
 
 class mdi:
     def __init__(self, emc):
@@ -74,7 +74,7 @@ class mdi:
             'G42.1' : [_('Radius compensation right, immediate'), 'D', 'L'],
             'G43' : [_('Tool length offset'), 'H'],
             'G43.1' : [_('Tool length offset immediate'), 'A'],
-            'G43.2' : [_('Tool length offset additional'), 'H'],
+            'G43.2' : [_('Tool length offset additional'), 'H', 'A'],
             'G53' : [_('Motion in unoffset coordinates'), 'G', 'A', 'F'],
             'G64' : [_('Continuous mode'), 'P', 'Q'],
             'G76' : [_('Thread'), 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
@@ -104,7 +104,7 @@ class mdi:
         self.gcode = gcode
         if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
             return ['P', 'Q']
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]

@@ -23,8 +23,11 @@ run-in-place.
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import linuxcnc
-import Tkinter
 import sys
+if sys.version_info[0] == 3:
+    import tkinter
+else:
+    import Tkinter as tkinter
 
 linenumber = 1;
 
@@ -57,7 +60,7 @@ def log():
     else:
         p = get_joint()
     label1.configure(text='Learned:  %s' % p)
-    print linenumber, p, s.flood, s.mist, s.lube, s.spindle_enabled;
+    print(linenumber, p, s.flood, s.mist, s.lube, s.spindle[0]['enabled']);
     linenumber += 1;
 
 def show():
@@ -69,22 +72,22 @@ def show():
     label2.configure(text='Position: %s' % p)
     app.after(100, show)
 
-app = Tkinter.Tk(); app.wm_title('LinuxCNC Teach-In')
+app = tkinter.Tk(); app.wm_title('LinuxCNC Teach-In')
 
-world = Tkinter.IntVar(app)
+world = tkinter.IntVar(app)
 
-button = Tkinter.Button(app, command=log, text='Learn', font=("helvetica", 14))
+button = tkinter.Button(app, command=log, text='Learn', font=("helvetica", 14))
 button.pack(side='left')
 
-label2 = Tkinter.Label(app, width=60, font='fixed', anchor="w")
+label2 = tkinter.Label(app, width=60, font='fixed', anchor="w")
 label2.pack(side='top')
 
-label1 = Tkinter.Label(app, width=60, font='fixed', text="Learned:  (nothing yet)", anchor="w")
+label1 = tkinter.Label(app, width=60, font='fixed', text="Learned:  (nothing yet)", anchor="w")
 label1.pack(side='top')
 
-r1 = Tkinter.Radiobutton(app, text="Joint", variable=world, value=0)
+r1 = tkinter.Radiobutton(app, text="Joint", variable=world, value=0)
 r1.pack(side='left')
-r2 = Tkinter.Radiobutton(app, text="World", variable=world, value=1)
+r2 = tkinter.Radiobutton(app, text="World", variable=world, value=1)
 r2.pack(side='left')
 
 show()

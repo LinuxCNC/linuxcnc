@@ -74,6 +74,7 @@ extern int do_show_cmd(char *type, char **patterns);
 extern int do_list_cmd(char *type, char **patterns);
 extern int do_source_cmd(char *type);
 extern int do_status_cmd(char *type);
+extern int do_set_debug_cmd(char *level);
 extern int do_delsig_cmd(char *mod_name);
 extern int do_loadrt_cmd(char *mod_name, char *args[]);
 extern int do_unlinkp_cmd(char *mod_name);

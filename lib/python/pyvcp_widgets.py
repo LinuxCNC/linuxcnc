@@ -46,8 +46,13 @@
     of HAL pin compname.my-led 
 """
 
-
-from Tkinter import *
+from __future__ import print_function
+import sys
+if sys.version_info[0] == 3:
+    import tkinter as Tkinter
+    from tkinter import *
+else:
+    from Tkinter import *
 from hal import *
 import math
 import bwidget
@@ -157,7 +162,7 @@ class pyvcp_dial(Canvas):
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
-        self.txtroom=size/6
+        self.txtroom=int(size/6)
 
         # a title, if the user has supplied one
         if text!=None:
@@ -427,8 +432,9 @@ class pyvcp_meter(Canvas):
         x,y = self.p2c(0.8, self.alfa)
         self.coords(self.line,self.mid,self.mid,x,y)
 
-    def draw_region(self, (start, end, color)):
+    def draw_region(self, xxx_todo_changeme):
             #Draws a colored region on the canvas between start and end
+            (start, end, color) = xxx_todo_changeme
             start = self.value2angle(start)
             start = -self.rad2deg(start)
             end = self.value2angle(end)
@@ -458,7 +464,6 @@ class pyvcp_meter(Canvas):
                     xy2 = self.p2c(0.9,alfa)
                     self.create_line(xy1, xy2)
                 value = value + self.minorscale
-
              
 # -------------------------------------------
 
@@ -467,9 +472,17 @@ class pyvcp_jogwheel(Canvas):
         reacts to both mouse-wheel and mouse dragging
         <jogwheel>
             [ <cpr>33</cpr> ]                       (counts per revolution)
-            [ <halpin>"myjogwheel"</halpin> ]
-            [ <size>300</size> ]
+            [ <bgcolor>"grey"</bgcolor> ]           (background color)
+            [ <fillcolor>"green"</fillcolor> ]      (active fill color)
+            [ <halpin>"myjogwheel"</halpin> ]       (names halpins)
+            [ <clear_pin>1</clear_pin> ]            (1 creates dro and a reset pin to reset dro)
+            [ <scale_pin>1</scale_pin> ]            (1 creates scale text and a flout in to display jog scale)
+            [ <text>"My Text"</text> ]              (displays text on the wheel)
+            [ <size>300</size> ]                    (size of)
          </jogwheel>
+
+                key binding
+                    <Shift-1>   shift-click resets dro to zero same as clear_pin
     """
     # FIXME:
     # -jogging should be enabled only when the circle has focus
@@ -477,20 +490,26 @@ class pyvcp_jogwheel(Canvas):
     # -jogging by dragging with the mouse could work better
     # -add a scaled output, scale changes when alt/ctrl/shift is held down
     n=0
-    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,**kw):
+    def __init__(self,root,pycomp,halpin=None,text=None,clear_pin=0,scale_pin=0,
+        fillcolor="lightgrey",bgcolor="lightgrey",size=200,cpr=40,**kw):
+
         pad=size/10
         self.count=0
+        self.scale=0.0
+        self.drotxt=0.0
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
         self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)
-        self.itemconfig(self.circle,fill="lightgrey",activefill="lightgrey")
+        self.itemconfig(self.circle,fill=bgcolor,activefill=fillcolor)
         self.mid=size/2
         self.r=(size-2*pad)/2
         self.alfa=0
         self.d_alfa=2*math.pi/cpr
         self.size=size
-        
+        self.scale_pin = scale_pin
+        self.clear_pin = clear_pin
+        self.chgscale = self.scale
         
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill="black")
@@ -501,24 +520,85 @@ class pyvcp_jogwheel(Canvas):
         self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
         self.itemconfig(self.line,width=8)
 
+        #TJP items get rendered in order of creation, so the knob will be behind these texts
+        #TJP the font can be described with pixel size by using negative value
+
+        self.txtroom=size/10
+        # a title, if the user has supplied one
+        if text!=None:
+            self.title=self.create_text([self.mid,self.mid-self.txtroom],
+                        text=text,font=('Arial',-self.txtroom))
+        # the output
+        if clear_pin!=0:
+            self.dro=self.create_text([self.mid,self.mid],
+                        text=str(self.drotxt),font=('Arial',-self.txtroom))
+        # the scale
+        if scale_pin!=0:
+            self.jogscale=self.create_text([self.mid,self.mid+self.txtroom],
+                        text='x '+ str(self.scale),font=('Arial',-self.txtroom))
+
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
         self.bind('<Button1-Motion>',self.motion)
         self.bind('<ButtonPress>',self.bdown)
+        self.bind('<Shift-1>',self.resetValue)          # shift click resets value
         self.draw_ticks(cpr)
         self.dragstartx=0
         self.dragstarty=0
         self.dragstart=0
 
         # create the hal pin
+        name = ""
         if halpin == None:
-            halpin = "jogwheel."+str(pyvcp_jogwheel.n)+".count"
+            name = ".count"
+            halpin = "jogwheel."+str(pyvcp_jogwheel.n) + name
             pyvcp_jogwheel.n += 1
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         self.halpin=halpin
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         pycomp[self.halpin] = self.count
         self.pycomp=pycomp
-                 
+
+        if name != "":
+            halpin = halpin[:-6]
+
+        if clear_pin!=0:
+            name = ".reset"
+            clear_pin = halpin + name
+            self.clear_pin = clear_pin
+            pycomp.newpin(clear_pin, HAL_BIT, HAL_IN)
+
+        if scale_pin!=0:
+            name = ".scale"
+            scale_pin = halpin + name
+            self.scale_pin = scale_pin
+            pycomp.newpin(scale_pin, HAL_FLOAT, HAL_IN)
+
+    def update_jogscale(self):
+        if self.scale_pin:
+            self.scale = self.pycomp[self.scale_pin]
+            if self.chgscale != self.scale:
+                valtext = 'x ' +str(self.scale)
+                self.itemconfig(self.jogscale,text=valtext)
+                self.chgscale = self.scale
+
+    def update_dro(self):
+        if self.clear_pin:
+            valtext = str('{:.4f}'.format(self.drotxt))
+            self.itemconfig(self.dro,text=valtext)
+
+    def reset_dro(self):
+        if self.clear_pin:
+            clear_pin = self.pycomp[self.clear_pin]             #reset dro to zero from pin
+            if clear_pin == 1:
+                self.drotxt = 0.0
+                valtext = str(self.drotxt)
+                self.itemconfig(self.dro,text=valtext)
+
+    def resetValue(self,event):                                 # shift + click to reset dro value
+        self.drotxt = 0.0
+        valtext = str(self.drotxt)
+        self.itemconfig(self.dro,text=valtext)
+
     def dot_coords(self):
         DOTR=0.06*self.size
         DOTPOS=0.85
@@ -550,14 +630,18 @@ class pyvcp_jogwheel(Canvas):
     def down(self):
         self.alfa-=self.d_alfa
         self.count-=1
+        self.drotxt+=self.scale*-1
         self.pycomp[self.halpin] = self.count
-        self.update_dot()       
-    
+        self.update_dot()
+        self.update_dro()
+
     def up(self):
         self.alfa+=self.d_alfa
         self.count+=1
+        self.drotxt+=self.scale*1
         self.pycomp[self.halpin] = self.count
-        self.update_dot()  
+        self.update_dot()
+        self.update_dro()
 
     def update_dot(self):
         self.coords(self.dot, self.dot_coords() )  
@@ -574,9 +658,10 @@ class pyvcp_jogwheel(Canvas):
             self.create_line([startx,starty,stopx,stopy])
 
     def update(self,pycomp):
-        # this is stupid, but required for updating pin
-        # when first connected to a signal
-        self.pycomp[self.halpin] = self.count
+        if self.scale_pin:
+            self.update_jogscale()
+        if self.clear_pin:
+            self.reset_dro()
         
 # -------------------------------------------
 ## ArcEye - added - no example given and the one in docs misses out initval  ##
@@ -638,7 +723,7 @@ class pyvcp_radiobutton(Frame):
     def changed(self):
         index=math.log(self.v.get(),2)
         index=int(index)
-        print "active:",self.halpins[index]
+        print("active:",self.halpins[index])
 
 
 
@@ -739,7 +824,7 @@ class pyvcp_multilabel(Label):
         # if several pins are set one after another, the legend for the
         # last one set will end up being displayed
         index = -1
-        for x in xrange(0, self.num_pins):
+        for x in range(0, self.num_pins):
             state = pycomp[self.halpins[x]]
             if state == 1 :
                 index = x
@@ -747,7 +832,7 @@ class pyvcp_multilabel(Label):
                     break
                 
         if index > -1 and index != self.pin_index:
-            for x in xrange(0, self.num_pins):
+            for x in range(0, self.num_pins):
                 pycomp[self.halpins[x]] = 0
 
             pycomp[self.halpins[index]] = 1
@@ -1165,7 +1250,7 @@ class pyvcp_bar(Canvas):
         start=tmp[0]
         end=tmp[1]
         self.bar=self.create_rectangle(start,2,end,self.bh-1)
-	    # default fill unless overriden
+        # default fill unless overriden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text
@@ -1184,18 +1269,21 @@ class pyvcp_bar(Canvas):
         else:
             self.ranges = False
         
-    def set_fill(self, (start1, end1, color1),(start2, end2, color2), (start3, end3, color3)):
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
         if self.value:
-    	    if (self.value > start1) and (self.value <= end1):
-    		self.itemconfig(self.bar,fill=color1)	
-    	    else:
-    		if (self.value > start2) and (self.value <= end2):
-    		    self.itemconfig(self.bar,fill=color2)	
-		else:
-		    if (self.value > start3) and (self.value <= end3):
-    			self.itemconfig(self.bar,fill=color3)	
-	
-	
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)        
+            else:
+                if (self.value > start2) and (self.value <= end2):
+                    self.itemconfig(self.bar,fill=color2)        
+                else:
+                    if (self.value > start3) and (self.value <= end3):
+                        self.itemconfig(self.bar,fill=color3)        
+        
+        
     def bar_coords(self):
         """ calculates the coordinates in pixels for the bar """
         # the bar should start at value = zero 
@@ -1214,7 +1302,7 @@ class pyvcp_bar(Canvas):
 
         return [bar_start, bar_end]
     
-			
+                        
     def update(self,pycomp):
         # update value
         newvalue=pycomp[self.halpin]
@@ -1356,34 +1444,34 @@ class pyvcp_checkbutton(Checkbutton):
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
-	self.halpin=halpin
-	pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-	changepin = halpin + ".changepin"
-	self.changepin=changepin
-	pycomp.newpin(changepin, HAL_BIT, HAL_IN)
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        changepin = halpin + ".changepin"
+        self.changepin=changepin
+        pycomp.newpin(changepin, HAL_BIT, HAL_IN)
         pycomp[self.changepin] = 0
 
-	pyvcp_checkbutton.n += 1
-		
+        pyvcp_checkbutton.n += 1
+                
         if initval >= 0.5:
             self.value=1
         else:
             self.value=0
         self.v.set(self.value)
         self.reset = 0
-		
+                
     def update(self,pycomp):
         # prevent race condition if connected to permanently on pin
-	if pycomp[self.changepin] and not(self.reset):
-	    self.v.set(not(self.v.get()))
-	    self.reset = 1
-    	    pycomp[self.changepin] = 0 # try to reset, but may not work
-	    
-	if not(pycomp[self.changepin]) and(self.reset):
-    	    self.reset = 0 
-    	    pycomp[self.changepin] = 0   # make sure is reset now
-	
-	pycomp[self.halpin]=self.v.get()
+        if pycomp[self.changepin] and not(self.reset):
+            self.v.set(not(self.v.get()))
+            self.reset = 1
+            pycomp[self.changepin] = 0 # try to reset, but may not work
+            
+        if not(pycomp[self.changepin]) and(self.reset):
+                self.reset = 0 
+                pycomp[self.changepin] = 0   # make sure is reset now
+        
+        pycomp[self.halpin]=self.v.get()
 
 
 
@@ -1577,7 +1665,7 @@ class pyvcp_table(Frame):
             self.sticky = child.sticky
             return
         r, c = self._r, self._c
-        while self.occupied.has_key((r, c)):
+        while (r, c) in self.occupied:
             c = c + 1
         rs, cs = self.span
         child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
@@ -1621,9 +1709,9 @@ class pyvcp_include(Frame):
 
         try:
             doc = xml.dom.minidom.parse(src) 
-        except xml.parsers.expat.ExpatError, detail:
-            print "Error: could not open",src,"!"
-            print detail
+        except xml.parsers.expat.ExpatError as detail:
+            print("Error: could not open",src,"!")
+            print(detail)
             sys.exit(1)
 
         # find the pydoc element
@@ -1632,7 +1720,7 @@ class pyvcp_include(Frame):
                 break
 
         if e.localName != "pyvcp":
-            print "Error: no pyvcp element in file!"
+            print("Error: no pyvcp element in file!")
             sys.exit()
         pyvcproot=e
         vcpparse.nodeiterator(pyvcproot,self)
@@ -1672,7 +1760,7 @@ class pyvcp_image(_pyvcp_dummy):
 class _pyvcp_image(Label):
     def __init__(self, master, pycomp, images, halpin=None, **kw):
         Label.__init__(self, master, **kw)
-        if isinstance(images, basestring): images = images.split()
+        if isinstance(images, str): images = images.split()
         self.images = images
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
@@ -1688,7 +1776,7 @@ class _pyvcp_image(Label):
             try:
                 self.configure(image=self.images[l])
             except (IndexError, KeyError):
-                print >>sys.stderr, "Unknown image #%d on %s" % (l, self.halpin)
+                print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
 class pyvcp_image_bit(_pyvcp_image):
@@ -1699,11 +1787,11 @@ class pyvcp_image_u32(_pyvcp_image):
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
-for _key in globals().keys():
+for _key in list(globals().keys()):
     if _key.startswith("pyvcp_"):
         elements.append(_key[6:])
         __all__.append(_key)
 
 if __name__ == '__main__':
-    print "You can't run pyvcp_widgets.py by itself..."
+    print("You can't run pyvcp_widgets.py by itself...")
 # vim:sts=4:sw=4:et:

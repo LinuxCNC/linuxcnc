@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # qtvcp
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -33,7 +33,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 if INFO.IMAGE_PATH is not None:
@@ -67,7 +67,14 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
             if number <0 or number > len(self._imagePath)-1:
                 LOG.debug('Path reference number out of range: {}'.format(number))
                 return
-            path = os.path.expanduser(self._imagePath[number])
+            # resouces file images.
+            if ':/' in self._imagePath[number]:
+                path = self._imagePath[number]
+                pixmap = QPixmap(path)
+                self.setPixmap(pixmap)
+                return
+            else:
+                path = os.path.expanduser(self._imagePath[number])
         except Exception as e:
             LOG.error('Path reference number: {}'.format(e))
             path = os.path.expanduser(self._defaultImage)

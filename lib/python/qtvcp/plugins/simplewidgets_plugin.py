@@ -9,6 +9,7 @@ from qtvcp.widgets.simple_widgets import LCDNumber
 from qtvcp.widgets.simple_widgets import Slider
 from qtvcp.widgets.simple_widgets import GridLayout
 from qtvcp.widgets.simple_widgets import Dial
+from qtvcp.widgets.simple_widgets import DoubleScale
 from qtvcp.widgets.general_hal_output import GeneralHALOutput
 from qtvcp.widgets.general_hal_input import GeneralHALInput
 from qtvcp.widgets.xembed import XEmbed
@@ -585,6 +586,38 @@ class DialPlugin(QPyDesignerCustomWidgetPlugin):
         return False
     def domXml(self):
         return '''<widget class="Dial" name="dial"></widget>'''
+    def includeFile(self):
+        return "qtvcp.widgets.simple_widgets"
+
+####################################
+# DoubleScale
+####################################
+class DoubleScalePlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(DoubleScalePlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return DoubleScale(parent)
+    def name(self):
+        return "DoubleScale"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('doublescale')))
+    def toolTip(self):
+        return "Scaling Hal Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '''<widget class="DoubleScale" name="doublescale"></widget>'''
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"
 

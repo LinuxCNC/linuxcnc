@@ -19,13 +19,13 @@ import tempfile, atexit, shutil
 
 import gtk, gobject
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 
 _ = lambda x: x
 
-from hal_actions import _EMC_ActionBase, _EMC_Action
+from .hal_actions import _EMC_ActionBase, _EMC_Action
 
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 class FilterProgram:

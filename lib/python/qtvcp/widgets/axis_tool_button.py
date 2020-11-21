@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -35,8 +35,8 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class AxisToolButton(QToolButton, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -50,7 +50,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self.display_units_mm = 0
         homeOption = False
 
-        SettingMenu = QMenu()
+        SettingMenu = QMenu(self)
         self.settingMenu = SettingMenu
         self.zeroButton = QAction(QIcon('exit24.png'), 'Zero', self)
         self.zeroButton.triggered.connect(self.Zero)
@@ -117,7 +117,6 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def SetOrigin(self):
         axis, now = self._a_from_j(self._axis)
-        print '***set origin***',axis
         if axis:
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
             'AXIS':axis,'CURRENT':now,
@@ -129,7 +128,6 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     # process the STATUS return message
     def return_value(self, w, message):
-        print message
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
@@ -162,7 +160,6 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def Home(self):
         #axis, now = self._a_from_j(self._axis)
-        #print axis
         #if axis:
             ACTION.SET_MACHINE_HOMING(self._joint)
             STATUS.emit('update-machine-log', 'Homed Axis %s' % self._joint, 'TIME')

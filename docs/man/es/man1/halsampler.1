@@ -1,0 +1,163 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALSAMPLER "1" "2006-11-18" "Documentacion de LinuxCNC" "Manual HAL del usuario"
+.SH NOMBRE
+halsampler \- muestrea datos de HAL en tiempo real
+.SH SINOPSIS
+.B halsampler
+.RI [opciones]
+
+.SH DESCRIPCION
+.BR sampler(9)
+y
+.B halsampler
+se utilizan juntos para muestrear datos HAL en tiempo real y almacenarlos en un archivo.
+.B sampler
+es un componente HAL en tiempo real que exporta pines HAL y crea una FIFO en la memoria compartida. Luego comienza a muestrear los datos de HAL y los almacena en la FIFO.
+.B halsampler
+es un programa de espacio de usuario que copia los datos de la FIFO a la salida estandar, donde pueden
+ser redirigidos a un archivo o canalizados a algun otro programa.
+
+.SH OPCIONES
+.TP
+.BI "\-c " CHAN
+Instruye a
+.B halsampler
+para leer de la FIFO
+.IR CHAN.
+Las FIFO se numeran desde cero y el valor predeterminado es cero, por lo que
+esta opcion no es necesaria a menos que se hayan creado multiples FIFOs.
+.TP
+.BI "\-n " COUNT
+Instruye a
+.B halsampler
+para leer
+.I COUNT
+muestras de la FIFO y luego salir. Si
+.B \-n
+no se especifica,
+.B halsampler
+Leera continuamente hasta que se mate.
+.TP
+.B \-t
+Instruye a
+.B halsampler
+para etiquetar cada linea imprimiendo el numero de muestra en la primera columna.
+.TP
+.B FILENAME
+Instruye a
+.B halsampler
+para escribir en \fBFILENAME\fR en lugar de en stdout.
+.SH USO
+Debe crearse primero una FIFO, cargando
+.BR sampler (9)
+con
+.B halcmd loadrt
+o con un comando
+.B loadrt
+en un archivo .hal. Despues
+.B halsampler
+se puede invocar para comenzar a imprimir datos desde la FIFO a la salida estandar.
+.P
+Los datos se imprimen una linea por muestra. Si se especifico
+.B \-t
+, el numero de muestra se imprime primero. Siguen los datos, en el
+orden que los pines fueron definidos en la cadena de configuracion. Por ejemplo, si la cadena de configuracion de
+.B sampler
+era "ffbs", entonces una linea tipica de salida (sin
+.BR \-t)
+se veria como
+.P
+123.55 33.4 0 \-12
+.P
+.B halsampler
+imprime los datos lo mas rapido posible hasta que la FIFO queda vacia, luego reintenta a intervalos regulares, hasta que se elimina o se imprime
+.I COUNT
+muestras solicitadas por
+.BR \-n.
+Por lo general, pero no siempre, los datos impresos por
+.B halsampler
+seran redirigido a un archivo o canalizados a algun otro programa.
+.P
+El tama\[~n]o de la FIFO debe elegirse para absorber las muestras capturadas durante cualquier interrupcion momentanea en el flujo de datos, como busquedas en disco, desplazamiento del terminal o limitaciones de procesamiento del programa posterior en una tuberia. Si la FIFO se
+llena, y
+.B sampler
+queda obligado a sobrescribir los datos antiguos,
+.B halsampler
+imprimira 'sobrepasado' en una linea para marcar cada gap en el muestreo de
+datos. Si se especifico
+.B \-t
+, los gaps en los numeros de muestra secuenciales en la primera columna
+se pueden usar para determinar exactamente cuantas muestras se perdieron.
+.P
+El formato de datos de salida de
+.B halsampler
+es el mismo que el de entrada de
+.BR halstreamer(1)
+, por lo que 'formas de onda' capturadas con
+.B halsampler
+se puede reproducir utilizando
+.BR halstreamer.
+La opcion 
+.B \-t
+no debe ser utilizada en este caso.
+
+.SH "ESTADO DE SALIDA"
+Si se encuentra un problema durante la inicializacion,
+.B halsampler
+imprime un mensaje a stderr y devuelve el error.
+.P
+Al imprimir
+.I COUNT
+muestras (si
+.B \-n
+fue especificado) se cerrara y devolvera exito. Si es terminado
+antes de imprimir el numero especificado de muestras, devuelve error. Esto
+significa que cuando
+.B \-n
+no se especifica, siempre devolvera un error cuando termine.
+
+.SH "VER TAMBIEN"
+.BR sampler(9)
+.BR streamer(9)
+.BR halstreamer(1)
+
+.SH HISTORIA
+
+.SH ERRORES
+
+.SH AUTOR
+Version original de John Kasunich, como parte del proyecto LinuxCNC.
+Mejoras de varios otros miembros del equipo de desarrollo de LinuxCNC.
+.SH REPORTAR ERRORES
+Informar errores a jmkasunich AT usuarios DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 John Kasunich.
+.br
+Este es un software libre; ver las fuentes para condiciones de copia. No hay
+garantia; ni siquiera para COMERCIABILIDAD o APTITUD PARA UN PROPoSITO PARTICULAR.
+
+

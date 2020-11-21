@@ -795,7 +795,8 @@ static void set_operating_mode(void)
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
         if (*(emcmot_hal_data->eoffset_limited)) {
-            reportError("Starting beyond Soft Limits");
+            reportError("Note: Motion enabled after reaching a coordinate "
+                        "soft limit with active external offsets");
             *(emcmot_hal_data->eoffset_limited) = 0;
         }
         initialize_external_offsets();
@@ -1189,7 +1190,8 @@ static void get_pos_cmds(long period)
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
 	    /* compute joint velocity limit */
-            if ( get_home_is_idle(joint_num) ) {
+            if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+                && get_home_is_idle(joint_num) ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
@@ -1492,14 +1494,29 @@ static void get_pos_cmds(long period)
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
-	    /* just hit the limit */
-	    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+        /* Unexpectedly hit a joint soft limit.
+        ** Possibile causes:
+        **  1) a joint positional limit was reduced by an ini halpin
+        **     (like ini.N.max_limit) -- undetected by trajectory planning
+        **     including simple_tp
+        **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
+        **  3) kins module misbehavior
+        **  4) poorly tuned servo motion (not detected by ferror settings)
+        **
+        ** Non-identity kins can often be switched to joint mode to recover
+        ** using the '$' shortcut provided by the gui.
+        ** Guis may not provide a means to recover for identity kins except
+        ** by unhoming/jogging/rehoming.  (For trivkins, using kinstype=both
+        ** can be used as a workaround).
+        ** 
+        */
+	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0] == 1) {
                     joint = &joints[joint_num];
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1508,7 +1525,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1836,6 +1853,16 @@ static void output_to_hal(void)
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
 
+    switch (emcmotStatus->motionType) {
+        case EMC_MOTION_TYPE_FEED: //fall thru
+        case EMC_MOTION_TYPE_ARC:
+            *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
+                                         * emcmotStatus->net_feed_scale;
+            break;
+        default:
+            *(emcmot_hal_data->feed_upm) = 0;
+    }
+
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
@@ -2117,6 +2144,7 @@ static void update_status(void)
     emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
     //KLUDGE add an API call for this
     emcmotStatus->reverse_run = emcmotDebug->coord_tp.reverse_run;
+    emcmotStatus->tag = tpGetExecTag(&emcmotDebug->coord_tp);
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 

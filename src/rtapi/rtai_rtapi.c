@@ -65,14 +65,15 @@
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
 #include <linux/uaccess.h>	/* copy_from_user() */
-#include <asm/msr.h>		/* rdtscll() */
+#include <linux/version.h>	/* LINUX_VERSION_CODE */
+#include <asm/msr.h>		/* rdtsc_ordered() */
 
 /* get inb(), outb(), ioperm() */
 #include <asm/io.h>
 
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 
-#include "vsnprintf.h"
+#include "rtapi_vsnprintf.h"
 
 #include <rtai.h>
 #include <rtai_sched.h>
@@ -536,8 +537,12 @@ long long int rtapi_get_clocks(void)
 {
     long long int retval;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
+    retval = rdtsc_ordered();
+#else
     rdtscll(retval);
-    return retval;    
+#endif
+    return retval;
 }
 
 void rtapi_delay(long int nsec)
@@ -747,7 +752,12 @@ static int task_delete(int task_id)
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "RTAPI: WARNING: tried to delete task %02d while running\n",
 	    task_id);
-	rtapi_task_pause(task_id);
+        int retval = rtapi_task_pause(task_id);
+        if (retval  != 0){
+            rtapi_print_msg(RTAPI_MSG_WARN,
+	    "RTAPI: WARNING: Failed to pause task  %02d, return %i\n", task_id, retval);
+            return -EINVAL;
+        }
     }
     /* get rid of it */
     rt_task_delete(ostask_array[task_id]);
@@ -899,7 +909,7 @@ int rtapi_task_pause(int task_id)
     oldstate = task->state;
     task->state = PAUSED;
     retval = rt_task_suspend(ostask_array[task_id]);
-    if (retval != 0) {
+    if (retval < 0) {
         task->state = oldstate;
 	return -EINVAL;
     }

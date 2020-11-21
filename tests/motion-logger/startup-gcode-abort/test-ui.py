@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import sys
+import time
 
 
 #
@@ -17,12 +18,14 @@ e = linuxcnc.error_channel()
 # Immediately abort!  Github Issue #49 
 #
 
-print "UI abort"
+time.sleep(1)
+
+print("UI abort")
 sys.stdout.flush()
 
 c.abort()
 c.wait_complete()
 
-print "UI done with abort"
+print("UI done with abort")
 sys.stdout.flush()
 

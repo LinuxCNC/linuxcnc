@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 '''Copied from m61-test'''
 
 import linuxcnc
@@ -11,7 +11,7 @@ from time import sleep
 from os import listdir
 from os.path import isfile, join
 import re
-import Tkinter, os
+import tkinter, os
 
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
@@ -36,7 +36,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:
@@ -48,20 +48,20 @@ def query_yes_no(question, default="yes"):
 def find_test_nc_files(testpath='nc_files', show=False):
     files = [ testpath + '/' + f for f in listdir(testpath) if isfile(join(testpath,f)) and re.search('.ngc$',f) is not None ]
     if show:
-        print "In folder {0}, found {1} files:".format(testpath,len(files))
+        print("In folder {0}, found {1} files:".format(testpath,len(files)))
         for f in files:
-            print f
+            print(f)
     return files
 
 def axis_open_program(t,f):
     return t.tk.call("send", "axis", ("remote","open_file_name", os.path.abspath(f)))
 
-t = Tkinter.Tk()
+t = tkinter.Tk()
 t.wm_withdraw()
 
 """Run the test"""
 
-raw_input("Press any key when the LinuxCNC GUI has loaded")
+input("Press any key when the LinuxCNC GUI has loaded")
 
 import glob
 #KLUDGE this lists all subfolders in the auto-test directory
@@ -99,7 +99,7 @@ e.set_mode(linuxcnc.MODE_AUTO)
 sleep(1)
 for f in test_files:
     if re.search('\.ngc$',f) is not None:
-        print "Loading program {0}".format(f)
+        print("Loading program {0}".format(f))
         e.set_mode(linuxcnc.MODE_AUTO)
         sleep(1)
         axis_open_program(t,f)
@@ -109,7 +109,7 @@ for f in test_files:
             sleep(.5)
         res = e.wait_on_program()
         if res == False:
-            print "Program {0} failed to complete!".format(f)
+            print("Program {0} failed to complete!".format(f))
             sys.exit(1)
 
-print "All tests completed!"
+print("All tests completed!")

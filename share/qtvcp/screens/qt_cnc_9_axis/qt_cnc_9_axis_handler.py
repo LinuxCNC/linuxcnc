@@ -61,7 +61,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         if self.w.PREFS_:
-            print 'Using preference file:',self.w.PREFS_.fn
+            print('Using preference file:',self.w.PREFS_.fn)
         ACTION.SPEAK('This is a test screen for Qt V C P')
         # add some extra key bindings
         KEYBIND.add_call('Key_F3','on_keycall_F3')
@@ -109,6 +109,8 @@ class HandlerClass:
                 else:
                     event.accept()
                     return True
+
+        if event.isAutoRepeat():return True
 
         # ok if we got here then try keybindings function calls
         # KEYBINDING will call functions from handler file as
@@ -162,11 +164,11 @@ class HandlerClass:
                 ACTION.SET_MACHINE_HOMING(-1)
     def on_keycall_ABORT(self,event,state,shift,cntrl):
         if state:
-            print 'abort'
+            print('abort')
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                print 'abort'
+                print('abort')
                 self.cmnd.abort()
 
     # dialogs

@@ -46,6 +46,7 @@
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
 #include "emc_mods.h"
+#include <rtapi_string.h>
 
 #ifdef debug
 #define dbg_printf printf
@@ -66,16 +67,17 @@ char *cl_fgets(char *s, int size, FILE *stream)
 	char * res;
 	s[0] = '\0';
 	res = fgets( s, size, stream );
-	
+
 	// While last character in string is either CR or LF, remove.
 	while (strlen(s)>=1 && ((s[strlen(s)-1]=='\r') || (s[strlen(s)-1]=='\n')))
 		s[strlen(s)-1] = '\0';
-
+#if S_LINE_INUSE
 	if ( strlen( S_LINE )>0 && strlen(s)>strlen( S_LINE )+strlen( E_LINE ) )
 	{
 		strcpy( s, s+strlen( S_LINE ) );
 		s[ strlen(s)-strlen(E_LINE) ] = '\0';
 	}
+#endif
 	return res;
 }
 
@@ -183,13 +185,13 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         }
                         if(strncmp(&Line[1],"LABEL=",6)==0)
                         {
-                            strcpy(BufRung->Label,&Line[7]);
+                            rtapi_strxcpy(BufRung->Label,&Line[7]);
 //WIN32PORT
 //							RemoveEndLine( BufRung->Label );
                         }
                         if(strncmp(&Line[1],"COMMENT=",8)==0)
                         {
-                            strcpy(BufRung->Comment,&Line[9]);
+                            rtapi_strxcpy(BufRung->Comment,&Line[9]);
 //WIN32PORT
 //							RemoveEndLine( BufRung->Comment );
                         }
@@ -254,7 +256,7 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
     for(NumRung=0; NumRung<NBR_RUNGS; NumRung++)
     {
         char RungFile[400];
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         dbg_printf(_("Loading file : %s"),RungFile);
         if (LoadRung(RungFile,Rungs))
         {
@@ -293,7 +295,7 @@ void LoadAllRungs(char * BaseName,StrRung * Rungs)
     for(NumRung=0; NumRung<NBR_RUNGS; NumRung++)
     {
         char RungFile[400];
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         dbg_printf(_("Loading file : %s"),RungFile);
         if (LoadRung(RungFile,Rungs))
         {
@@ -314,7 +316,7 @@ void SaveAllRungs(char * BaseName)
     /* delete all before */
     for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)
     {
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         remove(RungFile);
     }
     /* save rungs (only defined ones are saved) */
@@ -324,7 +326,7 @@ void SaveAllRungs(char * BaseName)
     {
         if ( RungArray[ NumRung ].Used )
         {
-            sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+            snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
             dbg_printf(_("Saving file : %s"),RungFile);
             if (SaveRung(RungFile,&RungArray[NumRung]))
                 dbg_printf(_(" - ok.\n"));
@@ -455,12 +457,12 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
                         case BASE_100MS:
                             BufTimers->Base = CorresDatasForBase[Params[0]].ValueInMS;
                             BufTimers->Preset = Params[1] * BufTimers->Base;
-                            strcpy(BufTimers->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+                            rtapi_strxcpy(BufTimers->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
                             break;
                         default:
                             BufTimers->Base = 1;
                             BufTimers->Preset = 10;
-                            strcpy(BufTimers->DisplayFormat,"%f?");
+                            rtapi_strxcpy(BufTimers->DisplayFormat,"%f?");
                             printf(_("!!! Error loading parameter base in %s\n"),FileName);
                             break;
                     }
@@ -525,12 +527,12 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
                         case BASE_100MS:
                             BufMonostables->Base = CorresDatasForBase[Params[0]].ValueInMS;
                             BufMonostables->Preset = Params[1] * BufMonostables->Base;
-                            strcpy(BufMonostables->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+                            rtapi_strxcpy(BufMonostables->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
                             break;
                         default:
                             BufMonostables->Base = 1;
                             BufMonostables->Preset = 10;
-                            strcpy(BufMonostables->DisplayFormat,"%f?");
+                            rtapi_strxcpy(BufMonostables->DisplayFormat,"%f?");
                             printf(_("!!! Error loading parameter base in %s\n"),FileName);
                             break;
                     }
@@ -649,12 +651,12 @@ char LoadNewTimersParams(char * FileName)
 						case BASE_100MS:
 							TimerIEC->Base = CorresDatasForBase[Params[0]].ValueInMS;
 							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, Params[1] );
-							strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+							rtapi_strxcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
 							break;
 						default:
 							TimerIEC->Base = 1;
 							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, 10 );
-							strcpy(TimerIEC->DisplayFormat,"%f?");
+							rtapi_strxcpy(TimerIEC->DisplayFormat,"%f?");
 							printf(_("!!! Error loading parameter base in %s\n"),FileName);
 							break;
 					}
@@ -717,11 +719,11 @@ char LoadArithmeticExpr(char * FileName)
 					if ( Line[0]>='0' && Line[0]<='9' )
 					{
 						NumExpr = atoi(Line);
-						strcpy(ArithmExpr[NumExpr].Expr,Line+strlen("xxxx,"));
+						rtapi_strxcpy(ArithmExpr[NumExpr].Expr,Line+strlen("xxxx,"));
 					}
 					else
 					{
-						strcpy(ArithmExpr[NumExpr].Expr,Line);
+						rtapi_strxcpy(ArithmExpr[NumExpr].Expr,Line);
 						NumExpr++;
 					}
 				}
@@ -791,7 +793,7 @@ char LoadSectionsParams(char * FileName)
                         {
                             Line[ 8 ] = '\0';
                             NumSection = atoi( &Line[5] );
-                            strcpy(SectionArray[ NumSection ].Name, &Line[9]);
+                            rtapi_strxcpy(SectionArray[ NumSection ].Name, &Line[9]);
 //WIN32PORT
 //							RemoveEndLine( SectionArray[ NumSection ].Name );
                         }
@@ -930,7 +932,7 @@ char LoadModbusIOConfParams(char * FileName)
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
-	int IntDatas[ 6 ];
+	int IntDatas[] = {0,0,0,0,0,0};
 	char * LineOk;
 	StrModbusMasterReq * pConf = &ModbusMasterReq[ 0 ];
 	File = fopen(FileName,"rt");
@@ -952,7 +954,7 @@ char LoadModbusIOConfParams(char * FileName)
 						{
 							ConvRawLineOfNumbers( EndFirstField+1, 5, &IntDatas[1] );
 							*EndFirstField = '\0';
-							strcpy( pConf->SlaveAdr, Line );
+							rtapi_strxcpy( pConf->SlaveAdr, Line );
 						}
 						else
 						{
@@ -962,7 +964,7 @@ char LoadModbusIOConfParams(char * FileName)
 					else
 					{
 						ConvRawLineOfNumbers( Line, 6, IntDatas );
-						sprintf( pConf->SlaveAdr, "%d", IntDatas[0] );
+						snprintf(pConf->SlaveAdr, sizeof(pConf->SlaveAdr), "%d", IntDatas[0] );
 					}
 					if ( LineOk )
 					{
@@ -1202,7 +1204,7 @@ char LoadComParameters(char * FileName)
 				char * pParameter;
 				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					 strcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
+					 rtapi_strxcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
@@ -1298,7 +1300,7 @@ void DeleteTheDefaultSection( )
 	SectionArray[ 0 ].Used = FALSE;
 }
 
-char FileName[500];
+static char FileName[500];
 void LoadAllLadderDatas(char * DatasDirectory)
 {
 	ClassicLadder_InitAllDatas( );
@@ -1308,63 +1310,63 @@ void LoadAllLadderDatas(char * DatasDirectory)
 
 	//printf("Loading datas from %s...\n", DatasDirectory);
 // this function call is not wanted because in EMC parameters are loaded with the realtime module
-//	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
+//	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
-        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+        snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
 //      printf("Loading modbus com data \n");
 	LoadComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 //	printf("Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
 //	printf("Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
 //	printf("Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	LoadNewTimersParams(FileName);
 
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
 //	printf("Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
 //	printf("Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs(FileName,RungArray);
 	}
 	else
 	{
 		//printf("Rungs with old format found (no sections)\n");
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
 		// if we load old format files, sections wasn't created, so we must write theses infos...
 		SectionArray[ 0 ].FirstRung = InfosGene->FirstRung;
 		SectionArray[ 0 ].LastRung = InfosGene->LastRung;
 	}
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
 //	printf("Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
 //	printf("Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
 #ifdef MODBUS_IO_MASTER
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
         if (modmaster) {    PrepareModbusMaster( );    }
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols datas from %s\n",FileName);
 	LoadSymbols(FileName);
 
@@ -1375,37 +1377,37 @@ void LoadAllLadderDatas(char * DatasDirectory)
 void SaveAllLadderDatas(char * DatasDirectory)
 {
 	CleanTmpLadderDirectory( FALSE/*DestroyDir*/ );
-	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 	SaveGeneralParameters( FileName );
-        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+        snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
 	SaveComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 	SaveTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
 	SaveMonostablesParams(FileName,MonostableArray);
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
 	SaveCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	SaveNewTimersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
 	SaveArithmeticExpr(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 	SaveAllRungs(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
 	SaveSectionsParams( FileName );
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
 	SaveSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
 	SaveIOConfParams( FileName );
 #ifdef MODBUS_IO_MASTER
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 	SaveModbusIOConfParams( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
 }
@@ -1436,8 +1438,10 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 					if ( cRemoveIt )
 					{
-						sprintf(Buff, "%s/%s", TmpDirectory,pEnt->d_name);
-						remove(Buff);
+						size_t ret = snprintf(Buff, sizeof(Buff), "%s/%s", TmpDirectory,pEnt->d_name);
+						if (ret <= sizeof(Buff)){
+						    remove(Buff);
+						}
 					}
 				}
 			}

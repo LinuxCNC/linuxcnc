@@ -216,7 +216,6 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
     }
     // Start with the scaled target velocity based on the current feed scale
     double v_target = tc->synchronized ? tc->target_vel : tc->reqvel;
-    /*tc_debug_print("Initial v_target = %f\n",v_target);*/
 
     // Get the maximum allowed target velocity, and make sure we're below it
     return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
@@ -245,8 +244,7 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
         //KLUDGE: Don't allow feed override to keep blending from overruning max velocity
         max_scale = fmin(max_scale, 1.0);
     }
-    // Get maximum reachable velocity from max feed override
-    double v_max_target = tc->target_vel * max_scale;
+    double v_max_target = tcGetMaxTargetVel(tc, max_scale);
 
     /* Check if the cartesian velocity limit applies and clip the maximum
      * velocity. The vLimit is from the max velocity slider, and should
@@ -257,11 +255,10 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
      */
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
         /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target,tp->vLimit);
+        v_max_target = fmin(v_max_target, tp->vLimit);
     }
 
-    // Apply maximum segment velocity limit (must always be respected)
-    return fmin(v_max_target, tc->maxvel);
+    return v_max_target;
 }
 
 
@@ -370,8 +367,11 @@ int tpClear(TP_STRUCT * const tp)
     tcqInit(&tp->queue);
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
+    // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
+    struct state_tag_t tag = {{0}};
+    tp->execTag = tag;
     tp->motionType = 0;
     tp->termCond = TC_TERM_COND_PARABOLIC;
     tp->tolerance = 0.0;
@@ -527,6 +527,17 @@ int tpGetExecId(TP_STRUCT * const tp)
     return tp->execId;
 }
 
+struct state_tag_t tpGetExecTag(TP_STRUCT * const tp)
+{
+    if (0 == tp) {
+        struct state_tag_t empty = {{0}};
+        return empty;
+    }
+
+    return tp->execTag;
+}
+
+
 /**
  * Sets the termination condition for all subsequent queued moves.
  * If cond is TC_TERM_COND_STOP, motion comes to a stop before a subsequent move
@@ -657,7 +668,6 @@ STATIC double tpCalculateTriangleVel(TC_STRUCT const *tc) {
     return findVPeak(acc_scaled, length);
 }
 
-
 /**
  * Handles the special case of blending into an unfinalized segment.
  * The problem here is that the last segment in the queue can always be cut
@@ -679,17 +689,18 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
 
 
 /**
- * Initialize a blend arc from its parent lines.
- * This copies and initializes properties from the previous and next lines to
+ * Initialize a blend arc from its parent segments.
+ * This copies and initializes properties from the previous and next segments to
  * initialize a blend arc. This function does not handle connecting the
  * segments together, however.
  */
 STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT* const blend_tc,
-        double vel,
-        double ini_maxvel,
-        double acc) {
+				  TC_STRUCT const * const prev_tc,
+				  TC_STRUCT* const blend_tc,
+				  double vel,
+				  double ini_maxvel,
+				  double acc)
+{
 
 #ifdef TP_SHOW_BLENDS
     int canon_motion_type = EMC_MOTION_TYPE_ARC;
@@ -714,7 +725,8 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
             acc);
 
     // Skip syncdio setup since this blend extends the previous line
-    blend_tc->syncdio = prev_tc->syncdio; //enqueue the list of DIOs that need toggling
+    blend_tc->syncdio =		// enqueue the list of DIOs
+	prev_tc->syncdio;	// that need toggling
 
     // find "helix" length for target
     double length;
@@ -1412,14 +1424,21 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     return TP_ERR_OK;
 }
 
-STATIC int tpCheckCanonType(TC_STRUCT * prev_tc, TC_STRUCT * tc)
+STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT * const tc)
 {
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
     }
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
             (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
-        tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
+        tp_debug_print("Blending disabled: can't blend between rapid and feed motions\n");
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
+    }
+    if (prev_tc->synchronized != TC_SYNC_POSITION &&
+            tc->synchronized == TC_SYNC_POSITION) {
+        tp_debug_print("Blending disabled: changing spindle sync mode from %d to %d\n",
+                prev_tc->synchronized,
+                tc->synchronized);
         tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
@@ -1442,8 +1461,15 @@ STATIC int tpSetupSyncedIO(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 /**
  * Adds a rigid tap cycle to the motion queue.
  */
-int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
-        double acc, unsigned char enables, double scale) {
+int tpAddRigidTap(TP_STRUCT * const tp,
+        EmcPose end,
+        double vel,
+        double ini_maxvel,
+        double acc,
+        unsigned char enables,
+        double scale,
+        struct state_tag_t tag) {
+
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
     }
@@ -1467,6 +1493,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
             tp->cycleTime,
             enables,
             1);
+    tc.tag = tag;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -1916,9 +1943,11 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
-        ini_maxvel, double acc, unsigned char enables, char atspeed, int indexer_jnum) {
 
+int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
+            double vel, double ini_maxvel, double acc, unsigned char enables,
+            char atspeed, int indexer_jnum, struct state_tag_t tag)
+{
     if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
     }
@@ -1932,6 +1961,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             tp->cycleTime,
             enables,
             atspeed);
+    tc.tag = tag;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -1944,7 +1974,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
             vel,
             ini_maxvel,
             acc);
-
     // Setup line geometry
     pmLine9Init(&tc.coords.line,
             &tp->goalPos,
@@ -1963,7 +1992,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     //TODO refactor this into its own function
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
-    tpCheckCanonType(prev_tc, &tc);
+    handleModeChange(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
     }
@@ -1998,7 +2027,8 @@ int tpAddCircle(TP_STRUCT * const tp,
         double ini_maxvel,
         double acc,
         unsigned char enables,
-        char atspeed)
+        char atspeed,
+        struct state_tag_t tag)
 {
     if (tpErrorCheck(tp)<0) {
         return TP_ERR_FAIL;
@@ -2015,6 +2045,7 @@ int tpAddCircle(TP_STRUCT * const tp,
             tp->cycleTime,
             enables,
             atspeed);
+    tc.tag = tag;
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
 
@@ -2051,7 +2082,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
-    tpCheckCanonType(prev_tc, &tc);
+    handleModeChange(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
         findSpiralArcLengthFit(&tc.coords.circle.xyz, &tc.coords.circle.fit);
@@ -2390,6 +2421,10 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
     	new_spindlepos = -new_spindlepos;
 
     switch (tc->coords.rigidtap.state) {
+        case RIGIDTAP_START:
+            old_spindlepos = new_spindlepos;
+            tc->coords.rigidtap.state = TAPPING;
+            // Deliberate fallthrough
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
@@ -2471,6 +2506,8 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         emcmotStatus->enables_queued = emcmotStatus->enables_new;
         emcmotStatus->requested_vel = 0;
         emcmotStatus->current_vel = 0;
+        emcmotStatus->spindleSync = 0;
+        
         emcPoseZero(&emcmotStatus->dtg);
 
         tp->motionType = 0;
@@ -2798,6 +2835,9 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync. spindle_num %d..\n", tp->spindle.spindle_num);
         return TP_ERR_WAITING;
     }
+
+    // Update the modal state displayed by the TP
+    tp->execTag = tc->tag;
 
     return TP_ERR_OK;
 }

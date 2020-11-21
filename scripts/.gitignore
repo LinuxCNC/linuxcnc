@@ -1,9 +1,13 @@
 linuxcnc
+linuxcnc-checklink
+linuxcnc-python
+linuxcnc_info
 rip-environment
 halrun
 haltcl
 realtime
 rtapi.conf
+runtests
 linuxcncmkdesktop
 linuxcnc_var
 halcmd_twopass

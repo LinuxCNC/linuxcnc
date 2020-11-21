@@ -73,6 +73,8 @@ using namespace boost::python;
 
 AS_IF([test "x$ac_cv_boost_python" = xyes],
 [
+  PYTHON_MAJOR=`$PYTHON -c 'import sys; print(sys.version_info.major)'`
+  PYTHON_MINOR=`$PYTHON -c 'import sys; print(sys.version_info.minor)'`
   BOOST_PYTHON_LIBS=
   ax_python_lib=boost_python
   AC_ARG_WITH([boost-python],
@@ -88,7 +90,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     ax_boost_python_lib=boost_python-$with_boost_python
   fi])
   AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python${PYTHON_MAJOR}${PYTHON_MINOR} boost_python${PYTHON_MAJOR} boost_python
   do
     # Note that this requires LIBPYTHON from configure.ac
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
@@ -701,6 +703,7 @@ else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    DEFAULT_TOOLTABLE=${prefix}/share/doc/linuxcnc/examples/sample-configs/common/tool.tbl
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -902,22 +905,25 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
-then
-    AC_MSG_ERROR([insmod not found])
-fi
+if test "$RTS" != uspace; then
+    # Module utilities not needed for uspace
+    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+    if test $INSMOD = "none"
+    then
+        AC_MSG_ERROR([insmod not found])
+    fi
 
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
+    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+    if test $RMMOD = "none"
+    then
+        AC_MSG_ERROR([rmmod not found])
+    fi
 
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+        AC_MSG_ERROR([lsmod not found])
+    fi
 fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
@@ -1018,7 +1024,7 @@ AC_ARG_WITH(python,
     [
         PYTHON=$withval
     ],[
-        PYTHON=python
+        PYTHON=python2
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none")
 if test $PYTHON = "none"
@@ -1030,7 +1036,7 @@ AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     AS_HELP_STRING(
         [--enable-build-documentation[=FORMAT]],
-        [Build documentation.  FORMAT may be "pdf" or "html" if only one format is desired.]
+        [Build documentation.  FORMAT may be "Y" for both or "pdf" or "html" if only one format is desired.]
     ),
     [
         case "$enableval" in
@@ -1080,7 +1086,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:
@@ -1108,8 +1114,9 @@ EOF
     AC_MSG_CHECKING([dblatex version])
     set -- `dblatex --version`; DBLATEX_VER=$3
     set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+    micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
+    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
         AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
     fi
@@ -1135,11 +1142,6 @@ fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-    fi
-
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
@@ -1246,25 +1248,6 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
-
-AC_MSG_CHECKING([for sincos function])
-sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
-        1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
-AC_MSG_RESULT([$sincos_ok])
-
-AC_CHECK_FUNCS(__sincos)
-LIBS=$LIBS_hold
 
 AC_MSG_CHECKING([for optreset])
 AC_TRY_LINK(
@@ -1542,6 +1525,7 @@ fi
 
 AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
 AC_TRY_COMPILE([
+        #include <stdio.h>
         #include <readline/readline.h>
     ],[
         #if RL_VERSION_MAJOR > 5
@@ -1707,8 +1691,11 @@ AC_SUBST(PYTHON_LIBS)
 # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
 AX_BOOST_PYTHON_EMC
 
+saved_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
 AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-    [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+CPPFLAGS=$saved_CPPFLAGS
 
 AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
@@ -1736,6 +1723,10 @@ AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
+AC_SUBST([CFLAGS])
+AC_SUBST([CPPFLAGS])
+AC_SUBST([CXXFLAGS])
+AC_SUBST([LDFLAGS])
 
 ##############################################################################
 # files that get created by ./configure                                      #
@@ -1743,12 +1734,16 @@ AC_SUBST([SITEPY])
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
+AC_CONFIG_FILES([../scripts/linuxcnc-python], [chmod +x ../scripts/linuxcnc-python])
+AC_CONFIG_FILES([../scripts/linuxcnc_info], [chmod +x ../scripts/linuxcnc_info])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
+AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
@@ -1756,7 +1751,9 @@ AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
-AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-doc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 

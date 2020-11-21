@@ -97,7 +97,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     double ferror;
 
     // compose string to match, joint = 0 -> JOINT_0, etc.
-    sprintf(jointString, "JOINT_%d", joint);
+    snprintf(jointString, sizeof(jointString), "JOINT_%d", joint);
 
     jointIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
     

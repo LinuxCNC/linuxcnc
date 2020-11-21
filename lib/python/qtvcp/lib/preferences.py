@@ -12,9 +12,15 @@
 
 
 
-import os, ConfigParser
+import os
+import sys
+if sys.version_info.major > 2:
+    import configparser
+else:
+    import ConfigParser as configparser
 
-cp = ConfigParser.RawConfigParser
+    
+cp = configparser.RawConfigParser
 cp.optionxform=str
 class Access(cp):
     types = {
@@ -32,8 +38,8 @@ class Access(cp):
         self.fn = os.path.expanduser(path)
         try:
             fp = open(self.fn)
-        except IOError:
-            print 'preference file does not exist -makeing file - ()'.format(self.fn)
+        except:
+            print('preference file does not exist -makeing file - {}'.format(self.fn))
             # If not exists, create the file
             fp = open(self.fn, 'w+')
         self.read(self.fn)
@@ -42,12 +48,12 @@ class Access(cp):
         m = self.types.get(type)
         try:
             o = m(self, section, option)
-        except Exception, detail:
-            print detail
+        except Exception as detail:
+            print(detail)
             try:
                 self.set(section, option, default)
-            except ConfigParser.NoSectionError:
-                print 'Adding section %s'%section
+            except configparser.NoSectionError:
+                print('Adding section %s'%section)
                 # Create non-existent section
                 self.add_section(section)
                 self.set(section, option, default)
@@ -61,8 +67,8 @@ class Access(cp):
     def putpref(self, option, value, type=bool, section="DEFAULT"):
         try:
             self.set(section, option, type(value))
-        except ConfigParser.NoSectionError:
-            print 'Adding section %s'%section
+        except configparser.NoSectionError:
+            print('Adding section %s'%section)
             # Create non-existent section
             self.add_section(section)
             self.set(section, option, type(value))

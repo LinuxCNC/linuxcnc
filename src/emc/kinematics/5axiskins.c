@@ -10,7 +10,25 @@
 *    
 * Copyright (c) 2007 Chris Radek
 *
-* Last change:
+* Notes:
+*  1) pivot_length hal pin must agree with mechanical
+*     design (including vismach simulation) and augmented
+*     with current tool z offset
+*     (typ: mechanical_pivot_en + motion.tooloffset.z)
+*  2) C axis: spherical coordinates aziumthal angle (t or theta)
+*     projection of radius to  xy plane
+*  3) B axis: spherical coordinates polar angle (p or phi)
+*     wrt z axis
+*  4) W axis: negative values increase radius
+*     example: drilling into body at b,c angles
+*  5) W axis motion is incorporated into the Z axis so
+*     no motor or hal pin connections are required for
+*     JOINT_W.  However, 6 joints must be configured to
+*     support display of W axis letter motion since
+*     motion/control.c computes joint positions only
+*     for the number of configured kinematic joints
+*     (NO_OF_KINS_JOINTS)
+*
 ********************************************************************/
 
 #include "kinematics.h"		/* these decls */
@@ -51,7 +69,7 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    PmCartesian r = s2r(*(haldata->pivot_length)+ joints[JOINT_W]
+    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JOINT_W]
                        ,joints[JOINT_C]
                        ,180.0 - joints[JOINT_B]);
 
@@ -124,7 +142,7 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_new("5axiskins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
+    result = hal_pin_float_new("5axiskins.pivot-length", HAL_IN, &(haldata->pivot_length), comp_id);
     if(result < 0) goto error;
 
     *(haldata->pivot_length) = 250.0;

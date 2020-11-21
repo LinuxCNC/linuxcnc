@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2016 Chris Morley
@@ -39,7 +39,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -77,7 +77,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_view_signal(self, w, view, args):
         v = view.lower()
         if v == 'clear':
-            self.clear_live_plotter()
+            self.logger.clear()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
@@ -129,6 +129,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.inhibit_selection = True
         elif v == 'inhibit-selection-off':
             self.inhibit_selection = False
+        elif v == 'dimensions-on':
+            self.show_extents_option = True
+            self.updateGL()
+        elif v == 'dimensions-off':
+            self.show_extents_option = False
+            self.updateGL()
         else:
             self.set_view(v)
 
@@ -165,7 +171,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
-            print 'error', self._reload_filename
+            print('error', self._reload_filename)
             pass
 
 
@@ -177,7 +183,6 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         error_str = gcode.strerror(result)
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
-        print(errortext)
         STATUS.emit("graphics-gcode-error", errortext)
 
     # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
@@ -198,6 +203,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # override user plot -One could add gl commands to plot static objects here
     def user_plot(self):
         return
+
+    def emit_percent(self, f):
+        super( GCodeGraphics, self).emit_percent(f)
+        STATUS.emit('graphics-loading-progress',f)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -301,5 +310,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget =  GCodeGraphics()
+    widget.use_gradient_background = True
+    widget.enable_dro = True
     widget.show()
     sys.exit(app.exec_())

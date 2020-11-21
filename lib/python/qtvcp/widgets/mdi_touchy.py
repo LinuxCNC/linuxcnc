@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -15,11 +15,8 @@
 #
 # touchy style MDI based heavily from Touchy code
 
-import sys
 import os
 import math
-import time
-import hal
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
@@ -53,7 +50,10 @@ class mdi:
             self.axes = ['X','Y','Z']
 
         self.gcode = 'M2'
-
+        if INFO.MACHINE_IS_LATHE:
+            G10 = ['Setup', 'L', 'P', 'A','R', 'I','J', 'Q']
+        else:
+            G10 = ['Setup', 'L', 'P', 'A', 'R']
         self.codes = {
             'M3' : ['Spindle CW', 'S'],
             'M4' : ['Spindle CCW', 'S'],
@@ -72,7 +72,7 @@ class mdi:
             'G03' : ['Arc CCW', 'A', 'I', 'J', 'K', 'R', 'P', 'F'],
             'G4' : ['Dwell', 'P'],
             'G04' : ['Dwell', 'P'],
-            'G10' : ['Setup', 'L', 'P', 'A', 'Q', 'R'],
+            'G10': G10,
             'G33' : ['Spindle synchronized feed', 'A', 'K'],
             'G33.1' : ['Rigid tap', 'Z', 'K'],
             'G38.2' : ['Probe', 'A', 'F'],
@@ -85,7 +85,7 @@ class mdi:
             'G42.1' : ['Radius compensation right, immediate', 'D', 'L'],
             'G43' : ['Tool length offset', 'H'],
             'G43.1' : ['Tool length offset immediate', 'A'],
-            'G43.2' : ['Tool length offset additional', 'H'],
+            'G43.2' : ['Tool length offset additional', 'H', 'A'],
             'G53' : ['Motion in unoffset coordinates', 'G', 'A', 'F'],
             'G64' : ['Continuous mode', 'P', 'Q'],
             'G76' : ['Thread', 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
@@ -118,7 +118,7 @@ class mdi:
                 return ['P', 'Q']
         except IndexError:
             return []
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]
@@ -188,6 +188,11 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('general',self.return_value)
+        macros = INFO.INI_MACROS
+        if len(macros) > 0:
+            self.mdi.add_macros(macros)
+        else:
+            self.pushButton_macro.setEnabled(0)
 
     def gxClicked(self):
         self.update("G")
@@ -249,7 +254,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         self.set_origin()
 
     def macroClicked(self):
-        pass
+        self.cycle_ocodes()
 
     def calcClicked(self):
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
@@ -322,6 +327,18 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         else:
             w.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
+    def cycle_ocodes(self):
+        # strip off richText bold encoding
+        doc = self.label_0.text().lstrip('<b>')
+        old_code = doc.rstrip('</b>')
+        ocodes = self.mdi.ocodes
+        if old_code in ocodes:
+            j = (ocodes.index(old_code) + 1) % len(ocodes)
+        else:
+            j = 0
+        self.update(ocodes[j])
+        self.nextClicked()            
+
     def set_tool(self, tool, g10l11):
         self.update()
         self.set_text("G10", 0)
@@ -369,6 +386,7 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
+    import sys
 
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()

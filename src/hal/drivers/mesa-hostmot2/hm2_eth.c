@@ -128,7 +128,7 @@ static char *hm2_7i96_pin_names[] = {
     "TB1-20/TB1-21",
     "TB1-22-TB1-23",
 
-    "TB2-01/TB2-03",
+    "TB2-02/TB2-03",
     "TB2-04/TB2-05",
     "TB2-07/TB2-08",
     "TB2-10/TB2-11",
@@ -320,6 +320,134 @@ static char *hm2_7i97_pin_names[] = {
     "P1-23",
     "P1-25"
 };
+
+static char *hm2_Mc04_pin_names[] = {
+    "Relay2",
+    "Relay3",
+    "Relay4",
+    "Relay5",
+    "Relay1",
+    "Single led",
+    "Encoder #0, pin B (Input)",
+    "Encoder #0, pin A (Input)",
+    "Encoder #1, pin A (Input)",
+    "Encoder #0, pin Index (Input)",
+    "Servo0VRDY",
+    "StepGen #0, pin Step (Output)",
+    "StepGen #0, pin Direction (Output)",
+    "StepGen #1, pin Step (Output)",
+    "StepGen #1, pin Direction (Output)",
+    "StepGen #2, pin Step (Output)",
+    "StepGen #2, pin Direction (Output)",
+    "StepGen #3, pin Step (Output)",
+    "StepGen #3, pin Direction (Output)",
+    "Encoder #2, pin B (Input)",
+    "Encoder #2, pin A (Input)",
+    "Encoder #1, pin Index (Input)",
+    "Encoder #1, pin B (Input)",
+    "Servo1VRDY",
+    "Servo2VRDY",
+    "Encoder #3, pin Index (Input)",
+    "Encoder #3, pin B (Input)",
+    "Encoder #3, pin A (Input)",
+    "Encoder #2, pin Index (Input)",
+    "Servo3VRDY",
+    "Servo's on",
+    "Output0",
+    "Output1",
+    "Output2",
+    "Output3",
+    "Output4",
+    "Output5",
+    "Output6",
+    "Output7",
+    "Input7",
+    "Input6",
+    "Input5",
+    "Input4",
+    "Input3",
+    "Input2",
+    "Input1",
+    "Input0",
+    "PWMGen #0, pin Out0 (PWM or Up) (Output)",
+    "PWMGen #0, pin Not-Enable (Output)",
+    "Spindle-on",
+    "Spindle-ccw",
+    "Smart Serial Interface #0, pin txen2 (Output)",
+    "Smart Serial Interface #0, pin tx2 (Output)",
+    "Smart Serial Interface #0, pin rx2 (Input)",
+    "Smart Serial Interface #0, pin txen1 (Output)",
+    "Smart Serial Interface #0, pin tx1 (Output)",
+    "Smart Serial Interface #0, pin rx1 (Input)",
+    "Smart Serial Interface #0, pin txen0 (Output)",
+    "Smart Serial Interface #0, pin tx0 (Output)",
+    "Smart Serial Interface #0, pin rx0 (Input)"
+};
+
+static char *hm2_8cSS_pin_names[] = {
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Smart Serial Interface #0, pin tx1 (Output)",
+    "Smart Serial Interface #0, pin rx1 (Input)",
+    "Smart Serial Interface #0, pin txen1 (Output)",
+    "Smart Serial Interface #0, pin tx2 (Output)",
+    "Smart Serial Interface #0, pin rx2 (Input)",
+    "Smart Serial Interface #0, pin txen2 (Output)",
+    "Smart Serial Interface #0, pin tx3 (Output)",
+    "Smart Serial Interface #0, pin rx3 (Input)",
+    "Smart Serial Interface #0, pin txen3 (Output)",
+    "Smart Serial Interface #0, pin tx4 (Output)",
+    "Smart Serial Interface #0, pin rx4 (Input)",
+    "Smart Serial Interface #0, pin txen4 (Output)",
+    "Input0",
+    "Input1",
+    "Input2",
+    "Input3",
+    "Input4",
+    "Input5",
+    "Input6",
+    "Input7",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Output2",
+    "Output1",
+    "Output0",
+    "Output5",
+    "Output4",
+    "Output3",
+    "Output7",
+    "Output6",   
+    "Not used",
+    "Not used",
+    "Not used",
+    "Not used",
+    "Spindle CW",
+    "Spindle PWM",
+    "Spindle enable",
+    "Spindle CCW",
+    "Smart Serial Interface #0, pin tx8 (Output)", 
+    "Smart Serial Interface #0, pin rx8 (Input)",
+    "Smart Serial Interface #0, pin txen8 (Output)",
+    "Smart Serial Interface #0, pin rx7 (Input)",
+    "Smart Serial Interface #0, pin tx7 (Output)",
+    "Smart Serial Interface #0, pin txen5 (Output)",   
+    "Smart Serial Interface #0, pin rx5 (Input)",
+    "Smart Serial Interface #0, pin tx5 (Output)",
+    "Smart Serial Interface #0, pin txen6 (Output)",
+    "Smart Serial Interface #0, pin rx6 (Input)",   
+    "Smart Serial Interface #0, pin tx6 (Output)",
+    "Smart Serial Interface #0, pin txen7 (Output)",   
+
+};
+
 
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10
@@ -522,7 +650,7 @@ static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) 
     // eeprom order is backwards from arp AF_LOCAL order
     for(i=0; i<6; i++) buf[i] = response[5-i];
 
-    LL_PRINT("%s: Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    LL_PRINT("%s: INFO: Hardware address (MAC): %02x:%02x:%02x:%02x:%02x:%02x\n",
         board_ip, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 
     return 0;
@@ -572,14 +700,14 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
-        LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
+        LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
         return -errno;
     }
 
     timeout.tv_usec = SEND_TIMEOUT_US;
-    setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
+    ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
-        LL_PRINT("ERROR: can't set socket option: %s\n", strerror(errno));
+        LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
         return -errno;
     }
 
@@ -594,13 +722,13 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
     board->req.arp_flags = ATF_PERM | ATF_COM;
     ret = fetch_hwaddr( board_ip, board->sockfd, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
-        LL_PRINT("ERROR: %s: Could not retrieve mac address\n", board_ip);
+        LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
         return ret;
     }
 
     ret = ioctl_siocsarp(board);
     if(ret < 0) {
-        perror("ioctl SIOCSARP");
+        LL_PRINT("ERROR: ioctl SIOCSARP failed: %s\n", strerror(errno));
         board->req.arp_flags &= ~ATF_PERM;
         return -errno;
     }
@@ -618,6 +746,9 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 }
 
 static int close_board(hm2_eth_t *board) {
+
+    board->llio.reset(&board->llio);
+
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
@@ -824,6 +955,19 @@ do_recv_packet:
         decrement_soft_error(board);
     }
     return result;
+}
+
+static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
+    LL_PRINT("in hm2_eth_reset\n");
+
+    hm2_eth_t *board = this->private;
+
+    // Make the watchdog timer bite in 1ns from now
+    lbp16_cmd_addr_data32 bite_packet;
+    LBP16_INIT_PACKET8(bite_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(1), HM2_ADDR_WATCHDOG, 0x0001);
+    int ret = eth_socket_send(board->sockfd, (void*) &bite_packet, sizeof(bite_packet), 0);
+    if(ret < 0) perror("eth_socket_send(bite_packet)");
+    return ret < 0 ? -errno : 0;
 }
 
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
@@ -1135,6 +1279,40 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
+   
+    } else if (strncmp(board_name, "MC04", 4) == 0) {
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 30;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+        board->llio.io_connector_pin_names = hm2_Mc04_pin_names;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+
+
+
+     } else if (strncmp(board_name, "8CSS", 4) == 0) {
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 30;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+        board->llio.io_connector_pin_names = hm2_8cSS_pin_names;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+
+
+
+
+
+
     } else {
         LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
         strncpy(llio_name, board_name, 4);
@@ -1148,6 +1326,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4);
         unsigned int idrom_address = read_data & 0xffff;
         hm2_idrom_t idrom;
+        memset(&idrom, 0, sizeof(idrom));
         hm2_eth_read(&board->llio, idrom_address, &idrom, sizeof(idrom));
 
         board->llio.num_ioport_connectors = idrom.io_ports;
@@ -1172,6 +1351,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.receive_queued_reads = hm2_eth_receive_queued_reads;
     board->llio.queue_write = hm2_eth_enqueue_write;
     board->llio.send_queued_writes = hm2_eth_send_queued_writes;
+    board->llio.reset = hm2_eth_reset;
 
     ret = hm2_register(&board->llio, config[boards_count]);
     if (ret != 0) {

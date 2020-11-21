@@ -80,6 +80,7 @@ to another.
 #include "rtapi_limits.h"
 #include <stdarg.h>
 #include "rtapi_bool.h"
+#include "state_tag.h"
 
 // define a special value to denote an invalid motion ID 
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -253,27 +254,28 @@ extern "C" {
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
-        unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
-                                     |1 = suppress error, report in # instead
-                                     ~2 = move until probe trips (ngc default)
-                                     |2 = move until probe clears */
-        int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
-        int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
-        EmcPose tool_offset;        /* TLO */
-	double  orientation;    /* angle for spindle orient */
-	char    direction;      /* CANON_DIRECTION flag for spindle orient */
-	double  timeout;        /* of wait for spindle orient to complete */
-	unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
-	unsigned char tail;	/* flag count for mutex detect */
-        int arcBlendOptDepth;
-        int arcBlendEnable;
-        int arcBlendFallbackEnable;
-        int arcBlendGapCycles;
-        double arcBlendRampFreq;
-        double arcBlendTangentKinkRatio;
-        double maxFeedScale;
-	double ext_offset_vel;	/* velocity for an external axis offset */
-	double ext_offset_acc;	/* acceleration for an external axis offset */
+    unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
+                                 |1 = suppress error, report in # instead
+                                 ~2 = move until probe trips (ngc default)
+                                 |2 = move until probe clears */
+    int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
+    int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
+    EmcPose tool_offset;        /* TLO */
+    double  orientation;    /* angle for spindle orient */
+    char    direction;      /* CANON_DIRECTION flag for spindle orient */
+    double  timeout;        /* of wait for spindle orient to complete */
+    unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
+    unsigned char tail;	/* flag count for mutex detect */
+    int arcBlendOptDepth;
+    int arcBlendEnable;
+    int arcBlendFallbackEnable;
+    int arcBlendGapCycles;
+    double arcBlendRampFreq;
+    double arcBlendTangentKinkRatio;
+    double maxFeedScale;
+    double ext_offset_vel;	/* velocity for an external axis offset */
+    double ext_offset_acc;	/* acceleration for an external axis offset */
+    struct state_tag_t tag;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -642,6 +644,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by g-code */
+
+	struct state_tag_t tag; /* Current interp state corresponding
+				   to motion line */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

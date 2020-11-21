@@ -351,7 +351,7 @@ static vector<string> read_strings(int fd) {
 
 static void write_number(string &buf, int num) {
     char numbuf[10];
-    sprintf(numbuf, "%d ", num);
+    snprintf(numbuf, sizeof(numbuf), "%d ", num);
     buf = buf + numbuf;
 }
 
@@ -872,7 +872,6 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 
   struct rtapi_task *task = do_task_new();
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
-  memset(task, 0, sizeof(*task));
   task->id = n;
   task->owner = owner;
   task->uses_fp = uses_fp;

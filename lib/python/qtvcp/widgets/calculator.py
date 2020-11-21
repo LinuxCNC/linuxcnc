@@ -1,10 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import math
+import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
-        QSizePolicy, QToolButton, QDialog, QDialogButtonBox, QMenu, QAction)
+        QSizePolicy, QToolButton, QDialog, QDialogButtonBox, QMenu, QAction,
+        QHBoxLayout)
 from PyQt5.QtGui import QIcon
 
 from qtvcp.core import Status, Info
@@ -55,7 +57,11 @@ class Calculator(QDialog):
                     self.digitClicked))
 
         self.pointButton = self.createButton(".", self.pointClicked)
-        self.changeSignButton = self.createButton(u"\N{PLUS-MINUS SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{PLUS-MINUS SIGN}")
+        else:
+            text = u"\N{PLUS-MINUS SIGN}".encode('utf-8')
+        self.changeSignButton = self.createButton(text,
                 self.changeSignClicked)
 
         self.axisButton = self.createAxisButton("Axis X",
@@ -70,16 +76,28 @@ class Calculator(QDialog):
         self.setMemoryButton = self.createButton("MS", self.setMemory)
         self.addToMemoryButton = self.createButton("M+", self.addToMemory)
 
-        self.divisionButton = self.createButton(u"\N{DIVISION SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{DIVISION SIGN}")
+        else:
+            text = u"\N{DIVISION SIGN}".encode('utf-8')
+        self.divisionButton = self.createButton(text,
                 self.multiplicativeOperatorClicked)
-        self.timesButton = self.createButton(u"\N{MULTIPLICATION SIGN}",
+        if sys.version_info.major > 2:
+            text = str("\N{MULTIPLICATION SIGN}")
+        else:
+            text = u"\N{MULTIPLICATION SIGN}".encode('utf-8')
+        self.timesButton = self.createButton(text,
                 self.multiplicativeOperatorClicked)
         self.minusButton = self.createButton("-", self.additiveOperatorClicked)
         self.plusButton = self.createButton("+", self.additiveOperatorClicked)
 
         self.squareRootButton = self.createButton("Sqrt",
                 self.unaryOperatorClicked)
-        self.powerButton = self.createButton(u"x\N{SUPERSCRIPT TWO}",
+        if sys.version_info.major > 2:
+            text = str("\N{SUPERSCRIPT TWO}")
+        else:
+            text = u"\N{SUPERSCRIPT TWO}".encode('utf-8')
+        self.powerButton = self.createButton(text,
                 self.unaryOperatorClicked)
         self.reciprocalButton = self.createButton("1/x",
                 self.unaryOperatorClicked)
@@ -118,16 +136,27 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.reciprocalButton, 4, 5)
         mainLayout.addWidget(self.equalButton, 5, 5)
 
+        self.cBox = QHBoxLayout()
+        self.cBox.addWidget(self.createButton('-> mm',
+                    self.convertClicked, 'Convert inch to mm'))
+        self.cBox.addWidget(self.createButton('-> inch',
+                    self.convertClicked, 'Convert mm to inch'))
+        self.cBox.addWidget(self.createButton('25.4/x',
+                    self.convertClicked, 'Convert metric pitch to TPI or TPI to metric pitch'))
+        mainLayout.addLayout(self.cBox,6,0,1,2)
+
         self.bBox = QDialogButtonBox()
         self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
         self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
         self.bBox.rejected.connect( self.reject)
         self.bBox.accepted.connect(self.accept)
-        mainLayout.addWidget(self.bBox)
+        mainLayout.addWidget(self.bBox,7,0)
 
         self.setLayout(mainLayout)
 
         self.setWindowTitle("Calculator")
+        if not INFO.LINUXCNC_IS_RUNNING:
+            self.axisButton.setEnabled(False)
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
 
@@ -155,7 +184,7 @@ class Calculator(QDialog):
                 return
 
             result = math.sqrt(operand)
-        elif clickedOperator == u"x\N{SUPERSCRIPT TWO}":
+        elif clickedOperator == "x\N{SUPERSCRIPT TWO}":
             result = math.pow(operand, 2.0)
         elif clickedOperator == "1/x":
             if operand == 0.0:
@@ -267,7 +296,7 @@ class Calculator(QDialog):
                     digitValue =  round(relp[conversion[let]],5)
                     text = text.replace('%s'%let,'%s'%digitValue)
         except Exception as e:
-            print e
+            print(e)
             return
 
         if self.display.text() == '0' and digitValue == 0.0:
@@ -292,6 +321,28 @@ class Calculator(QDialog):
             self.waitingForOperand = True
 
         self.display.setText(text)
+
+    def convertClicked(self):
+        clickedButton = self.sender()
+        clickedOperator = clickedButton.text()
+        operand = float(self.display.text())
+
+        if clickedOperator == "-> mm":
+            result = operand * 25.4
+        elif clickedOperator == "-> inch":
+            if operand == 0:
+                result = 0
+            else:
+                result = operand / 25.4
+        elif clickedOperator == "25.4/x":
+            if operand == 0:
+                result = 0
+            else:
+                result = 25.4 / operand
+        else:
+            return
+        self.display.setText(str(result))
+        self.waitingForOperand = True
 
     def clear(self):
         if self.waitingForOperand:
@@ -323,9 +374,11 @@ class Calculator(QDialog):
         self.equalClicked()
         self.sumInMemory += float(self.display.text())
 
-    def createButton(self, text, member):
+    def createButton(self, text, member, tip=None):
         button = Button(text)
         button.clicked.connect(member)
+        if tip is not None:
+            button.setToolTip(tip)
         return button
 
     def createAxisButton(self, text, member):
@@ -347,12 +400,12 @@ class Calculator(QDialog):
 
     def getDisplay(self):
         try:
-            print self.display.text()
+            print(self.display.text())
             a = int(self.display.text())
         except Exception as e:
             self.display.setText('0')
-            print e
-        print self.display.text()
+            print(e)
+        print(self.display.text())
         return self.display.text()
 
     def calculate(self, rightOperand, pendingOperator):
@@ -360,9 +413,9 @@ class Calculator(QDialog):
             self.sumSoFar += rightOperand
         elif pendingOperator == "-":
             self.sumSoFar -= rightOperand
-        elif pendingOperator == u"\N{MULTIPLICATION SIGN}":
+        elif pendingOperator == "\N{MULTIPLICATION SIGN}":
             self.factorSoFar *= rightOperand
-        elif pendingOperator == u"\N{DIVISION SIGN}":
+        elif pendingOperator == "\N{DIVISION SIGN}":
             if rightOperand == 0.0:
                 return False
 

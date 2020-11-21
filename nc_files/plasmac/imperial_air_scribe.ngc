@@ -1,0 +1,101 @@
+; imperial air-scribe
+
+G20 (units: imperial)
+G40 (cutter compensation: off)
+G90 (distance mode: absolute)
+M52 P1 (adaptive feed: on)
+G64 P0.01 Q0.0001 (tracking tolerances: 0.01)
+F#<_hal[plasmac.cut-feed-rate]>
+
+M6 T1 (air scribe tool)
+G43 (apply offsets)
+F#<_hal[plasmac.cut-feed-rate]>
+
+G0 X1.0918 Y0.7874
+M3 $1  S1 (start air-scribe)
+G1 X1.0918 Y1.1811
+G1 X1.2493 Y1.1811
+G1 X1.3019 Y1.1155
+G1 X1.3019 Y1.0499
+G1 X1.2493 Y0.9827
+G1 X1.0918 Y0.9827
+M5 $1 (stop air-scribe)
+
+G0 X1.3753 Y1.1811
+M3 $1  S1 (start air-scribe)
+G1 X1.3753 Y0.8530
+G1 X1.4278 Y0.7874
+M5 $1 (stop air-scribe)
+
+G0 X1.6588 Y0.8530
+M3 $1  S1 (start air-scribe)
+G1 X1.6063 Y0.7874
+G1 X1.5538 Y0.7874
+G1 X1.5013 Y0.8530
+G1 X1.5013 Y0.9827
+G1 X1.5538 Y1.0499
+G1 X1.6063 Y1.0499
+G1 X1.6588 Y0.9827
+G1 X1.6588 Y0.8530
+G1 X1.7113 Y0.7874
+M5 $1 (stop air-scribe)
+
+G0 X1.7848 Y0.7874
+M3 $1  S1 (start air-scribe)
+G1 X1.9422 Y0.7874
+G1 X1.9948 Y0.8530
+G1 X1.9422 Y0.9186
+G1 X1.8373 Y0.9186
+G1 X1.7848 Y0.9827
+G1 X1.8373 Y1.0499
+G1 X1.9948 Y1.0499
+M5 $1 (stop air-scribe)
+
+G0 X2.0682 Y0.7874
+M3 $1  S1 (start air-scribe)
+G1 X2.0682 Y1.0499
+M5 $1 (stop air-scribe)
+
+G0 X2.0682 Y0.98270
+M3 $1  S1 (start air-scribe)
+G1 X2.1207 Y1.0499
+G1 X2.1732 Y0.9449
+G1 X2.2257 Y1.0499
+G1 X2.2782 Y0.9827
+G1 X2.2782 Y0.7874
+M5 $1 (stop air-scribe)
+
+G0 X2.5092 Y0.8530
+M3 $1  S1 (start air-scribe)
+G1 X2.4567 Y0.7874
+G1 X2.4042 Y0.7874
+G1 X2.3517 Y0.8530
+G1 X2.3517 Y0.9827
+G1 X2.4042 Y1.0499
+G1 X2.4567 Y1.0499
+G1 X2.5092 Y0.9827
+G1 X2.5092 Y0.8530
+G1 X2.5617 Y0.7874
+M5 $1 (stop air-scribe)
+
+G0 X2.8452 Y0.8530
+M3 $1  S1 (start air-scribe)
+G1 X2.7926 Y0.7874
+G1 X2.6877 Y0.7874
+G1 X2.6352 Y0.8530
+G1 X2.6352 Y1.1155
+G1 X2.6877 Y1.1811
+G1 X2.7926 Y1.1811
+G1 X2.8452 Y1.1155
+M5 $1 (stop air-scribe)
+
+M6 T0 (torch tool)
+G43 (apply offsets)
+F#<_hal[plasmac.cut-feed-rate]>
+
+G0 X0 Y0
+
+G40 (cutter compensation: off)
+G90 (distance mode: absolute)
+M5 $-1 (plasmac stop)
+M2 (end program)

@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<!-- 
+Copyright (C) 2006, 2007 Jeff Epler
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<STYLE type="text/css"><!--
+table { border: 1px solid black; border-collapse: collapse; }
+table #titlerow th { border-bottom: 2px solid black; border-left: 2px solid black; text-align: center; }
+table #titlerow th:first-child { border-bottom: 2px solid black; border-left: 0px; text-align: center; }
+table td:first-child { border-left: 0px; }
+table td { border-left: 1px solid black; padding-left: .25em; padding-right: .25em; }
+table th { text-align: left; border-bottom: 1px solid black; border-top: 1px solid black; }
+@media print {
+@page { margin: .150in; }
+html { padding: 0; margin: 0; }
+body { padding: 3px; margin: 3px; }
+* { font-size: 8pt }
+a { text-decoration: none; color: black; }
+table { width: 100%; }
+}
+td { background: white; color: black; }
+tr.odd td { background: #d9d9d9; }
+tr.head td, tr.head th { background: black; color: white; }
+--></STYLE>
+<TITLE>Referencia Rápida &quot;G-Code&quot; LinuxCNC</TITLE>
+</HEAD>
+
+<BODY>
+<TABLE ID=ref1>
+<CAPTION> Referencia Rápida LinuxCNC "G-Code" </CAPTION>
+<COL id="group"> <COL id="Códigos"> <COL id="Parámetros"> <COL id="Descripción">
+<TR id="titlerow"> <TH>Códigos <TH>Parámetros <TH>Descripción </TR>
+<TR><TH>Movimiento<TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W aplicable a todo movimiento)</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g0">G0</A><TD><TD>Desplazamiento rápido</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g1">G1</A><TD><TD>Movimiento lineal</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g2-g3">G2, G3</A><TD>I J K or R, P<TD>Arco (CW, CCW)</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g4">G4</A><TD>P<TD>Dwell</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g5">G5</A><TD>I J P Q<TD>Spline cubica</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g5.1">G5.1</A><TD>I J<TD>Spline cuadrática</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g5.2-g5.3">G5.2</A><TD>P L<TD>NURBS</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g38">G38.2 - G38.5</A><TD><TD>sondeo</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g33">G33</A><TD>K ($)<TD>Movimiento sincronizado con husillo</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g33.1">G33.1</A><TD>K ($)<TD>Roscado rígido</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g80">G80</A> <TD><TD>Cancelar ciclo fijo</TR>
+
+<TR><TH>Ciclos Fijos<TD COLSPAN=2>(X Y Z o U V W aplica ciclo, dependiendo del plano activo)</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g81">G81</A><TD>R L (P)<TD>Taladrado</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g82">G82</A><TD>R L (P)<TD>Taladrado, con Dwell</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g83">G83</A><TD>R L Q<TD>Taladrado, con picado</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g84">G84</A><TD>R L (P) ($)<TD>Roscado a derechas, con Dwell</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g73">G73</A><TD>R L Q<TD>Taladrado, con ruptura de viruta</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g74">G74</A><TD>R L (P) ($)<TD>Roscado a izquierdas, con Dwell</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g85">G85</A><TD>R L (P)<TD>Mandrinado, salida a avance</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g89">G89</A><TD>R L (P)<TD>Mandrinado, con Dwell, salida a avance</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g76">G76</A><TD>P Z I J R K Q H L E ($)<TD>Roscado</TR>
+
+<TR><TH COLSPAN=3>Modo de Distancia</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g90-g91">G90, G91</A><TD><TD>Modo de Distancia</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g90.1-g91.1">G90.1, G91.1</A><TD><TD>Modo de distancia arcos</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g7">G7</A><TD><TD>Torno, modo Diámetro</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g8">G8</A><TD><TD>Torno, Modo Radio</TR>
+
+<TR><TH COLSPAN=3>Modo Tasa Alimentación </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g93-g94-g95">G93, G94, G95</A><TD>S ($)<TD>Modo Tasa Alimentación</TR>
+
+<TR><TH COLSPAN=3>Control de Husillo </TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m3-m4-m5">M3, M4, M5</A><TD>S ($)<TD>Control de Husillo</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m19">M19</A><TD>R Q (P) ($)<TD>Orientación de husillo</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g96-g97">G96, G97</A><TD> S D ($)<TD>Modo control de husillo</TR>
+
+<TR><TH COLSPAN=3>Refrigerante </TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m7-m8-m9">M7, M8, M9</A><TD><TD>Control de refrigerante</TR>
+
+<TR><TH COLSPAN=3>Offset de Longitud de Herramienta </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g43">G43</A> <TD> H <TD>Offset de longitud de herramienta</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g43.1">G43.1</A> <TD> <TD>Offset de longitud dinámico</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g43.2">G43.2</A> <TD> H <TD>Offset de longitud adicional</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g49">G49</A> <TD> <TD>Cancelar compensación de longitud</TR>
+
+<TR><TH COLSPAN=3>Paradas </TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m0-m1">M0, M1</A><TD><TD>Pausa de programa</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m2-m30">M2, M30</A><TD> <TD>Fin de Programa</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m60">M60</A><TD><TD>Pausa de cambio de Pallet</TR>
+
+<TR><TH COLSPAN=3>Unidades </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g20-g21">G20, G21</A><TD> <TD>Unidades (inch, mm)</TR>
+
+<TR><TH>Selecc. Plano  <TD COLSPAN=2>(afecta a G2, G3, G81&hellip;G89, G40&hellip;G42) </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g17-g19.1">G17 - G19.1</A><TD><TD>Selección de plano</TR>
+
+<TR><TH COLSPAN=3>Compensación del Rádio de Cortador </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g40">G40</A><TD><TD>Compensación Off</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g41-g42">G41,G42</A><TD>D<TD>Compensación de cortador</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g41.1-g42.1">G41.1, G42.1</A><TD>D L<TD>Compensación de cortador dinámica</TR>
+
+<TR><TH COLSPAN=3>Modo de Control de Ruta </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g61">G61 G61.1</A><TD><TD>Modo de ruta exacta</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g61.1">G61.1</A><TD><TD>Modo de parada exacta</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g64">G64</A><TD>P Q<TD>Mezclado de ruta</TR>
+
+<TR><TH COLSPAN=3>Modo de Retorno en Ciclos Fijos </TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g98-g99">G98, G99</A><TD><TD>Nivel de retorno en ciclo fijo</TR>
+
+<TR><TH COLSPAN=3>Otros Códigos Modales </TR>
+<TR><TD><A HREF="gcode/other-code.html#sec:set-feed-rate">F</A><TD><TD>Velocidad de avance</TR>
+<TR><TD><A HREF="gcode/other-code.html#sec:set-spindle-speed">S</A><TD>($)<TD>Velocidad de husillo</TR>
+<TR><TD><A HREF="gcode/other-code.html#sec:select-tool">T</A><TD><TD>Selección de herramienta</a>)</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m48-m49">M48, M49</A><TD><TD>Control de reajuste de velocidad y avance</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m50">M50</A><TD>P0 (off) or P1 (on)<TD>Control de reajuste de alimentación</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m51">M51</A><TD>P0 (off) or P1 (on) ($)<TD>Control de reajuste de velocidad de husillo</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m52">M52</A><TD>P0 (off) or P1 (on)<TD>Control adaptativo de avance</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m53">M53</A><TD>P0 (off) or P1 (on)<TD>Control de parada de avance</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g54-g59.3">G54-G59.3</A><TD><TD>Selección sistema coordenadas</TR>
+
+<TR><TH COLSPAN=3>Códigos de Control de Flujo </TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:subroutines">o sub</A><TD><TD>Subrutinas, llamada sub/endsub</TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:looping">o while</A><TD><TD>Bucles, while/endwhile do/while</TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:conditional">o if</A><TD><TD>Condicional, if/else/endif</TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:repeat">o repeat</A><TD><TD>Repetir bucle de código</TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:indirection">[]</A><TD><TD>Indirección</TR>
+<TR><TD><A HREF="gcode/o-code.html#ocode:calling-files">o call</A><TD><TD>Llamada a fichero</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m70">M70</A><TD><TD>Salvar estado modal</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m71">M71</A><TD><TD>Invalidar estado guardado</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m72">M72</A><TD><TD>Restaurar estado modal</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m73">M73</A><TD><TD>Salvar-autorestaurar estado modal</TR>
+
+<TR><TH COLSPAN=3>Códigos Input/Output </TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m62-m65">M62 - M65</A><TD>P<TD>Control salida Digital</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m66">M66</A><TD>P E L Q<TD>Esperar entrada</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m67">M67</A><TD>T<TD>Salida analógica sincronizada</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m68">M68</A><TD>T<TD>Salida analógica inmediata</TR>
+
+<TR><TH COLSPAN=3>Códigos No Modales </TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m6">M6</A><TD>T<TD>Cambio de herramienta</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m61">M61</A><TD>Q<TD>Establecer herramienta actual</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l1">G10 L1</A><TD>P Q R<TD>Establecer tabla de herramientas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l10">G10 L10</A><TD>P<TD>Establecer tabla de herramientas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l11">G10 L11</A><TD>P<TD>Establecer tabla de herramientas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l2">G10 L2</A><TD>P R<TD>Establecer sistema de coordenadas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g10-l20">G10 L20</A><TD>P<TD>Establecer sistema de coordenadas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g28-g28.1">G28, G28.1</A><TD><TD>Ir/establecer posición predefinida</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g30-g30.1">G30, G30.1</A><TD><TD>Ir/establecer posición predefinida</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g53">G53</A><TD><TD>Mover en coordenadas maquina</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g92">G52, G92</A><TD><TD>Offsets de sistema de coordenadas</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g92.1-g92.2">G92.1, G92.2</A><TD><TD>Reset Offsets G92</TR>
+<TR><TD><A HREF="gcode/g-code.html#gcode:g92.3">G92.3</A><TD><TD>Restaurar Offsets G92</TR>
+<TR><TD><A HREF="gcode/m-code.html#mcode:m100-m199">M101 - M199</A><TD>P Q<TD>Comandos definidos por el usuario</TR>
+
+<TR><TH COLSPAN=3>Comentarios y Mensajes</TR>
+<TR><TD><A HREF="gcode/overview.html#gcode:comments">; (&hellip;)</A><TD><TD>Comentario</TR>
+<TR><TD><A HREF="gcode/overview.html#gcode:messages">(MSG,&hellip;)</A><TD><TD>Mensaje</TR>
+<TR><TD><A HREF="gcode/overview.html#gcode:debug">(DEBUG,&hellip;)</A><TD><TD>Mensaje de Debug</TR>
+<TR><TD><A HREF="gcode/overview.html#gcode:print">(PRINT,&hellip;)</A><TD><TD>Imprimir mensaje</TR>
+</TABLE>
+<SCRIPT type="text/javascript"><!--
+var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+var j=0;
+for(var i=0; i<rows.snapshotLength; i++) {
+    var it = rows.snapshotItem(i);
+    var th = document.evaluate('th', it, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    if(th.snapshotLength) {
+        it.setAttribute('class', 'head');
+        j = 0;
+    } else {
+        if(j) it.setAttribute('class', 'odd');
+        j = !j;
+    }
+}
+
+function fixup_urls() {
+var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for(var i=0; i<links.snapshotLength; i++) {
+        var it = links.snapshotItem(i);
+        it.setAttribute('href',
+            "http://linuxcnc.org/docs/devel/html/" + it.getAttribute('href'));
+    }
+}
+
+// In the LinuxCNC package, gcode/g-code.html is (probably) not included.  In this
+// case, fix up the links to point at the online version instead of a local
+// version
+if(document.location.protocol == "file:") {
+    try {
+        var x = document.implementation.createDocument("", "", null);
+        x.load("gcode/g-code.html");
+        x.onerror = fixup_urls;
+    } catch(err) {
+        fixup_urls();
+    }
+}
+// --></SCRIPT>
+</BODY>

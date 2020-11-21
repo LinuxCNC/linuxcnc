@@ -31,6 +31,7 @@
 #include "global.h"
 #include "files.h"
 #include "files_sequential.h"
+#include <rtapi_string.h>
 
 
 
@@ -147,9 +148,9 @@ char LoadSequential(char * FileName)
 						pSeqComment->NumPage = StepData[ ScanData++ ];
 						pSeqComment->PosiX = StepData[ ScanData++ ];
 						pSeqComment->PosiY = StepData[ ScanData++ ];
-						if ( pCommentString!='\0' )
+						if ( pCommentString!= NULL && *pCommentString != '\0' )
 						{
-							strcpy( pSeqComment->Comment, pCommentString );
+							rtapi_strxcpy( pSeqComment->Comment, pCommentString );
 //							RemoveEndLine( pSeqComment->Comment );
 						}
 						break;

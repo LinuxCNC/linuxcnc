@@ -1,0 +1,68 @@
+.TH HM2_7I90 "9" "2013-10-27" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.SH NOMBRE
+
+hm2_7i90 \- Controlador HAL LinuxCNC para la tarjeta Mesa Electronics 7i90 EPP Anything IO con firmware HostMot2.
+.SH SINOPSIS
+
+.HP
+.B loadrt hm2_7i90 [ioaddr=\fIN\fB[,\fIN\fB...]] [ioaddr_hi=\fIN\fB[,\fIN\fB...]] [epp_wide=\fIN\fB[,\fIN\fB...]] [debug_epp=\fIN\fB[,\fIN\fB...]]
+.RS 4
+.TP
+\fBioaddr\fR [predeterminado: 0 (parport0)]
+La dirección base del puerto paralelo.
+
+El controlador utiliza el número de direcciones/índices ioaddr proporcionados para
+determinar cuántas tarjetas buscar. Anteriormente se usaron el número cadenas config, pero una cadena de configuración en blanco es perfectamente aceptable para
+7i90.
+.TP
+\fBioaddr_hi\fR [predeterminado: 0]
+La dirección secundaria del puerto paralelo, utilizada para configurar el modo EPP.
+0 significa usar ioaddr+0x400.
+.TP
+\fBepp_wide\fR [predeterminado: 1]
+Ponga a cero para deshabilitar el "modo EPP wide". El modo "Wide" permite transferencias EPP de 16-32 bits, que pueden reducir el tiempo dedicado a de lectura y escritura. Sin embargo, esto puede no funcionar en todos los puertos paralelos EPP 
+.TP
+\fBconfig\fR [predeterminado: ""]
+Cadenas de configuración de HostMot2, descritas en la página de manual de hostmot2 (9).
+.TP
+\fBdebug_epp\fR [predeterminado: 0]
+¡Uso del desarrollador/depuración solamente! Habilite el registro de depuración de la mayoría de transferencias EPP.
+.RE
+.SH DESCRIPCIÓN
+
+hm2_7i90 es un controlador de dispositivo que interconecta la tarjeta Mesa 7i90 con
+el firmware HostMot2 al HAL LinuxCNC.
+
+El firmware 7i90 se almacena en el propio 7i90, no está programado
+por el driver en el momento de la carga. El firmware 7i90 se puede cambiar usando el programa mesaflash.
+
+El driver habla con la 7i90 a través del puerto paralelo, a través de EPP.
+.SH Comunicación con la tarjeta
+
+El 7i90 se comunica con la computadora LinuxCNC a través de EPP. Esto proporciona aproximadamente 1 MBps de rendimiento, y la latencia de comunicación es muy predecible y razonablemente baja.
+
+El puerto paralelo debe ser compatible con EPP 1.7 o EPP 1.9. Se prefiere EPP 1.9,
+pero EPP 1.7 también funcionará. El modo EPP del puerto paralelo es a veces
+una configuración en el BIOS.
+
+Tenga en cuenta que el popular "NetMOS" también conocido como "MosChip 9805" PCI parport cards \fBno funciona\fR. No cumplen con la especificación EPP y no se pueden usar de manera confiable con el 7i43. Tiene que encontrar otra tarjeta, lo siento.
+
+EPP es muy confiable bajo circunstancias normales, pero un mal cableado o cableado excesivamente largo puede causar tiempos de espera de comunicación.
+El controlador exporta un parámetro llamado hm2_7i90.<BoardNum>.io_error para
+informar a HAL de esta condición. Cuando el driver detecta un tiempo de espera de EPP, establece io_error en True y deja de comunicarse con la tarjeta 7i90.
+Establecer io_error en False hace que el controlador comience a intentar comunicarse con el 7i90 nuevamente.
+
+El acceso al bus EPP no es seguro para hilos: solo un hilo en tiempo real puede
+acceder al bus EPP.
+.SH VER TAMBIÉN
+
+hostmot2 (9)
+.SH LICENCIA
+
+GPL
+

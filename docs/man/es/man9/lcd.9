@@ -1,0 +1,111 @@
+.TH LCD "9" "17-09-2012" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+lcd \- Transmite datos HAL a una pantalla LCD
+.SH SINOPSIS
+.HP
+.B loadrt lcd fmt_strings="" Texto sin formato %4.4f\enAnd So on|Second Page, Next Inst""
+.SH FUNCIONES
+.TP
+\fBlcd\fR (requiere un hilo de punto flotante). Todas las instancias de LCD se actualizan con la misma función.
+
+.SH PINES
+«TP
+.B lcd.\fINN\fB.out\fR (u32) out
+El flujo de bytes de salida se envía a través de este pin. Se envía un carácter a cada invocación de hilo sin ninguna negociacion prevista.
+.TP
+.B lcd.\fINN\fB.page.\fIPP.\fBarg.\fINN\fR (float/s32/u32/bit) in
+Los pines de entrada tienen los tipos que coinciden con los especificadores de cadena de formato.
+.TP
+.B lcd.\fINN\fB.page_num\fR (u32) in
+Selecciona el número de página. Se pueden definir varios diseños, y este pin cambia entre ellos.
+.TP
+.B lcd.\fINN\fB.contrast\fR (float) in
+Intenta establecer el contraste de la pantalla LCD usando la secuencia de bytes ESC C y luego un valor de 0x20 a 0xBF. (a juego con Mesa 7i73). El valor debe estar entre 0 y 1.
+
+.SH PARÁMETROS
+.TP
+.B lcd.\fINN\fB.decimal\-separator\fR (u32) rw
+Establece el separador decimal utilizado para los números de punto flotante. El valor predeterminado es 46 (0x2E) que corresponde a ".". Si se requiere una coma, establezca este parámetro en 44 (0x2C).
+.SH DESCRIPCIÓN
+
+\fBlcd\fR toma cadenas de formato muy parecidas a las utilizadas en C y muchos otros lenguajes en las funciones printf y scanf y sus variantes.
+
+El componente fue escrito específicamente para admitir el controlador colgante Mesa 7i73, sin embargo, puede ser útil para transmitir datos a otros dispositivos de caracteres y, como el formato de salida imita el formato del terminal ADM3, podría usarse para transmitir datos a un dispositivo en serie. Quizás incluso un ADM3 genuino.
+Las cadenas contienen una mezcla de valores de texto (que se muestran directamente), códigos de formato "escapados" y descriptores numéricos de formato.
+Para obtener una descripción detallada de los códigos de formato, consulte:
+http://en.wikipedia.org/wiki/Printf
+
+El componente se puede configurar para mostrar un número ilimitado de páginas con un formato diferente, que se pueden seleccionar con un pin HAL.
+.TP
+ \fBódigos escapados\fR
+ \en Inserta los caracteres clear-to-end, retorno de carro y avance de línea. Esto continuará el salto de línea y se borrará incluso si se ha producido un reajuste automático (lcd no tiene conocimiento del ancho de la pantalla lcd). Para imprimir en la columna de la derecha, es necesario permitir que el formato se ajuste y omita el código \en.
+
+ \et Inserta un tabulador (en realidad 4 espacios en la versión actual en lugar de un tabulador verdadero).
+
+ \eNN inserta el carácter definido por el código hexadecimal NN.
+ Como el carácter ',' se usa en la cadena de formato para separar las instancias de LCD, debe estar representado por 
+ \e2C en la cadena de formato. (el separador decimal se maneja de manera diferente)
+ 
+ \e\e Inserta un literal \e.
+
+.TP
+ \fBFormatos numéricos\fR
+
+\fBlcd\fR difiere ligeramente de las convenciones estándar de printf. Una diferencia significativa es que los límites de ancho se aplican estrictamente para evitar que la pantalla LCD haga scroll y estropee el diseño. El ancho del campo incluye el carácter del signo, de modo que los números negativos a menudo tendrán un rango válido más pequeño que los positivos. Los números que no caben en el ancho especificado se muestran como una línea de asteriscos (\fB********\fR).
+
+Cada formato comienza con un símbolo "%". (Para un % literal use "%%").
+Inmediatamente después del % se pueden usar los siguientes modificadores:
+
+" " (espacio) Rellena el número al ancho especificado con espacios. Este es el valor predeterminado y no es estrictamente necesario.
+
+"0" Rellena el número al ancho especificado con el número 0.
+
+"+" Fuerza la visualización de un símbolo + antes de los números positivos. Esto (como el signo \) aparecerá inmediatamente a la izquierda de los dígitos para un número con espacio y en la posición extrema izquierda para un número con 0.
+
+"1234567890" Una entrada numérica (que no sea el 0 inicial anterior) define el número total de caracteres a mostrar, incluido el separador decimal y el signo. Si bien este número puede tener tantos dígitos como sea necesario, el ancho máximo del campo es de 20 caracteres. La precisión inherente del tipo de datos "doble" significa que más de 14 dígitos tenderán a mostrar errores en los dígitos menos significativos. Los tipos de datos enteros nunca llenarán más de 10 dígitos decimales.
+
+Siguiendo al especificador de ancho debe estar el especificador decimal. Este solo puede ser un carácter de punto (.) ya que la coma (,) se usa como separador de instancia.
+Actualmente, lcd no accede a la información de la configuración regional para determinar el separador correcto, pero el parámetro Hal \fBdecimal\-separator\fR se puede utilizar para elegir cualquier separador deseado.
+
+Después del separador decimal debe haber un número que determine cuántos lugares decimales mostrar. Esta entrada se ignora en el caso de formatos enteros.
+
+Todos los modificadores anteriores son opcionales, pero para especificar una precisión decimal, el punto decimal debe preceder a la precisión. Por ejemplo %.3f.
+ La precisión decimal predeterminada es 4.
+
+Los formatos numéricos admitidos son:
+
+\fB%f %F\fR (por ejemplo, %+09.3f) Estos crean un pin HAL de tipo de punto flotante. El ejemplo se mostraría en un campo de 9 caracteres, con 3 lugares de decimales,. como separador decimal, rellenado a la izquierda con 0s y con un signo que se muestra tanto para positivo como para negativo. Por el contrario, un %f simple tendría 6 dígitos de ancho decimal, de formato variable, con un signo que solo se muestra para números negativos. Tanto %f como %F crean exactamente el mismo formato.
+
+\fB%i %d\fR (Por ejemplo %+4d) Crea un pin HAL s32 (s32). El ejemplo mostraría el valor con 4 caracteres fijos, espacio rellenado, ancho que incluye el + que da un rango de +999 a \-999. %i y %d crean resultados idénticos.
+
+\fB%u\fR (por ejemplo %08u) Crea un pin HAL sin signo (u32). El ejemplo sería un ancho fijo de 8 caracteres, rellenado con ceros.
+
+\fB%x, %X\fR Crea un pin HAL sin signo (u32) y muestra el valor en hexadecimal.
+Tanto %x como %X muestran letras mayúsculas para los dígitos ABCDEF. Se puede especificar un ancho, aunque el tipo HAL u32 tiene solo 8 dígitos hexadecimales de ancho.
+
+\fB%o\fR Crea un pin sin signo (u32) y muestra el valor en Octal.
+
+\fB%c\fR Crea un pin HAL u32 y muestra el carácter correspondiente al valor del pin. Se suprimen los valores inferiores a 32 (espacio). Se puede usar un especificador de ancho, por ejemplo, %20c se puede usar para crear una línea completa de un carácter.
+
+\fB%b\fR Este especificador no tiene equivalente en printf. Crea un pin HAL de tipo bit (booleano). La b debe ir seguida de dos caracteres y la pantalla mostrará el primero de ellos cuando el pin sea TRUE y el segundo cuando sea FALSE. Tenga en cuenta que los caracteres que siguen, no preceden a la "b", a diferencia del caso con otros formatos.
+Los caracteres pueden ser valores hexadecimales "escapados". Por ejemplo, "%b\eFF" mostrará un bloque negro sólido si es TRUE, y un espacio si es FALSE y "%b\e7F\e7E" mostrará la flecha derecha para FALSE y la flecha izquierda para TRUE. Un valor inesperado de 'E' indica un error de formato.
+
+\fBPages\fR
+El separador de página es "|" (pipe. si se necesita el carácter real, entonces se puede usar \e7C). Una "Page" en este contexto se refiere a un formato separado que puede mostrarse en la misma pantalla.
+
+\fBInstances\fR
+El separador de instancia es la coma. Esto crea una instancia lcd completamente separada, por ejemplo, para controlar una segunda pantalla lcd en un segundo 7i73.
+El uso de comas para separar las instancias está integrado en el código de lectura del modparam para que ni siquiera se puedan utilizar las comas "\e,". Se puede mostrar una coma usando la secuencia \e2C.
+
+
+
+.SH AUTOR
+Andy Pugh
+.SH LICENCIA
+GPL

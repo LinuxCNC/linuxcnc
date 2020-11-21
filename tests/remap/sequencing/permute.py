@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 #   This is a component of LinuxCNC
 #   Copyright 2011 Michael Haberler <git@mah.priv.at>
 #
@@ -38,11 +38,11 @@ def nextPermutation(perm):
 perm=["g88.1x1", "m405","m406","m407","m408"]
 
 while perm:
-    print perm
+    print(perm)
     perm = nextPermutation(perm)
 
 perm=["g88.1x1", "m407","m408","m409","m410"]
 
 while perm:
-    print perm
+    print(perm)
     perm = nextPermutation(perm)

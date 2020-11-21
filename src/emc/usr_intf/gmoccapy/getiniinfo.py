@@ -146,9 +146,12 @@ class GetIniInfo:
                 print("Fount double letter ", double_axis_letter)
 
         if self.get_joints() == len(coordinates):
-            count = 0
+            prev_double_axis_leter = ""
             for joint, axisletter in enumerate(coordinates):
                 if axisletter in double_axis_letter:
+                    if axisletter != prev_double_axis_leter:
+                        count = 0
+                        prev_double_axis_leter = axisletter
                     axisletter = axisletter + str(count)
                     count += 1
                 joint_axis_dic[joint] = axisletter
@@ -166,7 +169,7 @@ class GetIniInfo:
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
                     joint_axis_dic[joint] = axisletter
-        print joint_axis_dic
+        print(joint_axis_dic)
         #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
         return joint_axis_dic, double_axis_letter
 
@@ -224,7 +227,7 @@ class GetIniInfo:
 
     def get_jog_vel(self):
         # get default jog velocity
-        # must convert from INI's units per second to gscreen's units per minute
+        # must convert from INI's units per second to gmoccapy's units per minute
         temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
             temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
@@ -238,12 +241,36 @@ class GetIniInfo:
 
     def get_max_jog_vel(self):
         # get max jog velocity
-        # must convert from INI's units per second to gscreen's units per minute
+        # must convert from INI's units per second to gmoccapy's units per minute
         temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
             print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 600 units / min")
         return float(temp) * 60
+
+    def get_default_ang_jog_vel(self):
+        # get default angular jog velocity
+        temp = self.inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 360.0
+            print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 360 degree / min")
+        return float(temp)
+
+    def get_max_ang_jog_vel(self):
+        # get max angular velocity
+        temp = self.inifile.find("DISPLAY", "MAX_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 3600.0
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 3600 degree / min")
+        return float(temp)
+
+    def get_min_ang_jog_vel(self):
+        # get min angular velocity
+        temp = self.inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 0.1
+            print("**** GMOCCAPY GETINIINFO **** \nNo MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 0.1 degree / min")
+        return float(temp)
 
     def get_default_spindle_speed(self):
         # check for default spindle speed settings
@@ -432,7 +459,7 @@ class GetIniInfo:
                 if " " in element:
                     print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
-            messages = zip(message_text, message_type, message_pinname)
+            messages = list(zip(message_text, message_type, message_pinname))
             return messages
 
     def get_machine_units(self):

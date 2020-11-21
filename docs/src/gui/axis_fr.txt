@@ -349,45 +349,45 @@ l'affichage comme il se doit.
 
 Signification des boutons de la fenêtre d'AXIS, de gauche à droite:
 
-* image:images/tool_estop.gif[alt="Arrêt d'urgence (A/U)"] 'Arrêt d'urgence' (A/U)
+* image:images/tool_estop.png[alt="Arrêt d'urgence (A/U)"] 'Arrêt d'urgence' (A/U)
     (en Anglais, E-Stop)(((Arrêt d'urgence)))
 
-* image:images/tool_power.gif[alt="Marche/Arrêt puissance machine"] Marche/Arrêt puissance machine(((Marche/Arret)))
+* image:images/tool_power.png[alt="Marche/Arrêt puissance machine"] Marche/Arrêt puissance machine(((Marche/Arret)))
 
-* image:images/tool_open.gif[alt="Ouvrir un fichier"] Ouvrir un fichier
+* image:images/tool_open.png[alt="Ouvrir un fichier"] Ouvrir un fichier
 
-* image:images/tool_reload.gif[alt="Recharger le fichier courant"] Recharger le fichier courant
+* image:images/tool_reload.png[alt="Recharger le fichier courant"] Recharger le fichier courant
 
-* image:images/tool_run.gif[alt="Départ cycle"] Départ cycle
+* image:images/tool_run.png[alt="Départ cycle"] Départ cycle
 
-* image:images/tool_step.gif[alt="Cycle en pas à pas"] Cycle en pas à pas
+* image:images/tool_step.png[alt="Cycle en pas à pas"] Cycle en pas à pas
 
-* image:images/tool_pause.gif[alt="Pause/Reprise"] Pause/Reprise
+* image:images/tool_pause.png[alt="Pause/Reprise"] Pause/Reprise
 
-* image:images/tool_stop.gif[alt="Stopper l'exécution du programme"] Stopper l'exécution du programme
+* image:images/tool_stop.png[alt="Stopper l'exécution du programme"] Stopper l'exécution du programme
 
-* image:images/tool_blockdelete.gif[alt="Sauter ou non les lignes commençant par /"] Sauter ou non les lignes commençant par */*
+* image:images/tool_blockdelete.png[alt="Sauter ou non les lignes commençant par /"] Sauter ou non les lignes commençant par */*
 
-* image:images/tool_optpause.gif[alt="Avec ou sans pause optionnelle"] Avec ou sans pause optionnelle
+* image:images/tool_optpause.png[alt="Avec ou sans pause optionnelle"] Avec ou sans pause optionnelle
 
-* image:images/tool_zoomin.gif[alt="Zoom plus"] Zoom plus
+* image:images/tool_zoomin.png[alt="Zoom plus"] Zoom plus
 
-* image:images/tool_zoomout.gif[alt="Zoom moins"] Zoom moins
+* image:images/tool_zoomout.png[alt="Zoom moins"] Zoom moins
 
-* image:images/tool_axis_z.gif[alt="Vue prédéfinie Z (vue de dessus)"] Vue prédéfinie *Z* (vue de dessus)
+* image:images/tool_axis_z.png[alt="Vue prédéfinie Z (vue de dessus)"] Vue prédéfinie *Z* (vue de dessus)
 
-* image:images/tool_axis_z2.gif[alt="Vue prédéfinie Z basculée"] Vue prédéfinie *Z basculée*
+* image:images/tool_axis_z2.png[alt="Vue prédéfinie Z basculée"] Vue prédéfinie *Z basculée*
 
-* image:images/tool_axis_x.gif[alt="Vue prédéfinie X (vue de côté)"] Vue prédéfinie *X* (vue de côté)
+* image:images/tool_axis_x.png[alt="Vue prédéfinie X (vue de côté)"] Vue prédéfinie *X* (vue de côté)
 
-* image:images/tool_axis_y.gif[alt="Vue prédéfinie Y (vue de face)"] Vue prédéfinie *Y* (vue de face)
+* image:images/tool_axis_y.png[alt="Vue prédéfinie Y (vue de face)"] Vue prédéfinie *Y* (vue de face)
 
-* image:images/tool_axis_p.gif[alt="Vue prédéfinie P (vue en perspective)"] Vue prédéfinie *P* (vue en perspective)
+* image:images/tool_axis_p.png[alt="Vue prédéfinie P (vue en perspective)"] Vue prédéfinie *P* (vue en perspective)
 
-* image:images/tool_rotate.gif[alt="Orienter la vue avec le bouton"] Orienter la vue avec le bouton
+* image:images/tool_rotate.png[alt="Orienter la vue avec le bouton"] Orienter la vue avec le bouton
 gauche de la souris
 
-* image:images/tool_clear.gif[alt="Rafraîchir le parcours d'outil"] Rafraîchir le parcours d'outil
+* image:images/tool_clear.png[alt="Rafraîchir le parcours d'outil"] Rafraîchir le parcours d'outil
 
 === Zones d'affichage graphique du programme
 

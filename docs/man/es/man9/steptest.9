@@ -1,0 +1,65 @@
+.TH STEPTEST "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+steptest \- Used by Stepconf to allow testing of acceleration and velocity values for an axis.
+.SH SYNOPSIS
+.HP
+.B loadrt steptest [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsteptest.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B steptest.\fIN\fB.jog-minus\fR bit in \fR
+Drive TRUE to jog the axis in its minus direction
+.TP
+.B steptest.\fIN\fB.jog-plus\fR bit in \fR
+Drive TRUE to jog the axis in its positive direction
+.TP
+.B steptest.\fIN\fB.run\fR bit in \fR
+Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile
+.TP
+.B steptest.\fIN\fB.maxvel\fR float in \fR
+Maximum velocity
+.TP
+.B steptest.\fIN\fB.maxaccel\fR float in \fR
+Permitted Acceleration
+.TP
+.B steptest.\fIN\fB.amplitude\fR float in \fR
+Approximate amplitude of positions to command during 'run'
+.TP
+.B steptest.\fIN\fB.dir\fR s32 in \fR
+Direction from central point to test: 0 = both, 1 = positive, 2 = negative
+.TP
+.B steptest.\fIN\fB.position-cmd\fR float out \fR
+.TQ
+.B steptest.\fIN\fB.position-fb\fR float in \fR
+.TQ
+.B steptest.\fIN\fB.running\fR bit out \fR
+.TQ
+.B steptest.\fIN\fB.run-target\fR float out \fR
+.TQ
+.B steptest.\fIN\fB.run-start\fR float out \fR
+.TQ
+.B steptest.\fIN\fB.run-low\fR float out \fR
+.TQ
+.B steptest.\fIN\fB.run-high\fR float out \fR
+.TQ
+.B steptest.\fIN\fB.pause\fR s32 in \fR(default: \fI0\fR)
+pause time for each end of run in seconds
+.SH PARAMETERS
+.TP
+.B steptest.\fIN\fB.epsilon\fR float rw \fR(default: \fI.001\fR)
+.TQ
+.B steptest.\fIN\fB.elapsed\fR float r \fR
+Current value of the internal timer
+.SH LICENSE
+
+GPL

@@ -1,3 +1,4 @@
+#                                                     -*-makefile-gmake-*-
 #
 # @configure_input@ 
 # on @DATE@
@@ -113,11 +114,15 @@ TCL_CFLAGS=@TCL_CFLAGS@ @TK_CFLAGS@
 TCL_LIBS=@TCL_LIBS@ @TK_LIBS@ @LIBS@
 HAVE_WORKING_BLT=@HAVE_WORKING_BLT@
 
-
 AR = @AR@
 ARFLAGS = cr
 CXX = @CXX@
+ifeq ($(BUILD_SYS),uspace)
+CPPFLAGS = @CPPFLAGS@
 CXXFLAGS = @CXXFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+endif
 RANLIB = @RANLIB@
 RANLIBFLAGS = 
 MSGFMT = @MSGFMT@

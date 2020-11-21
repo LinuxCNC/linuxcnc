@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Qtvcp widget
 # Copyright (c) 2017 Chris Morley
@@ -18,7 +18,7 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
 import linuxcnc
 
@@ -40,7 +40,7 @@ ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -57,23 +57,55 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
+        self.dialog_code = 'CALCULATOR'
+        self.text_dialog_code = 'KEYBOARD'
         self.table = self.createTable()
 
     def _hal_init(self):
         self.delay = 0
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
-                                                    and STATUS.is_all_homed()))
+                                                    and (STATUS.is_all_homed()
+                                                         or INFO.NO_HOME_REQUIRED)))
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         STATUS.connect('user-system-changed', self._convert_system)
+        STATUS.connect('general',self.return_value)
+
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        for num, let in conversion.iteritems():
+        for num, let in conversion.items():
             if let in (INFO.AVAILABLE_AXES):
                 continue
             self.hideColumn(num)
+
+        # If there is a preference file object use it to load the hi/low toggle points
+        if self.PREFS_:
+            self.tabledata[4][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G54', 'User System 1', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[5][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G55', 'User System 2', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[6][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G56', 'User System 3', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[7][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G57', 'User System 4', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[8][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G58', 'User System 5', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[9][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59', 'User System 6', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[10][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.1', 'User System 7', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[11][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.2', 'User System 8', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[12][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.3', 'User System 9', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tablemodel.layoutChanged.emit()
+
+    # when qtvcp closes this gets called
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            self.PREFS_.putpref(self.HAL_NAME_+'-G54', self.tabledata[4][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G55', self.tabledata[5][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G56', self.tabledata[6][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G57', self.tabledata[7][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G58', self.tabledata[8][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59', self.tabledata[9][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.1', self.tabledata[10][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.2', self.tabledata[11][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.3', self.tabledata[12][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
 
     def _convert_system(self, w, data):
         convert = ("None", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -136,6 +168,42 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
+        # row 0 is not editable (absolute position)
+        # column 9 is the descritive text column
+        if item.column() == 9:
+            self.callTextDialog(text,item)
+        elif item.column() <9 and item.row() > 0:
+            self.callDialog(text,item)
+
+    # alphanumerical
+    def callTextDialog(self, text,item):
+        text = self.tablemodel.arraydata[item.row()][9]
+        system = self.tablemodel.Vheaderdata[item.row()]
+        mess = {'NAME':self.text_dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':text, 'TITLE':'{} System Description Entry'.format(system),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+    def callDialog(self, text,item):
+        axis = self.tablemodel.headerdata[item.column()]
+        system = self.tablemodel.Vheaderdata[item.row()]
+        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':float(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
+                'ITEM':item}
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        LOG.debug('message returned:{}'.format (message))
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        name2 = bool(message.get('NAME') == self.text_dialog_code)
+        item = message.get('ITEM')
+        if code and (name or name2) and num is not None:
+            self.tablemodel.setData(item, num, None)
 
     #############################################################
 
@@ -245,6 +313,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # Hack to not edit any rotational offset but Z axis
         if row == 1 and not col == 2: return
 
+        # dont evaluate text column
+        if col ==9 :return
+
         # set the text style based on unit type
         if self.metric_display:
             tmpl = lambda s: self.mm_text_template % s
@@ -294,6 +365,20 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
             self.reload_offsets()
         return True
 
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    ########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 #########################################
 # custom model

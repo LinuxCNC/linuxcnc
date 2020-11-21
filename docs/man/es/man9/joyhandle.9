@@ -1,0 +1,57 @@
+.TH JOYHANDLE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+joyhandle \- sets nonlinear joypad movements, deadbands and scales
+.SH SYNOPSIS
+.HP
+.B loadrt joyhandle [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+The component \fBjoyhandle\fR uses the following formula for a non linear joypad movements:
+
+\fBy = (scale * (a*x^power + b*x)) + offset\fR
+
+The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
+
+Negative values will be treated point symetrically to origin. Values \-deadband < x < +deadband will be set to zero.
+
+Values x > 1 and x < \-1 will be skipped to \(+-(scale+offset). Invert transforms the function to a progressive movement.
+
+With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
+
+Valid values are: power >= 1.0 (reasonable values are 1.x .. 4\(hy5, take higher power\(hyvalues for higher deadbands (>0.5), if you want to start with a nearly horizontal slope), 0 <= deadband < 0.99 (reasonable 0.1).
+
+An additional offset component can be set in special cases (default = 0).
+
+All values can be adjusted for each instance separately.
+
+.SH FUNCTIONS
+.TP
+\fBjoyhandle.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B joyhandle.\fIN\fB.in\fR float in \fR
+.TQ
+.B joyhandle.\fIN\fB.out\fR float out \fR
+.SH PARAMETERS
+.TP
+.B joyhandle.\fIN\fB.power\fR float rw \fR(default: \fI2.0\fR)
+.TQ
+.B joyhandle.\fIN\fB.deadband\fR float rw \fR(default: \fI0.\fR)
+.TQ
+.B joyhandle.\fIN\fB.scale\fR float rw \fR(default: \fI1.\fR)
+.TQ
+.B joyhandle.\fIN\fB.offset\fR float rw \fR(default: \fI0.\fR)
+.TQ
+.B joyhandle.\fIN\fB.inverse\fR bit rw \fR(default: \fI0\fR)
+.SH LICENSE
+
+GPL

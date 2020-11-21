@@ -34,6 +34,7 @@
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
+#include <rtapi_string.h>
 
 /* Using halui: see the man page */
 
@@ -68,13 +69,13 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,mode_is_joint) /* pin for joint mode is on */ \
 \
     FIELD(hal_bit_t,mist_on) /* pin for starting mist */ \
-    FIELD(hal_bit_t,mist_off) /* pin for stoping mist */ \
+    FIELD(hal_bit_t,mist_off) /* pin for stopping mist */ \
     FIELD(hal_bit_t,mist_is_on) /* pin for mist is on */ \
     FIELD(hal_bit_t,flood_on) /* pin for starting flood */ \
-    FIELD(hal_bit_t,flood_off) /* pin for stoping flood */ \
+    FIELD(hal_bit_t,flood_off) /* pin for stopping flood */ \
     FIELD(hal_bit_t,flood_is_on) /* pin for flood is on */ \
     FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
-    FIELD(hal_bit_t,lube_off) /* pin for stoping lube */ \
+    FIELD(hal_bit_t,lube_off) /* pin for stopping lube */ \
     FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
@@ -105,7 +106,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,tool_diameter) /* current tool diameter (0 if no tool) */ \
 \
     ARRAY(hal_bit_t,spindle_start,EMCMOT_MAX_SPINDLES+1) /* pin for starting the spindle */ \
-    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stoping the spindle */ \
+    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stopping the spindle */ \
     ARRAY(hal_bit_t,spindle_is_on,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle is on */ \
     ARRAY(hal_bit_t,spindle_forward,EMCMOT_MAX_SPINDLES+1) /* pin for making the spindle go forward */ \
     ARRAY(hal_bit_t,spindle_runs_forward,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle running forward */ \
@@ -1034,7 +1035,7 @@ static int sendMdiCommand(int n)
 	    return -1;
 	}
     }
-    strcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
+    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
     if (emcCommandSend(emc_task_plan_execute_msg)) {
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
@@ -1411,7 +1412,7 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -2214,15 +2215,21 @@ static void modify_hal_pins()
     }
 
     if (axis_mask & 0x0001) {
-      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
-      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
-      *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;
+      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      x = x * cos(-emcStatus->task.rotation_xy * TO_RAD) - y * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[0]) = x - emcStatus->task.g92_offset.tran.x;
     }
 
     if (axis_mask & 0x0002) {
-      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
-      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
-      *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;
+      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      y = y * cos(-emcStatus->task.rotation_xy * TO_RAD) + x * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[1]) = y - emcStatus->task.g92_offset.tran.y;
     }
 
     if (axis_mask & 0x0004) {

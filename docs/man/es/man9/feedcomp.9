@@ -1,0 +1,40 @@
+.TH FEEDCOMP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+feedcomp \- Multiply the input by the ratio of current velocity to the feed rate
+.SH SYNOPSIS
+.HP
+.B loadrt feedcomp [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBfeedcomp.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B feedcomp.\fIN\fB.out\fR float out \fR
+Proportionate output value
+.TP
+.B feedcomp.\fIN\fB.in\fR float in \fR
+Reference value
+.TP
+.B feedcomp.\fIN\fB.enable\fR bit in \fR
+Turn compensation on or off
+.TP
+.B feedcomp.\fIN\fB.vel\fR float in \fR
+Current velocity
+.SH PARAMETERS
+.TP
+.B feedcomp.\fIN\fB.feed\fR float rw \fR
+Feed rate reference value
+.SH NOTES
+
+Note that if enable is false, out = in
+.SH LICENSE
+
+GPL

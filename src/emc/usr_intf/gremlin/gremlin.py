@@ -232,8 +232,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             return
         self._current_file = None
 
-        self.font_base, width, linespace = \
-		glnav.use_pango_font('courier bold 16', 0, 128)
+        self.font_base, width, linespace = glnav.use_pango_font('courier bold 16', 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         rs274.glcanon.GlCanonDraw.realize(self)
@@ -455,9 +454,9 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def report_gcode_error(self, result, seq, filename):
 
-	error_str = gcode.strerror(result)
-	sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
-	                 + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
+        error_str = gcode.strerror(result)
+        sys.stderr.write("G-Code error in " + os.path.basename(filename) + "\n" + "Near line "
+                         + str(seq) + " of\n" + filename + "\n" + error_str + "\n")
 
     # These are for external controlling of the view
 

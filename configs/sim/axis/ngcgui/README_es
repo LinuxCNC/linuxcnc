@@ -1,0 +1,21 @@
+ngcgui -- Crea pestañas en el gui Axis para las subrutinas.
+
+pyngcgui -- implementación de ngcgui python, gladevcp que se puede incrustar en guis como gmoccapy, touchy, gscreen
+
+En la versión empaquetada de linuxCNC, ngcgui_lib se crea como un enlace simbólico a un directorio del sistema propiedad root:
+
+/usr/share/linuxcnc/ncfiles/ngcgui_lib
+
+Esta biblioteca normalmente no es cambiada por el usuario. Para modificar un archivo .ngc de la biblioteca,
+copie el archivo .ngc en el directorio [DISPLAY]PROGRAM_PREFIX o en un directorio que esté incluido en la
+ruta especificada por [RS274NGC]SUBROUTINE_PATH y (opcionalmente) cambie el nombre del archivo.
+
+La ruta de búsqueda para linuxCNC y ngcgui es:
+   [DISPLAY]PROGRAM_PREFIX
+
+Seguido en orden por todos los directorios listados separados por dos puntos (:) en:
+   [RS274NGC]SUBROUTINE_PATH
+
+La búsqueda de archivos de subrutinas utiliza el primer archivo encontrado con un nombre coincidente.
+
+Consulte los ejemplos y la documentación para configurar ngcgui en el archivo ini de arranque.

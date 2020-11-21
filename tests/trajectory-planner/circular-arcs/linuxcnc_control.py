@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 '''Copied from m61-test'''
 
 import linuxcnc
@@ -122,7 +122,7 @@ class LinuxcncControl:
                     pass
                 return True
             except KeyboardInterrupt:
-                print "interrupted by keyboard in c.wait_complete(self.timeout)"
+                print("interrupted by keyboard in c.wait_complete(self.timeout)")
                 return False
 
         self.error = self.e.poll()
@@ -132,9 +132,9 @@ class LinuxcncControl:
                 if self.g_raise_except:
                     raise LinuxcncError(text)
                 else:
-                    print ("error " + text)
+                    print(("error " + text))
             else:
-                print ("info " + text)
+                print(("info " + text))
         return False
 
     def get_current_tool(self):
@@ -185,7 +185,7 @@ class LinuxcncControl:
             if self.s.task_state != linuxcnc.STATE_ON:
                 return False
             if self.check_rcs_error():
-                print "Found RCS error while waiting, running again"
+                print("Found RCS error while waiting, running again")
                 self.run_full_program()
 
         return True
@@ -193,7 +193,7 @@ class LinuxcncControl:
     def check_rcs_error(self):
         self.s.poll()
         if self.s.state == linuxcnc.RCS_ERROR:
-            print "detected RCS error"
+            print("detected RCS error")
             return True
         return False
 

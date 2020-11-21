@@ -62,7 +62,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the icon
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('actionbutton')))
+        return QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/standardbutton-apply-128.png')
 
     # Returns a tool tip short description
     def toolTip(self):
@@ -217,6 +217,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Home Selected',['home_select', 0], []),
                 ('Unhome Selected',['unhome_select', 0], []),
                 ('Run',['run', 0], []),
+                ('Run from Line Status',['run_from_status', 0], []),
+                ('Run From Line Slot',['run_from_slot', 0], []),
                 ('Abort',['abort', 0], []),
                  ('Pause',['pause', 0], []),
                  ('Step',['step', 0], []),
@@ -245,7 +247,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
         node_4 = (('Launch HALmeter',['launch_halmeter', 0], []),
                 ('Launch Status',['launch_status', 0], []),
                 ('Launch HALshow',['launch_halshow', 0], []),
-                ('Launch HALscope',['launch_halscope', 0], [])  )
+                ('Launch HALscope',['launch_halscope', 0], []),
+                ('Launch Calibration',['launch_calibration', 0], [])  )
         node_5 = (('Set MDI Mode',['mdi', 0], []),
                 ('Set Auto Mode',['auto', 0], []),
                 ('Set Manual Mode',['manual', 0], []) )
@@ -411,7 +414,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         for num, i in enumerate(('P','X','Y','Y2','Z','Z2','Clear',
             'zoom-in','zoom-out','pan-up','pan-down','pan-left',
             'pan-right','rotate-up','rotate-down','rotate-cw',
-            'rotate-ccw','reload')):
+            'rotate-ccw','reload','overlay_dro_on','overlay_dro_off',
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off')):
             if self.widget.view_type.lower() == i.lower():
                 flag = num
             self.viewComboBox.addItem(i)
@@ -534,7 +540,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
     def buildtab2(self):
         statusProperties = [['None',None], ['Is Estopped','is_estopped'],
                     ['Is On','is_on'], ['All Homed','is_homed'],
-                    ['is joint Homed','is_joint_homed'],
+                    ['Is Joint Homed','is_joint_homed'],
                     ['Idle','is_idle'], ['Paused','is_paused'],
                     ['Flood','is_flood'], ['Mist','is_mist'],
                     ['Block Delete','is_block_delete'],
@@ -637,11 +643,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.jnum = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
-        label = QtWidgets.QLabel('Shape Selection')
+        label = QtWidgets.QLabel('Joint/Spindle Selection')
         self.jnumCombo = QtWidgets.QComboBox()
         self.jnumCombo.activated.connect(self.onSetOptions)
         for i in range(0,10):
-            self.jnumCombo.addItem('Joint {}'.format(i),i)
+            self.jnumCombo.addItem('{}'.format(i),i)
         self.jnumCombo.setCurrentIndex(self.widget._joint_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -837,7 +843,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.tab2.setLayout(layout)
 
     def statusSelectionChanged(self,index):
-        if self.statusCombo.itemData(index, QtCore.Qt.UserRole + 1) == 'is_joint_homed':
+        choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
+        if choice is None:
+            self.jnum.hide()
+            return
+        if  choice == 'is_joint_homed' or 'is_spindle' in choice:
             self.jnum.show()
         else:
             self.jnum.hide()
@@ -985,10 +995,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 self.hfraction.show()
                 self.wfraction.show()
 
-            if self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1) == 'is_joint_homed':
-                self.jnum.show()
-            else:
-                self.jnum.hide()
+            choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
+            if choice is not None:
+                if  choice == 'is_joint_homed' or 'is_spindle' in choice:
+                    self.jnum.show()
+                else:
+                    self.jnum.hide()
         else:
             self.halP.hide()
             self.size.hide()

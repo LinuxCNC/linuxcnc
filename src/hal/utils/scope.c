@@ -34,7 +34,6 @@ static char *license = \
     information, go to www.linuxcnc.org.\n\
 ";
 
-#include "config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -56,6 +55,7 @@ static char *license = \
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -148,7 +148,7 @@ int main(int argc, gchar * argv[])
 
     if (!halpr_find_funct_by_name("scope.sample")) {
 	char buf[1000];
-	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
+	snprintf(buf, sizeof(buf), EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
 		num_samples);
 	if(system(buf) != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");
@@ -456,7 +456,7 @@ static char *halscope_suffix(GtkFileSelection *fs) {
     len = strlen(buf);
 
     suffix = strstr(buf, ".halscope");
-    if(!suffix || suffix != buf + len - 9) strcat(buf, ".halscope");
+    if(!suffix || suffix != buf + len - 9) rtapi_strxcat(buf, ".halscope");
     return buf;
 }    
 

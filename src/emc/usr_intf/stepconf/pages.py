@@ -28,14 +28,17 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
+from __future__ import print_function
 #import gtk
 import os
 from gi.repository import Gtk
 #import gobject
 from gi.repository import GObject
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
+
+if sys.version_info[0] == 2:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 class Pages:
     def __init__(self, app):
@@ -174,6 +177,15 @@ class Pages:
         model = self.w.input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport io preset
+        self.w.pp1_preset_io_liststore.clear()
+        if(self.d.lparport):
+            for myport in self.d.lparport:
+                treeiter = self.w.pp1_preset_io_liststore.append([myport])
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp1_preset_io_combo.set_active(count)
+
         # pport2 comboboxes
         model = self.w.pp2_output_list
         model.clear()
@@ -183,6 +195,15 @@ class Pages:
         model = self.w.pp2_input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport2 io preset
+        self.w.pp2_preset_io_liststore.clear()
+        if(self.d.lparport):
+            for myport in self.d.lparport:
+                treeiter = self.w.pp2_preset_io_liststore.append([myport])
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp2_preset_io_combo.set_active(count)
+
         self.intro_prepare()
 
 #************
@@ -203,7 +224,7 @@ class Pages:
 
     def start_finish(self):
         if self.w.importmach.get_active():
-            print 'Import Mach config'
+            print('Import Mach config')
             from stepconf import import_mach
             self.d.load('/tmp/temp.stepconf', self)
             if not debug:
@@ -256,9 +277,10 @@ class Pages:
         self.w.dirsetup.set_value(self.d.dirsetup)
         self.w.dirhold.set_value(self.d.dirhold)
         self.w.drivertype.set_active(self.a.drivertype_toindex())
-        self.w.ioaddr.set_text(self.d.ioaddr)
+        #self.w.ioaddr.set_text(self.d.ioaddr)
         self.w.machinename.grab_focus()
-        self.w.ioaddr2.set_text(self.d.ioaddr2) 
+        #self.w.ioaddr2.set_text(self.d.ioaddr2)
+        
         #self.w.ioaddr3.set_text(self.d.ioaddr3)
         #self.w.pp3_direction.set_active(self.d.pp3_direction)
         if self.d.number_pports>2:
@@ -544,7 +566,12 @@ class Pages:
             p = 'pin%dinv' % pin
             self.w[p].set_active(self.d[p])
         self.w.pin1.grab_focus()
-        self.w.ioaddr.set_text(self.d.ioaddr)
+        if(self.d.lparport):
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp1_preset_io_combo.set_active(count)
+
+        #self.w.ioaddr.set_text(self.d.ioaddr)
         self._p.in_pport_prepare = False
 
     def pport1_finish(self):
@@ -557,7 +584,13 @@ class Pages:
         for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
-        self.d.ioaddr = self.w.ioaddr.get_text()
+        #self.d.ioaddr = self.w.ioaddr.get_text()
+        state = self.w.pp1_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp1_preset_io_liststore.get_iter(path)
+            value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
+            self.d.ioaddr = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport1 callbacks
@@ -566,7 +599,7 @@ class Pages:
 
     def on_preselect_button_clicked(self, widget):
         state = self.w.preset_combo.get_active()
-        print state
+        print(state)
         if state == 0:
             self.a.preset_sherline_outputs()
         elif state ==1:
@@ -597,7 +630,11 @@ class Pages:
         self.w.pp2_pin1.grab_focus()
         self.w.pp2_direction.set_active(self.d.pp2_direction)
         self.on_pp2_direction_changed(self.w.pp2_direction)
-        self.w.ioaddr2.set_text(self.d.ioaddr2)
+        if(self.d.lparport):
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr2):
+                    self.w.pp2_preset_io_combo.set_active(count)
+        #self.w.ioaddr2.set_text(self.d.ioaddr2)
         self._p.in_pport_prepare = False
 
     def pport2_finish(self):
@@ -612,7 +649,13 @@ class Pages:
             p = 'pp2_pin%d_in_inv' % pin
             self.d[p] = self.w[p].get_active()
         self.d.pp2_direction = self.w.pp2_direction.get_active()
-        self.d.ioaddr2 = self.w.ioaddr2.get_text()
+        #self.d.ioaddr2 = self.w.ioaddr2.get_text()
+        state = self.w.pp2_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp2_preset_io_liststore.get_iter(path)
+            value = self.w.pp2_preset_io_liststore.get_value(treeiter, 0)
+            self.d.ioaddr2 = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport2 callbacks:
@@ -625,7 +668,7 @@ class Pages:
     def on_exclusive_check_pp2(self, widget):
         self.a.do_exclusive_inputs(widget,2)
 
-
+            
 #*******************
 # AXIS X PAGE
 #*******************

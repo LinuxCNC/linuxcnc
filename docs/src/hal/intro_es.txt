@@ -1,0 +1,380 @@
+:lang: es
+
+[[cha:hal-introduction]]
+
+= Introducción a HAL
+
+HAL(((HAL))) significa 'capa de abstracción de hardware'. Al más alto
+nivel, es simplemente una manera de permitir que una serie de 'bloques de construcción'
+sean cargados e interconectados para ensamblar un sistema complejo. El termino 'hardware'
+es porque HAL fue diseñado originalmente para que fuese fácil
+configurar LinuxCNC para una amplia variedad de dispositivos de hardware. Mucho de
+los bloques de construcción son controladores de dispositivos hardware. Sin embargo, HAL puede hacer
+más que configurar controladores hardware.
+
+== HAL se basa en técnicas de diseño de sistemas tradicionales
+
+HAL se basa en los mismos principios que se utilizan para diseñar circuitos y sistemas 
+hardware, por lo que es útil examinar primero esos principios.
+
+Cualquier sistema (incluida una máquina CNC(((CNC))), consiste en
+componentes interconectados. Para una máquina CNC, esos componentes podrían
+ser el controlador principal, servoamplificadores o drivers de pasos, motores, codificadores,
+interruptores de límite, volantes con pulsadores (los populares MPG), quizás un VFD para el husillo, un PLC para 
+manejar un cambiador de herramientas, etc. El creador de la máquina debe
+seleccionar, montar y conectar estas piezas para formar un sistema completo.
+
+
+.Concepto HAL - Conexiones como en un circuito electrico.
+image::images/hal_circuit_concept.png["HAL Circuit Concept",align="left"]
+
+La figura se transcribe a codigo HAL de esta manera: 
+
+----
+net signal-blue    component.0.pin1-in      component.1.pin1-out
+net signal-red     component.0.pin3-out     component.1.pin3-in     component.1.pin4-in
+----
+
+=== Selección de componentes
+
+El constructor de una máquina no necesita preocuparse de cómo funciona cada componente
+individualmente. Se tratan como cajas negras. Durante la etapa de diseño, se
+decide qué componentes se usarán: steppers o servos, que
+marca de servo-amplificador, qué tipo de interruptores de límite y cuántos, etc.
+Las decisiones del integrador sobre qué componentes específicos usar se basaran
+en lo que hace ese componente y las especificaciones suministradas por el
+fabricante del mismo. El tamaño de un motor y la carga que debe mover afectará a la 
+elección del amplificador necesario para manejarlo. La elección
+del amplificador puede afectar al tipo de retroalimentación necesario y a las
+señales de velocidad o posición que deben enviarse al propio amplificador desde el
+controlador.
+
+De igual forma, en el mundo HAL el integrador debe decidir qué componentes HAL son
+necesarios. Por lo general, cada tarjeta de interfaz requerirá un controlador.  
+Pueden ser necesarios componentes adicionales para la generación de pulsos de pasos por software,
+funcionalidad PLC, y una amplia variedad de otras tareas.
+
+=== Diseño de interconexiones
+
+El diseñador de un sistema hardware no solo selecciona los componentes; también
+decide cómo interconectarlos. Cada caja negra tiene
+terminales, quizás solo dos como en un simple interruptor, o docenas para una unidad servo
+o un PLC. Los componentes necesitan estar interconectados. Los motores se conectan a los
+servo-amplificadores, los interruptores de límite se conectan al controlador, y así sucesivamente. Conforme
+el constructor de la máquina trabaja en el diseño, crea un diagrama de cableado completo
+que muestra cómo deben estar interconectados todos los componentes.
+
+En HAL, los cables son las "señales". Cuando se usa HAL, los componentes software están interconectados por señales.
+El diseñador debe decidir qué señales son necesarias y como deben conectarse.
+
+=== Implementación
+
+Una vez que se completa el diagrama de cableado, es hora de construir la máquina.
+Las piezas deben ser adquiridas y montadas, y luego son
+interconectadas de acuerdo con el diagrama de cableado. En un sistema físico,
+cada interconexión es una trozo de cable, con unas caracteristicas determinadas, que deben
+conectarse a los terminales apropiados.
+
+HAL proporciona una serie de herramientas para ayudar a 'construir' un sistema HAL. Algunas de
+las herramientas le permiten 'conectar' (o desconectar) un solo 'cable'. Otras
+herramientas le permiten guardar una lista completa de todos los componentes, cables y
+otra información sobre el sistema, para que pueda ser 'reconstruido' con un
+solo comando.
+
+=== Pruebas
+
+Muy pocas máquinas funcionan bien la primera vez. Mientras hace las pruebas pertinentes, el
+constructor puede usar un tester para ver si un interruptor de límite está funcionando o para
+medir la tensión de CC que va a un servomotor. Puede conectar un
+osciloscopio para verificar la sintonización de un driver, o para buscar
+ruido electrico. Puede encontrar un problema que requiera cambios en el diagrama de cableado;
+tal vez un componente debe estar conectado de manera diferente o ser reemplazado
+con otro completamente diferente.
+
+HAL proporciona los equivalentes software de un voltímetro, un osciloscopio,
+un generador de señales y otras herramientas necesarias para probar y ajustar un
+sistema. Los mismos comandos utilizados para construir el sistema se pueden usar para hacer
+cambios según sea necesario.
+
+=== Resumen
+
+Este documento está dirigido a personas que ya saben cómo hacer este tipo
+de integración de sistemas hardware, pero que no saben cómo conectar el
+hardware a LinuxCNC. Vea la sección <<sec:halui-remote-start,Ejemplo de Arranque remoto>> en
+la documentación de Ejemplos UI HAL.
+
+image::images/remote-start.png[alt="Ejemplo de inicio remoto"]
+
+El diseño de hardware tradicional, como se ha descrito arriba, termina en el limite del
+control principal. Fuera del control (el pc) hay un grupo relativamente simple de
+cajas, conectadas entre sí para hacer lo que se ha previsto que hagan. En el interior (el pc), el control
+es un gran misterio; una enorme caja negra que esperamos funcione.
+
+HAL extiende este método de diseño de hardware tradicional al interior de
+la gran caja negra. Hace de los controladores de dispositivos, e incluso algunas partes internas
+del controlador, cajas negras más pequeñas que se pueden interconectar,
+e incluso reemplazar al igual que el hardware externo. HAL permite un
+'diagrama de cableado del sistema' que mostrará parte del controlador interno, en lugar de
+una gran caja negra. Y lo más importante; permite que
+el integrador pruebe y modifique el controlador utilizando los mismos métodos que
+usaría en el resto del hardware.
+
+Para la mayoría de los integradores son familiares términos como motores, amplificadores y codificadores. 
+Cuando hablamos de usar ocho conductores extraflexibles
+de cable blindado para conectar un codificador a la placa de entrada del servo en la
+computadora, el lector comprende de inmediato lo que es y le lleva a
+preguntas del tipo '¿qué tipo de conectores necesitaré en cada extremo?'. 
+El mismo tipo de pensamiento es esencial para HAL, pero ese hilo de pensamiento específico 
+puede tardar un poco en ponerse en marcha. Usando HAL, las palabras pueden parecer un poco 
+extrañas al principio, pero el concepto de trabajar desde una conexión a la siguiente es el mismo.
+
+Esta idea de extender el diagrama de cableado al interior del
+controlador es la adoptada por HAL. Si se siente cómodo con la
+idea de interconectar cajas negras de hardware, es probable que tenga
+pocos problemas al utilizar HAL para interconectar cajas negras software.
+
+== Conceptos HAL 
+
+Esta sección es un glosario que define los términos clave HAL, aunque es un poco
+diferente de un glosario tradicional porque estos términos no estan
+ordenados alfabéticamente sino por su relación o
+flujo dentro de la manera de hacer las cosas con HAL.
+
+Componente::
+     (((HAL Component))) Cuando hablamos de diseño de hardware, nos referimos
+    a las piezas individuales como 'partes', 'bloques de construcción', 'cajas negras',
+    etc. El equivalente HAL es un 'componente' o 'componente HAL'. (Esta
+    documento utiliza 'componente HAL' cuando es posible que haya confusión con
+    otros tipos de componentes, pero normalmente solo usa la palabra 'componente'.)
+    Un componente HAL es una pieza de software con entradas, salidas y
+    comportamiento definido, que se puede instalar e interconectar según sea necesario.
+
+Parámetro::
+     (((Parámetro HAL))) Muchos componentes de hardware tienen mandos de ajustes que
+    no están conectados a ningún otro componente, pero que deben tener alguna forma de
+    acceso. Por ejemplo, los servoamplificadores a menudo tienen potenciometros, para permitir
+    el afinado de su ajuste, y puntos de prueba donde puede ser conectado un medidor u osciloscopio 
+    para ver los resultados del ajuste. Los componentes HAL también pueden tener tales
+    cosas, que se conocen como 'parámetros'. Hay dos tipos de
+    parámetros: los parámetros de entrada son equivalentes a potenciometros; son
+    valores que pueden ser ajustados por el usuario, y permanecen fijos si no son ajustados
+    de nuevo. Los parámetros de salida no pueden ser ajustados por el usuario; son
+    equivalente a los puntos de prueba que permiten monitorizar las señales internas.
+
+Pin::
+     (((HAL Pin))) Los componentes hardware tienen terminales que se utilizan para
+    interconectarlos. El equivalente HAL es un "pin" o "pin HAL" (se usara 'pin HAL' 
+    cuando sea necesario para evitar confusiones). Todos los pines HAL tienen nombre
+    y esos nombres de pines se usan para interconectarlos. Los pines HAL son
+    entidades de software que existen solo dentro de la computadora.
+
+Pin fisico::
+     (((HAL Physical-Pin))) Muchos dispositivos de E/S tienen pines físicos reales o
+    terminales que se conectan a hardware externo. Por ejemplo, los pines del
+    conector de puerto paralelo. Para evitar confusiones, estos se conocen como
+    'Pines físicos'. Son esas cosas que se "enchufan" en el mundo real.
+
+Señal::
+     (((HAL Signal))) En una máquina física, los terminales reales
+    de los componentes de hardware están interconectados por cables. El equivalente HAL de
+    un cable es una 'señal' o 'señal HAL'. Las señales HAL conectan los pines HAL
+    según lo requiera el constructor de la máquina. Las señales HAL pueden ser
+    desconectadas y reconectadas a voluntad (incluso cuando la máquina está
+    funcionando).
+
+Tipo::
+     (((Tipo HAL))) Cuando se usa hardware real, no se conectaría una
+    salida de relé de 24 volt a una entrada analógica +/-10V de un servoamplificador. Los pines HAL
+    tienen las mismas restricciones, que se basan en su tipo. Tanto los pines
+    como las señales tienen tipos, y las señales solo se pueden conectar a pines del
+    mismo tipo. Actualmente hay 4 tipos, que son los siguientes:
+
+ - bit - un único valor, VERDADERO/FALSO o ENCENDIDO/APAGADO o 1/0
+ - float - un valor de punto flotante de 64 bits, con aproximadamente 53 bits de
+   resolución y más de 1000 bits de rango dinámico.
+ - u32 - un entero sin signo de 32 bits, los valores legales son de 0 a 4.294.967.295
+ - s32 - un entero de 32 bits con signo, los valores legales son de -2.147.483.647 a
+   +2.147.483.647
+
+Función::
+    Los componentes de hardware reales tienden a
+    actuar de inmediato ante una entrada. Por ejemplo, si el voltaje de entrada a un
+    servoamplificador cambia, la salida también cambia automáticamente. Sin embargo,
+    los componentes de software no pueden actuar "automáticamente". Cada componente tiene un
+    código específico que se debe ejecutar para hacer lo que ese componente se
+    supone debe hacer. En algunos casos, ese código simplemente se ejecuta como parte del
+    componente. Por otra parte, en la mayoría de los casos, especialmente en componentes en tiempo real,
+    el código debe ejecutarse en una secuencia específica y en intervalos específicos.
+    Por ejemplo, las entradas deben leerse antes de realizar los cálculos con los
+    datos de entrada, y las salidas no deben escribirse hasta que los cálculos
+    esten hechos. En estos casos, el código está disponible para el sistema en
+    la forma de una o más 'funciones'. Cada función es un bloque de código
+    que realiza una acción específica. El integrador de sistema puede usar
+    'hilos' para programar una serie de funciones que serán ejecutadas en un
+    orden particular y en intervalos de tiempo específicos.
+
+Hilo::
+    Un 'hilo' es una lista de funciones que
+    se ejecuta en intervalos específicos como parte de una tarea en tiempo real. Cuando un hilo es
+    creado por primera vez, tiene un intervalo de tiempo específico (período), pero no tiene
+    funciones. Las funciones se pueden agregar al hilo, y se ejecutarán
+    en orden cada vez que se ejecuta el hilo.
+
+Como ejemplo, supongamos que tenemos un componente de puerto paralelo llamado hal_parport.
+Ese componente define uno o más pines HAL para cada pin físico. Los
+pines se describen en la sección de documentación de ese componente: sus nombres, cómo
+se relaciona cada pin HAL con pines físicos, si están invertidos, etc. 
+Eso por si solo no hace que los datos de los pines HAL lleguen
+a los pines físicos. Se necesita código para hacer eso, y ahí es donde entran en escena
+las funciones. El componente hal_parport necesita al menos
+dos funciones: una para leer los pines de entrada física y actualizar los pines HAL, 
+y otra para tomar datos de los pines HAL y escribirlo en
+pines de salida física. Ambas funciones son parte del driver parport.
+
+== Componentes HAL
+
+Cada componente HAL es una pieza de software con entradas,
+salidas y comportamiento bien definidos, que se pueden instalar e interconectar como sea
+necesario. Esta sección enumera algunos de los componentes disponibles y una breve
+descripción de lo que hace cada uno. Los detalles completos para cada componente estan
+disponible más adelante en este documento.
+
+=== Programas externos con "enganches" HAL
+
+[NOTE]
+Un enganche, o "hook", es la parte de codigo de un programa destinada a interceptar 
+llamadas de función, mensajes o eventos pasados entre componentes de software.
+
+motion::
+     (((motion))) Un módulo en tiempo real que acepta mensajes NML
+     footnote:[El Language Neutral de Mensajes NML proporciona un mecanismo para el manejo
+     de múltiples tipos de mensajes en el mismo búfer, así como simplifica
+     la interfaz para codificar y decodificar memorias intermedias en formato neutral y
+     su mecanismo de configuración.] de comandos de movimiento e interactúa con HAL
+
+iocontrol::
+     (((iocontrol))) Un módulo de espacio de usuario que acepta comandos de E/S NML e
+     interactúa con HAL
+
+classicladder::
+     (((ClassicLadder))) Un PLC que usa HAL para todas sus E/S
+
+halui::
+     (((halui))) Un programa de espacio de usuario que interactúa con HAL y envía comandos NML,
+     que está destinado a funcionar como una interfaz de usuario completa utilizando
+     botones e interruptores externos.
+
+=== Componentes internos
+
+stepgen::
+     Generador software de impulsos de pasos, con lazo de posición. Ver la sección <<sec:stepgen,stepgen>>
+
+encoder::
+     Contador codificador basado en software. Ver la sección  <<sec:encoder,encoder>>
+
+pid::
+     Bucle de control Proporcional/Integral/Derivativo. Ver la sección <<sec:pid,pid>>
+
+siggen::
+     Un generador de ondas seno/coseno/triángular/cuadrada para pruebas.
+     Ver la sección <<sec:siggen,siggen>>
+
+supply::
+     una fuente simple para pruebas(((supply)))
+
+
+=== Controladores de hardware
+
+hal_ax5214h::
+     (((hal-ax5214h))) Un controlador para la tarjeta de E/S digital Axiom Measurement & Control AX5241H
+
+hal_gm::
+    (((hal-gm))) Placa General Mechatronics GM6-PCI
+
+hal_m5i20::
+    (((hal-m5i20))) Placa Mesa Electronics 5i20
+
+hal_motenc::
+    (((hal-motenc))) Placa Vital Systems MOTENC-100
+
+hal_parport::
+    (((hal-parport))) Puerto paralelo de PC.
+
+hal_ppmc::
+    (((hal-ppmc))) Familia de controladores de la familia Pico (PPMC, USC y UPC)
+
+hal_stg::
+    (((hal-stg))) Tarjeta Servo To Go (versión 1 y 2)
+
+hal_vti ::
+    (((hal-vti))) Controlador Vigilant Technologies PCI ENCDAC-4
+
+=== Herramientas y utilidades
+
+Halcmd::
+    (((halcmd))) Herramienta de línea de comandos para configuración y ajuste. Ver
+    sección <<sec:halcmd,halcmd>>
+
+halgui::
+    Herramienta GUI para configuración y ajuste (aún no implementada).
+
+halmeter::
+    (((halmeter))) Un práctico multímetro para señales HAL. Ver la sección <<sec:halmeter,halmeter>>.
+
+halscope::
+    (((halscope))) Un osciloscopio de almacenamiento digital completo para señales HAL.
+    Ver la sección <<sec:halscope,halscope>>.
+
+Cada uno de estos bloques de construcción se describe en detalle en capítulos posteriores.
+
+== Problemas de sincronización en HAL
+
+A diferencia de los modelos de cableado físico entre cajas negras en el que se dijo
+que está basado HAL, la simple conexion de dos pines con una
+señal HAL queda aun lejos de la acción del caso físico.
+
+La lógica de relés consiste en relés conectados entre sí, y cuando
+el contacto se abre o se cierra, la corriente fluye (o se detiene) inmediatamente. Otras
+bobinas pueden cambiar de estado, etc., y todo simplemente 'ocurre'. Pero un PLC de
+lógica de escalera no funciona de esa manera. Usualmente, en un solo pase
+a través de la escalera, cada escalón se evalúa en el orden en que
+aparece, y solo una vez por pase. Un ejemplo perfecto es una escalera de un solo escalón,
+con un contacto NC en serie con una bobina. El contacto y la bobina
+pertenecen al mismo rele
+
+Si se tratara de un relé convencional, tan pronto como se active la bobina,
+los contactos comienzan a abrirse y a desenergizarlo. Eso significa que los contactos
+cerraran de nuevo, etc, etc. El rele se convierte en un zumbador.
+
+Con un PLC, si la bobina está DESACTIVADA y el contacto está cerrado cuando el PLC
+comienza a evaluar el peldaño, cuando termina ese pase, la bobina
+estára encendida. El hecho de que al encender la bobina se abre el contacto alimentado
+es ignorado hasta el próximo pase. En la siguiente pasada, el PLC ve que el
+el contacto está abierto y desenergiza la bobina. Entonces el rele sigue cambiando
+rápidamente entre encendido y apagado, pero a un ritmo determinado por la frecuencia con que
+el PLC evalúa el escalon.
+
+En HAL, la función es el código que evalúa el(los) escalón(es). De hecho,
+la versión en tiempo real HAL de ClassicLadder exporta una función que
+hace exactamente eso. Por otra parte, un hilo es lo que permite la ejecución de la
+función en intervalos de tiempo específicos. Al igual que puede elegir tener un
+PLC evalúando todos sus escalones cada 10 ms, o cada segundo, puede definir
+hilos HAL con diferentes períodos.
+
+Lo que distingue a un hilo de otro 'no' es lo que el hilo
+hace - eso está determinado por las funciones que son
+conectadas a el. La distinción real es simplemente la frecuencia con la que un hilo
+corre.
+
+En LinuxCNC, puede tener un hilo de 50 us y un hilo de 1 ms.
+Estos se crearían en base a BASE_PERIOD y SERVO_PERIOD; los 
+tiempos exactos dependeran de los valores en su archivo ini.
+
+El siguiente paso es decidir qué debe hacer cada hilo. Algunas de estas
+decisiones son las mismas en (casi) cualquier sistema LinuxCNC - Por ejemplo,
+la funcion motion-command-handler siempre se agrega al hilo servo.
+
+Otras conexiones seran hechas por el integrador. Estas pueden incluir
+conectar las funciones de lectura de codificador de un controlador STG y las de
+escritura de un DAC al hilo servo, o enganchar la función stepgen al hilo base, junto con
+con la(s) función(es) parport para escribir pasos en el puerto paralelo.

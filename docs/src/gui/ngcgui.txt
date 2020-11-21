@@ -109,11 +109,11 @@ To try a demonstration, select a sim configuration and start
 the linuxCNC program.
 
 If using the axis gui, press the 'E-Stop'
-image:images/tool_estop.gif[] then 'Machine Power'
-image:images/tool_power.gif[] then 'Home All'. Pick a ngcgui tab, fill in
+image:images/tool_estop.png[] then 'Machine Power'
+image:images/tool_power.png[] then 'Home All'. Pick a ngcgui tab, fill in
 any empty blanks with sensible values and press
 'Create Feature' then 'Finalize'. Finally  press the 'Run'
-image:images/tool_run.gif[] button to watch it run.  Experiment
+image:images/tool_run.png[] button to watch it run.  Experiment
 by creating multiple features and features from different tab pages.
 
 To create several subroutines concatinated into a single file, go to each tab

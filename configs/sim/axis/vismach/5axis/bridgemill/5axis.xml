@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+  <vbox>
+  <labelframe text="Joints values">
+    <font>("Helvetica",14)</font>
+    <hbox>
+     <label>
+        <text>"0: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint0"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"1: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint1"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"2: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint2"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"3: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint3"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"4: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint4"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+  </labelframe>
+  </vbox>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"vismach-clear"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+</pyvcp>

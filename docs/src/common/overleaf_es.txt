@@ -1,0 +1,54 @@
+﻿Este manual es un trabajo en progreso. Si puedes ayudar con
+redacción, edición o preparación gráfica, comuníquese con cualquier miembro
+del equipo de redacción o únete y envía un correo electrónico a
+emc-users@lists.sourceforge.net.
+
+Copyright © 2000-2016 LinuxCNC.org
+
+Se otorga permiso para copiar, distribuir y / o modificar este documento
+bajo los términos de la Licencia de Documentación Libre de GNU, Versión 1.1
+o cualquier versión posterior publicada por la Free Software Foundation;
+sin secciones invariantes, sin textos de portada y sin textos de contraportada.
+Se incluye una copia de la licencia en la sección titulada "GNU
+Licencia de documentación gratuita ".
+
+LINUX® es la marca registrada de Linus Torvalds en los EE. UU. Y otros
+países. La marca registrada Linux® se utiliza de conformidad con una sublicencia
+de LMI, el licenciatario exclusivo de Linus Torvalds, propietario de la marca en un
+base mundial.
+
+El proyecto LinuxCNC no está afiliado a Debian®.
+_Debian_ es una marca registrada propiedad de Software in the Public Interest,
+Inc.
+
+El proyecto LinuxCNC no está afiliado a UBUNTU®.
+_UBUNTU_ es una marca registrada propiedad de Canonical Limited.
+
+''''
+
+This handbook is a work in progress. If you are able to help with 
+writing, editing, or graphic preparation please contact any member 
+of the writing team or join and send an email to 
+emc-users@lists.sourceforge.net.
+
+Copyright © 2000-2020 LinuxCNC.org
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+
+LINUX® is the registered trademark of Linus Torvalds in the U.S. and other
+countries.  The registered trademark Linux® is used pursuant to a sublicense
+from LMI, the exclusive licensee of Linus Torvalds, owner of the mark on a
+world-wide basis.
+
+The LinuxCNC project is not affiliated with Debian®.
+_Debian_ is a registered trademark owned by Software in the Public Interest,
+Inc.
+
+The LinuxCNC project is not affiliated with UBUNTU®.
+_UBUNTU_ is a registered trademark owned by Canonical Limited.
+

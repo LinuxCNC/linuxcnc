@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2020 Chris Morley
@@ -100,7 +100,7 @@ class fakeStatus():
         self.read_line = 0
         self.rotation_xy = 0.0
         self.settings = (0.0, 0.0, 0.0)
-        self.spindle = ({'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L})
+        self.spindle = ({'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0})
         self.spindles = 0
         self.state = 0
         self.task_mode = 0

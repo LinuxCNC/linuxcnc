@@ -66,7 +66,7 @@ import gobject
 import glob
 import shutil
 import popupkeyboard
-import exceptions  # for debug printing
+if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
@@ -88,12 +88,15 @@ g_alive = not g_is_glade
 
 import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+if sys.version_info[0] == 3:
+    gettext.install("linuxcnc", localedir=LOCALEDIR)
+else:
+    gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
 try:
     import pygtk
     pygtk.require('2.0')
-except ImportError,msg:
+except ImportError as msg:
     print('import pygtk failed: %s',msg)
     pass
 #------------------------------------------------------------------------------
@@ -185,10 +188,10 @@ def save_a_copy(fname,archive_dir='/tmp/old_ngc'):
             os.mkdir(archive_dir)
         shutil.copyfile(fname
               ,os.path.join(archive_dir,dt() + '_' + os.path.basename(fname)))
-    except IOError,msg:
+    except IOError as msg:
         print(_('save_a_copy: IOError copying file to %s') % archive_dir)
         print(msg)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,src='save_a_copy')
         print(traceback.format_exc())
         sys.exit(1)
@@ -274,7 +277,7 @@ def file_save(fname,title_message='Save File'):
     elif ans == gtk.RESPONSE_DELETE_EVENT: # window close
         print(_('file_save:window closed'))
     else:
-        raise IOError,_('file_save:unexpected')
+        raise IOError(_('file_save:unexpected'))
     fc.destroy()
     return(fname)
 
@@ -733,10 +736,10 @@ def mod_font_by_category(obj,mode='control'):
         elif hasattr(obj,'modify_font'):
             targetobj = obj
         else:
-            raise ValueError,'mod_font_by_category: no child'
+            raise ValueError('mod_font_by_category: no child')
             return
     else:
-        raise ValueError,'mod_font_by_category: unsupported:',type(obj)
+        raise ValueError('mod_font_by_category: unsupported:').with_traceback(type(obj))
         return
 
     if targetobj is None:
@@ -761,7 +764,7 @@ def clean_tmpgcmc(odir):
         odir = g_searchpath[0]
     savedir = os.path.join("/tmp", g_gcmc_funcname) # typ /tmp/tmpgcmc
     if not os.path.isdir(savedir):
-        os.mkdir(savedir,0755)
+        os.mkdir(savedir,0o755)
     for f in glob.glob(os.path.join(odir,g_gcmc_funcname + "*.ngc")):
         # rename ng across file systems
         shutil.move(f,os.path.join(savedir,os.path.basename(f)))
@@ -912,7 +915,7 @@ class CandidateFiles():
             # as the number of columns
             try:
                 mtime = datetime.datetime.fromtimestamp(os.path.getmtime(dir))
-            except OSError,detail:
+            except OSError as detail:
                 print(_('%s:make_tree:%s' % (g_progname,detail) ))
                 continue # try to skip this dir with message
             mtime = mtime.strftime(g_dtfmt) # truncate fractional seconds
@@ -992,7 +995,7 @@ class LinuxcncInterface():
             g_stat.poll() # poll faults if linuxcnc not running
             self.lrunning = True
             l_ini_file = get_linuxcnc_ini_file()
-        except linuxcnc.error,msg:
+        except linuxcnc.error as msg:
             g_stat = None
             print('INTFC:err:',msg)
             print('INTFC:' + _('Warning: linuxcnc not running'))
@@ -1066,10 +1069,9 @@ class LinuxcncInterface():
 
     def addto_spath(self,pathtoadd):
         if type(pathtoadd) != ListType:
-            raise ValueError,(
+            raise ValueError(
                 'addto_spath: List required not: %s %s'
-                % (pathtoadd,type(pathtoadd))
-                )
+                % (pathtoadd,type(pathtoadd)))
         # dont add duplicates
         if pathtoadd not in self.subroutine_path:
             self.subroutine_path.extend(pathtoadd)
@@ -1217,7 +1219,7 @@ class SubFile():
     """SubFile: subfile data"""
     def __init__(self,thefile):
         self.sub_file = thefile
-        self.min_num = sys.maxint
+        self.min_num = sys.maxsize
         self.max_num = 0
         self.pdict = {} # named items:   pdict[keyword] = value
         self.ndict = {} # ordinal items: ndict[idx] = (name,dvalue,comment)
@@ -1266,7 +1268,7 @@ class SubFile():
             "marked (not_a_subfile)\nNot intended for use as a subfile")
 
     def re_read(self):
-        if self.pdict.has_key('isgcmc'):
+        if 'isgcmc' in self.pdict:
             self.read_gcmc()
         else:
             self.read_ngc()
@@ -1373,7 +1375,7 @@ class SubFile():
                                  % os.path.basename(self.sub_file)
                         ,msg = self.errlist)
             self.errlist.append('SUBERROR')
-            raise ValueError,self.errlist
+            raise ValueError(self.errlist)
 
     def read_gcmc(self):
         self.gcmc_opts = [] # list of options for gcmc
@@ -1409,7 +1411,7 @@ class SubFile():
                 name = r2.group(1)
                 dvalue = r2.group(2)
             elif r1:
-                print 'r1-1 opt read_gcmc:g1:',r1.group(1)
+                print('r1-1 opt read_gcmc:g1:',r1.group(1))
                 name = r1.group(1)
 
             if dvalue:
@@ -1422,7 +1424,7 @@ class SubFile():
                 dvalue = ''
 
             if name:
-                if comment is '':
+                if comment == '':
                     comment = name
                 pnum += 1
                 self.ndict[pnum] = (name,dvalue,comment)
@@ -1498,10 +1500,10 @@ class OneParmEntry():
 
     def grabit(self,*args,**kwargs):
         #print 'grabit',self,args,kwargs
-        print '\ngrabit:can_get_focus:',self.en.get_can_focus()
+        print('\ngrabit:can_get_focus:',self.en.get_can_focus())
         self.en.grab_focus()
-        print 'grabit:has_focus',self.en.has_focus()
-        print 'grabit: is_focus',self.en.is_focus()
+        print('grabit:has_focus',self.en.has_focus())
+        print('grabit: is_focus',self.en.is_focus())
 
     def popkeyboard(self,widget,v):
         origtxt = self.en.get_text()
@@ -1526,7 +1528,7 @@ class OneParmEntry():
                     w.set_text("%.4f" % coord_value(char))
                 except TypeError:
                     pass
-                except Exception, detail:
+                except Exception as detail:
                     exception_show(Exception,detail,'entry_changed')
                     pass
 
@@ -1601,7 +1603,7 @@ class EntryFields():
     """EntryFields: Positional Parameters entry fields in a frame """
     def __init__(self,nparms=INTERP_SUB_PARAMS):
         if nparms > g_max_parm:
-            raise ValueError,(_(
+            raise ValueError(_(
                   'EntryFields:nparms=%d g_max_parm=%d')
                   % (nparms,g_max_parm))
         self.ebox = gtk.Frame()
@@ -1780,10 +1782,10 @@ class TestButtons():
         elif v == 'page':
             d = m;               show_dir(d,tag='mypg')
             x=self.mypg.efields.pentries[1].en
-            print 'x=',x
-            print '            has_focus:',x.has_focus()
-            print '             is_focus:',x.is_focus()
-            print '        get_can_focus:',x.get_can_focus()
+            print('x=',x)
+            print('            has_focus:',x.has_focus())
+            print('             is_focus:',x.is_focus())
+            print('        get_can_focus:',x.get_can_focus())
         elif v == 'pre':   d = m.fset.pre_data; show_dir(d,tag='pre_data')
         elif v == 'sub':   d = m.fset.sub_data; show_dir(d,tag='sub_data')
         elif v == 'pst':   d = m.fset.pst_data; show_dir(d,tag='pst_data')
@@ -2090,7 +2092,7 @@ class ControlPanel():
         p.sub_data = SubFile(m.sub_file) # error for ''
         p.pst_data = PstFile(m.pst_file) # may be ''
 
-        if p.sub_data.pdict.has_key('isgcmc'):
+        if 'isgcmc' in p.sub_data.pdict:
             stat = self.savesection_gcmc()
         else:
             stat = self.savesection_ngc()
@@ -2187,7 +2189,7 @@ class ControlPanel():
                 xcmd.append(str(splitopts[1])) # presumes only one token
 
 
-        for k in p.sub_data.ndict.keys():
+        for k in list(p.sub_data.ndict.keys()):
             #print 'k=',k,p.sub_data.ndict[k]
             name,dvalue,comment = p.sub_data.ndict[k]
             # make all entry box values explicitly floating point
@@ -2202,7 +2204,7 @@ class ControlPanel():
             xcmd.append('--define=' + name + '=' + fvalue)
 
         xcmd.append(m.sub_file)
-        print "xcmd=",xcmd
+        print("xcmd=",xcmd)
         e_message = ".*Runtime message\(\): *(.*)"
         e_warning = ".*Runtime warning\(\): *(.*)"
         e_error   = ".*Runtime error\(\): *(.*)"
@@ -2282,7 +2284,7 @@ class ControlPanel():
         if len(mypg.savesec) == 0:
             msg = 'finalize_features: Unexpected: No features'
             self.set_message(_('No features'))
-            raise ValueError,msg
+            raise ValueError(msg)
             return
         txt = ''
         plist = []
@@ -2335,7 +2337,7 @@ class ControlPanel():
                   or ans == gtk.REXPONSE_DELETE_EVENT): # window close
                 return # do nothing
             else:
-                raise ValueError, 'finalize_features:unknown ans<%d>'%ans
+                raise ValueError('finalize_features:unknown ans<%d>'%ans)
 
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
@@ -2451,7 +2453,7 @@ class ControlPanel():
             else:
                 self.mypg.cpanel.set_message(_('file_choose OTHER'))
                 mydiag.destroy()
-                raise ValueError,_('file_choose OTHER %s') % str(response)
+                raise ValueError(_('file_choose OTHER %s') % str(response))
                 return None
 
             if fname == 'TRYAGAIN':
@@ -2470,7 +2472,7 @@ class ControlPanel():
         elif ftype == 'pst':
              self.mypg.fset.pst_file = fname
         else:
-            raise ValueError,"file_choose ftype?",ftype
+            raise ValueError("file_choose ftype?").with_traceback(ftype)
 
         # None for no file selected, null out field could be useful
         if not fname:
@@ -2496,7 +2498,7 @@ class ControlPanel():
             self.pst_entry.set_text(os.path.basename(fname))
             self.mypg.update_onepage('pst',fname)
         else:
-            raise ValueError,'file_choose:Unexpected ftype <%s>' %ftype
+            raise ValueError('file_choose:Unexpected ftype <%s>' %ftype)
 
         self.mypg.cpanel.set_message(_('Read %s') % os.path.basename(fname))
         return
@@ -2613,7 +2615,7 @@ class OnePg():
         elif g_tab_controls_loc == 'bottom':
             op_box.pack_end(tabarrange_buttons,expand=0,fill=0,padding=0)
         else:
-            raise ValueError,(g_progname
+            raise ValueError(g_progname
                   + ' unknown tab_controls_loc %s' % g_tab_controls_loc)
 
         op_box.pack_start(self.linfof, expand=0,fill=0,padding=0)
@@ -2662,12 +2664,12 @@ class OnePg():
                 else:
                     #print(i,'SAME md5',o_file,o_md5)
                     o_entry.modify_text(gtk.STATE_NORMAL,black_color)
-        except OSError, detail:
-            print(_('%s:periodic_check:OSError:%s') % detail)
+        except OSError as detail:
+            print((_('%s:periodic_check:OSError:%s') % detail))
             pass # continue without checks after showing message
-        except Exception, detail:
+        except Exception as detail:
             exception_show(Exception,detail,'periodic_check')
-            raise Exception, detail # reraise
+            raise Exception(detail) # reraise
         if self.garbagecollect:
             return False # False to norepeat (respond to del for self)
         return True      # True to repeat
@@ -2795,9 +2797,9 @@ class OnePg():
                                ,sub_file=self.sub_file
                                ,pst_file=self.pst_file
                                )
-        except OSError,detail:
+        except OSError as detail:
             print(_('%s:make_fileset:%s' % (g_progname,detail) ))
-            raise OSError,detail # reraise
+            raise OSError(detail) # reraise
 
     def fill_entrypage(self,emode='initial'):
         self.efields.set_parm_entries(self.fset,emode)
@@ -2844,7 +2846,7 @@ class OnePg():
                 lbltxt = self.nset.make_unique_tab_name(lbltxt)
                 self.the_lbl.set_text(lbltxt)
                 return True
-            except Exception, detail:
+            except Exception as detail:
                 exception_show(Exception,detail,'update_onepage')
                 return False
         elif type == 'pst':
@@ -2855,7 +2857,7 @@ class OnePg():
             self.pst_file = foundname
             self.fset.pst_data = PstFile(self.pst_file)
         else:
-            raise ValueError,'update_onepage unexpected type <%s>' % type
+            raise ValueError('update_onepage unexpected type <%s>' % type)
 
         return
 
@@ -2874,7 +2876,7 @@ class OnePg():
             self.cpanel.pst_entry.set_text('')
             self.fset.pst_data.clear()
         else:
-            raise ValueError,'clear_entries:unexpected fmode= %s' % fmode
+            raise ValueError('clear_entries:unexpected fmode= %s' % fmode)
 
     def move_left(self):
         page_idx = self.mynb.get_current_page()
@@ -2961,7 +2963,7 @@ class NgcGui():
             if g_send_function == None:
                 g_send_function = dummy_send
         except AttributeError:
-            print 'INVALID send_function, using dummy'
+            print('INVALID send_function, using dummy')
             g_send_function = dummy_send
 
         if max_parm is not None:
@@ -2971,13 +2973,13 @@ class NgcGui():
         if image_width is not None:
             global g_image_width
             if image_width > g_image_width:
-                raise ValueError,(_('NgcGui image_width=%d too big, max=%d')
+                raise ValueError(_('NgcGui image_width=%d too big, max=%d')
                                  % (image_width,g_image_width))
             g_image_width = image_width
 
         if g_max_parm > INTERP_SUB_PARAMS:
-            raise ValueError,(_('max_parms=%d exceeds INTERP_SUB_PARAMS=%d')
-                            %  (g_max_parm,INTERP_SUB_PARAMS) )
+            raise ValueError(_('max_parms=%d exceeds INTERP_SUB_PARAMS=%d')
+                            %  (g_max_parm,INTERP_SUB_PARAMS))
 
         ct_of_pages = 0
         try:
@@ -2992,11 +2994,11 @@ class NgcGui():
                              )
                 global g_entry_height
                 g_entry_height = g_big_height # bigger for popupkeyboard
-        except ImportError, msg:
+        except ImportError as msg:
             print('\nImportError:\n%s', msg)
             print('keyboardfile=%s' % keyboardfile)
             print('popup keyboard unavailable\n')
-        except glib.GError, msg:
+        except glib.GError as msg:
             # can occur for toohigh version in ui file
             print('\nglib.GError:\n%s' % msg)
             print('keyboardfile=%s' % keyboardfile)
@@ -3029,7 +3031,7 @@ class NgcGui():
             self.nb = w
             self.startpage_idx = self.nb.get_n_pages()
         else:
-            raise ValueError,'NgcGui:bogus w= %s' % type(w)
+            raise ValueError('NgcGui:bogus w= %s' % type(w))
 
         self.nb.set_scrollable(True)
         self.set_theme(w,tname=gtk_theme_name)
@@ -3142,7 +3144,7 @@ class NgcGui():
                 try:
                     self.add_page(pre_file,sub_file,pst_file)
                     ct_of_pages += 1
-                except Exception,detail:
+                except Exception as detail:
                     exception_show(Exception,detail,src='NgcGui init')
                     print(_('CONTINUING without %s') % sub_file)
         else:
@@ -3191,7 +3193,7 @@ class NgcGui():
                 w.deiconify()
                 w.show_all()
             self.current_page = mypg
-        except KeyError,msg:
+        except KeyError as msg:
             # can occur when embedded in providers notebook
             # print('page_switched: Caught KeyError')
             pass
@@ -3302,7 +3304,7 @@ class SaveSection():
                 value = str(float(value.lower() ))
 
             parmlist.append(value)
-            if sub_info.pdict.has_key('isgcmc'):
+            if 'isgcmc' in sub_info.pdict:
                 # just print value of gcmc parm embedded in gcmc result
                 # the call requires no parms
                 pass
@@ -3319,7 +3321,7 @@ class SaveSection():
             raise ValueError
         calltxt = calltxt + '\n'
         # expandsub not honored for gcmc
-        if (mypg.expandsub and sub_info.pdict.has_key('isgcmc')):
+        if (mypg.expandsub and 'isgcmc' in sub_info.pdict):
             print(_('expandsub not honored for gcmc file: %s')%
                      os.path.basename(sub_info.sub_file))
             mypg.expandsub = 0
@@ -3467,11 +3469,11 @@ def standalone_pyngcgui():
                             ,'nom2'
                             ]
                           )
-    except getopt.GetoptError,msg:
+    except getopt.GetoptError as msg:
         usage()
         print('\nGetoptError:%s' % msg)
         sys.exit(1)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,'__main__')
         sys.exit(1)
     for opt,arg in options:
@@ -3555,7 +3557,7 @@ def standalone_pyngcgui():
             print('unknown demo',demo)
             usage()
             sys.exit(1)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,'__main__')
         print('in main()')
         sys.exit(11)

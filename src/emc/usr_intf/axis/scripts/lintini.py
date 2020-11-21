@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
 #    Chris Radek <chris@timeguy.com>
@@ -28,15 +27,15 @@ def report_problem(msg, *args):
     global nproblems
     nproblems += 1
     if args:
-        print msg % args
+        print((msg % args))
     else:
-        print msg
+        print(msg)
 
 
 def get_int(section, key):
-	return int(ini.find(section, key).split()[0])
+    return int(ini.find(section, key).split()[0])
 def get_float(section, key):
-	return float(ini.find(section, key).split()[0])
+    return float(ini.find(section, key).split()[0])
 
 if ini.find("EMCMOT", "BASE_PERIOD") is None:
     period = 0.
@@ -45,8 +44,8 @@ else:
 njoints = get_int("KINS", "JOINTS")
 
 is_stepper = ini.find("JOINT_0", "STEPGEN_MAXVEL")
-if is_stepper: print "Appears to be a stepper configuration"
-else: print "Appears to be a servo configuration"
+if is_stepper: print("Appears to be a stepper configuration")
+else: print("Appears to be a servo configuration")
 
 for i in range(njoints):
     joint = "JOINT_%d" % i
@@ -78,10 +77,10 @@ for i in range(njoints):
 
 
 if nproblems == 0:
-    print "No problems found"
+    print("No problems found")
 elif nproblems == 1:
-    print "One problem found"
+    print("One problem found")
 else:
-    print "%d problems found" % nproblems
+    print("%d problems found" % nproblems)
 
 # vim:sw=4:sts=4:et

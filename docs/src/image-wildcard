@@ -1,26 +1,25 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os, sys, glob
 
-try:
-	from os.path import relpath
-except:
-	def relpath(path, start=os.path.curdir):
-	    """Return a relative version of a path"""
+def relpath(path, start):
+    """Return a relative version of a path"""
 
-	    if not path:
-		raise ValueError("no path specified")
+    if not path:
+        raise ValueError("no path specified")
 
-	    start_list = os.path.abspath(start).split(os.path.sep)
-	    path_list = os.path.abspath(path).split(os.path.sep)
+    start_list = os.path.abspath(start).split(os.path.sep)
+    path_list = os.path.abspath(path).split(os.path.sep)
 
-	    # Work out how much of the filepath is shared by start and path.
-	    i = len(os.path.commonprefix([start_list, path_list]))
+    # Work out how much of the filepath is shared by start and path.
+    i = len(os.path.commonprefix([start_list, path_list]))
 
-	    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
-	    if not rel_list:
-		return os.path.curdir
-	    return os.path.join(*rel_list)
+    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
+    if not rel_list:
+        return os.path.curdir
+    return os.path.join(*rel_list)
 
 if len(sys.argv) > 1:
 	image = sys.argv[1]
@@ -31,12 +30,12 @@ else:
 	docpath = '.'
 
 if len(sys.argv) > 3 and str.strip(sys.argv[3]):
-	exts = map(str.strip, sys.argv[3].split(','))
+	exts = [s.strip() for s in sys.argv[3].split(',')]
 else:
 	# Standard images for web
 	exts = ['png', 'svg', 'jpg', 'jpeg']
 
-exts = map(lambda e: '.' + e, exts)
+exts = ['.' + e for e in exts]
 
 def lookup(image):
 	images = glob.glob(os.path.join(docpath, image))
@@ -45,7 +44,7 @@ def lookup(image):
 	elif len(images) == 1:
 		return images[0]
 
-	found = map(lambda s: os.path.splitext(s)[1], images)
+	found = [os.path.splitext(s)[1] for s in images]
 	for e in exts:
 		if e not in found:
 			continue
@@ -55,4 +54,4 @@ def lookup(image):
 i = lookup(image)
 if not i:
 	i = image
-print relpath(i, docpath)
+print((relpath(i, docpath)))

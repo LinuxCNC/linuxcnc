@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys, os
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
                  QWidget, QVBoxLayout, QHBoxLayout, QListView,
@@ -20,7 +22,7 @@ ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class FileManager(QWidget, _HalWidgetBase):
@@ -36,6 +38,11 @@ class FileManager(QWidget, _HalWidgetBase):
         self.currentPath = None
         self.initUI()
 
+    # add shown text and hidden filter data from the INI
+    def fillCombobox(self, data):
+        for i in data:
+            self.cb.addItem(i[0],i[1])
+
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -44,7 +51,6 @@ class FileManager(QWidget, _HalWidgetBase):
         self.model.setRootPath(QDir.currentPath())
         self.model.setFilter(QDir.AllDirs | QDir.NoDot | QDir.Files)
         self.model.setNameFilterDisables(False)
-        self.model.setNameFilters(["*.ngc",'*.py'])
 
         self.list = QListView()
         self.list.setModel(self.model)
@@ -52,12 +58,13 @@ class FileManager(QWidget, _HalWidgetBase):
         self.list.setWindowTitle("Dir View")
         self.list.resize(640, 480)
         self.list.clicked[QModelIndex].connect(self.clicked)
-        self.list.activated.connect(self.load)
+        self.list.activated.connect(self._getPathActivated)
+        #self.list.currentChanged = self.currentChanged
         self.list.setAlternatingRowColors(True)
 
         self.cb = QComboBox()
-        self.cb.currentTextChanged.connect(self.filterChanged)
-        self.cb.addItems(sorted({'*.ngc','*.py','*'}))
+        self.cb.currentIndexChanged.connect(self.filterChanged)
+        self.fillCombobox(INFO.PROGRAM_FILTERS_EXTENSIONS)
         #self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.button = QPushButton()
@@ -83,11 +90,19 @@ class FileManager(QWidget, _HalWidgetBase):
         self.setLayout(windowLayout)
         self.show()
 
+    # this could return the current/previous selected as it's selected.
+    # need to uncomment monkey patch of self.list.currentChanged above
+    # so far this is not needed
+    def currentChanged(self,c,p):
+        dir_path = self.model.filePath(c)
+
     def updateDirectoryView(self, path):
         self.list.setRootIndex(self.model.setRootPath(path))
 
-    def filterChanged(self, text):
-        self.model.setNameFilters([text])
+    # retrieve selected filter (it's held as QT.userData)
+    def filterChanged(self, index):
+        userdata =  self.cb.itemData(index)
+        self.model.setNameFilters(userdata)
 
     def clicked(self, index):
         # the signal passes the index of the clicked item
@@ -130,9 +145,20 @@ class FileManager(QWidget, _HalWidgetBase):
         selectionModel.clearSelection()
         selectionModel.select(selection, QItemSelectionModel.Select)
 
+    # returns the current highlighted (selected) path as well as
+    # whether it's a file or not.
+    def getCurrentSelected(self):
+        selectionModel = self.list.selectionModel()
+        index = selectionModel.currentIndex()
+        dir_path = self.model.filePath(index)
+        if self.model.fileInfo(index).isFile():
+            return (dir_path, True)
+        else:
+            return (dir_path, False)
+
     def _hal_init(self):
         if self.PREFS_:
-            last_path = self.PREFS_.getpref('last_file_path', self.default_path, str, 'BOOK_KEEPING')
+            last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
             self.updateDirectoryView(last_path)
             LOG.debug("lAST FILE PATH: {}".format(last_path))
         else:
@@ -142,7 +168,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # get current selection and update the path
     # then if the path is good load it into linuxcnc
     # record it in the preference file if available
-    def load(self):
+    def _getPathActivated(self):
         row = self.list.selectionModel().currentIndex()
         self.clicked(row)
 
@@ -150,14 +176,33 @@ class FileManager(QWidget, _HalWidgetBase):
         if fname is None: 
             return
         if fname:
-            if self.PREFS_:
-                self.PREFS_.putpref('last_file_path', fname, str, 'BOOK_KEEPING')
-            ACTION.OPEN_PROGRAM(fname)
-            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+            self.load(fname)
 
+    # this can be class patched to do something else
+    def load(self, fname=None):
+        if fname is None:
+            self._getPathActivated()
+            return
+        self.recordBookKeeping()
+        ACTION.OPEN_PROGRAM(fname)
+        STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+
+    # this can be class patched to do something else
+    def recordBookKeeping(self):
+        fname = self.currentPath
+        if fname is None: 
+            return
+        if self.PREFS_:
+            self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
+            self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
+
+    # moves the selection up
+    # used with MPG scrolling
     def up(self):
         self.select_row('up')
 
+    # moves the selection down
+    # used with MPG scrolling
     def down(self):
         self.select_row('down')
 

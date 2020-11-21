@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 import os
 os.system("halcmd unload all")
 import hal
@@ -33,4 +33,4 @@ for i in range(9):
 assert reader.read() is None
 assert reader.num_underruns == 1
 
-print "pass"
+print("pass")

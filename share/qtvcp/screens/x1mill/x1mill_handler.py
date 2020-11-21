@@ -99,6 +99,8 @@ class HandlerClass:
                     event.accept()
                     return True
 
+        if event.isAutoRepeat():return True
+
         # ok if we got here then try keybindings function calls
         # KEYBINDING will call functions from handler file as
         # registered by KEYBIND.add_call(KEY,FUNCTION) above
@@ -147,7 +149,7 @@ class HandlerClass:
         mess = {'NAME':'CALCULATOR','ID':'_RunFromLine_',
              'PRELOAD':self.picked_line,
                'TITLE':'Run From Line Dialog'}
-        ACTION.CALL_DIALOG{('dialog-request', mess)
+        ACTION.CALL_DIALOG('dialog-request', mess)
 
     #####################
     # general functions #
