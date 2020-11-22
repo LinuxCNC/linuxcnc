@@ -37,7 +37,7 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('screen_options')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('screenoptions')))
     def toolTip(self):
         return "ScreenOptions widget"
     def whatsThis(self):

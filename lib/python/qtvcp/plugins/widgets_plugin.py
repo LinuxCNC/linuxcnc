@@ -164,7 +164,7 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcode_editor')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcodeeditor')))
     def toolTip(self):
         return "Gcode display / editor Widget"
     def whatsThis(self):
@@ -172,7 +172,7 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="GcodeEditor" name="gcode_editor" />\n'
+        return '<widget class="GcodeEditor" name="gcodeeditor" />\n'
     def includeFile(self):
         return "qtvcp.widgets.gcode_editor"
 
@@ -196,7 +196,7 @@ class GcodeDisplayPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcode_display')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcodedisplay')))
     def toolTip(self):
         return "Gcode display Widget (read-only)"
     def whatsThis(self):
