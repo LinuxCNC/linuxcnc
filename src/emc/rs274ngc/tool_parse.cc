@@ -146,12 +146,12 @@ int loadToolTable(const char *filename,
             break;
         }
         rtapi_strxcpy(orig_line, buffer);
-
         toolno = -1;
         diameter = frontangle = backangle = 0.0;
         orientation = 0;
         ZERO_EMC_POSE(offset);
         buff = strtok(buffer, ";");
+        if (strlen(buff) <=1) { continue; }
         comment = strtok(NULL, "\n");
 
         token = strtok(buff, " ");
@@ -253,7 +253,7 @@ int loadToolTable(const char *filename,
             if (ttcomments && comment)
                 strcpy(ttcomments[pocket], comment);
         } else {
-            fprintf(stderr, "Unrecognized line skipped: %s", orig_line);
+             printf("File: %s Unrecognized line skipped: %s\n",filename, orig_line);
         }
         if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
             toolTable[0] = toolTable[pocket];
