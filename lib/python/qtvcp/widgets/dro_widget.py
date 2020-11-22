@@ -64,8 +64,8 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         else:
             self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(self.joint_number)
             if self._jointNum is None:
-                LOG.critical('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.joint_number, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
-                raise Exception('Axis-index to joint-number error in widget: {}'.format(self.objectName()))
+                LOG.debug('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.joint_number, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
+                self._jointNum = 0
 
             STATUS.connect('motion-mode-changed',self.motion_mode)
             STATUS.connect('current-position', self.update)
