@@ -861,6 +861,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def set_background_color(self, color):
         self.editor.set_background_color(color)
 
+    def isReadOnly(self):
+        return self.editor.isReadOnly()
+
     # designer recognized getter/setters
     # auto_show_mdi status
     # These adjust the self.editor instance
@@ -888,7 +891,7 @@ if __name__ == "__main__":
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     w = GcodeEditor()
     w.editMode()
     w.show()

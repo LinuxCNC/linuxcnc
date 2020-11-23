@@ -169,7 +169,7 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('LCDNumber')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcdnumber')))
     def toolTip(self):
         return "HAL LCD Display widget"
     def whatsThis(self):
