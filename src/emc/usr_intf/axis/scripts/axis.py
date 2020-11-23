@@ -3777,9 +3777,9 @@ def get_coordinate_font(large):
     global fontbase
 
     if large:
-        coordinate_font = "courier bold 20"
+        coordinate_font = "bold 20"
     else:
-        coordinate_font = "courier bold 11"
+        coordinate_font = "bold 11"
 
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = \
