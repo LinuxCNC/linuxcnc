@@ -699,17 +699,14 @@ static void define_scope_windows(void)
 
 static void init_run_mode_window(void)
 {
-    /* define the radio buttons */
+    /* define the radio buttons and group them */
     ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, _("Stop"));
-    ctrl_usr->rm_normal_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Normal"));
-    ctrl_usr->rm_single_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Single"));
-    ctrl_usr->rm_roll_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Roll"));
+    ctrl_usr->rm_normal_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Normal"));
+    ctrl_usr->rm_single_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Single"));
+    ctrl_usr->rm_roll_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Roll"));
     /* now put them into the box */
     gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
 	ctrl_usr->rm_normal_button, FALSE, FALSE, 0);
@@ -720,14 +717,14 @@ static void init_run_mode_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
 	ctrl_usr->rm_stop_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_normal_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_normal_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_single_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_single_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_roll_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_roll_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_stop_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_stop_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_normal_button, "clicked",
+            G_CALLBACK(rm_normal_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_single_button, "clicked",
+            G_CALLBACK(rm_single_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_roll_button, "clicked",
+            G_CALLBACK(rm_roll_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_stop_button, "clicked",
+            G_CALLBACK(rm_stop_button_clicked), NULL);
     /* and make them visible */
     gtk_widget_show(ctrl_usr->rm_normal_button);
     gtk_widget_show(ctrl_usr->rm_single_button);
