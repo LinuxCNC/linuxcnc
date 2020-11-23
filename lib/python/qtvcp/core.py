@@ -6,6 +6,7 @@ import linuxcnc
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
+    from gi.repository import GLib
     gobj_run_first = GObject.SignalFlags.RUN_FIRST
 else:
     import gobject as GObject
@@ -141,6 +142,7 @@ class Status(GStat):
     # we override this function from hal_glib
     def set_timer(self):
         if sys.version_info.major > 2:
+            GLib.timeout_add(100, self.update)
             return
         # TODO Python 2 needs the threads_init. Python3 this is deprecated and not needed
         # View new functionality here: https://pygobject.readthedocs.io/en/latest/guide/threading.html
