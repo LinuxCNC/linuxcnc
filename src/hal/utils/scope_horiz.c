@@ -59,6 +59,13 @@
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
 
+/* Columns in the TreeView */
+enum TREEVIEW_COLUMN {
+    COL_THREAD,
+    COL_PERIOD,
+    NUM_COLS
+};
+
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
@@ -70,8 +77,7 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata);
 static void dialog_realtime_not_loaded(void);
 static void dialog_realtime_not_linked(void);
 static void dialog_realtime_not_running(void);
-static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer gdata);
+static void acquire_selection_made(GtkWidget *widget, gpointer data);
 static int set_sample_thread_name(char *name);
 static int activate_sample_thread(void);
 static void deactivate_sample_thread(void);
@@ -477,7 +483,7 @@ static void dialog_realtime_not_linked(void)
     scope_horiz_t *horiz;
     dialog_generic_t dialog;
 
-    int next, colwidth, sel_row, n;
+    int next, sel_row, n;
     double period;
     hal_thread_t *thread;
     gchar *strs[2];
@@ -486,7 +492,9 @@ static void dialog_realtime_not_linked(void)
     GtkWidget *button;
     GtkWidget *buttons[5];
     GtkWidget *scrolled_window;
-    gchar *titles[2];
+    GtkTreeSelection *selection;
+
+    char *titles[NUM_COLS];
     const gchar *title, *msg;
 
     horiz = &(ctrl_usr->horiz);
@@ -547,30 +555,23 @@ static void dialog_realtime_not_linked(void)
 
     /* Create a scrolled window to display the thread list */
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
 	scrolled_window, TRUE, TRUE, 5);
-    gtk_widget_show(scrolled_window);
 
     /* create a list to hold the threads */
     titles[0] = _("Thread");
     titles[1] = _("Period");
-    horiz->thread_list = gtk_clist_new_with_titles(2, titles);
-    gtk_clist_column_titles_passive(GTK_CLIST(horiz->thread_list));
-    /* set up a callback for when the user selects a line */
-    gtk_signal_connect(GTK_OBJECT(horiz->thread_list), "select_row",
-	GTK_SIGNAL_FUNC(acquire_selection_made), NULL);
-    /* It isn't necessary to shadow the border, but it looks nice :) */
-    gtk_clist_set_shadow_type(GTK_CLIST(horiz->thread_list), GTK_SHADOW_OUT);
-    /* set list for single selection only */
-    gtk_clist_set_selection_mode(GTK_CLIST(horiz->thread_list),
-	GTK_SELECTION_BROWSE);
-    /* put the list into the scrolled window */
+    horiz->thread_list = gtk_tree_view_new();
+    init_list(horiz->thread_list, titles, NUM_COLS);
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(horiz->thread_list));
+    gtk_tree_selection_set_mode(GTK_TREE_SELECTION(selection),
+            GTK_SELECTION_BROWSE);
     gtk_container_add(GTK_CONTAINER(scrolled_window), horiz->thread_list);
-    gtk_widget_show(horiz->thread_list);
-    /* generate list of threads */
-    gtk_clist_clear(GTK_CLIST(horiz->thread_list));
+
+    /* set up a callback for when the user selects a line */
+    g_signal_connect(selection, "changed",
+            G_CALLBACK(acquire_selection_made), horiz);
+
     /* get mutex before traversing list */
     rtapi_mutex_get(&(hal_data->mutex));
     n = 0;
@@ -588,7 +589,7 @@ static void dialog_realtime_not_linked(void)
 	    /* get thread name */
 	    strs[0] = thread->name;
 	    /* add to list */
-	    gtk_clist_append(GTK_CLIST(horiz->thread_list), strs);
+	    add_to_list(horiz->thread_list, strs, NUM_COLS);
 	    if ((horiz->thread_name != NULL)
 		&& (strcmp(horiz->thread_name, thread->name) == 0)) {
 		/* found the current thread, remember it's row number */
@@ -602,15 +603,7 @@ static void dialog_realtime_not_linked(void)
     }
     
     rtapi_mutex_give(&(hal_data->mutex));
-    /* set column widths */
-    colwidth =
-	gtk_clist_optimal_column_width(GTK_CLIST(horiz->thread_list), 0);
-    gtk_clist_set_column_min_width(GTK_CLIST(horiz->thread_list), 0,
-	(colwidth * 17) / 16);
-    colwidth =
-	gtk_clist_optimal_column_width(GTK_CLIST(horiz->thread_list), 1);
-    gtk_clist_set_column_min_width(GTK_CLIST(horiz->thread_list), 1,
-	(colwidth * 17) / 16);
+
     /* set up the the layout for the multiplier spinbutton */
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
@@ -693,12 +686,7 @@ static void dialog_realtime_not_linked(void)
     /* was a thread previously used? */
     if (sel_row > -1) {
 	/* yes, preselect appropriate line */
-	gtk_clist_select_row(GTK_CLIST(horiz->thread_list), sel_row, 1);
-    } else {
-	// select first row as default, it is already selected .. 
-	// the user can change it lateron if it's not right
-	sel_row = 0;
-	acquire_selection_made(GTK_WIDGET(horiz->thread_list), sel_row, 1, NULL, NULL);
+        mark_selected_row(horiz->thread_list, sel_row);
     }
     /* set up a callback function when the window is destroyed */
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
@@ -800,41 +788,25 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata)
     return;
 }
 
-static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer gdata)
+static void acquire_selection_made(GtkWidget *widget, gpointer data)
 {
     scope_horiz_t *horiz;
-    GdkEventType type;
-    gchar *picked;
+    horiz = (scope_horiz_t *) data;
+    char *picked;
 
-    if (clist == NULL) {
-	/* spurious event, ignore it */
-	return;
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+
+    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(widget), &model, &iter)) {
+        gtk_tree_model_get(model, &iter, COL_THREAD, &picked, -1);
+
+        /* set thread */
+        set_sample_thread_name(picked);
+        /* get a pointer to the horiz data structure */
+        horiz = &(ctrl_usr->horiz);
+        /* set mult spinbutton to (possibly) new value */
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton), ctrl_shm->mult);
     }
-    type = 4;
-    if (event != NULL) {
-	type = event->type;
-    }
-    if (type != 4) {
-	/* We get bad callbacks if you drag the mouse across the list with
-	   the button held down.  They can be distinguished because their
-	   event type is 3, not 4. */
-	return;
-    }
-    if (column < 0) {
-	/* this is the initial selection automatically made by GTK */
-	/* we don't want to act on it */
-	return;
-    }
-    /* must be a valid user selection or preselection */
-    /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &picked);
-    /* set thread */
-    set_sample_thread_name(picked);
-    /* get a pointer to the horiz data structure */
-    horiz = &(ctrl_usr->horiz);
-    /* set mult spinbutton to (possibly) new value */
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton), ctrl_shm->mult);
 }
 
 static int set_sample_thread_name(char *name)
