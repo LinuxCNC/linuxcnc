@@ -187,6 +187,9 @@ class GcodeLexer(QsciLexerCustom):
 ##########################################################
 class EditorBase(QsciScintilla):
     ARROW_MARKER_NUM = 8
+    _styleMarginsForegroundColor = QColor("#000000")
+    _styleMarginsBackgroundColor = QColor("#000000")
+    _styleBackgroundColor = QColor("#000000")
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
@@ -198,7 +201,6 @@ class EditorBase(QsciScintilla):
         self.font.setFixedPitch(True)
         self.font.setPointSize(12)
         self.setFont(self.font)
-        self.setMarginsFont(self.font)
 
         # Margin 0 is used for line numbers
         self.setMarginsFont(self.font)
@@ -243,10 +245,31 @@ class EditorBase(QsciScintilla):
         self.setMinimumSize(200, 100)
         self.filepath = None
 
+    def setMarginsForegroundColor(self, color):
+        super(EditorBase, self).setMarginsForegroundColor(color)
+        self._styleMarginsForegroundColor = color
+
+    def marginsForegroundColor(self):
+        return self._styleMarginsForegroundColor
+
+    def setMarginsBackgroundColor(self, color):
+        super(EditorBase, self).setMarginsBackgroundColor(color)
+        self._styleMarginsBackgroundColor = color
+
+    def marginsBackgroundColor(self):
+        return self._styleMarginsBackgroundColor
+
     def set_margin_width(self, width):
         fontmetrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
         self.setMarginWidth(0, fontmetrics.width("0"*width) + 6)
+
+    def setBackgroundColor(self, color):
+        self._styleBackgroundColor = color
+        self.set_background_color(color)
+
+    def backgroundColor(self):
+        return self._styleBackgroundColor
 
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
@@ -300,20 +323,6 @@ class EditorBase(QsciScintilla):
         self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
         self.findNext()
 
-        # follow stylesheet changes
-        # eg: editorBase{background-color: rgb(255, 25, 25);}
-    def paintEvent(self, event):
-        super(EditorBase, self).paintEvent(event)
-        opt = QStyleOption()
-        opt.initFrom(self);
-        c = opt.palette.color(QPalette.Window)
-        # this should allow changing color directly too
-        # as well as saving recoloring when it's already colored
-        if self._stylebackgroundColor != c.name():
-            self.set_background_color(c.name())
-            self.setMarginsBackgroundColor(c.darker(110))
-            self._stylebackgroundColor = c.name()
-
     # this allows setting these properties in a stylesheet
     def getColor0(self):
         return self.lexer.color(0)
@@ -345,6 +354,24 @@ class EditorBase(QsciScintilla):
         self.lexer.setColor(value,4)
     styleColor4 = pyqtProperty(QColor, getColor4, setColor4)
 
+    def getColorMarginText(self):
+        return self.marginsForegroundColor()
+    def setColorMarginText(self, value):
+        self.setMarginsForegroundColor(value)
+    styleColorMarginText = pyqtProperty(QColor, getColorMarginText, setColorMarginText)
+
+    def getColorMarginBackground(self):
+        return self.marginsBackgroundColor()
+    def setColorMarginBackground(self, value):
+        self.setMarginsBackgroundColor(value)
+    styleColorMarginBackground = pyqtProperty(QColor, getColorMarginBackground, setColorMarginBackground)
+
+    def getColorBackground(self):
+        return self.backgroundColor()
+    def setColorBackground(self, value):
+        self.setBackgroundColor(value)
+    styleColorBackground = pyqtProperty(QColor, getColorBackground, setColorBackground)
+
     def getFont0(self):
         return self.lexer.font(0)
     def setFont0(self, value):
@@ -374,6 +401,13 @@ class EditorBase(QsciScintilla):
     def setFont4(self, value):
         self.lexer.setFont(value,4)
     styleFont4 = pyqtProperty(QFont, getFont4, setFont4)
+
+    def getFontMargin(self):
+        return self.font
+    def setFontMargin(self, value):
+        self.setMarginsFont(value)
+    styleFontMargin = pyqtProperty(QFont, getFontMargin, setFontMargin)
+
 
 ##########################################################
 # Gcode display widget (intended read-only)

@@ -511,17 +511,20 @@ The GcodeDisplay properties can be set in a stylesheet with the following code a
 
 ----
 EditorBase{
-background: lightblue;
+qproperty-styleColorBackground: lightblue;
 qproperty-styleColor0: black;
 qproperty-styleColor1: #000000; /* black */
 qproperty-styleColor2: red;
 qproperty-styleColor3: black;
 qproperty-styleColor4: yellow;
+qproperty-styleColorMarginText: White;
+qproperty-styleColorMarginBackground: blue;
 qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont1: "Times,18,-1,0,90,1,0,0,0,0";
 qproperty-styleFont2: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont3: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont4: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFontMargin: "Times,14,-1,0,90,0,0,0,0,0";
 }
 ----
 
