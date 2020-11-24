@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.182 - 2020 Nov 08
+0.183 - 2020 Nov 25
 
 .I SUMMARY:
 .br
@@ -239,7 +239,7 @@ variable int    y_velocity;                 /* velocity for y motion for consuma
 variable int    zero_target;                /* zero height target offset */
 
 /* PARAMETERS */
-param rw bit    debug_print = FALSE         "print debug messages";
+param rw bit    debug_print = TRUE          "print debug messages";
 param rw s32    kerf_errors_max = 2         "allowable kerfcross threshold errors";
 param rw bit    mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
 
@@ -1044,7 +1044,9 @@ FUNCTION(_) {
             case CUT_HEIGHT:
                 z_offset_enable = TRUE;
                 stop_type = NONE;
-                feed_hold = FALSE;
+                if(!cut_recovering){
+                    feed_hold = FALSE;
+                }
                 /* move to cut height */
                 if(z_offset_counts == cut_target){
                     if((int)floor(z_offset_current / offset_scale) <= cut_target + 1 && 
@@ -1643,21 +1645,10 @@ FUNCTION(_) {
                 break;
             case CUT_RECOVERY_OFF:
                 xy_offset_enable = TRUE;
-                if(x_offset_counts + x_velocity < 0){
-                    x_offset_counts += x_velocity;
-                }else if(x_offset_counts - x_velocity > 0){
-                    x_offset_counts -= x_velocity;
-                }else{
-                    x_offset_counts = 0;
-                }
-                if(y_offset_counts + y_velocity < 0){
-                    y_offset_counts += y_velocity;
-                }else if(y_offset_counts - y_velocity > 0){
-                    y_offset_counts -= y_velocity;
-                }else{
-                    y_offset_counts = 0;
-                }
-                if(!x_offset_counts && !y_offset_counts){
+                if(x_offset_current <= 0.01 * units_per_mm && 
+                   x_offset_current >= -0.01 * units_per_mm &&
+                   y_offset_current <= 0.01 * units_per_mm && 
+                   y_offset_current >= -0.01 * units_per_mm){
                     if(cut_recovery){
                         cut_recovering = FALSE;
                         feed_hold = FALSE;
@@ -1665,6 +1656,21 @@ FUNCTION(_) {
                         state = CUT;
                     }else{
                         state = IDLE;
+                    }
+                }else{
+                    if(x_offset_counts + x_velocity < 0){
+                        x_offset_counts += x_velocity;
+                    }else if(x_offset_counts - x_velocity > 0){
+                        x_offset_counts -= x_velocity;
+                    }else{
+                        x_offset_counts = 0;
+                    }
+                    if(y_offset_counts + y_velocity < 0){
+                        y_offset_counts += y_velocity;
+                    }else if(y_offset_counts - y_velocity > 0){
+                        y_offset_counts -= y_velocity;
+                    }else{
+                        y_offset_counts = 0;
                     }
                 }
                 break;
