@@ -60,6 +60,13 @@
 #define TRIG_LEVEL_RESOLUTION 100.0
 #define TRIG_POS_RESOLUTION 100.0
 
+/* Columns in the TreeView */
+enum TREEVIEW_COLUMN {
+    COL_CHAN,
+    COL_SOURCE,
+    NUM_COLS
+};
+
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
@@ -67,8 +74,8 @@
 static void init_trigger_mode_window(void);
 static void init_trigger_info_window(void);
 
-static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr);
+static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
+                                   dialog_generic_t *dptr);
 static void dialog_select_trigger_source(void);
 
 /* callback functions */
@@ -79,8 +86,6 @@ static void source_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void edge_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void level_changed(GtkAdjustment * adj, gpointer gdata);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
-
-/* helper functions */
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -292,8 +297,8 @@ static void dialog_select_trigger_source(void)
 {
     dialog_generic_t dialog;
     gchar *title, *msg;
-    int n, colwidth;
-    gchar *strs[2], *titles[2];
+    int n;
+    gchar *strs[2], *titles[NUM_COLS];
     gchar buf[BUFLEN + 1];
     GtkWidget *label, *button, *scrolled_window, *trig_list;
 
@@ -320,23 +325,18 @@ static void dialog_select_trigger_source(void)
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
 	scrolled_window, TRUE, TRUE, 5);
     gtk_widget_show(scrolled_window);
+
     /* create a list to hold the data */
     titles[0] = _("Chan");
     titles[1] = _("Source");
-    trig_list = gtk_clist_new_with_titles(2, titles);
-    gtk_clist_column_titles_passive(GTK_CLIST(trig_list));
-    /* set up a callback for when the user selects a line */
-    gtk_signal_connect(GTK_OBJECT(trig_list), "select_row",
-	GTK_SIGNAL_FUNC(trigger_selection_made), &dialog);
-    /* It isn't necessary to shadow the border, but it looks nice :) */
-    gtk_clist_set_shadow_type(GTK_CLIST(trig_list), GTK_SHADOW_OUT);
-    /* set list for single selection only */
-    gtk_clist_set_selection_mode(GTK_CLIST(trig_list), GTK_SELECTION_BROWSE);
-    /* put the list into the scrolled window */
+    trig_list = gtk_tree_view_new();
+    init_list(trig_list, titles, NUM_COLS);
     gtk_container_add(GTK_CONTAINER(scrolled_window), trig_list);
-    gtk_widget_show(trig_list);
+
+    g_signal_connect(trig_list, "button-press-event",
+            G_CALLBACK(trigger_selection_made), &dialog);
+
     /* populate the trigger source list */
-    gtk_clist_clear(GTK_CLIST(trig_list));
     for (n = 0; n < 16; n++) {
 	snprintf(buf, BUFLEN, "%d", n + 1);
 	strs[0] = buf;
@@ -345,17 +345,13 @@ static void dialog_select_trigger_source(void)
 	} else {
 	    strs[1] = "----";
 	}
-	gtk_clist_append(GTK_CLIST(trig_list), strs);
+        add_to_list(trig_list, strs, NUM_COLS);
     }
-    /* set column width */
-    colwidth = gtk_clist_optimal_column_width(GTK_CLIST(trig_list), 1);
-    gtk_clist_set_column_min_width(GTK_CLIST(trig_list), 1,
-	(colwidth * 17) / 16);
+
     /* was a channel previously selected? */
     if (ctrl_shm->trig_chan > 0) {
 	/* yes, preselect appropriate line */
-	gtk_clist_select_row(GTK_CLIST(trig_list), ctrl_shm->trig_chan - 1,
-	    1);
+        mark_selected_row(trig_list, ctrl_shm->trig_chan - 1);
     }
     /* set up a callback function when the window is destroyed */
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
@@ -389,30 +385,24 @@ int set_trigger_source(int chan_num)
 }
 
 /* If we come here, then the user has selected a row in the list. */
-static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr)
+static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
+                                   dialog_generic_t *dptr)
 {
-    GdkEventType type;
+    if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
+        GtkTreePath *path;
 
-    if ((event == NULL) || (clist == NULL)) {
-	/* We get spurious events when the lists are populated I don't know
-	   why.  If either clist or event is null, it's a bad one! */
-	return;
+        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
+                    (int) event->x, (int) event->y, &path, NULL, NULL, NULL)) {
+            int *row;
+
+            row = gtk_tree_path_get_indices(path);
+            set_trigger_source(row[0] + 1);
+
+            /* set return value of dialog and close window */
+            dptr->retval = 1;
+            gtk_widget_destroy(dptr->window);
+        }
     }
-    type = event->type;
-    if (type != 4) {
-	/* We also get bad callbacks if you drag the mouse across the list
-	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. */
-	return;
-    }
-    /* If we get here, it should be a valid selection */
-    set_trigger_source(row + 1);
-    /* set return value of dialog */
-    dptr->retval = 1;
-    /* destroy window to cause dialog_generic_destroyed() to be called */
-    gtk_widget_destroy(dptr->window);
-    return;
 }
 
 int set_trigger_level(double setting)
