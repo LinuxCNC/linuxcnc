@@ -239,7 +239,7 @@ variable int    y_velocity;                 /* velocity for y motion for consuma
 variable int    zero_target;                /* zero height target offset */
 
 /* PARAMETERS */
-param rw bit    debug_print = TRUE          "print debug messages";
+param rw bit    debug_print = FALSE         "print debug messages";
 param rw s32    kerf_errors_max = 2         "allowable kerfcross threshold errors";
 param rw bit    mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
 
