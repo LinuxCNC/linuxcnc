@@ -576,7 +576,7 @@ with open(inCode, 'r') as fRead:
         if (line.lower().startswith('g') or \
            line.lower().startswith('m')) and \
            len(line) > 2:
-            while line[1] == '0':
+            while line[1] == '0' and len(line) > 2:
                 if line[2].isdigit():
                     line = line[:1] + line[2:]
                 else:
@@ -731,7 +731,7 @@ with open(inCode, 'r') as fRead:
             print('({})'.format(line))
             continue
         # if z axis and other axes in line, comment out the Z axis
-        if 'z' in line and line.split('z')[1][0] in '0123456789.- ':
+        if 'z' in line and not '(z' in line and line.split('z')[1][0] in '0123456789.- ':
             if holeEnable:
                 lastX, lastY = set_last_position(lastX, lastY)
             result = comment_out_z_commands()
