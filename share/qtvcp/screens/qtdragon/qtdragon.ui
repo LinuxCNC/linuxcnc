@@ -132,6 +132,9 @@
       <property name="originOffsetDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="machineLogDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -8647,6 +8650,9 @@ SPINDLE</string>
                         <property name="halpin_option" stdset="0">
                          <bool>false</bool>
                         </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
                        </widget>
                       </item>
                       <item row="3" column="4">
@@ -8681,6 +8687,9 @@ SPINDLE</string>
                         <property name="halpin_option" stdset="0">
                          <bool>false</bool>
                         </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
                        </widget>
                       </item>
                       <item row="1" column="4">
@@ -8711,6 +8720,9 @@ SPINDLE</string>
                         </property>
                         <property name="halpin_option" stdset="0">
                          <bool>false</bool>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
                         </property>
                        </widget>
                       </item>
@@ -9618,6 +9630,9 @@ DROLabel[homed=false] {
                         </property>
                         <property name="halpin_option" stdset="0">
                          <bool>false</bool>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
                         </property>
                        </widget>
                       </item>
@@ -13468,7 +13483,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>01:15:32 PM</string>
+                  <string>09:39:56 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -14307,7 +14322,7 @@ ALL</string>
   <slot>percent_completed_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
