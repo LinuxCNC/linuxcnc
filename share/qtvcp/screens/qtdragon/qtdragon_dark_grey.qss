@@ -16,7 +16,8 @@ QToolTip
 QPushButton,
 ActionButton,
 SystemToolButton,
-AxisToolButton {
+AxisToolButton,
+QToolButton {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -93,6 +94,7 @@ QComboBox {
     border-radius: 4px;
     min-width: 120px;
     color: #9ad58d;
+padding: 1px 0px 1px 3px;
 }
 
 QComboBox::drop-down {
@@ -201,6 +203,10 @@ QLineEdit {
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color: #9ad58d;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
 }
 
 /** Tables **/
@@ -394,27 +400,27 @@ QListView::item:selected {
     color: #9ad58d;
 }
 
-
-ToolDialog,CloseDialog,EntryDialog{
+ToolDialog,CloseDialog,EntryDialog, CalculatorDialog{
 background-color: gray;
 }
 ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
-EntryDialog QPushButton, CloseDialog QPushButton{
+CalculatorDialog  QPushButton, EntryDialog QPushButton, CloseDialog QPushButton{
     width: 80px;
     height: 40px;
 }
 QMenu {
-    background-color: #ABABAB; /* sets background of the menu */
+    background-color: red; /* sets background of the menu */
     border: 1px solid black;
+    color: #9ad58d;
 }
 
 QMenu::item {
     /* sets background of menu item. set this to something non-transparent
         if you want menu color and menu item color to be different */
-    background-color: gray;
+    background-color: transparent;;
 }
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */

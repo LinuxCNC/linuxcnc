@@ -9,7 +9,11 @@ QStatusBar {
     color: #FFFFD0;
 }
 
-QPushButton, ActionButton, SystemToolButton, AxisToolButton {
+QPushButton,
+ActionButton,
+SystemToolButton,
+AxisToolButton,
+QToolButton {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid brown;
     border-radius: 4px;
@@ -81,6 +85,10 @@ QLineEdit {
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color:white;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
 }
 
 QLineEdit#mdiline{
@@ -289,14 +297,14 @@ QSlider::handle:horizontal:disabled,  QSlider::handle:vertical:disabled{
     border: 1px solid #aaa;
     border-radius: 4px;
 }
-ToolDialog,CloseDialog,EntryDialog{
+ToolDialog,CloseDialog,EntryDialog,CalculatorDialog{
 background-color: gray;
 }
 ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
-EntryDialog QPushButton, CloseDialog QPushButton{
+CalculatorDialog  QPushButton, EntryDialog QPushButton, CloseDialog QPushButton{
     width: 80px;
     height: 40px;
 }
