@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.184 - 2020 Nov 26
+0.185 - 2020 Nov 28
 
 .I SUMMARY:
 .br
@@ -231,7 +231,6 @@ variable float  target_volts;               /* target voltage for thc, set by ar
 variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
-variable bool   torch_pulse;                /* torch pulse flag */
 variable float  torch_pulse_timer;          /* torch pulse timer */
 variable float  velocity_scale;             /* the velocity multipler */
 variable int    x_velocity;                 /* velocity for x motion for consumable change */
@@ -578,6 +577,8 @@ FUNCTION(_) {
         program_stop = FALSE;
         program_resume = FALSE;
         program_pause = FALSE;
+        torch_on = FALSE;
+        torch_pulse_timer = 0;
         state = IDLE;
     }else{
         /* if machine is on */
@@ -1401,19 +1402,17 @@ FUNCTION(_) {
                 break;
             case TORCHPULSE:
                 /* single pulse the torch on and off */
-                if(!torch_pulse){
+                if(!torch_on){
                     torch_pulse_timer = torch_pulse_time;
                     if(torch_enable){
                         torch_on = TRUE;
                     }
-                    torch_pulse = TRUE;
                 }else{
                     if(torch_pulse_timer > 0){
                         torch_pulse_timer -= fperiod;
                     }else{
                         torch_on = FALSE;
                         if(!torch_pulse_start){
-                            torch_pulse = FALSE;
                             state = IDLE;
                         }
                     }
