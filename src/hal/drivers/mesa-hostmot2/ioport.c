@@ -276,7 +276,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
         if (
             (hm2->pin[i].gtag == HM2_GTAG_IOPORT)
-            || (hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT)
+            || (hm2->pin[i].direction_at_start == HM2_PIN_DIR_IS_OUTPUT)
         ) {
 
             r = hal_param_bit_newf(
@@ -350,7 +350,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
         // it's an output of some other module
         if(hm2->pin[i].gtag != HM2_GTAG_IOPORT &&
-            hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT &&
+            hm2->pin[i].direction_at_start == HM2_PIN_DIR_IS_OUTPUT &&
             (gtag_name = hm2_get_general_function_hal_name(hm2->pin[i].gtag)) &&
             (funct_name = hm2_get_pin_secondary_hal_name(&hm2->pin[i])))
         {
@@ -454,6 +454,18 @@ static void hm2_ioport_force_write_open_drain(hostmot2_t *hm2) {
     int size = hm2->ioport.num_instances * sizeof(rtapi_u32);
     hm2->llio->write(hm2->llio, hm2->ioport.open_drain_addr, hm2->ioport.open_drain_reg, size);
     memcpy(hm2->ioport.written_open_drain, hm2->ioport.open_drain_reg, size);
+}
+
+void hm2_ioport_initialize_ddr(hostmot2_t *hm2) {
+    int port;
+    int port_pin;
+
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
+            int io_pin = (port * hm2->idrom.port_width) + port_pin;
+            hm2->pin[io_pin].direction = hm2->pin[io_pin].direction_at_start;
+        }
+    }
 }
 
 

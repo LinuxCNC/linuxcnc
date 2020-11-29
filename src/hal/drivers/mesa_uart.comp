@@ -6,7 +6,7 @@ bytes each cycle out of the receive FIFO and writes the values to the associated
 output pins. {name}.rx-bytes indicates how many pins have been written to. 
 (pins > rx-bytes simply hold their previous value)
 
-This module uses the names= mode of loadrt declaration to specifiy which UART 
+This module uses the names= mode of loadrt declaration to specify which UART 
 instances to enable. A check is included to ensure that the count= option is 
 not used instead.
 

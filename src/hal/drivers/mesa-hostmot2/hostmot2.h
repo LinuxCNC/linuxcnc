@@ -71,6 +71,8 @@
 
 #define HM2_ADDR_IDROM_OFFSET (0x010C)
 
+#define HM2_ADDR_WATCHDOG (0x0C00)
+
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
 #define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
@@ -116,6 +118,11 @@
 #define HM2_GTAG_BISS              (24) 
 #define HM2_GTAG_FABS              (25) 
 #define HM2_GTAG_HM2DPLL           (26) 
+#define HM2_GTAG_INMUX             (30) 
+#define HM2_GTAG_INM               (35) 
+#define HM2_GTAG_DPAINTER          (42) 
+#define HM2_GTAG_XY2MOD            (43) 
+#define HM2_GTAG_RCPWMGEN          (44) 
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -214,7 +221,10 @@ typedef struct {
     // either HM2_PIN_DIR_IS_INPUT or HM2_PIN_DIR_IS_OUTPUT
     // if gtag != gpio, how the owning module instance configured it at load-time
     // if gtag == gpio, this gets copied from the .is_output parameter
+    // If the "at start" value differs from the "direction" value, this occurs
+    // the first time the write function is executed
     int direction;
+    int direction_at_start;
 
     // if the driver decides to make this pin a gpio, it'll allocate the
     // instance struct to manage it, otherwise instance is NULL
@@ -289,6 +299,8 @@ typedef struct {
             hal_bit_t counter_mode;
             hal_bit_t filter;
             hal_float_t vel_timeout;
+
+
         } param;
 
     } hal;
@@ -317,12 +329,14 @@ typedef struct {
 } hm2_encoder_instance_t;
 
 
-// these hal params affect all encoder instances
+// these hal pins affect all encoder instances
 typedef struct {
     struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
+	hal_bit_t *hires_timestamp;
+
     } pin;
 } hm2_encoder_module_global_t;
 
@@ -340,6 +354,7 @@ typedef struct {
     rtapi_u32 written_sample_frequency;
     int has_skew;
     rtapi_u32 written_skew;
+    rtapi_u32 written_hires_timestamp;
     uint32_t desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers
@@ -493,7 +508,8 @@ typedef struct {
 
         struct {
             hal_float_t scale;
-            hal_s32_t output_type;
+            hal_bit_t offset_mode;
+            hal_s32_t output_type; 
         } param;
 
     } hal;
@@ -501,6 +517,10 @@ typedef struct {
     // this keeps track of the output_type that we've told the FPGA, so we
     // know if we need to update it
     rtapi_s32 written_output_type;
+
+    // this keeps track of the offset_mode that we've set , so we
+    // know if we need to update it
+    rtapi_s32 written_offset_mode;
 
     // this keeps track of the enable bit for this instance that we've told
     // the FPGA, so we know if we need to update it
@@ -553,6 +573,346 @@ typedef struct {
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
 
+//
+// rcpwmgen pwmgen optimized for RC servos
+// 
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *width;
+            hal_float_t *scale;
+            hal_float_t *offset;
+        } pin;
+
+    } hal;
+} hm2_rcpwmgen_instance_t;
+
+
+// this hal param affects all rcpwmgen instances
+typedef struct {
+    struct {
+        hal_float_t rate;
+    } param;
+} hm2_rcpwmgen_module_global_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_rcpwmgen_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    // module-global HAL objects...
+    hm2_rcpwmgen_module_global_t *hal;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 rate_reg;
+ 
+    double written_rate;
+    rtapi_u32 error_throttle;
+
+} hm2_rcpwmgen_t;
+
+
+//
+// inmux
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_bit_t *filt_data[32];
+            hal_bit_t *raw_data[32];
+            hal_bit_t *filt_data_not[32];
+            hal_bit_t *raw_data_not[32];
+            hal_bit_t *slow[32] ;
+            hal_s32_t *enc0_count; 
+            hal_s32_t *enc1_count; 
+            hal_s32_t *enc2_count; 
+            hal_s32_t *enc3_count; 		
+        } pin;
+
+        struct {
+            hal_u32_t scan_rate;
+            hal_u32_t slow_scans; 
+            hal_u32_t fast_scans; 		
+            hal_bit_t enc0_mode; 
+            hal_bit_t enc1_mode; 
+            hal_bit_t enc2_mode; 
+            hal_bit_t enc3_mode; 
+            hal_u32_t scan_width; 	    	
+        } param;
+
+    } hal;
+
+    //scanwidth for this instance	
+    rtapi_u32 scanwidth;	
+
+    //previous MPG counts for this instance	
+    rtapi_s8 prev_enc0_count;	
+    rtapi_s8 prev_enc1_count;	
+    rtapi_s8 prev_enc2_count;	
+    rtapi_s8 prev_enc3_count;	
+
+    // this keeps track of the control register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_control_reg;
+
+    // this keeps track of the filter register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_filter_reg;
+
+    // this keeps track of the mpg mode register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_mpg_mode_reg;
+
+} hm2_inmux_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_inmux_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+
+    // module-global HAL objects...
+
+    rtapi_u32 control_addr;
+    rtapi_u32 *control_reg;
+
+    rtapi_u32 filter_addr;
+    rtapi_u32 *filter_reg;
+
+    rtapi_u32 filt_data_addr;
+    rtapi_u32 *filt_data_reg; 
+
+    rtapi_u32 raw_data_addr;
+    rtapi_u32 *raw_data_reg; 
+
+    rtapi_u32 mpg_read_addr;
+    rtapi_u32 *mpg_read_reg;  
+
+    rtapi_u32 mpg_mode_addr;
+    rtapi_u32 *mpg_mode_reg; 
+
+} hm2_inmux_t;
+
+
+//
+// inm   basicall a clone of InMux
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_bit_t *filt_data[32];
+            hal_bit_t *raw_data[32];
+            hal_bit_t *filt_data_not[32];
+            hal_bit_t *raw_data_not[32];
+            hal_bit_t *slow[32] ;
+            hal_s32_t *enc0_count; 
+            hal_s32_t *enc1_count; 
+            hal_s32_t *enc2_count; 
+            hal_s32_t *enc3_count; 		
+        } pin;
+
+        struct {
+            hal_u32_t scan_rate;
+            hal_u32_t slow_scans; 
+            hal_u32_t fast_scans; 		
+            hal_bit_t enc0_mode; 
+            hal_bit_t enc1_mode; 
+            hal_bit_t enc2_mode; 
+            hal_bit_t enc3_mode; 
+            hal_u32_t scan_width; 	    	
+        } param;
+
+    } hal;
+
+    //scanwidth for this instance	
+    rtapi_u32 scanwidth;	
+
+    //previous MPG counts for this instance	
+    rtapi_s8 prev_enc0_count;	
+    rtapi_s8 prev_enc1_count;	
+    rtapi_s8 prev_enc2_count;	
+    rtapi_s8 prev_enc3_count;	
+
+    // this keeps track of the control register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_control_reg;
+
+    // this keeps track of the filter register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_filter_reg;
+
+    // this keeps track of the mpg mode register that we've told the FPGA, so we
+    // know if we need to update it
+    rtapi_u32 written_mpg_mode_reg;
+
+} hm2_inm_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_inm_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+
+    // module-global HAL objects...
+
+    rtapi_u32 control_addr;
+    rtapi_u32 *control_reg;
+
+    rtapi_u32 filter_addr;
+    rtapi_u32 *filter_reg;
+
+    rtapi_u32 filt_data_addr;
+    rtapi_u32 *filt_data_reg; 
+
+    rtapi_u32 raw_data_addr;
+    rtapi_u32 *raw_data_reg; 
+
+    rtapi_u32 mpg_read_addr;
+    rtapi_u32 *mpg_read_reg;  
+
+    rtapi_u32 mpg_mode_addr;
+    rtapi_u32 *mpg_mode_reg; 
+
+} hm2_inm_t;
+
+
+//
+// xy2mod
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *accx_cmd;
+            hal_float_t *accy_cmd;
+            hal_float_t *velx_cmd;
+            hal_float_t *vely_cmd;
+            hal_float_t *posx_cmd;
+            hal_float_t *posy_cmd;
+            hal_float_t *velx_fb;
+            hal_float_t *vely_fb;
+            hal_float_t *posx_fb;
+            hal_float_t *posy_fb;
+            hal_float_t *posx_scale;
+            hal_float_t *posy_scale;
+            hal_bit_t 	*enable;
+            hal_u32_t 	*controlx;
+            hal_u32_t 	*controly;
+            hal_u32_t 	*commandx;
+            hal_u32_t 	*commandy;
+            hal_bit_t 	*mode18bitx;
+            hal_bit_t 	*mode18bity;
+            hal_bit_t 	*commandmodex;
+            hal_bit_t 	*commandmodey;
+            hal_u32_t 	*status;
+            hal_bit_t 	*posx_overflow;
+            hal_bit_t 	*posy_overflow;
+            hal_bit_t 	*velx_overflow;
+            hal_bit_t 	*vely_overflow;
+        } pin;
+
+    } hal;
+
+
+    //previous MPG counts for this instance	
+    hal_float_t prev_accx_cmd;	
+    hal_float_t prev_accy_cmd;	
+    hal_float_t prev_velx_cmd;	
+    hal_float_t prev_vely_cmd;	
+    hal_float_t prev_posx_cmd;	
+    hal_float_t prev_posy_cmd;	
+
+ 
+} hm2_xy2mod_instance_t;
+
+// these hal params affect all xy2mod instances
+typedef struct {
+    struct {
+        hal_s32_t *dpll_rtimer_num;
+        hal_s32_t *dpll_wtimer_num;
+    } pin;
+} hm2_xy2mod_module_global_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_xy2mod_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+
+    // module-global HAL objects...
+
+    hm2_xy2mod_module_global_t *hal;
+    rtapi_u32 written_dpll_rtimer_num;
+    rtapi_u32 written_dpll_wtimer_num;
+
+
+    rtapi_u32 accx_addr;
+    rtapi_u32 *accx_reg;
+
+    rtapi_u32 accy_addr;
+    rtapi_u32 *accy_reg;
+
+    rtapi_u32 velx_addr;
+    rtapi_u32 *velx_reg;
+
+    rtapi_u32 vely_addr;
+    rtapi_u32 *vely_reg;
+
+    rtapi_u32 posx_addr;
+    rtapi_u32 *posx_reg;
+
+    rtapi_u32 posy_addr;
+    rtapi_u32 *posy_reg;
+
+    rtapi_u32 mode_addr;
+    rtapi_u32 *mode_reg;
+
+    rtapi_u32 status_addr;
+    rtapi_u32 *status_reg;
+
+    rtapi_u32 command_addr;
+    rtapi_u32 *command_reg;
+
+    rtapi_u32 dpll_rtimer_num_addr;
+    rtapi_u32 *dpll_rtimer_num_reg;
+
+    rtapi_u32 dpll_wtimer_num_addr;
+    rtapi_u32 *dpll_wtimer_num_reg;
+
+
+} hm2_xy2mod_t;
+
 
 //
 // 3-Phase pwmgen
@@ -584,9 +944,9 @@ typedef struct {
     // know if an update-write is needed
     // enable is a little more complicated and is based on the read-back
     // of the fault/enable register
-    float written_deadzone;
+    double written_deadzone;
     int written_faultpolarity;
-    float written_sampletime;
+    double written_sampletime;
 } hm2_tp_pwmgen_instance_t;
 
 typedef struct {
@@ -772,7 +1132,9 @@ typedef struct {
     rtapi_u32 dpll_timer_num_addr;
 } hm2_stepgen_t;
 
-//
+
+
+//galv
 // Buffered SPI transciever
 // 
 
@@ -1047,6 +1409,7 @@ typedef struct {
         struct rtapi_list_head absenc_formats;
         int num_resolvers;
         int num_pwmgens;
+        int num_rcpwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
         int stepgen_width;
@@ -1056,6 +1419,9 @@ typedef struct {
         int num_uarts;
         int num_pktuarts;
         int num_dplls;
+        int num_inmuxs;
+        int num_inms;
+        int num_xy2mods;
         int num_ssrs;
         char sserial_modes[4][8];
         int enable_raw;
@@ -1090,6 +1456,7 @@ typedef struct {
     hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
+    hm2_rcpwmgen_t rcpwmgen;
     hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
@@ -1099,10 +1466,15 @@ typedef struct {
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
+    hm2_inmux_t inmux;
+    hm2_inm_t inm;
+    hm2_xy2mod_t xy2mod;
     hm2_led_t led;
     hm2_ssr_t ssr;
 
     hm2_raw_t *raw;
+
+    bool ddr_initialized;
 
     struct rtapi_list_head list;
 } hostmot2_t;
@@ -1170,7 +1542,8 @@ void hm2_tram_cleanup(hostmot2_t *hm2);
 int hm2_read_pin_descriptors(hostmot2_t *hm2);
 void hm2_configure_pins(hostmot2_t *hm2);
 void hm2_print_pin_usage(hostmot2_t *hm2);
-void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
+void hm2_set_pin_direction_immediate(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
+void hm2_set_pin_direction_at_start(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
 void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source);
 
 
@@ -1187,6 +1560,7 @@ void hm2_ioport_force_write(hostmot2_t *hm2);
 void hm2_ioport_write(hostmot2_t *hm2);
 void hm2_ioport_print_module(hostmot2_t *hm2);
 void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
+void hm2_ioport_initialize_ddr(hostmot2_t *hm2);
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
 void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2);
@@ -1244,6 +1618,17 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
+
+//
+// rcpwmgen functions
+//
+
+int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_rcpwmgen_print_module(hostmot2_t *hm2);
+void hm2_rcpwmgen_cleanup(hostmot2_t *hm2);
+void hm2_rcpwmgen_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_force_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_prepare_tram_write(hostmot2_t *hm2);
 
 
 //
@@ -1309,7 +1694,7 @@ int hm2_allocate_bspi_tram(char* name);
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho,
                         int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
@@ -1352,6 +1737,46 @@ void hm2_dpl_cleanup(hostmot2_t *hm2);
 int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_dpll_write(hostmot2_t *hm2, long period);
+
+
+//
+// InMux functions
+//
+
+int  hm2_inmux_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_inmux_print_module(hostmot2_t *hm2);
+void hm2_inmux_cleanup(hostmot2_t *hm2);
+void hm2_inmux_write(hostmot2_t *hm2);
+void hm2_inmux_force_write(hostmot2_t *hm2);
+void hm2_inmux_prepare_tram_write(hostmot2_t *hm2);
+void hm2_inmux_queue_read(hostmot2_t *hm2);
+void hm2_inmux_process_tram_read(hostmot2_t *hm2);
+
+//
+// InM functions
+//
+
+int  hm2_inm_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_inm_print_module(hostmot2_t *hm2);
+void hm2_inm_cleanup(hostmot2_t *hm2);
+void hm2_inm_write(hostmot2_t *hm2);
+void hm2_inm_force_write(hostmot2_t *hm2);
+void hm2_inm_prepare_tram_write(hostmot2_t *hm2);
+void hm2_inm_queue_read(hostmot2_t *hm2);
+void hm2_inm_process_tram_read(hostmot2_t *hm2);
+
+//
+// xy2mod functions
+//
+
+int  hm2_xy2mod_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_xy2mod_print_module(hostmot2_t *hm2);
+void hm2_xy2mod_cleanup(hostmot2_t *hm2);
+void hm2_xy2mod_write(hostmot2_t *hm2);
+void hm2_xy2mod_force_write(hostmot2_t *hm2);
+void hm2_xy2mod_queue_read(hostmot2_t *hm2);
+void hm2_xy2mod_process_tram_read(hostmot2_t *hm2);
+
 
 // 
 // watchdog functions

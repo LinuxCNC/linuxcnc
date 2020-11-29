@@ -893,25 +893,29 @@ obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
-    hal/drivers/mesa-hostmot2/ioport.o	  \
-    hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/abs_encoder.o\
-	hal/drivers/mesa-hostmot2/resolver.o  \
-    hal/drivers/mesa-hostmot2/pwmgen.o	  \
-    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
-	hal/drivers/mesa-hostmot2/sserial.o   \
-    hal/drivers/mesa-hostmot2/stepgen.o   \
-	hal/drivers/mesa-hostmot2/bspi.o	  \
-	hal/drivers/mesa-hostmot2/uart.o	  \
-    hal/drivers/mesa-hostmot2/pktuart.o   \
-    hal/drivers/mesa-hostmot2/watchdog.o  \
-    hal/drivers/mesa-hostmot2/pins.o	  \
-    hal/drivers/mesa-hostmot2/dpll.o  \
-    hal/drivers/mesa-hostmot2/led.o	  \
-    hal/drivers/mesa-hostmot2/ssr.o       \
-    hal/drivers/mesa-hostmot2/tram.o	  \
-    hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    hal/drivers/mesa-hostmot2/bspi.o	  \
+    hal/drivers/mesa-hostmot2/dpll.o	  \
+    hal/drivers/mesa-hostmot2/encoder.o   \
+    hal/drivers/mesa-hostmot2/inm.o	  \
+    hal/drivers/mesa-hostmot2/inmux.o	  \
+    hal/drivers/mesa-hostmot2/ioport.o	  \
+    hal/drivers/mesa-hostmot2/led.o	  \
+    hal/drivers/mesa-hostmot2/pins.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
+    hal/drivers/mesa-hostmot2/pwmgen.o	  \
+    hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/rcpwmgen.o  \
+    hal/drivers/mesa-hostmot2/resolver.o  \
+    hal/drivers/mesa-hostmot2/sserial.o   \
+    hal/drivers/mesa-hostmot2/ssr.o       \
+    hal/drivers/mesa-hostmot2/stepgen.o   \
+    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
+    hal/drivers/mesa-hostmot2/tram.o	  \
+    hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/watchdog.o  \
+    hal/drivers/mesa-hostmot2/xy2mod.o    \
     $(MATHSTUB)
 hm2_7i90-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i90.o  \
