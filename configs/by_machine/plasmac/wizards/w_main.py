@@ -52,7 +52,7 @@ class main_wiz:
         self.c = linuxcnc.command()
         self.s = linuxcnc.stat()
         self.gui = self.i.find('DISPLAY', 'DISPLAY').lower()
-        self.savePath = self.i.find('DISPLAYaqw', 'PROGRAM_PREFIX') or \
+        self.savePath = self.i.find('DISPLAY', 'PROGRAM_PREFIX') or \
                         '{}/linuxcnc/nc_files'.format(os.path.expanduser("~"))
         self.configFile = '{}_wizards.cfg'.format(self.i.find('EMC', 'MACHINE').lower())
         self.scale = 0.03937000787402 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
