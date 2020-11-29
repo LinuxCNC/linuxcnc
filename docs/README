@@ -29,7 +29,7 @@ Unfortunately, EasyCAD (and AutoCAD) support a number of entities
 that QCAD does not import properly. Including some that were used 
 in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero 
 width lines, and dashed lines. QCAD renders filled circles as 
-hollow, it renders all lines the same width, and dashed  lines as solid,
+hollow, it renders all lines the same width, and dashed lines as solid,
 unless you tell it to do otherwise. All these things make the drawings
 less attractive, but are somewhat  acceptable. However, QCAD doesn't
 import filled arrowheads at all, which seriously hurts the drawings.
@@ -62,7 +62,7 @@ start QCAD
 File→Open→choose DXF file
 (The drawing appears in window.)
 Edit→CurrentDrawingPreferences→Paper
-Set paper size to "Lletter", set orientation to "Landscape" or "Portrait"
+Set paper size to "Letter", set orientation to "Landscape" or "Portrait"
   depending on the aspect ratio of the drawing.
 File→PrintPreview
 click the "fit to page" button on the toolbar (last button on the right at
@@ -104,7 +104,7 @@ Where options are:
 e.g. vec2web drawing.dxf drawing.png
         converts drawing.dxf to a portable network graphic
 
-Iinitial attempts to use vec2web resulted in the graphical parts of the
+Initial attempts to use vec2web resulted in the graphical parts of the
 drawing being converted, but all text was lost. I don't know if vec2web is
 worth spending much more time on, however, it _is_ GPLv2, and it includes a
 library for reading DXF files, which might be worthwhile to the  Linux CNC
@@ -114,7 +114,7 @@ Drawings from QCAD
 -------------------
 Save as .dxf to the same directory as the image
 Set line thickness to 0.50mm
-Exportthe  image as 480 x 480 Resolution Auto .png
+Export the  image as 480 x 480 Resolution Auto .png
 
 
 How to add a new translation language
@@ -139,4 +139,3 @@ Add the 'linuxcnc-doc-$NEWLANG.files.in' file for the new package, probably
 by copying and editing "debian/linuxcnc-doc-en.files.in".
 
 Test build the packages and verify!
-
