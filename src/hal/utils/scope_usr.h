@@ -103,6 +103,7 @@ typedef struct {
     int chan_enabled[16];	/* chans user wants to display */
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
+    int listnum;                /* 0 = pin, 1 = signal, 2 = parameter */
     /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
     /* widgets for chan info window */
@@ -123,8 +124,7 @@ typedef struct {
     GtkWidget *offset_ac;
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
-    GtkWidget *windows[3];	/* scrolled windows for above lists */
-    GtkAdjustment *adjs[3];	/* scrollbars associated with above */
+    GtkWidget *notebook;        /* pointer to the notebook */
 } scope_vert_t;
 
 /* this struct holds control data related to triggering */
