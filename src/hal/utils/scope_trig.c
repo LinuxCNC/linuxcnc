@@ -248,8 +248,8 @@ static void init_trigger_info_window(void)
     trig->level =
 	(GTK_ADJUSTMENT(trig->level_adj))->value / TRIG_LEVEL_RESOLUTION;
     /* connect the slider to a function that re-sets the trigger level */
-    gtk_signal_connect(GTK_OBJECT(trig->level_adj), "value_changed",
-	GTK_SIGNAL_FUNC(level_changed), NULL);
+    g_signal_connect(trig->level_adj, "value_changed",
+	G_CALLBACK(level_changed), NULL);
     gtk_widget_show(trig->level_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
@@ -265,8 +265,8 @@ static void init_trigger_info_window(void)
     trig->position =
 	(GTK_ADJUSTMENT(trig->pos_adj))->value / TRIG_POS_RESOLUTION;
     /* connect the slider to a function that re-sets trigger position */
-    gtk_signal_connect(GTK_OBJECT(trig->pos_adj), "value_changed",
-	GTK_SIGNAL_FUNC(pos_changed), NULL);
+    g_signal_connect(trig->pos_adj, "value_changed",
+	G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(trig->pos_slider);
     /* level display */
     gtk_hseparator_new_in_box(ctrl_usr->trig_info_win, 3);
@@ -280,16 +280,16 @@ static void init_trigger_info_window(void)
     trig->edge_label = (GTK_BIN(trig->edge_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->edge_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(trig->edge_button), "clicked",
-	GTK_SIGNAL_FUNC(edge_button_clicked), NULL);
+    g_signal_connect(trig->edge_button, "clicked",
+	G_CALLBACK(edge_button_clicked), NULL);
     gtk_widget_show(trig->edge_button);
     /* define a button to set the trigger source */
     trig->source_button = gtk_button_new_with_label(_("Source\nNone"));
     trig->source_label = (GTK_BIN(trig->source_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->source_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(trig->source_button), "clicked",
-	GTK_SIGNAL_FUNC(source_button_clicked), NULL);
+    g_signal_connect(trig->source_button, "clicked",
+	G_CALLBACK(source_button_clicked), NULL);
     gtk_widget_show(trig->source_button);
 }
 
@@ -354,14 +354,14 @@ static void dialog_select_trigger_source(void)
         mark_selected_row(trig_list, ctrl_shm->trig_chan - 1);
     }
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(dialog.window, "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* make Cancel button */
     button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button2), &dialog);
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));

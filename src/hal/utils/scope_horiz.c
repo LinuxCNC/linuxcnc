@@ -145,8 +145,8 @@ static void init_horiz_window(void)
     /* store the current value of the slider */
     horiz->zoom_setting = GTK_ADJUSTMENT(horiz->zoom_adj)->value;
     /* connect the slider to a function that re-calcs horizontal scaling */
-    gtk_signal_connect(GTK_OBJECT(horiz->zoom_adj), "value_changed",
-	GTK_SIGNAL_FUNC(zoom_changed), NULL);
+    g_signal_connect(horiz->zoom_adj, "value_changed",
+	G_CALLBACK(zoom_changed), NULL);
     gtk_widget_show(horiz->zoom_slider);
     /* add a slider for position control */
     horiz->pos_adj = gtk_adjustment_new(500, 0, 1000, 1, 1, 0);
@@ -157,8 +157,8 @@ static void init_horiz_window(void)
     /* store the current value of the slider */
     horiz->pos_setting = GTK_ADJUSTMENT(horiz->pos_adj)->value / 1000.0;
     /* connect the slider to a function that re-calcs horizontal position */
-    gtk_signal_connect(GTK_OBJECT(horiz->pos_adj), "value_changed",
-	GTK_SIGNAL_FUNC(pos_changed), NULL);
+    g_signal_connect(horiz->pos_adj, "value_changed",
+	G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(horiz->pos_slider);
     /* third column - scale display */
     horiz->scale_label = gtk_label_new_in_box("----", hbox, FALSE, FALSE, 5);
@@ -172,8 +172,8 @@ static void init_horiz_window(void)
 	"99999 Samples\nat 99.9 MHz");
     gtk_box_pack_start(GTK_BOX(hbox), horiz->record_button, FALSE, FALSE, 0);
     /* activate the acquire menu if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(horiz->record_button), "clicked",
-	GTK_SIGNAL_FUNC(acquire_popup), NULL);
+    g_signal_connect(horiz->record_button, "clicked",
+	G_CALLBACK(acquire_popup), NULL);
     gtk_widget_show(horiz->record_button);
     /* lower region, graphical status display */
     gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
@@ -186,12 +186,12 @@ static void init_horiz_window(void)
 #else
     horiz->disp_area = gtk_drawing_area_new();
 #endif
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_press_event", 
-        GTK_SIGNAL_FUNC(horiz_press), 0);
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_release_event", 
-        GTK_SIGNAL_FUNC(horiz_release), 0);
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "motion_notify_event", 
-        GTK_SIGNAL_FUNC(horiz_motion), 0);
+    g_signal_connect(horiz->disp_area, "button_press_event",
+        G_CALLBACK(horiz_press), 0);
+    g_signal_connect(horiz->disp_area, "button_release_event",
+        G_CALLBACK(horiz_release), 0);
+    g_signal_connect(horiz->disp_area, "motion_notify_event",
+        G_CALLBACK(horiz_motion), 0);
     gtk_widget_set_events(GTK_WIDGET(horiz->disp_area),
         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
         | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
@@ -618,8 +618,8 @@ static void dialog_realtime_not_linked(void)
     gtk_box_pack_start(GTK_BOX(hbox), horiz->mult_spinbutton, FALSE, TRUE, 0);
     gtk_widget_show(horiz->mult_spinbutton);
     /* connect the multiplier spinbutton to a function */
-    gtk_signal_connect(GTK_OBJECT(horiz->mult_adj), "value_changed",
-	GTK_SIGNAL_FUNC(mult_changed), NULL);
+    g_signal_connect(horiz->mult_adj, "value_changed",
+	G_CALLBACK(mult_changed), NULL);
 
     /* a separator */
     gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
@@ -672,16 +672,16 @@ static void dialog_realtime_not_linked(void)
     /* set the default button */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttons[n]), TRUE);
     /* set up callbacks for the buttons */
-    gtk_signal_connect(GTK_OBJECT(buttons[0]), "clicked",
-	GTK_SIGNAL_FUNC(rec_len_button), (gpointer) 1);
-    gtk_signal_connect(GTK_OBJECT(buttons[1]), "clicked",
-	GTK_SIGNAL_FUNC(rec_len_button), (gpointer) 2);
-    gtk_signal_connect(GTK_OBJECT(buttons[2]), "clicked",
-	GTK_SIGNAL_FUNC(rec_len_button), (gpointer) 4);
-    gtk_signal_connect(GTK_OBJECT(buttons[3]), "clicked",
-	GTK_SIGNAL_FUNC(rec_len_button), (gpointer) 8);
-    gtk_signal_connect(GTK_OBJECT(buttons[4]), "clicked",
-	GTK_SIGNAL_FUNC(rec_len_button), (gpointer) 16);
+    g_signal_connect(buttons[0], "clicked",
+	G_CALLBACK(rec_len_button), (gpointer) 1);
+    g_signal_connect(buttons[1], "clicked",
+	G_CALLBACK(rec_len_button), (gpointer) 2);
+    g_signal_connect(buttons[2], "clicked",
+	G_CALLBACK(rec_len_button), (gpointer) 4);
+    g_signal_connect(buttons[3], "clicked",
+	G_CALLBACK(rec_len_button), (gpointer) 8);
+    g_signal_connect(buttons[4], "clicked",
+	G_CALLBACK(rec_len_button), (gpointer) 16);
 
     /* was a thread previously used? */
     if (sel_row > -1) {
@@ -689,19 +689,19 @@ static void dialog_realtime_not_linked(void)
         mark_selected_row(horiz->thread_list, sel_row);
     }
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(dialog.window, "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
     button = gtk_button_new_with_label(_("OK"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button1), &dialog);
     button = gtk_button_new_with_label(_("Quit"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button2), &dialog);
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));

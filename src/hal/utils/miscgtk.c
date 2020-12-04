@@ -244,8 +244,8 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
 	gtk_misc_set_padding(GTK_MISC(label), 15, 15);
     }
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(dialog.window, "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* transfer button name pointers to an array for looping */
     button_name_array[0] = button1;
     button_name_array[1] = button2;
@@ -263,8 +263,8 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
 	    button = gtk_button_new_with_label(button_name_array[n]);
 	    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->
 		    action_area), button, TRUE, TRUE, 4);
-	    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		GTK_SIGNAL_FUNC(button_funct_array[n]), &dialog);
+	    g_signal_connect(button, "clicked",
+		G_CALLBACK(button_funct_array[n]), &dialog);
 	}
     }
     if (parent != NULL) {

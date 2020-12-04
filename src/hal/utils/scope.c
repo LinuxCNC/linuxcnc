@@ -190,10 +190,10 @@ int main(int argc, gchar * argv[])
     /* set main window */
     define_scope_windows();
     /* this makes the application exit when the window is closed */
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "destroy",
-	GTK_SIGNAL_FUNC(main_window_closed), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "focus-in-event",
-	GTK_SIGNAL_FUNC(set_focus), NULL);
+    g_signal_connect(ctrl_usr->main_win, "destroy",
+	G_CALLBACK(main_window_closed), NULL);
+    g_signal_connect(ctrl_usr->main_win, "focus-in-event",
+	G_CALLBACK(set_focus), NULL);
     /* define menu windows */
     /* do next level of init */
     init_horiz();

@@ -353,16 +353,16 @@ static void init_display_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), disp->drawing, TRUE,
 	TRUE, 0);
     /* hook up a function to handle expose events */
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "expose_event",
-	GTK_SIGNAL_FUNC(handle_window_expose), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_release_event",
-        GTK_SIGNAL_FUNC(handle_release), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_press_event",
-        GTK_SIGNAL_FUNC(handle_click), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
-        GTK_SIGNAL_FUNC(handle_motion), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
-                GTK_SIGNAL_FUNC(handle_scroll), NULL);
+    g_signal_connect(disp->drawing, "expose_event",
+	G_CALLBACK(handle_window_expose), NULL);
+    g_signal_connect(disp->drawing, "button_release_event",
+        G_CALLBACK(handle_release), NULL);
+    g_signal_connect(disp->drawing, "button_press_event",
+        G_CALLBACK(handle_click), NULL);
+    g_signal_connect(disp->drawing, "motion_notify_event",
+        G_CALLBACK(handle_motion), NULL);
+    g_signal_connect(disp->drawing, "scroll_event",
+                G_CALLBACK(handle_scroll), NULL);
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK

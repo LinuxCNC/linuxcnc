@@ -561,8 +561,8 @@ static void init_chan_sel_window(void)
 	    TRUE, 0);
 	gtk_widget_show(button);
 	/* hook a callback function to it */
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	    GTK_SIGNAL_FUNC(chan_sel_button), (gpointer) n + 1);
+	g_signal_connect(button, "clicked",
+	    G_CALLBACK(chan_sel_button), (gpointer) n + 1);
 	/* save the button pointer */
 	vert->chan_sel_buttons[n] = button;
     }
@@ -594,8 +594,8 @@ static void init_chan_info_window(void)
     dummyname[n] = '\0';
     gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label), dummyname);
     /* activate the source selection dialog if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(vert->source_name_button), "clicked",
-	GTK_SIGNAL_FUNC(change_source_button), NULL);
+    g_signal_connect(vert->source_name_button, "clicked",
+	G_CALLBACK(change_source_button), NULL);
     gtk_widget_show(vert->source_name_button);
 
 
@@ -628,8 +628,8 @@ static void init_vert_info_window(void)
     gtk_scale_set_draw_value(GTK_SCALE(vert->scale_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->scale_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical scale */
-    gtk_signal_connect(GTK_OBJECT(vert->scale_adj), "value_changed",
-	GTK_SIGNAL_FUNC(scale_changed), NULL);
+    g_signal_connect(vert->scale_adj, "value_changed",
+	G_CALLBACK(scale_changed), NULL);
     gtk_widget_show(vert->scale_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
@@ -642,8 +642,8 @@ static void init_vert_info_window(void)
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->pos_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical pos */
-    gtk_signal_connect(GTK_OBJECT(vert->pos_adj), "value_changed",
-	GTK_SIGNAL_FUNC(pos_changed), NULL);
+    g_signal_connect(vert->pos_adj, "value_changed",
+	G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(vert->pos_slider);
     /* Scale display */
     gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
@@ -656,16 +656,16 @@ static void init_vert_info_window(void)
     vert->offset_label = (GTK_BIN(vert->offset_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(vert->offset_button), "clicked",
-	GTK_SIGNAL_FUNC(offset_button), NULL);
+    g_signal_connect(vert->offset_button, "clicked",
+	G_CALLBACK(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
     /* a button to turn off the channel */
     button = gtk_button_new_with_label(_("Chan Off"));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
 	0);
     /* turn off the channel if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(channel_off_button), NULL);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(channel_off_button), NULL);
     gtk_widget_show(button);
 }
 
@@ -739,8 +739,8 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
         vert->offset_ac, FALSE, TRUE, 0);
     /* react to changes to the checkbox */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_ac), "toggled",
-	GTK_SIGNAL_FUNC(offset_changed), &data);
+    g_signal_connect(vert->offset_ac, "toggled",
+	G_CALLBACK(offset_changed), &data);
     /* the entry */
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
@@ -756,25 +756,25 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
     gtk_widget_show(vert->offset_entry);
     /* capture entry data to the buffer whenever the user types */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
-	GTK_SIGNAL_FUNC(offset_changed), data.buf);
+    g_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
+	G_CALLBACK(offset_changed), data.buf);
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(GTK_OBJECT(dialog.window), "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
     button = gtk_button_new_with_label(_("OK"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button1), &dialog);
     /* hit the "OK" button if the user hits enter */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "activate",
-	GTK_SIGNAL_FUNC(offset_activated), button);
+    g_signal_connect(vert->offset_entry, "activate",
+	G_CALLBACK(offset_activated), button);
     button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button2), &dialog);
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));
