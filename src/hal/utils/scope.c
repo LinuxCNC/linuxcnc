@@ -211,7 +211,7 @@ int main(int argc, gchar * argv[])
     /* read the saved config file */
     read_config_file(ifilename);
     /* arrange for periodic call of heartbeat() */
-    gtk_timeout_add(100, heartbeat, NULL);
+    g_timeout_add(100, heartbeat, NULL);
     /* enter the main loop */
     gtk_main();
     write_config_file(ofilename);

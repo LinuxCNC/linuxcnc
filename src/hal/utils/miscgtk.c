@@ -188,12 +188,12 @@ void gtk_label_set_text_if(GtkWidget * label, const gchar * text)
 void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
 {
     GtkRequisition req;
-    gchar *current_text;
+    const gchar *current_text;
     gint text_len;
     gchar *text_buf;
 
     /* get a pointer to the current text */
-    gtk_label_get(label, &current_text);
+    current_text = gtk_label_get_text(label);
     /* how long is it */
     text_len = strlen(current_text);
     /* allocate memory to save it */

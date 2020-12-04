@@ -749,9 +749,9 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
     /* point at first char */
-    gtk_entry_set_position(GTK_ENTRY(vert->offset_entry), 0);
+    gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
     /* select all chars, so if the user types the original value goes away */
-    gtk_entry_select_region(GTK_ENTRY(vert->offset_entry), 0, strlen(data.buf));
+    gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
     gtk_widget_show(vert->offset_entry);
@@ -802,7 +802,7 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     /* maybe user hit "ac coupled" button" */
     data->ac_coupled =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
-    gtk_entry_set_editable(GTK_ENTRY(ctrl_usr->vert.offset_entry),
+    gtk_editable_set_editable(GTK_EDITABLE(ctrl_usr->vert.offset_entry),
                 !data->ac_coupled);
 
     /* maybe user typed something, save it in the buffer */

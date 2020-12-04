@@ -165,7 +165,7 @@ typedef struct {
     int end_sample;		/* last displayable sample */
     /* widgets */
     GtkWidget *drawing;		/* drawing area for display */
-    GtkTooltips *tip;		/* drawing area for display */
+    GtkTooltip *tip;		/* drawing area for display */
     /* drawing objects (GDK) */
     GdkDrawable *win;		/* the window */
     GdkColormap *map;		/* the colormap for the window */
