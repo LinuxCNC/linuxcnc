@@ -166,7 +166,7 @@ c.mode(linuxcnc.MODE_MDI)
 
 verify_status_buffer(state='init', tool_in_spindle=-1)
 verify_io_pins(state='init', tool_number=-1, tool_prep_number=0, tool_prep_pocket=0)
-verify_interp_vars(state='init', current_tool=-1, current_pocket=2, selected_tool=0, selected_pocket=-1)
+verify_interp_vars(state='init', current_tool=-1, current_pocket=-1, selected_tool=0, selected_pocket=-1)
 
 
 #
@@ -181,7 +181,7 @@ h['tool-prepared'] = False
 
 verify_status_buffer(state='after T1', tool_in_spindle=-1)
 verify_io_pins(state='after T1', tool_number=-1, tool_prep_number=1, tool_prep_pocket=1)
-verify_interp_vars(state='after T1', current_tool=-1, current_pocket=2, selected_tool=1, selected_pocket=1)
+verify_interp_vars(state='after T1', current_tool=-1, current_pocket=-1, selected_tool=1, selected_pocket=1)
 
 
 #

@@ -2976,6 +2976,8 @@ int GET_EXTERNAL_TOOL_SLOT()
     int toolno = emcStatus->io.tool.toolInSpindle;
     int pocket;
 
+    if (toolno == -1) {return -1;} // detect request for invalid tool
+
     for (pocket = 1; pocket < CANON_POCKETS_MAX; pocket++) {
         if (emcStatus->io.tool.toolTable[pocket].toolno == toolno) {
             return pocket;
