@@ -1,0 +1,125 @@
+[NOTIFY_OPTIONS]
+notify_start_greeting = False
+notify_start_title = Welcome
+notify_start_detail = This option can be changed in the preference file
+notify_start_timeout = 5
+
+[DIALOG_OPTIONS]
+EntryDialog_play_sound = True
+EntryDialog_sound_type = READY
+fileDialog_play_sound = True
+fileDialog_sound_type = READY
+CalculatorDialog_play_sound = True
+CalculatorDialog_sound_type = READY
+
+[BOOK_KEEPING]
+last_loaded_directory = /home/chris/qtplasmac/plasmac
+RecentPath_0 = /home/chris/qtplasmac/plasmac/metric_startup.ngc
+style_QSS_Path = DEFAULT
+
+[SCREEN_OPTIONS]
+overlay_play_sound = False
+overlay_sound_type = RING
+catch_errors = True
+desktop_notify = True
+shutdown_check = False
+sound_player_on = False
+mainwindow_geometry = 3 60 1006 702
+
+[MCH_MSG_OPTIONS]
+mchnMsg_play_sound = True
+mchnMsg_speak_errors = True
+mchnMsg_sound_type = RING
+
+[USR_MSG_OPTIONS]
+usermsg_play_sound = True
+userMsg_sound_type = RING
+userMsg_use_focusOverlay = True
+
+[SHUTDOWN_OPTIONS]
+shutdown_play_sound = True
+shutdown_alert_sound_type = READY
+shutdown_exit_sound_type = LOGOUT
+shutdown_msg_title = Do you want to Shutdown now?
+shutdown_msg_detail = 
+
+[GUI_OPTIONS]
+Use keyboard shortcuts = False
+Use soft keyboard = False
+Preview cone size = 1.0
+Preview grid size = 100.0
+
+[ENABLE_OPTIONS]
+THC enable = True
+Corner lock enable = True
+Kerf cross enable = True
+Use auto volts = True
+Ohmic probe enable = False
+
+[PLASMA_PARAMETERS]
+Setup Feed Rate = 2880.0
+Arc Fail Timeout = 3
+Arc OK High = 99999
+Arc OK Low = 60
+Arc Maximum Starts = 3
+Arc Voltage Offset = 0
+Arc Voltage Scale = 1
+Velocity Anti Dive Threshold = 90
+Float Switch Travel = 1.5
+Height Per Volt = 0.1
+Void Sense Override = 100
+Ohmic Maximum Attempts = 0
+Ohmic Probe Offset = 0
+Pid P Gain = 10
+Pid D Gain = 0
+Pid I Gain = 0
+Probe Feed Rate = 300.0
+Probe Start Height = 25.0
+Arc Restart Delay = 0
+Safe Height = 25.0
+Scribe Arming Delay = 0
+Scribe On Delay = 0
+Skip IHS Distance = 0
+Spotting Threshold = 0
+Spotting Time = 0
+THC Delay = 0.5
+THC Threshold = 1
+
+[DEFAULT MATERIAL]
+Kerf width = 1.0
+Pierce height = 3.0
+Pierce delay = 0
+Puddle jump height = 0
+Puddle jump delay = 0
+Cut height = 1.0
+Cut feed rate = 4000.0
+Cut amps = 45
+Cut volts = 99
+Pause at end = 0
+Gas pressure = 0
+Cut mode = 1
+
+[DIALOG_GEOMETRY]
+LncMessage-geometry = 0 0 100 30
+
+[CONVERSATIONAL]
+Preamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Postamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
+Origin = False
+Leadin = 0
+Leadout = 0
+Hole diameter = 32
+Hole speed = 60
+Grid Size = 0
+
+[COLOR_OPTIONS]
+Foreground = #ffee06
+Highlight = #ffee06
+LED = #ffee06
+Background = #16160e
+Background Alt = #26261e
+Frames = #ffee06
+Estop = #ff0000
+Disabled = #b0b0b0
+Preview = #000000
+
