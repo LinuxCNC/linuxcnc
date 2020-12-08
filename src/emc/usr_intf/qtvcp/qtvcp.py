@@ -37,15 +37,15 @@ options = [ Option( '-c', dest='component', metavar='NAME'
           , Option( '-d', action='store_true', dest='debug', default=False
                   , help="Enable debug output")
           , Option( '-g', dest='geometry', default="", help="""Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
-Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
-use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position""")
+example: -g 200x400+0+100. Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
+use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.""")
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute hal statements from FILE with halcmd after the component is set up and ready")
-          , Option( '-m', action='store_true', dest='maximum', help="Force panel window to maxumize")
+          , Option( '-m', action='store_true', dest='maximum', help="Force panel window to maximize")
           , Option( '-f', action='store_true', dest='fullscreen', help="Force panel window to fullscreen")
           , Option( '-t', dest='theme', default="", help="Set QT style. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
-                  , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+                  , help="Reparent Qtvcp into an existing window XID instead of creating a new top level window")
           , Option( '--push_xid', action='store_true', dest='push_XID'
                   , help="reparent window into a plug add push the plug xid number to standardout")
           , Option( '-u', dest='usermod', default="", help='file path of user defined handler file')
@@ -128,7 +128,7 @@ class QTVCP:
                     message = ("""
 Qtvcp encountered an error; No handler file was found.
 Would you like to copy a basic handler file into your config folder?
-This handker file will allow display of your screen and basic keyboard jogging.
+This handler file will allow display of your screen and basic keyboard jogging.
 
 The new handlerfile's path will be:
 %s
@@ -224,7 +224,7 @@ Pressing cancel will close linuxcnc.""" % target)
             res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
             if res:
                 print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
-                sys.exit(res)
+                self.shutdown()
 
         # User components are set up so report that we are ready
         LOG.debug('Set HAL ready')
@@ -251,10 +251,10 @@ Pressing cancel will close linuxcnc.""" % target)
                 j =  opts.geometry.partition("+")
                 pos = j[2].partition("+")
                 window.move( int(pos[0]), int(pos[2]) )
-            except:
-                LOG.critical("With window position data")
-                parser.print_usage()
-                sys.exit(1)
+            except Exception as e:
+                LOG.critical("With -g window position data:\n {}".format(e))
+                parser.print_help()
+                self.shutdown()
         if "x" in opts.geometry:
             LOG.debug('-g option: resizing')
             try:
@@ -262,12 +262,12 @@ Pressing cancel will close linuxcnc.""" % target)
                     j =  opts.geometry.partition("+")
                     t = j[0].partition("x")
                 else:
-                    t = window_geometry.partition("x")
+                    t = opts.geometry.partition("x")
                 window.resize( int(t[0]), int(t[2]) )
-            except:
-                LOG.critical("With window resize data")
-                parser.print_usage()
-                sys.exit(1)
+            except Exception as e:
+                LOG.critical("With -g window resize data:\n {}".format(e))
+                parser.print_help()
+                self.shutdown()
 
         # always on top
         if opts.always_top:
