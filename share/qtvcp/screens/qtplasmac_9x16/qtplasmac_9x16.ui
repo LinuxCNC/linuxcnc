@@ -165,7 +165,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -13645,13 +13645,13 @@ HOME ALL</string>
                        <number>2</number>
                       </property>
                       <property name="minimum">
-                       <double>0.100000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>1000.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>10.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                      </widget>
                     </item>

@@ -1,5 +1,4 @@
-# do not change the contents of this file as it will be overwiten by updates
-# make custom changes in <machinename>_connections.hal or postgui.hal
+# common connections for the plasmac component
 
 # PLASMAC COMPONENT ##########################################################
 loadrt  plasmac

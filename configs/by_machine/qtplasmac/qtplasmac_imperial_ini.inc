@@ -69,7 +69,7 @@ TWOPASS                 = ON
 # the base machine
 HALFILE                 = machine.tcl
 # the plasmac component connections
-HALFILE                 = ./common/plasmac.tcl
+HALFILE                 = plasmac.tcl
 # the plasmac machine connections
 HALFILE                 = qtplasmac_connections.hal
 # custom postgui hal
