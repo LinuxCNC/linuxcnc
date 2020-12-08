@@ -2535,12 +2535,10 @@ class HandlerClass:
 
     def set_color_styles(self):
 # create stylesheet .qss file from template
-        #style_template = '{}/qtplasmac.style'.format(self.PATHS.CONFIGPATH)
-        style_template = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
-        #style_sheet = '{}/qtplasmac.qss'.format(self.PATHS.CONFIGPATH)
-        style_sheet = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.qss')
-        with open(style_template, 'r') as inFile:
-            with open(style_sheet, 'w') as outFile:
+        styleTemplateFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
+        styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')
+        with open(styleTemplateFile, 'r') as inFile:
+            with open(styleSheetFile, 'w') as outFile:
                 for line in inFile:
                     if 'foregnd' in line:
                         outFile.write(line.replace('foregnd', self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
@@ -2564,7 +2562,7 @@ class HandlerClass:
                         outFile.write(line)
 # apply the new stylesheet
         self.w.setStyleSheet('')
-        with open(style_sheet, 'r') as set_style:
+        with open(styleSheetFile, 'r') as set_style:
            self.w.setStyleSheet(set_style.read())
 # set colors
         self.foreColor = QColor(self.w.color_foregrnd.palette().color(QPalette.Background)).name()

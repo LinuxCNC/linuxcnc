@@ -8683,7 +8683,7 @@ HOME ALL</string>
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
-                           <height>400</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="frameShape">
@@ -8692,6 +8692,26 @@ HOME ALL</string>
                          <property name="frameShadow">
                           <enum>QFrame::Plain</enum>
                          </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_56">
+                          <property name="spacing">
+                           <number>4</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>4</number>
+                          </property>
+                          <item>
+                           <layout class="QGridLayout" name="entries"/>
+                          </item>
+                         </layout>
                         </widget>
                        </item>
                        <item>
@@ -8715,7 +8735,7 @@ HOME ALL</string>
                          <property name="frameShadow">
                           <enum>QFrame::Plain</enum>
                          </property>
-                         <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="1,1,1,1,1">
+                         <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="1,1,1,1">
                           <property name="leftMargin">
                            <number>0</number>
                           </property>
@@ -8825,31 +8845,6 @@ HOME ALL</string>
                             </property>
                             <property name="text">
                              <string>SEND</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="PushButton" name="conv_cancel">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>90</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>90</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>CANCEL</string>
                             </property>
                            </widget>
                           </item>
@@ -14424,67 +14419,6 @@ HOME ALL</string>
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="stuff_tab">
-          <attribute name="title">
-           <string>stuff</string>
-          </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <property name="spacing">
-            <number>2</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>4</number>
-           </property>
-           <item>
-            <spacer name="horizontalSpacer_12">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>242</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>241</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_11">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>242</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
         </widget>
        </item>
       </layout>
@@ -14532,26 +14466,15 @@ HOME ALL</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
-   <class>CheckBox</class>
-   <extends>QCheckBox</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
-   <class>GeneralHALOutput</class>
+   <class>GCodeGraphics</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_output</header>
+   <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>GeneralHALInput</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_input</header>
-   <container>1</container>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
   </customwidget>
   <customwidget>
    <class>AxisToolButton</class>
@@ -14559,68 +14482,14 @@ HOME ALL</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
-  </customwidget>
-  <customwidget>
-   <class>DoubleScale</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
    <class>LED</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>HALLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.hal_label</header>
-  </customwidget>
-  <customwidget>
-   <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>MDIHistory</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.mdi_history</header>
-  </customwidget>
-  <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GcodeDisplay</class>
-   <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
   <customwidget>
    <class>ScreenOptions</class>
@@ -14629,9 +14498,9 @@ HOME ALL</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>CamView</class>
@@ -14639,9 +14508,74 @@ HOME ALL</string>
    <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
   <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>GeneralHALInput</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.general_hal_input</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
+   <class>GcodeDisplay</class>
+   <extends>QFrame</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>SystemToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MDIHistory</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.mdi_history</header>
+  </customwidget>
+  <customwidget>
+   <class>GeneralHALOutput</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.general_hal_output</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleScale</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
   </customwidget>
  </customwidgets>
  <resources>
