@@ -14,9 +14,6 @@
 # Then connect the plasmac:thc-enable signal to your switch:
 # net plasmac:thc-enable your.switch-pin
 
-source qtplasmac.tcl
-
-
 # setp plasmac.setup-feed-rate 2000
 # setp plasmac.probe-feed-rate 200
 # setp plasmac.pierce-height 3
@@ -31,15 +28,13 @@ source qtplasmac.tcl
 
 
 
-# sim panel connections
+# simulator panel connections
 loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui
-
-net plasmac:torch-on                                           => qtplasmac_sim.torch_on
-
-net test:arc-voltage-in       qtplasmac_sim.arc_voltage_out-f  =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in
-net test:arc-ok               qtplasmac_sim.arc_ok             =>  db_arc-ok.in
-net test:ohmic                qtplasmac_sim.sensor_ohmic       =>  db_ohmic.in
-net test:float                qtplasmac_sim.sensor_float       =>  db_float.in
-net test:breakaway            qtplasmac_sim.sensor_breakaway   =>  db_breakaway.in
-net test:move-up              qtplasmac_sim.move_up            =>  plasmac.move-up
-net test:move-down            qtplasmac_sim.move_down          =>  plasmac.move-down
+net plasmac:torch-on                                           =>  qtplasmac_sim.torch_on
+net sim:arc-voltage-in       qtplasmac_sim.arc_voltage_out-f  =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in
+net sim:arc-ok               qtplasmac_sim.arc_ok             =>  db_arc-ok.in
+net sim:ohmic                qtplasmac_sim.sensor_ohmic       =>  db_ohmic.in
+net sim:float                qtplasmac_sim.sensor_float       =>  db_float.in
+net sim:breakaway            qtplasmac_sim.sensor_breakaway   =>  db_breakaway.in
+net sim:move-up              qtplasmac_sim.move_up            =>  plasmac.move-up
+net sim:move-down            qtplasmac_sim.move_down          =>  plasmac.move-down

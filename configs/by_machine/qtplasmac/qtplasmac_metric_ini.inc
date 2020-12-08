@@ -1,37 +1,6 @@
 
-[DISPLAY]
-# 9:16 #####
-DISPLAY                 = qtvcp  qtplasmac
-# 4:3 #####
-#DISPLAY                 = qtvcp -c qtplasmac qtplasmac_4x3
-# 16:9 #####
-#DISPLAY                 = qtvcp -c qtplasmac qtplasmac_9x16
-
-POSITION_OFFSET         = RELATIVE
-POSITION_FEEDBACK       = ACTUAL
-MAX_FEED_OVERRIDE       = 1.5
-DEFAULT_LINEAR_VELOCITY = 100
-MAX_LINEAR_VELOCITY     = 350
-INCREMENTS              = 10, 1, .1, .01, .001
-MDI_HISTORY_FILE        = metric_mdi_history.txt
-TOOL_EDITOR             = tooledit x y
-#PROGRAM_PREFIX          = 
-
-# temporary for testing
-[APPLICATIONS]
-DELAY                   = 3
-# TODO *** sort this out
-#APP                     = qtplasmac/sim/sim.py
-#APP                     = halshow my.halshow
-#APP                     = halscope my.halscope
-
-# required
 [PLASMAC]
-
 # sets the operating mode, if not specified the default is 0
-# 0 = use arc-voltage-in for arcOK and THC (no need to connect arc-ok-in, move-up-in and move-down-in)
-# 1 = use arc-ok-in for arcOK and arc-voltage-in for THC (no need to connect move-up-in and move-down-in)
-# 2 = use arc-ok-in for arcOK and move-down-in + move-up-in for THC (no need to connect arc-voltage-in)
 MODE                    = 0
 
 # TODO ***
@@ -41,10 +10,6 @@ CONFIG_DISABLE          = 0
 # TODO ***
 # percentage of cut-feed-rate used for paused motion speed
 PAUSED_MOTION_SPEED     = 50
-
-# TODO ***
-# torch on time when manual pulse requested
-TORCH_PULSE_TIME        = 1.0
 
 # for Powermax communications
 #PM_PORT                 = /dev/ttyUSB0
@@ -84,43 +49,37 @@ BUTTON_6_CODE           = single-cut
 #BUTTON_6_CODE           = laser 5.37 10.12
 
 # this section required as is for removing z axis moves from the loaded gcode file
-# this is optional and if used then plasmac_gcode.py needs to be set as executable
 [FILTER]
 PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
-ngc                     = ./plasmac/plasmac_gcode.py
-nc                      = ./plasmac/plasmac_gcode.py
-tap                     = ./plasmac/plasmac_gcode.py
+ngc                     = ./common/plasmac_gcode.py
+nc                      = ./common/plasmac_gcode.py
+tap                     = ./common/plasmac_gcode.py
 
 [RS274NGC]
 RS274NGC_STARTUP_CODE   = o<metric_startup> call
 PARAMETER_FILE          = metric_parameters.txt
 
-# required, ./ must be in this path
-SUBROUTINE_PATH         = ./:./plasmac:../../nc_files/subroutines
-
-# required for reading ini and hal variables
-FEATURES                = 12
+SUBROUTINE_PATH         = ./:./common:../../nc_files/subroutines
 
 # required for our material change
-USER_M_PATH = ./:./plasmac
+USER_M_PATH             = ./:./common
 
 [HAL]
-# required
-TWOPASS = ON
+TWOPASS                 = ON
 # the base machine
-HALFILE = machine.tcl
+HALFILE                 = machine.tcl
 # the plasmac component connections
-HALFILE = plasmac/plasmac.tcl
+HALFILE                 = ./common/plasmac.tcl
 # the plasmac machine connections
-HALFILE = qtplasmac_connections.hal
+HALFILE                 = qtplasmac_connections.hal
 # custom postgui hal
-POSTGUI_HALFILE = postgui.hal
+POSTGUI_HALFILE         = postgui.hal
 # required
-HALUI = halui
+HALUI                   = halui
 
 [EMC]
 VERSION                 = 1.1
-MACHINE = qtplasmac
+MACHINE                 = qtplasmac-4x3-metric
 DEBUG                   = 0
 
 [EMCIO]
@@ -138,17 +97,12 @@ BASE_PERIOD             = 32000
 SERVO_PERIOD            = 1000000
 
 [KINS]
-#KINEMATICS              = trivkins coordinates=xyyz kinstype=both
 KINEMATICS              = trivkins coordinates=xyyz
 JOINTS                  = 4
-#KINEMATICS              = trivkins coordinates=xyyza kinstype=both
-#KINEMATICS              = trivkins coordinates=xyyza
-#JOINTS                  = 5
-
+ 
 [TRAJ]
-SPINDLES = 3
+SPINDLES                = 3
 COORDINATES             = XYYZ
-#COORDINATES             = XYYZA
 LINEAR_UNITS            = mm
 MAX_LINEAR_VELOCITY     = 350
 DEFAULT_LINEAR_VELOCITY = 100
@@ -159,11 +113,11 @@ POSITION_FILE           = metric_position.txt
 MIN_LIMIT               = -0.001
 MAX_LIMIT               = 612.001
 # set to double the value in the corresponding joint
-MAX_VELOCITY = 500.0
+MAX_VELOCITY            = 500.0
 # set to double the value in the corresponding joint
-MAX_ACCELERATION = 5000.0
+MAX_ACCELERATION        = 5000.0
 # shares the above two equally between the joint and the offset
-OFFSET_AV_RATIO = 0.5
+OFFSET_AV_RATIO         = 0.5
 
 [JOINT_0]
 MIN_LIMIT               = -0.001
@@ -178,7 +132,7 @@ HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = 1
 HOME_USE_INDEX          = NO
 STEPGEN_MAXACCEL        = 3000
-SCALE                   = -41.666667
+SCALE                   = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -188,11 +142,11 @@ DIRHOLD                 = 5000
 MIN_LIMIT               = -0.001
 MAX_LIMIT               = 612.001
 # set to double the value in the corresponding joint
-MAX_VELOCITY = 500.0
+MAX_VELOCITY            = 500.0
 # set to double the value in the corresponding joint
-MAX_ACCELERATION = 5000.0
+MAX_ACCELERATION        = 5000.0
 # shares the above two equally between the joint and the offset
-OFFSET_AV_RATIO = 0.5
+OFFSET_AV_RATIO         = 0.5
 
 [JOINT_1]
 MIN_LIMIT               = -0.001
@@ -207,7 +161,7 @@ HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
 STEPGEN_MAXACCEL        = 3000
-SCALE                   = 41.666667
+SCALE                   = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -226,7 +180,7 @@ HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
 STEPGEN_MAXACCEL        = 3000
-SCALE                   = 41.666667
+SCALE                   = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -236,11 +190,11 @@ DIRHOLD                 = 5000
 MIN_LIMIT               = -0.001
 MAX_LIMIT               = 70.001
 # set to double the value in the corresponding joint
-MAX_VELOCITY = 120.0
+MAX_VELOCITY            = 120.0
 # set to double the value in the corresponding joint
-MAX_ACCELERATION = 1200.0
+MAX_ACCELERATION        = 1200.0
 # shares the above two equally between the joint and the offset
-OFFSET_AV_RATIO = 0.5
+OFFSET_AV_RATIO         = 0.5
 
 [JOINT_3]
 # this should be the top of your slats
@@ -249,40 +203,14 @@ MAX_LIMIT               = 70.001
 MAX_VELOCITY            = 60
 MAX_ACCELERATION        = 600
 TYPE                    = LINEAR
-MIN_FERROR              = 0.25
+MIN_FERROR              = 0.025
 FERROR                  = 1.0
 HOME                    = 65.0
 HOME_OFFSET             = 70.0
 HOME_SEQUENCE           = 0
 HOME_USE_INDEX          = NO
 STEPGEN_MAXACCEL        = 900.0
-SCALE                   = 500.0
-STEPLEN                 = 1
-STEPSPACE               = 0
-DIRSETUP                = 8000
-DIRHOLD                 = 5000
-
-[AXIS_A]
-MIN_LIMIT               = -999
-MAX_LIMIT               = 999
-MAX_VELOCITY            = 60.0
-MAX_ACCELERATION        = 600.0
-
-[JOINT_4]
-MIN_LIMIT               = -999
-MAX_LIMIT               = 999
-MAX_VELOCITY            = 60
-MAX_ACCELERATION        = 600
-#TYPE                    = ROTARY
-TYPE                    = LINEAR
-MIN_FERROR              = 0.25
-FERROR                  = 1.0
-HOME                    = 65.0
-HOME_OFFSET             = 70.0
-HOME_SEQUENCE           = 0
-HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 900.0
-SCALE                   = 500.0
+SCALE                   = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000

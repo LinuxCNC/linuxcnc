@@ -1,9 +1,3 @@
-[NOTIFY_OPTIONS]
-notify_start_greeting = False
-notify_start_title = Welcome
-notify_start_detail = This option can be changed in the preference file
-notify_start_timeout = 5
-
 [DIALOG_OPTIONS]
 EntryDialog_play_sound = True
 EntryDialog_sound_type = READY
@@ -13,8 +7,8 @@ CalculatorDialog_play_sound = True
 CalculatorDialog_sound_type = READY
 
 [BOOK_KEEPING]
-last_loaded_directory = /home/chris/qtplasmac/plasmac
-RecentPath_0 = /home/chris/qtplasmac/plasmac/metric_startup.ngc
+last_loaded_directory = /home/phill/linuxcnc/nc_files/examples
+RecentPath_0 = None
 style_QSS_Path = DEFAULT
 
 [SCREEN_OPTIONS]
@@ -24,7 +18,7 @@ catch_errors = True
 desktop_notify = True
 shutdown_check = False
 sound_player_on = False
-mainwindow_geometry = 3 60 1006 702
+mainwindow_geometry = 6 60 1348 984
 
 [MCH_MSG_OPTIONS]
 mchnMsg_play_sound = True
@@ -43,11 +37,28 @@ shutdown_exit_sound_type = LOGOUT
 shutdown_msg_title = Do you want to Shutdown now?
 shutdown_msg_detail = 
 
+[NOTIFY_OPTIONS]
+notify_start_greeting = True
+notify_start_title = Welcome
+notify_start_detail = This option can be changed in the preference file
+notify_start_timeout = 5
+
 [GUI_OPTIONS]
 Use keyboard shortcuts = False
 Use soft keyboard = False
 Preview cone size = 1.0
 Preview grid size = 100.0
+
+[COLOR_OPTIONS]
+Foreground = #ffee06
+Highlight = #ffee06
+LED = #ffee06
+Background = #16160e
+Background Alt = #26261e
+Frames = #ffee06
+Estop = #ff0000
+Disabled = #b0b0b0
+Preview = #000000
 
 [ENABLE_OPTIONS]
 THC enable = True
@@ -98,28 +109,4 @@ Cut volts = 99
 Pause at end = 0
 Gas pressure = 0
 Cut mode = 1
-
-[DIALOG_GEOMETRY]
-LncMessage-geometry = 0 0 100 30
-
-[CONVERSATIONAL]
-Preamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
-Postamble = G21 G64P0.25 G40 G49 G80 G90 G92.1 G94 G97
-Origin = False
-Leadin = 0
-Leadout = 0
-Hole diameter = 32
-Hole speed = 60
-Grid Size = 0
-
-[COLOR_OPTIONS]
-Foreground = #ffee06
-Highlight = #ffee06
-LED = #ffee06
-Background = #16160e
-Background Alt = #26261e
-Frames = #ffee06
-Estop = #ff0000
-Disabled = #b0b0b0
-Preview = #000000
 
