@@ -352,7 +352,7 @@ class HandlerClass:
 #            self.add_alarm('CRITICAL - no preference file found, enable preferences in screenoptions widget')
             print('CRITICAL - no preference file found, enable preferences in screenoptions widget')
 #            return
-        self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', None, str,'BOOK_KEEPING')
+        self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
 #        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
@@ -538,6 +538,8 @@ class HandlerClass:
             self.w[widget].setEnabled(True)
             if self.w.gcode_label.text() == 'FILE NOT LOADED':
                 self.w.file_edit.setEnabled(False)
+        if self.lastLoadedProgram == 'None':
+            self.w.file_reload.setEnabled(False)
         if STATUS.machine_is_on():
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
@@ -630,6 +632,7 @@ class HandlerClass:
             if self.w.mdi_show.text() == 'MDI\nCLOSE':
                 self.w.mdi_show.setText('MDI')
                 self.w.gcode_stack.setCurrentIndex(0)
+            self.w.file_reload.setEnabled(True)
         else:
             self.add_alarm('Filename not valid')
         if self.single_cut_request:
