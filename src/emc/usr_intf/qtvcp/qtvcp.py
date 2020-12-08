@@ -49,6 +49,8 @@ options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="set the window to always be on top")
           , Option( '-d', action='store_true', dest='debug', default=False
                   , help="Enable debug output")
+          , Option( '-v', action='store_true', dest='verbose', default=False
+                  , help="Enable verbose debug output")
           , Option( '-g', dest='geometry', default="", help="""Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
 Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position""")
@@ -100,8 +102,12 @@ class QTVCP:
 
         # ToDo: pass specific log levels as an argument, or use an INI setting
         if opts.debug:
-            # Log level defaults to DEBUG, so set higher if not debug
+            # Log level defaults to INFO, so set lower if in debug mode
             logger.setGlobalLevel(logger.DEBUG)
+        if opts.verbose:
+            print '^^^^^^^^^^^^^ verbose'
+            # Log level defaults to INFO, so set lowest if in verbose mode
+            logger.setGlobalLevel(logger.VERBOSE)
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
