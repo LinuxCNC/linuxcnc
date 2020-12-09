@@ -5,7 +5,7 @@ Tenga en cuenta que la persona que escribio el codigo que puede contener el fall
 
 # El archivo ISSUE_TEMPLATE.md
 
-Este archivo contienen una plantilla que deberá utilizar para comunicar problemas.
+Ese archivo contienen una plantilla que deberá utilizar para comunicar problemas.
 Lo que sigue es una traduccion del contenido de ISSUE_TEMPLATE.md, pero NO LA UTILICE.
 Recuerde, ademas, que la informacion que usted aporte tambien debe estrar escrita en ingles.
 Si tiene problemas con ese idioma, le sugerimos se dirija al foro https://forum.linuxcnc.org/
@@ -15,36 +15,37 @@ Aqui empieza la traduccion de ISSUE_TEMPLATE.md
 
 -----------------------------------------------------------------------------------------
 
-# The issue tracker is not a support forum
+# El rastreador de problemas no es un foro de soporte
 
-The LinuxCNC issue tracker is to report bugs in the software.
-If you have a question about how to use the software, use one of the other methods detailed on our community support page: http://linuxcnc.org/community/
+El rastreador de problemas de LinuxCNC sirve para comunicar errores en el software.
+Si tiene alguna pregunta sobre cómo utilizar el software, utilice uno de los métodos detallados en la página de soporte de nuestra comunidad: http://linuxcnc.org/community/
 
-(delete this section before submitting your bug report)
+(elimine esta sección antes de enviar su informe de errores)
 
-## Here are the steps I follow to reproduce the issue:
+## Estos son los pasos que sigo para reproducir el problema:
 
  1.
  2.
  3.
 
-## This is what I expected to happen:
+## Esto es lo que esperaba que sucediera:
 
-## This is what happened instead:
+## Esto es lo que sucedió en su lugar:
 
-## It worked properly before this:
-(If the behavior changed after making a particular change in hardware or
-software, describe the change you think is responsible.  E.g., "after upgrading
-from LinuxCNC 2.7.3 to 2.7.4")
+## Funcionaba correctamente antes de que:
+(Si el comportamiento cambió después de realizar un cambio particular en el hardware o
+software, describa el cambio que cree que es responsable. Por ejemplo, "después de actualizar
+desde LinuxCNC 2.7.3 a 2.7.4 ")
 
-## Information about my hardware and software:
+## Información sobre mi hardware y software:
 
- * I am using this Linux distribution and version (often, shown by `lsb_release -a`):
- * I am using this kernel version (shown by `uname -a`):
- * I am running ...
-   * [ ] A binary version from linuxcnc.org (including buildbot.linuxcnc.org)
-   * [ ] A binary I built myself
-   * [ ] A binary version from some other source besides linuxcnc.org
- * I am using this LinuxCNC version (shown in package manager or, for git versions, `scripts/get-version-from-git`):
- * I am using this user interface (GUI) (e.g., AXIS, Touchy, gmoccapy, etc):
- * I am using this interface hardware vendor and chipset (e.g., parallel port, ethernet port, FPGA card): 
+ * Estoy usando esta distribución y versión de Linux (a menudo mostrada por `lsb_release -a`):
+ * Estoy usando la versión del kernel (mostrada por `uname -a`):
+ * Estoy corriendo ...
+   * [] Una versión binaria de linuxcnc.org (incluido buildbot.linuxcnc.org)
+   * [] Un binario que construí yo mismo
+   * [] Una versión binaria de alguna otra fuente además de linuxcnc.org
+ * Estoy usando esta versión de LinuxCNC (se muestra en el administrador de paquetes o, para las versiones de git, `scripts / get-version-from-git`):
+ * Estoy usando esta interfaz de usuario (GUI) (por ejemplo, AXIS, Touchy, gmoccapy, etc.):
+ * Estoy usando este chipset y proveedor de hardware de interfaz (por ejemplo, puerto paralelo, puerto ethernet, tarjeta FPGA):
+ 
