@@ -20,23 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-#import os
-#import gtk
-#import time
 import math
-#import linuxcnc
-#import shutil
-#import hal
-#from subprocess import Popen,PIPE
-
-# from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import Qt 
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup 
 from PyQt5.QtGui import QPixmap 
 
-
 def preview(P, W):
-    print('preview')
     if W.dEntry.text():
         radius = float(W.dEntry.text()) / 2
     else:
@@ -47,10 +36,8 @@ def preview(P, W):
         ijDiff = 0
         if W.kOffset.isChecked():
             if W.cExt.isChecked():
-#                ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * math.sin(angle)
                 ijDiff = float(W.kerf_width.text()) / 2 * math.sin(angle)
             else:
-#                ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * -math.sin(angle)
                 ijDiff = float(W.kerf_width.text()) / 2 * -math.sin(angle)
 
         if W.liEntry.text():
@@ -61,7 +48,6 @@ def preview(P, W):
             leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
         else:
             leadOutOffset = 0
-#        kOffset = hal.get_value('plasmac_run.kerf-width-f') * W.kOffset.isChecked() / 2
         kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -165,12 +151,12 @@ def preview(P, W):
         outNgc.write('m2\n')
         outNgc.close()
         W.conv_preview.load(P.fNgc)
+        W.conv_preview.set_current_view()
         W.add.setEnabled(True)
     else:
         P.dialog_error('CIRCLE', 'Diameter is required')
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
-    print('over_cut', lastX, lastY, IJ, radius, outTmp)
     try:
         oclength = float(W.ocEntry.text())
     except:
@@ -194,7 +180,6 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     outTmp.write('g{0} x{1:.6f} y{2:.6f} i{3:.6f} j{3:.6f}\n'.format(dir, endX, endY, IJ))
 
 def cut_type_toggled(P, W):
-    print('cut_type_toggled')
     if W.cExt.isChecked():
         W.overcut.setChecked(False)
         W.overcut.setEnabled(False)
@@ -210,7 +195,6 @@ def cut_type_toggled(P, W):
     auto_preview(P, W)
 
 def overcut_toggled(P, W):
-    print('overcut_toggled')
     if W.overcut.isChecked():
         try:
             lolen = float(W.loEntry.text())
@@ -225,7 +209,6 @@ def overcut_toggled(P, W):
     auto_preview(P, W)    
 
 def entry_changed(P, W, widget):
-    print('entry_changed by:', widget)
     P.conv_entry_changed(widget)
     try:
         dia = float(W.dEntry.text())
@@ -241,13 +224,10 @@ def entry_changed(P, W, widget):
             W.ocEntry.setEnabled(True)
 
 def auto_preview(P, W):
-    print('auto_preview')
     if W.dEntry.text() and float(W.dEntry.text()) > 0:
         preview(P, W) 
 
 def add_shape_to_file(P, W):
-    print('add_shape_to_file')
-#    P.add_shape_to_file(W.add, W.xsEntry.text(), W.ysEntry.text(), W.center.isChecked())
     P.add_shape_to_file()
 
 def widgets(P, W):
