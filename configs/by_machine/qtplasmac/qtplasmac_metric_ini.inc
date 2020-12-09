@@ -1,52 +1,28 @@
 
 [PLASMAC]
-# sets the operating mode, if not specified the default is 0
+# set the operating mode (default is 0)
 MODE                    = 0
 
-# TODO ***
-# enable(0) or disable(1) the parameters page, if not specified the default is enabled
-CONFIG_DISABLE          = 0
+CAMERA_TOUCHOFF         = 25 0
+LASER_TOUCHOFF          = -25 0
 
-# TODO ***
-# percentage of cut-feed-rate used for paused motion speed
-PAUSED_MOTION_SPEED     = 50
-
-# for Powermax communications
-#PM_PORT                 = /dev/ttyUSB0
-#PM_PORT                 = /dev/ttyS0
-
-# for the user buttons in the main window
+# user buttons in the main window
 BUTTON_1_NAME           = OHMIC\TEST
 BUTTON_1_CODE           = ohmic-test
-
 BUTTON_2_NAME           = PROBE\TEST
 BUTTON_2_CODE           = probe-test 10
-
-#BUTTON_3_NAME           = CHANGE\CONS
-#BUTTON_3_CODE           = change-consumables X50 y50 F4000
-BUTTON_3_NAME           = CAMERA
-BUTTON_3_CODE           = camview 20.43       Y25.129
-
-#BUTTON_4_NAME           = NORMAL\CUT
-#BUTTON_4_CODE           = cut-type
-BUTTON_4_NAME           = TOUCH\OFF
-BUTTON_4_CODE           = g10 l20 p0 x10 y10
-
-#BUTTON_5_NAME           = LOAD\SHEET
-#BUTTON_5_CODE           = G53 G0 X{JOINT_0 HOME} Y1
-#BUTTON_5_NAME           = WRENCH
-#BUTTON_5_CODE           = load plasmac/metric_wrench.ngc
+BUTTON_3_NAME           = 
+BUTTON_3_CODE           = 
+BUTTON_4_NAME           = NORMAL\CUT
+BUTTON_4_CODE           = cut-type
 BUTTON_5_NAME           = TORCH\PULSE
 BUTTON_5_CODE           = torch-pulse .5
-
-#BUTTON_6_NAME           = USER\GUIDE
-#BUTTON_6_CODE           = %xdg-open http://linuxcnc.org/docs/devel/html/plasma/plasmac-user-guide.html
-#BUTTON_6_NAME           = TOGGLE\PIN
-#BUTTON_6_CODE           = toggle-halpin motion.feed-inhibit
 BUTTON_6_NAME           = SINGLE\CUT
 BUTTON_6_CODE           = single-cut
-#BUTTON_6_NAME           = LASER
-#BUTTON_6_CODE           = laser 5.37 10.12
+
+# powermax communications
+#PM_PORT                 = /dev/ttyUSB0
+#PM_PORT                 = /dev/ttyS0
 
 # this section required as is for removing z axis moves from the loaded gcode file
 [FILTER]

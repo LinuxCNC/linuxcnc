@@ -171,7 +171,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -7935,7 +7935,7 @@ HOME ALL</string>
                       </property>
                       <layout class="QHBoxLayout" name="horizontalLayout_46">
                        <property name="spacing">
-                        <number>0</number>
+                        <number>4</number>
                        </property>
                        <property name="leftMargin">
                         <number>0</number>
@@ -7949,19 +7949,6 @@ HOME ALL</string>
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
-                       <item>
-                        <spacer name="horizontalSpacer_39">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>64</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
                        <item>
                         <widget class="SystemToolButton" name="wcs_button">
                          <property name="sizePolicy">
@@ -8005,6 +7992,56 @@ HOME ALL</string>
                           </size>
                          </property>
                         </spacer>
+                       </item>
+                       <item>
+                        <widget class="PushButton" name="camera">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>60</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>CAMERA</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="PushButton" name="laser">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>60</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>LASER</string>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </widget>

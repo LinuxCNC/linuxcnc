@@ -160,6 +160,7 @@ class HandlerClass:
         if self.firstRun is True:
             self.firstRun = False
         self.link_hal_pins()
+        self.touchoff_buttons()
         self.widgetsLoaded = 1
 
 #################################################################################################################################
@@ -427,6 +428,47 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
+
+    def touchoff_buttons(self):
+        cCode = self.iniFile.find('PLASMAC', 'CAMERA_TOUCHOFF') or '0'
+        if cCode == '0':
+            self.w.camera.hide()
+        else:
+            try:
+                parms = cCode.lower().split()
+                if len(parms) == 2:
+                    self.cam_offsetX = float(parms[0].replace('x', ''))
+                    self.cam_offsetY = float(parms[1].replace('y', ''))
+                    self.idleHomedList.append('camera')
+                    self.w.camera.setEnabled(False)
+                else:
+                    self.w.camera.hide()
+                    msg = '000 Invalid entry for camera offset'
+                    self.dialog_error('INI FILE ERROR', msg)
+            except:
+                self.w.camera.hide()
+                msg = '111 Invalid entry for camera offset'
+                self.dialog_error('INI FILE ERROR', msg)
+
+        lCode = self.iniFile.find('PLASMAC', 'LASER_TOUCHOFF') or '0'
+        if lCode == '0':
+            self.w.laser.hide()
+        else:
+            try:
+                parms = lCode.lower().split()
+                if len(parms) == 2:
+                    self.laserOffsetX = float(parms[0].replace('x', ''))
+                    self.laserOffsetY = float(parms[1].replace('y', ''))
+                    self.idleHomedList.append('laser')
+                    self.w.laser.setEnabled(False)
+                else:
+                    self.w.laser.hide()
+                    msg = 'Invalid entry for laser offset'
+                    self.dialog_error('INI FILE ERROR', msg)
+            except:
+                self.w.laser.hide()
+                msg = 'Invalid entry for laser offset'
+                self.dialog_error('INI FILE ERROR', msg)
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -974,6 +1016,8 @@ class HandlerClass:
         self.w.pan_down.pressed.connect(self.pan_down_pressed)
         self.w.zoom_in.pressed.connect(self.zoom_in_pressed)
         self.w.zoom_out.pressed.connect(self.zoom_out_pressed)
+        self.w.camera.pressed.connect(self.camera_pressed)
+        self.w.laser.pressed.connect(self.laser_pressed)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
 
     def set_axes_and_joints(self):
@@ -1153,7 +1197,11 @@ class HandlerClass:
                     for name in range(1, len(bname)):
                         blabel += '\n{}'.format(bname[name])
                 self.w['button_{}'.format(str(button))].setText(blabel)
-            if 'change-consumables' in code:
+            if not code:
+                self.w['button_{}'.format(str(button))].setText('')
+                self.w['button_{}'.format(str(button))].setEnabled(False)
+                continue
+            elif 'change-consumables' in code:
                 self.ccParm = self.iniFile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 self.ccButton = 'button_{}'.format(str(button))
                 self.idleHomedPlusPausedList.append(self.ccButton)
@@ -1186,39 +1234,6 @@ class HandlerClass:
                 self.scButton = 'button_{}'.format(str(button))
                 self.idleHomedList.append(self.scButton)
                 self.w[self.scButton].setEnabled(False)
-            elif 'camview' in code:
-                try:
-                    parms = code.lower().split()
-                    if len(parms) > 2:
-                        self.cam_offsetY = float(parms[2].replace('y', ''))
-                    else: self.cam_offsetY = 0.0
-                    if len(parms) > 1:
-                        self.cam_offsetX = float(parms[1].replace('x', ''))
-                    else:
-                        self.cam_offsetX = 0.0
-                    self.cvButton = 'button_{}'.format(str(button))
-                    self.idleHomedList.append(self.cvButton)
-                    self.w[self.cvButton].setEnabled(False)
-                except:
-                    msg = 'Invalid entry for camview offset'
-                    self.dialog_error('INI FILE ERROR', msg)
-            elif 'laser' in code:
-                try:
-                    parms = code.lower().split()
-                    if len(parms) > 2:
-                        self.laserOffsetY = float(parms[2].replace('y', ''))
-                    else: self.laserOffsetY = 0.0
-                    if len(parms) > 1:
-                        self.laserOffsetX = float(parms[1].replace('x', ''))
-                    else:
-                        self.laserOffsetX = 0.0
-                    self.laButton = 'button_{}'.format(str(button))
-                    self.idleHomedList.append(self.laButton)
-                    self.w[self.laButton].setEnabled(False)
-                    self.laButtonText = self.w[self.laButton].text()
-                except:
-                    msg = 'Invalid entry for laser offset'
-                    self.dialog_error('INI FILE ERROR', msg)
             else:
                 for command in code.split('\\'):
                     if command.strip()[0] != '%':
@@ -1322,25 +1337,6 @@ class HandlerClass:
                 self.button_active(self.thButton)
         elif 'single-cut' in commands.lower():
             self.do_single_cut()
-        elif 'camview' in commands.lower():
-            # camview rotation is opposite direction to cartesian polar coordinates
-            self.w.camview.rotation = 0.0 if STATUS.stat.rotation_xy == 0 else 360 - STATUS.stat.rotation_xy
-            if self.w.preview_stack.currentIndex() != 3:
-                self.w.preview_stack.setCurrentIndex(3)
-                self.button_active(self.cvButton)
-                self.cameraOn = True
-            else:
-                self.w.preview_stack.setCurrentIndex(0)
-                self.button_normal(self.cvButton)
-                self.cameraOn = False
-        elif 'laser' in commands.lower():
-            if self.w[self.laButton].text() == self.laButtonText:
-                self.w.laser_on.hal_pin.set(1)
-                self.w[self.laButton].setText('MARK\nEDGE')
-                return
-            elif self.w[self.laButton].text() == 'SET\nORIGIN':
-                self.w.laser_on.hal_pin.set(0)
-            self.cam_align(self.laButton, self.laserOffsetX, self.laserOffsetY)
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
@@ -2006,23 +2002,41 @@ class HandlerClass:
                 0)
 
 #################################################################################################################################
-# CAMERA FUNCTIONS #
+# CAMERA AND LASER FUNCTIONS #
 #################################################################################################################################
-    def cam_mark_pressed(self):
-        self.cam_align('cam_mark', self.cam_offsetX, self.cam_offsetY)
+    def camera_pressed(self):
+        # camview rotation is opposite direction to cartesian polar coordinates
+        self.w.camview.rotation = 0.0 if STATUS.stat.rotation_xy == 0 else 360 - STATUS.stat.rotation_xy
+        if self.w.preview_stack.currentIndex() != 3:
+            self.w.preview_stack.setCurrentIndex(3)
+            self.button_active('camera')
+            self.cameraOn = True
+        else:
+            self.w.preview_stack.setCurrentIndex(0)
+            self.button_normal('camera')
+            self.cameraOn = False
 
-    def cam_align(self, button, offsetX, offsetY):
-        if self.w[button].text() == 'MARK\nEDGE':
+    def laser_pressed(self):
+        if self.w.laser.text() == 'LASER':
+            self.w.laser_on.hal_pin.set(1)
+            self.w.laser.setText('MARK\nEDGE')
+            return
+        elif self.w.laser.text() == 'SET\nORIGIN':
+            self.w.laser_on.hal_pin.set(0)
+        self.sheet_align(self.w.laser, self.laserOffsetX, self.laserOffsetY)
+
+    def sheet_align(self, button, offsetX, offsetY):
+        if button.text() == 'MARK\nEDGE':
             self.w.cam_goto.setEnabled(False)
-            self.w[button].setText('SET\nORIGIN')
+            button.setText('SET\nORIGIN')
             self.camCurrentX = STATUS.get_position()[0][0]
             self.camCurrentY = STATUS.get_position()[0][1]
             zAngle = 0
         else:
-            if button == 'cam_mark':
-                self.w[button].setText('MARK\nEDGE')
+            if button == self.w.cam_mark:
+                button.setText('MARK\nEDGE')
             else:
-                self.w[button].setText(self.laButtonText)
+                button.setText('LASER')
             xDiff = STATUS.get_position()[0][0] - self.camCurrentX
             yDiff = STATUS.get_position()[0][1] - self.camCurrentY
             if xDiff and yDiff:
@@ -2053,6 +2067,9 @@ class HandlerClass:
                 self.file_reload_clicked()
             self.w.cam_goto.setEnabled(True)
             ACTION.SET_MANUAL_MODE()
+
+    def cam_mark_pressed(self):
+        self.sheet_align(self.w.cam_mark, self.cam_offsetX, self.cam_offsetY)
 
     def cam_goto_pressed(self):
         if self.w.cam_goto.text() == 'GOTO\nORIGIN':
