@@ -74,8 +74,8 @@ class HandlerClass:
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
-        # use builtin image path
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
+        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'linuxcncicon.png')))
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
