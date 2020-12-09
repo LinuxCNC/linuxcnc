@@ -1,17 +1,17 @@
 # El Ingles como idioma obligatorio
 
-El idioma ingles es utilizado de forma estandar en la produccion de software. Este documento está destinado a aquellos que no dominan el ingles, pero necesitan o quieren comunicar alguna incidencia relativa a un presunto mal funcionamiento del propio software: los llamados bugs.
-Tenga en cuenta que la persona que escribio el codigo que puede contener el fallo que usted cree observar comprendera el idioma ingles, pero no necesariamente los cientos de idiomas existentes.
+El idioma ingles es utilizado de forma estándar en la producción de software. Este documento está destinado a aquellos que no dominan el ingles, pero necesitan o quieren comunicar alguna incidencia relativa a un presunto mal funcionamiento del propio software: los llamados bugs.
+Tenga en cuenta que la persona que escribió el código que puede contener el fallo que usted cree observar comprenderá el idioma ingles, pero no necesariamente los cientos de idiomas existentes.
 
 # El archivo ISSUE_TEMPLATE.md
 
 Ese archivo contienen una plantilla que deberá utilizar para comunicar problemas.
-Lo que sigue es una traduccion del contenido de ISSUE_TEMPLATE.md, pero NO LA UTILICE.
-Recuerde, ademas, que la informacion que usted aporte tambien debe estrar escrita en ingles.
-Si tiene problemas con ese idioma, le sugerimos se dirija al foro https://forum.linuxcnc.org/
-Alli hay secciones para varios idiomas. Sientase libre de expresarse en su idioma nativo en la seccion que corresponda.
+Lo que sigue es una traducción del contenido de ISSUE_TEMPLATE.md, pero NO LA UTILICE.
+Recuerde, además, que la información que usted aporte también debe estar escrita en ingles.
+Si tiene problemas con ese idioma, le sugerimos se dirija al foro https://forum.linuxcnc.org/. 
+Allí hay secciones para varios lenguajes. Siéntase libre de expresarse en su idioma nativo en la sección que corresponda.
 
-Aqui empieza la traduccion de ISSUE_TEMPLATE.md
+Aquí empieza la traducción de ISSUE_TEMPLATE.md
 
 -----------------------------------------------------------------------------------------
 
