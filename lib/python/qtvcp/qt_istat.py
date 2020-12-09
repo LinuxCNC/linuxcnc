@@ -179,10 +179,15 @@ class _IStat(object):
             self.JOINT_SEQUENCE_LIST[j] = int(seq)
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
+        self.JOINT_TYPE_INT = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
         for j in range(jointcount):
             section = "JOINT_%d" % j
             self.JOINT_TYPE[j] = self.INI.find(section, "TYPE") or "LINEAR"
+            if self.JOINT_TYPE[j] == "LINEAR" :
+                self.JOINT_TYPE_INT[j] = 1
+            else:
+                self.JOINT_TYPE_INT[j] = 2
             self.JOINT_SEQUENCE[j]  = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
         # jog syncronized sequence
