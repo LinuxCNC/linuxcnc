@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pyvcp>
-    <labelframe text="Spinboxes enlazadas a displays escalas/numeros, muestran initval y uso de param_pin">
+    <labelframe text="Spinboxes enlazados a displays de escalas/numeros, muestran el uso de initval y  param_pin">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>SUNKEN</relief>
@@ -116,7 +116,7 @@
     </labelframe>
 
     <!-- new hbox with 3 dials -->
-    <labelframe text="Diales enlazados a escalas, muestran initval y uso de param_pin">
+    <labelframe text="Diales enlazados a escalas, muestran el uso de initval y param_pin">
     <font>("Helvetica",10)</font>
     <bd>3</bd>
     <relief>RAISED</relief>
