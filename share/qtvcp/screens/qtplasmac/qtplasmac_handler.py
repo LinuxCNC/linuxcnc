@@ -2571,10 +2571,10 @@ class HandlerClass:
         for button in ['new', 'save', 'settings', 'send']:
             self.w['conv_{}'.format(button)].setEnabled(state)
 
-    def conv_entry_changed(self, widgetName):
-        widget = self.w[widgetName]
+    def conv_entry_changed(self, widget):
+        name = widget.objectName()
         if widget.text():
-            if widgetName == 'hsEntry':
+            if name == 'hsEntry':
                 good = '0123456789'
             else:
                 good = '-.0123456789'
@@ -2583,12 +2583,14 @@ class HandlerClass:
                 if t in good:
                     out += t
             widget.setText(out)
+            if widget.text() in '.-':
+                return
             try:
                 a = float(widget.text())
             except:
                 self.dialog_error('NUMERIC ENTRY', 'An invalid entry has been detected')
                 widget.setText('0')
-        if widgetName == 'gsEntry':
+        if name == 'gsEntry':
             print('grid change to', widget.text())
             # grid size is in inches
             self.w.conv_preview.grid_size = float(widget.text()) / self.unitsPerMm / 25.4
