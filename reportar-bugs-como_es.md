@@ -42,10 +42,10 @@ desde LinuxCNC 2.7.3 a 2.7.4 ")
  * Estoy usando esta distribución y versión de Linux (a menudo mostrada por `lsb_release -a`):
  * Estoy usando la versión del kernel (mostrada por `uname -a`):
  * Estoy corriendo ...
-   * [] Una versión binaria de linuxcnc.org (incluido buildbot.linuxcnc.org)
-   * [] Un binario que construí yo mismo
-   * [] Una versión binaria de alguna otra fuente además de linuxcnc.org
- * Estoy usando esta versión de LinuxCNC (se muestra en el administrador de paquetes o, para las versiones de git, `scripts / get-version-from-git`):
+   * [ ] Una versión binaria de linuxcnc.org (incluido buildbot.linuxcnc.org)
+   * [ ] Un binario que construí yo mismo
+   * [ ] Una versión binaria de alguna otra fuente además de linuxcnc.org
+ * Estoy usando esta versión de LinuxCNC (se muestra en el administrador de paquetes o, para las versiones de git, `scripts/get-version-from-git`):
  * Estoy usando esta interfaz de usuario (GUI) (por ejemplo, AXIS, Touchy, gmoccapy, etc.):
  * Estoy usando este chipset y proveedor de hardware de interfaz (por ejemplo, puerto paralelo, puerto ethernet, tarjeta FPGA):
  
