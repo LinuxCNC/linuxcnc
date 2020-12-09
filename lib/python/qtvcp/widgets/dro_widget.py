@@ -74,8 +74,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 STATUS.connect('diameter-mode', self._switch_modes)
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
-            self._joint_type  = STATUS.stat.joint[self._jointNum]['jointType']
-
+            self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
         if self._joint_type == linuxcnc.ANGULAR:
             self._current_text_template =  self.angular_text_template
         elif self.display_units_mm:
