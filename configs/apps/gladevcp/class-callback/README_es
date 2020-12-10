@@ -1,7 +1,7 @@
 ejemplo con métodos de clase callback
 -------------------------------------
 
-Se muestra cómo utilizar los métodos de clase como devoluciones de llamada.
+Se muestra cómo utilizar los métodos de clases como devoluciones de llamada.
 
 Nota:
 
@@ -12,7 +12,7 @@ HandlerClass.__init__() muestra cómo definir un pin hal que no está asociado a
 
 Al pasar el builder se habilita la referencia a cualquier widget en el árbol (vea, por ejemplo, la línea 33).
 
-Además, se muestra una devolución de llamada de temporizador lento (1 segundo) que actualiza 'valor' del pin HAL.
+Además, se muestra una devolución de llamada de temporizador lento (1 segundo) que actualiza 'value' del pin HAL.
 Este pin esta vinculado al widget de barra horizontal hal_hbar a través de class_callback.hal.
 ------------------------------------------
 Para ejecutar de forma independiente:
