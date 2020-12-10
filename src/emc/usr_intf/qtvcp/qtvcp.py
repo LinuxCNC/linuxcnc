@@ -105,7 +105,6 @@ class QTVCP:
             # Log level defaults to INFO, so set lower if in debug mode
             logger.setGlobalLevel(logger.DEBUG)
         if opts.verbose:
-            print '^^^^^^^^^^^^^ verbose'
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
 
