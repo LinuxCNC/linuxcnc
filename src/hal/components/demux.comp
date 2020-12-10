@@ -1,5 +1,4 @@
-component demux """Select one of several output pins selected either by
-an integer input or individual bits. Or even both""";
+component demux "Select one of several output pins by integer and/or or individual bits.";
 
 description """This component creates a number of output bits defined
 by the "personality" command-line parameter. One of these bits will be
