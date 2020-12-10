@@ -205,6 +205,7 @@ You must have designer installed; These commands should add it: +
 Or use your package manager to install the same: +
 'sudo apt-get install qttools5-dev-tools' +
 'sudo apt-get install qttools5.dev' +
+'sudo apt-get install libpython-dev' +
 
 Then you need the python-module loading library added. +
 Qtvcp uses QT5 with python2 - this combination is not normally available from +

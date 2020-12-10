@@ -17,6 +17,7 @@ python-dbus.mainloop.pyqt
 you must have designer installed:
 sudo apt-get install qttools5-dev-tools
 sudo apt-get install qttools5.dev
+sudo apt-get install libpython-dev
 
 you must copy that proper version of libpyqt5_py2.so to the folder:
 /usr/lib/x86_64-linux-gnu/qt5/plugins/designer
