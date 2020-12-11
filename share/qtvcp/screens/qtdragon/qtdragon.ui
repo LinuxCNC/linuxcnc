@@ -2857,7 +2857,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>9</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -3309,6 +3309,9 @@ RESET</string>
                           <property name="checkable">
                            <bool>false</bool>
                           </property>
+                          <property name="autoRepeat">
+                           <bool>true</bool>
+                          </property>
                           <property name="view_change_action" stdset="0">
                            <bool>true</bool>
                           </property>
@@ -3387,6 +3390,9 @@ RESET</string>
                           </property>
                           <property name="checkable">
                            <bool>false</bool>
+                          </property>
+                          <property name="autoRepeat">
+                           <bool>true</bool>
                           </property>
                           <property name="view_change_action" stdset="0">
                            <bool>true</bool>
@@ -13068,7 +13074,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>08:55:16 PM</string>
+            <string>02:56:06 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13983,7 +13989,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
