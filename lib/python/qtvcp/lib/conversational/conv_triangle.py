@@ -210,7 +210,7 @@ def auto_preview(P, W):
         preview(P, W) 
 
 def add_shape_to_file(P, W):
-    P.add_shape_to_file()
+    P.conv_add_shape_to_file()
 
 def widgets(P, W):
     #widgets
@@ -248,7 +248,6 @@ def widgets(P, W):
     W.angEntry = QLineEdit()
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
-    W.add.setEnabled(False)
     W.undo = QPushButton('Undo')
     W.lDesc = QLabel('Creating Triangle')
     W.iLabel = QLabel()
@@ -277,6 +276,7 @@ def widgets(P, W):
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     #starting parameters
+    W.add.setEnabled(False)
     W.liEntry.setText('{}'.format(P.leadIn))
     W.loEntry.setText('{}'.format(P.leadOut))
     W.xsEntry.setText('{}'.format(P.xSaved))
@@ -286,6 +286,7 @@ def widgets(P, W):
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     P.conv_undo_shape('add')
+    W.AEntry.setFocus()
     #connections
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
@@ -334,4 +335,3 @@ def widgets(P, W):
     W.entries.addWidget(W.undo, 12, 4)
     W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
-    W.AEntry.setFocus()

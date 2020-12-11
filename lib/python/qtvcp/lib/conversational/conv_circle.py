@@ -267,7 +267,6 @@ def widgets(P, W):
     W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
-    W.add.setEnabled(False)
     W.undo = QPushButton('Undo')
     W.lDesc = QLabel('Creating Circle')
     W.iLabel = QLabel()
@@ -295,6 +294,7 @@ def widgets(P, W):
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     #starting parameters
+    W.add.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -304,6 +304,7 @@ def widgets(P, W):
     W.xsEntry.setText('{}'.format(P.xSaved))
     W.ysEntry.setText('{}'.format(P.ySaved))
     P.conv_undo_shape('add')
+    W.dEntry.setFocus()
     #connections
     W.cExt.toggled.connect(lambda:cut_type_toggled(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
@@ -347,4 +348,3 @@ def widgets(P, W):
     W.entries.addWidget(W.undo, 12, 4)
     W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
-    W.dEntry.setFocus()

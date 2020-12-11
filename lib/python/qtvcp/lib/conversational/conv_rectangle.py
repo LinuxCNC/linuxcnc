@@ -392,7 +392,7 @@ def auto_preview(P, W):
         preview(P, W) 
 
 def add_shape_to_file(P, W):
-    P.add_shape_to_file()
+    P.conv_add_shape_to_file()
 
 def widgets(P, W):
     #widgets
@@ -437,7 +437,6 @@ def widgets(P, W):
     W.r4Entry = QLineEdit()
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
-    W.add.setEnabled(False)
     W.undo = QPushButton('Undo')
     W.lDesc = QLabel('Creating Rectangle')
     W.iLabel = QLabel()
@@ -467,6 +466,7 @@ def widgets(P, W):
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     #starting parameters
+    W.add.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -479,6 +479,7 @@ def widgets(P, W):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
+    W.xlEntry.setFocus()
     P.conv_undo_shape('add')
     #connections
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
@@ -536,4 +537,3 @@ def widgets(P, W):
     W.entries.addWidget(W.undo, 12, 4)
     W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
-    W.xlEntry.setFocus()

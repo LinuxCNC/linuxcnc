@@ -2607,7 +2607,7 @@ class HandlerClass:
             if button:
                 self.w[button].setEnabled(False)
 
-    def add_shape_to_file(self):
+    def conv_add_shape_to_file(self):
         COPY(self.fNgc, self.fNgcBkp)
         try:
             if self.w.xsEntry.text():

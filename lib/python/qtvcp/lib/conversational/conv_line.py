@@ -522,7 +522,7 @@ def auto_preview(P, W):
 
 def add_shape_to_file(P, W):
     W.gcodeSave = W.gcodeLine
-    P.add_shape_to_file()
+    P.conv_add_shape_to_file()
     W.add_segment = 0
     line_type_changed(P, W)
 
