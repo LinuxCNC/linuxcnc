@@ -43,10 +43,6 @@ net plasmac:axis-position   joint.3.pos-fb                 =>  plasmac.axis-z-po
 #net plasmac:torch-on                                       =>  ***YOUR_TORCH_ON***
 #net plasmac:ohmic-enable    plasmac.ohmic-enable           =>  ***YOUR_OHMIC_PROBE_ENABLING_CIRCUIT***
 
-#***** MULTIPLE TOOL ENABLE *****
-# set to 1 to enable a scribe or spotting
-setp plasmac.multi-tool 0
-
 #***** SCRIBE CONNECTIONS *****
 #net plasmac:scribe-arm plasmac.scribe-arm => ***YOUR_SCRIBE_ARMING_OUTPUT***
 #net plasmac:scribe-on  plasmac.scribe-on  => ***YOUR_SCRIBE_ON_OUTPUT***

@@ -71,7 +71,7 @@ pin in  s32     mode                        "operating mode";
 pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
-pin in  bit     multi_tool                  "allows the use of multiple tools";
+pin in  bit     multi_tool = 1              "allows the use of multiple tools";
 pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
