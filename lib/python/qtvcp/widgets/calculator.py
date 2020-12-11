@@ -94,9 +94,9 @@ class Calculator(QDialog):
         self.squareRootButton = self.createButton("Sqrt",
                 self.unaryOperatorClicked)
         if sys.version_info.major > 2:
-            text = str("\N{SUPERSCRIPT TWO}")
+            text = str("x\N{SUPERSCRIPT TWO}")
         else:
-            text = u"\N{SUPERSCRIPT TWO}".encode('utf-8')
+            text = u"x\N{SUPERSCRIPT TWO}".encode('utf-8')
         self.powerButton = self.createButton(text,
                 self.unaryOperatorClicked)
         self.reciprocalButton = self.createButton("1/x",
@@ -177,14 +177,17 @@ class Calculator(QDialog):
         clickedButton = self.sender()
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
+        if sys.version_info.major > 2:
+            SQR = str("x\N{SUPERSCRIPT TWO}")
+        else:
+            SQR = u"x\N{SUPERSCRIPT TWO}"
 
         if clickedOperator == "Sqrt":
             if operand < 0.0:
                 self.abortOperation()
                 return
-
             result = math.sqrt(operand)
-        elif clickedOperator == "x\N{SUPERSCRIPT TWO}":
+        elif clickedOperator == SQR:
             result = math.pow(operand, 2.0)
         elif clickedOperator == "1/x":
             if operand == 0.0:
@@ -413,9 +416,15 @@ class Calculator(QDialog):
             self.sumSoFar += rightOperand
         elif pendingOperator == "-":
             self.sumSoFar -= rightOperand
-        elif pendingOperator == "\N{MULTIPLICATION SIGN}":
+        if sys.version_info.major > 2:
+            mult = str("\N{MULTIPLICATION SIGN}")
+            div = str("\N{DIVISION SIGN}")
+        else:
+            mult = u"\N{MULTIPLICATION SIGN}"
+            div = u"\N{DIVISION SIGN}"
+        if pendingOperator == mult:
             self.factorSoFar *= rightOperand
-        elif pendingOperator == "\N{DIVISION SIGN}":
+        elif pendingOperator == div:
             if rightOperand == 0.0:
                 return False
 
