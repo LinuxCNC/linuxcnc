@@ -100,7 +100,6 @@ def preview(P, W):
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
-#            kOffset = hal.get_value('plasmac_run.kerf-width-f') * W.kOffset.isChecked() / 2
             kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
             if not W.xsEntry.text():
                 W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -281,8 +280,8 @@ def preview(P, W):
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                 if radius3 > 0:
                     if W.r3Button.text().startswith('iRadius'):
-                        xrCentre = x3 + (radius3 * math.cos(angle + down))
-                        yrCentre = y3 + (radius3 * math.sin(angle + down))
+                        xrCentre = x2 + (radius3 * math.cos(angle + down))
+                        yrCentre = y2 + (radius3 * math.sin(angle + down))
                         xrEnd = xrCentre + (radius3 * math.cos(angle + right))
                         yrEnd = yrCentre + (radius3 * math.sin(angle + right))
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
@@ -407,12 +406,12 @@ def widgets(P, W):
     W.koLabel = QLabel('Offset')
     W.kOffset = QPushButton('Kerf Width')
     W.kOffset.setCheckable(True)
-    W.osLabel = QLabel('Offset')
-    W.osGroup = QButtonGroup(W)
+    W.spLabel = QLabel('Start')
+    W.spGroup = QButtonGroup(W)
     W.center = QRadioButton('Center')
-    W.osGroup.addButton(W.center)
+    W.spGroup.addButton(W.center)
     W.bLeft = QRadioButton('Btm Left')
-    W.osGroup.addButton(W.bLeft)
+    W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X origin')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')
     W.ysLabel = QLabel('Y origin')
@@ -445,7 +444,7 @@ def widgets(P, W):
     pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
-    rightAlign = ['ctLabel', 'koLabel', 'osLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
+    rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'xlLabel', \
                   'xlEntry', 'ylLabel', 'ylEntry', 'angLabel', 'angEntry', 'r1Entry', \
                   'r2Entry', 'r3Entry', 'r4Entry']
@@ -453,20 +452,20 @@ def widgets(P, W):
     rButton = ['cExt', 'cInt', 'center', 'bLeft']
     pButton = ['preview', 'add', 'undo', 'kOffset', \
                'r1Button', 'r2Button', 'r3Button', 'r4Button']
-    for w in rightAlign:
-        W[w].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        W[w].setFixedWidth(80)
-        W[w].setFixedHeight(24)
-    for w in centerAlign:
-        W[w].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-        W[w].setFixedWidth(240)
-        W[w].setFixedHeight(24)
-    for w in rButton:
-        W[w].setFixedWidth(80)
-        W[w].setFixedHeight(24)
-    for w in pButton:
-        W[w].setFixedWidth(80)
-        W[w].setFixedHeight(24)
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in rButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
     #starting parameters
     if P.oSaved:
         W.center.setChecked(True)
@@ -480,7 +479,7 @@ def widgets(P, W):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
-    P.conv_undo_shape(None)
+    P.conv_undo_shape('add')
     #connections
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
@@ -503,7 +502,7 @@ def widgets(P, W):
     W.entries.addWidget(W.cInt, 0, 2)
     W.entries.addWidget(W.koLabel, 0, 3)
     W.entries.addWidget(W.kOffset, 0, 4)
-    W.entries.addWidget(W.osLabel, 1, 0)
+    W.entries.addWidget(W.spLabel, 1, 0)
     W.entries.addWidget(W.center, 1, 1)
     W.entries.addWidget(W.bLeft, 1, 2)
     W.entries.addWidget(W.xsLabel, 2, 0)
@@ -537,3 +536,4 @@ def widgets(P, W):
     W.entries.addWidget(W.undo, 12, 4)
     W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
+    W.xlEntry.setFocus()

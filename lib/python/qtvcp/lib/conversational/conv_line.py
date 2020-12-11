@@ -21,22 +21,617 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-
+import numpy
+from shutil import copy as COPY
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup 
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox 
 from PyQt5.QtGui import QPixmap 
 
+def preview(P, W):
+    if P.dialogError: return
+    if W.add_segment == 0:
+        try:
+            if not W.entry1.text():
+                W.entry1.setText('{:0.3f}'.format(P.xOrigin))
+            W.xS = float(W.entry1.text())
+            if not W.entry2.text():
+                W.entry2.setText('{:0.3f}'.format(P.yOrigin))
+            W.yS = float(W.entry2.text())
+        except:
+            msg  = 'Invalid entry detected\n'
+            P.dialog_error('LINE', msg)
+            return
+        outTmp = open(P.fTmp, 'w')
+        outNgc = open(P.fNgc, 'w')
+        inWiz = open(P.fNgcBkp, 'r')
+        for line in inWiz:
+            if '(new conversational file)' in line:
+                outNgc.write('\n{} (preamble)\n'.format(P.preAmble))
+                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'm2' in line.lower() or 'm30' in line.lower():
+                break
+            outNgc.write(line)
+        outTmp.write('\n(wizard line)\n')
+        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(W.xS, W.yS))
+        outTmp.write('m3 $0 s1\n')
+        try:
+            if W.lType.currentText() == 'line point to point':
+                W.savedX = W.entry4.text()
+                W.savedY = W.entry5.text()
+                do_line_point_to_point(P, W, float(W.entry4.text()), float(W.entry5.text()))
+            elif W.lType.currentText() == 'line by angle':
+                if not float(W.entry4.text()):
+                    raise Exception('length cannot be 0')
+                do_line_by_angle(P, W, float(W.entry4.text()), float(W.entry5.text()))
+            elif W.lType.currentText() == 'arc 3p':
+                W.savedX = W.entry7.text()
+                W.savedY = W.entry8.text()
+                do_arc_3_points(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                     float(W.entry7.text()), float(W.entry8.text()))
+            elif W.lType.currentText() == 'arc 2p & radius':
+                W.savedX = W.entry4.text()
+                W.savedY = W.entry5.text()
+                do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                     float(W.entry7.text()))
+            elif W.lType.currentText() == 'arc angle & radius':
+                do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                     float(W.entry7.text()))
+        except Exception as e:
+            P.dialogError = True
+            msg  = 'Last entry is not valid\n\n'
+            msg += str(e)
+            P.dialog_error('LINE', msg)
+            outNgc.close()
+            outTmp.close()
+            return
+    elif W.add_segment >= 1:
+        inTmp = open(P.fNgc, 'r')
+        outTmp = open(P.fTmp, 'w')
+        while(1):
+            line = inTmp.readline()
+            if not line or line == W.gcodeLine:
+                break
+            else:
+                outTmp.write(line)
+        if W.add_segment == 1:
+            outTmp.write(line)
+            while(1):
+                line = inTmp.readline()
+                if 'M5 $0' in line:
+                    break
+                else:
+                    outTmp.write(line)
+        inTmp.close()
+        COPY(P.fTmp, P.fNgc)
+        outNgc = open(P.fNgc, 'w')
+        try:
+            if W.lType.currentText() == 'line point to point':
+                W.savedX = W.entry1.text()
+                W.savedY = W.entry2.text()
+                do_line_point_to_point(P, W, float(W.entry1.text()), float(W.entry2.text()))
+            elif W.lType.currentText() == 'line by angle':
+                if not float(W.entry1.text()):
+                    raise Exception('Length cannot be 0')
+                do_line_by_angle(P, W, float(W.entry1.text()), float(W.entry2.text()))
+            elif W.lType.currentText() == 'arc 3p':
+                W.savedX = W.entry4.text()
+                W.savedY = W.entry5.text()
+                do_arc_3_points(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                     float(W.entry4.text()), float(W.entry5.text()))
+            elif W.lType.currentText() == 'arc 2p & radius':
+                W.savedX = W.entry1.text()
+                W.savedY = W.entry2.text()
+                do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                     float(W.entry4.text()))
+            elif W.lType.currentText() == 'arc angle & radius':
+                do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                     float(W.entry4.text()))
+        except Exception as e:
+            P.dialogError = True
+            msg  = 'Last entry is not Invalid\n\n'
+            msg += str(e)
+            P.dialog_error('LINE', msg)
+            outNgc.close()
+            outTmp.close()
+            return
+    outTmp.write(W.gcodeLine)
+    outTmp.write('M5 $0\n')
+    outTmp.close()
+    outTmp = open(P.fTmp, 'r')
+    for line in outTmp:
+        outNgc.write(line)
+    outTmp.close()
+    outNgc.write('\n{} (postamble)\n'.format(P.postAmble))
+    outNgc.write('m2\n')
+    outNgc.close()
+    W.conv_preview.load(P.fNgc)
+    W.conv_preview.set_current_view()
+    W.add.setEnabled(True)
+    W.continu.setEnabled(True)
+    if W.add_segment == 1:
+        W.add_segment = 2
+
+def do_line_point_to_point(P, W, inX, inY):
+    W.xE = inX
+    W.yE = inY
+    W.gcodeLine = 'g1 x{:.6f} y{:.6f}\n'.format(W.xE, W.yE)
+
+def do_line_by_angle(P, W, inL, inA):
+    angle = math.radians(inA)
+    W.xE = W.xS + (inL * math.cos(angle))
+    W.yE = W.yS + (inL * math.sin(angle))
+    W.gcodeLine = 'g1 x{:.6f} y{:.6f}\n'.format(W.xE, W.yE)
+    W.savedX = str(W.xE)
+    W.savedY = str(W.yE)
+
+def do_arc_3_points(P, W, inX1, inY1, inXE, inYE):
+    W.xE = inXE
+    W.yE = inYE
+    A = numpy.array([W.xS, W.yS, 0.0])
+    B = numpy.array([inX1, inY1, 0.0])
+    C = numpy.array([inXE, inYE, 0.0])
+    a = numpy.linalg.norm(C - B)
+    b = numpy.linalg.norm(C - A)
+    c = numpy.linalg.norm(B - A)
+    s = (a + b + c) / 2
+    R = a*b*c / 4 / numpy.sqrt(s * (s - a) * (s - b) * (s - c))
+    b1 = a*a * (b*b + c*c - a*a)
+    b2 = b*b * (a*a + c*c - b*b)
+    b3 = c*c * (a*a + b*b - c*c)
+    P = numpy.column_stack((A, B, C)).dot(numpy.hstack((b1, b2, b3)))
+    P /= b1 + b2 + b3
+    G = '3' if (inX1-W.xS)*(W.yE-W.yS)-(inY1-W.yS)*(W.xE-W.xS) > 0 else '2'
+    W.gcodeLine = 'g{} x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(G, W.xE, W.yE, P[0] - W.xS, P[1] - W.yS)
+
+def do_arc_2_points_radius(P, W, inXE, inYE, radius):
+    W.xE = inXE
+    W.yE = inYE
+    dir = math.radians(270) if radius > 0 else math.radians(90)
+    arcType = '2' if W.g2Arc.isChecked() else '3'
+    height = math.sqrt((W.xE - W.xS) ** 2 + (W.yE - W.yS) ** 2) * 0.5
+    length = math.sqrt((radius ** 2) - (height ** 2))
+    angle = math.atan2((W.yE - W.yS), (W.xE - W.xS))
+    xLineCentre = (W.xS + W.xE) / 2
+    yLineCentre = (W.yS + W.yE) / 2
+    xArcCentre = xLineCentre + length * math.cos(angle + dir)
+    yArcCentre = yLineCentre + length * math.sin(angle + dir)
+    W.gcodeLine = ('g{} x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(arcType, W.xE, W.yE, xArcCentre - W.xS, yArcCentre - W.yS))
+
+def do_arc_by_angle_radius(P, W, inL, inA, inR):
+    angle = math.radians(inA)
+    xE = W.xS + (inL * math.cos(angle))
+    yE = W.yS + (inL * math.sin(angle))
+    W.savedX = str(xE)
+    W.savedY = str(yE)
+    do_arc_2_points_radius(P, W, xE, yE, inR)
+
+def set_line_point_to_point(P, W):
+    W.iLabel.setPixmap(W.pixLinePoint)
+    if W.add_segment > 0:
+        W.label1.setText('End X')
+        W.entry1.setText('{:0.3f}'.format(float(W.savedX)))
+        W.label2.setText('End Y')
+        W.entry2.setText('{:0.3f}'.format(float(W.savedY)))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.hide()
+        W.entry4.hide()
+        W.label5.hide()
+        W.entry5.hide()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry8.hide()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry1.setFocus()
+    else:
+        W.label1.setText('Start X')
+        W.entry1.setText('{:0.3f}'.format(0))
+        W.label2.setText('Start Y')
+        W.entry2.setText('{:0.3f}'.format(0))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('End X')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.setText('End Y')
+        W.label5.show()
+        W.entry5.setText('')
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry8.hide()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry4.setFocus()
+
+def set_line_by_angle(P, W):
+    W.iLabel.setPixmap(W.pixLineAngle)
+    if W.add_segment > 0:
+        W.label1.setText('Length')
+        W.entry1.setText('')
+        W.label2.setText('Angle')
+        W.entry2.setText('0')
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.hide()
+        W.entry4.hide()
+        W.label5.hide()
+        W.entry5.hide()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry8.hide()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry1.setFocus()
+    else:
+        W.label1.setText('Start X')
+        W.entry1.setText('{:0.3f}'.format(0))
+        W.label2.setText('Start Y')
+        W.entry2.setText('{:0.3f}'.format(0))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('Length')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.setText('Angle')
+        W.label5.show()
+        W.entry5.setText('0')
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry8.hide()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry4.setFocus()
+
+def set_arc_3_points(P, W):
+    W.iLabel.setPixmap(W.pixArc3p)
+    if W.add_segment > 0:
+        W.label1.setText('Next X')
+        W.entry1.setText('{:0.3f}'.format(float(W.savedX)))
+        W.label2.setText('Next Y')
+        W.entry2.setText('{:0.3f}'.format(float(W.savedY)))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('End X')
+        W.label4.show()
+        W.entry4.setText('{:0.3f}'.format(float(W.savedX)))
+        W.entry4.show()
+        W.label5.setText('End Y')
+        W.label5.show()
+        W.entry5.setText('{:0.3f}'.format(float(W.savedY)))
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry8.hide()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry1.setFocus()
+    else:
+        W.label1.setText('Start X')
+        W.entry1.setText('{:0.3f}'.format(0))
+        W.label2.setText('Start Y')
+        W.entry2.setText('{:0.3f}'.format(0))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('Next X')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.setText('Next Y')
+        W.label5.show()
+        W.entry5.setText('')
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.setText('End X')
+        W.label7.show()
+        W.entry7.setText('')
+        W.entry7.show()
+        W.label8.setText('End Y')
+        W.label8.show()
+        W.entry8.setText('')
+        W.entry8.show()
+        W.g3Arc.hide()
+        W.g2Arc.hide()
+        W.entry4.setFocus()
+
+def set_arc_2_points_radius(P, W):
+    W.iLabel.setPixmap(W.pixArc2pr)
+    if W.add_segment > 0:
+        W.label1.setText('End X')
+        W.entry1.setText('{:0.3f}'.format(float(W.savedX)))
+        W.label2.setText('End Y')
+        W.entry2.setText('{:0.3f}'.format(float(W.savedY)))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('Radius')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.hide()
+        W.entry5.hide()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry7.hide()
+        W.entries.removeWidget(W.g3Arc)
+        W.entries.removeWidget(W.g2Arc)
+        W.entries.addWidget(W.g3Arc, 5, 0)
+        W.entries.addWidget(W.g2Arc, 5, 1)
+        W.g3Arc.show()
+        W.g2Arc.show()
+        W.entry1.setFocus()
+    else:
+        W.label1.setText('Start X')
+        W.entry1.setText('{:0.3f}'.format(0))
+        W.label2.setText('Start Y')
+        W.entry2.setText('{:0.3f}'.format(0))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('End X')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.setText('End Y')
+        W.label5.show()
+        W.entry5.setText('')
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.setText('Radius')
+        W.label7.show()
+        W.entry7.setText('')
+        W.entry7.show()
+        W.label8.hide()
+        W.entry8.hide()
+        W.entries.removeWidget(W.g3Arc)
+        W.entries.removeWidget(W.g2Arc)
+        W.entries.addWidget(W.g3Arc, 8, 0)
+        W.entries.addWidget(W.g2Arc, 8, 1)
+        W.g3Arc.show()
+        W.g2Arc.show()
+        W.entry4.setFocus()
+
+def set_arc_by_angle_radius(P, W):
+    W.iLabel.setPixmap(W.pixArcAngle)
+    if W.add_segment > 0:
+        W.label1.setText('Length')
+        W.entry1.setText('')
+        W.label2.setText('Angle')
+        W.entry2.setText('0')
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('Radius')
+        W.entry4.setText('')
+        W.label4.show()
+        W.entry4.show()
+        W.label5.hide()
+        W.entry5.hide()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.hide()
+        W.entry7.hide()
+        W.label8.hide()
+        W.entry7.hide()
+        W.entries.removeWidget(W.g3Arc)
+        W.entries.removeWidget(W.g2Arc)
+        W.entries.addWidget(W.g3Arc, 5, 0)
+        W.entries.addWidget(W.g2Arc, 5, 1)
+        W.g3Arc.show()
+        W.g2Arc.show()
+        W.entry1.setFocus()
+    else:
+        W.label1.setText('Start X')
+        W.entry1.setText('{:0.3f}'.format(0))
+        W.label2.setText('Start Y')
+        W.entry2.setText('{:0.3f}'.format(0))
+        W.label3.hide()
+        W.entry3.hide()
+        W.label4.setText('Length')
+        W.label4.show()
+        W.entry4.setText('')
+        W.entry4.show()
+        W.label5.setText('Angle')
+        W.label5.show()
+        W.entry5.setText('0')
+        W.entry5.show()
+        W.label6.hide()
+        W.entry6.hide()
+        W.label7.setText('Radius')
+        W.label7.show()
+        W.entry7.setText('')
+        W.entry7.show()
+        W.label8.hide()
+        W.entry8.hide()
+        W.entries.removeWidget(W.g3Arc)
+        W.entries.removeWidget(W.g2Arc)
+        W.entries.addWidget(W.g3Arc, 8, 0)
+        W.entries.addWidget(W.g2Arc, 8, 1)
+        W.g3Arc.show()
+        W.g2Arc.show()
+        W.entry4.setFocus()
+
+def line_type_changed(P, W):
+    if W.lType.currentText() == 'line point to point':
+        set_line_point_to_point(P, W)
+    elif W.lType.currentText() == 'line by angle':
+        set_line_by_angle(P, W)
+    elif W.lType.currentText() == 'arc 3p':
+        set_arc_3_points(P, W)
+    elif W.lType.currentText() == 'arc 2p & radius':
+        set_arc_2_points_radius(P, W)
+    elif W.lType.currentText() == 'arc angle & radius':
+        set_arc_by_angle_radius(P, W)
+
+def continu_shape(P, W):
+    W.xS = W.xE
+    W.yS = W.yE
+    W.continu.setEnabled(False)
+    W.add.setEnabled(False)
+    W.add_segment = 1
+    line_type_changed(P, W)
+
+def undo_shape(P, W):
+    P.conv_undo_shape('add')
+    W.add_segment = 0
+    line_type_changed(P, W)
+    if len(W.gcodeSave):
+        W.gcodeLine = W.gcodeSave
+
+def entry_changed(P, W, widget, entry):
+    P.conv_entry_changed(widget)
+
+def auto_preview(P, W):
+    if ((W.add_segment == 0) and \
+       ((W.lType.currentText() == 'line point to point' and W.entry4.text() and W.entry5.text()) or \
+       (W.lType.currentText() == 'line by angle' and W.entry4.text() and W.entry5.text()) or \
+       (W.lType.currentText() == 'arc 3p' and W.entry4.text() and W.entry5.text() and W.entry7.text() and W.entry8.text()) or \
+       (W.lType.currentText() == 'arc 2p & radius' and W.entry4.text() and W.entry5.text() and W.entry7.text()) or \
+       (W.lType.currentText() == 'arc angle & radius' and W.entry4.text() and W.entry5.text() and W.entry7.text()))) or \
+       ((W.add_segment >= 1 and W.entry1.text() and W.entry2.text()) and \
+       ((W.lType.currentText() == 'line point to point') or \
+       (W.lType.currentText() == 'line by angle') or \
+       (W.lType.currentText() == 'arc 3p' and W.entry4.text() and W.entry5.text()) or \
+       (W.lType.currentText() == 'arc 2p & radius' and W.entry4.text()) or \
+       (W.lType.currentText() == 'arc angle & radius' and W.entry4.text()))):
+        preview(P, W) 
+
+def add_shape_to_file(P, W):
+    W.gcodeSave = W.gcodeLine
+    P.add_shape_to_file()
+    W.add_segment = 0
+    line_type_changed(P, W)
+
 def widgets(P, W):
-    W.ctLabel = QLabel('Line is not implemented yet')
-    W.ctLabel.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-    W.ctLabel.setFixedWidth(424)
-    W.entries.addWidget(W.ctLabel, 0, 0, 1, 5)
-
-    W.ctLabel = QLabel('You could do some circle work :-)')
-    W.ctLabel.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-    W.entries.addWidget(W.ctLabel, 1, 0, 1, 5)
-
+    #widgets
+    W.lType = QComboBox()
+    W.label1 = QLabel()
+    W.entry1 = QLineEdit()
+    W.label2 = QLabel()
+    W.entry2 = QLineEdit()
+    W.label3 = QLabel()
+    W.entry3 = QLineEdit()
+    W.label4 = QLabel()
+    W.entry4 = QLineEdit()
+    W.label5 = QLabel()
+    W.entry5 = QLineEdit()
+    W.label6 = QLabel()
+    W.entry6 = QLineEdit()
+    W.label7 = QLabel()
+    W.entry7 = QLineEdit()
+    W.label8 = QLabel()
+    W.entry8 = QLineEdit()
+    W.preview = QPushButton('Preview')
+    W.continu = QPushButton('Continue')
+    W.add = QPushButton('Add')
+    W.undo = QPushButton('Undo')
+    W.lDesc = QLabel('Creating Line or Arc')
+    W.g2Arc = QRadioButton('Clock')
+    W.g3Arc = QRadioButton('Counter')
     W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(240)
-    W.iLabel.setPixmap(pixmap)
+    W.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(240)
+    W.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(240)
+    W.pixArc3p = QPixmap('{}conv_arc_3p.png'.format(P.IMAGES)).scaledToWidth(240)
+    W.pixArc2pr = QPixmap('{}conv_arc_2pr.png'.format(P.IMAGES)).scaledToWidth(240)
+    W.pixArcAngle = QPixmap('{}conv_arc_angle.png'.format(P.IMAGES)).scaledToWidth(240)
+    #alignment and size
+    rightAlign = ['label1', 'entry1', 'label2', 'entry2', 'label3', 'entry3', \
+                  'label4', 'entry4', 'label5', 'entry5', 'label6', 'entry6', \
+                  'label7', 'entry7', 'label8', 'entry8']
+    centerAlign = ['lDesc']
+    rButton = ['g2Arc', 'g3Arc']
+    pButton = ['preview', 'continu', 'add', 'undo']
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in rButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    #starting parameters
+    W.lType.addItem('line point to point')
+    W.lType.addItem('line by angle')
+    W.lType.addItem('arc 3p')
+    W.lType.addItem('arc 2p & radius')
+    W.lType.addItem('arc angle & radius')
+    W.continu.setEnabled(False)
+    W.add.setEnabled(False)
+    W.add_segment = 0
+    W.gcodeSave = ''
+    W.savedX = ''
+    W.savedY = ''
+    if not W.g2Arc.isChecked() and not W.g3Arc.isChecked():
+        W.g2Arc.setChecked(True)
+    P.conv_undo_shape('add')
+    #connections
+    W.preview.pressed.connect(lambda:preview(P, W))
+    W.continu.pressed.connect(lambda:continu_shape(P, W))
+    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:undo_shape('add'))
+    W.lType.currentTextChanged.connect(lambda:line_type_changed(P, W))
+    W.g2Arc.toggled.connect(lambda:auto_preview(P, W))
+    entries = ['entry1', 'entry2', 'entry3', 'entry4', 
+               'entry5', 'entry6', 'entry7', 'entry8']
+    for entry in entries:
+        W[entry].textChanged.connect(lambda w:entry_changed(P, W, W.sender(), w))
+        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+    #add to layout
+    W.entries.addWidget(W.lType, 0, 0, 1, 2)
+    W.entries.addWidget(W.label1, 1, 0)
+    W.entries.addWidget(W.entry1, 1, 1)
+    W.entries.addWidget(W.label2, 2, 0)
+    W.entries.addWidget(W.entry2, 2, 1)
+    W.entries.addWidget(W.label3, 3, 0)
+    W.entries.addWidget(W.entry3, 3, 1)
+    W.entries.addWidget(W.label4, 4, 0)
+    W.entries.addWidget(W.entry4, 4, 1)
+    W.entries.addWidget(W.label5, 5, 0)
+    W.entries.addWidget(W.entry5, 5, 1)
+    W.entries.addWidget(W.label6, 6, 0)
+    W.entries.addWidget(W.entry6, 6, 1)
+    W.entries.addWidget(W.label7, 7, 0)
+    W.entries.addWidget(W.entry7, 7, 1)
+    W.entries.addWidget(W.label8, 8, 0)
+    W.entries.addWidget(W.entry8, 8, 1)
+    for blank in range(3):
+        W['{}'.format(blank)] = QLabel('')
+        W['{}'.format(blank)].setFixedHeight(24)
+        W.entries.addWidget(W['{}'.format(blank)], 9 + blank, 0)
+    W.entries.addWidget(W.preview, 12, 0)
+    W.entries.addWidget(W.continu, 12, 1)
+    W.entries.addWidget(W.add, 12, 2)
+    W.entries.addWidget(W.undo, 12, 4)
+    W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
+    set_line_point_to_point(P, W)

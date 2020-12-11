@@ -143,6 +143,7 @@ class HandlerClass:
         self.fNgcBkp = '{}/backup.ngc'.format(self.tmpPath)
         self.oldConvButton = ''
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
+        self.dialogError = False
 
     def initialized__(self):
         self.init_preferences()
@@ -1165,6 +1166,7 @@ class HandlerClass:
         msg.setWindowTitle(title)
         msg.setText(error)
         msg.exec_()
+        self.dialogError = False
         return msg
 
 #########################################################################################################################
@@ -2607,11 +2609,20 @@ class HandlerClass:
 
     def add_shape_to_file(self):
         COPY(self.fNgc, self.fNgcBkp)
-        if self.w.xsEntry.text():
-            self.xSaved = self.w.xsEntry.text()
-        if self.w.ysEntry.text():
-            self.ySaved = self.w.ysEntry.text()
-        self.oSaved = self.w.center.isChecked()
+        try:
+            if self.w.xsEntry.text():
+                self.xSaved = self.w.xsEntry.text()
+        except:
+            pass
+        try:
+            if self.w.ysEntry.text():
+                self.ySaved = self.w.ysEntry.text()
+        except:
+            pass
+        try: 
+            self.oSaved = self.w.center.isChecked()
+        except:
+            pass
         self.w.add.setEnabled(False)
 
 
