@@ -2599,7 +2599,6 @@ class HandlerClass:
             self.w.conv_preview.set_current_view()
 
     def conv_undo_shape(self, button):
-        print('UNDO:',button)
         if os.path.exists(self.fNgcBkp):
             COPY(self.fNgcBkp, self.fNgc)
             self.w.conv_preview.load(self.fNgc)
