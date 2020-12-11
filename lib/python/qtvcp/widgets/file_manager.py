@@ -33,7 +33,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.top = 10
         self.width = 640
         self.height = 480
-        self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
+        self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         self.user_path = (os.path.join('/media'))
         self.currentPath = None
         self.initUI()
@@ -65,17 +65,20 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb = QComboBox()
         self.cb.currentIndexChanged.connect(self.filterChanged)
         self.fillCombobox(INFO.PROGRAM_FILTERS_EXTENSIONS)
+        self.cb.setMinimumHeight(30)
         #self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.button = QPushButton()
         self.button.setText('Media')
         self.button.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.button.setMinimumSize(60, 30)
         self.button.setToolTip('Jump to Media directory')
         self.button.clicked.connect(self.onMediaClicked)
 
         self.button2 = QPushButton()
         self.button2.setText('User')
         self.button2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.button2.setMinimumSize(60, 30)
         self.button2.setToolTip('Jump to linuxcnc directory')
         self.button2.clicked.connect(self.onUserClicked)
 
