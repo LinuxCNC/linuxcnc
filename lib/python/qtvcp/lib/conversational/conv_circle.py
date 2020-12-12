@@ -228,7 +228,7 @@ def auto_preview(P, W):
         preview(P, W) 
 
 def add_shape_to_file(P, W):
-    P.add_shape_to_file()
+    P.conv_add_shape_to_file()
 
 def widgets(P, W):
     #widgets

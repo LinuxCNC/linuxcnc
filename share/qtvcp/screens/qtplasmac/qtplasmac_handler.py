@@ -144,6 +144,7 @@ class HandlerClass:
         self.oldConvButton = ''
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
         self.dialogError = False
+        self.cutTypeText = ''
 
     def initialized__(self):
         self.init_preferences()
@@ -1317,11 +1318,12 @@ class HandlerClass:
             if self.cutType:
                 hal.set_p('qtplasmac.cut_type','1')
                 self.button_active(self.ctButton)
-                self.w[self.ctButton].setText('Pierce\nOnly')
+                self.cutTypeText = self.w[self.ctButton].text()
+                self.w[self.ctButton].setText('PIERCE\nONLY')
             else:
                 hal.set_p('qtplasmac.cut_type','0')
                 self.button_normal(self.ctButton)
-                self.w[self.ctButton].setText('Pierce\n+ Cut')
+                self.w[self.ctButton].setText(self.cutTypeText)
             self.w.gcode_progress.setValue(0)
             if self.w.gcode_label.text() != 'FILE NOT LOADED':
                 self.file_reload_clicked()
@@ -1376,10 +1378,11 @@ class HandlerClass:
             hal.set_p('plasmac.torch-pulse-start','0')
 
     def torch_enable_changed(self, state):
-        if state and STATUS.is_interp_idle():
-            self.w[self.tpButton].setEnabled(True)
-        else:
-            self.w[self.tpButton].setEnabled(False)
+        if self.tpButton:
+            if state and STATUS.is_interp_idle():
+                self.w[self.tpButton].setEnabled(True)
+            else:
+                self.w[self.tpButton].setEnabled(False)
 
     def probe_timeout(self):
         if self.probeTime > 1:
