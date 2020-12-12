@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     length = width = 0
     if W.lEntry.text():
         length = float(W.lEntry.text())
@@ -88,7 +89,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard slot)\n')
+        outTmp.write('\n(conversational slot)\n')
         if leadInOffset > 0:
             xlCentre = xS + (leadInOffset * math.cos(angle + dir[0]))
             ylCentre = yS + (leadInOffset * math.sin(angle + dir[0]))
@@ -165,6 +166,7 @@ def preview(P, W):
             msg += 'A positive Width is required\n\n'
         if length < width:
             msg += 'Length must be greater than or equal to Width'
+        P.dialogError = True
         P.dialog_error('SLOT', msg)
 
 def auto_preview(P, W):
@@ -216,7 +218,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Circle')
+    W.lDesc = QLabel('Creating Slot')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_slot_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)

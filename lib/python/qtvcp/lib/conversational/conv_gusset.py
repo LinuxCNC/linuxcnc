@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     width = height = 0
     if W.wEntry.text():
         width = float(W.wEntry.text())
@@ -42,6 +43,7 @@ def preview(P, W):
             radius = float(W.rEntry.text())
             if radius > height or radius > width:
                 msg = 'Radius must be less than width and height\n\n'
+                P.dialogError = True
                 P.dialog_error('GUSSET', msg)
                 return
         else:
@@ -99,7 +101,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard gusset)\n')
+        outTmp.write('\n(conversational gusset)\n')
         if leadInOffset > 0:
             xlCentre = xS + (leadInOffset * math.cos(hypotAngle - dir[0]))
             ylCentre = yS + (leadInOffset * math.sin(hypotAngle - dir[0]))
@@ -188,6 +190,7 @@ def preview(P, W):
             msg += 'A positive width value is required\n\n'
         if height <= 0:
             msg += 'A positive height value is required\n\n'
+        P.dialogError = True
         P.dialog_error('GUSSET', msg)
 
 def rad_button_pressed(P, W, widget):
@@ -243,7 +246,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Rectangle')
+    W.lDesc = QLabel('Creating Gusset')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)

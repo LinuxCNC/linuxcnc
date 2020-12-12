@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     msg = ''
     leadInOffset = leadOutOffset = radius = sAngle = angle = 0
     try:
@@ -48,6 +49,7 @@ def preview(P, W):
         msg += 'Angle\n'
     if msg:
         errMsg = 'Valid numerical entries required for:\n\n{}'.format(msg)
+        P.dialogError = True
         P.dialog_error('SECTOR', errMsg)
         return
     if radius == 0 or sAngle == 0:
@@ -56,6 +58,7 @@ def preview(P, W):
     if W.kOffset.isChecked() and leadInOffset <= 0:
         msg  = 'A Lead In is required if\n\n'
         msg += 'kerf width offset is enabled\n'
+        P.dialogError = True
         P.dialog_error('SECTOR', msg)
         return
 # set origin position
@@ -111,7 +114,7 @@ def preview(P, W):
         elif 'm2' in line.lower() or 'm30' in line.lower():
             break
         outNgc.write(line)
-    outTmp.write('\n(wizard sector)\n')
+    outTmp.write('\n(conversational sector)\n')
     outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xIS, yIS))
     outTmp.write('m3 $0 s1\n')
     if W.kOffset.isChecked():
@@ -188,7 +191,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Rectangle')
+    W.lDesc = QLabel('Creating Sector')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_sector_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)

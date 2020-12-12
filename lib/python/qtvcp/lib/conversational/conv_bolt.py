@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     if W.dEntry.text():
         cRadius = float(W.dEntry.text()) / 2
     else:
@@ -94,7 +95,7 @@ def preview(P, W):
                 break
             outNgc.write(line)
         for hole in range(holes):
-            outTmp.write('\n(wizard bolt circle, hole #{})\n'.format(hole + 1))
+            outTmp.write('\n(conversational bolt circle, hole #{})\n'.format(hole + 1))
             xhC = xC + cRadius * math.cos(hAngle * hole + angle)
             yhC = yC + cRadius * math.sin(hAngle * hole + angle)
             xS = xhC - hRadius + ijDiff
@@ -149,6 +150,7 @@ def preview(P, W):
             msg += 'Hole Diameter is required\n\n'
         if holes == 0:
             msg += '# of Holes are required'
+        P.dialogError = True
         P.dialog_error('BOLT-CIRCLE', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
@@ -225,7 +227,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Circle')
+    W.lDesc = QLabel('Creating Bolt Circle')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)

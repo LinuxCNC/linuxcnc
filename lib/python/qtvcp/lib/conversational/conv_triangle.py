@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -125,7 +126,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard triangle)\n')
+        outTmp.write('\n(conversational triangle)\n')
         if leadInOffset > 0:
             xlCentre = xS + (leadInOffset * math.cos(hypotAngle - dir[0]))
             ylCentre = yS + (leadInOffset * math.sin(hypotAngle - dir[0]))
@@ -178,6 +179,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
     else:
+        P.dialogError = True
         if A <> 0 and B <> 0 and C <> 0 and A + B + C <> math.radians(180):
             P.dialog_error('TRIANGLE', 'A + B + C must equal 180')
         else:

@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     if W.sEntry.text():
         sides = int(W.sEntry.text())
     else:
@@ -94,7 +95,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard polygon {})\n'.format(sides))
+        outTmp.write('\n(conversational polygon {})\n'.format(sides))
         if leadInOffset > 0:
             xlCentre = xCentre + (leadInOffset * math.cos(angle + dir[0]))
             ylCentre = yCentre + (leadInOffset * math.sin(angle + dir[0]))
@@ -144,6 +145,7 @@ def preview(P, W):
             msg += 'Sides must be 3 or more\n\n'
         if radius <= 0:
             msg += 'Diameter is required'
+        P.dialogError = True
         P.dialog_error('POLYGON', msg)
 
 def mode_changed(P, W):
@@ -203,7 +205,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Circle')
+    W.lDesc = QLabel('Creating Polygon')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_polygon_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)

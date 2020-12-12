@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     xLB = yLR = xLT = yLL = 0
     if W.xlEntry.text() and W.ylEntry.text():
         try:
@@ -31,10 +32,12 @@ def preview(P, W):
                 msg  = 'A positive X Length is required\n\n'
                 msg += 'and\n\n'
                 msg += 'A positive Y Length is required\n'
+                P.dialogError = True
                 P.dialog_error('RECTANGLE', msg)
                 return
         except:
             msg = 'Invalid X Length or Y Length\n'
+            P.dialogError = True
             P.dialog_error('RECTANGLE', msg)
             return
         if W.r1Entry.text():
@@ -56,21 +59,25 @@ def preview(P, W):
         if radius1 + radius2 > float(W.xlEntry.text()):
             msg  = 'Radius 1 plus Radius 2 ({})\n\n'.format(radius1 + radius2)
             msg += 'can not be greater than {}\n'.format(float(W.xlEntry.text()))
+            P.dialogError = True
             P.dialog_error('RECTANGLE', msg)
             return
         if radius1 + radius3 > float(W.ylEntry.text()):
             msg  = 'Radius 1 plus Radius 3 ({})\n\n'.format(radius1 + radius3)
             msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
+            P.dialogError = True
             P.dialog_error('RECTANGLE', msg)
             return
         if radius2 + radius4 > float(W.ylEntry.text()):
             msg  = 'Radius 2 plus Radius 4 ({})\n\n'.format(radius2 + radius4)
             msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
+            P.dialogError = True
             P.dialog_error('RECTANGLE', msg)
             return
         if radius3 > float(W.xlEntry.text()) / 2 or radius4 > float(W.xlEntry.text()) / 2:
             msg  = 'Neither Radius 3 nor Radius 4\n\n'
             msg += 'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
+            P.dialogError = True
             P.dialog_error('RECTANGLE', msg)
             return
         if W.xlEntry.text():
@@ -139,7 +146,7 @@ def preview(P, W):
                 elif 'm2' in line.lower() or 'm30' in line.lower():
                     break
                 outNgc.write(line)
-            outTmp.write('\n(wizard rectangle)\n')
+            outTmp.write('\n(conversational rectangle)\n')
             if W.cExt.isChecked():
                 if leadInOffset > 0:
                     xlCentre = xS + (leadInOffset * math.cos(angle + right))
@@ -368,6 +375,7 @@ def preview(P, W):
         msg  = 'A positive X Length is required\n\n'
         msg += 'and\n\n'
         msg += 'A positive Y Length is required\n'
+        P.dialogError = True
         P.dialog_error('RECTANGLE', msg)
 
 def rad_button_pressed(P, W, button, value):

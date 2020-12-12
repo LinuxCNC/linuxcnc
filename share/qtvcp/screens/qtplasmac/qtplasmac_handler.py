@@ -2549,16 +2549,34 @@ class HandlerClass:
         self.conv_shape_request(self.w.sender().objectName(), CONVSECT)
 
     def conv_rotate_pressed(self):
+        with open(self.fNgc) as inFile:
+            for line in inFile:
+                if '(new conversational file)' in line:
+                    self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
+                    return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA)
 
     def conv_array_pressed(self):
+        with open(self.fNgc) as inFile:
+            for line in inFile:
+                if '(new conversational file)' in line:
+                    self.dialog_error('ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    return
+                elif '#<ucs_' in line:
+                    self.dialog_error('ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    return
+                elif '(conversational' in line:
+                    self.arrayMode = 'conversational'
+                    break
+                else:
+                    self.arrayMode = 'external'
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY)
 
-    def conv_shape_request(self, shape, thingy):
+    def conv_shape_request(self, shape, module):
         self.conv_button_color(shape)
         self.conv_enable_buttons(True)
         self.conv_clear_widgets()
-        thingy.widgets(self, self.w)
+        module.widgets(self, self.w)
 
     def conv_button_color(self, button):
         if self.oldConvButton:

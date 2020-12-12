@@ -26,6 +26,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     if W.dEntry.text():
         radius = float(W.dEntry.text()) / 2
     else:
@@ -154,6 +155,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
     else:
+        P.dialogError = True
         P.dialog_error('CIRCLE', 'Diameter is required')
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):

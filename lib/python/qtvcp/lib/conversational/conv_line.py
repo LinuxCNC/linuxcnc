@@ -39,6 +39,7 @@ def preview(P, W):
             W.yS = float(W.entry2.text())
         except:
             msg  = 'Invalid entry detected\n'
+            P.dialogError = True
             P.dialog_error('LINE', msg)
             return
         outTmp = open(P.fTmp, 'w')
@@ -54,7 +55,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard line)\n')
+        outTmp.write('\n(conversational line)\n')
         outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(W.xS, W.yS))
         outTmp.write('m3 $0 s1\n')
         try:
@@ -80,9 +81,9 @@ def preview(P, W):
                 do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
                                      float(W.entry7.text()))
         except Exception as e:
-            P.dialogError = True
             msg  = 'Last entry is not valid\n\n'
             msg += str(e)
+            P.dialogError = True
             P.dialog_error('LINE', msg)
             outNgc.close()
             outTmp.close()
@@ -130,9 +131,9 @@ def preview(P, W):
                 do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                      float(W.entry4.text()))
         except Exception as e:
-            P.dialogError = True
             msg  = 'Last entry is not Invalid\n\n'
             msg += str(e)
+            P.dialogError = True
             P.dialog_error('LINE', msg)
             outNgc.close()
             outTmp.close()

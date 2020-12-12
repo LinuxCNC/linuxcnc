@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButto
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
+    if P.dialogError: return
     if W.pEntry.text():
         points = int(W.pEntry.text())
     else:
@@ -85,7 +86,7 @@ def preview(P, W):
             elif 'm2' in line.lower() or 'm30' in line.lower():
                 break
             outNgc.write(line)
-        outTmp.write('\n(wizard star {})\n'.format(points))
+        outTmp.write('\n(conversational star {})\n'.format(points))
         if W.cExt.isChecked():
             if leadInOffset > 0:
                 lAngle = math.atan2(float(pList[0][1]) - float(pList[-1][1]),
@@ -156,6 +157,7 @@ def preview(P, W):
             msg += 'Outside Diameter must be > Inside Diameter\n\n'
         if iRadius <= 0:
             msg += 'Inside Diameter is required'
+        P.dialogError = True
         P.dialog_error('STAR', msg)
 
 def auto_preview(P, W):
@@ -210,7 +212,7 @@ def widgets(P, W):
     W.preview = QPushButton('Preview')
     W.add = QPushButton('Add')
     W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Circle')
+    W.lDesc = QLabel('Creating Star')
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)
