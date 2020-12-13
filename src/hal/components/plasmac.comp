@@ -322,7 +322,7 @@ FUNCTION(_) {
         adaptive_feed = 1;
         initialized = TRUE;
         probe_force_val = 5 * resolution;
-        recovery_velocity = 3;
+        recovery_velocity = 3 * resolution;
     }
 
     /* wait until arc_voltage_in is valid */
