@@ -54,15 +54,15 @@ QDialog {
  }
 
 QDialog QLabel {
-  font: 14pt }
+  font: 13pt }
 
 QDialog QPushButton {
-  font: 14pt;
+  font: 13pt;
   height: 40px;
   width: 80px }
 
 QDialog QDoubleSpinBox {
- font: 14pt }
+ font: 13pt }
 
 
 /****** BUTTON ************/
@@ -419,7 +419,7 @@ QSlider::groove:vertical:disabled {
 #mdihistory QListView {
   border: 1px solid foregnd;
   border-radius: 4px;
-  font: 14pt 'Lato';
+  font: 13pt 'Lato';
   alternate-background-color: backalt;
   show-decoration-selected: 1;
   selection-background-color: red;
@@ -457,7 +457,7 @@ alternate-background-color: red;
   border: 1px solid foregnd;
   border-radius: 4px;
   height: 30px;
-  font: 14pt }
+  font: 13pt }
 
 /****** COMBO BOX ************/
 QComboBox {
@@ -544,7 +544,7 @@ QScrollBar::sub-line:vertical {
 /****** MENU ************/
 QMenu {
   background: foregnd;
-  font: 14pt;
+  font: 13pt;
   margin: 4px }
 
 QMenu::item {
