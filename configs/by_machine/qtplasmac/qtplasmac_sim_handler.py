@@ -1,8 +1,8 @@
-import os
 import linuxcnc
 import hal
 import time
 from PyQt5 import QtCore
+from PyQt5.QtGui import QPalette, QColor
 
 class HandlerClass:
 
@@ -13,8 +13,92 @@ class HandlerClass:
 
     def initialized__(self):
         self.w.torch_on.hal_pin_changed.connect(self.torch_changed)
+        self.w.sensor_flt.pressed.connect(self.float_pressed)
+        self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
+        self.w.sensor_brk.pressed.connect(self.break_pressed)
+        self.w.arc_ok.pressed.connect(self.arc_ok_pressed)
+        self.fTimer = QtCore.QTimer()
+        self.fTimer.setInterval(500)
+        self.fTimer.setSingleShot(True)
+        self.fTimer.timeout.connect(self.float_timer_done)
+        self.oTimer = QtCore.QTimer()
+        self.oTimer.setInterval(500)
+        self.oTimer.setSingleShot(True)
+        self.oTimer.timeout.connect(self.ohmic_timer_done)
+        self.bTimer = QtCore.QTimer()
+        self.bTimer.setInterval(500)
+        self.bTimer.setSingleShot(True)
+        self.bTimer.timeout.connect(self.break_timer_done)
+        self.backColor = QColor(self.w.sensor_flt.palette().color(QPalette.Background)).name()
+        self.w.arc_ok.setStyleSheet('background: #red')
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
+
+    def arc_ok_pressed(self):
+        if self.w.arc_ok.isChecked():
+            self.w.arc_ok.setStyleSheet('background: {}'.format(self.backColor))
+        else:
+            self.w.arc_ok.setStyleSheet('background: green')
+
+    def float_timer_done(self):
+        if not self.w.sensor_flt.isDown():
+            self.w.sensor_float.hal_pin.set(0)
+            self.w.sensor_flt.setStyleSheet('background: {}'.format(self.backColor))
+
+    def ohmic_timer_done(self):
+        if not self.w.sensor_ohm.isDown():
+            self.w.sensor_ohmic.hal_pin.set(0)
+            self.w.sensor_ohm.setStyleSheet('background: {}'.format(self.backColor))
+
+    def break_timer_done(self):
+        if not self.w.sensor_brk.isDown():
+            self.w.sensor_breakaway.hal_pin.set(0)
+            self.w.sensor_brk.setStyleSheet('background: {}'.format(self.backColor))
+
+    def float_pressed(self):
+        if self.fTimer.isActive():
+            self.fTimer.stop()   # stop timer so next click can start it again
+            self.w.sensor_float.hal_pin.set(1)
+            self.w.sensor_flt.setStyleSheet('background: green')
+        else:
+            if self.w.sensor_float.hal_pin.get():
+                self.fTimer.stop()
+                self.w.sensor_float.hal_pin.set(0)
+                self.w.sensor_flt.setStyleSheet('background: {}'.format(self.backColor))
+            else:
+                self.w.sensor_float.hal_pin.set(1)
+                self.w.sensor_flt.setStyleSheet('background: green')
+                self.fTimer.start()
+
+    def ohmic_pressed(self):
+        if self.oTimer.isActive():
+            self.oTimer.stop()   # stop timer so next click can start it again
+            self.w.sensor_ohmic.hal_pin.set(1)
+            self.w.sensor_ohm.setStyleSheet('background: green')
+        else:
+            if self.w.sensor_ohmic.hal_pin.get():
+                self.oTimer.stop()
+                self.w.sensor_ohmic.hal_pin.set(0)
+                self.w.sensor_ohm.setStyleSheet('background: {}'.format(self.backColor))
+            else:
+                self.w.sensor_ohmic.hal_pin.set(1)
+                self.w.sensor_ohm.setStyleSheet('background: green')
+                self.oTimer.start()
+
+    def break_pressed(self):
+        if self.bTimer.isActive():
+            self.bTimer.stop()   # stop timer so next click can start it again
+            self.w.sensor_breakaway.hal_pin.set(1)
+            self.w.sensor_brk.setStyleSheet('background: green')
+        else:
+            if self.w.sensor_breakaway.hal_pin.get():
+                self.bTimer.stop()
+                self.w.sensor_breakaway.hal_pin.set(0)
+                self.w.sensor_brk.setStyleSheet('background: {}'.format(self.backColor))
+            else:
+                self.w.sensor_breakaway.hal_pin.set(1)
+                self.w.sensor_brk.setStyleSheet('background: green')
+                self.bTimer.start()
 
     def set_mode(self, mode):
         mode0 = [self.w.sensor_line, \
@@ -49,11 +133,6 @@ class HandlerClass:
             self.w.arc_voltage_out.setValue(0.0)
             if self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
-
-    # def __getitem__(self, item):
-    #     return getattr(self, item)
-    # def __setitem__(self, item, value):
-    #     return setattr(self, item, value)
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
