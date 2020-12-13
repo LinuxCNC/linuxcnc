@@ -47,7 +47,7 @@ class Calculator(QDialog):
         self.display.setMaxLength(15)
 
         font = self.display.font()
-        font.setPointSize(font.pointSize() + 8)
+        font.setPointSize(font.pointSize() + 15)
         self.display.setFont(font)
 
         self.digitButtons = []
@@ -295,9 +295,10 @@ class Calculator(QDialog):
             p,relp,dtg = STATUS.get_position()
             text = self.axisButton.text()
             for let in INFO.AVAILABLE_AXES:
-                if let in text:
+                if let == text[-1]:
                     digitValue =  round(relp[conversion[let]],5)
                     text = text.replace('%s'%let,'%s'%digitValue)
+                    break
         except Exception as e:
             print(e)
             return
@@ -308,8 +309,7 @@ class Calculator(QDialog):
         if self.waitingForOperand:
             self.display.clear()
             self.waitingForOperand = False
-
-        self.display.setText(self.display.text() + str(digitValue))
+        self.display.setText(str(digitValue))
 
     def axisTriggered(self, data):
         self.axisButton.setText('Axis {}'.format(data))
