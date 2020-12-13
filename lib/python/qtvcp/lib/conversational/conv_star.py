@@ -214,7 +214,7 @@ def widgets(P, W):
     W.undo = QPushButton('Undo')
     W.lDesc = QLabel('Creating Star')
     W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(240)
+    pixmap = QPixmap('{}conv_star_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
     rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', \

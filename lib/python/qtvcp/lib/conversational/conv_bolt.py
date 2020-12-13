@@ -229,7 +229,7 @@ def widgets(P, W):
     W.undo = QPushButton('Undo')
     W.lDesc = QLabel('Creating Bolt Circle')
     W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(240)
+    pixmap = QPixmap('{}conv_bolt_l.png'.format(P.IMAGES)).scaledToWidth(240)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
     rightAlign = ['ocLabel', 'ocEntry', 'koLabel', 'spLabel', 'xsLabel', \

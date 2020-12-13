@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 '''
 conv_settings.py
 
@@ -26,7 +24,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import * 
 
 def save(P, W):
-    print('SAVE')
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
     P.origin = W.center.isChecked()
@@ -37,30 +34,25 @@ def save(P, W):
     P.gridSize = float(W.gsEntry.text())
     W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
-
-#    W.PREFS_.putpref('Origin', P.origin, bool, 'CONVERSATIONAL')
     W.PREFS_.putpref('Origin', int(P.origin), int, 'CONVERSATIONAL')
-
     W.PREFS_.putpref('Leadin', P.leadIn, float, 'CONVERSATIONAL')
     W.PREFS_.putpref('Leadout', P.leadOut, float, 'CONVERSATIONAL')
     W.PREFS_.putpref('Hole diameter', P.holeDiameter, float, 'CONVERSATIONAL')
     W.PREFS_.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
     W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
+    W[P.oldConvButton].click()
 
 #def reload(parent, ambles, unitCode):
 def reload(P, W):
     load(P, W)
     show(P, W)
+    W[P.oldConvButton].click()
 
 def load(P, W):
-    print('RELOAD')
     P.preAmble = W.PREFS_.getpref('Preamble', P.ambles, str, 'CONVERSATIONAL')
     P.postAmble = W.PREFS_.getpref('Postamble', P.ambles, str, 'CONVERSATIONAL')
-
-#    P.origin = W.PREFS_.getpref('Origin', False, bool, 'CONVERSATIONAL')
     P.origin = bool(W.PREFS_.getpref('Origin', False, int, 'CONVERSATIONAL'))
-
     P.leadIn = W.PREFS_.getpref('Leadin', 0, float, 'CONVERSATIONAL')
     P.leadOut = W.PREFS_.getpref('Leadout', 0, float, 'CONVERSATIONAL')
     P.holeDiameter = W.PREFS_.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
@@ -68,7 +60,6 @@ def load(P, W):
     P.gridSize = W.PREFS_.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
 
 def show(P, W):
-    print('SHOW')
     W.preEntry.setText(P.preAmble)
     W.pstEntry.setText(P.postAmble)
     W.liEntry.setText('{}'.format(P.leadIn))
@@ -78,7 +69,6 @@ def show(P, W):
     W.gsEntry.setText('{}'.format(P.gridSize))
     if P.origin:
         W.center.setChecked(True)
-
     else:
         W.btLeft.setChecked(True)
     P.oSaved = P.origin
