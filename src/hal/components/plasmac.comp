@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.186 - 2020 Dec 2
+0.187 - 2020 Dec 13
 
 .I SUMMARY:
 .br
@@ -384,7 +384,7 @@ FUNCTION(_) {
     }
 
     /* set THC state */
-    thc_enabled = (thc_enable && !thc_disable ? 1:0);
+    thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 ? 1:0);
 
     /* set THC status */
     thc_active = (state == CUT) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
