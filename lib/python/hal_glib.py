@@ -816,7 +816,10 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         premode = self.stat.task_mode
         if not modes: return (None, premode)
-        if  self.stat.task_mode in modes: return (True, premode)
+        try:
+            if  self.stat.task_mode in modes[0]: return (True, premode)
+        except:
+            if  self.stat.task_mode == modes[0]: return (True, premode)
         if running( self.stat): return (None, premode)
         return (False, premode)
 
