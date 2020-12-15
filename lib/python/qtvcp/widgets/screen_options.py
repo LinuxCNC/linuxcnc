@@ -304,15 +304,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.emit('error',kind,text)
 
     def process_error(self, w, kind, text):
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            if kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='ERROR:', message=text)
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
+            elif kind == linuxcnc.OPERATOR_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR TEXT:', message=text)
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text)
+            elif kind == linuxcnc.OPERATOR_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR DISPLAY:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text)
+
+            elif kind == linuxcnc.NML_ERROR:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text)
+            elif kind == linuxcnc.NML_TEXT:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text)
+            elif kind == linuxcnc.NML_DISPLAY:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
+
             elif kind == 255: # temparary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
@@ -320,6 +331,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                      message=text,
                                     status_timeout=0,
                                     timeout=2)
+
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
