@@ -1294,9 +1294,42 @@ A homing api is provided by src/emc/motion/homing.h to support users'
 custom homing code that replaces src/emc/motion/homing.c with
 a user-customized homing.c file.
 
+==== Motion
+
+The motion module supports kinematics modules that define kinematicsSwitchable()
+and kinematicsSwitch() to switch their kinematics type.  A hal pin,
+motion.switchkins-type, is provided for use of such kinematics modules.
+
+Kinematics modules that do not support kinematics switching should use
+the macro "KINS_NOT_SWITCHABLE" provided by kinematics.h.
+
+==== Switchkins Kinematics Modules
+
+Several kinematics modules are now switchable between their
+eponymous kinematics and an alternate identity kinematics mode.
+
+Kinematic modules supporting switchkins:
+
+. xyzac-trt-kins table-rotary-tilting (supersedes xyzac-trt-kins)
+. xyzbc-trt-kins table-rotary-tilting (supersedes xyzbc-trt-kins)
+. genserkins    generalized serial-link kinematics
+. genhexkins    generalized hexapod parallel kinematics
+. scarakins     scara robot
+. pumakins      puma robot
+
+The switchkins modules above (and trivkins) all support a
+coordinates= parameter that optionally specifies an ordered set
+of coordinate letters that are sequentially assigned to joint
+numbers (beginning with joint0).
+
+The switchkins modules above include provisions for compile-time
+support of an additional user-specified kinematics type identified
+on the make command line by the user_type2 environmental
+variable.  (See src/Makefile)
+
 ==== Other
 
-lib/hallib/sim_lib.tcL: simulate encoder index if [JOINT_n]HOME_USE_INDEX
+lib/hallib/sim_lib.tcl: simulate encoder index if [JOINT_n]HOME_USE_INDEX
 is specified.
 
 lib/python/vismach.py: new hal pin vismach.plotclear

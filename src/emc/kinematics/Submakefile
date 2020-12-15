@@ -1,7 +1,7 @@
 INCLUDES += emc/kinematics
 
-GENSERKINSSRCS := \
-	emc/kinematics/genserkins.c
+GENSERKINSSRCS := emc/kinematics/ugenserkins.c
+GENSERKINSSRCS += emc/kinematics/genserfuncs.c
 USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc
@@ -14,10 +14,15 @@ $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
 PYTARGETS += $(DELTAMODULE)
 
+#ifdef ULAPI
+# userspace test program ../bin/genserkins:
+#   1) has not been maintained
+#   2) does not start up on RTAI
 ../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/liblinuxcnchal.so ../lib/libposemath.so
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+	$(ECHO) emc/Submakefile:Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
 TARGETS += ../bin/genserkins
+#endif
 
 RDELTAMODULESRCS := emc/kinematics/rotarydeltakins.cc
 PYSRCS += $(RDELTAMODULESRCS)

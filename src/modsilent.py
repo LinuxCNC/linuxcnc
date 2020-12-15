@@ -6,8 +6,12 @@ import subprocess
 
 duplicate_warning = re.compile("WARNING: [^ ]*: '(.*?)' exported twice. Previous.*")
 
-permitted_duplicates = ['kinematicsType', 'kinematicsForward',
-    'kinematicsInverse']
+permitted_duplicates = ['kinematicsType', \
+                        'kinematicsForward', \
+                        'kinematicsInverse', \
+                        'kinematicsSwitch', \
+                        'kinematicsSwitchable', \
+                       ]
 
 kbuild = subprocess.Popen(sys.argv[1:], stderr=subprocess.PIPE)
 for line in kbuild.stderr:

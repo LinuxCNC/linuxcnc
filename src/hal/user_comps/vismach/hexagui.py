@@ -3,10 +3,9 @@
 # You may distribute this software under the GNU GPL v2 or later
 #
 # Hexapod visualization.
-# In HAL, you must link axis.* to cartesian coordinates from 
-# halui, because I am too lazy to implement inverse kinematics.
-# This causes some mismatch between the struts and platform.
-# Hopefully this can be fixed with some twiddling.
+# Typical Hal connections require both joint and axis values:
+#   net skgui.L  genhexkins.gui.L hexagui.axis.L  (L= x,y,z,a,b,c)
+#   net jN       joint.N.pos-fb   hexagui.joint.N (N= 0..5)
 
 from vismach import *
 import hal
@@ -28,12 +27,12 @@ c.newpin("joint.4", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint.5", hal.HAL_FLOAT, hal.HAL_IN)
 #get the tool tip position in cartesian coordinates from emc
 #so we dont have to do kinematics
-c.newpin("axis.0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.c", hal.HAL_FLOAT, hal.HAL_IN)
 
 c.ready()
 
@@ -166,12 +165,12 @@ platform = Collection([tool, platform])
 ####
 #animate it
 #must rotate first or we will be rotating around the origin
-platform = HalRotate([platform], c, "axis.3",1,1,0,0)
-platform = HalRotate([platform], c, "axis.4",1,0,1,0)
-platform = HalRotate([platform], c, "axis.5",1,0,0,1)
-platform = HalTranslate([platform],c, "axis.0",1,0,0)
-platform = HalTranslate([platform],c, "axis.1",0,1,0)
-platform = HalTranslate([platform],c, "axis.2",0,0,1)
+platform = HalRotate([platform], c, "axis.a",1,1,0,0)
+platform = HalRotate([platform], c, "axis.b",1,0,1,0)
+platform = HalRotate([platform], c, "axis.c",1,0,0,1)
+platform = HalTranslate([platform],c, "axis.x",1,0,0)
+platform = HalTranslate([platform],c, "axis.y",0,1,0)
+platform = HalTranslate([platform],c, "axis.z",0,0,1)
 platform = Collection([platform])
 
 #put struts under platform - not perfect, oh well
@@ -187,5 +186,5 @@ workpiece = Translate([workpiece],0,0,-strut_length)
 model = Collection([platform, struts, base, workpiece, foo])
 
 #main(model, tool_coords, work_coords, size=30, hud=myhud)
-main(model, tool_coords, work_coords, size=30)
+main(model, tool_coords, work_coords, size=30, lat=-65, lon=-45)
 

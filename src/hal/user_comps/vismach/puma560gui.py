@@ -151,4 +151,4 @@ puma = Collection([link2, link1])
 model = Collection([tooltip, puma, floor, work])
 
 
-main(model, tooltip, work,50)
+main(model, tooltip, work, size=50, lat=-65, lon=-45)

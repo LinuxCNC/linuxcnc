@@ -1,0 +1,47 @@
+; ngcgui-compatible subroutine
+(info: helix in each quadrant at angles A,C)
+o<xyzac_switchkins_sub>sub
+   #<zmax> = #1 (=10)
+   #<zmin> = #2 (= 5)
+      #<r> = #3 (=10 radius)
+  #<frate> = #4 (=1000 feedrate)
+      #<n> = #5 (=3  n circles)
+      #<a> = #6 (=30 A angle)
+      #<b> = #7 (=0  B angle NA)
+      #<c> = #8 (=45 C angle)
+   #<dist> = #9 (=20 distance)
+
+; quadrant I
+M429                            ;Identity kinematics
+g53 g0   x0y0 z#<zmax> a0 c0    ;MACHINE coordinates
+g10l20p0 x0y0 z#<zmax> a0 c0    ;new g54
+g0 x+#<dist> y+#<dist> z#<zmax> ;move to pattern center position
+o<helix_ac> call [#<zmax>][#<zmin>][#<r>][#<frate>][#<n>][#<a>][#<b>][#<c>]
+
+; quadrant II
+M429                            ;Identity kinematics
+g53 g0   x0y0 z#<zmax> a0 c0
+g10l20p0 x0y0 z#<zmax> a0 c0
+g0 x-#<dist> y+#<dist> z#<zmax>
+o<helix_ac> call [#<zmax>][#<zmin>][#<r>][#<frate>][#<n>][#<a>][#<b>][#<c>]
+
+; quadrant III
+M429                            ;Identity kinematics
+g53 g0   x0y0 z#<zmax> a0 c0
+g10l20p0 x0y0 z#<zmax> a0 c0
+g0 x-#<dist> y-#<dist> z#<zmax>
+o<helix_ac> call [#<zmax>][#<zmin>][#<r>][#<frate>][#<n>][#<a>][#<b>][#<c>]
+
+; quadrant IV
+M429                            ;Identity kinematics
+g53 g0   x0y0 z#<zmax> a0 c0
+g10l20p0 x0y0 z#<zmax> a0 c0
+g0 x+#<dist> y-#<dist> z#<zmax>
+o<helix_ac> call [#<zmax>][#<zmin>][#<r>][#<frate>][#<n>][#<a>][#<b>][#<c>]
+
+;final position
+M429                            ;Identity kinematics
+g53 g0   x0y0 z#<zmax> ;MACHINE coordinates
+g10l20p0 x0y0 z#<zmax> ;new g54
+
+o<xyzac_switchkins_sub>endsub

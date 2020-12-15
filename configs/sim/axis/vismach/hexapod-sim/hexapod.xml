@@ -1,5 +1,56 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pyvcp>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"SWITCHKINS"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <multilabel>
+      <legends>[" 0:GENHEX ", "1:IDENTITY", " 2:USERK  "]</legends>
+      <font>("DejaVu Sans Mono",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"type0-button"</halpin>
+      <text>"Genhexkins"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type1-button"</halpin>
+      <text>"Identity  "</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type2-button"</halpin>
+      <text>"userk  "</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+  <hbox>
+    <relief>"ridge"</relief>
+    <bd>3</bd>
+    <label>
+      <padx>0</padx>
+      <font>"monospace"</font>
+    </label>
+    <led>
+      <halpin>"fwd-kins-fail"</halpin>
+      <size>15</size>
+      <on_color>"red"</on_color>
+      <off_color>"#d9d9d9"</off_color>
+    </led>
+    <label>
+      <text>" Fwd Kins Fail"</text>
+      <anchor>"w"</anchor>
+    </label>
+  </hbox>
+
 <labelframe text="Iterations">
   <font>("Helvetica",14)</font>
   <vbox>
@@ -100,4 +151,17 @@
   </hbox>
 </labelframe>
 </vbox>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"vismach-clear"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
 </pyvcp>
+
+

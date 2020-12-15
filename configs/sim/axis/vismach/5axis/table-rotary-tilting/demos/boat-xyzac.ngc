@@ -1,4 +1,5 @@
 %
+M428 ;TCP:xyzac
 (!!! Touch Off: Table = -13.25 == Z max neg extent !!!)
 (BOAT-XYZAC)
 ( 11/20/2011 19:50:48 )
@@ -1875,5 +1876,6 @@ Z5.0
 
 G00 Z10 M09
 G00 X0. Y0. A0 C0
+M429 ;Restore Trivkins
 M30
 %
