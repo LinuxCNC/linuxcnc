@@ -25,7 +25,7 @@
     border-radius: 4px }
 
 /****** LABEL ************/
-#gcode_label, #dro_label, #file_button_label,
+#dro_label, #file_button_label,
 #machine_label, #button_label, #edit_label,
 #file_label, #jog_label,
 #cut_rec_label, #thc_label, #sensor_label,
@@ -127,6 +127,26 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #cut_rec_ne:pressed, #cut_rec_nw:pressed,
 #cut_rec_se:pressed, #cut_rec_sw:pressed {
     background: backalt }
+
+/****** OPEN BUTTON<<<<<<<<<<<<*/
+#file_open {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+/****** OPEN BUTTON<<<<<<<<<<<<*/
+#file_reload {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
 
 /****** DRO DISPLAY<<<<<<<<<<<<*/
 DROLabel {
@@ -255,7 +275,7 @@ QCheckBox::indicator:checked:pressed {
 #pmx485_enable::indicator:checked,
 #thc_enable::indicator:checked {
     background: highlight;
-    border-color: foregnd; }
+    border-color: foregnd }
 
 #torch_enable::indicator:!checked,
 #cornerlock_enable::indicator:!checked,
@@ -267,7 +287,7 @@ QCheckBox::indicator:checked:pressed {
 #pmx485_enable::indicator:!checked,
 #thc_enable::indicator:!checked {
     background: backgnd;
-    border-color: foregnd; }
+    border-color: foregnd }
 
 #torch_enable::indicator:pressed,
 #cornerlock_enable::indicator:pressed,
@@ -421,14 +441,14 @@ QComboBox {
     font: 11pt 'Lato';
     padding: 0px 0px 0px 16px;
     selection-color: backgnd;
-    selection-background-color: foregnd; }
+    selection-background-color: foregnd }
 
 QComboBox::drop-down {
-    image: none; }
+    image: none }
 
 QComboBox QListView {
     border: 8px solid foregnd;
-    border-radius: 0px; }
+    border-radius: 0px }
 
 /****** MATERIAL SELECTOR COMBO BOX ************/
 #material_selector {
@@ -443,17 +463,17 @@ QComboBox QListView {
     padding: 0px 0px 0px 16px;
     height: 16px;
     selection-color: backgnd;
-    selection-background-color: frames; }
+    selection-background-color: frames }
 
 #material_selector:!editable:off,
 #material_selector::drop-down:editable:off,
 #material_selector:!editable:on,
 #material_selector::drop-down:editable:on {
     color: frames;
-    background: background; }
+    background: background }
 
 #material_selector QListView {
-    border-color: frames; }
+    border-color: frames }
 
 /****** FILE MANAGER & MDI HISTORY************/
 #filemanager QListView,

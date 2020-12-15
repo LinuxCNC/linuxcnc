@@ -583,7 +583,7 @@ class HandlerClass:
             self.w[self.scButton].setEnabled(True)
         for widget in self.idleList:
             self.w[widget].setEnabled(True)
-            if self.w.gcode_label.text() == 'FILE NOT LOADED':
+            if self.w.file_open.text() != 'OPEN':
                 self.w.file_edit.setEnabled(False)
         if self.lastLoadedProgram == 'None':
             self.w.file_reload.setEnabled(False)
@@ -674,7 +674,7 @@ class HandlerClass:
             self.lastLoadedProgram = filename
             if not self.cameraOn:
                 self.w.preview_stack.setCurrentIndex(0)
-            self.w.gcode_label.setText(os.path.basename(filename))
+            self.w.file_open.setText(os.path.basename(filename))
             self.w.edit_label.setText('EDIT: {}'.format(filename))
             if self.w.mdi_show.text() == 'MDI\nCLOSE':
                 self.w.mdi_show.setText('MDI')
@@ -862,7 +862,7 @@ class HandlerClass:
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))
-            if self.w.gcode_label.text() != 'FILE NOT LOADED':
+            if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
@@ -1192,7 +1192,7 @@ class HandlerClass:
         self.scButton = ''
         self.single_cut_request = False
         self.oldFile = None
-        for button in range(1,7):
+        for button in range(1,9):
             bname = self.iniFile.find('PLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
             self.iniButtonName.append(bname)
             code = self.iniFile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE') or ''
@@ -1329,7 +1329,7 @@ class HandlerClass:
                 self.button_normal(self.ctButton)
                 self.w[self.ctButton].setText(self.cutTypeText)
             self.w.gcode_progress.setValue(0)
-            if self.w.gcode_label.text() != 'FILE NOT LOADED':
+            if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load')[1].strip())
@@ -2080,7 +2080,7 @@ class HandlerClass:
             self.w.camview.rotation = 360 - zAngle
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
-            if self.w.gcode_label.text() != 'FILE NOT LOADED':
+            if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
             self.w.cam_goto.setEnabled(True)
             ACTION.SET_MANUAL_MODE()
@@ -2097,7 +2097,7 @@ class HandlerClass:
             self.w.cam_mark.setText('MARK\nEDGE')
             self.w.camview.rotation = 0
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R0', 0.5)
-            if self.w.gcode_label.text() != 'FILE NOT LOADED':
+            if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
