@@ -1,5 +1,6 @@
 import os, sys
 from shutil import copy as COPY
+from shutil import rmtree as RMDIR
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 import time
@@ -42,6 +43,8 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
+VERSION = '0.9.000'
+
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
 STATUS = Status()
@@ -59,6 +62,34 @@ class HandlerClass:
         self.w = widgets
         self.h.comp.setprefix('qtplasmac')
         self.PATHS = paths
+# print all the paths
+        for item in dir(self.PATHS):
+            if item[0].isupper():
+                print('{} = {}'.format(item, getattr(self.PATHS, item)))
+# keep users versions up to date
+        print(self.PATHS.BASEDIR, self.PATHS.CONFIGPATH)
+        if not self.PATHS.BASEDIR in self.PATHS.CONFIGPATH:
+        # determine if a package install or a rip install
+            if self.PATHS.SCREENDIR.startswith('/usr/share'):
+                sourcePath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/plasmac/'
+            else:
+                sourcePath = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/plasmac/')
+        # if old common folder exist rename it - we can delete this down the track as it only applies to testing versions
+            commDir = '{}/common'.format(self.PATHS.CONFIGPATH)
+            if os.path.exists(commDir):
+                os.rename(commDir, '{}_redundant_{}'.format(commDir, time.time()))
+        # if a plasmac file or folder exists, rename it. If a plasmac link exists delete it
+            plasDir = '{}/plasmac'.format(self.PATHS.CONFIGPATH)
+            if os.path.exists(plasDir):
+                if os.path.isfile(plasDir) or os.path.isdir(plasDir):
+                    os.rename(plasDir, '{}_redundant_{}'.format(plasDir, time.time()))
+                elif os.path.islink(plasDir):
+                    os.remove(plasDir)
+                else:
+                    print('unknown plasmac item in {}'.format(self.PATHS.CONFIGPATH))
+                    sys.exit()
+        # create new plasmac link to suit the installation type
+            os.symlink(sourcePath, '{}/plasmac'.format(self.PATHS.CONFIGPATH))
         self.foreColor = '#ffee06'
         try:
             pFile = '{}/qtplasmac.prefs'.format(self.PATHS.CONFIGPATH)
@@ -71,6 +102,22 @@ class HandlerClass:
             pass
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
+# if old testing version, exit and warn the user. This can be removed down the track
+        if 'common' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH'):
+            err  = '\n**********************************************\n'
+            err += '* This configuration requires changes        *\n'
+            err += '*                                            *\n'
+            err += '* edit the ini file and change "common"      *\n'
+            err += '* in any of the following lines to "plasmac" *\n'
+            err += '*                                            *\n'
+            err += '* ngc =                                      *\n'
+            err += '* nc =                                       *\n'
+            err += '* tap =                                      *\n'
+            err += '* SUBROUTINE_PATH =                          *\n'
+            err += '* USER_M_PATH =                              *\n'
+            err += '**********************************************\n\n'
+            print(err)
+            sys.exit()
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
@@ -401,8 +448,8 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         self.w.window().setWindowTitle('blah blah blah')
-        self.w.filemanager.button.setText('MEDIA')
-        self.w.filemanager.button2.setText('USER')
+#        self.w.filemanager.button.setText('MEDIA')
+#        self.w.filemanager.button2.setText('USER')
         self.font = QFont()
         self.font.setFamily('Lato')
         self.font.setFixedPitch(True)

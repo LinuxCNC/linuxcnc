@@ -502,11 +502,11 @@ QComboBox QListView {
     color: backgnd;
     background-color: foregnd }
 
-#filemanager QPushButton {
+#filemanager QToolButton {
     font: 10pt;
     height: 40;
-    width: 60;
-}
+/*    width: 60;*/
+ }
 
 #filemanager QComboBox {
     height: 40;
