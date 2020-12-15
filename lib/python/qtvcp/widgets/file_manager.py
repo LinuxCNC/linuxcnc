@@ -213,7 +213,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # record it in the preference file if available
     def _getPathActivated(self):
         row = self.list.selectionModel().currentIndex()
-        self.clicked(row)
+        self.listClicked(row)
 
         fname = self.currentPath
         if fname is None: 
