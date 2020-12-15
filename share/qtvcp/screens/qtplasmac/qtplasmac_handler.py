@@ -76,6 +76,9 @@ class HandlerClass:
         self.valid = QDoubleValidator(0.0, 999.999, 3)
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
         self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'linuxcncicon.png')))
+        self.landscape = True
+        if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
+            self.landscape = False
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
@@ -954,6 +957,7 @@ class HandlerClass:
         self.w.setup_feed_rate.valueChanged.connect(self.setup_feed_rate_changed)
         self.w.touch_xy.clicked.connect(self.touch_xy_clicked)
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
+        self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.material_change.hal_pin_changed.connect(lambda w:self.material_change_pin_changed(w))
         self.w.material_change_number.hal_pin_changed.connect(lambda w:self.material_change_number_pin_changed(w))
         self.w.material_change_timeout.hal_pin_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
@@ -1640,6 +1644,10 @@ class HandlerClass:
         self.load_materials()
         self.materialUpdate = False
 
+    def selector_changed(self, index):
+        if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
+            self.w.materials_box.setCurrentIndex(index)
+
     def material_changed(self, index):
         if self.w.materials_box.currentText():
             if self.getMaterialBusy:
@@ -1654,6 +1662,7 @@ class HandlerClass:
                 hal.set_p('motion.digital-in-03','1')
             else:
                 self.change_material(material)
+            self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
 
     def material_change_pin_changed(self, halpin):
@@ -1746,8 +1755,10 @@ class HandlerClass:
     def display_materials(self):
         self.materialList = []
         self.w.materials_box.clear()
+        self.w.material_selector.clear()
         for key in sorted(self.materialFileDict):
             self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
+            self.w.material_selector.addItem('Material = {:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.materialList.append(key)
 
     def change_material(self, material):
@@ -1765,7 +1776,6 @@ class HandlerClass:
             self.w.gas_pressure.setValue(self.materialFileDict[material][11])
             self.w.cut_mode.setValue(self.materialFileDict[material][12])
             self.w.material_change_number.hal_pin.set(material)
-            self.w.preview_label.setText('MATERIAL #{}: {}'.format(material, self.materialName))
 
     def save_material_file(self, material, index):
         COPY(self.materialFile, self.tmpMaterialFile)

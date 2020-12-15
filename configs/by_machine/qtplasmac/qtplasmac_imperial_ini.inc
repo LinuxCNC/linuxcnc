@@ -55,7 +55,7 @@ HALUI                   = halui
 
 [EMC]
 VERSION                 = 1.1
-MACHINE                 = qtplasmac-4x3-imperial
+MACHINE                 = qtplasmac-imperial
 DEBUG                   = 0
 
 [EMCIO]

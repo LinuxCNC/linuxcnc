@@ -279,29 +279,7 @@
                       <number>2</number>
                      </property>
                      <item>
-                      <widget class="QLabel" name="preview_label">
-                       <property name="minimumSize">
-                        <size>
-                         <width>0</width>
-                         <height>16</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>16777215</width>
-                         <height>16</height>
-                        </size>
-                       </property>
-                       <property name="statusTip">
-                        <string>Current selected material</string>
-                       </property>
-                       <property name="text">
-                        <string>MATERIAL</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignCenter</set>
-                       </property>
-                      </widget>
+                      <widget class="QComboBox" name="material_selector"/>
                      </item>
                      <item>
                       <widget class="QFrame" name="preview_place">
@@ -14570,6 +14548,11 @@ HOME ALL</string>
    <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
   <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -14579,6 +14562,11 @@ HOME ALL</string>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DoubleScale</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>CheckBox</class>
@@ -14628,16 +14616,6 @@ HOME ALL</string>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>DoubleScale</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
-   <class>HALLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.hal_label</header>
   </customwidget>
  </customwidgets>
  <resources>
