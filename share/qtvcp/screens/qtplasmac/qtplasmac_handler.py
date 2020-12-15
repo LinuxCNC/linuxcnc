@@ -63,11 +63,22 @@ class HandlerClass:
         self.h.comp.setprefix('qtplasmac')
         self.PATHS = paths
 # print all the paths
-        for item in dir(self.PATHS):
-            if item[0].isupper():
-                print('{} = {}'.format(item, getattr(self.PATHS, item)))
+#        for item in dir(self.PATHS):
+#            if item[0].isupper():
+#                print('{} = {}'.format(item, getattr(self.PATHS, item)))
+        self.foreColor = '#ffee06'
+        try:
+            pFile = '{}/qtplasmac.prefs'.format(self.PATHS.CONFIGPATH)
+            with open(pFile, 'r') as inFile:
+                for line in inFile:
+                    if line.startswith('Foreground ='):
+                        self.foreColor = line.split('=')[1].strip()
+                        break
+        except:
+            pass
+        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+        self.iniFile = linuxcnc.ini(INIPATH)
 # keep users versions up to date
-        print(self.PATHS.BASEDIR, self.PATHS.CONFIGPATH)
         if not self.PATHS.BASEDIR in self.PATHS.CONFIGPATH:
         # determine if a package install or a rip install
             if self.PATHS.SCREENDIR.startswith('/usr/share'):
@@ -90,19 +101,7 @@ class HandlerClass:
                     sys.exit()
         # create new plasmac link to suit the installation type
             os.symlink(sourcePath, '{}/plasmac'.format(self.PATHS.CONFIGPATH))
-        self.foreColor = '#ffee06'
-        try:
-            pFile = '{}/qtplasmac.prefs'.format(self.PATHS.CONFIGPATH)
-            with open(pFile, 'r') as inFile:
-                for line in inFile:
-                    if line.startswith('Foreground ='):
-                        self.foreColor = line.split('=')[1].strip()
-                        break
-        except:
-            pass
-        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.iniFile = linuxcnc.ini(INIPATH)
-# if old testing version, exit and warn the user. This can be removed down the track
+# if old testing version, exit and warn the user. This can also be removed down the track
         if 'common' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH'):
             err  = '\n**********************************************\n'
             err += '* This configuration requires changes        *\n'
@@ -780,6 +779,7 @@ class HandlerClass:
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
+        self.w.gcodegraphics.logger.clear()
 
     def setup_feed_rate_changed(self):
         if self.w.probe_feed_rate.value() > self.w.setup_feed_rate.value():
@@ -2129,6 +2129,7 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
             if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
+                self.w.gcodegraphics.logger.clear()
             self.w.cam_goto.setEnabled(True)
             ACTION.SET_MANUAL_MODE()
 

@@ -334,7 +334,7 @@
                      </spacer>
                     </item>
                     <item>
-                     <widget class="PushButton" name="pushbutton_2">
+                     <widget class="PushButton" name="button_8">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -353,7 +353,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="PushButton" name="pushbutton">
+                     <widget class="PushButton" name="button_7">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
