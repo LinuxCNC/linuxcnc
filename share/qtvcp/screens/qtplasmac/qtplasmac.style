@@ -513,6 +513,11 @@ QComboBox QListView {
     font: 12pt;
  }
 
+#filemanager QLineEdit {
+    height: 40;
+    font: 12pt;
+ }
+
 #mdihistory QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;

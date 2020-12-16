@@ -31,11 +31,11 @@ def preview(P, W):
     else:
         points = 0
     if W.odEntry.text():
-        oRadius = float(W.odEntry.text())
+        oRadius = float(W.odEntry.text()) / 2
     else:
         oRadius = 0
     if W.idEntry.text():
-        iRadius = float(W.idEntry.text())
+        iRadius = float(W.idEntry.text()) / 2
     else:
         iRadius = 0
     if points >= 3 and iRadius > 0 and oRadius > 0 and oRadius > iRadius:
@@ -79,7 +79,6 @@ def preview(P, W):
         for line in inWiz:
             if '(new conversational file)' in line:
                 outNgc.write('\n{} (preamble)\n'.format(P.preAmble))
-                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
                 break
             elif '(postamble)' in line:
                 break
@@ -87,6 +86,9 @@ def preview(P, W):
                 break
             outNgc.write(line)
         outTmp.write('\n(conversational star {})\n'.format(points))
+        outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
+        outTmp.write('M66 P3 L3 Q1\n')
+        outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
         if W.cExt.isChecked():
             if leadInOffset > 0:
                 lAngle = math.atan2(float(pList[0][1]) - float(pList[-1][1]),
@@ -252,6 +254,7 @@ def widgets(P, W):
     P.conv_undo_shape('add')
     W.pEntry.setFocus()
     #connections
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
     W.center.toggled.connect(lambda:auto_preview(P, W))

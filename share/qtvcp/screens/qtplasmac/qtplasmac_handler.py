@@ -447,8 +447,11 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         self.w.window().setWindowTitle('blah blah blah')
+
 #        self.w.filemanager.button.setText('MEDIA')
 #        self.w.filemanager.button2.setText('USER')
+#        self.w.filemanager.showCopyControls(True)
+
         self.font = QFont()
         self.font.setFamily('Lato')
         self.font.setFixedPitch(True)
@@ -1005,6 +1008,7 @@ class HandlerClass:
         self.w.touch_xy.clicked.connect(self.touch_xy_clicked)
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
+        self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
         self.w.material_change.hal_pin_changed.connect(lambda w:self.material_change_pin_changed(w))
         self.w.material_change_number.hal_pin_changed.connect(lambda w:self.material_change_number_pin_changed(w))
         self.w.material_change_timeout.hal_pin_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
@@ -1044,16 +1048,16 @@ class HandlerClass:
         self.w.cam_zoom_minus.pressed.connect(self.cam_zoom_minus_pressed)
         self.w.cam_dia_plus.pressed.connect(self.cam_dia_plus_pressed)
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
-        self.w.conv_line.pressed.connect(self.conv_line_pressed)
-        self.w.conv_circle.pressed.connect(self.conv_circle_pressed)
-        self.w.conv_triangle.pressed.connect(self.conv_triangle_pressed)
-        self.w.conv_rectangle.pressed.connect(self.conv_rectangle_pressed)
-        self.w.conv_polygon.pressed.connect(self.conv_polygon_pressed)
-        self.w.conv_bolt.pressed.connect(self.conv_bolt_pressed)
-        self.w.conv_slot.pressed.connect(self.conv_slot_pressed)
-        self.w.conv_star.pressed.connect(self.conv_star_pressed)
-        self.w.conv_gusset.pressed.connect(self.conv_gusset_pressed)
-        self.w.conv_sector.pressed.connect(self.conv_sector_pressed)
+        self.w.conv_line.pressed.connect(lambda:self.conv_shape_request('conv_line', CONVLINE, True))
+        self.w.conv_circle.pressed.connect(lambda:self.conv_shape_request('conv_circle', CONVCIRC, True))
+        self.w.conv_triangle.pressed.connect(lambda:self.conv_shape_request('conv_triangle', CONVTRIA, True))
+        self.w.conv_rectangle.pressed.connect(lambda:self.conv_shape_request('conv_rectangle', CONVRECT, True))
+        self.w.conv_polygon.pressed.connect(lambda:self.conv_shape_request('conv_polygon', CONVPOLY, True))
+        self.w.conv_bolt.pressed.connect(lambda:self.conv_shape_request('conv_bolt', CONVBOLT, True))
+        self.w.conv_slot.pressed.connect(lambda:self.conv_shape_request('conv_slot', CONVSLOT, True))
+        self.w.conv_star.pressed.connect(lambda:self.conv_shape_request('conv_star', CONVSTAR, True))
+        self.w.conv_gusset.pressed.connect(lambda:self.conv_shape_request('conv_gusset', CONVGUST, True))
+        self.w.conv_sector.pressed.connect(lambda:self.conv_shape_request('conv_sector', CONVSECT, True))
         self.w.conv_rotate.pressed.connect(self.conv_rotate_pressed)
         self.w.conv_array.pressed.connect(self.conv_array_pressed)
         self.w.conv_new.pressed.connect(self.conv_new_pressed)
@@ -1694,6 +1698,12 @@ class HandlerClass:
     def selector_changed(self, index):
         if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
+            self.w.conv_material.setCurrentIndex(index)
+
+    def conv_material_changed(self, index):
+        if self.w.conv_material.currentIndex() != self.w.materials_box.currentIndex():
+            self.w.materials_box.setCurrentIndex(index)
+            self.w.material_selector.setCurrentIndex(index)
 
     def material_changed(self, index):
         if self.w.materials_box.currentText():
@@ -1710,6 +1720,7 @@ class HandlerClass:
             else:
                 self.change_material(material)
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
+            self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
 
     def material_change_pin_changed(self, halpin):
@@ -1803,9 +1814,11 @@ class HandlerClass:
         self.materialList = []
         self.w.materials_box.clear()
         self.w.material_selector.clear()
+        self.w.conv_material.clear()
         for key in sorted(self.materialFileDict):
             self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.w.material_selector.addItem('Material = {:05d}: {}'.format(key, self.materialFileDict[key][0]))
+            self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.materialList.append(key)
 
     def change_material(self, material):
@@ -2533,7 +2546,7 @@ class HandlerClass:
         self.ySaved = '0.000'
         self.oSaved = self.origin
         if not self.oldConvButton:
-            self.conv_shape_request('conv_line', CONVLINE)
+            self.conv_shape_request('conv_line', CONVLINE, True)
         self.conv_enable_buttons(True)
 
     def conv_new_pressed(self):
@@ -2576,43 +2589,13 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(self.fNgc)
         self.w.main_tab_widget.setCurrentIndex(0)
 
-    def conv_line_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVLINE)
-
-    def conv_circle_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVCIRC)
-
-    def conv_triangle_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVTRIA)
-
-    def conv_rectangle_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVRECT)
-
-    def conv_polygon_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVPOLY)
-
-    def conv_bolt_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVBOLT)
-
-    def conv_slot_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVSLOT)
-
-    def conv_star_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVSTAR)
-
-    def conv_gusset_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVGUST)
-
-    def conv_sector_pressed(self):
-        self.conv_shape_request(self.w.sender().objectName(), CONVSECT)
-
     def conv_rotate_pressed(self):
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
                     self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
                     return
-        self.conv_shape_request(self.w.sender().objectName(), CONVROTA)
+        self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
 
     def conv_array_pressed(self):
         with open(self.fNgc) as inFile:
@@ -2628,9 +2611,17 @@ class HandlerClass:
                     break
                 else:
                     self.arrayMode = 'external'
-        self.conv_shape_request(self.w.sender().objectName(), CONVARAY)
+        self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
 
-    def conv_shape_request(self, shape, module):
+    def conv_shape_request(self, shape, module, material):
+        if material:
+            self.w.conv_material.show()
+        else:
+            self.w.conv_material.hide()
+        try:
+            self.w.conv_material.currentTextChanged.disconnect()
+        except:
+            pass
         self.conv_button_color(shape)
         self.conv_enable_buttons(True)
         self.conv_clear_widgets()

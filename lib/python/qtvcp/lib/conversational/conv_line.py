@@ -48,7 +48,6 @@ def preview(P, W):
         for line in inWiz:
             if '(new conversational file)' in line:
                 outNgc.write('\n{} (preamble)\n'.format(P.preAmble))
-                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
                 break
             elif '(postamble)' in line:
                 break
@@ -56,6 +55,9 @@ def preview(P, W):
                 break
             outNgc.write(line)
         outTmp.write('\n(conversational line)\n')
+        outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
+        outTmp.write('M66 P3 L3 Q1\n')
+        outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
         outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(W.xS, W.yS))
         outTmp.write('m3 $0 s1\n')
         try:
@@ -596,6 +598,7 @@ def widgets(P, W):
         W.g2Arc.setChecked(True)
     P.conv_undo_shape('add')
     #connections
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))
     W.continu.pressed.connect(lambda:continu_shape(P, W))
     W.add.pressed.connect(lambda:add_shape_to_file(P, W))

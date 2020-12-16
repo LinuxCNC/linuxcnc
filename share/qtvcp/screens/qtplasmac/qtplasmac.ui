@@ -171,7 +171,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -229,7 +229,7 @@
               <item>
                <widget class="QStackedWidget" name="preview_stack">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="preview_page">
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
@@ -8657,6 +8657,18 @@ HOME ALL</string>
                     </property>
                     <item>
                      <widget class="QFrame" name="conv_left">
+                      <property name="minimumSize">
+                       <size>
+                        <width>440</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>440</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="frameShape">
                        <enum>QFrame::NoFrame</enum>
                       </property>
@@ -8694,6 +8706,9 @@ HOME ALL</string>
                           <enum>QFrame::Plain</enum>
                          </property>
                          <layout class="QVBoxLayout" name="verticalLayout_54">
+                          <item>
+                           <widget class="QComboBox" name="conv_material"/>
+                          </item>
                           <item>
                            <layout class="QGridLayout" name="entries"/>
                           </item>
