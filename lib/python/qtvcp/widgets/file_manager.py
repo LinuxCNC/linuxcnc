@@ -15,7 +15,8 @@ from PyQt5.QtCore import (QModelIndex, QDir, Qt,
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
-from linuxcnc import OPERATOR_ERROR
+from linuxcnc import OPERATOR_ERROR, NML_ERROR
+LOW_ERROR = 255
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -38,12 +39,17 @@ class FileManager(QWidget, _HalWidgetBase):
         self.top = 10
         self.width = 640
         self.height = 480
-        self.media_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
+        if INFO.PROGRAM_PREFIX is not None:
+            self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+        else:
+            self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         user = os.path.split(os.path.expanduser('~') )[-1]
-        self.user_path = (os.path.join('/media', user))
+        self.media_path = (os.path.join('/media', user))
         self.currentPath = None
         self.currentFolder = None
+        self.PREFS_ = None
         self.initUI()
+
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -83,7 +89,6 @@ class FileManager(QWidget, _HalWidgetBase):
 
         self.list = QListView()
         self.list.setModel(self.model)
-        self.updateDirectoryView(self.media_path)
         self.list.resize(640, 480)
         self.list.clicked[QModelIndex].connect(self.listClicked)
         self.list.activated.connect(self._getPathActivated)
@@ -96,10 +101,10 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.button2 = QToolButton()
-        self.button2.setText('Media')
+        self.button2.setText('User')
         self.button2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         self.button2.setMinimumSize(60, 30)
-        self.button2.setToolTip('Jump to Media directory')
+        self.button2.setToolTip('Jump to User directory. Long press for Options.')
         self.button2.clicked.connect(self.onJumpClicked)
 
         SettingMenu = QMenu(self)
@@ -134,12 +139,12 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if self.PREFS_:
-            last_path = self.PREFS_.getpref('last_loaded_directory', self.media_path, str, 'BOOK_KEEPING')
+            last_path = self.PREFS_.getpref('last_loaded_directory', self.user_path, str, 'BOOK_KEEPING')
             self.updateDirectoryView(last_path)
             LOG.debug("lAST FILE PATH: {}".format(last_path))
         else:
-            LOG.debug("lAST FILE PATH: {}".format(self.media_path))
-            self.updateDirectoryView(self.media_path)
+            LOG.debug("lAST FILE PATH: {}".format(self.user_path))
+            self.updateDirectoryView(self.user_path)
 
     #########################
     # callbacks
@@ -154,8 +159,13 @@ class FileManager(QWidget, _HalWidgetBase):
         self.currentFolder = data
         self.textLine.setText(data)
 
-    def updateDirectoryView(self, path):
-        self.list.setRootIndex(self.model.setRootPath(path))
+    def updateDirectoryView(self, path, quiet = False):
+        if os.path.exists(path):
+            self.list.setRootIndex(self.model.setRootPath(path))
+        else:
+            LOG.debug("Set directory view error - no such path {}".format(path))
+            if not quiet:
+                STATUS.emit('error', LOW_ERROR, "File Manager error - No such path: {}".format(path))
 
     # retrieve selected filter (it's held as QT.userData)
     def filterChanged(self, index):
@@ -190,11 +200,11 @@ class FileManager(QWidget, _HalWidgetBase):
     def jumpTriggered(self, data):
         if data == 'Media':
             self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to Media directory')
+            self.button2.setToolTip('Jump to Media directory. Long press for Options.')
             self.showMediaDir()
         elif data == 'User':
             self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to User directory')
+            self.button2.setToolTip('Jump to User directory. Long press for Options.')
             self.showUserDir()
         else:
             self.button2.setText('{}'.format(data))
@@ -249,11 +259,11 @@ class FileManager(QWidget, _HalWidgetBase):
             self.copyBox.hide()
             self.pasteButton.hide()
 
-    def showMediaDir(self):
-        self.updateDirectoryView(self.user_path)
+    def showMediaDir(self, quiet = False):
+        self.updateDirectoryView(self.media_path, quiet)
 
-    def showUserDir(self):
-        self.updateDirectoryView(self.media_path)
+    def showUserDir(self, quiet = False):
+        self.updateDirectoryView(self.user_path, quiet)
 
     def copyFile(self, s, d):
         try:
@@ -313,12 +323,16 @@ class FileManager(QWidget, _HalWidgetBase):
 
     # This can be class patched to do something else
     def load(self, fname=None):
-        if fname is None:
-            self._getPathActivated()
-            return
-        self.recordBookKeeping()
-        ACTION.OPEN_PROGRAM(fname)
-        STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+        try:
+            if fname is None:
+                self._getPathActivated()
+                return
+            self.recordBookKeeping()
+            ACTION.OPEN_PROGRAM(fname)
+            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+        except Exception as e:
+            LOG.error("Load file error: {}".format(e))
+            STATUS.emit('error', NML_ERROR, "Load file error: {}".format(e))
 
     # This can be class patched to do something else
     def recordBookKeeping(self):
