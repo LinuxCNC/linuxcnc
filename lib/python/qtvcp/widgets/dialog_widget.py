@@ -1415,6 +1415,8 @@ class CalculatorDialog(Calculator, GeometryMixin):
         self.play_sound = False
         self._request_name = 'CALCULATOR'
         self._title = 'Calculator Entry'
+        self._nblock = False
+        self._message = None
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1434,6 +1436,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
     # if all good show the dialog
     # and then send back the dialog response via a general message
     def _external_request(self, w, message):
+        self._message = message
         if message.get('NAME') == self._request_name:
             geo = message.get('GEONAME') or 'CalculatorDialog-geometry'
             self.read_preference_geometry(geo)
@@ -1446,28 +1449,41 @@ class CalculatorDialog(Calculator, GeometryMixin):
             axis = message.get('AXIS')
             if axis in ('X','Y','Z','A','B','C','U','V','W'):
                 self.axisTriggered(axis)
+            self._nblock = message.get('NONBLOCKING')
             num = self.showdialog(preload)
             message['RETURN'] = num
             STATUS.emit('general', message)
 
     def showdialog(self, preload=None):
-        STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if preload is not None:
             self.display.setText(str(preload))
-        retval = self.exec_()
-        STATUS.emit('focus-overlay-changed', False, None, None)
+        if self._nblock:
+            self.show()
+        else:
+            STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
+            retval = self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+
+    def accept(self):
         self.record_geometry()
-        LOG.debug('Value of pressed button: {}'.format(retval))
-        if retval:
-            try:
-                return float(self.display.text())
-            except:
-                pass
-        return None
+        super(CalculatorDialog, self).accept()
+        try:
+            num =  float(self.display.text())
+            LOG.debug('Displayed value when accepted: {}'.format(num))
+            if self._message is not None:
+                self._message['RETURN'] = num
+                STATUS.emit('general', self._message)
+                self._message = None
+        except Exception as e:
+                print(e)
+
+    def reject(self):
+        self.record_geometry()
+        super(CalculatorDialog, self).reject()
 
     def getColor(self):
         return self._color
