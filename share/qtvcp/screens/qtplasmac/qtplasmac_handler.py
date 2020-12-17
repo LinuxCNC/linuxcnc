@@ -43,7 +43,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.000'
+VERSION = '0.9.0'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -213,6 +213,13 @@ class HandlerClass:
         self.link_hal_pins()
         self.touchoff_buttons()
         self.widgetsLoaded = 1
+        self.startupTimer = QTimer()
+        self.startupTimer.timeout.connect(self.startup_timeout)
+        self.startupTimer.setSingleShot(True)
+        self.startupTimer.start(250)
+
+    def startup_timeout(self):
+        self.w.setWindowTitle('QtPlasmaC v{} - powered by LinuxCNC v{} and QtVCP'.format(VERSION, linuxcnc.version.split(':')[0]))
 
 #################################################################################################################################
 # CLASS PATCHING SECTION #
@@ -446,7 +453,6 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
-        self.w.window().setWindowTitle('blah blah blah')
 
 #        self.w.filemanager.button.setText('MEDIA')
 #        self.w.filemanager.button2.setText('USER')
@@ -734,7 +740,6 @@ class HandlerClass:
         if self.single_cut_request:
             ACTION.RUN()
         self.w.file_edit.setEnabled(True)
-        self.w.window().setWindowTitle('QtPlasmaC')
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
