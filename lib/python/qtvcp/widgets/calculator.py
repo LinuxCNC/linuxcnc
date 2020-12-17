@@ -5,26 +5,13 @@ import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
-        QSizePolicy, QToolButton, QDialog, QDialogButtonBox, QMenu, QAction,
-        QHBoxLayout)
+        QSizePolicy, QPushButton, QDialog, QDialogButtonBox, QMenu, QAction,
+        QVBoxLayout, QToolButton)
 from PyQt5.QtGui import QIcon
 
 from qtvcp.core import Status, Info
 STATUS = Status()
 INFO = Info()
-
-class Button(QToolButton):
-    def __init__(self, text, parent=None):
-        super(Button, self).__init__(parent)
-
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.setText(text)
-
-    def sizeHint(self):
-        size = super(Button, self).sizeHint()
-        size.setHeight(size.height() + 20)
-        size.setWidth(max(size.width(), size.height()))
-        return size
 
 
 class Calculator(QDialog):
@@ -42,6 +29,7 @@ class Calculator(QDialog):
         self.waitingForOperand = True
 
         self.display = QLineEdit('0')
+        self.display.setMinimumHeight(30)
         self.display.setReadOnly(True)
         self.display.setAlignment(Qt.AlignRight)
         self.display.setMaxLength(15)
@@ -61,20 +49,15 @@ class Calculator(QDialog):
             text = str("\N{PLUS-MINUS SIGN}")
         else:
             text = u"\N{PLUS-MINUS SIGN}".encode('utf-8')
-        self.changeSignButton = self.createButton(text,
-                self.changeSignClicked)
-
-        self.axisButton = self.createAxisButton("Axis X",
-                self.axisClicked)
-        self.backspaceButton = self.createButton("Backspace",
-                self.backspaceClicked)
-        self.clearButton = self.createButton("Clear", self.clear)
-        self.clearAllButton = self.createButton("Clear All", self.clearAll)
-
-        self.clearMemoryButton = self.createButton("MC", self.clearMemory)
-        self.readMemoryButton = self.createButton("MR", self.readMemory)
-        self.setMemoryButton = self.createButton("MS", self.setMemory)
-        self.addToMemoryButton = self.createButton("M+", self.addToMemory)
+        self.changeSignButton = self.createButton(text, self.changeSignClicked)
+        self.axisButton = self.createAxisButton("AXIS X", self.axisClicked)
+        self.backspaceButton = self.createButton("BKSP",self.backspaceClicked, 'Backspace')
+        self.clearButton = self.createButton("CLR", self.clear)
+        self.clearAllButton = self.createButton("CLR ALL", self.clearAll)
+        self.clearMemoryButton = self.createButton("MC", self.clearMemory, 'Clear memory')
+        self.readMemoryButton = self.createButton("MR", self.readMemory, 'Read memory')
+        self.setMemoryButton = self.createButton("MS", self.setMemory, 'Set memory')
+        self.addToMemoryButton = self.createButton("M+", self.addToMemory, 'Add to memory')
 
         if sys.version_info.major > 2:
             text = str("\N{DIVISION SIGN}")
@@ -86,22 +69,25 @@ class Calculator(QDialog):
             text = str("\N{MULTIPLICATION SIGN}")
         else:
             text = u"\N{MULTIPLICATION SIGN}".encode('utf-8')
-        self.timesButton = self.createButton(text,
-                self.multiplicativeOperatorClicked)
+        self.timesButton = self.createButton(text, self.multiplicativeOperatorClicked)
         self.minusButton = self.createButton("-", self.additiveOperatorClicked)
         self.plusButton = self.createButton("+", self.additiveOperatorClicked)
 
-        self.squareRootButton = self.createButton("Sqrt",
-                self.unaryOperatorClicked)
+        self.squareRootButton = self.createButton("SQRT", self.unaryOperatorClicked)
         if sys.version_info.major > 2:
             text = str("x\N{SUPERSCRIPT TWO}")
         else:
             text = u"x\N{SUPERSCRIPT TWO}".encode('utf-8')
-        self.powerButton = self.createButton(text,
-                self.unaryOperatorClicked)
-        self.reciprocalButton = self.createButton("1/x",
-                self.unaryOperatorClicked)
+        self.powerButton = self.createButton(text, self.unaryOperatorClicked)
+        self.reciprocalButton = self.createButton("1/x", self.unaryOperatorClicked)
         self.equalButton = self.createButton("=", self.equalClicked)
+
+        self.to_mm_btn = self.createButton('-> MM', self.convertClicked, 'Convert inch to mm')
+        self.to_mm_btn.setProperty('convert', 'to_mm')
+        self.to_inch_btn = self.createButton('-> INCH', self.convertClicked, 'Convert mm to inch')
+        self.to_inch_btn.setProperty('convert', 'to_inch')
+        self.tpi_btn = self.createButton('25.4/X', self.convertClicked, 'Convert metric pitch to TPI or TPI to metric pitch')
+        self.tpi_btn.setProperty('convert', '25.4/X')
 
         mainLayout = QGridLayout()
         mainLayout.setSizeConstraint(QLayout.SetFixedSize)
@@ -111,7 +97,6 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.axisButton, 1, 1, 1, 2)
         mainLayout.addWidget(self.clearButton, 1, 3, 1, 1)
         mainLayout.addWidget(self.clearAllButton, 1, 4, 1, 2)
-
         mainLayout.addWidget(self.clearMemoryButton, 2, 0)
         mainLayout.addWidget(self.readMemoryButton, 3, 0)
         mainLayout.addWidget(self.setMemoryButton, 4, 0)
@@ -136,23 +121,20 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.reciprocalButton, 4, 5)
         mainLayout.addWidget(self.equalButton, 5, 5)
 
-        self.cBox = QHBoxLayout()
-        self.cBox.addWidget(self.createButton('-> mm',
-                    self.convertClicked, 'Convert inch to mm'))
-        self.cBox.addWidget(self.createButton('-> inch',
-                    self.convertClicked, 'Convert mm to inch'))
-        self.cBox.addWidget(self.createButton('25.4/x',
-                    self.convertClicked, 'Convert metric pitch to TPI or TPI to metric pitch'))
-        mainLayout.addLayout(self.cBox,6,0,1,2)
+        mainLayout.addWidget(self.to_mm_btn, 6, 0)
+        mainLayout.addWidget(self.to_inch_btn, 6, 1)
+        mainLayout.addWidget(self.tpi_btn, 6, 2)
 
         self.bBox = QDialogButtonBox()
         self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
         self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
         self.bBox.rejected.connect( self.reject)
         self.bBox.accepted.connect(self.accept)
-        mainLayout.addWidget(self.bBox,7,0)
 
-        self.setLayout(mainLayout)
+        calc_layout = QVBoxLayout()
+        calc_layout.addLayout(mainLayout)
+        calc_layout.addWidget(self.bBox)
+        self.setLayout(calc_layout)
 
         self.setWindowTitle("Calculator")
         if not INFO.LINUXCNC_IS_RUNNING:
@@ -182,7 +164,7 @@ class Calculator(QDialog):
         else:
             SQR = u"x\N{SUPERSCRIPT TWO}"
 
-        if clickedOperator == "Sqrt":
+        if clickedOperator == "SQRT":
             if operand < 0.0:
                 self.abortOperation()
                 return
@@ -326,18 +308,17 @@ class Calculator(QDialog):
         self.display.setText(text)
 
     def convertClicked(self):
-        clickedButton = self.sender()
-        clickedOperator = clickedButton.text()
+        clickedOperator = self.sender().property('convert')
         operand = float(self.display.text())
 
-        if clickedOperator == "-> mm":
+        if clickedOperator == "to_mm":
             result = operand * 25.4
-        elif clickedOperator == "-> inch":
+        elif clickedOperator == "to_inch":
             if operand == 0:
                 result = 0
             else:
                 result = operand / 25.4
-        elif clickedOperator == "25.4/x":
+        elif clickedOperator == "25.4/X":
             if operand == 0:
                 result = 0
             else:
@@ -378,14 +359,19 @@ class Calculator(QDialog):
         self.sumInMemory += float(self.display.text())
 
     def createButton(self, text, member, tip=None):
-        button = Button(text)
+        button = QPushButton(text)
+        button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        button.setMinimumSize(70, 40)
         button.clicked.connect(member)
         if tip is not None:
             button.setToolTip(tip)
         return button
 
     def createAxisButton(self, text, member):
-        button = Button(text)
+        button = QToolButton()
+        button.setText(text)
+        button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        button.setMinimumSize(70, 40)
         button.clicked.connect(member)
         SettingMenu = QMenu()
         button.settingMenu = SettingMenu
@@ -427,11 +413,8 @@ class Calculator(QDialog):
         elif pendingOperator == div:
             if rightOperand == 0.0:
                 return False
-
             self.factorSoFar /= rightOperand
-
         return True
-
 
 if __name__ == '__main__':
 
