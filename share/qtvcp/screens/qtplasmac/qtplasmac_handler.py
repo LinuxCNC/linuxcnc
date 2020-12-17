@@ -688,8 +688,8 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
-            self.w.run.setText('STEP')
-            self.w.pause.setText('RESUME')
+#            self.w.run.setText('SINGLE STEP')
+            self.w.pause.setText('CYCLE RESUME')
             self.pauseTimer.start(250)
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(True)
@@ -697,14 +697,14 @@ class HandlerClass:
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
             self.pauseTimer.stop()
-            self.w.run.setText('CYCLE START')
-            self.w.pause.setText('PAUSE')
+#            self.w.run.setText('CYCLE START')
+            self.w.pause.setText('CYCLE PAUSE')
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(False)
 
     def pause_timeout(self):
         if self.w.pause.text() == '':
-            self.w.pause.setText('RESUME')
+            self.w.pause.setText('CYCLE RESUME')
         else:
             self.w.pause.setText('')
 

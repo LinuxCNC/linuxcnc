@@ -171,7 +171,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -1896,7 +1896,7 @@ ON</string>
                        <string>Pause or resume the current G-Code program</string>
                       </property>
                       <property name="text">
-                       <string>PAUSE</string>
+                       <string>CYCLE PAUSE</string>
                       </property>
                       <property name="indicator_option" stdset="0">
                        <bool>false</bool>
@@ -2091,7 +2091,7 @@ ON</string>
                        <string>Stop the current G-Code program</string>
                       </property>
                       <property name="text">
-                       <string>ABORT</string>
+                       <string>CYCLE STOP</string>
                       </property>
                       <property name="indicator_option" stdset="0">
                        <bool>false</bool>
