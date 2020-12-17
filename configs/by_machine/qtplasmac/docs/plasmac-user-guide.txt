@@ -11,7 +11,7 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a plasma cutting configuration that is loaded on top of LinuxCNC v2.8 or later. It includes a GUI named QtPlasmaC using the QtVCP infrastructure provided with LinuxCNC and based on a theme by user "pinder" on the LinuxCNC Forum. QtPlsmaC uses the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for interfacing the plasma table to LinuxCNC. There are three available formats:
+QtPlasmaC is a plasma cutting configuration that is loaded on top of LinuxCNC v2.9 or later. It includes a GUI named QtPlasmaC using the QtVCP infrastructure provided with LinuxCNC and based on a theme by user "pinder" on the LinuxCNC Forum. QtPlsmaC uses the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for interfacing the plasma table to LinuxCNC. There are three available formats:
 . 16:9 with a minimum resolution of 1366 x 768
 . 9:16 with a minimum resolution of 768 x 1366
 . 4:3 with a minimum resolution of 1024 x 768
@@ -37,7 +37,7 @@ NOTE: Except where noted, this guide assumes the user is using the latest versio
 
 The preferred method for installing LinuxCNC (which contains QtPlasmaC by default) is via an ISO image as described below.
 
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install the preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies.
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install the preferred Linux distribution and then install LinuxCNC v2.9 or later along with any required dependencies.
 
 === If The User Does Not Have Linux Installed
 
@@ -234,41 +234,41 @@ HAL connection examples in the following table show examples for both a parallel
       1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
       2 - If using both an external Arc OK input for Arc OK and an external up/down signals for Torch Height Control.|1
 |Arc Voltage|Required for Modes 0 and 1 only. +
-             Refers to the input HAL pin the arc voltage signal to is connected to.|encoder.0.velocity +
-                                                                       hm2_7i96.0.encoder.00.velocity
+             Refers to the input HAL pin the arc voltage signal to is connected to.|*Parallel Port Example:*  encoder.0.velocity +
+                                                                       *Mesa 7i96 Example:*  hm2_7i96.0.encoder.00.velocity
 |Torch On|Required for All modes. +
-			 Refers to the output HAL pin the torch on signal is connected to.|parport.0.pin-16-out +
-                                                          hm2_7i96.0.ssr.00.out-00
+			 Refers to the output HAL pin the torch on signal is connected to.|*Parallel Port Example:*  parport.0.pin-16-out +
+                                                          *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-00
 |Arc OK|Required for Modes 1 and 2 only. +
-        Refers to the input HAL pin the Arc OK signal is connected to.|parport.0.pin-10-in-not +
-                                                             hm2_7i96.0.gpio.008.in
+        Refers to the input HAL pin the Arc OK signal is connected to.|*Parallel Port Example:*  parport.0.pin-10-in-not +
+                                                             *Mesa 7i96 Example:*  hm2_7i96.0.gpio.008.in
 |Ohmic Probe|Required if using an ohmic probe. +
-             Refers to the input HAL pin the ohmic probe signal is connected to.|parport.0.pin-11-in +
-                                                                hm2_7i96.0.gpio.007.in
+             Refers to the input HAL pin the ohmic probe signal is connected to.|*Parallel Port Example:*  parport.0.pin-11-in +
+                                                                *Mesa 7i96 Example:*  hm2_7i96.0.gpio.007.in
 |Ohmic Probe Enable|Required if using an ohmic probe. +
-                    Refers to the output HAL pin the ohmic probe enable signal is connected to.|parport.1.pin-01-out +
-                                                                              hm2_7i96.0.ssr.00.out-01
+                    Refers to the output HAL pin the ohmic probe enable signal is connected to.|*Parallel Port Example:*  parport.1.pin-01-out +
+                                                                              *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-01
 |Float Switch|Required if using a float switch. +
-              Refers to the input HAL pin the float switch signal is connected to.|parport.0.pin-12-in +
-                                                                  hm2_7i96.0.gpio.006.in
+              Refers to the input HAL pin the float switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-12-in +
+                                                                  *Mesa 7i96 Example:*  hm2_7i96.0.gpio.006.in
 |Breakaway Switch|Required if using a breakaway switch. +
-                  Refers to the input HAL pin the breakaway switch signal is connected to.|parport.0.pin-13-in +
-                                                                          hm2_7i96.0.gpio.005.in
+                  Refers to the input HAL pin the breakaway switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-13-in +
+                                                                          *Mesa 7i96 Example:*  hm2_7i96.0.gpio.005.in
 |Move Up|Required for Mode 2 only. +
-         Refers to the input HAL pin the move up signal is connected to.|parport.1.pin-10-in +
-                                                               hm2_7i96.0.gpio.004.in
+         Refers to the input HAL pin the move up signal is connected to.|*Parallel Port Example:*  parport.1.pin-10-in +
+                                                               *Mesa 7i96 Example:*  hm2_7i96.0.gpio.004.in
 |Move Down|Required for Mode 2 only. +
-           Refers to the input HAL pin the move down signal is connected to.|parport.1.pin-11-in +
-                                                                   hm2_7i96.0.gpio.003.in
-|Run Panel|Run Tab - Selecting this option places the QtPlasmaC run frame in a tab behind the preview tab. +
-           Run Panel - Selecting this option places the QtPlasmaC run frame in a panel at the side of the GUI. +
+           Refers to the input HAL pin the move down signal is connected to.|*Parallel Port Example:*  parport.1.pin-11-in +
+                                                                   *Mesa 7i96 Example:*  hm2_7i96.0.gpio.003.in
+|Run Panel|Run Tab - Selecting this option places the PlasmaC run frame in a tab behind the preview tab. +
+           Run Panel - Selecting this option places the PlasmaC run frame in a panel at the side of the GUI. +
            See <<run-panel, Run Panel>> for an example of each.|Run Tab
 |Scribe Arming|Required if using a scribe. +
-               Refers to the the output HAL pin the scribe arming mechanism is connected to.|parport.1.pin-16-out +
-                                             hm2_7i96.0.ssr.00.out-02
+               Refers to the the output HAL pin the scribe arming mechanism is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
+                                             *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-02
 |Scribe On|Required if using a scribe. +
-              Refers to the output HAL pin the scribe power source is connected to.|parport.1.pin-16-out +
-                                                hm2_7i96.0.ssr.00.out-03
+              Refers to the output HAL pin the scribe power source is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
+                                                *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-03
 |PowerMax Comms|Required if using PowerMax serial communications. +
                 Refers to the serial port to be used for communications.|/dev/ttyUSB0
 |===
