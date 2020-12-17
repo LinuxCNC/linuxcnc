@@ -3,6 +3,7 @@
 import sys
 import os
 import shutil
+from collections import OrderedDict
 
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
                  QWidget, QVBoxLayout, QHBoxLayout, QListView,
@@ -45,6 +46,8 @@ class FileManager(QWidget, _HalWidgetBase):
             self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         user = os.path.split(os.path.expanduser('~') )[-1]
         self.media_path = (os.path.join('/media', user))
+        temp = [('User', self.user_path), ('Media', self.media_path)]
+        self._jumpList = OrderedDict(temp)
         self.currentPath = None
         self.currentFolder = None
         self.PREFS_ = None
@@ -104,17 +107,8 @@ class FileManager(QWidget, _HalWidgetBase):
         self.button2.setText('User')
         self.button2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         self.button2.setMinimumSize(60, 30)
-        self.button2.setToolTip('Jump to User directory. Long press for Options.')
+        self.button2.setToolTip('Jump to User directory.\nLong press for Options.')
         self.button2.clicked.connect(self.onJumpClicked)
-
-        SettingMenu = QMenu(self)
-        self.settingMenu = SettingMenu
-        for i in ('Media', 'User'):
-            axisButton = QAction(QIcon.fromTheme('user-home'), i, self)
-            # weird lambda i=i to work around 'function closure'
-            axisButton.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
-            SettingMenu.addAction(axisButton)
-        self.button2.setMenu(SettingMenu)
 
         self.button3 = QToolButton()
         self.button3.setText('Add Jump')
@@ -122,6 +116,9 @@ class FileManager(QWidget, _HalWidgetBase):
         self.button3.setMinimumSize(60, 30)
         self.button3.setToolTip('Add current directory to jump button list')
         self.button3.clicked.connect(self.onActionClicked)
+
+        self.settingMenu = QMenu(self)
+        self.button2.setMenu(self.settingMenu)
 
         hbox = QHBoxLayout()
         hbox.addWidget(self.button2)
@@ -142,9 +139,21 @@ class FileManager(QWidget, _HalWidgetBase):
             last_path = self.PREFS_.getpref('last_loaded_directory', self.user_path, str, 'BOOK_KEEPING')
             self.updateDirectoryView(last_path)
             LOG.debug("lAST FILE PATH: {}".format(last_path))
+
+            # get all the saved jumplist paths
+            temp = self.PREFS_.getall('FILEMANAGER_JUMPLIST')
+            self._jumpList.update(temp)
+
         else:
             LOG.debug("lAST FILE PATH: {}".format(self.user_path))
             self.updateDirectoryView(self.user_path)
+
+        # install jump paths into toolbutton menu
+        for i in self._jumpList:
+            axisButton = QAction(QIcon.fromTheme('user-home'), i, self)
+            # weird lambda i=i to work around 'function closure'
+            axisButton.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
+            self.settingMenu.addAction(axisButton)
 
     #########################
     # callbacks
@@ -188,6 +197,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def onMediaClicked(self):
         self.showMediaDir()
 
+    # jump directly to a saved path shown on the button
     def onJumpClicked(self):
         data = self.button2.text()
         if data == 'Media':
@@ -195,24 +205,30 @@ class FileManager(QWidget, _HalWidgetBase):
         elif data == 'User':
             self.showUserDir()
         else:
-            self.updateDirectoryView(self.button2.text())
+            self.updateDirectoryView(self._jumpList.get(data))
 
+    # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
         if data == 'Media':
             self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to Media directory. Long press for Options.')
+            self.button2.setToolTip('Jump to Media directory.\nLong press for Options.')
             self.showMediaDir()
         elif data == 'User':
             self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to User directory. Long press for Options.')
+            self.button2.setToolTip('Jump to User directory.\nLong press for Options.')
             self.showUserDir()
         else:
             self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to directory: {}'.format(data))
-            self.updateDirectoryView(self.button2.text())
+            self.button2.setToolTip('Jump to directory:\n{}'.format(self._jumpList.get(data)))
+            self.updateDirectoryView(self._jumpList.get(data))
 
+    # add a jump list path
     def onActionClicked(self):
         i = self.currentFolder
+        try:
+            self._jumpList[i] = i
+        except Exception as e:
+            print(e)
         button = QAction(QIcon.fromTheme('user-home'), i, self)
         # weird lambda i=i to work around 'function closure'
         button.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
@@ -343,6 +359,14 @@ class FileManager(QWidget, _HalWidgetBase):
             self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
             self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
 
+    # when qtvcp closes this gets called
+    # record jump list paths
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            for i, key in enumerate(self._jumpList):
+                if i in(0,1):
+                    continue
+                self.PREFS_.putpref(key, self._jumpList.get(key), str, 'FILEMANAGER_JUMPLIST')
 
 if __name__ == "__main__":
     import sys
