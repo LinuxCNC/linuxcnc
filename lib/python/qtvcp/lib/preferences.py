@@ -64,6 +64,16 @@ class Access(cp):
                 o = default
         return o
 
+    def getall(self, section = 'DEFAULT'):
+        store = {}
+        try:
+            for key, value in cp.items(self, section):
+                store[key] = value
+            return store
+        except configparser.NoSectionError:
+            print ('error with {}'.format(section))
+            return store
+
     def putpref(self, option, value, type=bool, section="DEFAULT"):
         try:
             self.set(section, option, type(value))
