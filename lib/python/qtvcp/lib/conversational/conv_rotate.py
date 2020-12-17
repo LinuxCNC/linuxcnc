@@ -22,7 +22,7 @@ import math
 from shutil import copy as COPY
 from re import compile as COMPILE
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup 
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
 from PyQt5.QtGui import QPixmap 
 
 def cancel(P, W):
@@ -155,26 +155,29 @@ def widgets(P, W):
         W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
         W[entry].editingFinished.connect(lambda:preview(P, W))
     #add to layout
-    W.blank0 = QLabel('')
-    W.blank0.setFixedHeight(24)
-    W.entries.addWidget(W.blank0, 0, 0)
-    W.entries.addWidget(W.aLabel, 1, 1)
-    W.entries.addWidget(W.aEntry, 1, 2)
-    W.blank2 = QLabel('')
-    W.blank2.setFixedHeight(24)
-    W.entries.addWidget(W.blank2, 2, 0)
-    W.entries.addWidget(W.xLabel, 3, 1)
-    W.entries.addWidget(W.xEntry, 3, 2)
-    W.blank4 = QLabel('')
-    W.blank4.setFixedHeight(24)
-    W.entries.addWidget(W.blank4, 4, 0)
-    W.entries.addWidget(W.yLabel, 5 , 1)
-    W.entries.addWidget(W.yEntry, 5, 2)
-    for blank in range(6):
-        W['{}'.format(blank)] = QLabel('')
-        W['{}'.format(blank)].setFixedHeight(24)
-        W.entries.addWidget(W['{}'.format(blank)], 6 + blank, 0)
-    W.entries.addWidget(W.preview, 12, 0)
-    W.entries.addWidget(W.add, 12, 2)
-    W.entries.addWidget(W.undo, 12, 4)
-    W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
+    if P.landscape:
+        for blank in range(13):
+            W['{}'.format(blank)] = QLabel('')
+            W['{}'.format(blank)].setFixedHeight(24)
+            W.entries.addWidget(W['{}'.format(blank)], 0 + blank, 0)
+        W.entries.addWidget(W.aLabel, 2, 1)
+        W.entries.addWidget(W.aEntry, 2, 2)
+        W.entries.addWidget(W.xLabel, 4, 1)
+        W.entries.addWidget(W.xEntry, 4, 2)
+        W.entries.addWidget(W.yLabel, 6 , 1)
+        W.entries.addWidget(W.yEntry, 6, 2)
+        W.entries.addWidget(W.preview, 13, 0)
+        W.entries.addWidget(W.add, 13, 2)
+        W.entries.addWidget(W.undo, 13, 4)
+        W.entries.addWidget(W.lDesc, 14 , 1, 1, 3)
+    else:
+        W.entries.addWidget(W.aLabel, 1, 1)
+        W.entries.addWidget(W.aEntry, 1, 2)
+        W.entries.addWidget(W.xLabel, 3, 1)
+        W.entries.addWidget(W.xEntry, 3, 2)
+        W.entries.addWidget(W.yLabel, 5 , 1)
+        W.entries.addWidget(W.yEntry, 5, 2)
+        W.entries.addWidget(W.preview, 9, 0)
+        W.entries.addWidget(W.add, 9, 2)
+        W.entries.addWidget(W.undo, 9, 4)
+        W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)

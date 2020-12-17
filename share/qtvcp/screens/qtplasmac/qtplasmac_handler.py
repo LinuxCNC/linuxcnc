@@ -276,11 +276,11 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
 
     def gcode_lexer_call(self):
-        print('need to hide gcode lexer button')
+        print('NEED TO HIDE GCODE LEXER BUTTON')
         pass
 
     def python_lexer_call(self):
-        print('need to hide python lexer button')
+        print('NEED TO HIDE PYTHON LEXER BUTTON')
         pass
 
     def kill_check(self):
@@ -2364,7 +2364,6 @@ class HandlerClass:
                 self.dialog_error('Powermax Error','Unknown Powermax fault code: {}'.format(faultCode))
 
     def pmx485_mesh_enable_changed(self, state):
-        print('MESH MODE =', state)
         if state and not self.meshMode:
             self.oldCutMode = self.w.cut_mode.value()
             self.w.cut_mode.setValue(2)
@@ -2550,6 +2549,19 @@ class HandlerClass:
         self.conv_enable_buttons(True)
 
     def conv_new_pressed(self):
+        if self.oldConvButton == 'conv_line':
+            self.w.add_segment = 0
+            if self.w.lType.currentText() == 'line point to point':
+                CONVLINE.set_line_point_to_point(self, self.w)
+            elif self.w.lType.currentText() == 'line by angle':
+                CONVLINE.set_line_by_angle(self, self.w)
+            elif self.w.lType.currentText() == 'arc 3p':
+                CONVLINE.set_arc_3_points(self, self.w)
+            elif self.w.lType.currentText() == 'arc 2p & radius':
+                CONVLINE.set_arc_2_points_radius(self, self.w)
+            elif self.w.lType.currentText() == 'arc angle & radius':
+                CONVLINE.set_arc_by_angle_radius(self, self.w)
+
         outNgc = open(self.fNgc, 'w')
         outNgc.write('(new conversational file)\nM2\n')
         outNgc.close()
@@ -2563,7 +2575,6 @@ class HandlerClass:
                 if '(new conversational file)' in line:
                     self.dialog_error('SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
                     return
-
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self.w,
@@ -2614,6 +2625,8 @@ class HandlerClass:
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
 
     def conv_shape_request(self, shape, module, material):
+# TEMP FOR TESTING
+#        reload(module)
         if material:
             self.w.conv_material.show()
         else:
@@ -2663,7 +2676,6 @@ class HandlerClass:
                 self.dialog_error('NUMERIC ENTRY', 'An invalid entry has been detected')
                 widget.setText('0')
         if name == 'gsEntry':
-            print('grid change to', widget.text())
             # grid size is in inches
             self.w.conv_preview.grid_size = float(widget.text()) / self.unitsPerMm / 25.4
             self.w.conv_preview.set_current_view()
@@ -2698,8 +2710,9 @@ class HandlerClass:
     def conv_clear_widgets(self):
         for i in reversed(range(self.w.entries.count())): 
             widgetToRemove = self.w.entries.itemAt(i).widget()
-            self.w.entries.removeWidget(widgetToRemove)
-            widgetToRemove.setParent(None)
+            if widgetToRemove:
+                self.w.entries.removeWidget(widgetToRemove)
+                widgetToRemove.setParent(None)
 
 
 #########################################################################################################################

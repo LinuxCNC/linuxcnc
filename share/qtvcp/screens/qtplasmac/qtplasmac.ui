@@ -8710,7 +8710,11 @@ HOME ALL</string>
                            <widget class="QComboBox" name="conv_material"/>
                           </item>
                           <item>
-                           <layout class="QGridLayout" name="entries"/>
+                           <layout class="QGridLayout" name="entries" rowminimumheight="0">
+                            <property name="sizeConstraint">
+                             <enum>QLayout::SetDefaultConstraint</enum>
+                            </property>
+                           </layout>
                           </item>
                          </layout>
                         </widget>
