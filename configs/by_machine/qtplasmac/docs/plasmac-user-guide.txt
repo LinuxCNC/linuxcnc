@@ -11,10 +11,11 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a plasma cutting configuration that is loaded on top of LinuxCNC v2.9 or later. It includes a GUI named QtPlasmaC using the QtVCP infrastructure provided with LinuxCNC and based on a theme by user "pinder" on the LinuxCNC Forum. QtPlsmaC uses the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for interfacing the plasma table to LinuxCNC. There are three available formats:
-. 16:9 with a minimum resolution of 1366 x 768
-. 9:16 with a minimum resolution of 768 x 1366
-. 4:3 with a minimum resolution of 1024 x 768
+QtPlasmaC is a GUI for plasma cutting which uses the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
+
+* 16:9 with a minimum resolution of 1366 x 768
+* 9:16 with a minimum resolution of 768 x 1366
+* 4:3 with a minimum resolution of 1024 x 768
 
 Screenshot examples of QtPlasmaC are below:
 
@@ -26,30 +27,35 @@ image::images/qtplasmac_16x9.png[width=100%]
 
 image::images/qtplasmac_9x16.png[width=60%]
 
-The QtPlasmaC component should run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
+The plasmac component will run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
 
 If the user is new to CNC plasma cutting, it is recommended that they read the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
 
-NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. QtPlasmaC update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates Refer to <<plasmac-version, QtPlasmaC Version>> to see the current QtPlasmaC version in the Config Panel. If the Version Number is not present, the user's version of QtPlasmaC is before v0.121. See <<update-plasmac, Update QtPlasmaC>> for information on updating QtPlasmaC.
+NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<update-qtplasmac, Update QtPlasmaC>> for information on updating QtPlasmaC.
 [[plasmac-mode]]
 
 == Installing LinuxCNC
 
-The preferred method for installing LinuxCNC (which contains QtPlasmaC by default) is via an ISO image as described below.
+The preferred method for installing LinuxCNC is via an ISO image as described below.
 
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install the preferred Linux distribution and then install LinuxCNC v2.9 or later along with any required dependencies.
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install their preferred Linux distribution and then install LinuxCNC v2.9 or later along with any required dependencies.
 
 === If The User Does Not Have Linux Installed
 
 Installation instructions are available at: http://linuxcnc.org/docs/devel/html/getting-started/getting-linuxcnc.html
 
-Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC.
+Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC on Debian Buster.
 
-=== If The User Has Linux with LinuxCNC v2.7
+=== If The User Has Linux with LinuxCNC v2.8
 
-Upgrading instruction are available at: http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html
+Instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
 
-Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC.
+Following these instructions by using the below stanzas will upgrade the machine to the current master branch (v2.9) of LinuxCNC.
+
+----
+deb     http://buildbot.linuxcnc.org/ buster master-rtpreempt
+deb-src http://buildbot.linuxcnc.org/ buster master-rtpreempt
+----
 
 === Creating A Working Base Machine Configuration
 
@@ -283,13 +289,13 @@ The newly created QtPlasmaC configuration can be run by entering the following c
 linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
 ----
 
-After creating a new configuration some initial setup is required before using the QtPlasmaC component.
+After creating a new configuration some initial setup is required before using QtPlasmaC.
 
 [[initial-setup]]
 
 === Initial Setup
 
-After running the command at the end of section 5.1, LinuxCNC should be running with the QtPlasmaC panels visible.
+After running the command at the end of section 5.1, LinuxCNC should be running with the QtPlasmaC GUI visible.
 
 Click on the Config tab to open the Config Panel and ensure every one of these settings is tailored to the machine.
 
@@ -374,7 +380,7 @@ NOTE: Machine Name and <machine_name>.hal File can not be modified.
 
 === Lowpass Filter
 
-The QtPlasmaC component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
+The plasmac component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
 The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the <machine_name>_connections.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
@@ -837,9 +843,6 @@ The **Save** button will save the currently displayed parameters to the <machine
 
 The **Reload** button will reload all the parameters from the <machine_name>_config.cfg file.
 
-[[plasmac-version]]
-
-The **Version** label displays the current QtPlasmaC version.
 
 [[plasmac-backup]]
 
@@ -1354,7 +1357,7 @@ SheetCam tool tables are complete and the conversion is fully automatic. The She
 
 Fusion360 tool tables do not have all of the required fields so the user will be prompted for missing parameters. The Fusion360 tool file must be in the Fusion360 .json format.
 
-If the user has a format from a different CAM software they would like converted, create a *New Topic* in the https://forum.linuxcnc.org/plasmac[QtPlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum] to request this addition.
+If the user has a format from a different CAM software they would like converted, create a *New Topic* in the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum] to request this addition.
 
 Materialverter may be run from a GUI file manager by double clicking on *materialverter.py* in the user's configuration directory or may be run by entering the following command into a terminal window:
 
@@ -2209,7 +2212,7 @@ This indicates that the value for the Arc Voltage was invalid (NAN or INF) when 
 
 * *invalid arc-voltage-in*
 
-[[update-plasmac]]
+[[update-qtplasmac]]
 
 === Updating QtPlasmaC
 
@@ -2483,9 +2486,9 @@ This setting should only be used if the user experiences the above symptoms. It 
 
 === QtPlasmaC State Outputs
 
-QtPlasmaC has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide QtPlasmaC's current state.
+The plasmac component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
 
-The different states QtPlasmaC could encounter are as follows:
+The different states plasmac could encounter are as follows:
 
 [width="25%"]
 |===
@@ -2524,7 +2527,7 @@ The DEBUG state is for testing purposes only and will not normally be encountere
 
 === Example Configurations
 
-There are example configuration files which use the QtPlasmaC HAL component to simulate plasma cutting machines.
+There are example configuration files which use the plasmac HAL component to simulate plasma cutting machines.
 
 * metric_plasmac.ini
 * imperial_plasmac.ini
