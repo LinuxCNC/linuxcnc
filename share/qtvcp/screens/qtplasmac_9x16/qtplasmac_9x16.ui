@@ -6030,8 +6030,7 @@ HOME ALL</string>
                                     <string>Distance the torch will move</string>
                                    </property>
                                    <property name="text">
-                                    <string>MOVE
-1.2</string>
+                                    <string>MOVE</string>
                                    </property>
                                    <property name="alignment">
                                     <set>Qt::AlignCenter</set>

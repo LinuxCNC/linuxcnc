@@ -43,7 +43,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.0'
+VERSION = '0.9.1'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -453,6 +453,7 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
+        self.w.cut_rec_move_label.setText('MOVE\n{}'.format(self.w.kerf_width.text()))
 
 #        self.w.filemanager.button.setText('MEDIA')
 #        self.w.filemanager.button2.setText('USER')
@@ -1032,6 +1033,7 @@ class HandlerClass:
         self.w.button_6.pressed.connect(lambda:self.user_button_pressed(6))
         self.w.button_6.released.connect(lambda:self.user_button_released(6))
         self.w.cut_rec_speed.valueChanged.connect(lambda w:self.cutrec_speed_changed(w))
+        self.w.kerf_width.valueChanged.connect(lambda w:self.cutrec_move_changed(w))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -2465,6 +2467,9 @@ class HandlerClass:
             self.w.cut_rec_feed.setText('{:0.0f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
         else:
             self.w.cut_rec_feed.setText('{:0.1f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
+
+    def cutrec_move_changed(self, distance):
+        self.w.cut_rec_move_label.setText('MOVE\n{}'.format(distance))
 
     def cutrec_motion(self, direction):
         speed = float(self.w.cut_rec_speed.value()) * 0.01 * direction

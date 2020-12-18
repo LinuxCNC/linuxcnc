@@ -4502,7 +4502,7 @@ EDGE</string>
                     </size>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="jog_page">
                     <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5610,8 +5610,7 @@ EDGE</string>
                               <string>Distance the torch will move</string>
                              </property>
                              <property name="text">
-                              <string>MOVE
-1.2</string>
+                              <string>MOVE</string>
                              </property>
                              <property name="alignment">
                               <set>Qt::AlignCenter</set>
