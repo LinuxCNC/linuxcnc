@@ -897,7 +897,7 @@ class CamViewDialog(QDialog, GeometryMixin):
         h.addWidget(self.b)
         l = QVBoxLayout()
         o = CamView()
-        o._hal_init()
+        o.hal_init(HAL_NAME='')
         self.setLayout(l)
         l.addWidget(o)
         l.addLayout(h)

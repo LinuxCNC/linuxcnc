@@ -51,7 +51,7 @@ class _HalWidgetBase_(object):
             self.HAL_NAME_ = str(HAL_NAME)
         else:
             if self.objectName() =='':
-                LOG.warning('Nno objectName for HAL pin: {}'.format(self))
+                LOG.warning('No objectName for HAL pin: {}'.format(self))
             self.HAL_NAME_ = self.objectName()
         self.QT_OBJECT_ = self
         self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_

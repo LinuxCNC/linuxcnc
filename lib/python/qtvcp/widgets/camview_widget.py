@@ -79,7 +79,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         else:
             self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
 
-    def hal_init(self):
+    def _hal_init(self):
         self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
         if LIB_GOOD:
             STATUS.connect('periodic', self.nextFrameSlot)
