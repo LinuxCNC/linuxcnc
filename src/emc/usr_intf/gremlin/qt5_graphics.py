@@ -489,12 +489,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
     def get_geometry(self):
-        temp = self.inifile.find("DISPLAY", "GEOMETRY")
+        temp = self.inifile.find("DISPLAY", "GEOMETRY") or 'XYZABCUVW'
         if temp:
             _geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
             self._geometry = "".join(reversed(_geometry))
         else:
-            self._geometry = 'XYZ'
+            self._geometry = 'XYZABCUVW'
         return self._geometry
     def is_lathe(self): return self.lathe_option
     def is_foam(self): return self.foam_option
