@@ -3,7 +3,7 @@
 # Rolf Redford, Nov 2018
 
 #import libraries
-from qt_vismach import *
+from .qt_vismach import *
 import hal
 import math
 import sys

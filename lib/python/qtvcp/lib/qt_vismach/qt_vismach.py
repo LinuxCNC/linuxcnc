@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
 
 import OpenGL.GL as GL
 from OpenGL import GLU
-from primitives import *
+from .primitives import *
 
 class Window(QWidget):
 
@@ -107,7 +107,7 @@ class GLWidget(QOpenGLWidget):
 
         #does not show HUD by default
         self.hud = Hud()
-
+        #self.hud.show("stuff")
         # add a 100ms timer to poll linuxcnc stats
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
