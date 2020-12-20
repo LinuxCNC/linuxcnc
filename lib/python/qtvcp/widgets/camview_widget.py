@@ -80,12 +80,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
 
     def _hal_init(self):
-        try:
-            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
-        except Exception as e:
-            self.pin_ = None
-            LOG.error('HAL pin error: {}'.format(e))
-
+        self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
         if LIB_GOOD:
             STATUS.connect('periodic', self.nextFrameSlot)
 
@@ -168,8 +163,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.pix = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         # repaint the window
         self.update()
-        if self.pin_ is not None:
-            self.pin_.set(360 - self.rotation)
+        self.pin_.set(360 - self.rotation)
 
     def showEvent(self, event):
         if LIB_GOOD:
