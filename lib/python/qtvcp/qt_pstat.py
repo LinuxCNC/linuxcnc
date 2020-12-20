@@ -129,6 +129,10 @@ class _PStat(object):
                     LOG.error('Available built-in VCP Panels:')
                     for i in dirs:
                         print(('{}'.format(i)))
+                    dirs = next(os.walk(self.SCREENDIR))[1]
+                    LOG.error('Available built-in Machine Control Screens:')
+                    for i in dirs:
+                        print(('{}'.format(i)))
                 print('\n')
                 sys.exit(0)
 
