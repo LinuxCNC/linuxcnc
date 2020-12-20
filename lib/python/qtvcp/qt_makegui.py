@@ -187,7 +187,7 @@ Python Error:\n {}'''.format(str(e))
                 rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
             else:
                 log.critical(e)
-                sys.exit(0)
+                raise
 
     def apply_styles(self, fname = None):
         if self.PATHS.IS_SCREEN:
@@ -274,7 +274,7 @@ Python Error:\n {}'''.format(str(e))
                 mod = __import__(basename)
             except ImportError as e:
                 log.critical("module '{}' skipped - import error: ".format(basename), exc_info=e)
-                sys.exit(0)
+                raise
                 continue
             log.debug("module '{}' imported green<OK>".format(mod.__name__))
 
@@ -307,7 +307,7 @@ Python Error:\n {}'''.format(str(e))
             except Exception as e:
                 log.exception("Trouble looking for handlers in '{}':".format(basename), exc_info=e)
                 # we require a working handler file!
-                sys.exit()
+                raise
 
         # Wrap lists in Trampoline, unwrap single functions
         for n,v in list(handlers.items()):
