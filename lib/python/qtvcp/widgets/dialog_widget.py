@@ -890,13 +890,13 @@ class CamViewDialog(QDialog, GeometryMixin):
         self.b.clicked.connect(lambda: self.close())
         h.addWidget(self.b)
         l = QVBoxLayout()
-        o = CamView()
-        o.hal_init(HAL_NAME='')
+        self.camV = CamView()
         self.setLayout(l)
-        l.addWidget(o)
+        l.addWidget(self.camV)
         l.addLayout(h)
 
     def _hal_init(self):
+        self.camV.hal_init(HAL_NAME='')
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
 
