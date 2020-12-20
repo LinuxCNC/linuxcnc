@@ -24,7 +24,6 @@ class QPin(hal.Pin, QObject):
 
     REGISTRY = []
     UPDATE = False
-
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
@@ -41,6 +40,12 @@ class QPin(hal.Pin, QObject):
 
     def text(self):
         return self.get_name()
+
+    # always returns False because
+    # there was no errpr when making pin
+    # see class DUMMY
+    def error(self):
+        return False
 
     @classmethod
     def update_all(self):
@@ -71,6 +76,26 @@ class QPin(hal.Pin, QObject):
     def update_stop(self, timeout=100):
         QPin.UPDATE = False
 
+# so errors when making QPins aren't fatal
+class DummyPin(object):
+    def __init__(self, *a, **kw):
+        self._a = a
+        self._kw = kw
+
+    # always returns True because
+    # there was an errpr when making HAL pin
+    # see class QPin
+    def error(self):
+        return True
+
+    def getError(self):
+        print('{}'.format(self._kw.get('ERROR')))
+
+    def get(self):
+        pass
+
+    def set(self):
+        pass
 
 class QComponent:
     def __init__(self, comp):
@@ -79,7 +104,12 @@ class QComponent:
         self.comp = comp
 
     def newpin(self, *a, **kw):
-        return QPin(_hal.component.newpin(self.comp, *a, **kw))
+        try:
+            p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+        except Exception as e:
+            log.error("QComponent: Error making new HAL pin: {}".format(e))
+            p = DummyPin(*a, ERROR=e)
+        return p
 
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
