@@ -63,23 +63,43 @@ If you are using this to make a CNC control screen: +
 Under the [DISPLAY] heading:
 
 ----
-DISPLAY = qtvcp <screen_name>
+DISPLAY = qtvcp <options> <screen_name>
   options:
     -d debugging on
     -a set window always on top
     -c HAL component name. Default is to use the UI file name.
-    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET
-    -m maximise window
+    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET example: -g 200x400+0+100
+    -m maximize window
     -f fullscreen the window
     -t theme. Default is system theme
-    -x embed into a X11 window that doesn't supoort embedding.
+    -x embed into a X11 window that doesn't support embedding.
     --push_xid send qtvcp's X11 window id number to standard output; for embedding
+    -u file path of a substitude handler file
+    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
+
+    all <options> must be before <screen name>
     <screen_name> is the base name of the .ui and _handler.py files.
     If <screen_name> is missing the default screen will be loaded.
 ----
 Qtvcp assumes the UI file and the handler file use this same base name. +
 Qtvcp will search the LinuxCNC configuration file that was launched first for the files,  +
 then in the system skin folder. the skin folders holds standard screens. +
+
+=== builtin Panels
+
+There are several builtin HAL panels available. +
+in a  terminal type 'qtvcp' <return> to see a list. +
+
+* test_panel - collect of useful widgets for testing HAL component. Including speech of LED state.
+
+* cam_align - a camera display widget for rotational alignment
+
+* sim_panel - a small control panel for simulated configurations
+
+* vismach_mill_xyz - 3d openGL view of a 3 axis milling machine
+
+.qtvismach- 3 Axis Mill Builtin panel
+image::images/qtvismach.png["QtVismach Mill",align="left"]
 
 === QTDesigner UI File
 
