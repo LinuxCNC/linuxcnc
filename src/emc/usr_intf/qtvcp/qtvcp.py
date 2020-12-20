@@ -212,7 +212,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.hal = QComponent(self.halcomp)
         except:
             LOG.critical("Asking for a HAL component using a name that already exists?")
-            sys.exit(0)
+            raise Exception('"Asking for a HAL component using a name that already exists?')
 
         # initialize the window
         window = qt_makegui.VCPWindow(self.hal, PATH)
@@ -370,7 +370,10 @@ Pressing cancel will close linuxcnc.""" % target)
         except AttributeError:
             pass
         STATUS.shutdown()
-        self.halcomp.exit()
+        try:
+            self.halcomp.exit()
+        except:
+            pass
         sys.exit(0)
 
         # Throws up a dialog with debug info when an error is encountered 
