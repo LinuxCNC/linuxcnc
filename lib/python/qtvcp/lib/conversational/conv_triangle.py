@@ -182,7 +182,7 @@ def preview(P, W):
         W.add.setEnabled(True)
     else:
         P.dialogError = True
-        if A <> 0 and B <> 0 and C <> 0 and A + B + C <> math.radians(180):
+        if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
             P.dialog_error('TRIANGLE', 'A + B + C must equal 180')
         else:
             P.dialog_error('TRIANGLE', 'Minimum requirements are:\n\n'\

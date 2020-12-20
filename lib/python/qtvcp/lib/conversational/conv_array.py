@@ -59,7 +59,7 @@ def preview(P, W):
         yOrgOffset = float(W.oyEntry.text())
     except:
         yOrgOffset = 0
-    if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset <> 0)) and (rows == 1 or (rows > 1 and yOffset <> 0)):
+    if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset != 0)) and (rows == 1 or (rows > 1 and yOffset != 0)):
         cancel(P, W, None)
         if P.arrayMode == 'conversational':
             fPre = []
