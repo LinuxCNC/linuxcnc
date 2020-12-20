@@ -92,9 +92,9 @@ class DummyPin(object):
         print('{}'.format(self._kw.get('ERROR')))
 
     def get(self):
-        pass
+        return 0
 
-    def set(self):
+    def set(self, *a, **kw):
         pass
 
 class QComponent:
