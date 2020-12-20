@@ -2,6 +2,7 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
+import inspect
 
 import sys
 if sys.version_info.major > 2:
@@ -16,7 +17,7 @@ from qtvcp.qt_istat import _IStat as IStatParent
 # Set up logging
 from . import logger
 log = logger.getLogger(__name__)
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
 
 class QPin(hal.Pin, QObject):
@@ -107,7 +108,11 @@ class QComponent:
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
         except Exception as e:
-            log.error("QComponent: Error making new HAL pin: {}".format(e))
+            if log.getEffectiveLevel() == logger.VERBOSE:
+                raise
+            t = inspect.getframeinfo(inspect.currentframe().f_back)
+            log.error("QComponent: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+                format(e, t[0], t[1], t[2]))
             p = DummyPin(*a, ERROR=e)
         return p
 
