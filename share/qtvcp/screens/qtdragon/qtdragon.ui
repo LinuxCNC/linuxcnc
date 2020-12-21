@@ -2449,6 +2449,40 @@ PLATE</string>
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="btn_utils">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>UTILS</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="index" stdset="0">
+                 <number>10</number>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">page_buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
                <widget class="ActionButton" name="action_machine_on">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2857,7 +2891,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>10</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -6061,6 +6095,29 @@ TO FILE</string>
                          </widget>
                         </item>
                        </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="main_tab_widgetPage11">
+                    <layout class="QVBoxLayout" name="verticalLayout_14">
+                     <item>
+                      <widget class="QTabWidget" name="tabWidget_utilities">
+                       <property name="currentIndex">
+                        <number>1</number>
+                       </property>
+                       <widget class="QWidget" name="facing">
+                        <attribute name="title">
+                         <string>FACING</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_facing"/>
+                       </widget>
+                       <widget class="QWidget" name="hole_circle">
+                        <attribute name="title">
+                         <string>Bolt Hole Cirlce</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_hole_circle"/>
+                       </widget>
                       </widget>
                      </item>
                     </layout>
@@ -13074,7 +13131,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>02:56:06 PM</string>
+            <string>11:32:07 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13394,8 +13451,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>513</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13410,8 +13467,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13426,8 +13483,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13538,8 +13595,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>299</x>
-     <y>444</y>
+     <x>137</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -13554,8 +13611,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>444</y>
+     <x>162</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -13602,8 +13659,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>167</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -13651,7 +13708,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>96</y>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -13731,7 +13788,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>678</x>
-     <y>277</y>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -13810,8 +13867,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1131</x>
-     <y>338</y>
+     <x>523</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -13826,8 +13883,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1131</x>
-     <y>491</y>
+     <x>523</x>
+     <y>181</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -13842,8 +13899,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1131</x>
-     <y>186</y>
+     <x>523</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -13858,8 +13915,8 @@ ZERO</string>
    <slot>percent_done_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>33</y>
+     <x>111</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>-68</x>
