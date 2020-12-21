@@ -73,7 +73,10 @@ class HalTranslate(Collection):
         if self.direct is None:
             v = self.comp[self.var]
         else:
-            v = hal.get_value(self.var)
+            try:
+                v = hal.get_value(self.var)
+            except:
+                v = 0
         GL.glPushMatrix()
         GL.glTranslatef(x*v, y*v, z*v)
 
@@ -95,7 +98,10 @@ class HalRotate(Collection):
         if direct is None:
             v = self.comp[self.var]
         else:
-            v = hal.get_value(self.var)
+            try:
+                v = hal.get_value(self.var)
+            except:
+                v = 0
         GL.glRotatef(th * v, x, y, z)
 
     def unapply(self):

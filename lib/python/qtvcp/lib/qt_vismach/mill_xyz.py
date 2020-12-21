@@ -1,12 +1,11 @@
 #!/usr/bin/python2
 
 # Rolf Redford, Nov 2018
+# modded for qtvcp Chris Morley 2020
 
-#import libraries
-from .qt_vismach import *
-import hal
-import math
 import sys
+import hal
+from .qt_vismach import *
 
 #----------------------------------------------------------------------------------------------------------------------------------
 # Starting and defining
@@ -19,9 +18,9 @@ MODEL_SCALING = IMPERIAL
 
 # used for diameter for versions less than 2.8.
 # it gives us way to access variable values from vismach script.
-import linuxcnc
-s = linuxcnc.stat()
-s.poll()
+#import linuxcnc
+#s = linuxcnc.stat()
+#s.poll()
 
 # Here is where we define pins that linuxcnc will send
 # data to, in order to make movements.
@@ -29,9 +28,12 @@ s.poll()
 # tooldiameter isn't really used but if you are using 2.8 you can make couple changes
 # in this file, and uncomment last line in HAL file.
 # add joints. Mill has 3.
-c = hal.component("3axis-tutorial-test")
+#c = hal.component("3axis-tutorial-test")
 # tells loadusr pins is ready
-c.ready()
+#c.ready()
+
+# we are not using a component but the original code requires a varible
+c = None
 
 # Used for tool cylinder
 # it will be updated in shape and length by function below.
@@ -52,12 +54,18 @@ class HalToolCylinder(CylinderZ):
         # s.poll() # 2.8 don't need this, comment out if using 2.8.
         # get diameter and divide by 2 to get radius.
         # rad = ( s.tool_table[s.tool_in_spindle].diameter ) # 2.7 workaround
-        dia = ( hal.get_value('halui.tool.diameter') * MODEL_SCALING) 
+        try:
+            dia = ( hal.get_value('halui.tool.diameter') * MODEL_SCALING)
+        except:
+            dia = 0
         rad = dia / 2 # change to rad
         # this instantly updates tool model but tooltip doesnt move till -
         # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
         # Tool will "crash" if h and tool length does not match.
-        leng = hal.get_value('motion.tooloffset.z')* MODEL_SCALING
+        try:
+            leng = hal.get_value('motion.tooloffset.z')* MODEL_SCALING
+        except:
+            leng = 0
         # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
         # commented out as I prefer machine to show actual tool size right away.
         #leng = self.comp["toollength"]
@@ -265,6 +273,8 @@ model = Collection([frame, yassembly, zassembly])
 # last 2 is where view point source is.
 #main(model, tooltip, work, 600, lat=-75, lon=215)
 
+# we want to embed with qtvcp so build a window to display
+# the model
 class Window(QWidget):
 
     def __init__(self):
@@ -289,6 +299,8 @@ class Window(QWidget):
         self.setLayout(mainLayout)
 
 
+# but it you call this directly it should work too
+
 if __name__ == '__main__':
     from PyQt5.QtWidgets import (QApplication,QWidget)
 
@@ -296,18 +308,4 @@ if __name__ == '__main__':
     window = Window()
     window.show()
     sys.exit(app.exec_())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
