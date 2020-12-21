@@ -847,9 +847,9 @@ a couple of HAL Parameters that affect all the pwmgen instances:
 This specifies the PWM frequency, in Hz, of all
 the pwmgen instances running in the PWM modes (modes 1 and 2).  This is
 the frequency of the variable-duty-cycle wave.  Its effective range is
-from 1 Hz up to 193 kHz.  Note that the max frequency is determined by the
-ClockHigh frequency of the Anything IO board; the 5i20 and 7i43 both have
-a 100 MHz clock, resulting in a 193 kHz max PWM frequency.  Other boards
+from 1 Hz up to 386 kHz.  Note that the max frequency is determined by the
+ClockHigh frequency of the Anything IO board; the 5i25 and 7I92 both have
+a 200 MHz clock, resulting in a 386 kHz max PWM frequency.  Other boards
 may have different clocks, resulting in different max PWM frequencies.
 If the user attempts to set the frequency too high, it will be clipped
 to the max supported frequency of the board.  Frequencies below about
@@ -866,9 +866,9 @@ space) in the PDM pulse train has a duration of 1/pdm_frequency seconds.
 For example, setting the pdm_frequency to 2e6 (2 MHz) and the duty cycle
 to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
-about 1525 Hz up to just under 100 MHz.  Note that the max frequency
+about 1525 Hz up to just under 200 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max
+5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 Mhz max
 PDM frequency.  Other boards may have different clocks, resulting in
 different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
@@ -1039,6 +1039,12 @@ When True, the stepgen instance works as expected.  When False, no steps
 are generated and velocity\-fb goes immediately to 0.  If the stepgen is
 moving when enable goes false it stops immediately, without obeying the
 maxaccel limit.
+
+.TP
+(bit input) position\-reset
+Resets position to 0 when true.
+Useful for step/dir controlled spindles when switching between
+spindle and joint modes.
 
 .TP
 (bit input) control\-type

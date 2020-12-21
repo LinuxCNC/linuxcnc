@@ -1035,7 +1035,8 @@ typedef struct {
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
             hal_bit_t *enable;
-            hal_bit_t *control_type;  // 0="position control", 1="velocity control"
+            hal_bit_t *control_type;   // 0="position control", 1="velocity control"
+            hal_bit_t *position_reset; // reset position when true
 
             // debug pins
             hal_float_t *dbg_ff_vel;
@@ -1134,7 +1135,7 @@ typedef struct {
 
 
 
-//galv
+//
 // Buffered SPI transciever
 // 
 
