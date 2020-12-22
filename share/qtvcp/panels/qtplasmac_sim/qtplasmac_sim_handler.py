@@ -30,7 +30,6 @@ class HandlerClass:
         self.bTimer.setSingleShot(True)
         self.bTimer.timeout.connect(self.break_timer_done)
         self.backColor = QColor(self.w.sensor_flt.palette().color(QPalette.Background)).name()
-        self.w.arc_ok.setStyleSheet('background: #red')
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
 
