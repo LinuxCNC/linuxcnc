@@ -1,6 +1,8 @@
 [[cha:basic-hal-reference]]
 
 = Basic HAL Reference
+:toc:
+:toclevels: 3
 
 This document provides a reference to the basics of HAL.
 
@@ -356,14 +358,14 @@ function. Tmax is a read/write parameter so the user can set it to 0 to
 get rid of the first time initialization on the function's execution
 time.
 
-== Logic Components
+=== Logic Components
 
 HAL contains several real time logic components. Logic components
 follow a 'Truth Table' that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
 
-=== and2
+==== and2
 
 The 'and2' component is a two input 'and' gate. The truth table below
 shows the output based on each combination of input.
@@ -395,7 +397,7 @@ Truth Table
 |True | True | True
 |========================================
 
-=== not
+==== not
 
 The 'not' component is a bit inverter.
 
@@ -424,7 +426,7 @@ Truth Table
 |False | True
 |========================================
 
-=== or2
+==== or2
 
 The 'or2' component is a two input OR gate.
 
@@ -455,7 +457,7 @@ Truth Table
 |False | False | False
 |========================================
 
-=== xor2
+==== xor2
 
 The 'xor2' component is a two input XOR (exclusive OR)gate.
 
@@ -486,7 +488,7 @@ Truth Table
 |False | False | False
 |========================================
 
-=== Logic Examples
+==== Logic Examples
 
 An 'and2' example connecting two inputs to one output.
 
@@ -509,9 +511,9 @@ the in1 bit of the and gate. Last we connect the and2 out bit to the
 parallel port pin 14. So following the truth table for and2 if pin 11
 and pin 12 are on then the output pin 14 will be on.
 
-== Conversion Components
+=== Conversion Components
 
-=== weighted_sum
+==== weighted_sum
 
 The weighted_sum converts a group of bits to an integer. The
 conversion is the sum of the 'weights' of the bits that are on plus any
@@ -557,4 +559,10 @@ Owner   Type  Dir         Value  Name
     10  s32   Out             5  wsum.0.sum
 -----------------------------------------------------------
 
+
+==== bitslice
+
+Converts an unsigned-32 input into individual bits.
+
+...
 
