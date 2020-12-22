@@ -276,6 +276,8 @@ class HandlerClass:
         self.w.gcode_editor.hide()
         self.w.filemanager.list.setAlternatingRowColors(False)
         self.w.filemanager_usb.list.setAlternatingRowColors(False)
+        self.w.filemanager_usb.showList()
+
         if INFO.MACHINE_IS_METRIC:
             self.w.lbl_tool_sensor_B2W.setText('INCH')
             self.w.lbl_tool_sensor_B2S.setText('INCH')
