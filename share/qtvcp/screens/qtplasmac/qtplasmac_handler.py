@@ -1352,11 +1352,6 @@ class HandlerClass:
                 hal.set_p('plasmac.torch-pulse-time', str(torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.button_active(self.tpButton)
-            else:
-                self.torchTimer.stop()
-                hal.set_p('plasmac.torch-pulse-time', '0')
-                hal.set_p('plasmac.torch-pulse-start','0')
-                self.button_normal(self.tpButton)
         elif 'cut-type' in commands.lower():
             self.cutType ^= 1
             if self.cutType:
