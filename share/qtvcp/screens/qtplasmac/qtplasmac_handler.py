@@ -1358,6 +1358,7 @@ class HandlerClass:
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.button_active(self.tpButton)
         elif 'cut-type' in commands.lower():
+            self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
             if self.cutType:
                 hal.set_p('qtplasmac.cut_type','1')
