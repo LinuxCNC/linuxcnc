@@ -734,6 +734,7 @@ class HandlerClass:
         self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
+        self.w.gcodegraphics.logger.clear()
 
     def joint_unhomed(self, obj, joints):
         for joint in joints:
