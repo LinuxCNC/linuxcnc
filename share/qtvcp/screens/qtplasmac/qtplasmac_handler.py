@@ -437,11 +437,12 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         self.w.cut_rec_move_label.setText('MOVE\n{}'.format(self.w.kerf_width.text()))
-
-#        self.w.filemanager.button.setText('MEDIA')
-#        self.w.filemanager.button2.setText('USER')
-#        self.w.filemanager.showCopyControls(True)
-
+        self.w.filemanager.button2.setText('USER')
+        self.w.filemanager.button3.setText('ADD JUMP')
+# # for copy/paste control       
+#         self.w.filemanager.copyButton.setText('COPY')
+#         self.w.filemanager.pasteButton.setText('PASTE')
+#         self.w.filemanager.showCopyControls(True)
         self.font = QFont()
         self.font.setFamily('Lato')
         self.font.setFixedPitch(True)

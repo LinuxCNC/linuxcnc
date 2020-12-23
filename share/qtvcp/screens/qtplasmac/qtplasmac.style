@@ -486,8 +486,44 @@ QComboBox QListView {
 #material_selector QListView {
     border-color: frames }
 
-/****** FILE MANAGER & MDI HISTORY************/
-#filemanager QListView,
+/****** FILE MANAGER************/
+#filemanager QTableView {
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font: 13pt 'Lato';
+    alternate-background-color: backalt;
+    padding: 2px }
+
+#filemanager QTableView::item {
+    height: 36px;
+}
+
+#filemanager QTableView::item:selected:active {
+    color: backgnd;
+    background-color: foregnd }
+
+#filemanager QTableView::item:selected:!active {
+    color: backgnd;
+    background-color: foregnd }
+
+#filemanager QComboBox {
+    height: 40px;
+    font: 12pt;
+ }
+
+#filemanager QLineEdit {
+    height: 40px;
+    font: 12pt;
+ }
+
+#filemanager QToolButton {
+    font: 14pt;
+    height: 40px;
+    width: 60px;
+    margin: 0px;
+ }
+
+/****** MDI HISTORY************/
 #mdihistory QListView {
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -498,36 +534,9 @@ QComboBox QListView {
     selection-color:cyan;
     padding: 2 }
 
-#filemanager QListView::item,
 #mdihistory QListView::item {
     height: 36;
 }
-
-#filemanager QListView::item:selected:active,
-#mdihistory QListView::item:selected:active {
-    color: backgnd;
-    background-color: foregnd }
-
-#filemanager QListView::item:selected:!active,
-#mdihistory QListView::item:selected:!active {
-    color: backgnd;
-    background-color: foregnd }
-
-#filemanager QToolButton {
-    font: 10pt;
-    height: 40;
-/*    width: 60;*/
- }
-
-#filemanager QComboBox {
-    height: 40;
-    font: 12pt;
- }
-
-#filemanager QLineEdit {
-    height: 40;
-    font: 12pt;
- }
 
 #mdihistory QLineEdit {
     border: 1px solid foregnd;
