@@ -645,6 +645,10 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
+        if self.pauseTimer:
+            self.pauseTimer.stop()
+            self.w.pause.setText('CYCLE PAUSE')
+
         ACTION.SET_MANUAL_MODE()
 
     def interp_paused(self, obj):
