@@ -40,7 +40,17 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
 
+/****** VELOCITY LABELS ************/
+#velocity_label{
+    color: backgnd;
+    background: frames }
 
+#velocity_show {
+    color: backgnd;
+    background: frames;
+    border-top-right-radius: 2px }
+
+/****** QLINEEDITS ************/
 QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -456,7 +466,7 @@ QComboBox QListView {
     background: frames;
     border: none;
     border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     font: 11pt 'Lato';
