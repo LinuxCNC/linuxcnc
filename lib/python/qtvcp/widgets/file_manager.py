@@ -331,7 +331,6 @@ class FileManager(QWidget, _HalWidgetBase):
     @pyqtSlot(float)
     @pyqtSlot(int)
     def scroll(self, data):
-        print data
         if data > self._last:
             self.up()
         elif data < self._last:
