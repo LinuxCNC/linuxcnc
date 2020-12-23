@@ -449,11 +449,12 @@ QComboBox {
     border: 1px solid foregnd;
     border-radius: 4px;
     font: 11pt 'Lato';
-    padding: 0px 0px 0px 16px;
+    padding: 0px 0px 0px 12px;
     selection-color: backgnd;
     selection-background-color: foregnd }
 
 QComboBox::drop-down {
+    width: 0;
     image: none }
 
 QComboBox QListView {

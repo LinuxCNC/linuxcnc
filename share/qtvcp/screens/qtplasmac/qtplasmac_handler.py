@@ -413,6 +413,7 @@ class HandlerClass:
         self.grid_size_changed(self.w.grid_size.value())
 
     def init_widgets(self):
+        self.w.jogincrements.setItemText(0, 'CONTINUOUS')
         self.w.main_tab_widget.setCurrentIndex(0)
         self.w.preview_stack.setCurrentIndex(0)
         self.w.gcode_stack.setCurrentIndex(0)
