@@ -43,7 +43,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.1'
+VERSION = '0.9.2'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -78,43 +78,21 @@ class HandlerClass:
             pass
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
-# keep users versions up to date
-        if not self.PATHS.BASEDIR in self.PATHS.CONFIGPATH:
-        # determine if a package install or a rip install
-            if self.PATHS.SCREENDIR.startswith('/usr/share'):
-                sourcePath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/plasmac/'
-            else:
-                sourcePath = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/plasmac/')
-        # if old common folder exist rename it - we can delete this down the track as it only applies to testing versions
-            commDir = '{}/common'.format(self.PATHS.CONFIGPATH)
-            if os.path.exists(commDir):
-                os.rename(commDir, '{}_redundant_{}'.format(commDir, time.time()))
-        # if a plasmac file or folder exists, rename it. If a plasmac link exists delete it
-            plasDir = '{}/plasmac'.format(self.PATHS.CONFIGPATH)
-            if os.path.exists(plasDir):
-                if os.path.isfile(plasDir) or os.path.isdir(plasDir):
-                    os.rename(plasDir, '{}_redundant_{}'.format(plasDir, time.time()))
-                elif os.path.islink(plasDir):
-                    os.remove(plasDir)
-                else:
-                    print('unknown plasmac item in {}'.format(self.PATHS.CONFIGPATH))
-                    sys.exit()
-        # create new plasmac link to suit the installation type
-            os.symlink(sourcePath, '{}/plasmac'.format(self.PATHS.CONFIGPATH))
-# if old testing version, exit and warn the user. This can also be removed down the track
-        if 'common' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH'):
-            err  = '\n**********************************************\n'
-            err += '* This configuration requires changes        *\n'
-            err += '*                                            *\n'
-            err += '* edit the ini file and change "common"      *\n'
-            err += '* in any of the following lines to "plasmac" *\n'
-            err += '*                                            *\n'
-            err += '* ngc =                                      *\n'
-            err += '* nc =                                       *\n'
-            err += '* tap =                                      *\n'
-            err += '* SUBROUTINE_PATH =                          *\n'
-            err += '* USER_M_PATH =                              *\n'
-            err += '**********************************************\n\n'
+# if older development version, exit and warn the user. This can be removed down the track
+        if './common' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH') or \
+           './plasmac' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH'):
+            err  = '\n****************************************************\n'
+            err += '* This configuration requires changes                *\n'
+            err += '*                                                    *\n'
+            err += '* edit the ini file and change ./common or ./plasmac *\n'
+            err += '* in any of the following lines to ./qtplasmac       *\n'
+            err += '*                                                    *\n'
+            err += '* ngc =                                              *\n'
+            err += '* nc =                                               *\n'
+            err += '* tap =                                              *\n'
+            err += '* SUBROUTINE_PATH =                                  *\n'
+            err += '* USER_M_PATH =                                      *\n'
+            err += '******************************************************\n\n'
             print(err)
             sys.exit()
         self.STYLEEDITOR = SSE(widgets, paths)
@@ -131,23 +109,6 @@ class HandlerClass:
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
         KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
         KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
-        STATUS.connect('state-on', lambda w:self.power_state(True))
-        STATUS.connect('state-off', lambda w:self.power_state(False))
-        STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
-        STATUS.connect('user-system-changed', self.user_system_changed)
-        STATUS.connect('file-loaded', self.file_loaded)
-        STATUS.connect('homed', self.joint_homed)
-        STATUS.connect('all-homed', self.joints_all_homed)
-        STATUS.connect('not-all-homed', self.joint_unhomed)
-        STATUS.connect('g-code-changed', self.gcodes_changed)
-        STATUS.connect('m-code-changed', self.mcodes_changed)
-        STATUS.connect('program-pause-changed', self.pause_changed) 
-        STATUS.connect('graphics-loading-progress', self.percent_loaded)
-        STATUS.connect('interp-paused', self.interp_paused)
-        STATUS.connect('interp-idle', self.interp_idle)
-        STATUS.connect('interp-reading', self.interp_reading)
-        STATUS.connect('interp-waiting', self.interp_waiting)
-        STATUS.connect('interp-run', self.interp_running)
         self.axisList = INFO.AVAILABLE_AXES
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -161,14 +122,13 @@ class HandlerClass:
 #                          'widget_jog_angular', 'widget_increments_angular']
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
-        self.maxHeight = hal.get_value('ini.z.max_limit') - hal.get_value('ini.z.min_limit')
-        self.unitsPerMm = hal.get_value('halui.machine.units-per-mm')
-        if self.unitsPerMm != 1:
-            self.units = 'inch'
-        else:
-            self.units = 'metric'
+        self.maxHeight = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT')) - float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
+        self.unitsPerMm = 1
+        self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
+        if self.units == 'inch':
+            self.unitsPerMm = 0.03937
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
-        self.mode = int(self.iniFile.find('PLASMAC', 'MODE')) or 0
+        self.mode = int(self.iniFile.find('QTPLASMAC', 'MODE')) or 0
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
@@ -210,16 +170,38 @@ class HandlerClass:
         self.pmx485_check()
         if self.firstRun is True:
             self.firstRun = False
-        self.link_hal_pins()
         self.touchoff_buttons()
         self.widgetsLoaded = 1
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
         self.startupTimer.start(250)
+        STATUS.connect('state-on', lambda w:self.power_state(True))
+        STATUS.connect('state-off', lambda w:self.power_state(False))
+        STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
+        STATUS.connect('user-system-changed', self.user_system_changed)
+        STATUS.connect('file-loaded', self.file_loaded)
+        STATUS.connect('homed', self.joint_homed)
+        STATUS.connect('all-homed', self.joints_all_homed)
+        STATUS.connect('not-all-homed', self.joint_unhomed)
+        STATUS.connect('g-code-changed', self.gcodes_changed)
+        STATUS.connect('m-code-changed', self.mcodes_changed)
+        STATUS.connect('program-pause-changed', self.pause_changed) 
+        STATUS.connect('graphics-loading-progress', self.percent_loaded)
+        STATUS.connect('interp-paused', self.interp_paused)
+        STATUS.connect('interp-idle', self.interp_idle)
+        STATUS.connect('interp-reading', self.interp_reading)
+        STATUS.connect('interp-waiting', self.interp_waiting)
+        STATUS.connect('interp-run', self.interp_running)
+        self.link_hal_pins()
 
+#        self.power_state(False)
     def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by LinuxCNC v{} and QtVCP'.format(VERSION, linuxcnc.version.split(':')[0]))
+        self.w.power.setEnabled(False)
+        self.w.run.setEnabled(False)
+        self.w.pause.setEnabled(False)
+        self.w.abort.setEnabled(False)
 
 #################################################################################################################################
 # CLASS PATCHING SECTION #
@@ -334,9 +316,6 @@ class HandlerClass:
 # SPECIAL FUNCTIONS SECTION #
 #################################################################################################################################
     def link_hal_pins(self):
-        #ini
-        CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
-        CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -405,6 +384,9 @@ class HandlerClass:
         #offsets
         CALL(['halcmd', 'net','plasmac:x-offset-current','qtplasmac.x_offset'])
         CALL(['halcmd', 'net','plasmac:y-offset-current','qtplasmac.y_offset'])
+        #ini
+        CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -491,7 +473,7 @@ class HandlerClass:
         self.w.camview.font = QFont("arial,helvetica", 16)
 
     def touchoff_buttons(self):
-        cCode = self.iniFile.find('PLASMAC', 'CAMERA_TOUCHOFF') or '0'
+        cCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
         if cCode == '0':
             self.w.camera.hide()
         else:
@@ -511,7 +493,7 @@ class HandlerClass:
                 msg = '111 Invalid entry for camera offset'
                 self.dialog_error('INI FILE ERROR', msg)
 
-        lCode = self.iniFile.find('PLASMAC', 'LASER_TOUCHOFF') or '0'
+        lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         if lCode == '0':
             self.w.laser.hide()
         else:
@@ -1251,9 +1233,9 @@ class HandlerClass:
         self.single_cut_request = False
         self.oldFile = None
         for button in range(1,9):
-            bname = self.iniFile.find('PLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
+            bname = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
             self.iniButtonName.append(bname)
-            code = self.iniFile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE') or ''
+            code = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(button) + '_CODE') or ''
             self.iniButtonCode.append(code)
             if bname != '0':
                 bname = bname.split('\\')
@@ -1267,7 +1249,7 @@ class HandlerClass:
                 self.w['button_{}'.format(str(button))].setEnabled(False)
                 continue
             elif 'change-consumables' in code:
-                self.ccParm = self.iniFile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
+                self.ccParm = self.iniFile.find('QTPLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 self.ccButton = 'button_{}'.format(str(button))
                 self.idleHomedPlusPausedList.append(self.ccButton)
                 self.w[self.ccButton].setEnabled(False)
@@ -2207,7 +2189,7 @@ class HandlerClass:
                           '\nCheck PM_PORT in .ini file\n')
 
     def pmx485_check(self):
-        if self.iniFile.find('PLASMAC', 'PM_PORT'):
+        if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
             self.w.pmx485_enable.setChecked(True)
             if not hal.component_exists('pmx485'):
                 self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
@@ -2258,7 +2240,7 @@ class HandlerClass:
     def pmx485_enable_changed(self, state):
         if state:
             if not hal.component_exists('pmx485'):
-                port = self.iniFile.find('PLASMAC', 'PM_PORT')
+                port = self.iniFile.find('QTPLASMAC', 'PM_PORT')
                 try:
                     Popen('halcmd loadusr -Wn pmx485 ./plasmac/pmx485.py {}'.format(port), stdout = PIPE, shell = True)
                 except:
