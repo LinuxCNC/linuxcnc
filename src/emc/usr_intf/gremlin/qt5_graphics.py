@@ -288,6 +288,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.Green = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.inhibit_selection = True
 
+        self.dro_in = "% 9.4f"
+        self.dro_mm = "% 9.3f"
+        self.dro_deg = "% 9.2f"
+        self.dro_vel = "   Vel:% 9.2F"
+
+
     def poll(self):
         s = self.stat
         try:
@@ -538,21 +544,24 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 return limit, homed, [''], ['']
 
             if self.metric_units:
-                format = "% 6s:% 9.3f"
+                format = "% 6s:" + self.dro_mm
                 if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.3f"
+                    droformat = " " + format + "  DTG %1s:" + self.dro_mm
                 else:
                     droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
-                rotformat = "% 5s %1s:% 9.3f"
+                offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
+                toolformat = "% 5s %1s:" + self.dro_mm
+                rotformat = "% 5s %1s:" + self.dro_deg
+
             else:
-                format = "% 6s:% 9.4f"
+                format = "% 6s:" + self.dro_in
                 if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.4f"
+                    droformat = " " + format + "  DTG %1s:" + self.dro_in
                 else:
                     droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
-                rotformat = "% 5s %1s:% 9.4f"
+                offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
+                toolformat = "% 5s %1s:" + self.dro_in
+                rotformat = "% 5s %1s:" + self.dro_deg
             diaformat = " " + format
 
             posstrs = []
@@ -583,7 +592,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             for i in range(9):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
-                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+                    droposstrs.append(toolformat % ("TLO", a, tlo_offset[i]))
 
             # if its a lathe only show radius or diameter as per property
             if self.is_lathe():
@@ -605,17 +614,18 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                         droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
-                posstrs.append(format % ("Vel", spd))
+                posstrs.append(self.dro_vel % ( spd))
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
                 if self.is_lathe:
                     pos +=1
-                droposstrs.insert(pos, " " + format % ("Vel", spd))
+                droposstrs.insert(pos, " " + self.dro_vel % (spd))
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
             return limit, homed, posstrs, droposstrs
+
 
     def minimumSizeHint(self):
         return QSize(50, 50)
