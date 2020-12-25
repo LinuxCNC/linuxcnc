@@ -1770,7 +1770,7 @@ void emcmotCommandHandler(void *arg, long period)
 	        /* 	tpAbort(&emcmotDebug->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
 	        /* } else {...} */
-	        rtapi_print( "command state %d\n", emcmotCommand->state);
+	        rtapi_print_msg(RTAPI_MSG_DBG, "command state %d\n", emcmotCommand->state);
 	        emcmotStatus->spindle_status[n].state = emcmotCommand->state;
 	        emcmotStatus->spindle_status[n].speed = emcmotCommand->vel;
 	        emcmotStatus->spindle_status[n].css_factor = emcmotCommand->ini_maxvel;
