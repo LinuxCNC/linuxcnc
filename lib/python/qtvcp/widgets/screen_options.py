@@ -349,7 +349,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
-                                                                 focus_text='Close Linuxcnc?',
+                                                                 focus_text='',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
             # system shutdown
