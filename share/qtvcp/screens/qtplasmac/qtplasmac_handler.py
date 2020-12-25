@@ -470,6 +470,10 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
+        self.keyTimer=QTimer()
+        self.keyTimer.setSingleShot(True)
+        self.keyTimer.timeout.connect(self.key_timer_timeout)
+        self.jogAxis = []
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -582,15 +586,21 @@ class HandlerClass:
                 else:
                     event.accept()
                     return True
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            print('NameError in KEYBINDING: {}'.format(e))
-        except Exception as e:
-            LOG.error('Exception in KEYBINDING:', exc_info=e)
-            print('Exception in KEYBINDING: {} for key: {}'.format(KEYBIND.convert(event), key))
-            return False
+        if event.isAutoRepeat():
+            return True
+        elif event.type() == QEvent.KeyPress:
+            if self.keyTimer.isActive():
+                self.keyTimer.stop()
+                return
+        elif event.type() == QEvent.KeyRelease:
+            self.keyTimer.start(1)
+            return
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
+
+    def key_timer_timeout(self):
+        for axis in self.jogAxis:
+            self.kb_jog(0, axis, 0)
+            self.jogAxis = []
 
 
 #############################################################################################################################
@@ -1202,8 +1212,11 @@ class HandlerClass:
             if fast:
                 rate = rate * 2
             ACTION.JOG(joint, direction, rate, distance)
+            self.jogAxis.append(joint)
+            self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
+            self.w.releaseKeyboard()
 
     def keyboard_shortcuts(self):
         if self.w.chk_keyboard_shortcuts.isChecked():
