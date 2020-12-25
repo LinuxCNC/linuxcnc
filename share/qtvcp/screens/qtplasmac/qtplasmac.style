@@ -517,9 +517,9 @@ QComboBox QListView {
  }
 
 #filemanager QToolButton {
-    font: 14pt;
+    font: 11pt;
     height: 40px;
-    width: 60px;
+/*    width: 80px;*/
     margin: 0px;
  }
 
