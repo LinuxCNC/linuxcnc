@@ -468,8 +468,9 @@ class HandlerClass:
         self.w.conv_preview.setdro(False)
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
-        self.pauseTimer = QTimer()
-        self.pauseTimer.timeout.connect(self.pause_timeout)
+        self.flasher = QTimer()
+        self.flasher.timeout.connect(self.flasher_timeout)
+        self.flasher.start(250)
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -543,7 +544,7 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(Qt.Key_Escape,Qt.Key_F1 ,Qt.Key_F2):
+        if code not in(Qt.Key_Escape, Qt.Key_F1, Qt.Key_F2):
                     #Qt.Key_F3,Qt.Key_F4,Qt.Key_F5):
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -647,10 +648,8 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
-        if self.pauseTimer:
-            self.pauseTimer.stop()
-            self.w.pause.setText('CYCLE PAUSE')
-
+        self.w.jog_stack.setCurrentIndex(0)
+        self.w.abort.setEnabled(False)
         ACTION.SET_MANUAL_MODE()
 
     def interp_paused(self, obj):
@@ -665,6 +664,7 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
+        self.w.abort.setEnabled(True)
         if STATUS.is_auto_mode() and self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
@@ -677,25 +677,36 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
-#            self.w.run.setText('SINGLE STEP')
-            self.w.pause.setText('CYCLE RESUME')
-            self.pauseTimer.start(250)
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(True)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
-            self.pauseTimer.stop()
-#            self.w.run.setText('CYCLE START')
-            self.w.pause.setText('CYCLE PAUSE')
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(False)
 
-    def pause_timeout(self):
-        if self.w.pause.text() == '':
-            self.w.pause.setText('CYCLE RESUME')
+    def flasher_timeout(self):
+        if STATUS.is_auto_paused():
+            if self.w.pause.text() == '':
+                self.w.pause.setText('CYCLE RESUME')
+            else:
+                self.w.pause.setText('')
         else:
-            self.w.pause.setText('')
+            self.w.pause.setText('CYCLE RESUME')
+        if self.w.feed_slider.value() != 100:
+            if self.w.feed_label.text() == 'FEED':
+                self.w.feed_label.setText('')
+            else:
+                self.w.feed_label.setText('FEED')
+        else:
+            self.w.feed_label.setText('FEED')
+        if self.w.rapid_slider.value() != 100:
+            if self.w.rapid_label.text() == 'RAPID':
+                self.w.rapid_label.setText('')
+            else:
+                self.w.rapid_label.setText('RAPID')
+        else:
+            self.w.rapid_label.setText('RAPID')
 
     def percent_loaded(self, object, percent):
         if percent < 1:
