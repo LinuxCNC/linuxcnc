@@ -2,16 +2,22 @@
 import sys
 import os
 import math
+
+import tempfile
+import atexit
+import shutil
+
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QPoint, QLine, QRect, QFile, Qt, QEvent
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
-from qtvcp.core import Info, Status
+from qtvcp.core import Info, Status, Action
 
 INFO = Info()
 STATUS = Status()
+ACTION = Action()
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IMAGES = os.path.join(INFO.IMAGE_PATH, 'qtdragon/images')
@@ -110,6 +116,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.mb.setStandardButtons(QMessageBox.Ok)
 
         # Initial values
+        self._tmp = None
         self.unit_code = "G21"
         self.rpm = 500
         self.num_holes = 4
@@ -138,6 +145,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.lineEdit_drill_feed.setValidator(QtGui.QDoubleValidator(0, 999, 2))
         self.lineEdit_drill_feed.setText(str(self.drill_feed))
         self.lineEdit_comment.setText('Hole Circle Program')
+
         self.checked = QtGui.QPixmap(os.path.join(IMAGES, 'checked.png'))
         self.unchecked = QtGui.QPixmap(os.path.join(IMAGES,'unchecked.png'))
 
@@ -148,6 +156,7 @@ class Hole_Circle(QtWidgets.QWidget):
         # signal connections
         self.btn_validate.clicked.connect(self.validate)
         self.btn_create.clicked.connect(self.create_program)
+        self.btn_send.clicked.connect(self.send_program)
         self.btn_mm.clicked.connect(self.units_changed)
         self.btn_inch.clicked.connect(self.units_changed)
         self.btn_help.clicked.connect(lambda obj: self.mb.show())
@@ -155,8 +164,10 @@ class Hole_Circle(QtWidgets.QWidget):
     def units_changed(self):
         if self.btn_inch.isChecked():
             unit = "IMPERIAL"
+            self.unit_code = "G20"
         else:
             unit = "METRIC"
+            self.unit_code = "G21"
         self.lbl_units_info.setText("**NOTE - All units are in {}".format(unit))
 
     def clear_all(self):
@@ -263,6 +274,20 @@ class Hole_Circle(QtWidgets.QWidget):
         else:
             print("Program creation aborted")
 
+    def send_program(self):
+        self.validate()
+        if self.valid is False:
+            print("There are errors in input fields")
+            STATUS.emit('error', OPERATOR_ERROR, "Hole Circle: There are errors in input fields")
+            return
+        self._mktemp()
+        if self._tmp:
+            mp = os.path.join(self._tmp, os.path.basename('bhc.ngc'))
+            self.calculate_toolpath(mp)
+            ACTION.OPEN_PROGRAM(mp)
+        else:
+            print("send creation aborted")
+
     def calculate_toolpath(self, fname):
         comment = self.lineEdit_comment.text()
         self.line_num = 5
@@ -270,6 +295,11 @@ class Hole_Circle(QtWidgets.QWidget):
         # opening preamble
         self.file.write("%\n")
         self.file.write("({})\n".format(comment))
+        self.file.write("({} Holes on {} Diameter)\n".format(self.num_holes,self.radius *2))
+        self.file.write("({})\n".format(self.lbl_units_info.text()))
+        self.file.write("({})\n".format('XY origin at circle center'))
+        self.file.write("({})\n".format('Z origin at top face of surface'))
+        self.file.write("\n")
         self.next_line("{} G40 G49 G64 P0.03".format(self.unit_code))
         self.next_line("G17")
         self.next_line("G0 Z{}".format(self.safe_z))
@@ -321,6 +351,13 @@ class Hole_Circle(QtWidgets.QWidget):
         next_line("M2")
         sys.stdout.write("%\n")
         sys.exit(0)
+
+    def _mktemp(self):
+        if self._tmp:
+            return
+        self._tmp = tempfile.mkdtemp(prefix='emcBCD-', suffix='.d')
+        atexit.register(lambda: shutil.rmtree(self._tmp))
+
 
     def btn_help_clicked(self, state):
         self.mb.show()

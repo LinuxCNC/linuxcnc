@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>344</height>
+    <width>624</width>
+    <height>353</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1248,11 +1248,40 @@ INPUTS</string>
               </size>
              </property>
              <property name="toolTip">
-              <string>Create macro and save to file</string>
+              <string>Create program and save to file</string>
              </property>
              <property name="text">
-              <string>CREATE
+              <string>SAVE AS
 PROGRAM</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_send">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>80</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Create temparary macro and load in linuxcnc</string>
+             </property>
+             <property name="text">
+              <string>SEND AS
+MACRO</string>
              </property>
             </widget>
            </item>
