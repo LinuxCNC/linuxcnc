@@ -28,6 +28,7 @@ from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets import camview_widget as CAMWIDGET
 from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
+from qtvcp.widgets.simple_widgets import DoubleScale as PARAMETER
 
 from qtvcp.lib.conversational import conv_settings as CONVSET
 from qtvcp.lib.conversational import conv_circle as CONVCIRC
@@ -390,7 +391,7 @@ class HandlerClass:
 
     def init_preferences(self):
         if not self.w.PREFS_:
-#            self.add_alarm('CRITICAL - no preference file found, enable preferences in screenoptions widget')
+            self.add_alarm('CRITICAL - no preference file found, enable preferences in screenoptions widget')
             print('CRITICAL - no preference file found, enable preferences in screenoptions widget')
 #            return
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
@@ -561,6 +562,9 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, EDITOR):
+                    flag = True
+                    break
+                if isinstance(receiver2, PARAMETER):
                     flag = True
                     break
                 receiver2 = receiver2.parent()
