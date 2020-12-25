@@ -585,9 +585,11 @@ class HandlerClass:
         # ok if we got here then try keybindings
         try:
             return KEYBIND.call(self,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            print('NameError in KEYBINDING: {}'.format(e))
         except Exception as e:
             LOG.error('Exception in KEYBINDING:', exc_info=e)
-            print('Error in, or no function for: {} in handler file for-{}'.format(KEYBIND.convert(event),key))
+            print('Exception in KEYBINDING: {} for key: {}'.format(KEYBIND.convert(event), key))
             return False
 
 
@@ -738,6 +740,7 @@ class HandlerClass:
         if self.single_cut_request:
             ACTION.RUN()
         self.w.file_edit.setEnabled(True)
+        ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
