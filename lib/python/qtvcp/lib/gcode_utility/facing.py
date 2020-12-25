@@ -2,15 +2,20 @@
 import sys
 import os
 import numpy as np
+import tempfile
+import atexit
+import shutil
+
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import QFile
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
-from qtvcp.core import Info, Status
+from qtvcp.core import Info, Status, Action
 
 INFO = Info()
 STATUS = Status()
+ACTION = Action()
 HERE = os.path.dirname(os.path.abspath(__file__))
 IMAGES = os.path.join(INFO.IMAGE_PATH, 'gcode_utility')
 
@@ -33,28 +38,41 @@ class Facing(QtWidgets.QWidget):
         self.mb.setText(help_text)
         self.mb.setStandardButtons(QMessageBox.Ok)
 
-        # set valid input formats for lineEdits
-        self.lineEdit_tool.setValidator(QtGui.QDoubleValidator(0, 999, 3))
-        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
-        self.lineEdit_feedrate.setValidator(QtGui.QDoubleValidator(0, 9999, 1))
-        self.lineEdit_stepover.setValidator(QtGui.QDoubleValidator(0, 99, 1))
-        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
-        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
-        self.checked = QtGui.QPixmap(os.path.join(IMAGES, 'checked.png'))
-        self.unchecked = QtGui.QPixmap(os.path.join(IMAGES, 'unchecked.png'))
+        # Initial values
+        self._tmp = None
         self.unit_code = "G21"
-        self.rpm = 0
-        self.size_x = 0.0
-        self.size_y = 0.0
-        self.feedrate = 0.0
-        self.stepover = 0.0
-        self.tool_dia = 0.0
+        self.rpm = 500
+        self.size_x = 100
+        self.size_y = 100
+        self.feedrate = 0
+        self.stepover = 5
+        self.tool_dia = 10
         self.safe_z = 20.0
         self.valid = True
+
+        # set valid input formats for lineEdits
+        self.lineEdit_tool.setValidator(QtGui.QDoubleValidator(0, 999, 3))
+        self.lineEdit_tool.setText(str(self.tool_dia))
+        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
+        self.lineEdit_spindle.setText(str(self.rpm))
+        self.lineEdit_feedrate.setValidator(QtGui.QDoubleValidator(0, 9999, 1))
+        self.lineEdit_feedrate.setText(str(self.feedrate))
+        self.lineEdit_stepover.setValidator(QtGui.QDoubleValidator(0, 99, 1))
+        self.lineEdit_stepover.setText(str(self.stepover))
+        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
+        self.lineEdit_size_x.setText(str(self.size_x))
+        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
+        self.lineEdit_size_y.setText(str(self.size_y))
+        self.lineEdit_comment.setText('Face slabbing Program')
+
+        self.checked = QtGui.QPixmap(os.path.join(IMAGES, 'checked.png'))
+        self.unchecked = QtGui.QPixmap(os.path.join(IMAGES, 'unchecked.png'))
+
 
         # signal connections
         self.btn_validate.clicked.connect(self.validate)
         self.btn_create.clicked.connect(self.create_program)
+        self.btn_send.clicked.connect(self.send_program)
         self.rbtn_mm.clicked.connect(self.units_changed)
         self.rbtn_inch.clicked.connect(self.units_changed)
         self.rbtn_raster_0.clicked.connect(self.raster_changed)
@@ -62,6 +80,7 @@ class Facing(QtWidgets.QWidget):
         self.rbtn_raster_90.clicked.connect(self.raster_changed)
         self.btn_help.clicked.connect(lambda obj: self.mb.show())
 
+        self.units_changed()
         self.validate()
         self.raster_changed()
 
@@ -78,6 +97,7 @@ class Facing(QtWidgets.QWidget):
         self.lbl_tool_unit.setText(text)
         self.lbl_stepover_unit.setText(text)
         self.lbl_size_unit.setText(text)
+        self.lbl_units_info.setText("**NOTE - All units are in {}".format(text))
 
     def raster_changed(self):
         if self.rbtn_raster_0.isChecked():
@@ -158,7 +178,7 @@ class Facing(QtWidgets.QWidget):
         self.validate()
         if self.valid is False:
             print("There are errors in input fields")
-            STATUS.emit('error', OPERATOR_ERROR, "Facing: There are errors in input fields")
+            STATUS.emit('error', OPERATOR_ERROR, "Facing: There are errors in the input fields")
             return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -168,6 +188,20 @@ class Facing(QtWidgets.QWidget):
         else:
             print("Program creation aborted")
 
+    def send_program(self):
+        self.validate()
+        if self.valid is False:
+            print("There are errors in input fields")
+            STATUS.emit('error', OPERATOR_ERROR, "Facing: There are errors in the input fields")
+            return
+        self._mktemp()
+        if self._tmp:
+            mp = os.path.join(self._tmp, os.path.basename('face.ngc'))
+            self.calculate_toolpath(mp)
+            ACTION.OPEN_PROGRAM(mp)
+        else:
+            print("send creation aborted")
+
     def calculate_toolpath(self, fname):
         comment = self.lineEdit_comment.text()
         self.line_num = 5
@@ -175,6 +209,10 @@ class Facing(QtWidgets.QWidget):
         # opening preamble
         self.file.write("%\n")
         self.file.write("({})\n".format(comment))
+        self.file.write("({})\n".format(self.lbl_units_info.text()))
+        self.file.write("(Area: X {} by Y {})\n".format(self.size_x,self.size_x))
+        self.file.write("({} Tool Diameter with {} Stepover)\n".format(self.tool_dia, self.stepover))
+        self.file.write("\n")
         self.next_line("{} G40 G49 G64 P0.03".format(self.unit_code))
         self.next_line("G17")
         self.next_line("G0 Z{}".format(self.safe_z))
@@ -309,6 +347,12 @@ class Facing(QtWidgets.QWidget):
     def next_line(self, text):
         self.file.write("N{} ".format(self.line_num) + text + "\n")
         self.line_num += 5
+
+    def _mktemp(self):
+        if self._tmp:
+            return
+        self._tmp = tempfile.mkdtemp(prefix='emcBCD-', suffix='.d')
+        atexit.register(lambda: shutil.rmtree(self._tmp))
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
