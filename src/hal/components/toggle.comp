@@ -3,7 +3,12 @@ pin in bit in "button input";
 pin io bit out "on/off output";
 param rw u32 debounce = 2 "debounce delay in periods";
 option data toggle_data;
+description
+"""
 
+.PIMG -C ../../../man/hal_descriptions/toggle.png
+
+""";
 function _ nofp;
 license "GPL";
 ;;
