@@ -104,6 +104,7 @@ typedef struct {
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
     int listnum;                /* 0 = pin, 1 = signal, 2 = parameter */
+    int chan_num;
     /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
     /* widgets for chan info window */

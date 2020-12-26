@@ -88,7 +88,8 @@ static void init_chan_info_window(void);
 static void init_vert_info_window(void);
 
 static gboolean dialog_select_source(int chan_num);
-static void selection_made(GtkWidget *widget, dialog_generic_t * dptr);
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+        GtkTreeViewColumn *col, GtkWidget *dialog);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
 static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
@@ -929,13 +930,11 @@ static gboolean dialog_select_source(int chan_num)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    dialog_generic_t dialog;
 
-    GtkWidget *label;
     GtkWidget *content_area;
+    GtkWidget *dialog;
+    GtkWidget *label;
     GtkWidget *scrolled_window;
-    GtkTreeSelection *selection;
-
 
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -944,35 +943,32 @@ static gboolean dialog_select_source(int chan_num)
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
     char *title, msg[BUFLEN];
-    int next, n, tab, res;
+    int next, n, tab, retval;
     int row, match_tab, match_row;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
+
+    /* TODO set chan_num in vert_t struct, this is a new variable. The
+     * intention is to drop the struct dialog_generic_t in the end */
+    vert->chan_num = chan_num;
 
     title = _("Select Channel Source");
     snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
 	"as the source for channel %d."), chan_num);
 
     /* create dialog window, disable resizing, set title, size and position */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    dialog.app_data = &chan_num;
-    gtk_widget_set_size_request(GTK_WIDGET(dialog.window), -1, 400);
-    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+    dialog = gtk_dialog_new();
+    gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    gtk_window_set_title(GTK_WINDOW(dialog), title);
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, TRUE, 0);
-
-    /* a separator */
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_hseparator_new(), FALSE, FALSE , 0);
+            label, FALSE, FALSE, 10);
 
     /*
     * create a notebook to hold pin, signal, and parameter list,
@@ -1005,17 +1001,14 @@ static gboolean dialog_select_source(int chan_num)
         gtk_tree_view_set_headers_visible(
                 GTK_TREE_VIEW(vert->lists[n]), FALSE);
         init_list(vert->lists[n], &tab_label_text[n], NUM_COLS);
-        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(vert->lists[n]));
         gtk_container_add(GTK_CONTAINER(scrolled_window), vert->lists[n]);
 
-        g_signal_connect(selection, "changed",
-                G_CALLBACK(selection_made), &dialog);
+        g_signal_connect(vert->lists[n], "row-activated",
+            G_CALLBACK(selection_made), dialog);
     }
 
-    /* cancel button, assign return value of 2 to be identical with the
-     * rest of the cancel buttons */
-    gtk_dialog_add_button(GTK_DIALOG(dialog.window),
-            _("Cancel"), 2);
+    gtk_dialog_add_button(GTK_DIALOG(dialog),
+            _("Cancel"), GTK_RESPONSE_CANCEL);
 
     /* signals */
     g_signal_connect(vert->notebook, "switch-page",
@@ -1074,8 +1067,8 @@ static gboolean dialog_select_source(int chan_num)
     }
 
     rtapi_mutex_give(&(hal_data->mutex));
-    
-    gtk_widget_show_all(dialog.window);
+
+    gtk_widget_show_all(dialog);
 
     /* highlight the currently selected name */
     /* set scrolling window to show the highlighted name */
@@ -1084,12 +1077,10 @@ static gboolean dialog_select_source(int chan_num)
         mark_selected_row(vert->lists[match_tab], match_row);
     }
 
-    res = gtk_dialog_run(GTK_DIALOG(dialog.window));
-    gtk_widget_destroy(dialog.window);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 
-    /* response "0" is success, "-4" is cancel, "-6" is close window.
-     * Negative integers is native gtk response id. */
-    if (res == 0 ) {
+    if (retval == 0) {
         /* user made a selection */
         channel_changed();
         return TRUE;
@@ -1099,26 +1090,29 @@ static gboolean dialog_select_source(int chan_num)
 }
 
 /* If we come here, then the user has clicked a row in the list. */
-static void selection_made(GtkWidget *widget, dialog_generic_t *dptr)
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+        GtkTreeViewColumn *col, GtkWidget *dialog)
 {
-    char *name;
-    int rv, chan_num;
-
     scope_vert_t *vert;
     vert = &(ctrl_usr->vert);
-    chan_num = *((int *)(dptr->app_data));
 
     GtkTreeIter iter;
     GtkTreeModel *model;
 
-    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(widget), &model, &iter)) {
-        gtk_tree_model_get(model, &iter, LIST_ITEM, &name, -1);
-    }
+    char *name;
+    int retval;
 
-    /* try to set up the new source */
-    /* return value "0" is success */
-    rv = set_channel_source(chan_num, vert->listnum, name);
-    gtk_dialog_response(GTK_DIALOG(dptr->window), rv);
+    retval = -6;
+    model = gtk_tree_view_get_model(treeview);
+    if (gtk_tree_model_get_iter(model, &iter, path)) {
+        gtk_tree_model_get(model, &iter, LIST_ITEM, &name, -1);
+
+        /* try to set up the new source */
+        /* return value "0" is success */
+        retval = set_channel_source(vert->chan_num, vert->listnum, name);
+        g_free(name);
+    }
+    gtk_dialog_response(GTK_DIALOG(dialog), retval);
 }
 
 void channel_changed(void)
