@@ -1223,14 +1223,18 @@ class EntryDialog(QDialog, GeometryMixin):
                 self._title = t
             else:
                 self._title = 'Numerical Entry'
+            overlay = message.get('OVERLAY')
+            if overlay is None :
+                overlay = True
             preload = message.get('PRELOAD')
-            num = self.showdialog(preload)
+            num = self.showdialog(preload=preload, overlay=overlay)
             message['RETURN'] = num
             STATUS.emit('general', message)
 
-    def showdialog(self, preload=None):
+    def showdialog(self, preload=None,overlay=True):
         conversion = {'x':0, 'y':1, "z":2, 'a':3, "b":4, "c":5, 'u':6, 'v':7, 'w':8}
-        STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
+        if overlay:
+            STATUS.emit('focus-overlay-changed', True, '', self._color)
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
@@ -1263,8 +1267,8 @@ class EntryDialog(QDialog, GeometryMixin):
             else:
                 flag = True
                 answer = None
-
-        STATUS.emit('focus-overlay-changed', False, None, None)
+        if overlay:
+            STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
         LOG.debug('Value of pressed button: {}'.format(retval))
         if answer is None:
@@ -1350,12 +1354,16 @@ class KeyboardDialog(QDialog, GeometryMixin):
             else:
                 self._title = 'Keyboard Entry'
             preload = message.get('PRELOAD')
+            overlay = message.get('OVERLAY')
+            if overlay is None :
+                overlay = True
             text = self.showdialog(preload)
             message['RETURN'] = text
             STATUS.emit('general', message)
 
-    def showdialog(self, preload=None):
-        STATUS.emit('focus-overlay-changed', True, 'Keyboard Entry', self._color)
+    def showdialog(self, preload=None, overlay=True):
+        if overlay:
+            STATUS.emit('focus-overlay-changed', True, '', self._color)
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
@@ -1371,7 +1379,8 @@ class KeyboardDialog(QDialog, GeometryMixin):
         else:
             answer = None
 
-        STATUS.emit('focus-overlay-changed', False, None, None)
+        if overlay:
+            STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
         LOG.debug('Value of pressed button: {}'.format(retval))
         if answer is None:
@@ -1450,11 +1459,14 @@ class CalculatorDialog(Calculator, GeometryMixin):
             if axis in ('X','Y','Z','A','B','C','U','V','W'):
                 self.axisTriggered(axis)
             self._nblock = message.get('NONBLOCKING')
-            num = self.showdialog(preload)
+            overlay = message.get('OVERLAY')
+            if overlay is None:
+                overlay = True
+            num = self.showdialog(preload=preload, overlay=overlay)
             message['RETURN'] = num
             STATUS.emit('general', message)
 
-    def showdialog(self, preload=None):
+    def showdialog(self, preload=None, overlay=True):
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
@@ -1464,9 +1476,11 @@ class CalculatorDialog(Calculator, GeometryMixin):
         if self._nblock:
             self.show()
         else:
-            STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
+            if overlay:
+                STATUS.emit('focus-overlay-changed', True, '', self._color)
             retval = self.exec_()
-            STATUS.emit('focus-overlay-changed', False, None, None)
+            if overlay:
+                STATUS.emit('focus-overlay-changed', False, None, None)
 
     def accept(self):
         self.record_geometry()
