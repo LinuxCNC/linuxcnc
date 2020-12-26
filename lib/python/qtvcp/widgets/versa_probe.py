@@ -21,7 +21,7 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QByteArray
+from PyQt5.QtCore import QProcess, QByteArray, QEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -53,6 +53,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
         self.process_busy = False
+        self.dialog_code = 'CALCULATOR'
         #create parameter dictionary
         self.send_dict = {}
         # these parameters are sent to the subprogram
@@ -72,6 +73,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
 
+    # catch focusIn event to pop calculator dialog
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            if isinstance(obj, QtWidgets.QLineEdit):
+                # only if mouse selected
+                if event.reason () == 0:
+                    self.popEntry(obj)
+        return super(VersaProbe, self).eventFilter(obj, event)
+
     def _hal_init(self):
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -82,6 +92,24 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('all-homed', lambda w: self.setEnabled(homed_on_test()))
 #        STATUS.connect('error', self.send_error)
         STATUS.connect('periodic', lambda w: self.check_probe())
+        STATUS.connect('general',self.return_value)
+
+        # install event filters on all the lineedits
+        self.input_search_vel.installEventFilter(self)
+        self.input_probe_vel.installEventFilter(self)
+        self.input_z_clearance.installEventFilter(self)
+        self.input_max_travel.installEventFilter(self)
+        self.input_latch_return_dist.installEventFilter(self)
+        self.input_probe_diam.installEventFilter(self)
+        self.input_xy_clearance.installEventFilter(self)
+        self.input_side_edge_length.installEventFilter(self)
+        self.input_tool_probe_height.installEventFilter(self)
+        self.input_tool_block_height.installEventFilter(self)
+        self.input_adj_x.installEventFilter(self)
+        self.input_adj_y.installEventFilter(self)
+        self.input_adj_z.installEventFilter(self)
+        self.input_adj_angle.installEventFilter(self)
+        self.input_rapid_vel.installEventFilter(self)
 
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -99,6 +127,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
+
         self.start_process()
 
     # when qtvcp closes this gets called
@@ -121,6 +150,28 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.input_rapid_vel.text()), float, 'VERSA_PROBE_OPTIONS')
         self.proc.terminate()
+
+    # process the STATUS return message
+    # set the line edit to the value if not cancelled
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
+            LOG.debug('message return:{}'.format (message))
+            obj = message.get('OBJECT')
+            obj.setText(str(num))
+
+    def popEntry(self, obj):
+            mess = {'NAME':self.dialog_code,
+                    'ID':'%s__' % self.objectName(),
+                    'OVERLAY':False,
+                    'OBJECT':obj,
+                    'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
+                    'GEONAME':'_{}'.format(self.dialog_code)
+            }
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
 
 #############################################
 # process control
@@ -290,7 +341,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             file = QtCore.QFile(HELP)
             file.open(QtCore.QFile.ReadOnly)
             html = file.readAll()
-            html = str(html, encoding='utf8')
+            if sys.version_info.major > 2:
+                html = str(html, encoding='utf8')
+            else:
+                html = str(html)
             html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
             t.setHtml(html)
         except Exception as e:
