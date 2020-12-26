@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.2'
+VERSION = '0.9.3'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -636,7 +636,7 @@ class HandlerClass:
             self.w[self.scButton].setEnabled(True)
         for widget in self.idleList:
             self.w[widget].setEnabled(True)
-            if self.w.file_open.text() != 'OPEN':
+            if self.w.file_open.text() == 'OPEN':
                 self.w.file_edit.setEnabled(False)
         if self.lastLoadedProgram == 'None':
             self.w.file_reload.setEnabled(False)
@@ -691,11 +691,13 @@ class HandlerClass:
         if state:
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(True)
+            self.w[self.tpButton].setEnabled(True)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(False)
+            self.w[self.tpButton].setEnabled(False)
 
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
@@ -704,7 +706,7 @@ class HandlerClass:
             else:
                 self.w.pause.setText('')
         else:
-            self.w.pause.setText('CYCLE RESUME')
+            self.w.pause.setText('CYCLE PAUSE')
         if self.w.feed_slider.value() != 100:
             if self.w.feed_label.text() == 'FEED':
                 self.w.feed_label.setText('')
@@ -749,6 +751,7 @@ class HandlerClass:
             self.w.file_reload.setEnabled(True)
         if self.single_cut_request:
             ACTION.RUN()
+        self.w.gcodegraphics.logger.clear()
         self.w.file_edit.setEnabled(True)
         ACTION.SET_MANUAL_MODE()
 
@@ -1449,7 +1452,7 @@ class HandlerClass:
 
     def torch_enable_changed(self, state):
         if self.tpButton:
-            if state and STATUS.is_interp_idle():
+            if state and STATUS.machine_is_on() and not STATUS.is_interp_running():
                 self.w[self.tpButton].setEnabled(True)
             else:
                 self.w[self.tpButton].setEnabled(False)

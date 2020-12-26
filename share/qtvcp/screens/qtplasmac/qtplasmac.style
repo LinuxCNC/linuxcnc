@@ -660,9 +660,14 @@ QPlainTextEdit {
 #gcode_editor QToolBar {
     spacing: 4 }
 
+#gcode_editor QLabel {
+    color: backgnd;
+     }
+
 #gcode_editor QToolButton {
+/*    qproperty-icon: none;*/
     width: 40px;
-    height: 40px }
+    height: 37px }
 
 #gcode_editor QLineEdit {
     border: 1px solid foregnd;
