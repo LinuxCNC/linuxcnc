@@ -1970,6 +1970,22 @@ static PyObject *Logger_set_depth(pyPositionLogger *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
+    struct color *c = s->colors;
+    if(!PyArg_ParseTuple(a, "(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+            &c[0].r,&c[0].g, &c[0].b, &c[0].a,
+            &c[1].r,&c[1].g, &c[1].b, &c[1].a,
+            &c[2].r,&c[2].g, &c[2].b, &c[2].a,
+            &c[3].r,&c[3].g, &c[3].b, &c[3].a,
+            &c[4].r,&c[4].g, &c[4].b, &c[4].a,
+            &c[5].r,&c[5].g, &c[5].b, &c[5].a
+            ))
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static double dist2(double x1, double y1, double x2, double y2) {
     double dx = x2-x1;
     double dy = y2-y1;
@@ -2189,6 +2205,8 @@ static PyMethodDef Logger_methods[] = {
         "Plot the backplot now"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
+    {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
+        "set the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},
