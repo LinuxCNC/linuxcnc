@@ -316,12 +316,8 @@ class EditorBase(QsciScintilla):
     def replace_text(self, text):
         self.replace(text)
 
-    def search(self, text, re = False,case= False, word=False, wrap= False, fwd=True):
+    def search(self, text, re=False, case=False, word=False, wrap=False, fwd=True):
         self.findFirst(text, re, case, word, wrap, fwd)
-
-    def search_Next(self):
-        self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
-        self.findNext()
 
     # this allows setting these properties in a stylesheet
     def getColor0(self):
@@ -496,8 +492,6 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 LOG.error('File path is not valid: {}'.format(filename))
         self.setText('')
 
-
-
     def highlight_line(self, w, line):
         if STATUS.is_auto_running():
             if not STATUS.old['file'] == self._last_filename:
@@ -624,9 +618,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         openAction.triggered.connect(self.openCall)
 
         # Create save action
-        saveAction = QAction(QIcon.fromTheme('document-save'), '&save', self)        
+        saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)        
         saveAction.setShortcut('Ctrl+S')
-        saveAction.setStatusTip('save document')
+        saveAction.setStatusTip('Save document')
         saveAction.triggered.connect(self.saveCall)
 
         # Create exit action
@@ -636,14 +630,14 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         exitAction.triggered.connect(self.exitCall)
 
         # Create gcode lexer action
-        gCodeLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Gcode\n lexer', self)
+        gCodeLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Gcode\nLexer', self)
         gCodeLexerAction.setCheckable(1)
         gCodeLexerAction.setShortcut('Ctrl+G')
         gCodeLexerAction.setStatusTip('Set Gcode highlighting')
         gCodeLexerAction.triggered.connect(self.gcodeLexerCall)
 
         # Create gcode lexer action
-        pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&python\n lexer', self)        
+        pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Python\nLexer', self)        
         pythonLexerAction.setShortcut('Ctrl+P')
         pythonLexerAction.setStatusTip('Set Python highlighting')
         pythonLexerAction.triggered.connect(self.pythonLexerCall)
@@ -682,7 +676,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.bottomMenu = QFrame()
 
         self.searchText = QLineEdit(self)
+        self.searchText.setStatusTip('Text to search for')
         self.replaceText = QLineEdit(self)
+        self.replaceText.setStatusTip('Replace search text with this text')
 
         toolBar = QToolBar()
         # Create new action
@@ -693,7 +689,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         # create redo action
         redoAction = QAction(QIcon.fromTheme('edit-redo'), 'Redo', self)        
-        redoAction.setStatusTip('Undo')
+        redoAction.setStatusTip('Redo')
         redoAction.triggered.connect(self.redoCall)
         toolBar.addAction(redoAction)
 
@@ -701,23 +697,27 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         # create replace action
         replaceAction = QAction(QIcon.fromTheme('edit-find-replace'), 'Replace', self)        
+        replaceAction.setStatusTip('Replace text')
         replaceAction.triggered.connect(self.replaceCall)
         toolBar.addAction(replaceAction)
 
         # create find action
-        findAction = QAction(QIcon.fromTheme('edit-find'), 'Find', self)        
+        findAction = QAction(QIcon.fromTheme('edit-find'), 'Find\nNext', self)        
+        findAction.setStatusTip('Find next occurrence of text')
         findAction.triggered.connect(self.findCall)
         toolBar.addAction(findAction)
 
-        # create next action
-        nextAction = QAction(QIcon.fromTheme('go-previous'), 'Find Previous', self)        
-        nextAction.triggered.connect(self.nextCall)
-        toolBar.addAction(nextAction)
+        # create previous action
+        previousAction = QAction(QIcon.fromTheme('go-previous'), 'Find\nPrevious', self)        
+        previousAction.setStatusTip('Find previous occurrence of text')
+        previousAction.triggered.connect(self.previousCall)
+        toolBar.addAction(previousAction)
 
         toolBar.addSeparator()
 
         # create case action
         caseAction = QAction(QIcon.fromTheme('edit-case'), 'Aa', self)  
+        caseAction.setStatusTip('Toggle between any case and match case')
         caseAction.setCheckable(1)      
         caseAction.triggered.connect(self.caseCall)
         toolBar.addAction(caseAction)
@@ -756,19 +756,22 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.find()
     def find(self):
         self.editor.search(str(self.searchText.text()),
-                             re=False, case=self.isCaseSensitive,
-                             word=False, wrap= False, fwd=True)
+                           re=False, case=self.isCaseSensitive,
+                           word=False, wrap=True, fwd=True)
 
     def gcodeLexerCall(self):
         self.gcodeLexer()
     def gcodeLexer(self):
         self.editor.set_gcode_lexer()
 
-    def nextCall(self):
-        next(self)
-    def __next__(self):
-        self.editor.search(str(self.searchText.text()),False)
-        self.editor.search_Next()
+    def previousCall(self):
+        self.previous()
+    def previous(self):
+        self.editor.setCursorPosition(self.editor.getSelection()[0],
+                                      self.editor.getSelection()[1])
+        self.editor.search(str(self.searchText.text()),
+                           re=False, case=self.isCaseSensitive,
+                           word=False, wrap=True, fwd=False)
 
     def newCall(self):
         self.new()
