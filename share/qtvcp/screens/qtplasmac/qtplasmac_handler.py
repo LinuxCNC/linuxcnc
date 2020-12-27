@@ -204,6 +204,7 @@ class HandlerClass:
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
 
+
 #################################################################################################################################
 # CLASS PATCHING SECTION #
 #################################################################################################################################
@@ -691,7 +692,8 @@ class HandlerClass:
         if state:
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(True)
-            self.w[self.tpButton].setEnabled(True)
+            if self.w.torch_enable.isChecked():
+                self.w[self.tpButton].setEnabled(True)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
@@ -1452,7 +1454,7 @@ class HandlerClass:
 
     def torch_enable_changed(self, state):
         if self.tpButton:
-            if state and STATUS.machine_is_on() and not STATUS.is_interp_running():
+            if state and STATUS.machine_is_on() and (not STATUS.is_interp_running() or STATUS.is_interp_paused()):
                 self.w[self.tpButton].setEnabled(True)
             else:
                 self.w[self.tpButton].setEnabled(False)
