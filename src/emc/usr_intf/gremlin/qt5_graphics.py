@@ -832,6 +832,37 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def set_inhibit_selection(self, state):
         self.inhibit_selection = state
 
+    # sets plotter colors to default if arguments left out
+    def set_plot_colors(self, jog=None,traverse=None,feed=None,
+                    arc=None,toolchange=None,probe=None):
+        def C(s):
+            a = self.colors[s + "_alpha"]
+            s = self.colors[s]
+            return [int(x * 255) for x in s + (a,)]
+
+        if jog is None:
+            jog = C('backplotjog')
+        if traverse is None:
+            traverse = C('backplottraverse')
+        if feed is None:
+           feed = C('backplotfeed')
+        if arc is None:
+            arc = C('backplotarc')
+        if toolchange is None:
+            toolchange = C('backplottoolchange')
+        if probe is None:
+            probe = C('backplotprobing')
+        try:
+            self.logger.set_colors(
+                jog,
+                traverse,
+                feed,
+                arc,
+                toolchange,
+                probe)
+        except Exception as e:
+            print(e)
+
     ####################################
     # view controls
     ####################################
