@@ -319,6 +319,7 @@ QSlider::handle:vertical:disabled{
     border-radius: 4px;
 }
 
+QDialog,
 LcncDialog,
 ToolDialog,
 CloseDialog,
@@ -353,4 +354,10 @@ QMenu::item {
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: darkblue;
+}
+
+QHeaderView::section {
+    background-color:  foregnd;
+    color: white;
+    border: 1px solid #6c6c6c;
 }
