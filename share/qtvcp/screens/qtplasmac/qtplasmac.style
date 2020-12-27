@@ -40,6 +40,14 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
 
+/****** TOOLTIPS ************/
+QToolTip {
+    color: backgnd;
+    background: backgnd;
+    border: none;
+    font: 1px;
+    opacity: 0 }
+
 /****** VELOCITY LABELS ************/
 #velocity_label{
     color: backgnd;
@@ -486,7 +494,14 @@ QComboBox QListView {
 #material_selector QListView {
     border-color: frames }
 
-/****** FILE MANAGER************/
+/****** FILE DIALOGS************/
+QHeaderView::section {
+    background-color: backalt;
+    color: foregnd;
+    border: 1px solid foregnd;
+    border-radius: 4px;
+     }
+
 #filemanager QTableView {
     border: 1px solid foregnd;
     border-radius: 4px;
