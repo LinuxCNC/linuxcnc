@@ -37,6 +37,7 @@ LOG = logger.getLogger(__name__)
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 HELP = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_usage.html')
+ICONPATH = os.path.join(INFO.IMAGE_PATH, 'probe_icons')
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -72,6 +73,22 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+
+        self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
+        self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
+        self.buildToolTip(self.input_z_clearance, 'Z Clearence Distance', 'Zclearance')
+        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rappid')
+        self.buildToolTip(self.input_latch_return_dist, 'Return After Latch Distance', 'rapid_return')
+        self.buildToolTip(self.input_probe_diam,'Probe Diameter','probe_diam')
+        self.buildToolTip(self.input_xy_clearance, 'XY Clearence Distance', 'XYclearance')
+        self.buildToolTip(self.input_side_edge_length, 'Edge length', 'edge_length')
+        #self.buildToolTip(self.input_tool_probe_height, '', '')
+        #self.buildToolTip(self.input_tool_block_height, '', '')
+        #self.buildToolTip(self.input_adj_x, '', '')
+        #self.buildToolTip(self.input_adj_y, '', '')
+        #self.buildToolTip(self.input_adj_z, '', '')
+        #self.buildToolTip(self.input_adj_angle, '', '')
+        self.buildToolTip(self.input_rapid_vel, 'Rapid Velocity', 'rapid_vel')
 
     # catch focusIn event to pop calculator dialog
     def eventFilter(self, obj, event):
@@ -172,6 +189,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             }
             STATUS.emit('dialog-request', mess)
             LOG.debug('message sent:{}'.format (mess))
+
+    def buildToolTip(self,obj, text, icon):
+        path = os.path.join(ICONPATH, icon)
+        obj.setToolTip('''<html><head/><body><p align="center">
+<span style=" font-weight:600;">{}</span></p><p align="center">
+<img src="{}"/></p></body></html>''' .format(text, path))
 
 #############################################
 # process control
