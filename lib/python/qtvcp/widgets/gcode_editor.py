@@ -626,9 +626,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&save', self)
+        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
-        self.saveAction.setStatusTip('save document')
+        self.saveAction.setStatusTip('Save document')
         self.saveAction.triggered.connect(self.saveCall)
 
         # Create exit action
@@ -638,14 +638,14 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.exitAction.triggered.connect(self.exitCall)
 
         # Create gcode lexer action
-        self.gCodeLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Gcode\n lexer', self)
+        self.gCodeLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Gcode\nLexer', self)
         self.gCodeLexerAction.setCheckable(1)
         self.gCodeLexerAction.setShortcut('Ctrl+G')
         self.gCodeLexerAction.setStatusTip('Set Gcode highlighting')
         self.gCodeLexerAction.triggered.connect(self.gcodeLexerCall)
 
         # Create gcode lexer action
-        self.pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&python\n lexer', self)
+        self.pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Python\nLexer', self)
         self.pythonLexerAction.setShortcut('Ctrl+P')
         self.pythonLexerAction.setStatusTip('Set Python highlighting')
         self.pythonLexerAction.triggered.connect(self.pythonLexerCall)
@@ -686,8 +686,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.bottomMenu = QFrame()
 
         self.searchText = QLineEdit(self)
+        self.searchText.setStatusTip('Text to search for')
         self.replaceText = QLineEdit(self)
-
+        self.replaceText.setStatusTip('Replace search text with this text')
         toolBar = QToolBar()
         # Create new action
         undoAction = QAction(QIcon.fromTheme('edit-undo'), 'Undo', self)
@@ -697,7 +698,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         # create redo action
         redoAction = QAction(QIcon.fromTheme('edit-redo'), 'Redo', self)
-        redoAction.setStatusTip('Undo')
+        redoAction.setStatusTip('Redo')
         redoAction.triggered.connect(self.redoCall)
         toolBar.addAction(redoAction)
 
@@ -705,23 +706,27 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         # create replace action
         replaceAction = QAction(QIcon.fromTheme('edit-find-replace'), 'Replace', self)
+        replaceAction.setStatusTip('Replace text')
         replaceAction.triggered.connect(self.replaceCall)
         toolBar.addAction(replaceAction)
 
         # create find action
         findAction = QAction(QIcon.fromTheme('edit-find'), 'Find', self)
+        findAction.setStatusTip('Find next occurrence of text')
         findAction.triggered.connect(self.findCall)
         toolBar.addAction(findAction)
 
         # create next action
-        nextAction = QAction(QIcon.fromTheme('go-previous'), 'Find Previous', self)
-        nextAction.triggered.connect(self.nextCall)
-        toolBar.addAction(nextAction)
+        previousAction = QAction(QIcon.fromTheme('go-previous'), 'Find Previous', self)
+        previousAction.setStatusTip('Find previous occurrence of text')
+        previousAction.triggered.connect(self.previousCall)
+        toolBar.addAction(previousAction)
 
         toolBar.addSeparator()
 
         # create case action
         caseAction = QAction(QIcon.fromTheme('edit-case'), 'Aa', self)
+        caseAction.setStatusTip('Toggle between any case and match case')
         caseAction.setCheckable(1)      
         caseAction.triggered.connect(self.caseCall)
         toolBar.addAction(caseAction)
@@ -746,7 +751,6 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def case(self):
         self.isCaseSensitive -=1
         self.isCaseSensitive *=-1
-        print(self.isCaseSensitive)
 
     def exitCall(self):
         self.exit()
@@ -762,6 +766,15 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.search(str(self.searchText.text()),
                              re=False, case=self.isCaseSensitive,
                              word=False, wrap= True, fwd=True)
+
+    def previousCall(self):
+        self.previous()
+    def previous(self):
+        self.editor.setCursorPosition(self.editor.getSelection()[0],
+                                      self.editor.getSelection()[1])
+        self.editor.search(str(self.searchText.text()),
+                           re=False, case=self.isCaseSensitive,
+                           word=False, wrap=True, fwd=False)
 
     def gcodeLexerCall(self):
         self.gcodeLexer()
@@ -785,6 +798,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
                 self.editor.new_text()
         else:
             self.editor.new_text()
+
     def openCall(self):
         self.open()
     def open(self):
