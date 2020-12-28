@@ -509,8 +509,7 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-   # shpuld be a global variable for this
-    IMPERIAL_BASED = bool(self.params[4999])
+    IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
 
     try:
         # we need to be in machine based units
@@ -532,16 +531,15 @@ def tool_probe_m6(self, **words):
         self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
 
-        # first go up
-        self.execute("G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]")
-        # then move to XY change position
-        self.execute("G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]")
-        self.execute("G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]")
-
         # cancel tool offset
         self.execute("G49")
 
         # change tool
+        # will follow INI settings:
+        # [EMCIO]
+        # TOOL_CHANGE_POSITION = 0 0 0
+        # TOOL_CHANGE_AT_G30 = 1
+        # TOOL_CHANGE_QUILL_UP = 1
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL(self.selected_pocket)
@@ -557,6 +555,7 @@ def tool_probe_m6(self, **words):
 
         try:
             # move to tool probe position (from INI)
+            self.execute("G90")
             self.execute("G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
             self.execute("G53 G0 Z[#<_ini[TOOLSENSOR]Z>]")
 
