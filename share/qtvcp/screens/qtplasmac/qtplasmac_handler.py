@@ -57,6 +57,14 @@ class VLine(QFrame):
         super(VLine, self).__init__()
         self.setFrameShape(self.VLine|self.Plain)
 
+class overlayMaterial(QLabel):    
+    def __init__(self, parent=None):        
+        super(overlayMaterial, self).__init__(parent)
+        self.setStyleSheet('font: 12pt "Courier";\
+                            color: #cccccc;\
+                            background: rgba(1,0,0,255)')
+        self.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -141,6 +149,7 @@ class HandlerClass:
         self.materialNumList = []
         self.materialUpdate = False
         self.autoChange = False
+        self.pmx485Exists = False
         self.pmx485Loaded = False
         self.pmx485Connected = False
         self.fault = '0000'
@@ -195,8 +204,11 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         self.link_hal_pins()
-
+        self.overlay.setText(self.get_overlay_text())
+        if not self.w.chk_overlay.isChecked():
+            self.overlay.hide()
 #        self.power_state(False)
+
     def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by LinuxCNC v{} and QtVCP'.format(VERSION, linuxcnc.version.split(':')[0]))
         self.w.power.setEnabled(False)
@@ -265,6 +277,8 @@ class HandlerClass:
             else:
                 self.file_reload_clicked()
         self.w.preview_stack.setCurrentIndex(0)
+        if self.w.chk_overlay.isChecked():
+            self.overlay.show()
 
     def gcode_lexer_call(self):
         print('NEED TO HIDE GCODE LEXER BUTTON')
@@ -396,6 +410,7 @@ class HandlerClass:
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
 #        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
@@ -460,6 +475,9 @@ class HandlerClass:
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(2)
         self.w.gcode_editor.editMode()
+        self.w.gcode_editor.pythonLexerAction.setVisible(False)
+        self.w.gcode_editor.gCodeLexerAction.setVisible(False)
+        self.w.gcode_editor.label.setText('')
         self.w.gcodegraphics.set_alpha_mode(True)
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
@@ -478,6 +496,16 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
+        self.overlay = overlayMaterial(self.w.gcodegraphics)
+
+    def get_overlay_text(self):
+        text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
+        text += ('PH: {}\n'.format(self.w.pierce_height.text()))
+        text += ('PD: {}\n'.format(self.w.pierce_delay.text()))
+        text += ('CH: {}'.format(self.w.cut_height.text()))
+        if self.pmx485Exists:
+            text += ('\nCA: {}'.format(self.w.cut_amps.text()))
+        return text
 
     def touchoff_buttons(self):
         cCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
@@ -522,8 +550,10 @@ class HandlerClass:
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
+        print('closing cleanup')
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview cone size', int(self.w.cone_size.value() * 100) / 100, float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
@@ -747,6 +777,8 @@ class HandlerClass:
             self.lastLoadedProgram = filename
             if not self.cameraOn:
                 self.w.preview_stack.setCurrentIndex(0)
+                if self.w.chk_overlay.isChecked():
+                    self.overlay.show()
             self.w.file_open.setText(os.path.basename(filename))
             self.w.edit_label.setText('EDIT: {}'.format(filename))
             if self.w.mdi_show.text() == 'MDI\nCLOSE':
@@ -762,6 +794,8 @@ class HandlerClass:
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
+        if self.w.file_open.text() == 'OPEN':
+            self.w.run.setEnabled(False)
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates.lower()[int(joint)]
@@ -860,6 +894,7 @@ class HandlerClass:
 
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
+        self.overlay.hide()
         if self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
@@ -867,6 +902,7 @@ class HandlerClass:
     def file_edit_clicked(self):
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
             self.w.preview_stack.setCurrentIndex(2)
+            self.overlay.hide()
 
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -879,6 +915,8 @@ class HandlerClass:
 
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
+        if self.w.chk_overlay.isChecked():
+            self.overlay.show()
 
     def cone_size_changed(self, data):
         self.w.gcodegraphics.set_cone_basesize(data)
@@ -1004,6 +1042,7 @@ class HandlerClass:
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
+        self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
         self.w.grid_size.valueChanged.connect(self.grid_size_changed)
@@ -1241,6 +1280,12 @@ class HandlerClass:
         for axis in 'xyza':
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = input
+
+    def overlay_changed(self):
+        if self.w.chk_overlay.isChecked():
+            self.overlay.show()
+        else:
+            self.overlay.hide()
 
     def dialog_error(self, title, error):
         msg = QMessageBox(self.w)
@@ -1721,6 +1766,7 @@ class HandlerClass:
         if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.conv_material.setCurrentIndex(index)
+            self.overlay.setText(self.get_overlay_text())
 
     def conv_material_changed(self, index):
         if self.w.conv_material.currentIndex() != self.w.materials_box.currentIndex():
@@ -2108,10 +2154,13 @@ class HandlerClass:
         self.w.camview.rotation = 0.0 if STATUS.stat.rotation_xy == 0 else 360 - STATUS.stat.rotation_xy
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
+            self.overlay.hide()
             self.button_active('camera')
             self.cameraOn = True
         else:
             self.w.preview_stack.setCurrentIndex(0)
+            if self.w.chk_overlay.isChecked():
+                self.overlay.show()
             self.button_normal('camera')
             self.cameraOn = False
 
@@ -2223,6 +2272,7 @@ class HandlerClass:
 
     def pmx485_check(self):
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
+            self.pmx485Exists = True
             self.w.pmx485_enable.setChecked(True)
             if not hal.component_exists('pmx485'):
                 self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \

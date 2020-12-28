@@ -171,7 +171,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -13552,11 +13552,11 @@ HOME ALL</string>
                  <item row="1" column="1">
                   <widget class="QLabel" name="label_33">
                    <property name="text">
-                    <string>KB Shorccuts</string>
+                    <string>KB Shortcuts</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="4">
+                 <item row="3" column="4">
                   <widget class="ActionButton" name="opt_blk">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -13609,14 +13609,14 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item row="3" column="1">
                   <widget class="QLabel" name="label_36">
                    <property name="text">
                     <string>Optional Stop</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="3">
+                 <item row="3" column="3">
                   <widget class="QLabel" name="label_37">
                    <property name="text">
                     <string>Optional Block</string>
@@ -13655,7 +13655,7 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item row="3" column="0">
                   <widget class="ActionButton" name="opt_stp">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -13737,7 +13737,7 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="2">
+                 <item row="3" column="2">
                   <spacer name="horizontalSpacer_16">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -13749,6 +13749,20 @@ HOME ALL</string>
                     </size>
                    </property>
                   </spacer>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QCheckBox" name="chk_overlay">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="label_20">
+                   <property name="text">
+                    <string>View Material</string>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -14775,6 +14789,182 @@ HOME ALL</string>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>arc_fail_delay</tabstop>
+  <tabstop>arc_max_starts</tabstop>
+  <tabstop>arc_restart_delay</tabstop>
+  <tabstop>arc_voltage_scale</tabstop>
+  <tabstop>arc_voltage_offset</tabstop>
+  <tabstop>height_per_volt</tabstop>
+  <tabstop>arc_ok_high</tabstop>
+  <tabstop>arc_ok_low</tabstop>
+  <tabstop>thc_delay</tabstop>
+  <tabstop>thc_threshold</tabstop>
+  <tabstop>pid_p_gain</tabstop>
+  <tabstop>cornerlock_threshold</tabstop>
+  <tabstop>kerfcross_override</tabstop>
+  <tabstop>pid_i_gain</tabstop>
+  <tabstop>pid_d_gain</tabstop>
+  <tabstop>float_switch_travel</tabstop>
+  <tabstop>probe_feed_rate</tabstop>
+  <tabstop>probe_start_height</tabstop>
+  <tabstop>ohmic_probe_offset</tabstop>
+  <tabstop>ohmic_max_attempts</tabstop>
+  <tabstop>skip_ihs_distance</tabstop>
+  <tabstop>safe_height</tabstop>
+  <tabstop>scribe_arm_delay</tabstop>
+  <tabstop>scribe_on_delay</tabstop>
+  <tabstop>spotting_threshold</tabstop>
+  <tabstop>spotting_time</tabstop>
+  <tabstop>setup_feed_rate</tabstop>
+  <tabstop>save_plasma</tabstop>
+  <tabstop>reload_plasma</tabstop>
+  <tabstop>backup_config</tabstop>
+  <tabstop>materials_box</tabstop>
+  <tabstop>kerf_width</tabstop>
+  <tabstop>pierce_height</tabstop>
+  <tabstop>pierce_delay</tabstop>
+  <tabstop>cut_height</tabstop>
+  <tabstop>cut_feed_rate</tabstop>
+  <tabstop>cut_amps</tabstop>
+  <tabstop>cut_volts</tabstop>
+  <tabstop>puddle_jump_height</tabstop>
+  <tabstop>puddle_jump_delay</tabstop>
+  <tabstop>pause_at_end</tabstop>
+  <tabstop>gas_pressure</tabstop>
+  <tabstop>cut_mode</tabstop>
+  <tabstop>save_material</tabstop>
+  <tabstop>reload_material</tabstop>
+  <tabstop>new_material</tabstop>
+  <tabstop>delete_material</tabstop>
+  <tabstop>color_foregrnd</tabstop>
+  <tabstop>color_foregalt</tabstop>
+  <tabstop>color_led</tabstop>
+  <tabstop>color_backgrnd</tabstop>
+  <tabstop>color_backgalt</tabstop>
+  <tabstop>color_frams</tabstop>
+  <tabstop>color_estop</tabstop>
+  <tabstop>color_disabled</tabstop>
+  <tabstop>color_preview</tabstop>
+  <tabstop>chk_soft_keyboard</tabstop>
+  <tabstop>chk_keyboard_shortcuts</tabstop>
+  <tabstop>opt_stp</tabstop>
+  <tabstop>chk_run_from_line</tabstop>
+  <tabstop>chk_override_limits</tabstop>
+  <tabstop>opt_blk</tabstop>
+  <tabstop>grid_size</tabstop>
+  <tabstop>cone_size</tabstop>
+  <tabstop>actionbutton_halshow</tabstop>
+  <tabstop>actionbutton_halscope</tabstop>
+  <tabstop>actionbutton_halmeter</tabstop>
+  <tabstop>actionbutton_calibration</tabstop>
+  <tabstop>actionbutton_lcnc_status</tabstop>
+  <tabstop>conv_line</tabstop>
+  <tabstop>conv_circle</tabstop>
+  <tabstop>conv_triangle</tabstop>
+  <tabstop>conv_rectangle</tabstop>
+  <tabstop>conv_polygon</tabstop>
+  <tabstop>conv_bolt</tabstop>
+  <tabstop>conv_slot</tabstop>
+  <tabstop>conv_star</tabstop>
+  <tabstop>conv_gusset</tabstop>
+  <tabstop>conv_sector</tabstop>
+  <tabstop>conv_rotate</tabstop>
+  <tabstop>conv_array</tabstop>
+  <tabstop>conv_material</tabstop>
+  <tabstop>conv_new</tabstop>
+  <tabstop>conv_save</tabstop>
+  <tabstop>conv_settings</tabstop>
+  <tabstop>conv_send</tabstop>
+  <tabstop>laser</tabstop>
+  <tabstop>touch_xy</tabstop>
+  <tabstop>cut_rec_w</tabstop>
+  <tabstop>cut_rec_n</tabstop>
+  <tabstop>cut_rec_ne</tabstop>
+  <tabstop>file_open</tabstop>
+  <tabstop>file_reload</tabstop>
+  <tabstop>gcode_display</tabstop>
+  <tabstop>touch_y</tabstop>
+  <tabstop>home_x</tabstop>
+  <tabstop>home_z</tabstop>
+  <tabstop>touch_z</tabstop>
+  <tabstop>touch_a</tabstop>
+  <tabstop>home_y</tabstop>
+  <tabstop>touch_x</tabstop>
+  <tabstop>home_a</tabstop>
+  <tabstop>home_all</tabstop>
+  <tabstop>wcs_button</tabstop>
+  <tabstop>camera</tabstop>
+  <tabstop>main_tab_widget</tabstop>
+  <tabstop>material_selector</tabstop>
+  <tabstop>view_p</tabstop>
+  <tabstop>view_z</tabstop>
+  <tabstop>pan_right</tabstop>
+  <tabstop>pan_left</tabstop>
+  <tabstop>pan_down</tabstop>
+  <tabstop>pan_up</tabstop>
+  <tabstop>zoom_out</tabstop>
+  <tabstop>zoom_in</tabstop>
+  <tabstop>view_clear</tabstop>
+  <tabstop>file_select</tabstop>
+  <tabstop>file_next</tabstop>
+  <tabstop>file_prev</tabstop>
+  <tabstop>file_cancel</tabstop>
+  <tabstop>cam_dia_plus</tabstop>
+  <tabstop>cam_dia_minus</tabstop>
+  <tabstop>cam_zoom_plus</tabstop>
+  <tabstop>cam_zoom_minus</tabstop>
+  <tabstop>cam_goto</tabstop>
+  <tabstop>cam_mark</tabstop>
+  <tabstop>estop</tabstop>
+  <tabstop>power</tabstop>
+  <tabstop>run</tabstop>
+  <tabstop>pause</tabstop>
+  <tabstop>abort</tabstop>
+  <tabstop>feed_slider</tabstop>
+  <tabstop>rapid_slider</tabstop>
+  <tabstop>jog_slider</tabstop>
+  <tabstop>button_1</tabstop>
+  <tabstop>button_6</tabstop>
+  <tabstop>pushButton_3</tabstop>
+  <tabstop>pushButton_4</tabstop>
+  <tabstop>ignore_arc_ok</tabstop>
+  <tabstop>button_8</tabstop>
+  <tabstop>button_5</tabstop>
+  <tabstop>mdi_show</tabstop>
+  <tabstop>file_edit</tabstop>
+  <tabstop>ohmic_probe_enable</tabstop>
+  <tabstop>button_7</tabstop>
+  <tabstop>button_4</tabstop>
+  <tabstop>button_2</tabstop>
+  <tabstop>button_3</tabstop>
+  <tabstop>torch_enable</tabstop>
+  <tabstop>mesh_enable</tabstop>
+  <tabstop>use_auto_volts</tabstop>
+  <tabstop>kerfcross_enable</tabstop>
+  <tabstop>jogincrements</tabstop>
+  <tabstop>jog_slow</tabstop>
+  <tabstop>jog_a_minus</tabstop>
+  <tabstop>jog_y_plus</tabstop>
+  <tabstop>cornerlock_enable</tabstop>
+  <tabstop>jog_a_plus</tabstop>
+  <tabstop>jog_z_minus</tabstop>
+  <tabstop>thc_enable</tabstop>
+  <tabstop>pmx485_enable</tabstop>
+  <tabstop>jog_x_minus</tabstop>
+  <tabstop>jog_x_plus</tabstop>
+  <tabstop>cut_rec_rev</tabstop>
+  <tabstop>jog_y_minus</tabstop>
+  <tabstop>jog_z_plus</tabstop>
+  <tabstop>cut_rec_cancel</tabstop>
+  <tabstop>cut_rec_speed</tabstop>
+  <tabstop>cut_rec_fwd</tabstop>
+  <tabstop>cut_rec_se</tabstop>
+  <tabstop>cut_rec_s</tabstop>
+  <tabstop>cut_rec_nw</tabstop>
+  <tabstop>cut_rec_e</tabstop>
+  <tabstop>cut_rec_sw</tabstop>
+ </tabstops>
  <resources>
   <include location="."/>
  </resources>

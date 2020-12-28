@@ -498,8 +498,7 @@ QComboBox QListView {
 QHeaderView::section {
     background-color: backalt;
     color: foregnd;
-    border: none;
-     }
+    border: none }
 
 #filemanager QTableView {
     border: 1px solid foregnd;
@@ -673,10 +672,6 @@ QPlainTextEdit {
 
 #gcode_editor QToolBar {
     spacing: 4 }
-
-#gcode_editor QLabel {
-    color: backgnd;
-     }
 
 #gcode_editor QToolButton {
 /*    qproperty-icon: none;*/
