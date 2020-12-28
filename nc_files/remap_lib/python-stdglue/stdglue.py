@@ -495,8 +495,8 @@ def index_lathe_tool_with_wear(self,**words):
 
 #[TOOLSENSOR]
 #X = 5.00
-##Y = -1
-Z = -1
+#Y = -1
+#Z = -1
 #PROBEHEIGHT = 2.3
 #MAXPROBE =  -3
 #SEARCH_VEL = 20
