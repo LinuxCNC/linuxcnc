@@ -418,6 +418,10 @@ MDI_COMMAND=(debug,macro16)
  True as long pendant is not in sleep mode (turned on), false otherwise.
 
 == HAL Configuration Example
+
+!!! Please do not copy/paste from this web page because some charachters compatibility (-) this is really suggested to use and open this file for HAL reference with linux text editor.
+https://github.com/LinuxCNC/linuxcnc/blob/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md
+
 ----
 #
 ### Hal File xhc_whb04b_6.hal Example
