@@ -2332,8 +2332,11 @@ class TclCommands(nf.TclCommands):
     def task_stop(*event):
         if s.task_mode == linuxcnc.MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
+        comp["abort"] = True
         c.abort()
         c.wait_complete()
+        time.sleep(0.3)
+        comp["abort"] = False
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -3830,6 +3833,7 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
