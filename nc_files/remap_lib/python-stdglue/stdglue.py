@@ -11,8 +11,9 @@
 # Usage:
 #REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
 
-import emccanon 
+import emccanon
 from interpreter import *
+from emccanon import MESSAGE
 throw_exceptions = 1
 
 # REMAP=S   prolog=setspeed_prolog  ngc=setspeed epilog=setspeed_epilog
@@ -467,3 +468,169 @@ def index_lathe_tool_with_wear(self,**words):
         print(e)
         self.set_errormsg("T%d index_lathe_tool_with_wear: %s" % (int(words['t']), e))
         return INTERP_ERROR
+
+
+# REMAP=M6 modalgroup=10 python=tool_probe_m6
+#
+# auto tool probe on m6
+# move to tool change position for toolchange
+# wait for acknoledge of tool change
+# move to tool setter probe position
+# probe tool on tool setter
+# move back to tool change position
+# set offsets
+# based on Versaprobe remap
+#
+# param 5000 holds the work piece height
+# param 4999 should be set to 1 if the 
+# machine is based in imperial
+#
+# required INI settings
+# (Abs coordinates/ machine based units)
+#
+#[CHANGE_POSITION]
+#X = 5
+#Y = 0
+#Z = 0
+
+#[TOOLSENSOR]
+#X = 5.00
+##Y = -1
+Z = -1
+#PROBEHEIGHT = 2.3
+#MAXPROBE =  -3
+#SEARCH_VEL = 20
+#PROBE_VEL = 5
+
+def tool_probe_m6(self, **words):
+
+    # only run this if we are really moving the machine
+    # skip this if running task for the screen
+    if not self.task:
+        yield INTERP_OK
+
+   # shpuld be a global variable for this
+    IMPERIAL_BASED = bool(self.params[4999])
+
+    try:
+        # we need to be in machine based units
+        # if we aren't - switch
+        # remember so we can switch back later
+        switchUnitsFlag = False
+        if bool(self.params["_imperial"]) != IMPERIAL_BASED:
+            print ("not right Units: {}".format(bool(self.params["_imperial"])))
+            if IMPERIAL_BASED:
+                print ("switched Units to imperial")
+                self.execute("G20")
+            else:
+                print ("switched Units to metric")
+                self.execute("G21")
+            switchUnitsFlag = True
+
+        self.params["tool_in_spindle"] = self.current_tool
+        self.params["selected_tool"] = self.selected_tool
+        self.params["current_pocket"] = self.current_pocket
+        self.params["selected_pocket"] = self.selected_pocket
+
+        # first go up
+        self.execute("G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>-0.1]")
+        # then move to XY change position
+        self.execute("G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]")
+        self.execute("G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]")
+
+        # cancel tool offset
+        self.execute("G49")
+
+        # change tool
+        try:
+            self.selected_pocket =  int(self.params["selected_pocket"])
+            emccanon.CHANGE_TOOL(self.selected_pocket)
+            self.current_pocket = self.selected_pocket
+            self.selected_pocket = -1
+            self.selected_tool = -1
+            # cause a sync()
+            self.set_tool_parameters()
+            self.toolchange_flag = True
+        except InterpreterException as e:
+            self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
+            yield INTERP_ERROR
+
+        try:
+            # move to tool probe position (from INI)
+            self.execute("G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
+            self.execute("G53 G0 Z[#<_ini[TOOLSENSOR]Z>]")
+
+            # set incremental mode
+            self.execute("G91")
+
+            # course probe
+            self.execute("F [#<_ini[TOOLSENSOR]SEARCH_VEL>]")
+            self.execute("G38.2 Z [#<_ini[TOOLSENSOR]MAXPROBE>]")
+
+            # Wait for results
+            yield INTERP_EXECUTE_FINISH
+
+            # FIXME if there is an error it never comes back
+            # which leaves linuxcnc in g91 state
+            if self.params[5070] == 0 or self.return_value > 0.0:
+                self.execute("G90")
+                self.set_errormsg("tool_probe_m6 remap error:")
+                yield INTERP_ERROR
+
+            # rapid up off trigger point to do it again
+            if bool(self.params["_imperial"]):
+                f = 0.25
+            else:
+                f = 4.0
+            self.execute("G0 Z{}".format(f))
+
+            self.execute("F [#<_ini[TOOLSENSOR]PROBE_VEL>]")
+            self.execute("G38.2 Z-0.5")
+            yield INTERP_EXECUTE_FINISH
+
+            # FIXME if there is an error it never comes back
+            # which leaves linuxcnc in g91 state
+            if self.params[5070] == 0 or self.return_value > 0.0:
+                self.execute("G90")
+                self.set_errormsg("tool_probe_m6 remap error:")
+                yield INTERP_ERROR
+
+            # set back absolute state
+            self.execute("G90")
+
+            # return to tool change positon
+            self.execute("G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]")
+            self.execute("G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]")
+
+            # adjust tool offset from calculations
+            proberesult = self.params[5063]
+            probeheight = self.params["_ini[TOOLSENSOR]PROBEHEIGHT"] 
+            workheight = self.params[5000]
+
+            adj = proberesult - probeheight + workheight
+            self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))
+
+            # apply tool offset
+            self.execute("G43")
+
+            # if we switched units for tool change - switch back
+            if switchUnitsFlag:
+                if IMPERIAL_BASED:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
+ 
+        except InterpreterException as e:
+            msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
+            print (msg)
+            yield INTERP_ERROR
+
+    except Exception as e:
+        print (e)
+        self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
+        yield INTERP_ERROR
+
+
+
