@@ -498,8 +498,7 @@ QComboBox QListView {
 QHeaderView::section {
     background-color: backalt;
     color: foregnd;
-    border: 1px solid foregnd;
-    border-radius: 4px;
+    border: none;
      }
 
 #filemanager QTableView {
