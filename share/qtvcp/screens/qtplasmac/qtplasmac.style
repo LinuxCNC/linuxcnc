@@ -174,7 +174,8 @@ DROLabel {
     font: 20pt 'Lato' }
 
 DROLabel[homed=false] {
-    color: inactive }
+    color: inactive;
+    border-color: inactive }
 
 /****** DRO LABEL ************/
 #dro_label_a,
@@ -187,12 +188,11 @@ DROLabel[homed=false] {
     border-radius: 4px;
     font: 20pt 'Lato' }
 
-#dro_label_a:disabled,
-#dro_label_x:disabled,
-#dro_label_y:disabled,
-#dro_label_z:disabled {
-    color: inactive;
-    background: backgnd;
+#dro_label_a[homed=false],
+#dro_label_x[homed=false],
+#dro_label_y[homed=false],
+#dro_label_z[homed=false] {
+    background: inactive;
     border-color: inactive }
 
 /****** ARC VOLTAGE ************/

@@ -789,6 +789,8 @@ class HandlerClass:
             ACTION.RUN()
         self.w.gcodegraphics.logger.clear()
         self.w.file_edit.setEnabled(True)
+        if not STATUS.is_all_homed():
+            self.w.run.setEnabled(False)
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
@@ -798,18 +800,24 @@ class HandlerClass:
             self.w.run.setEnabled(False)
 
     def joint_homed(self, obj, joint):
+        print 'HOMED:', joint
         dro = self.coordinates.lower()[int(joint)]
         self.w['dro_{}'.format(dro)].setProperty('homed', True)
         self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
+        self.w['dro_label_{}'.format(dro)].setProperty('homed', True)
+        self.w["dro_label_{}".format(dro)].setStyle(self.w["dro_label_{}".format(dro)].style())
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
         self.w.gcodegraphics.logger.clear()
 
     def joint_unhomed(self, obj, joints):
         for joint in joints:
+            print 'UNHOMED:', joint
             dro = self.coordinates.lower()[int(joint)]
             self.w['dro_{}'.format(dro)].setProperty('homed', False)
             self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
+            self.w['dro_label_{}'.format(dro)].setProperty('homed', False)
+            self.w["dro_label_{}".format(dro)].setStyle(self.w["dro_label_{}".format(dro)].style())
         if len(joints) < len(self.coordinates):
             self.w.home_all.setEnabled(True)
         self.w.update
@@ -1181,6 +1189,11 @@ class HandlerClass:
         for joint in range(len(self.coordinates)):
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
+# see if not joggable before homing
+            if self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE').startswith('-'):
+                if 'jog_{}_plus'.format(self.coordinates[joint].lower()) not in self.idleHomedList:
+                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint].lower()))
+                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint].lower()))
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
