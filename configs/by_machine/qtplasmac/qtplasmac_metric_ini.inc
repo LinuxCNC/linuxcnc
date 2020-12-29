@@ -27,9 +27,9 @@ BUTTON_6_CODE           =
 # this section required as is for removing z axis moves from the loaded gcode file
 [FILTER]
 PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
-ngc                     = ./qtplasmac/plasmac_gcode.py
-nc                      = ./qtplasmac/plasmac_gcode.py
-tap                     = ./qtplasmac/plasmac_gcode.py
+ngc                     = ./qtplasmac/qtplasmac_gcode.py
+nc                      = ./qtplasmac/qtplasmac_gcode.py
+tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 [RS274NGC]
 RS274NGC_STARTUP_CODE   = o<metric_startup> call

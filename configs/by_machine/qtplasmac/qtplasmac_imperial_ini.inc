@@ -27,18 +27,18 @@ BUTTON_6_CODE           = single-cut
 # this section required as is for removing z axis moves from the loaded gcode file
 [FILTER]
 PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
-ngc                     = ./plasmac/plasmac_gcode.py
-nc                      = ./plasmac/plasmac_gcode.py
-tap                     = ./plasmac/plasmac_gcode.py
+ngc                     = ./qtplasmac/qtplasmac_gcode.py
+nc                      = ./qtplasmac/qtplasmac_gcode.py
+tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 [RS274NGC]
 RS274NGC_STARTUP_CODE   = o<imperial_startup> call
 PARAMETER_FILE          = imperial_parameters.txt
 
-SUBROUTINE_PATH         = ./:./plasmac:../../nc_files/subroutines
+SUBROUTINE_PATH         = ./:./qtplasmac:../../nc_files/subroutines
 
 # required for our material change
-USER_M_PATH             = ./:./plasmac
+USER_M_PATH             = ./:./qtplasmac
 
 [HAL]
 TWOPASS                 = ON

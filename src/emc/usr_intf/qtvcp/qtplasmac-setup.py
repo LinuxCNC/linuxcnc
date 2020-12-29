@@ -563,9 +563,9 @@ class Configurator(QMainWindow, object):
         self.outFile.write('\n# this section filters the gcode file to suit qtplasmac\n' \
                            '[FILTER]\n' \
                            'PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)\n' \
-                           'ngc                     = ./qtplasmac/plasmac_gcode.py\n' \
-                           'nc                      = ./qtplasmac/plasmac_gcode.py\n' \
-                           'tap                     = ./qtplasmac/plasmac_gcode.py\n' \
+                           'ngc                     = ./qtplasmac/qtplasmac_gcode.py\n' \
+                           'nc                      = ./qtplasmac/qtplasmac_gcode.py\n' \
+                           'tap                     = ./qtplasmac/qtplasmac_gcode.py\n' \
                            )
 
     def ini_rs274ngc_section(self):

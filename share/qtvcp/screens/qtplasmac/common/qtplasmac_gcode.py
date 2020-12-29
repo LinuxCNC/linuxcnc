@@ -42,15 +42,18 @@ cutType = int(Popen('halcmd getp qtplasmac.cut_type', stdout = PIPE, shell = Tru
 currentMat = int(Popen('halcmd getp qtplasmac.material_change_number', stdout = PIPE, shell = True).communicate()[0])
 fgColor = str(hex(int(Popen('halcmd getp qtplasmac.colorfg-s32', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
 bgColor = str(hex(int(Popen('halcmd getp qtplasmac.colorbg-s32', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
+zMaxOffset = float(Popen('halcmd getp plasmac.max-offset', stdout = PIPE, shell = True).communicate()[0])
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
 if units == 'mm':
     minDiameter = 32
     ocLength = 4
+    unitsPerMm = 1
 else:
     minDiameter = 1.26
     ocLength = 0.157
+    unitsPerMm = 0.03937
 newMaterial = []
 line = ''
 rapidLine = ''
@@ -73,6 +76,7 @@ scribing = False
 spotting = False
 offsetG41 = False
 feedWarning = False
+zSetup = False
 
 # feedback dialog
 def dialog_box(title, text):
@@ -582,6 +586,10 @@ with open(inCode, 'r') as fRead:
                     line = line[:1] + line[2:]
                 else:
                     break
+        # set initial Z height
+        if not zSetup and ('g0' in line or 'g1' in line or 'm3' in line):
+            print('g0 z[#<_ini[axis_z]max_limit> - {}] (Z just below max height)'.format(zMaxOffset * unitsPerMm))
+            zSetup = True
         # set default units
         if 'g21' in line and units == 'in':
             if not customDia:
