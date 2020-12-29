@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.187 - 2020 Dec 13
+0.188 - 2020 Dec 28
 
 .I SUMMARY:
 .br
@@ -47,7 +47,7 @@ pin in  bit     consumable_change           "change consumables in torch";
 pin in  bit     cornerlock_enable           "enable corner lock";
 pin in  float   cornerlock_threshold        "corner lock threshold (% of requested feed rate), speeds below this disable THC";
 pin in  float   current_velocity            "current machine velocity , connect to motion.current-vel";
-pin in  float   cut_feed_rate               "cut feed rate, set to 0 to use feed rate from gcod file (machine units per minute)";
+pin in  float   cut_feed_rate               "cut feed rate, set to 0 to use feed rate from gcode file (machine units per minute)";
 pin in  float   cut_height                  "cut height (machine units)";
 pin in  bit     cut_recovery                "recover from cut error";
 pin in  float   cut_volts                   "cut voltage (volts)";
@@ -62,10 +62,13 @@ pin in  float   height_per_volt             "torch height change per volt (machi
 pin in  bit     homed                       "machine is homed";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
+pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
 pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
 pin in  bit     machine_is_on               "machine is on signal";
+pin in  s32     max_offset = 5              "maximum height offset";
+pin in  bit     mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
 pin in  bit     mesh_enable                 "enable mesh cutting mode";
 pin in  s32     mode                        "operating mode";
 pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
@@ -114,11 +117,12 @@ pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
 pin in  float   xy_feed_rate                "feed-rate for consumable change";
-pin in  float   x_offset                    "offest to apply to axis x for consumable change";
+pin in  float   x_offset                    "offset to apply to axis x for consumable change";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
-pin in  float   y_offset                    "offest to apply to axis y for consumable change";
+pin in  float   y_offset                    "offset to apply to axis y for consumable change";
 pin in  float   y_offset_current            "current z axis offset, connect to axis.y.eoffset";
 pin in  float   z_offset_current            "current z axis offset, connect to axis.z.eoffset";
+pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
@@ -137,7 +141,7 @@ pin out bit     led_up                      "thc move up indicator";
 pin out float   offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
 pin out s32     pierce_count                "number of pierce attempts";
-pin out bit     probe_test_error            "minimum limit reached while pobe testing";
+pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
 pin out bit     program_resume              "resume the currently paused program, connect to halui.program.resume";
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
@@ -208,7 +212,7 @@ variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable int    probe_offset;               /* offset for active probe */
 variable bool   probe_required = 1;         /* a probe sequence is required */
-variable bool   probe_retry;                /* probe will retry after contact befor probe height */
+variable bool   probe_retry;                /* probe will retry after contact before probe height */
 variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
 variable int    probe_velocity;             /* probe down velocity */
@@ -233,18 +237,13 @@ variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable float  torch_pulse_timer;          /* torch pulse timer */
-variable float  velocity_scale;             /* the velocity multipler */
+variable float  velocity_scale;             /* the velocity multiplier */
 variable int    x_velocity;                 /* velocity for x motion for consumable change */
 variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    zero_target;                /* zero height target offset */
 
 /* PARAMETERS */
 param rw bit    debug_print = FALSE         "print debug messages";
-param rw s32    kerf_errors_max = 2         "allowable kerfcross threshold errors";
-param rw bit    mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
-
-/* temp for testing max overrun*/
-param rw s32    max_offset = 5              "maximum height offset";
 
 function _;
 
@@ -522,7 +521,7 @@ FUNCTION(_) {
         arc_voltage_raw = arc_voltage_in;
     }
     arc_voltage_out = round(((fabs(arc_voltage_raw) - arc_voltage_offset) * fabs(arc_voltage_scale)) * 1000) / 1000;
-    if(arc_voltage_out < 0 && arc_voltage_out > -0.1){
+    if(arc_voltage_out < zero_window && arc_voltage_out > zero_window * -1){
         arc_voltage_out = 0;
     }
 

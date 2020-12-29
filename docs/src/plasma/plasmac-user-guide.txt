@@ -60,8 +60,8 @@ Some recommended settings:
 
 [[z_settings]]
 
-* *Z MINIMUM_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (as calculated using the equation below) below the lowest slat.
-* *Z MAXIMUM_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
+* *Z MAX_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (as calculated using the equation below) below the lowest slat.
+* *Z MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
 * *Z HOME* should be set to be approximately 5mm (0.196") below the maximum limit.
 
 * *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
@@ -298,7 +298,7 @@ See <<config-panel, Config Panel>>
 
 . Home the Z axis.
 
-. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MINIMUM_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset.
+. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MAX_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset.
 
 . Home the Z axis again.
 
@@ -1179,9 +1179,9 @@ If the machine has home switches then it will move to the specified home coordin
 
 Depending on the machine's configuration there will either be a *Home All* button or each axis will need to be homed individually. Use the appropriate button/buttons to home the machine.
 
-As mentioned in the <<initial-setup, Initial Setup>> section, it is recommended that the first time PlasmaC is used that the user ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MINIMUM_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset. This should not need to be done again.
+As mentioned in the <<initial-setup, Initial Setup>> section, it is recommended that the first time PlasmaC is used that the user ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MAX_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset. This should not need to be done again.
 
-Before starting a program, jog the Z axis up to approximately 5mm (0.196") from the top of travel (Z Axis MAXIMUM_LIMIT). Leave the Z axis at this position as PlasmaC will control all Z axis motion while running a program, and park the Z Axis in this position when the program completes.
+Before starting a program, jog the Z axis up to approximately 5mm (0.196") from the top of travel (Z Axis MAX_LIMIT). Leave the Z axis at this position as PlasmaC will control all Z axis motion while running a program, and park the Z Axis in this position when the program completes.
 
 If the user intends to place the material in the exact same place on the table every time, the user could jog the X and Y axes to the machine to the corresponding X0 Y0 position as established by the CAM software and then *Touch Off* both axes with a zero offset.
 
@@ -1590,7 +1590,7 @@ If the machine's torch does not support ohmic probing, the user could have a sep
 
 Probing setup is done in the Probing frame of the Config Panel. Probing speed is controlled in the Motion frame of the Config Panel.
 
-PlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine's float switch travel is suitable, the user could set the Probe Height to near the Z axis MINIMUM_LIMIT and do all probing at full speed.
+PlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine's float switch travel is suitable, the user could set the Probe Height to near the Z axis MAX_LIMIT and do all probing at full speed.
 
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
@@ -1610,7 +1610,7 @@ This speed value affects ALL probing so if the user uses ohmic probing and the u
 
 The reliability of this feature will only be as good as the repeatability of the float switch.
 
-NOTE: Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
+NOTE: Probe Height refers to the height above the Z axis MAX_LIMIT.
 
 [[cut-types]]
 
@@ -2462,7 +2462,7 @@ To set the X and Y axes to zero:
 G10 L20 P0 X0 Y0
 ----
 
-To move the Z axis away from the MAXIMUM_LIMIT by a small amount to prepare for cutting (5.0mm in the following example):
+To move the Z axis away from the MAX_LIMIT by a small amount to prepare for cutting (5.0mm in the following example):
 
 ----
 G53 G0 Z[{AXIS_Z MAX_LIMIT} - 5.0]
@@ -2524,7 +2524,7 @@ If the user wishes to use this in a sim configuration then the user will need to
 
 Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
 
-The parameter for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the parameter and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
+The pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
 
 ----
 setp plasmac.kerf-error-max 3
@@ -2543,6 +2543,28 @@ setp plasmac.arc-lost-delay 0.1
 It is recommended that the user set this parameter in the <machine_name>_connections.hal file.
 
 This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
+
+=== Zero Window
+
+Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.). After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which PlasmaC will display 0v.
+
+The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the voltage window to be displayed as 0v from -5v to +5v:
+
+----
+setp plasmac.zero-window 5
+----
+
+=== Max Offset
+
+Max Offset is the distance (in millimeters) away from the Z MAX_LIMIT that PlasmaC will allow the Z axis to travel while under machine control.
+
+The pin for adjusting this value is named plasmac.max-offset and the default value (in millimeters) is set to 5. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
+
+The following example would set the distance from Z MAX_LIMIT to 10mm:
+
+----
+setp plasmac.max-offset 10
+----
 
 === PlasmaC State Outputs
 
