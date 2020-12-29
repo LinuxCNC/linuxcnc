@@ -693,6 +693,7 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
+        self.w.main_tab_widget.setTabEnabled(1, True)
         ACTION.SET_MANUAL_MODE()
 
     def interp_paused(self, obj):
@@ -712,6 +713,7 @@ class HandlerClass:
         if STATUS.is_auto_mode() and self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
+        self.w.main_tab_widget.setTabEnabled(1, False)
 
     def interp_reading(self, obj):
         pass
