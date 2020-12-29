@@ -37,6 +37,8 @@ class QTPanel():
         self.window['PREFS_'] = None
         self._screenOptions = None
         self._geo_string = ''
+        # gives access to the function from window instance
+        self.window.halify_widget = self.halify_widget
 
         # see if a screenoptions widget is present
         # if is is then initiate the preference file
@@ -65,11 +67,14 @@ class QTPanel():
         # keep a register list of these widgets for later
         LOG.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
-            if isinstance(widget, _HalWidgetBase):
-                self.window.registerHalWidget(widget)
-                idname = widget.objectName()
-                LOG.verbose('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init()
+            self.halify_widget(widget)
+
+    def halify_widget(self, widget):
+        if isinstance(widget, _HalWidgetBase):
+            self.window.registerHalWidget(widget)
+            idname = widget.objectName()
+            LOG.verbose('HAL-ified instance found: {}'.format(idname))
+            widget.hal_init()
 
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings
