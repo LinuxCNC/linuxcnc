@@ -1,4 +1,4 @@
-MAX_LIMIT[[cha:plasmac-user-guide]]
+[[cha:plasmac-user-guide]]
 
 = PlasmaC User Guide
 :toc:
