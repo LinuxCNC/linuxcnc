@@ -234,7 +234,7 @@ try:
                         pmx485.status = False
                         errorCount += 1
                         if errorCount > 3:
-                            print('Closing powermax communications, error count exceeded')
+                            print('closing powermax communications, error count exceeded')
                             errorCount = 0
                             pmx485.status = False
                             started = False

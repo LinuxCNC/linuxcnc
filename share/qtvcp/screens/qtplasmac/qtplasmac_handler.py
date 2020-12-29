@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.3'
+VERSION = '0.9.4'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -800,7 +800,6 @@ class HandlerClass:
             self.w.run.setEnabled(False)
 
     def joint_homed(self, obj, joint):
-        print 'HOMED:', joint
         dro = self.coordinates.lower()[int(joint)]
         self.w['dro_{}'.format(dro)].setProperty('homed', True)
         self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
@@ -812,7 +811,6 @@ class HandlerClass:
 
     def joint_unhomed(self, obj, joints):
         for joint in joints:
-            print 'UNHOMED:', joint
             dro = self.coordinates.lower()[int(joint)]
             self.w['dro_{}'.format(dro)].setProperty('homed', False)
             self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
@@ -2286,7 +2284,6 @@ class HandlerClass:
     def pmx485_check(self):
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
             self.pmx485Exists = True
-            self.w.pmx485_enable.setChecked(True)
             if not hal.component_exists('pmx485'):
                 self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
                                                   '\nPowermax communications is not available\n')
@@ -2296,13 +2293,13 @@ class HandlerClass:
             self.w.pmx485_status.hal_pin_changed.connect(lambda w:self.pmx485_status_changed(w))
             self.w.pmx485_mode.hal_pin_changed.connect(self.pmx485_mode_changed)
             self.w.pmx485_fault.hal_pin_changed.connect(lambda w:self.pmx485_fault_changed(w))
-            self.w.pmx485_current_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
-            self.w.pmx485_current_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
-            self.w.pmx485_pressure_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
-            self.w.pmx485_pressure_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
+#            self.w.pmx485_current_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
+#            self.w.pmx485_current_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
+#            self.w.pmx485_pressure_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
+#            self.w.pmx485_pressure_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
             self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
             self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
-            pinsComp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
+            self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
                         'pmx485.mode_set', 'pmx485.mode', \
                         'pmx485.current_set', 'pmx485.current', 'pmx485.current_min', 'pmx485.current_max', \
                         'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max']
@@ -2314,10 +2311,10 @@ class HandlerClass:
                        hal.HAL_FLOAT, hal.HAL_FLOAT, \
                        hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, \
                        hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
-            for pin in pinsComp:
-                hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[pinsComp.index(pin)])
+            for pin in self.pins485Comp:
+                hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[self.pins485Comp.index(pin)])
                 hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-                hal.connect('qtplasmac.{}'.format(pinsSelf[pinsComp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+                hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             self.pressure = self.w.gas_pressure.value()
             self.rs485Timer = QTimer()
             self.rs485Timer.timeout.connect(self.rs485_timeout)
@@ -2326,6 +2323,7 @@ class HandlerClass:
             self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
             self.pmx485_enable_changed(self.w.pmx485_enable.isChecked())
             self.w.cut_amps.setStatusTip('Powermax cutting current')
+            self.w.pmx485_enable.setChecked(True)
         else:
             self.w.gas_pressure.hide()
             self.w.gas_pressure_label.hide()
@@ -2343,25 +2341,21 @@ class HandlerClass:
                     self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
                                                       '\nPowermax communications is not available\n')
                     return
-                timeout = time.time() + 3
-                self.w.pmx485_label.setText('CONNECTING')
-                while 1:
-                    time.sleep(0.1)
-                    if time.time() > timeout:
-                        self.w.pmx485_enable.setChecked(False)
-                        self.w.pmx485_label.setText('')
-                        self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                        self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
-                        return
-                    if hal.component_exists('pmx485'):
-                        print('pmx485 component reloaded') 
-                        pinsComp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
-                                    'pmx485.mode_set', 'pmx485.mode', \
-                                    'pmx485.current_set', 'pmx485.current', 'pmx485.current_min', 'pmx485.current_max', \
-                                    'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max']
-                        for pin in pinsComp:
-                            hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-                        break
+            if not hal.pin_has_writer('pmx485.enable'):
+                for pin in self.pins485Comp:
+                    hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+            timeout = time.time() + 3
+            self.w.pmx485_label.setText('CONNECTING')
+            while 1:
+                time.sleep(0.1)
+                if time.time() > timeout:
+                    self.w.pmx485_enable.setChecked(False)
+                    self.w.pmx485_label.setText('')
+                    self.w.pmx485_label.setStatusTip('status of pmx485 communications')
+                    self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
+                    return
+                if hal.component_exists('pmx485'):
+                    break
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
                 self.dialog_error('MATERIALS ERROR', '\nInvalid Cut Mode or Cut Amps\n\nCannot connect to Powermax\n')
                 self.w.pmx485_enable.setChecked(False)
@@ -2370,7 +2364,7 @@ class HandlerClass:
             else:
                 self.pmx485Loaded = True
                 self.w.pmx485_enable.setChecked(True)
-                self.rs485Timer.stop()
+                self.rs485Timer.start(3000)
         else:
             self.pmx485Connected = False
             self.w.pmx485_label.setText('')
@@ -2395,6 +2389,7 @@ class HandlerClass:
             self.pressure = self.w.gas_pressure.value()
 
     def pmx485_min_max_changed(self):
+        if not self.pmx485Connected: return
         self.w.cut_amps.setMinimum(self.w.pmx485_current_min.hal_pin.get())
         self.w.cut_amps.setMaximum(self.w.pmx485_current_max.hal_pin.get())
         self.gas_minimum = self.w.pmx485_pressure_min.hal_pin.get()
@@ -2415,11 +2410,12 @@ class HandlerClass:
             if state:
                 self.w.pmx485_label.setText('CONNECTED')
                 self.pmx485Connected = True
+                self.pmx485_min_max_changed()
                 self.rs485Timer.stop()
             else:
                 self.w.pmx485_label.setText('COMMS ERROR')
                 self.pmx485Connected = False
-                self.rs485Timer.start(5000)
+                self.rs485Timer.start(3000)
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
