@@ -60,7 +60,7 @@ Some recommended settings:
 
 [[z_settings]]
 
-* *Z MAX_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (as calculated using the equation below) below the lowest slat.
+* *Z MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (as calculated using the equation below) below the lowest slat.
 * *Z MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
 * *Z HOME* should be set to be approximately 5mm (0.196") below the maximum limit.
 
@@ -298,7 +298,7 @@ See <<config-panel, Config Panel>>
 
 . Home the Z axis.
 
-. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MAX_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset.
+. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MIN_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset.
 
 . Home the Z axis again.
 
@@ -1179,7 +1179,7 @@ If the machine has home switches then it will move to the specified home coordin
 
 Depending on the machine's configuration there will either be a *Home All* button or each axis will need to be homed individually. Use the appropriate button/buttons to home the machine.
 
-As mentioned in the <<initial-setup, Initial Setup>> section, it is recommended that the first time PlasmaC is used that the user ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MAX_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset. This should not need to be done again.
+As mentioned in the <<initial-setup, Initial Setup>> section, it is recommended that the first time PlasmaC is used that the user ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MIN_LIMIT then click *Touch Off* with the Z axis selected to set the Z axis at zero offset. This should not need to be done again.
 
 Before starting a program, jog the Z axis up to approximately 5mm (0.196") from the top of travel (Z Axis MAX_LIMIT). Leave the Z axis at this position as PlasmaC will control all Z axis motion while running a program, and park the Z Axis in this position when the program completes.
 
@@ -1590,7 +1590,7 @@ If the machine's torch does not support ohmic probing, the user could have a sep
 
 Probing setup is done in the Probing frame of the Config Panel. Probing speed is controlled in the Motion frame of the Config Panel.
 
-PlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine's float switch travel is suitable, the user could set the Probe Height to near the Z axis MAX_LIMIT and do all probing at full speed.
+PlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine's float switch travel is suitable, the user could set the Probe Height to near the Z axis MIN_LIMIT and do all probing at full speed.
 
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
@@ -1610,7 +1610,7 @@ This speed value affects ALL probing so if the user uses ohmic probing and the u
 
 The reliability of this feature will only be as good as the repeatability of the float switch.
 
-NOTE: Probe Height refers to the height above the Z axis MAX_LIMIT.
+NOTE: Probe Height refers to the height above the Z axis MIN_LIMIT.
 
 [[cut-types]]
 
