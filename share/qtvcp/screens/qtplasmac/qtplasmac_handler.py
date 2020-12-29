@@ -728,6 +728,7 @@ class HandlerClass:
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
             self.w.run.setEnabled(False)
+            self.w.wcs_button.setEnabled(False)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
