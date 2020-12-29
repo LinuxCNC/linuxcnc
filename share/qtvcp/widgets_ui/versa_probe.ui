@@ -1824,13 +1824,13 @@ Z</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
@@ -1848,7 +1848,7 @@ ZERO</string>
                      <bool>false</bool>
                     </property>
                     <property name="indicator_option" stdset="0">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="indicator_HAL_pin_option" stdset="0">
                      <bool>false</bool>
@@ -1869,6 +1869,63 @@ ZERO</string>
                    </widget>
                   </item>
                   <item>
+                   <widget class="PushButton" name="pbtn_use_tool_measurement">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>50</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>60</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>DejaVu Sans</family>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>This button not implemented</string>
+                    </property>
+                    <property name="text">
+                     <string>Measure
+Tool</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>255</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.200000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="PushButton" name="allow_auto_skew">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -1878,13 +1935,13 @@ ZERO</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
@@ -1905,7 +1962,7 @@ SKEW</string>
                      <bool>false</bool>
                     </property>
                     <property name="indicator_option" stdset="0">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="on_color" stdset="0">
                      <color>
@@ -1950,13 +2007,13 @@ SKEW</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
@@ -1979,10 +2036,7 @@ ANGLE</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="PushButton" name="pbtn_use_tool_measurement">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
+                   <widget class="PushButton" name="pbtn_workpiece">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -1991,44 +2045,93 @@ ANGLE</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
+                      <width>50</width>
                       <height>50</height>
                      </size>
                     </property>
-                    <property name="font">
-                     <font>
-                      <family>DejaVu Sans</family>
-                      <pointsize>10</pointsize>
-                     </font>
-                    </property>
                     <property name="toolTip">
-                     <string>This button not implemented</string>
+                     <string>Probe Work Piece</string>
                     </property>
                     <property name="text">
-                     <string>MEASURE
-TOOL</string>
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset>
+                      <normaloff>../images/probe_icons/workpiece_height.png</normaloff>../images/probe_icons/workpiece_height.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>48</width>
+                      <height>48</height>
+                     </size>
                     </property>
                     <property name="checkable">
-                     <bool>true</bool>
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
                     </property>
                     <property name="indicator_option" stdset="0">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
-                    <property name="on_color" stdset="0">
-                     <color>
-                      <red>0</red>
-                      <green>255</green>
-                      <blue>0</blue>
-                     </color>
+                    <property name="probe" stdset="0">
+                     <string>probe_down</string>
                     </property>
-                    <property name="indicator_size" stdset="0">
-                     <double>0.200000000000000</double>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="PushButton" name="pbtn_tool_setter">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>50</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Probe Tool Setter Reference</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset>
+                      <normaloff>../images/probe_icons/ts_height.png</normaloff>../images/probe_icons/ts_height.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>48</width>
+                      <height>48</height>
+                     </size>
+                    </property>
+                    <property name="checkable">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="probe" stdset="0">
+                     <string>probe_down</string>
                     </property>
                    </widget>
                   </item>
@@ -2379,56 +2482,6 @@ TOOL</string>
                  </attribute>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="PushButton" name="pbtn_skew_xm">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>60</width>
-                   <height>50</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset>
-                   <normaloff>../images/probe_icons/angleX-.png</normaloff>../images/probe_icons/angleX-.png</iconset>
-                 </property>
-                 <property name="iconSize">
-                  <size>
-                   <width>48</width>
-                   <height>48</height>
-                  </size>
-                 </property>
-                 <property name="checkable">
-                  <bool>false</bool>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                 <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
-                 </property>
-                 <property name="probe" stdset="0">
-                  <string>probe_angle_xm</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string notr="true">skew_buttonGroup</string>
-                 </attribute>
-                </widget>
-               </item>
                <item row="5" column="1">
                 <widget class="PushButton" name="pbtn_measure_diam">
                  <property name="enabled">
@@ -2480,6 +2533,56 @@ TOOL</string>
                  <property name="probe" stdset="0">
                   <string>probe_help</string>
                  </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="PushButton" name="pbtn_skew_xm">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../images/probe_icons/angleX-.png</normaloff>../images/probe_icons/angleX-.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>48</width>
+                   <height>48</height>
+                  </size>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="probe" stdset="0">
+                  <string>probe_angle_xm</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">skew_buttonGroup</string>
+                 </attribute>
                 </widget>
                </item>
                <item row="4" column="0">
@@ -4633,7 +4736,12 @@ TOOL</string>
   <slot>help_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="outside_buttonGroup">
+  <buttongroup name="inside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -4643,12 +4751,7 @@ TOOL</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="skew_buttonGroup">
+  <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

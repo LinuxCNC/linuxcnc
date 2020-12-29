@@ -100,6 +100,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         return super(VersaProbe, self).eventFilter(obj, event)
 
     def _hal_init(self):
+        # there are a few widgets that need to be 'halified' to initiate
+        # the HAL code otherwise the idicator won;t work on the buttons.
+        self.QTVCP_INSTANCE_.halify_widget(self.pbtn_use_tool_measurement)
+        self.QTVCP_INSTANCE_.halify_widget(self.allow_auto_zero)
+        self.QTVCP_INSTANCE_.halify_widget(self.allow_auto_skew)
+
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
