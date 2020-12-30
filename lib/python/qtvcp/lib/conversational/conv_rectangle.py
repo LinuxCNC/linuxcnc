@@ -167,7 +167,7 @@ def preview(P, W):
                 y1 = yS + yLR * math.sin(angle + down)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
                 if radius4 > 0:
-                    if W.r4Button.text().startswith('iRadius'):
+                    if W.r4Button.text().startswith('iRADIUS'):
                         xrCentre = x1 + (radius4 * math.cos(angle + down))
                         yrCentre = y1 + (radius4 * math.sin(angle + down))
                         xrEnd = xrCentre + (radius4 * math.cos(angle + left))
@@ -178,7 +178,7 @@ def preview(P, W):
                         yrCentre = y1 + (radius4 * math.sin(angle + left))
                         xrEnd = xrCentre + (radius4 * math.cos(angle + down))
                         yrEnd = yrCentre + (radius4 * math.sin(angle + down))
-                    if W.r4Button.text().startswith('Radius'):
+                    if W.r4Button.text().startswith('RADIUS'):
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -189,7 +189,7 @@ def preview(P, W):
                     y2 = y1 + xLB * math.sin(angle + left)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                 if radius3 > 0:
-                    if W.r3Button.text().startswith('iRadius'):
+                    if W.r3Button.text().startswith('iRADIUS'):
                         xrCentre = x2 + (radius3 * math.cos(angle + left))
                         yrCentre = y2 + (radius3 * math.sin(angle + left))
                         xrEnd = xrCentre + (radius3 * math.cos(angle + up))
@@ -200,7 +200,7 @@ def preview(P, W):
                         yrCentre = y2 + (radius3 * math.sin(angle + up))
                         xrEnd = xrCentre + (radius3 * math.cos(angle + left))
                         yrEnd = yrCentre + (radius3 * math.sin(angle + left))
-                    if W.r3Button.text().startswith('Radius'):
+                    if W.r3Button.text().startswith('RADIUS'):
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -211,7 +211,7 @@ def preview(P, W):
                     y3 = y2 + yLL * math.sin(angle + up)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
                 if radius1 > 0:
-                    if W.r1Button.text().startswith('iRadius'):
+                    if W.r1Button.text().startswith('iRADIUS'):
                         xrCentre = x3 + (radius1 * math.cos(angle + up))
                         yrCentre = y3 + (radius1 * math.sin(angle + up))
                         xrEnd = xrCentre + (radius1 * math.cos(angle + right))
@@ -222,7 +222,7 @@ def preview(P, W):
                         yrCentre = y3 + (radius1 * math.sin(angle + right))
                         xrEnd = xrCentre + (radius1 * math.cos(angle + up))
                         yrEnd = yrCentre + (radius1 * math.sin(angle + up))
-                    if W.r1Button.text().startswith('Radius'):
+                    if W.r1Button.text().startswith('RADIUS'):
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -233,7 +233,7 @@ def preview(P, W):
                     y4 = y3 + xLT * math.sin(angle + right)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
                 if radius2 > 0:
-                    if W.r2Button.text().startswith('iRadius'):
+                    if W.r2Button.text().startswith('iRADIUS'):
                         xrCentre = x4 + (radius2 * math.cos(angle + right))
                         yrCentre = y4 + (radius2 * math.sin(angle + right))
                         xrEnd = xrCentre + (radius2 * math.cos(angle + down))
@@ -244,7 +244,7 @@ def preview(P, W):
                         yrCentre = y4 + (radius2 * math.sin(angle + down))
                         xrEnd = xrCentre + (radius2 * math.cos(angle + right))
                         yrEnd = yrCentre + (radius2 * math.sin(angle + right))
-                    if W.r2Button.text().startswith('Radius'):
+                    if W.r2Button.text().startswith('RADIUS'):
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -266,7 +266,7 @@ def preview(P, W):
                 y1 = yS + (xLT / 2) * math.sin(angle + left)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
                 if radius1 > 0:
-                    if W.r1Button.text().startswith('iRadius'):
+                    if W.r1Button.text().startswith('iRADIUS'):
                         xrCentre = x1 + (radius1 * math.cos(angle + left))
                         yrCentre = y1 + (radius1 * math.sin(angle + left))
                         xrEnd = xrCentre + (radius1 * math.cos(angle + down))
@@ -277,7 +277,7 @@ def preview(P, W):
                         yrCentre = y1 + (radius1 * math.sin(angle + down))
                         xrEnd = xrCentre + (radius1 * math.cos(angle + left))
                         yrEnd = yrCentre + (radius1 * math.sin(angle + left))
-                    if W.r1Button.text().startswith('Radius'):
+                    if W.r1Button.text().startswith('RADIUS'):
                         outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -288,7 +288,7 @@ def preview(P, W):
                     y2 = y1 + yLL * math.sin(angle + down)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
                 if radius3 > 0:
-                    if W.r3Button.text().startswith('iRadius'):
+                    if W.r3Button.text().startswith('iRADIUS'):
                         xrCentre = x2 + (radius3 * math.cos(angle + down))
                         yrCentre = y2 + (radius3 * math.sin(angle + down))
                         xrEnd = xrCentre + (radius3 * math.cos(angle + right))
@@ -299,7 +299,7 @@ def preview(P, W):
                         yrCentre = y2 + (radius3 * math.sin(angle + right))
                         xrEnd = xrCentre + (radius3 * math.cos(angle + down))
                         yrEnd = yrCentre + (radius3 * math.sin(angle + down))
-                    if W.r3Button.text().startswith('Radius'):
+                    if W.r3Button.text().startswith('RADIUS'):
                         outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -310,7 +310,7 @@ def preview(P, W):
                     y3 = y2 + xLB * math.sin(angle + right)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x3, y3))
                 if radius4 > 0:
-                    if W.r4Button.text().startswith('iRadius'):
+                    if W.r4Button.text().startswith('iRADIUS'):
                         xrCentre = x3 + (radius4 * math.cos(angle + right))
                         yrCentre = y3 + (radius4 * math.sin(angle + right))
                         xrEnd = xrCentre + (radius4 * math.cos(angle + up))
@@ -321,7 +321,7 @@ def preview(P, W):
                         yrCentre = y3 + (radius4 * math.sin(angle + up))
                         xrEnd = xrCentre + (radius4 * math.cos(angle + right))
                         yrEnd = yrCentre + (radius4 * math.sin(angle + right))
-                    if W.r4Button.text().startswith('Radius'):
+                    if W.r4Button.text().startswith('RADIUS'):
                         outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x3, yrCentre - y3))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -332,7 +332,7 @@ def preview(P, W):
                     y4 = y3 + yLR * math.sin(angle + up)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
                 if radius2 > 0:
-                    if W.r2Button.text().startswith('iRadius'):
+                    if W.r2Button.text().startswith('iRADIUS'):
                         xrCentre = x4 + (radius2 * math.cos(angle + up))
                         yrCentre = y4 + (radius2 * math.sin(angle + up))
                         xrEnd = xrCentre + (radius2 * math.cos(angle + left))
@@ -343,7 +343,7 @@ def preview(P, W):
                         yrCentre = y4 + (radius2 * math.sin(angle + left))
                         xrEnd = xrCentre + (radius2 * math.cos(angle + up))
                         yrEnd = yrCentre + (radius2 * math.sin(angle + up))
-                    if W.r2Button.text().startswith('Radius'):
+                    if W.r2Button.text().startswith('RADIUS'):
                         outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x4, yrCentre - y4))
                     else:
                         outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xrEnd, yrEnd))
@@ -382,12 +382,12 @@ def preview(P, W):
         P.dialog_error('RECTANGLE', msg)
 
 def rad_button_pressed(P, W, button, value):
-    if button.text()[:3] == 'Rad':
-        button.setText('Chamfer {}'.format(value))
-    elif button.text()[:3] == 'Cha':
-        button.setText('iRadius {}'.format(value))
+    if button.text()[:3] == 'RAD':
+        button.setText('CHAMFER {}'.format(value))
+    elif button.text()[:3] == 'CHA':
+        button.setText('iRADIUS {}'.format(value))
     else:
-        button.setText('Radius {}'.format(value))
+        button.setText('RADIUS {}'.format(value))
     auto_preview(P, W)
 
 def entry_changed(P, W, widget):
@@ -407,55 +407,54 @@ def add_shape_to_file(P, W):
 
 def undo_pressed(P, W):
     P.conv_undo_shape()
-#    W.undo.setEnabled(False)
 
 def widgets(P, W):
     #widgets
-    W.ctLabel = QLabel('Cut Type')
+    W.ctLabel = QLabel('CUT TYPE')
     W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton('External')
+    W.cExt = QRadioButton('EXTERNAL')
     W.cExt.setChecked(True)
     W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton('Internal')
+    W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('Offset')
-    W.kOffset = QPushButton('Kerf Width')
+    W.koLabel = QLabel('OFFSET')
+    W.kOffset = QPushButton('KERF WIDTH')
     W.kOffset.setCheckable(True)
-    W.spLabel = QLabel('Start')
+    W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton('Center')
+    W.center = QRadioButton('CENTER')
     W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton('Btm Left')
+    W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
-    W.xsLabel = QLabel('X origin')
+    W.xsLabel = QLabel('X ORIGIN')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')
-    W.ysLabel = QLabel('Y origin')
+    W.ysLabel = QLabel('Y ORIGIN')
     W.ysEntry = QLineEdit(objectName = 'ysEntry')
-    W.liLabel = QLabel('Lead In')
+    W.liLabel = QLabel('LEAD IN')
     W.liEntry = QLineEdit(objectName = 'liEntry')
-    W.loLabel = QLabel('Lead Out')
+    W.loLabel = QLabel('LEAD OUT')
     W.loEntry = QLineEdit(objectName = 'loEntry')
-    W.xlLabel = QLabel('X length')
+    W.xlLabel = QLabel('X LENGTH')
     W.xlEntry = QLineEdit()
-    W.ylLabel = QLabel('Y length')
+    W.ylLabel = QLabel('Y LENGTH')
     W.ylEntry = QLineEdit()
-    W.angLabel = QLabel('Angle')
+    W.angLabel = QLabel('ANGLE')
     W.angEntry = QLineEdit()
     W.angEntry.setText('0')
-    W.r1Button = QPushButton('Radius 1')
+    W.r1Button = QPushButton('RADIUS 1')
     W.r1Entry = QLineEdit()
-    W.r2Button = QPushButton('Radius 2')
+    W.r2Button = QPushButton('RADIUS 2')
     W.r2Entry = QLineEdit()
-    W.r3Button = QPushButton('Radius 3')
+    W.r3Button = QPushButton('RADIUS 3')
     W.r3Entry = QLineEdit()
-    W.r4Button = QPushButton('Radius 4')
+    W.r4Button = QPushButton('RADIUS 4')
     W.r4Entry = QLineEdit()
-    W.preview = QPushButton('Preview')
-    W.add = QPushButton('Add')
-    W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Creating Rectangle')
+    W.preview = QPushButton('PREVIEW')
+    W.add = QPushButton('ADD')
+    W.undo = QPushButton('UNDO')
+    W.lDesc = QLabel('CREATING RECTANGLE')
     W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(240)
+    pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
     rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
@@ -548,12 +547,12 @@ def widgets(P, W):
         W.entries.addWidget(W.r4Entry, 10, 3)
         W.s11 = QLabel('')
         W.s11.setFixedHeight(24)
-        W.entries.addWidget(W.s11, 11, 2)
+        W.entries.addWidget(W.s11, 11, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
         W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 2 , 2, 9, 3)
+        W.entries.addWidget(W.iLabel, 2 , 2, 7, 3)
     else:
         W.entries.addWidget(W.conv_material, 0, 0, 1, 5)
         W.entries.addWidget(W.ctLabel, 1, 0)
@@ -590,4 +589,4 @@ def widgets(P, W):
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 5, 9, 3)
+        W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)

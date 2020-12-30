@@ -118,20 +118,19 @@ def rotate(P, W, angle, xOffset, yOffset, line):
 
 def undo_pressed(P, W):
     P.conv_undo_shape()
-#    W.undo.setEnabled(False)
 
 def widgets(P, W):
     #widgets
-    W.aLabel = QLabel('Angle')
+    W.aLabel = QLabel('ANGLE')
     W.aEntry = QLineEdit()
-    W.xLabel = QLabel('X Offset')
+    W.xLabel = QLabel('X OFFSET')
     W.xEntry = QLineEdit()
-    W.yLabel = QLabel('Y Offset')
+    W.yLabel = QLabel('Y OFFSET')
     W.yEntry = QLineEdit()
-    W.preview = QPushButton('Preview')
-    W.add = QPushButton('Add')
-    W.undo = QPushButton('Undo')
-    W.lDesc = QLabel('Rotating Shape')
+    W.preview = QPushButton('PREVIEW')
+    W.add = QPushButton('ADD')
+    W.undo = QPushButton('UNDO')
+    W.lDesc = QLabel('ROTATING SHAPE')
     #alignment and size
     rightAlign = ['aLabel', 'aEntry', 'xLabel', 'xEntry', 'yLabel', 'yEntry']
     centerAlign = ['lDesc']
@@ -165,10 +164,10 @@ def widgets(P, W):
         W[entry].editingFinished.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
-        for blank in range(13):
-            W['{}'.format(blank)] = QLabel('')
-            W['{}'.format(blank)].setFixedHeight(24)
-            W.entries.addWidget(W['{}'.format(blank)], 0 + blank, 0)
+        for r in range(14):
+            W['{}'.format(r)] = QLabel('')
+            W['{}'.format(r)].setFixedHeight(24)
+            W.entries.addWidget(W['{}'.format(r)], 0 + r, 0)
         W.entries.addWidget(W.aLabel, 2, 1)
         W.entries.addWidget(W.aEntry, 2, 2)
         W.entries.addWidget(W.xLabel, 4, 1)

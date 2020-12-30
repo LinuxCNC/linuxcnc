@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.4'
+VERSION = '0.9.5'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -2633,7 +2633,10 @@ class HandlerClass:
         self.oSaved = self.origin
         if not self.oldConvButton:
             self.conv_shape_request('conv_line', CONVLINE, True)
-        self.conv_enable_buttons(True)
+        self.w.conv_new.setEnabled(True)
+        self.w.conv_save.setEnabled(False)
+        self.w.conv_send.setEnabled(False)
+        self.w.conv_settings.setEnabled(True)
 
     def conv_new_pressed(self):
         if self.oldConvButton == 'conv_line':
@@ -2655,6 +2658,8 @@ class HandlerClass:
         COPY(self.fNgc, self.fTmp)
         COPY(self.fNgc, self.fNgcBkp)
         self.w.conv_preview.load(self.fNgc)
+        self.w.conv_save.setEnabled(False)
+        self.w.conv_send.setEnabled(False)
 
     def conv_save_pressed(self):
         with open(self.fNgc) as inFile:
@@ -2671,13 +2676,17 @@ class HandlerClass:
                                                   options=options)
         if fileName:
             COPY(self.fNgc, fileName)
+        self.w.conv_save.setEnabled(False)
 
     def conv_settings_pressed(self):
         self.color_button_image(self.oldConvButton, self.foreColor)
         self.w[self.oldConvButton].setStyleSheet(\
                 'QPushButton {{ background: {0} }} \
                  QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        self.conv_enable_buttons(False)
+        self.w.conv_new.setEnabled(False)
+        self.w.conv_save.setEnabled(False)
+        self.w.conv_send.setEnabled(False)
+        self.w.conv_settings.setEnabled(False)
         self.conv_clear_widgets()
         CONVSET.widgets(self, self.w)
         CONVSET.show(self, self.w)
@@ -2686,6 +2695,7 @@ class HandlerClass:
         COPY(self.fNgcBkp, self.fNgc)
         ACTION.OPEN_PROGRAM(self.fNgc)
         self.w.main_tab_widget.setCurrentIndex(0)
+        self.w.conv_send.setEnabled(False)
 
     def conv_rotate_pressed(self):
         with open(self.fNgc) as inFile:
@@ -2723,7 +2733,7 @@ class HandlerClass:
         except:
             pass
         self.conv_button_color(shape)
-        self.conv_enable_buttons(True)
+        self.w.conv_settings.setEnabled(True)
         self.conv_clear_widgets()
         module.widgets(self, self.w)
         if module == CONVROTA or module == CONVARAY:
@@ -2797,7 +2807,8 @@ class HandlerClass:
             pass
         self.w.add.setEnabled(False)
         self.w.undo.setEnabled(False)
-
+        self.w.conv_save.setEnabled(True)
+        self.w.conv_send.setEnabled(True)
 
     def conv_clear_widgets(self):
         for i in reversed(range(self.w.entries.count())): 

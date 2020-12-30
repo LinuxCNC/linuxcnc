@@ -466,7 +466,7 @@ QComboBox::drop-down {
     image: none }
 
 QComboBox QListView {
-    border: 8px solid foregnd;
+    border: 4px solid foregnd;
     border-radius: 0px }
 
 /****** MATERIAL SELECTOR COMBO BOX ************/
