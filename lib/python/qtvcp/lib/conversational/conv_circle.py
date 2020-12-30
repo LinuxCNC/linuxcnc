@@ -154,6 +154,7 @@ def preview(P, W):
         W.conv_preview.load(P.fNgc)
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
+        W.undo.setEnabled(True)
     else:
         P.dialogError = True
         P.dialog_error('CIRCLE', 'Diameter is required')
@@ -232,6 +233,10 @@ def auto_preview(P, W):
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
 
+def undo_pressed(P, W):
+    P.conv_undo_shape()
+#    W.undo.setEnabled(False)
+
 def widgets(P, W):
     #widgets
     W.ctLabel = QLabel('Cut Type')
@@ -297,6 +302,7 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -305,7 +311,7 @@ def widgets(P, W):
     W.loEntry.setText('{}'.format(P.leadOut))
     W.xsEntry.setText('{}'.format(P.xSaved))
     W.ysEntry.setText('{}'.format(P.ySaved))
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     W.dEntry.setFocus()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -315,7 +321,7 @@ def widgets(P, W):
     W.overcut.toggled.connect(lambda:overcut_toggled(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:P.conv_undo_shape('add'))
+    W.undo.pressed.connect(lambda:undo_pressed(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'dEntry', 'ocEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))

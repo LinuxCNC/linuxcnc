@@ -149,6 +149,7 @@ def preview(P, W):
         W.conv_preview.load(P.fNgc)
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
+        W.undo.setEnabled(True)
     else:
         msg = ''
         if points < 3:
@@ -176,6 +177,10 @@ def entry_changed(P, W, widget):
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
+
+def undo_pressed(P, W):
+    P.conv_undo_shape()
+#    W.undo.setEnabled(False)
 
 def widgets(P, W):
     #widgets
@@ -242,6 +247,7 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -251,7 +257,7 @@ def widgets(P, W):
     W.xsEntry.setText('{}'.format(P.xSaved))
     W.ysEntry.setText('{}'.format(P.ySaved))
     W.aEntry.setText('0')
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     W.pEntry.setFocus()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -260,7 +266,7 @@ def widgets(P, W):
     W.center.toggled.connect(lambda:auto_preview(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:P.conv_undo_shape('add'))
+    W.undo.pressed.connect(lambda:undo_pressed(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', \
                'pEntry', 'odEntry', 'idEntry', 'aEntry']
     for entry in entries:

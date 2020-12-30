@@ -27,11 +27,15 @@ from PyQt5.QtGui import QPixmap
 def cancel(P, W, widget):
     COPY(P.fNgcBkp, P.fNgc)
     if widget:
-        P.conv_preview.load(P.fNgc)
+        W.conv_preview.load(P.fNgc)
+    W.add.setEnabled(False)
+    W.undo.setEnabled(False)
 
 def accept(P, W):
     COPY(P.fNgc, P.fNgcBkp)
-    P.conv_preview.load(P.fNgc)
+    W.conv_preview.load(P.fNgc)
+    W.add.setEnabled(False)
+    W.undo.setEnabled(False)
 
 def preview(P, W):
     if P.dialogError: return
@@ -113,6 +117,7 @@ def preview(P, W):
             W.conv_preview.load(P.fNgc)
             W.conv_preview.set_current_view()
             W.add.setEnabled(True)
+            W.undo.setEnabled(True)
         else:
             COPY(P.fNgc, P.fTmp)
             inCod = open(P.fTmp, 'r')
@@ -157,6 +162,7 @@ def preview(P, W):
             W.conv_preview.load(P.fNgc)
             W.conv_preview.set_current_view()
             W.add.setEnabled(True)
+            W.undo.setEnabled(True)
     else:
         msg = ''
         if columns <= 0:
@@ -225,13 +231,14 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     W.cnEntry.setText('1')
     W.coEntry.setText('0')
     W.rnEntry.setText('1')
     W.roEntry.setText('0')
     W.oxEntry.setText('0')
     W.oyEntry.setText('0')
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     W.cnEntry.setFocus()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))

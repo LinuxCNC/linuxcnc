@@ -30,12 +30,15 @@ def cancel(P, W):
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
+
 
 def accept(P, W):
     COPY(P.fNgc, P.fNgcBkp)
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
 
 def preview(P, W):
     if P.dialogError: return
@@ -67,6 +70,7 @@ def preview(P, W):
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(True)
+    W.undo.setEnabled(True)
 
 def rotate(P, W, angle, xOffset, yOffset, line):
     REGCODE = COMPILE('([a-z]-?[0-9]+\.?([0-9]+)?)|\(.*\)')
@@ -112,6 +116,10 @@ def rotate(P, W, angle, xOffset, yOffset, line):
             newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
         return ('{}\n'.format(newLine))
 
+def undo_pressed(P, W):
+    P.conv_undo_shape()
+#    W.undo.setEnabled(False)
+
 def widgets(P, W):
     #widgets
     W.aLabel = QLabel('Angle')
@@ -141,10 +149,11 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     W.aEntry.setText('0')
     W.xEntry.setText('0')
     W.yEntry.setText('0')
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     W.aEntry.setFocus()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))

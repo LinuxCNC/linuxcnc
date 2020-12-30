@@ -373,6 +373,7 @@ def preview(P, W):
             W.conv_preview.load(P.fNgc)
             W.conv_preview.set_current_view()
             W.add.setEnabled(True)
+        W.undo.setEnabled(True)
     else:
         msg  = 'A positive X Length is required\n\n'
         msg += 'and\n\n'
@@ -403,6 +404,10 @@ def auto_preview(P, W):
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
+
+def undo_pressed(P, W):
+    P.conv_undo_shape()
+#    W.undo.setEnabled(False)
 
 def widgets(P, W):
     #widgets
@@ -477,6 +482,7 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -490,7 +496,7 @@ def widgets(P, W):
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     W.xlEntry.setFocus()
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
@@ -498,7 +504,7 @@ def widgets(P, W):
     W.center.toggled.connect(lambda:auto_preview(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:P.conv_undo_shape('add'))
+    W.undo.pressed.connect(lambda:undo_pressed(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'xlEntry', 'ylEntry', \
                'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:

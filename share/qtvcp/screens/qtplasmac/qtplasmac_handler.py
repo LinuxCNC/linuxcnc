@@ -2726,6 +2726,10 @@ class HandlerClass:
         self.conv_enable_buttons(True)
         self.conv_clear_widgets()
         module.widgets(self, self.w)
+        if module == CONVROTA or module == CONVARAY:
+            self.w.conv_new.setEnabled(False)
+        else:
+            self.w.conv_new.setEnabled(True)
 
     def conv_button_color(self, button):
         if self.oldConvButton:
@@ -2767,13 +2771,13 @@ class HandlerClass:
             self.w.conv_preview.grid_size = float(widget.text()) / self.unitsPerMm / 25.4
             self.w.conv_preview.set_current_view()
 
-    def conv_undo_shape(self, button):
+    def conv_undo_shape(self):
         if os.path.exists(self.fNgcBkp):
             COPY(self.fNgcBkp, self.fNgc)
             self.w.conv_preview.load(self.fNgc)
             self.w.conv_preview.set_current_view()
-            if button:
-                self.w[button].setEnabled(False)
+            self.w.add.setEnabled(False)
+            self.w.undo.setEnabled(False)
 
     def conv_add_shape_to_file(self):
         COPY(self.fNgc, self.fNgcBkp)
@@ -2792,6 +2796,7 @@ class HandlerClass:
         except:
             pass
         self.w.add.setEnabled(False)
+        self.w.undo.setEnabled(False)
 
 
     def conv_clear_widgets(self):

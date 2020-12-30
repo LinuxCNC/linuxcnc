@@ -235,6 +235,7 @@ def preview(P, W):
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(True)
+    W.undo.setEnabled(True)
 #    W.continu.setEnabled(True)
     if W.add_segment == 1:
         W.add_segment = 2
@@ -705,24 +706,6 @@ def line_type_changed(P, W):
     elif W.lType.currentText() == 'arc angle & radius':
         set_arc_by_angle_radius(P, W)
 
-def continu_shape(P, W):
-    W.xS = W.xE
-    W.yS = W.yE
-    W.add_segment = 1
-    line_type_changed(P, W)
-    W.continu.setEnabled(False)
-#    W.add.setEnabled(False)
-
-def undo_shape(P, W):
-    P.conv_undo_shape('add')
-    W.add_segment = 0
-    line_type_changed(P, W)
-    if len(W.gcodeSave):
-        W.gcodeLine = W.gcodeSave
-
-def entry_changed(P, W, widget, entry):
-    P.conv_entry_changed(widget)
-
 def auto_preview(P, W):
     if W.entry1.text() and W.entry2.text():
         if (W.add_segment == 0):
@@ -762,6 +745,25 @@ def add_shape_to_file(P, W):
     W.add_segment = 0
     line_type_changed(P, W)
     W.continu.setEnabled(True)
+
+def continu_shape(P, W):
+    W.xS = W.xE
+    W.yS = W.yE
+    W.add_segment = 1
+    line_type_changed(P, W)
+    W.continu.setEnabled(False)
+#    W.add.setEnabled(False)
+
+def undo_shape(P, W):
+    P.conv_undo_shape()
+    W.add_segment = 0
+    line_type_changed(P, W)
+    if len(W.gcodeSave):
+        W.gcodeLine = W.gcodeSave
+#    W.undo.setEnabled(False)
+
+def entry_changed(P, W, widget, entry):
+    P.conv_entry_changed(widget)
 
 def widgets(P, W):
     #widgets
@@ -817,20 +819,21 @@ def widgets(P, W):
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     #starting parameters
+    W.add.setEnabled(False)
+    W.undo.setEnabled(False)
+    W.continu.setEnabled(False)
     W.lType.addItem('line point to point')
     W.lType.addItem('line by angle')
     W.lType.addItem('arc 3p')
     W.lType.addItem('arc 2p & radius')
     W.lType.addItem('arc angle & radius')
-    W.continu.setEnabled(False)
-    W.add.setEnabled(False)
     W.add_segment = 0
     W.gcodeSave = ''
     W.savedX = ''
     W.savedY = ''
     if not W.g2Arc.isChecked() and not W.g3Arc.isChecked():
         W.g2Arc.setChecked(True)
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))

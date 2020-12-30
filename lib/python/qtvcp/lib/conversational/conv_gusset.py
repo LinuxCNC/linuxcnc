@@ -186,6 +186,7 @@ def preview(P, W):
         W.conv_preview.load(P.fNgc)
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
+        W.undo.setEnabled(True)
     else:
         msg = ''
         if width <= 0:
@@ -216,6 +217,10 @@ def entry_changed(P, W, widget):
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
+
+def undo_pressed(P, W):
+    P.conv_undo_shape()
+#    W.undo.setEnabled(False)
 
 def widgets(P, W):
     #widgets
@@ -275,6 +280,7 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
+    W.undo.setEnabled(False)
     W.liEntry.setText('{}'.format(P.leadIn))
     W.loEntry.setText('{}'.format(P.leadOut))
     W.xsEntry.setText('{}'.format(P.xSaved))
@@ -285,7 +291,7 @@ def widgets(P, W):
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     W.wEntry.setFocus()
-    P.conv_undo_shape('add')
+    P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
@@ -293,7 +299,7 @@ def widgets(P, W):
     W.rButton.pressed.connect(lambda:rad_button_pressed(P, W, W.sender()))
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:P.conv_undo_shape('add'))
+    W.undo.pressed.connect(lambda:undo_pressed(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'rEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
