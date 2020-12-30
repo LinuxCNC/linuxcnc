@@ -1354,3 +1354,204 @@ class ProbeRoutines():
         self.rotate_coord_system(self.status_a)
         return error
 
+###################################
+# tool setter remap
+###################################
+
+###### *********not converted yet
+    # TOOL DIA
+    def tool_dia(self):
+        return 1
+        #gotots Oword conversion
+        ACTION.CALL_MDI("F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_2]MAX_LIMIT>]")
+        ACTION.CALL_MDI("G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>]")
+
+        ACTION.CALL_MDI("G91")
+        ACTION.CALL_MDI("F #<_hal[probe.ps_searchvel]>")
+        ACTION.CALL_MDI("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
+        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
+        ACTION.CALL_MDI("G4 P0.5")
+        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+        ACTION.CALL_MDI("G1 Z4 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("G90")
+
+
+        # move X - edge_lenght- xy_clearance
+        s="""G91
+        G1 X-%f
+        G90""" % (0.5 * self.tsdiam + self.spbtn1_xy_clearance.get_value())
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.ocode ("O<xplus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point X
+        s = "G1 X%f" % xpres
+        if self.gcode(s) == -1:
+            return
+
+        # move X + tsdiam +  xy_clearance
+        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 X%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+
+        if self.ocode ("O<xminus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_xm.set_text( "%.4f" % xmres )
+        self.lenght_x()
+        xcres=0.5*(xpres+xmres)
+        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # go to the new center of X
+        s = "G1 X%f" % xcres
+        if self.gcode(s) == -1:
+            return
+
+
+        # move Y - tsdiam/2 - xy_clearance
+        a=0.5*self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y-%f
+        G90""" % a
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.ocode ("O<yplus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_yp.set_text( "%.4f" % ypres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point Y
+        s = "G1 Y%f" % ypres
+        if self.gcode(s) == -1:
+            return
+
+        # move Y + tsdiam +  xy_clearance
+        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.ocode ("O<yminus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_ym.set_text( "%.4f" % ymres )
+        self.lenght_y()
+        # find, show and move to finded  point
+        ycres=0.5*(ypres+ymres)
+        self.lb_probe_yc.set_text( "%.4f" % ycres )
+        diam=self.spbtn1_probe_diam.get_value() + (ymres-ypres-self.tsdiam)
+
+        self.lb_probe_d.set_text( "%.4f" % diam )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        self.stat.poll()
+        tmpz=self.stat.position[2] - 4
+        self.add_history(gtkbutton.get_tooltip_text(),"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
+        # move to finded  point
+        s = "G1 Y%f" % ycres
+        if self.gcode(s) == -1:
+            return
+
+
+    def get_tool_sensor_data(self):
+        xpos = float(self.inifile.find("TOOLSENSOR", "X"))
+        ypos = float(self.inifile.find("TOOLSENSOR", "Y"))
+        zpos = float(self.inifile.find("TOOLSENSOR", "Z"))
+        maxprobe = float(self.inifile.find("TOOLSENSOR", "MAXPROBE"))
+        tsdiam = float(self.inifile.find("TOOLSENSOR", "TS_DIAMETER"))
+        revrott = float(self.inifile.find("TOOLSENSOR", "REV_ROTATION_SPEED"))
+        return xpos, ypos, zpos, maxprobe, tsdiam, revrott
+
+
+    def probe_toolsetter(self):
+        # probe_down oword conversion
+        return 1
+        ACTION.CALL_MDI("F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_2]MAX_LIMIT>-0.1]")
+        ACTION.CALL_MDI("G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>]")
+        ACTION.CALL_MDI("G92.1")
+        ACTION.CALL_MDI("G49")
+        ACTION.CALL_MDI("G10 L20 P0  Z[#<_hal[axis.2.joint-pos-cmd]>]")
+
+        ACTION.CALL_MDI("G91")
+        ACTION.CALL_MDI("F #<_hal[probe.ps_searchvel]>")
+        ACTION.CALL_MDI("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
+        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
+        ACTION.CALL_MDI("G4 P0.5")
+        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+        ACTION.CALL_MDI("G90")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+
+
+        a=self.stat.probed_position
+        self.spbtn_probe_height.set_value( float(a[2]) )
+        self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+
+
+    def probe_workpiece(self):
+        # block_probe oword conversion
+        metric = False
+        ACTION.CALL_MDI("G49")
+        ACTION.CALL_MDI("G92.1")
+        ACTION.CALL_MDI("G10 L20 P0 Z{}".format('#<_hal[axis.2.joint-pos-cmd]>]'))
+        ACTION.CALL_MDI("G91")
+        c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+
+        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
+        ACTION.CALL_MDI("G4 P0.5")
+        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_max]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        if metric:
+            ACTION.CALL_MDI("G1 Z4 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        else:
+            ACTION.CALL_MDI("G1 Z0.2 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("G90")
+
+
+
+        a=self.stat.probed_position
+        self.spbtn_block_height.set_value( float(a[2]) )
+        self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+
+

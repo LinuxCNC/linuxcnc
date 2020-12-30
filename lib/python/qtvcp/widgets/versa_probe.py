@@ -73,6 +73,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.remap_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
 
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
@@ -288,6 +289,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 data = json.loads(return_data[1])
                 self.show_results(data)
             elif "HISTORY" in line:
+                print(line)
                 temp = line.strip('HISTORY$')
                 STATUS.emit('update-machine-log', temp, 'TIME')
                 LOG.info("Probe history updated to machine log")
