@@ -73,14 +73,15 @@ class ProbeRoutines():
             self.CALL_MDI_WAIT(s, 30)
             ACTION.RELOAD_DISPLAY()
 
-    def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
+    def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,
+                    ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0, ts=0, bh=0):
         if STATUS.is_metric_mode():
             tpl = '%.3f'
         else:
             tpl = '%.4f'
         c = text
-        list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
-        arg = (xm, xc, xp, lx, ym, yc, yp, ly, z, d, a)
+        list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A', 'Ts', 'Bh']
+        arg = (xm, xc, xp, lx, ym, yc, yp, ly, z, d, a, ts, bh)
         for i in range(len(list)):
             if list[i] in s:
                 c += ' ' + list[i] + "[" + tpl%(arg[i]) + ']'
@@ -1522,7 +1523,7 @@ class ProbeRoutines():
         ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
 
 
-        a=self.stat.probed_position
+        a=STATUS.get_probed_position_with_offsets()
         self.spbtn_probe_height.set_value( float(a[2]) )
         self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
 
@@ -1530,28 +1531,37 @@ class ProbeRoutines():
     def probe_workpiece(self):
         # block_probe oword conversion
         metric = False
+        # c
         ACTION.CALL_MDI("G49")
         ACTION.CALL_MDI("G92.1")
-        ACTION.CALL_MDI("G10 L20 P0 Z{}".format('#<_hal[axis.2.joint-pos-cmd]>]'))
+
+        # set Z offset to current position
+        ACTION.CALL_MDI("G10 L20 P0 Z{}".format('[#<_hal[joint.2.pos-cmd]>]'))
+
+        #incremental
         ACTION.CALL_MDI("G91")
+
+        # course probe
         c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
 
-        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
+        ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_latch_return_dist,self.data_rapid_vel))
+        ACTION.CALL_MDI("F{}".format(self.data_probe_vel))
         ACTION.CALL_MDI("G4 P0.5")
-        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
-        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_max]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("G38.2 Z{}".format(2*-self.data_latch_return_dist))
+        ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_max_travel, self.data_search_vel))
         if metric:
-            ACTION.CALL_MDI("G1 Z4 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+            ACTION.CALL_MDI("G1 Z4 F{}".format(self.data_rapid_vel))
         else:
-            ACTION.CALL_MDI("G1 Z0.2 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+            ACTION.CALL_MDI("G1 Z0.2 F{}".format(self.data_rapid_vel))
         ACTION.CALL_MDI("G90")
 
+        # get probed position and updat status for block height 
+        a=STATUS.get_probed_position_with_offsets()
+        self.status_bh = float(a[2])
 
-
-        a=self.stat.probed_position
-        self.spbtn_block_height.set_value( float(a[2]) )
-        self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        LOG.debug('block heighht: {}'.format( float(a[2])))
+        self.add_history('probe workpiece ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        return 1
 
 

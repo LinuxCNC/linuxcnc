@@ -63,7 +63,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'search_vel', 'probe_vel', 'rapid_vel',
                           'side_edge_length', 'tool_probe_height', 'tool_block_height',
                           'xy_clearance', 'z_clearance']
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'ts', 'bh']
 
         for i in self.parm_list:
             self['input_' + i].setValidator(self.valid)
@@ -256,6 +256,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         print("Versa_Probe Process signals finished")
 
     def parse_input(self, line):
+        print line
         self.process_busy = False
         if sys.version_info.major > 2:
             if bytes("ERROR" ,'utf-8') in line:
@@ -352,7 +353,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            try:
+                self['status_' + key].setText(line[key])
+            except:
+                if key == 'bh':
+                    self.input_tool_block_height.setText(line[key])
+                else:
+                    self.input_tool_probe_height.setText(line[key])
 
     def pop_help(self):
         d = QtWidgets.QDialog(self)

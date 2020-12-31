@@ -86,6 +86,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_adj_y = 0.0
         self.data_adj_z = 0.0
         self.data_adj_angle = 0.0
+        self.tool_probe_height = 0.0
+        self.tool_block_height = 0.0
         # BasicProbe exclusive
         self.data_x_hint_bp = 0.0
         self.data_y_hint_bp = 0.0
@@ -100,7 +102,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.cal_x_error = False
         self.cal_y_error = False
         # list of results to be transfered to main program
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta','ts','bh']
         # data structure to hold result values
         self.status_xm = 0.0
         self.status_xc = 0.0
@@ -114,6 +116,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.status_d = 0.0
         self.status_a = 0.0
         self.status_delta = 0.0
+        self.status_ts = 0.0
+        self.status_bh = 0.0
         self.history_log = ""
 
         self.process()
@@ -154,6 +158,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
     # this message isn't for us - ignore it
     def process_command(self, cmd):
         cmd = cmd.rstrip().split('$')
+        print 'got command:',cmd
         if cmd[0] == '_ErroR_':
             self.process_error(cmd[1])
             return None
