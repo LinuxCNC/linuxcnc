@@ -740,6 +740,7 @@ class LivePlotter:
     def error_task(self):
         error = e.poll()
         while error:
+            comp["error"] = True
             kind, text = error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
@@ -748,6 +749,8 @@ class LivePlotter:
             notifications.add(icon, text)
             error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
+        time.sleep(0.3)
+        comp["error"] = False 
 
     def update(self):
         if not self.running.get():
@@ -3833,6 +3836,7 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
