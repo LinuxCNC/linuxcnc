@@ -1,3 +1,8 @@
+ver 3.1.0
+- added the ability to hide the tooltips to
+  make the use with touch monitors more usefull
+  Thanks to neilwhelcher for the code and pointing this out
+
 ver 3.0.10
 - bug in handling ignore limits solved
   issue #1000 reported by Hans470

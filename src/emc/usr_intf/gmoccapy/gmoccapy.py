@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.10"
+_RELEASE = " 3.1.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -315,6 +315,7 @@ class gmoccapy(object):
         self._init_gremlin()
         self._init_kinematics_type()
         self._init_hide_cursor()
+        self._init_hide_tooltips()
         self._init_offsetpage()
         self._init_keybindings()
         self._init_IconFileSelection()
@@ -1920,6 +1921,16 @@ class gmoccapy(object):
             self.widgets.window1.window.set_cursor(None)
             self.widgets.gremlin.set_property("use_default_controls", True)
 
+    # init to hide tooltips
+    def _init_hide_tooltips(self):
+        self.widgets_with_tooltips = []
+        for widget in self.widgets:
+            if hasattr(widget, "set_has_tooltip"):
+                self.widgets_with_tooltips.append(widget)
+        self.hide_tooltips = self.prefs.getpref("hide_tooltips", False, bool)
+        self.widgets.chk_hide_tooltips.set_active(self.hide_tooltips)
+        self._set_enable_tooltips(not self.hide_tooltips)
+
 # =============================================================
 # Onboard keybord handling Start
 
@@ -3320,6 +3331,26 @@ class gmoccapy(object):
             self.command.mdi("G43")
             self.command.wait_complete()
 
+    def _set_enable_tooltips(self, value):
+        print("_set_enable_tooltips = ", value)
+        # this will hide the tooltips from the glade file widgets,
+        # but not from the ones we created dynamically
+        for widget in self.widgets_with_tooltips:
+            widget.set_has_tooltip(value)
+        # the dynamicaly created widgets are in ordert in dictionarys
+        # self.joints_button_dic (only in non trivial kinematics)
+        # self.ref_button_dic
+        # self.touch_button_dic
+        # self.jog_button_dic
+        # self.macro_dic
+        dictionaries = (self.ref_button_dic, self.touch_button_dic,
+                        self.jog_button_dic, self.macro_dic)
+        if not self.trivial_kinematics:
+            dictionaries.append(self.joints_button_dic)
+        for dict in dictionaries:
+            for widget in dict:
+                dict[widget].set_has_tooltip(value)
+
 # helpers functions end
 # =========================================================
 
@@ -4259,6 +4290,12 @@ class gmoccapy(object):
         self.dtg_color = self.prefs.getpref("dtg_color", "yellow", str)
         self.homed_color = self.prefs.getpref("homed_color", "green", str)
         self.unhomed_color = self.prefs.getpref("unhomed_color", "red", str)
+
+    def on_chk_hide_tooltips_toggled(self, widget, data=None):
+        print("hide tooltips toggled")
+        self.hide_tooltips = widget.get_active()
+        self.prefs.putpref("hide_tooltips", self.hide_tooltips)
+        self._set_enable_tooltips(not self.hide_tooltips)
 
     def on_rel_colorbutton_color_set(self, widget):
         color = widget.get_color()
