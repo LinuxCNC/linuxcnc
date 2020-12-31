@@ -48,13 +48,16 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 
     case mbtx_02_READ_DISCRETE_INPUTS:
     case mbtx_15_WRITE_MULTIPLE_COILS:
-        mb_tx->bit = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
-        if (mb_tx->bit == NULL) {
+        mb_tx->bit     = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        mb_tx->bit_inv = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        
+        if (mb_tx->bit == NULL || mb_tx->bit_inv == NULL) {
             ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
                 mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, mb_tx->mb_tx_nelem);
             return retERR;
         }
         memset(mb_tx->bit, 0, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        memset(mb_tx->bit_inv, 1, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);    
         break;
 
     case mbtx_03_READ_HOLDING_REGISTERS:
@@ -105,12 +108,19 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             break;
         case mbtx_02_READ_DISCRETE_INPUTS:
             if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, gbl.hal_mod_id,
-                                      "%s", hal_pin_name)) {
+                                      "%s.bit", hal_pin_name)) {
+                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
+                return retERR;
+            }
+            if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit_inv + pin_counter, gbl.hal_mod_id,
+                                      "%s.bit-inv", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
             *mb_tx->bit[pin_counter] = 0;
+            *mb_tx->bit_inv[pin_counter] = 1;
             break;
         case mbtx_04_READ_INPUT_REGISTERS:
         case mbtx_03_READ_HOLDING_REGISTERS:

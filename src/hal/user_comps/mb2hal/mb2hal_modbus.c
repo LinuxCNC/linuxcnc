@@ -31,6 +31,7 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         *(this_mb_tx->bit[counter]) = bits[counter];
+        *(this_mb_tx->bit_inv[counter]) = !bits[counter];
     }
 
     return retOK;

@@ -102,6 +102,7 @@ typedef struct {
     //hal_float_t *scale;  //not yet implemented
     //hal_float_t *offset; //not yet implemented
     hal_bit_t **bit;
+    hal_bit_t **bit_inv;
     hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
