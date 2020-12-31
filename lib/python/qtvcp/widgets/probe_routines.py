@@ -1495,7 +1495,6 @@ class ProbeRoutines():
 
     def probe_toolsetter(self):
         # probe_down oword conversion
-
         ACTION.CALL_MDI("F{}".format(self.data_rapid_vel))
         ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_z]MAX_LIMIT>-0.1]")
         ACTION.CALL_MDI("G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
@@ -1518,19 +1517,20 @@ class ProbeRoutines():
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G90")
         ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>] F{}".format(self.data_rapid_vel))
-
+ 
         a=STATUS.get_probed_position_with_offsets()
         self.status_ts = float(a[2])
 
         LOG.debug('Tool Setter Height: {}'.format( float(a[2])))
         self.add_history('Probe Tool Setter ',"Ts", ts=float(a[2]))
+ 
         # return all good
         return 1
 
     def probe_workpiece(self):
         # block_probe oword conversion
         metric = False
-        # c
+ 
         ACTION.CALL_MDI("G49")
         ACTION.CALL_MDI("G92.1")
 
@@ -1560,8 +1560,12 @@ class ProbeRoutines():
         a=STATUS.get_probed_position_with_offsets()
         self.status_bh = float(a[2])
 
+        # set param for possible use in probe_tool_m6 remap
+        ACTION.CALL_MDI('#5000 = {}'.format(float(a[2])))
+
         LOG.debug('block height: {}'.format( float(a[2])))
         self.add_history('probe workpiece ',"Bh",bh=float(a[2]))
+
         # return all good
         return 1
 
