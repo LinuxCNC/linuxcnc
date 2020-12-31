@@ -3633,6 +3633,10 @@ class gmoccapy(object):
             self.widgets.chk_ignore_limits.set_active(False)
         return False
 
+    def _on_limts_tripped(self, object, state, lst_limits):
+        print("limits tripped ", state, lst_limits)
+        print("status = ", self.stat.limit)
+
     def _ignore_limits(self, pin):
         self.widgets.chk_ignore_limits.set_active(pin.get())
 
