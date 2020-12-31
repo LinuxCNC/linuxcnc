@@ -137,8 +137,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
     # a successfully completed command will return 1 - None means ignore - anything else is an error
                     if error is not None:
                         if error != 1:
+                            ACTION.ABORT()
                             sys.stdout.write("ERROR Probe routine returned with error\n")
                         else:
+                            ACTION.cmd.wait_complete()
                             self.collect_status()
                             sys.stdout.write("COMPLETE$" + json.dumps(self.send_dict) + "\n")
                             sys.stdout.flush()
