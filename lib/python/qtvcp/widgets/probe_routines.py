@@ -74,7 +74,7 @@ class ProbeRoutines():
             ACTION.RELOAD_DISPLAY()
 
     def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,
-                    ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0, ts=0, bh=0):
+                    ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0, ts=None, bh=None):
         if STATUS.is_metric_mode():
             tpl = '%.3f'
         else:
@@ -125,7 +125,7 @@ class ProbeRoutines():
                 ACTION.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                LOG.debug('MDI_COMMAND_WAIT RCS error: {}'.format( timeout, result))
+                LOG.debug('MDI_COMMAND_WAIT RCS errorresult:()'.format( result))
                 #STATUS.emit('MDI time out error',)
                 ACTION.ABORT()
                 return -1
@@ -1371,14 +1371,16 @@ class ProbeRoutines():
 
         ACTION.CALL_MDI("G91")
         ACTION.CALL_MDI("F #<_hal[probe.ps_searchvel]>")
-        ACTION.CALL_MDI("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
+        c = ("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
         ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
         ACTION.CALL_MDI("G4 P0.5")
-        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+        c = ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G1 Z4 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
         ACTION.CALL_MDI("G90")
-
+        return 1
 
         # move X - edge_lenght- xy_clearance
         s="""G91
@@ -1491,42 +1493,39 @@ class ProbeRoutines():
             return
 
 
-    def get_tool_sensor_data(self):
-        xpos = float(self.inifile.find("TOOLSENSOR", "X"))
-        ypos = float(self.inifile.find("TOOLSENSOR", "Y"))
-        zpos = float(self.inifile.find("TOOLSENSOR", "Z"))
-        maxprobe = float(self.inifile.find("TOOLSENSOR", "MAXPROBE"))
-        tsdiam = float(self.inifile.find("TOOLSENSOR", "TS_DIAMETER"))
-        revrott = float(self.inifile.find("TOOLSENSOR", "REV_ROTATION_SPEED"))
-        return xpos, ypos, zpos, maxprobe, tsdiam, revrott
-
-
     def probe_toolsetter(self):
         # probe_down oword conversion
-        return 1
-        ACTION.CALL_MDI("F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_2]MAX_LIMIT>-0.1]")
+
+        ACTION.CALL_MDI("F{}".format(self.data_rapid_vel))
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_z]MAX_LIMIT>-0.1]")
         ACTION.CALL_MDI("G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
         ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>]")
         ACTION.CALL_MDI("G92.1")
         ACTION.CALL_MDI("G49")
-        ACTION.CALL_MDI("G10 L20 P0  Z[#<_hal[axis.2.joint-pos-cmd]>]")
+
+        # set Z offset to current position
+        ACTION.CALL_MDI("G10 L20 P0  Z[#<_hal[joint.2.pos-cmd]>]")
 
         ACTION.CALL_MDI("G91")
-        ACTION.CALL_MDI("F #<_hal[probe.ps_searchvel]>")
-        ACTION.CALL_MDI("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
-        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
-        ACTION.CALL_MDI("G4 P0.5")
-        ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
-        ACTION.CALL_MDI("G90")
-        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
+        ACTION.CALL_MDI("F{}".format(self.data_search_vel))
+        c = "G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>"
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_latch_return_dist,self.data_rapid_vel))
 
+        ACTION.CALL_MDI("F{}".format(self.data_probe_vel))
+        ACTION.CALL_MDI("G4 P0.5")
+        c = "G38.2 Z{}".format(2*-self.data_latch_return_dist)
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        ACTION.CALL_MDI("G90")
+        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>] F{}".format(self.data_rapid_vel))
 
         a=STATUS.get_probed_position_with_offsets()
-        self.spbtn_probe_height.set_value( float(a[2]) )
-        self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        self.status_ts = float(a[2])
 
+        LOG.debug('Tool Setter Height: {}'.format( float(a[2])))
+        self.add_history('Probe Tool Setter ',"Ts", ts=float(a[2]))
+        # return all good
+        return 1
 
     def probe_workpiece(self):
         # block_probe oword conversion
@@ -1548,7 +1547,8 @@ class ProbeRoutines():
         ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_latch_return_dist,self.data_rapid_vel))
         ACTION.CALL_MDI("F{}".format(self.data_probe_vel))
         ACTION.CALL_MDI("G4 P0.5")
-        ACTION.CALL_MDI("G38.2 Z{}".format(2*-self.data_latch_return_dist))
+        c = ("G38.2 Z{}".format(2*-self.data_latch_return_dist))
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_max_travel, self.data_search_vel))
         if metric:
             ACTION.CALL_MDI("G1 Z4 F{}".format(self.data_rapid_vel))
@@ -1560,8 +1560,9 @@ class ProbeRoutines():
         a=STATUS.get_probed_position_with_offsets()
         self.status_bh = float(a[2])
 
-        LOG.debug('block heighht: {}'.format( float(a[2])))
-        self.add_history('probe workpiece ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        LOG.debug('block height: {}'.format( float(a[2])))
+        self.add_history('probe workpiece ',"Bh",bh=float(a[2]))
+        # return all good
         return 1
 
 

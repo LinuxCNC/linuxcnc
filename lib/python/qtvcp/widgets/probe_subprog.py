@@ -19,6 +19,7 @@ import os
 import time
 import json
 import linuxcnc
+import traceback
 
 from PyQt5.QtCore import QObject
 from qtvcp.core import Status, Action, Info
@@ -116,8 +117,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.status_d = 0.0
         self.status_a = 0.0
         self.status_delta = 0.0
-        self.status_ts = 0.0
-        self.status_bh = 0.0
+        self.status_ts = None
+        self.status_bh = None
         self.history_log = ""
 
         self.process()
@@ -147,7 +148,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
                                 self.history_log = ""
                         sys.stdout.flush()
                 except Exception as e:
-                    sys.stdout.write("ERROR Command Error: {}\n".format(e))
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    formatted_lines = traceback.format_exc().splitlines()
+                    traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+                    sys.stdout.write("ERROR Command Error: {}\n Raw CMD:{}\n".format(e,formatted_lines))
                     sys.stdout.flush()
             if self.PID is not None:
                 if not self.check_pid(self.PID):
@@ -208,11 +212,13 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_z_clearance += self.data_extra_depth
         # clear all previous probe results
         for i in (self.status_list):
-            self['status_' + i] = 0.0
+            self['status_' + i] = None
 
     def collect_status(self):
         for key in self.status_list:
-            data = "{:3.3f}".format(self['status_' + key])
+            data = self['status_' + key]
+            if data is not None:
+                data = "{:3.3f}".format(data)
             self.send_dict.update( {key: data} )
 
 ########################################

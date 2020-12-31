@@ -352,13 +352,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def show_results(self, line):
+        print 'results:', line
         for key in self.status_list:
             try:
-                self['status_' + key].setText(line[key])
+                self['status_' + key].setText()
             except:
-                if key == 'bh':
+                if key == 'bh' and line.get(key) is not None:
                     self.input_tool_block_height.setText(line[key])
-                else:
+                elif key == 'ts' and line.get(key) is not None:
                     self.input_tool_probe_height.setText(line[key])
 
     def pop_help(self):
