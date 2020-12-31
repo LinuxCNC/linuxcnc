@@ -231,7 +231,7 @@ def widgets(P, W):
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
     W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('Kerf Width')
+    W.kOffset = QPushButton('KERF WIDTH')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')

@@ -543,8 +543,8 @@ QHeaderView::section {
     font: 13pt 'Lato';
     alternate-background-color: backalt;
     show-decoration-selected: 1;
-    selection-background-color: red;
-    selection-color:cyan;
+    selection-background-color: foregnd;
+    selection-color:backgnd;
     padding: 2 }
 
 #mdihistory QListView::item {

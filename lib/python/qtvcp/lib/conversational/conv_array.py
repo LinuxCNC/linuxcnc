@@ -97,7 +97,8 @@ def preview(P, W):
                     inCod = open(P.fTmp, 'r')
                     for line in inCod:
                         raw = line.strip().lower()
-                        if raw.startswith('g0') or raw.startswith('g1') or raw.startswith('g2') or raw.startswith('g3'):
+                        if (raw.startswith('g0') or raw.startswith('g1') or raw.startswith('g2') or raw.startswith('g3')) and \
+                           not raw.replace(' ','').startswith('g0z[#<_ini[axis_z]max_limit>-'):
                             a, b = raw.split('x')
                             c, d = b.split('y')
                             if ('i') in d:

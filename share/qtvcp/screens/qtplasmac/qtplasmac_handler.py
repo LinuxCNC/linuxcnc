@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.5'
+VERSION = '0.9.6'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -203,6 +203,7 @@ class HandlerClass:
         STATUS.connect('interp-reading', self.interp_reading)
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
+        STATUS.connect('mdi-history-changed', self.mdi_entered)
         self.link_hal_pins()
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
@@ -497,6 +498,7 @@ class HandlerClass:
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
         self.overlay = overlayMaterial(self.w.gcodegraphics)
+        self.mdi_selection = self.w.mdihistory.list.selectionModel()
 
     def get_overlay_text(self):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
@@ -550,7 +552,6 @@ class HandlerClass:
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
-        print('closing cleanup')
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
@@ -736,6 +737,10 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             self.w[self.tpButton].setEnabled(False)
 
+    def mdi_entered(self, object):
+        self.mdi_selection.clearSelection()
+        self.w.mdihistory.MDILine.setText('')
+
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
             if self.w.pause.text() == '':
@@ -758,6 +763,11 @@ class HandlerClass:
                 self.w.rapid_label.setText('RAPID')
         else:
             self.w.rapid_label.setText('RAPID')
+        if self.pmx485CommsError:
+            if self.w.pmx485_label.text() == '':
+                self.w.pmx485_label.setText('COMMS ERROR')
+            else:
+                self.w.pmx485_label.setText('')
 
     def percent_loaded(self, object, percent):
         if percent < 1:
@@ -918,6 +928,9 @@ class HandlerClass:
             if self.w.mdi_show.text() == 'MDI':
                 self.w.mdi_show.setText('MDI\nCLOSE')
                 self.w.gcode_stack.setCurrentIndex(1)
+                self.w.mdihistory.MDILine.setFocus()
+                self.mdi_selection.clearSelection()
+                self.w.mdihistory.MDILine.setText('')
             else:
                 self.w.mdi_show.setText('MDI')
                 self.w.gcode_stack.setCurrentIndex(0)
@@ -2275,18 +2288,16 @@ class HandlerClass:
 #########################################################################################################################
 # POWERMAX COMMUNICATIONS FUNCTIONS #
 #########################################################################################################################
-    def rs485_timeout(self):
+    def pmx485_timeout(self):
         self.w.pmx485_enable.setChecked(False)
         self.pmx485Connected = False
-        self.rs485Timer.stop()
-        self.dialog_error('COMMUNICATIONS ERROR', \
-                          '\nCould not connect to Powermax\n' \
-                          '\nCheck cables and connections\n' \
-                          '\nCheck PM_PORT in .ini file\n')
+        self.pmx485Timer.stop()
+        self.pmx485CommsError = True
 
     def pmx485_check(self):
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
             self.pmx485Exists = True
+            self.pmx485CommsError = False
             if not hal.component_exists('pmx485'):
                 self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
                                                   '\nPowermax communications is not available\n')
@@ -2296,10 +2307,6 @@ class HandlerClass:
             self.w.pmx485_status.hal_pin_changed.connect(lambda w:self.pmx485_status_changed(w))
             self.w.pmx485_mode.hal_pin_changed.connect(self.pmx485_mode_changed)
             self.w.pmx485_fault.hal_pin_changed.connect(lambda w:self.pmx485_fault_changed(w))
-#            self.w.pmx485_current_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
-#            self.w.pmx485_current_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
-#            self.w.pmx485_pressure_min.hal_pin_changed.connect(self.pmx485_min_max_changed)
-#            self.w.pmx485_pressure_max.hal_pin_changed.connect(self.pmx485_min_max_changed)
             self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
             self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
             self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
@@ -2319,12 +2326,11 @@ class HandlerClass:
                 hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
                 hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             self.pressure = self.w.gas_pressure.value()
-            self.rs485Timer = QTimer()
-            self.rs485Timer.timeout.connect(self.rs485_timeout)
+            self.pmx485Timer = QTimer()
+            self.pmx485Timer.timeout.connect(self.pmx485_timeout)
             self.meshMode = False
             self.oldCutMode = self.w.cut_mode.value()
             self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
-            self.pmx485_enable_changed(self.w.pmx485_enable.isChecked())
             self.w.cut_amps.setStatusTip('Powermax cutting current')
             self.w.pmx485_enable.setChecked(True)
         else:
@@ -2336,42 +2342,49 @@ class HandlerClass:
 
     def pmx485_enable_changed(self, state):
         if state:
+            self.pmx485CommsError = False
+            # if component not loaded then load it and wait 3 secs for it to be loaded
             if not hal.component_exists('pmx485'):
                 port = self.iniFile.find('QTPLASMAC', 'PM_PORT')
                 try:
-                    Popen('halcmd loadusr -Wn pmx485 ./plasmac/pmx485.py {}'.format(port), stdout = PIPE, shell = True)
+                    Popen('halcmd loadusr -Wn pmx485 ./qtplasmac/pmx485.py {}'.format(port), stdout = PIPE, shell = True)
+                    timeout = time.time() + 3
+                    while 1:
+                        time.sleep(0.1)
+                        if time.time() > timeout:
+                            self.w.pmx485_enable.setChecked(False)
+
+                            self.w.pmx485_label.setText('')
+                            self.w.pmx485_label.setStatusTip('status of pmx485 communications')
+                            self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
+                            return
+                        if hal.component_exists('pmx485'):
+                            break
                 except:
                     self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
                                                       '\nPowermax communications is not available\n')
                     return
+            # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
                 for pin in self.pins485Comp:
                     hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-            timeout = time.time() + 3
-            self.w.pmx485_label.setText('CONNECTING')
-            while 1:
-                time.sleep(0.1)
-                if time.time() > timeout:
-                    self.w.pmx485_enable.setChecked(False)
-                    self.w.pmx485_label.setText('')
-                    self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                    self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
-                    return
-                if hal.component_exists('pmx485'):
-                    break
+            # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
                 self.dialog_error('MATERIALS ERROR', '\nInvalid Cut Mode or Cut Amps\n\nCannot connect to Powermax\n')
                 self.w.pmx485_enable.setChecked(False)
                 self.pmx485Loaded = False
                 return
+            # good to go
             else:
+                self.w.pmx485_label.setText('CONNECTING')
                 self.pmx485Loaded = True
-                self.w.pmx485_enable.setChecked(True)
-                self.rs485Timer.start(3000)
+                self.pmx485Timer.start(3000)
         else:
             self.pmx485Connected = False
-            self.w.pmx485_label.setText('')
+            if not self.pmx485CommsError:
+                self.w.pmx485_label.setText('')
             self.w.pmx485_label.setStatusTip('status of pmx485 communications')
+            self.pmx485Timer.stop()
 
     def pmx485_mode_changed(self, widget):
         if self.pmx485Connected:
@@ -2411,14 +2424,16 @@ class HandlerClass:
     def pmx485_status_changed(self, state):
         if state != self.pmx485Connected:
             if state:
+                self.pmx485CommsError = False
                 self.w.pmx485_label.setText('CONNECTED')
                 self.pmx485Connected = True
                 self.pmx485_min_max_changed()
-                self.rs485Timer.stop()
+                self.pmx485Timer.stop()
             else:
                 self.w.pmx485_label.setText('COMMS ERROR')
+                self.pmx485CommsError = True
                 self.pmx485Connected = False
-                self.rs485Timer.start(3000)
+                self.pmx485Timer.start(3000)
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
@@ -2704,6 +2719,7 @@ class HandlerClass:
                     self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
                     return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
+        self.w.conv_send.setEnabled(True)
 
     def conv_array_pressed(self):
         with open(self.fNgc) as inFile:
@@ -2720,10 +2736,11 @@ class HandlerClass:
                 else:
                     self.arrayMode = 'external'
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
+        self.w.conv_send.setEnabled(True)
 
     def conv_shape_request(self, shape, module, material):
 # TEMP FOR TESTING
-#        reload(module)
+        reload(module)
         if material:
             self.w.conv_material.show()
         else:

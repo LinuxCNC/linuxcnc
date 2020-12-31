@@ -32,7 +32,6 @@ def cancel(P, W):
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
 
-
 def accept(P, W):
     COPY(P.fNgc, P.fNgcBkp)
     W.conv_preview.load(P.fNgc)
@@ -57,14 +56,22 @@ def preview(P, W):
     outNgc = open(P.fNgc, 'w')
     inCod = open(P.fNgcBkp, 'r')
     for line in inCod:
-        if line.strip().lower().startswith('g'):
+        line = line.strip().lower()
+        # remove line numbers
+        if line.startswith('n'):
+            line = line[1:]
+            while line[0].isdigit() or line[0] == '.':
+                line = line[1:].lstrip()
+                if not line:
+                    break
+        if line.startswith('g'):
             rLine = rotate(P, W, angle, xOffset, yOffset, line)
             if rLine is not None:
                 outNgc.write(rLine)
             else:
                 return
         else:
-            outNgc.write(line)
+            outNgc.write('{}\n'.format(line))
     inCod.close()
     outNgc.close()
     W.conv_preview.load(P.fNgc)
@@ -74,7 +81,7 @@ def preview(P, W):
 
 def rotate(P, W, angle, xOffset, yOffset, line):
     REGCODE = COMPILE('([a-z]-?[0-9]+\.?([0-9]+)?)|\(.*\)')
-    inLine = line.strip()
+    inLine = line
     comment = ''
     i = inLine.find('(')
     if i >= 0:
@@ -82,13 +89,14 @@ def rotate(P, W, angle, xOffset, yOffset, line):
       inLine = inLine[:i - 1].strip()
     if len(inLine) > 0:
         parts = list([ list(cmd)[0] for cmd in REGCODE.findall(inLine) ])
-        if len(parts) == 0 or parts[0] not in ['g0', 'g1', 'g2', 'g3']:
-            return line
+        if len(parts) <= 1 or parts[0] not in ['g0', 'g1', 'g2', 'g3', 'x', 'y'] or \
+           inLine.replace(' ','').startswith('g0z[#<_ini[axis_z]max_limit>-'):
+            return '{}\n'.format(line)
         angle = math.radians(angle)
-        params = {'x':0.0, 'y':0.0, 'i':0.0, 'j':0.0,}
+        params = {'x':0.0, 'y':0.0, 'r':0.0, 'i':0.0, 'j':0.0,}
         used = ''
         for p in parts:
-            for n in 'xyij':
+            for n in 'xyrij':
                 if n in p:
                     if n == 'x':
                         params['x'] = float(p.strip(n))
@@ -96,6 +104,9 @@ def rotate(P, W, angle, xOffset, yOffset, line):
                     elif n == 'y':
                         params['y'] = float(p.strip(n))
                         used += 'y'
+                    elif n == 'r':
+                        params['r'] = float(p.strip(n))
+                        used += 'r'
                     elif n == 'i':
                         params['i'] = float(p.strip(n))
                         used += 'i'
@@ -103,16 +114,15 @@ def rotate(P, W, angle, xOffset, yOffset, line):
                         params['j'] = float(p.strip(n))
                         used += 'j'
         newLine = ('{}'.format(parts[0]))
-        if not 'x' in used and not 'y' in used:
-            P.dialogError = True
-            P.dialog_error('ROTATE', 'Cannot decipher G-Code correctly')
-            return None
         if 'x' in used:
             newLine += (' x{:.6f}'.format(params['x'] * math.cos(angle) - params['y'] * math.sin(angle) + xOffset))
         if 'y' in used:
             newLine += (' y{:.6f}'.format(params['y'] * math.cos(angle) + params['x'] * math.sin(angle) + yOffset))
-        if parts[0] in {'g2', 'g3'}:
+        if 'r' in used:
+            newLine += (' r{:.6f}'.format(params['r']))
+        if 'i' in used:
             newLine += (' i{:.6f}'.format(params['i'] * math.cos(angle) - params['j'] * math.sin(angle)))
+        if 'j' in used:
             newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
         return ('{}\n'.format(newLine))
 
