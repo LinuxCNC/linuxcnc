@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.1"
+_RELEASE = " 3.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1219,7 +1219,7 @@ class gmoccapy(object):
                 btn = gtk.Button(lbl, None, False)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
-            btn.connect("pressed", self._on_btn_macro_pressed, name)
+            btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)

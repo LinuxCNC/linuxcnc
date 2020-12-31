@@ -1,3 +1,8 @@
+ver 3.1.2
+- connecting macro button to physical button did send
+  a clicked signal, but macro button did expect a pressed signal
+  This bug has been reported from ulistermclame
+
 ver 3.1.1
 - setting analog-enable hal pins signal allways resetted
   the jog vel of the slider. This has been reported from hans23
