@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.6'
+VERSION = '0.9.7'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -603,15 +603,7 @@ class HandlerClass:
                     break
                 receiver2 = receiver2.parent()
             if flag:
-                if isinstance(receiver2, EDITOR):
-                    # if in manual do our keybindings - otherwise
-                    # send events to gcode widget
-                    if STATUS.is_man_mode() == False:
-                        if is_pressed:
-                            receiver.keyPressEvent(event)
-                            event.accept()
-                        return True
-                elif is_pressed:
+                if is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
                     return True
@@ -627,6 +619,8 @@ class HandlerClass:
         elif event.type() == QEvent.KeyRelease:
             self.keyTimer.start(1)
             return
+        if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
+            self.escape_pressed()
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     def key_timer_timeout(self):
@@ -851,6 +845,9 @@ class HandlerClass:
 ###########################################################################################################################
 # CALLBACKS FROM FORM #
 ###########################################################################################################################
+    def escape_pressed(self):
+        self.torch_timeout()
+
     def user_button_pressed(self, button):
         self.user_button_down(button)
 
@@ -922,6 +919,7 @@ class HandlerClass:
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
             self.w.preview_stack.setCurrentIndex(2)
             self.overlay.hide()
+            self.w.gcode_editor.editor.setFocus()
 
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -1272,7 +1270,7 @@ class HandlerClass:
             self.w.probe_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
         if linear:
@@ -1282,8 +1280,8 @@ class HandlerClass:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
         if state:
-            if fast:
-                rate = rate * 2
+            if shift:
+                rate = INFO.MAX_LINEAR_JOG_VEL
             ACTION.JOG(joint, direction, rate, distance)
             self.jogAxis.append(joint)
             self.w.grabKeyboard()
@@ -1461,6 +1459,8 @@ class HandlerClass:
                 hal.set_p('plasmac.torch-pulse-time', str(torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.button_active(self.tpButton)
+            else:
+                self.torch_timeout()
         elif 'cut-type' in commands.lower():
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
@@ -1547,7 +1547,6 @@ class HandlerClass:
 
     def torch_timeout(self):
         self.torchTimer.stop()
-        hal.set_p('plasmac.torch-pulse-start','0')
         hal.set_p('plasmac.torch-pulse-time', '0')
         self.button_normal(self.tpButton)
 
