@@ -152,6 +152,7 @@ class HandlerClass:
         self.pmx485Exists = False
         self.pmx485Loaded = False
         self.pmx485Connected = False
+        self.pmx485CommsError = False
         self.fault = '0000'
         self.cutRecovering = False
         self.camCurrentX = self.camCurrentY = 0
@@ -2352,7 +2353,6 @@ class HandlerClass:
                         time.sleep(0.1)
                         if time.time() > timeout:
                             self.w.pmx485_enable.setChecked(False)
-
                             self.w.pmx485_label.setText('')
                             self.w.pmx485_label.setStatusTip('status of pmx485 communications')
                             self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
