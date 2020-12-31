@@ -1,3 +1,9 @@
+ver 3.0.10
+- bug in handling ignore limits solved
+  issue #1000 reported by Hans470
+  solved by using new hal staus signal and deleted 
+  some uneeded code
+
 ver 3.0.9.1
 - bug in handling back tool lathe solved
   reported on the forum from Schaap

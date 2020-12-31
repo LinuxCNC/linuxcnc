@@ -71,26 +71,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
 
 sys.excepthook = excepthook
 
-debug = False
-
-if debug:
-    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
-
-    if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
-        sys.path.append(pydevdir)
-        sys.path.insert(0, pydevdir)
-        try:
-            import pydevd
-
-            print("pydevd imported, connecting to Eclipse debug server...")
-            pydevd.settrace()
-        except:
-            print("no pydevd module found")
-            pass
-
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.9.1"
+_RELEASE = " 3.0.10"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2492,7 +2475,6 @@ class gmoccapy(object):
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.tbtn_on.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(False)
         self.widgets.tbtn_on.set_active(False)
         self.command.mode(linuxcnc.MODE_MANUAL)
 
@@ -2505,8 +2487,6 @@ class gmoccapy(object):
         self.widgets.ntb_jog_JA.set_sensitive(False)
         self.widgets.vbtb_jog_incr.set_sensitive(False)
         self.widgets.hbox_jog_vel.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(True)
-        self._check_limits()
 
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
@@ -2520,7 +2500,6 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(False)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.btn_exit.set_sensitive(True)
-        self.widgets.chk_ignore_limits.set_sensitive(True)
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
@@ -2537,10 +2516,18 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(True)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.btn_exit.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(False)
         if self.widgets.ntb_main.get_current_page() != 0:
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+
+    def on_hal_status_limits_tripped(self, object, state, lst_limits):
+        # object = hal_status from glade file
+        # state = true if limit has been tripped
+        # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
+        print("limits tripped ", state, lst_limits)
+        if not state:
+            self.widgets.chk_ignore_limits.set_active(state)
+        self.widgets.chk_ignore_limits.set_sensitive(state)
 
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
@@ -2555,8 +2542,7 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
-        self._check_limits()
-        
+
         # if the status changed, we reset the key event, otherwise the key press
         # event will not change, if the user did the last change with keyboard shortcut
         # This is caused, because we record the last key event to avoid multiple key
@@ -3624,27 +3610,11 @@ class gmoccapy(object):
 # The homing functions
 # =========================================================
 
-    def _check_limits(self):
-        for axis in self.axis_list:
-            axisnumber = "xyzabcuvw".index(axis)
-            if self.stat.limit[axisnumber] != 0:
-                return True
-        if self.widgets.chk_ignore_limits.get_active():
-            self.widgets.chk_ignore_limits.set_active(False)
-        return False
-
-    def _on_limts_tripped(self, object, state, lst_limits):
-        print("limits tripped ", state, lst_limits)
-        print("status = ", self.stat.limit)
-
     def _ignore_limits(self, pin):
         self.widgets.chk_ignore_limits.set_active(pin.get())
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
-            if not self._check_limits():
-                self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
-                return
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
