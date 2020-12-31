@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.185 - 2020 Nov 28
+0.187 - 2020 Dec 13
 
 .I SUMMARY:
 .br
@@ -94,6 +94,7 @@ pin in  bit     program_is_running          "program is running, connect to halu
 pin in  float   puddle_jump_delay           "delay move from pierce height to cut height (seconds), leave disconnected if not required";
 pin in  float   puddle_jump_height          "puddle jump height (percentage of pierce height), leave disconnected if not required";
 pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
+pin in  s32     resolution = 1              "resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
 pin in  float   scribe_arm_delay            "delay from scribe arm to scribe on";
@@ -316,12 +317,12 @@ FUNCTION(_) {
 
     /* do these first run only */
     if(!initialized && units_per_mm){
-        offset_scale = units_per_mm * fperiod;
-        velocity_scale = 1 / units_per_mm / 60;
+        offset_scale = units_per_mm * fperiod / resolution;
+        velocity_scale = resolution / units_per_mm / 60;
         adaptive_feed = 1;
         initialized = TRUE;
-        probe_force_val = 5;
-        recovery_velocity = 3;
+        probe_force_val = 5 * resolution;
+        recovery_velocity = 3 * resolution;
     }
 
     /* wait until arc_voltage_in is valid */
@@ -383,7 +384,7 @@ FUNCTION(_) {
     }
 
     /* set THC state */
-    thc_enabled = (thc_enable && !thc_disable ? 1:0);
+    thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 ? 1:0);
 
     /* set THC status */
     thc_active = (state == CUT) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
@@ -532,7 +533,7 @@ FUNCTION(_) {
             arc_ok_out = TRUE;
             arc_lost_timer = arc_lost_delay;
         }else if(arc_lost_timer > 0){
-            arc_lost_timer -= fperiod; 
+            arc_lost_timer -= fperiod;
         }else{
             arc_ok_out = FALSE;
         }
@@ -541,7 +542,7 @@ FUNCTION(_) {
             arc_ok_out = TRUE;
             arc_lost_timer = arc_lost_delay;
         }else if(arc_lost_timer > 0){
-            arc_lost_timer -= fperiod; 
+            arc_lost_timer -= fperiod;
         }else{
             arc_ok_out = FALSE;
         }
@@ -585,7 +586,7 @@ FUNCTION(_) {
         switch(state){
             case IDLE:
                 xy_offset_enable = FALSE;
-                if((int)floor(z_offset_current / offset_scale) < 0.0000001 && 
+                if((int)floor(z_offset_current / offset_scale) < 0.0000001 &&
                    (int)floor(z_offset_current / offset_scale) > -0.0000001 &&
                    program_is_idle){
                     z_offset_enable = FALSE;
@@ -696,7 +697,7 @@ FUNCTION(_) {
                         }
                         stop_type = NONE;
                     /* if torch pulse requested */
-                    }else if(torch_pulse_start && !breakaway && !float_switch && !ohmic_probe){
+                  }else if(torch_pulse_start && torch_enable && !breakaway && !float_switch && !ohmic_probe){
                         feed_hold = TRUE;
                         state = TORCHPULSE;
                     /* if ohmic probe shorted test requested */
@@ -752,8 +753,8 @@ FUNCTION(_) {
                 }
                 if(target_sensed){
                     if(probe_force > 0){
-                        probe_force -= 1;
-                        z_offset_counts -= 1;
+                        probe_force -= 1 * resolution;
+                        z_offset_counts -= 1 * resolution;
                     }else{
                         target_sensed = FALSE;
                         if(float_switch || ohmic_detected){
@@ -813,14 +814,14 @@ FUNCTION(_) {
                 }
                 if(float_switch || ohmic_detected){
                     if(probe_retry){
-                        z_offset_counts += 10;
+                        z_offset_counts += 10 * resolution;
                     }else{
                         if(probe_final_speed > 10){
-                            z_offset_counts += 10;
+                            z_offset_counts += 10 * resolution;
                         }else if(probe_final_speed < 1){
-                            z_offset_counts += 1;
+                            z_offset_counts += 1 * resolution;
                         }else{
-                            z_offset_counts += probe_final_speed;
+                            z_offset_counts += probe_final_speed * resolution;
                         }
                     }
                 }else{
@@ -908,8 +909,8 @@ FUNCTION(_) {
                 if(pierce_height && cut_height && (use_auto_volts || (!use_auto_volts && cut_volts))){
                     feed_hold = TRUE;
                     if(z_offset_counts == pierce_target){
-                        if((int)floor(z_offset_current / offset_scale) <= pierce_target + 1 && 
-                           (int)floor(z_offset_current / offset_scale) >= pierce_target - 1){
+                        if((int)floor(z_offset_current / offset_scale) <= pierce_target + resolution &&
+                           (int)floor(z_offset_current / offset_scale) >= pierce_target - resolution){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
@@ -1024,8 +1025,8 @@ FUNCTION(_) {
                 feed_hold = FALSE;
                 /* move to puddle_jump height */
                 if(z_offset_counts == puddle_jump_target){
-                    if((int)floor(z_offset_current / offset_scale) <= puddle_jump_target + 1 && 
-                       (int)floor(z_offset_current / offset_scale) >= puddle_jump_target - 1){
+                    if((int)floor(z_offset_current / offset_scale) <= puddle_jump_target + resolution &&
+                       (int)floor(z_offset_current / offset_scale) >= puddle_jump_target - resolution){
                         count = 0;
                         if(puddle_jump_timer > 0){
                             puddle_jump_timer -= fperiod;
@@ -1050,8 +1051,8 @@ FUNCTION(_) {
                 }
                 /* move to cut height */
                 if(z_offset_counts == cut_target){
-                    if((int)floor(z_offset_current / offset_scale) <= cut_target + 1 && 
-                       (int)floor(z_offset_current / offset_scale) >= cut_target - 1){
+                    if((int)floor(z_offset_current / offset_scale) <= cut_target + resolution &&
+                       (int)floor(z_offset_current / offset_scale) >= cut_target - resolution){
                         count = 0;
                         /* set feed rate for this cut */
                         if(cut_feed_rate > 0){
@@ -1295,8 +1296,8 @@ FUNCTION(_) {
                     cornerlock_is_locked = FALSE;
                     if(!probe_test || probe_test_error){
                         if(z_offset_counts == safe_target){
-                            if((int)floor(z_offset_current / offset_scale) <= safe_target + 1 && 
-                               (int)floor(z_offset_current / offset_scale) >= safe_target - 1){
+                            if((int)floor(z_offset_current / offset_scale) <= safe_target + resolution &&
+                               (int)floor(z_offset_current / offset_scale) >= safe_target - resolution){
                                 if(stop_type == WAIT){
                                     feed_hold = FALSE;
                                 }
@@ -1322,8 +1323,8 @@ FUNCTION(_) {
                 cornerlock_is_locked = FALSE;
                 if(!probe_test || probe_test_error){
                     if(z_offset_counts == offset_max){
-                        if((int)floor(z_offset_current / offset_scale) <= offset_max + 1 && 
-                           (int)floor(z_offset_current / offset_scale) >= offset_max - 1){
+                        if((int)floor(z_offset_current / offset_scale) <= offset_max + resolution &&
+                           (int)floor(z_offset_current / offset_scale) >= offset_max - resolution){
                             if(stop_type == WAIT){
                                 feed_hold = FALSE;
                             }
@@ -1644,9 +1645,9 @@ FUNCTION(_) {
                 break;
             case CUT_RECOVERY_OFF:
                 xy_offset_enable = TRUE;
-                if(x_offset_current <= 0.01 * units_per_mm && 
+                if(x_offset_current <= 0.01 * units_per_mm &&
                    x_offset_current >= -0.01 * units_per_mm &&
-                   y_offset_current <= 0.01 * units_per_mm && 
+                   y_offset_current <= 0.01 * units_per_mm &&
                    y_offset_current >= -0.01 * units_per_mm){
                     if(cut_recovery){
                         cut_recovering = FALSE;
