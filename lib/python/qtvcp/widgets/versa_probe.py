@@ -23,6 +23,7 @@ import json
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 from PyQt5.QtCore import QProcess, QByteArray, QEvent
 
+from linuxcnc import MODE_MDI
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -53,6 +54,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
+        self._premode = None
         self.process_busy = False
         self.dialog_code = 'CALCULATOR'
         #create parameter dictionary
@@ -227,6 +229,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_busy is True:
             LOG.error("Probing processor is busy")
             return
+
+        # record the mode we are in so we can return to it
+        # you are probably in jog mode to move around during set up.
+        fail, self._premode = ACTION.ensure_mode(MODE_MDI)
+
         # clear all previous offsets
         ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
         self.get_parms()
@@ -296,6 +303,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.info("Probe history updated to machine log")
             else:
                 LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+        if "COMPLETE" in line or "ERROR" in line:
+            ACTION.ensure_mode(self._premode)
 
     def send_error(self, w, kind, text):
         message ='_ErroR_ {},{} \n'.format(kind,text)
