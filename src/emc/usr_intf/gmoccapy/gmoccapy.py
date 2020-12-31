@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.0"
+_RELEASE = " 3.1.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -4854,6 +4854,7 @@ class gmoccapy(object):
             self.jv_counts = self.ro_counts = counts
 
     def _on_analog_enable_changed(self, pin, widget):
+        print(pin, widget)
         if not self.initialized:
             return
         if widget == "spc_spindle":
@@ -4869,7 +4870,7 @@ class gmoccapy(object):
         # widget can also be spc_lin_jog_vel and spc_rapid
         self.widgets[widget].hide_button(pin.get())
         
-        if pin.get():
+        if pin.get() and widget == "spc_lin_jog_vel":
             # special case of jog_vel, as we have to take care of both modes,
             # more details see _on_analog_value_changed
             if self.widgets.tbtn_turtle_jog.get_active():
