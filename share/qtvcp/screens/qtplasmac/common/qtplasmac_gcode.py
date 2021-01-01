@@ -55,6 +55,7 @@ else:
     ocLength = 0.157
     unitsPerMm = 0.03937
 newMaterial = []
+firstMaterial = ''
 line = ''
 rapidLine = ''
 lastX = 0
@@ -289,6 +290,7 @@ def check_math(axis):
 
 # do material change
 def do_material_change():
+    global firstMaterial
     if '(' in line:
         c = line.split('(', 1)[0]
     elif ';' in line:
@@ -312,6 +314,8 @@ def do_material_change():
         print(line)
         quit()
     Popen('halcmd setp qtplasmac.material_change_number {}'.format(material[0]), stdout = PIPE, shell = True)
+    if not firstMaterial:
+        firstMaterial = material[0]
     print(line)
 
 # check if matarial edit required
@@ -795,6 +799,8 @@ with open(inCode, 'r') as fRead:
                 lineNum += 1
                 print('(disable hole sensing)')
                 holeEnable = False
+            if firstMaterial:
+                Popen('halcmd setp qtplasmac.material_change_number {}'.format(firstMaterial), stdout = PIPE, shell = True)
             print(line)
             if codeError:
                 dlg  = '\nThis GCode file has one or more errors that will affect the quality of the process.\n'

@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.7'
+VERSION = '0.9.8'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -212,7 +212,7 @@ class HandlerClass:
 #        self.power_state(False)
 
     def startup_timeout(self):
-        self.w.setWindowTitle('QtPlasmaC v{} - powered by LinuxCNC v{} and QtVCP'.format(VERSION, linuxcnc.version.split(':')[0]))
+        self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
         self.w.power.setEnabled(False)
         self.w.run.setEnabled(False)
         self.w.pause.setEnabled(False)
@@ -1793,7 +1793,6 @@ class HandlerClass:
         if self.w.material_selector.currentIndex() != self.w.materials_box.currentIndex():
             self.w.materials_box.setCurrentIndex(index)
             self.w.conv_material.setCurrentIndex(index)
-            self.overlay.setText(self.get_overlay_text())
 
     def conv_material_changed(self, index):
         if self.w.conv_material.currentIndex() != self.w.materials_box.currentIndex():
@@ -1817,6 +1816,7 @@ class HandlerClass:
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
+        self.overlay.setText(self.get_overlay_text())
 
     def material_change_pin_changed(self, halpin):
         if halpin == 0:
