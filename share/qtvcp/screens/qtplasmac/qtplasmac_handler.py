@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.8'
+VERSION = '0.9.9'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -2289,10 +2289,11 @@ class HandlerClass:
 # POWERMAX COMMUNICATIONS FUNCTIONS #
 #########################################################################################################################
     def pmx485_timeout(self):
-        self.w.pmx485_enable.setChecked(False)
-        self.pmx485Connected = False
-        self.pmx485Timer.stop()
+        self.pmx485CommsTimer.stop()
+        self.w.pmx485_label.setText('COMMS ERROR')
         self.pmx485CommsError = True
+        self.pmx485Connected = False
+        self.pmx485RetryTimer.start(3000)
 
     def pmx485_check(self):
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
@@ -2326,8 +2327,10 @@ class HandlerClass:
                 hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
                 hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             self.pressure = self.w.gas_pressure.value()
-            self.pmx485Timer = QTimer()
-            self.pmx485Timer.timeout.connect(self.pmx485_timeout)
+            self.pmx485CommsTimer = QTimer()
+            self.pmx485CommsTimer.timeout.connect(self.pmx485_timeout)
+            self.pmx485RetryTimer = QTimer()
+            self.pmx485RetryTimer.timeout.connect(lambda:self.pmx485_enable_changed(True))
             self.meshMode = False
             self.oldCutMode = self.w.cut_mode.value()
             self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
@@ -2343,6 +2346,7 @@ class HandlerClass:
     def pmx485_enable_changed(self, state):
         if state:
             self.pmx485CommsError = False
+            self.pmx485RetryTimer.stop()
             # if component not loaded then load it and wait 3 secs for it to be loaded
             if not hal.component_exists('pmx485'):
                 port = self.iniFile.find('QTPLASMAC', 'PM_PORT')
@@ -2377,13 +2381,14 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText('CONNECTING')
                 self.pmx485Loaded = True
-                self.pmx485Timer.start(3000)
+                self.pmx485CommsTimer.start(3000)
         else:
             self.pmx485Connected = False
-            if not self.pmx485CommsError:
-                self.w.pmx485_label.setText('')
+            self.pmx485CommsError = False
+            self.w.pmx485_label.setText('')
             self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-            self.pmx485Timer.stop()
+            self.pmx485CommsTimer.stop()
+            self.pmx485RetryTimer.stop()
 
     def pmx485_mode_changed(self, widget):
         if self.pmx485Connected:
@@ -2427,12 +2432,13 @@ class HandlerClass:
                 self.w.pmx485_label.setText('CONNECTED')
                 self.pmx485Connected = True
                 self.pmx485_min_max_changed()
-                self.pmx485Timer.stop()
+                self.pmx485CommsTimer.stop()
+                self.pmx485RetryTimer.stop()
             else:
                 self.w.pmx485_label.setText('COMMS ERROR')
                 self.pmx485CommsError = True
                 self.pmx485Connected = False
-                self.pmx485Timer.start(3000)
+                self.pmx485RetryTimer.start(3000)
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
