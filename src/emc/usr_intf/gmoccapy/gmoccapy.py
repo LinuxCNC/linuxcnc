@@ -71,26 +71,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
 
 sys.excepthook = excepthook
 
-debug = False
-
-if debug:
-    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
-
-    if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
-        sys.path.append(pydevdir)
-        sys.path.insert(0, pydevdir)
-        try:
-            import pydevd
-
-            print("pydevd imported, connecting to Eclipse debug server...")
-            pydevd.settrace()
-        except:
-            print("no pydevd module found")
-            pass
-
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.9.1"
+_RELEASE = " 3.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -332,6 +315,7 @@ class gmoccapy(object):
         self._init_gremlin()
         self._init_kinematics_type()
         self._init_hide_cursor()
+        self._init_hide_tooltips()
         self._init_offsetpage()
         self._init_keybindings()
         self._init_IconFileSelection()
@@ -1235,7 +1219,7 @@ class gmoccapy(object):
                 btn = gtk.Button(lbl, None, False)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
-            btn.connect("pressed", self._on_btn_macro_pressed, name)
+            btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
@@ -1937,6 +1921,16 @@ class gmoccapy(object):
             self.widgets.window1.window.set_cursor(None)
             self.widgets.gremlin.set_property("use_default_controls", True)
 
+    # init to hide tooltips
+    def _init_hide_tooltips(self):
+        self.widgets_with_tooltips = []
+        for widget in self.widgets:
+            if hasattr(widget, "set_has_tooltip"):
+                self.widgets_with_tooltips.append(widget)
+        self.hide_tooltips = self.prefs.getpref("hide_tooltips", False, bool)
+        self.widgets.chk_hide_tooltips.set_active(self.hide_tooltips)
+        self._set_enable_tooltips(not self.hide_tooltips)
+
 # =============================================================
 # Onboard keybord handling Start
 
@@ -2492,7 +2486,6 @@ class gmoccapy(object):
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.tbtn_on.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(False)
         self.widgets.tbtn_on.set_active(False)
         self.command.mode(linuxcnc.MODE_MANUAL)
 
@@ -2505,8 +2498,6 @@ class gmoccapy(object):
         self.widgets.ntb_jog_JA.set_sensitive(False)
         self.widgets.vbtb_jog_incr.set_sensitive(False)
         self.widgets.hbox_jog_vel.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(True)
-        self._check_limits()
 
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
@@ -2520,7 +2511,6 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(False)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.btn_exit.set_sensitive(True)
-        self.widgets.chk_ignore_limits.set_sensitive(True)
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
@@ -2537,10 +2527,18 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(True)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.btn_exit.set_sensitive(False)
-        self.widgets.chk_ignore_limits.set_sensitive(False)
         if self.widgets.ntb_main.get_current_page() != 0:
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+
+    def on_hal_status_limits_tripped(self, object, state, lst_limits):
+        # object = hal_status from glade file
+        # state = true if limit has been tripped
+        # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
+        print("limits tripped ", state, lst_limits)
+        if not state:
+            self.widgets.chk_ignore_limits.set_active(state)
+        self.widgets.chk_ignore_limits.set_sensitive(state)
 
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
@@ -2555,8 +2553,7 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
-        self._check_limits()
-        
+
         # if the status changed, we reset the key event, otherwise the key press
         # event will not change, if the user did the last change with keyboard shortcut
         # This is caused, because we record the last key event to avoid multiple key
@@ -3334,6 +3331,26 @@ class gmoccapy(object):
             self.command.mdi("G43")
             self.command.wait_complete()
 
+    def _set_enable_tooltips(self, value):
+        print("_set_enable_tooltips = ", value)
+        # this will hide the tooltips from the glade file widgets,
+        # but not from the ones we created dynamically
+        for widget in self.widgets_with_tooltips:
+            widget.set_has_tooltip(value)
+        # the dynamicaly created widgets are in ordert in dictionarys
+        # self.joints_button_dic (only in non trivial kinematics)
+        # self.ref_button_dic
+        # self.touch_button_dic
+        # self.jog_button_dic
+        # self.macro_dic
+        dictionaries = (self.ref_button_dic, self.touch_button_dic,
+                        self.jog_button_dic, self.macro_dic)
+        if not self.trivial_kinematics:
+            dictionaries.append(self.joints_button_dic)
+        for dict in dictionaries:
+            for widget in dict:
+                dict[widget].set_has_tooltip(value)
+
 # helpers functions end
 # =========================================================
 
@@ -3624,23 +3641,11 @@ class gmoccapy(object):
 # The homing functions
 # =========================================================
 
-    def _check_limits(self):
-        for axis in self.axis_list:
-            axisnumber = "xyzabcuvw".index(axis)
-            if self.stat.limit[axisnumber] != 0:
-                return True
-        if self.widgets.chk_ignore_limits.get_active():
-            self.widgets.chk_ignore_limits.set_active(False)
-        return False
-
     def _ignore_limits(self, pin):
         self.widgets.chk_ignore_limits.set_active(pin.get())
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
-            if not self._check_limits():
-                self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
-                return
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
@@ -4286,6 +4291,12 @@ class gmoccapy(object):
         self.homed_color = self.prefs.getpref("homed_color", "green", str)
         self.unhomed_color = self.prefs.getpref("unhomed_color", "red", str)
 
+    def on_chk_hide_tooltips_toggled(self, widget, data=None):
+        print("hide tooltips toggled")
+        self.hide_tooltips = widget.get_active()
+        self.prefs.putpref("hide_tooltips", self.hide_tooltips)
+        self._set_enable_tooltips(not self.hide_tooltips)
+
     def on_rel_colorbutton_color_set(self, widget):
         color = widget.get_color()
         self.prefs.putpref('rel_color', color)
@@ -4843,6 +4854,7 @@ class gmoccapy(object):
             self.jv_counts = self.ro_counts = counts
 
     def _on_analog_enable_changed(self, pin, widget):
+        print(pin, widget)
         if not self.initialized:
             return
         if widget == "spc_spindle":
@@ -4858,7 +4870,7 @@ class gmoccapy(object):
         # widget can also be spc_lin_jog_vel and spc_rapid
         self.widgets[widget].hide_button(pin.get())
         
-        if pin.get():
+        if pin.get() and widget == "spc_lin_jog_vel":
             # special case of jog_vel, as we have to take care of both modes,
             # more details see _on_analog_value_changed
             if self.widgets.tbtn_turtle_jog.get_active():
