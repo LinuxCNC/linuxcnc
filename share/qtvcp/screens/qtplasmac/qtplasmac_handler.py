@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.10'
+VERSION = '0.9.11'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -125,7 +125,7 @@ class HandlerClass:
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show']
+        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
@@ -696,8 +696,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
-        self.w.height_lower.setEnabled(False)
-        self.w.height_raise.setEnabled(False)
         self.w.main_tab_widget.setTabEnabled(1, True)
         ACTION.SET_MANUAL_MODE()
 
@@ -2754,7 +2752,6 @@ class HandlerClass:
                     self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
                     return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
-        self.w.conv_send.setEnabled(True)
 
     def conv_array_pressed(self):
         with open(self.fNgc) as inFile:
@@ -2771,7 +2768,6 @@ class HandlerClass:
                 else:
                     self.arrayMode = 'external'
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
-        self.w.conv_send.setEnabled(True)
 
     def conv_shape_request(self, shape, module, material):
 # TEMP FOR TESTING
