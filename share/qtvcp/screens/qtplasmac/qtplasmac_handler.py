@@ -44,7 +44,7 @@ from qtvcp.lib.conversational import conv_sector as CONVSECT
 from qtvcp.lib.conversational import conv_rotate as CONVROTA
 from qtvcp.lib.conversational import conv_array as CONVARAY
 
-VERSION = '0.9.9'
+VERSION = '0.9.10'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -165,6 +165,7 @@ class HandlerClass:
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
         self.dialogError = False
         self.cutTypeText = ''
+        self.height_ovr = 0.0
 
     def initialized__(self):
         self.init_preferences()
@@ -334,6 +335,7 @@ class HandlerClass:
 # SPECIAL FUNCTIONS SECTION #
 #################################################################################################################################
     def link_hal_pins(self):
+        self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -402,6 +404,8 @@ class HandlerClass:
         #offsets
         CALL(['halcmd', 'net','plasmac:x-offset-current','qtplasmac.x_offset'])
         CALL(['halcmd', 'net','plasmac:y-offset-current','qtplasmac.y_offset'])
+        #override
+        CALL(['halcmd', 'net','plasmac:height-override','qtplasmac.height_override-f','plasmac.height-override'])
         #ini
         CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
@@ -552,6 +556,9 @@ class HandlerClass:
                 self.dialog_error('INI FILE ERROR', msg)
 
     def closing_cleanup__(self):
+        # disconnect powermax
+        self.w.pmx485_enable.setChecked(False)
+        # save preferences
         if not self.w.PREFS_: return
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
@@ -689,6 +696,8 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
+        self.w.height_lower.setEnabled(False)
+        self.w.height_raise.setEnabled(False)
         self.w.main_tab_widget.setTabEnabled(1, True)
         ACTION.SET_MANUAL_MODE()
 
@@ -706,6 +715,8 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         self.w.run.setEnabled(False)
         self.w.abort.setEnabled(True)
+        self.w.height_lower.setEnabled(True)
+        self.w.height_raise.setEnabled(True)
         if STATUS.is_auto_mode() and self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
@@ -763,6 +774,13 @@ class HandlerClass:
                 self.w.pmx485_label.setText('COMMS ERROR')
             else:
                 self.w.pmx485_label.setText('')
+        if self.height_ovr > 0.01 or self.height_ovr < -0.01:
+            if QColor(self.w.height_ovr_label.palette().color(QPalette.Foreground)).name() == self.foreColor:
+                self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.backColor))
+            else:
+                self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
+        else:
+            self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
 
     def percent_loaded(self, object, percent):
         if percent < 1:
@@ -854,6 +872,13 @@ class HandlerClass:
 
     def user_button_released(self, button):
         self.user_button_up(button)
+
+    def height_ovr_pressed(self, height):
+        self.height_ovr += height
+        if self.height_ovr < -9.9 :self.height_ovr = -9.9
+        if self.height_ovr > 9.9 :self.height_ovr = 9.9
+        self.h['height_override'] = self.height_ovr
+        self.w.height_ovr_label.setText('{:.1f}'.format(self.height_ovr))
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -1098,6 +1123,8 @@ class HandlerClass:
         self.w.material_change_timeout.hal_pin_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
         self.w.material_reload.hal_pin_changed.connect(lambda w:self.material_reload_pin_changed(w))
         self.w.material_temp.hal_pin_changed.connect(lambda w:self.material_temp_pin_changed(w))
+        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-0.1))
+        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(0.1))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
         self.w.button_1.released.connect(lambda:self.user_button_released(1))
         self.w.button_2.pressed.connect(lambda:self.user_button_pressed(2))
@@ -3013,13 +3040,10 @@ class HandlerClass:
 
     def on_keycall_F9(self,event,state,shift,cntrl):
         if state and not event.isAutoRepeat() and self.keyboard_shortcuts():
-            print('START A MANUAL CUT', state)
             if STATUS.is_spindle_on():
-                print('spindle was on')
                 ACTION.SET_SPINDLE_STOP(0)
             else:
-                print('spindle was off')
-                ACTION.SET_SPINDLE_ROTATION(1 ,1, 0)
+                ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
 
 ##################################################################################################################################
 # required class boiler code #
