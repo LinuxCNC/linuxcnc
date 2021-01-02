@@ -60,8 +60,8 @@ class GeneralHALOutput(QWidget, _HalWidgetBase):
         self.hal_pin_2.set(not bool(state))
 
     def _pin_value_update(self, state):
-        self.hal_pin.set(state * self._float_scale)
-        self.hal_pin_2.set(state * self._s32_scale)
+        self.hal_pin.set(state * self._s32_scale)
+        self.hal_pin_2.set(state * self._float_scale)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
