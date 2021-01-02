@@ -232,6 +232,7 @@ def widgets(P, W):
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     #starting parameters
+    W.conv_send.setEnabled(False)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
     W.cnEntry.setText('1')

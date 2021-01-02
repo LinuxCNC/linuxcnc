@@ -30,21 +30,21 @@ from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
 from qtvcp.widgets.simple_widgets import DoubleScale as PARAMETER
 
-from qtvcp.lib.conversational import conv_settings as CONVSET
-from qtvcp.lib.conversational import conv_circle as CONVCIRC
-from qtvcp.lib.conversational import conv_line as CONVLINE
-from qtvcp.lib.conversational import conv_triangle as CONVTRIA
-from qtvcp.lib.conversational import conv_rectangle as CONVRECT
-from qtvcp.lib.conversational import conv_polygon as CONVPOLY
-from qtvcp.lib.conversational import conv_bolt as CONVBOLT
-from qtvcp.lib.conversational import conv_slot as CONVSLOT
-from qtvcp.lib.conversational import conv_star as CONVSTAR
-from qtvcp.lib.conversational import conv_gusset as CONVGUST
-from qtvcp.lib.conversational import conv_sector as CONVSECT
-from qtvcp.lib.conversational import conv_rotate as CONVROTA
-from qtvcp.lib.conversational import conv_array as CONVARAY
+from qtvcp.lib.qtplasmac import conv_settings as CONVSET
+from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
+from qtvcp.lib.qtplasmac import conv_line as CONVLINE
+from qtvcp.lib.qtplasmac import conv_triangle as CONVTRIA
+from qtvcp.lib.qtplasmac import conv_rectangle as CONVRECT
+from qtvcp.lib.qtplasmac import conv_polygon as CONVPOLY
+from qtvcp.lib.qtplasmac import conv_bolt as CONVBOLT
+from qtvcp.lib.qtplasmac import conv_slot as CONVSLOT
+from qtvcp.lib.qtplasmac import conv_star as CONVSTAR
+from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
+from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
+from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
+from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.11'
+VERSION = '0.9.12'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -405,7 +405,7 @@ class HandlerClass:
         CALL(['halcmd', 'net','plasmac:x-offset-current','qtplasmac.x_offset'])
         CALL(['halcmd', 'net','plasmac:y-offset-current','qtplasmac.y_offset'])
         #override
-        CALL(['halcmd', 'net','plasmac:height-override','qtplasmac.height_override-f','plasmac.height-override'])
+        CALL(['halcmd', 'net','plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
         #ini
         CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
@@ -2771,7 +2771,7 @@ class HandlerClass:
 
     def conv_shape_request(self, shape, module, material):
 # TEMP FOR TESTING
-        reload(module)
+#        reload(module)
 
         if material:
             self.w.conv_material.show()
