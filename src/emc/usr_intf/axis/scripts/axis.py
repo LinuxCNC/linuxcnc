@@ -744,12 +744,12 @@ class LivePlotter:
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
                 comp["error"] = True
+                time.sleep(0.3)
             else:
                 icon = "info"
             notifications.add(icon, text)
             error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
-        time.sleep(0.3)
         comp["error"] = False 
 
     def update(self):
