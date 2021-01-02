@@ -30,7 +30,6 @@ The PlasmaC component should run on any hardware that is supported by LinuxCNC p
 If the user is new to CNC plasma cutting, it is recommended that they read the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
 
 NOTE: Except where noted, this guide assumes the user is using the latest version of PlasmaC. PlasmaC update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates Refer to <<plasmac-version, PlasmaC Version>> to see the current PlasmaC version in the Config Panel. If the Version Number is not present, the user's version of PlasmaC is before v0.121. See <<update-plasmac, Update PlasmaC>> for information on updating PlasmaC.
-[[plasmac-mode]]
 
 == Installing LinuxCNC
 
@@ -114,7 +113,9 @@ CAUTION: DO *NOT* CONTINUE UNTIL THE BASE MACHINE IS CONFIGURED AND WORKING.
 
 == Plasma Specific I/O Considerations
 
-Prior to starting a plasma configuration, it is important that the user has a firm understanding of the operating modes available, as well as the I/O's that are required for successful plasma operation.
+Prior to using the configurator, it is important that the user has a firm understanding of the operating modes available, as well as the I/O's that are required for successful plasma operation.
+
+[[plasmac-mode]]
 
 === Modes
 
@@ -2532,7 +2533,7 @@ setp plasmac.kerf-error-max 3
 
 === Lost Arc Delay
 
-Some plasma power sources/machine configurations may lose the Arc OK signal either momentarily during a cut, or permanently near the end of a cut causing PlasmaC to pause the program and report a "valid arc lost" error. There is a HAL pin named *plasmac.arc-lost-delay* that may be used to set a delay (in seconds) that will prevent a paused program/error if the lost Arc OK signal is regained, or the *M5* command is reached before the set delay period expires.
+Some plasma power sources/machine configurations may lose the Arc OK signal either momentarily during a cut, or permanently near the end of a cut causing PlasmaC to pause the program and report a "valid arc lost" error. There is a HAL pin named *plasmac.arc-lost-delay* that may be used to set a delay (in seconds) that will prevent a paused program/error if the lost Arc OK signal is regained, or the *M5* command is reached before the set delay period expires. It is important to note that the THC will be disabled and locked at the cutting height at the time the Arc OK signal was lost.
 
 The following code would set a delay of 0.1 seconds:
 
