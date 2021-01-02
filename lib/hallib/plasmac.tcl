@@ -4,7 +4,7 @@
 loadrt  plasmac
 addf    plasmac  servo-thread
 
-# COMPONEMT INPUTS ###########################################################
+# COMPONENT INPUTS ###########################################################
 net plasmac:arc-ok                  db_arc-ok.out               =>  plasmac.arc-ok-in
 net plasmac:axis-x-position         axis.x.pos-cmd              =>  plasmac.axis-x-position
 net plasmac:axis-y-position         axis.y.pos-cmd              =>  plasmac.axis-y-position

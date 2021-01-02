@@ -36,6 +36,7 @@ def accept(P, W):
     W.conv_preview.load(P.fNgc)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
+    W.conv_send.setEnabled(True)
 
 def preview(P, W):
     if P.dialogError: return

@@ -38,6 +38,7 @@ def accept(P, W):
     W.conv_preview.set_current_view()
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
+    W.conv_send.setEnabled(True)
 
 def preview(P, W):
     if P.dialogError: return

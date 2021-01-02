@@ -2653,7 +2653,10 @@ class HandlerClass:
         self.oSaved = self.origin
         if not self.oldConvButton:
             self.conv_shape_request('conv_line', CONVLINE, True)
-        self.w.conv_new.setEnabled(True)
+        if self.oldConvButton == 'conv_array' or self.oldConvButton == 'conv_rotate':
+            self.w.conv_new.setEnabled(False)
+        else:
+            self.w.conv_new.setEnabled(True)
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
         self.w.conv_settings.setEnabled(True)
@@ -2746,6 +2749,7 @@ class HandlerClass:
     def conv_shape_request(self, shape, module, material):
 # TEMP FOR TESTING
         reload(module)
+
         if material:
             self.w.conv_material.show()
         else:
