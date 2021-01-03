@@ -422,6 +422,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             ACTION.RUN(line = self._run_from_line_int)
         elif self.abort:
             ACTION.ABORT()
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR, 'Abort Requested')
         elif self.pause:
             ACTION.PAUSE()
         elif self.step:
