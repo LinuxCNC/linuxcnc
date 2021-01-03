@@ -8,12 +8,11 @@ import select
 import math
 import linuxcnc
 from qtvcp.core import Status, Action
-from qtvcp import logger
-LOG = logger.getLogger(__name__)
+
 ACTION = Action()
 STATUS = Status()
 
-class ProbeRoutines():
+class ProbeRoutines(object):
     def __init__(self):
         pass
 
@@ -112,29 +111,33 @@ class ProbeRoutines():
         s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
         if self.CALL_MDI_WAIT(s, 30) == -1: return -1
 
+    def discard_input(self, stream=sys.stdin):
+        while stream in select.select([stream], [], [], 0)[0]:
+            stream.readline()
+
     def CALL_MDI_WAIT(self, code, timeout = 5):
-        LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, timeout))
+        self._LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, timeout))
+
         for l in code.split("\n"):
-            #LOG.debug('MDI_wait COMMAND: {}'.format(l))
+            self._LOG.debug('MDI CALLED={}'.format(l))
+            self.discard_input()
             ACTION.CALL_MDI( l )
             result = ACTION.cmd.wait_complete(timeout)
-            #LOG.debug('MDI_COMMAND_WAIT result: {}'.format(result))
+
             if result == -1:
-                LOG.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( timeout, result))
                 #STATUS.emit('MDI time out error',)
                 ACTION.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                LOG.debug('MDI_COMMAND_WAIT RCS errorresult:()'.format( result))
                 #STATUS.emit('MDI time out error',)
+                sys.stderr.write("ERROR: found rcs error:{}".format(result))
                 ACTION.ABORT()
                 return -1
             try:
                 # give a chance for the error message to get to stdin
-                time.sleep(.1)
                 error = line = False
                 # no blocking if no error to read
-                while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                while sys.stdin in select.select([sys.stdin], [], [], .1)[0]:
                     line = sys.stdin.readline()
                 if line:
                     cmd = line.rstrip().split(' ')
@@ -142,15 +145,16 @@ class ProbeRoutines():
                 # check for abort state error
                 STATUS.stat.poll()
                 error = error or bool(STATUS.stat.state == 2)
+
             except Exception as e:
-                sys.stdout.write("[ERROR] Command exception: {}\n".format(e))
+                sys.stdout.write("[ERROR] Command exception: {} {}\n".format(e,line))
                 sys.stdout.flush()
                 ACTION.ABORT()
                 return -1
             if error:
                 if line is False:
                     line = 'Aborted command'
-                LOG.error('MDI_COMMAND_WAIT Error channel: {}'.format(line))
+                sys.stderr.write("ERROR: found error:{}".format(error))
                 ACTION.ABORT()
                 return -1
         return 0
@@ -1359,139 +1363,148 @@ class ProbeRoutines():
 # tool setter remap
 ###################################
 
-###### *********not converted yet
     # TOOL DIA
-    def tool_dia(self):
-        return 1
+    def probe_tool_diam(self):
         #gotots Oword conversion
-        ACTION.CALL_MDI("F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("G53 G1 Z[#<_ini[AXIS_2]MAX_LIMIT>]")
-        ACTION.CALL_MDI("G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
-        ACTION.CALL_MDI("G53 G1 Z[#<_ini[TOOLSENSOR]Z>]")
+        # move to toolsetter point probe top
+        c = "F{}\n".format(self.data_rapid_vel)
+        c += "G53 G1 Z[#<_ini[AXIS_z]MAX_LIMIT>-0.1]\n"
+        c += "G53 G1 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]\n"
+        c += "G53 G1 Z[#<_ini[TOOLSENSOR]Z>]\n"
+        c += "G91\n"
+        c += "F{}\n".format(self.data_search_vel)
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
 
-        ACTION.CALL_MDI("G91")
-        ACTION.CALL_MDI("F #<_hal[probe.ps_searchvel]>")
         c = ("G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>")
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
-        ACTION.CALL_MDI("G1 Z[#<_hal[probe.ps_probe_latch]>] F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("F #<_hal[probe.ps_probevel]>")
-        ACTION.CALL_MDI("G4 P0.5")
-        c = ACTION.CALL_MDI("G38.2 Z[-#<_hal[probe.ps_probe_latch]>*2]")
+
+        c = "G1 Z{} F{}\n".format(self.data_latch_return_dist,self.data_rapid_vel)
+        c += "F{}\n".format(self.data_probe_vel)
+        c += "G4 P0.5\n"
+        c += "G38.2 Z{}\n".format(2*-self.data_latch_return_dist)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
-        ACTION.CALL_MDI("G1 Z4 F#<_ini[TOOLSENSOR]RAPID_SPEED>")
-        ACTION.CALL_MDI("G90")
-        return 1
+
+        if INFO.MACHINE_IS_METRIC:
+            ACTION.CALL_MDI("G1 Z4 F{}".format(self.data_rapid_vel))
+        else:
+            ACTION.CALL_MDI("G1 Z0.2 F{}".format(self.data_rapid_vel))
+
+ 
+
 
         # move X - edge_lenght- xy_clearance
         s="""G91
         G1 X-%f
-        G90""" % (0.5 * self.tsdiam + self.spbtn1_xy_clearance.get_value())
-        if self.gcode(s) == -1:
-            return
+        G90""" % (0.5 * self.ts_diam + self.data_xy_clearance)
+        if self.CALL_MDI_WAIT(s, 30) == -1:
+            return -1
         if self.z_clearance_down() == -1:
-            return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
-            return
+            return -1
+        if self.probe('xplus') == -1:
+            return "Tool Setter Diameter search X+ failed"
         # show X result
-        a=self.probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.spbtn1_probe_diam.get_value()
-#        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        a=STATUS.get_probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.data_probe_diam
+        self.status_xp = float(xpres)
         # move Z to start point up
         if self.z_clearance_up() == -1:
-            return
+            return -1
         # move to finded  point X
         s = "G1 X%f" % xpres
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1:
+            return -1
+
+
 
         # move X + tsdiam +  xy_clearance
-        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        aa=self.ts_diam+self.data_xy_clearance
         s="""G91
         G1 X%f
         G90""" % (aa)
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1:
+            return -1
         if self.z_clearance_down() == -1:
-            return
+            return -1
         # Start xminus.ngc
-
-        if self.ocode ("O<xminus> call") == -1:
-            return
+        if self.probe ("xminus") == -1:
+            return "Tool Setter Diameter search X- failed"
         # show X result
-        a=self.probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.spbtn1_probe_diam.get_value()
-#        self.lb_probe_xm.set_text( "%.4f" % xmres )
-        self.lenght_x()
+        a=STATUS.get_probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.data_probe_diam
+        self.length_x()
         xcres=0.5*(xpres+xmres)
-        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        self.status_xc = float(xcres)
         # move Z to start point up
         if self.z_clearance_up() == -1:
-            return
+            return -1
         # go to the new center of X
         s = "G1 X%f" % xcres
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s) == -1:
+            return -1
 
 
         # move Y - tsdiam/2 - xy_clearance
-        a=0.5*self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        a=0.5*self.ts_diam+self.data_xy_clearance
         s="""G91
         G1 Y-%f
         G90""" % a
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s) == -1:
+            return -1
         if self.z_clearance_down() == -1:
-            return
+            return -1
         # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
-            return
+        if self.probe ("yplus") == -1:
+            return -1
         # show Y result
-        a=self.probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
+        a=STATUS.get_probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.data_probe_diam
 #        self.lb_probe_yp.set_text( "%.4f" % ypres )
         # move Z to start point up
         if self.z_clearance_up() == -1:
-            return
+            return -1
         # move to finded  point Y
         s = "G1 Y%f" % ypres
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s) == -1:
+            return -1
 
         # move Y + tsdiam +  xy_clearance
-        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        aa=self.ts_diam+self.data_xy_clearance
         s="""G91
         G1 Y%f
         G90""" % (aa)
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s) == -1:
+            return -1
         if self.z_clearance_down() == -1:
-            return
+            return -1
         # Start xminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
-            return
+        if self.probe("yminus") == -1:
+            return -1
         # show Y result
-        a=self.probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
+        a=STATUS.get_probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.data_probe_diam
 #        self.lb_probe_ym.set_text( "%.4f" % ymres )
-        self.lenght_y()
+        self.length_y()
         # find, show and move to finded  point
         ycres=0.5*(ypres+ymres)
-        self.lb_probe_yc.set_text( "%.4f" % ycres )
-        diam=self.spbtn1_probe_diam.get_value() + (ymres-ypres-self.tsdiam)
+        self.status_yc = float(ycres)
+        sys.stderr.write("DEBUG: probed diameter variables :{}\n".format((self.data_probe_diam,ymres,ypres,self.ts_diam)))
+        diam=self.data_probe_diam + (ymres-ypres-self.ts_diam)
+        self.status_d = float(diam)
 
-        self.lb_probe_d.set_text( "%.4f" % diam )
         # move Z to start point up
         if self.z_clearance_up() == -1:
-            return
-        self.stat.poll()
-        tmpz=self.stat.position[2] - 4
-        self.add_history(gtkbutton.get_tooltip_text(),"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
+            return -1
+        STATUS.stat.poll()
+        tmpz=STATUS.stat.position[2] - 4
+        self.add_history('probe tool diameter ',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
+
         # move to finded  point
         s = "G1 Y%f" % ycres
-        if self.gcode(s) == -1:
-            return
+        if self.CALL_MDI_WAIT(s) == -1:
+            return -1
 
+        # return all good
+        return 1
 
     def probe_toolsetter(self):
         # probe_down oword conversion
@@ -1521,7 +1534,6 @@ class ProbeRoutines():
         a=STATUS.get_probed_position_with_offsets()
         self.status_ts = float(a[2])
 
-        LOG.debug('Tool Setter Height: {}'.format( float(a[2])))
         self.add_history('Probe Tool Setter ',"Ts", ts=float(a[2]))
  
         # return all good
@@ -1529,7 +1541,6 @@ class ProbeRoutines():
 
     def probe_workpiece(self):
         # block_probe oword conversion
-        metric = False
  
         ACTION.CALL_MDI("G49")
         ACTION.CALL_MDI("G92.1")
@@ -1550,7 +1561,7 @@ class ProbeRoutines():
         c = ("G38.2 Z{}".format(2*-self.data_latch_return_dist))
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G1 Z{} F{}".format(self.data_max_travel, self.data_search_vel))
-        if metric:
+        if INFO.MACHINE_IS_METRIC:
             ACTION.CALL_MDI("G1 Z4 F{}".format(self.data_rapid_vel))
         else:
             ACTION.CALL_MDI("G1 Z0.2 F{}".format(self.data_rapid_vel))
@@ -1563,7 +1574,6 @@ class ProbeRoutines():
         # set param for possible use in probe_tool_m6 remap
         ACTION.CALL_MDI('#5000 = {}'.format(float(a[2])))
 
-        LOG.debug('block height: {}'.format( float(a[2])))
         self.add_history('probe workpiece ',"Bh",bh=float(a[2]))
 
         # return all good
