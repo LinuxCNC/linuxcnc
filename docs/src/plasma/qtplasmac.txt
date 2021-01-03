@@ -1,6 +1,6 @@
-[[cha:qtplasmac-user-guide]]
+[[cha:qtplasmac]]
 
-= QtPlasmaC User Guide
+= QtPlasmaC
 :toc:
 :toclevels: 5
 :figure-caption!:
@@ -11,7 +11,7 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a GUI for plasma cutting which uses the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
+QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
 
 * 16:9 with a minimum resolution of 1366 x 768
 * 9:16 with a minimum resolution of 768 x 1366
@@ -47,9 +47,9 @@ Following these instructions will yield a machine with the current stable branch
 
 === Package Installation If The User Has Linux with LinuxCNC v2.8
 
-Instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
+A package installation uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
 
-Following these instructions by using the below stanzas will upgrade the machine to the last Buildbot build master branch (v2.9) of LinuxCNC. This may not always be the latest version of master branch (v2.9) as from time to time the Buildbot may stop due to errors.
+Following these instructions by using the below stanzas will upgrade the machine to the last LinuxCNC Buildbot build master branch (v2.9) of LinuxCNC. This may not always be the latest version of master branch (v2.9) as from time to time the LinuxCNC Buildbot may stop due to errors.
 
 ----
 deb     http://buildbot.linuxcnc.org/ buster master-rtpreempt
@@ -58,7 +58,7 @@ deb-src http://buildbot.linuxcnc.org/ buster master-rtpreempt
 
 === Run In Place Installation If The User Has Linux with LinuxCNC v2.8
 
-Instructions for building a run in place installation are available at: http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html
+A run in place installation run LinuxCNC from a compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html
 
 Following these instructions will install the latest master branch (v2.9) of LinuxCNC.
 
@@ -215,25 +215,30 @@ NOTE: If the user is using a *Mesa Electronics THCAD* card for arc voltage measu
 
 Installing a plasma configuration to a base machine and changing to the QtPlasmaC GUI is done via the qtplasmac-setup program.
 
-Enter the following command into a terminal window:
+For a package installation enter the following command in a terminal window:
 
 ----
 qtplasmac-setup
 ----
 
-IMPORTANT: If the installation type is run in place then the rip-environment script will need to be run prior to running the qtplasmac-setup program.
+For a run in place installation enter the following two commands in a terminal window:
 
-=== Configure
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-setup
+----
 
-The selection window is now visible UPDATE-ME:
+=== Setup
 
-//IMAGE NEEDED HERE FIXME
+The selection window is now visible:
+
+image::images/qtplasmac_setup_main.png[width=25%]
 
 Select *New* from the selection window, this will show an info dialog, select *Continue* and the New Configuration window will display.
 
 NOTE: There will be different fields visible depending on the mode selected.
 
-//IMAGE NEEDED HERE FIXME
+image::images/qtplasmac_setup_new.png[width=50%]
 
 [[qtplasmac-setup-table]]
 
@@ -243,51 +248,61 @@ HAL connection examples in the following table show examples for both a parallel
 |===
 |*Field*|*Description*|*Examples*
 |Machine Name|The new name for the machine. This will create a ~/linuxcnc/<machine_name> directory and a <machine_name>.ini file. +
-			 "<machine_name>" describes the name entered into this field|plasma_table.ini.
+              "<machine_name>" describes the name entered into this field|plasma_table.ini.
 |INI File|This is the .ini file that was created as a result of making a working and tested base machine configuration.|base.ini
 |HAL File|This is the .hal file that was created as a result of making a working and tested base machine configuration.|base.hal
+|Aspect Ratio|Select the aspect ratio of the monitor to load the correct GUI|16:9 
 |Mode|Select the required mode based on the following criteria: +
       0 - If using an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK. +
       1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
       2 - If using both an external Arc OK input for Arc OK and an external up/down signals for Torch Height Control.|1
 |Arc Voltage|Required for Modes 0 and 1 only. +
              Refers to the input HAL pin the arc voltage signal to is connected to.|*Parallel Port Example:*  encoder.0.velocity +
-                                                                       *Mesa 7i96 Example:*  hm2_7i96.0.encoder.00.velocity
+                                                                                    *Mesa 7i96 Example:*  hm2_7i96.0.encoder.00.velocity
 |Torch On|Required for All modes. +
-			 Refers to the output HAL pin the torch on signal is connected to.|*Parallel Port Example:*  parport.0.pin-16-out +
-                                                          *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-00
+          Refers to the output HAL pin the torch on signal is connected to.|*Parallel Port Example:*  parport.0.pin-16-out +
+                                                                               *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-00
 |Arc OK|Required for Modes 1 and 2 only. +
         Refers to the input HAL pin the Arc OK signal is connected to.|*Parallel Port Example:*  parport.0.pin-10-in-not +
-                                                             *Mesa 7i96 Example:*  hm2_7i96.0.gpio.008.in
+                                                                       *Mesa 7i96 Example:*  hm2_7i96.0.gpio.008.in
 |Ohmic Probe|Required if using an ohmic probe. +
              Refers to the input HAL pin the ohmic probe signal is connected to.|*Parallel Port Example:*  parport.0.pin-11-in +
-                                                                *Mesa 7i96 Example:*  hm2_7i96.0.gpio.007.in
+                                                                                 *Mesa 7i96 Example:*  hm2_7i96.0.gpio.007.in
 |Ohmic Probe Enable|Required if using an ohmic probe. +
                     Refers to the output HAL pin the ohmic probe enable signal is connected to.|*Parallel Port Example:*  parport.1.pin-01-out +
-                                                                              *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-01
+                                                                                                *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-01
 |Float Switch|Required if using a float switch. +
               Refers to the input HAL pin the float switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-12-in +
-                                                                  *Mesa 7i96 Example:*  hm2_7i96.0.gpio.006.in
+                                                                                   *Mesa 7i96 Example:*  hm2_7i96.0.gpio.006.in
 |Breakaway Switch|Required if using a breakaway switch. +
                   Refers to the input HAL pin the breakaway switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-13-in +
-                                                                          *Mesa 7i96 Example:*  hm2_7i96.0.gpio.005.in
+                                                                                           *Mesa 7i96 Example:*  hm2_7i96.0.gpio.005.in
 |Move Up|Required for Mode 2 only. +
          Refers to the input HAL pin the move up signal is connected to.|*Parallel Port Example:*  parport.1.pin-10-in +
-                                                               *Mesa 7i96 Example:*  hm2_7i96.0.gpio.004.in
+                                                                         *Mesa 7i96 Example:*  hm2_7i96.0.gpio.004.in
 |Move Down|Required for Mode 2 only. +
            Refers to the input HAL pin the move down signal is connected to.|*Parallel Port Example:*  parport.1.pin-11-in +
-                                                                   *Mesa 7i96 Example:*  hm2_7i96.0.gpio.003.in
-|Run Panel|Run Tab - Selecting this option places the PlasmaC run frame in a tab behind the preview tab. +
-           Run Panel - Selecting this option places the PlasmaC run frame in a panel at the side of the GUI. +
-           See <<run-panel, Run Panel>> for an example of each.|Run Tab
+                                                                             *Mesa 7i96 Example:*  hm2_7i96.0.gpio.003.in
 |Scribe Arming|Required if using a scribe. +
                Refers to the the output HAL pin the scribe arming mechanism is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
-                                             *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-02
+                                                                                             *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-02
 |Scribe On|Required if using a scribe. +
-              Refers to the output HAL pin the scribe power source is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
-                                                *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-03
+           Refers to the output HAL pin the scribe power source is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
+                                                                                    *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-03
 |PowerMax Comms|Required if using PowerMax serial communications. +
                 Refers to the serial port to be used for communications.|/dev/ttyUSB0
+|Laser X:|Required if using a laser crosshair for sheet alignment. +
+          Refers to the X axis offset from the torch center.|*Metric Example:*  54.7 +
+                                                             *Imperial Example:*  2.15
+|Laser Y:|Required if using a laser crosshair for sheet alignment. +
+          Refers to the Y axis offset from the torch center.|*Metric Example:*  26.3 +
+                                                             *Imperial Example:*  1.03
+|Camera X:|Required if using a camera for sheet alignment. +
+           Refers to the X axis offset from the torch center.|*Metric Example:*  -54.7 +
+                                                             *Imperial Example:*  -2.15
+|Camera Y:|Required if using a camera for sheet alignment. +
+           Refers to the Y axis offset from the torch center.|*Metric Example:*  -54.7 +
+                                                             *Imperial Example:*  -2.15
 |===
 
 NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC for the base machine and run *HalShow* for a full listing of all HAL pins.
@@ -310,7 +325,7 @@ After running the command at the end of section 5.1, LinuxCNC should be running 
 
 Click on the Parameters tab to view the user settable parameters and ensure every one of these is tailored to the machine.
 
-See <<config-panel, Config Panel>>
+//See <<config-panel, Config Panel>> FIXME point to parameters tab
 
 . The user should be familiar with the recommended <<z_settings, Z Axis Settings>>
 
@@ -347,34 +362,23 @@ CAUTION: PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED I
 
 [[modify-config]]
 
-//// FIXME
 === Reconfigure An Existing QtPlasmaC Configuration
 
 The qtplasmac-setup program may also be used to reconfigure an existing QtPlasmaC configuration to change settings instead of modifying files manually.
 
-The qtplasmac-setup program is only able to modify:
+The qtplasmac-setup program cannot modify the following:
 
-* The HAL pins connecting QtPlasmaC to the machine.
-* The mode used by QtPlasmaC.
-* The position of the Run Panel in the GUI.
+* The machine name.
+* The machine HAL file.
+* The machine INI file.
 
-Reconfiguring a QtPlasmaC configuration is done from the qtplasmac-setup program which is located in the configuration directory.
+Reconfiguring a QtPlasmaC configuration is done from the <<qtplasmac-setup, qtplasmac-setup>> program.
 
-It is recommended that a <<plasmac-backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
+It is highly recommended that a <<plasmac-backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
-To start the qtplasmac-setup program enter the following command into a terminal window:
+After starting qtplasmac-setup the selection window is visible, select *Reconfigure* which shows an information dialog, select *Continue* and the Reconfigure window will display:
 
-----
-qtplasmac-setup
-----
-
-The selection window is now visible:
-
-//IMAGE REQUIRED FIXME
-
-Select *Reconfigure* from the selection window, this shows an info dialog, select *Continue* and the Reconfigure window will display:
-
-//IMAGE REQUIRED FIXME
+image::images/qtplasmac_setup_reconfigure.png[width=50%]
 
 Select the <machine_name>.ini file of the QtPlasmaC configuration to reconfigure.
 
@@ -384,7 +388,7 @@ When all entries are correct, click *Reconfigure* and the user's QtPlasmaC confi
 
 Entry descriptions can be found <<qtplasmac-setup-table, here>>
 
-NOTE: Machine Name and <machine_name>.hal File can not be modified.////
+NOTE: Machine Name and <machine_name>.hal File can not be modified.
 
 == Other QtPlasmaC Setup Considerations
 
