@@ -33,13 +33,14 @@ from qtvcp.widgets.probe_routines import ProbeRoutines
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
-LOG = logger.getLogger(__name__)
 
+# Set the name and debug level of this subprogram - it's different then qtvcp
+LOG = logger.initBaseLogger('Probe Subprogram', log_file=None, log_level=logger.DEBUG)
 
 class ProbeSubprog(QObject, ProbeRoutines):
     def __init__(self):
-        QObject.__init__(self)
-        ProbeRoutines.__init__(self)
+        super(ProbeSubprog, self).__init__()
+        self._LOG = LOG
         self.send_dict = {}
         self.error_status = None
         self.PID = None
@@ -89,6 +90,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_adj_angle = 0.0
         self.tool_probe_height = 0.0
         self.tool_block_height = 0.0
+        self.ts_diam = float(INFO.INI.find('TOOLSENSOR', 'TS_DIAMETER')) or None
         # BasicProbe exclusive
         self.data_x_hint_bp = 0.0
         self.data_y_hint_bp = 0.0
@@ -134,11 +136,19 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 line = None
                 try:
                     error = self.process_command(cmd)
-    # a successfully completed command will return 1 - None means ignore - anything else is an error
+
+                    # a successfully completed command will return 1
+                    # None means ignore
+                    # a string is an error message to send back to main program
+                    # anything else sends a generic error message
                     if error is not None:
                         if error != 1:
                             ACTION.ABORT()
-                            sys.stdout.write("ERROR Probe routine returned with error\n")
+                            if isinstance(error, str):
+                                sys.stderr.write("ERROR Probe routine: {}\n".format(error))
+                            else:
+                                sys.stderr.write("ERROR Probe routine {} returned with error \n".format(cmd[0]))
+                            sys.stderr.flush()
                         else:
                             ACTION.cmd.wait_complete()
                             self.collect_status()
@@ -148,26 +158,25 @@ class ProbeSubprog(QObject, ProbeRoutines):
                                 time.sleep(0.1)
                                 sys.stdout.write("HISTORY {}\n".format(self.history_log))
                                 self.history_log = ""
-                        sys.stdout.flush()
+                            sys.stdout.flush()
                 except Exception as e:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     formatted_lines = traceback.format_exc().splitlines()
                     traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                    sys.stdout.write("ERROR Command Error: {}\n Raw CMD:{}\n".format(e,formatted_lines))
-                    sys.stdout.flush()
+                    sys.stderr.write("ERROR Command Error: {}\n Raw CMD:{}\n".format(e,formatted_lines))
+                    sys.stderr.flush()
             if self.PID is not None:
                 if not self.check_pid(self.PID):
-#                    sys.exit(0)
-                    self.terminate()
+                    break
+        sys.exit(0)
+
     # check for an error messsage was sent to us or
     # check that the command is actually a method in our class else
     # this message isn't for us - ignore it
     def process_command(self, cmd):
         cmd = cmd.rstrip().split('$')
-        print 'got command:',cmd
         if cmd[0] == '_ErroR_':
-            self.process_error(cmd[1])
-            return None
+            return self.process_error(cmd[1])
         elif cmd[0] in dir(self):
             if not STATUS.is_on_and_idle(): return None
             parms = json.loads(cmd[1])
@@ -180,7 +189,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
             self.PID = int(cmd[1])
             return None
         else:
-            return 0
+            return 'Command not recognised: {}'.format(cmd)
 
     def check_pid(self, pid):        
         try:
@@ -190,10 +199,12 @@ class ProbeSubprog(QObject, ProbeRoutines):
         else:
             return True
 
-    # This is not actually used anywhere right now
+    # An error message from main program was sent.
     def process_error(self, cmd):
         args = cmd.split(',')
         self.error_status = args
+        #ACTION.ABORT()
+        return None
 
     def update_data(self, parms):
         for key in parms:
@@ -214,7 +225,10 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_z_clearance += self.data_extra_depth
         # clear all previous probe results
         for i in (self.status_list):
-            self['status_' + i] = None
+            if i in ('ts','bh'):
+                self['status_' + i] = None
+            else:
+                self['status_' + i] = 0.0
 
     def collect_status(self):
         for key in self.status_list:
