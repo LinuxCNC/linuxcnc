@@ -296,7 +296,8 @@ class _Lcnc_Action(object):
             return
 
     def ABORT(self):
-        self.ensure_mode(linuxcnc.MODE_AUTO)
+        self.cmd.abort()
+        self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.abort()
 
     def PAUSE(self):
