@@ -23,7 +23,7 @@ import json
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 from PyQt5.QtCore import QProcess, QByteArray, QEvent
 
-from linuxcnc import MODE_MDI
+from linuxcnc import MODE_MDI, OPERATOR_ERROR
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -56,6 +56,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.critical(e)
         self._premode = None
         self.process_busy = False
+ 
         self.dialog_code = 'CALCULATOR'
         #create parameter dictionary
         self.send_dict = {}
@@ -116,7 +117,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(homed_on_test()))
-#        STATUS.connect('error', self.send_error)
+        STATUS.connect('error', self.send_error)
         STATUS.connect('periodic', lambda w: self.check_probe())
         STATUS.connect('general',self.return_value)
 
@@ -257,16 +258,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
         line = qba.data()
+        #print 'back: ()'.format( line)
         self.parse_input(line)
 
     def process_finished(self):
         print("Versa_Probe Process signals finished")
 
     def parse_input(self, line):
-        print line
-        self.process_busy = False
         if sys.version_info.major > 2:
             if bytes("ERROR" ,'utf-8') in line:
+                self.process_busy = False
                 print(line)
             elif bytes("DEBUG", 'utf-8') in line:
                 print(line)
@@ -277,6 +278,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 return_data = line.rstrip().split('$')
                 data = json.loads(return_data[1])
                 self.show_results(data)
+                self.process_busy = False
             elif bytes("HISTORY", 'utf-8') in line:
                 temp = line.strip('HISTORY$')
                 STATUS.emit('update-machine-log', temp, 'TIME')
@@ -286,7 +288,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         else:
             if "ERROR" in line:
-                print(line)
+                self.process_busy = False
+                STATUS.emit('error', OPERATOR_ERROR, line)
             elif "DEBUG" in line:
                 print(line)
             elif "INFO" in line:
@@ -296,8 +299,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 return_data = line.rstrip().split('$')
                 data = json.loads(return_data[1])
                 self.show_results(data)
+                self.process_busy = False
             elif "HISTORY" in line:
-                print(line)
                 temp = line.strip('HISTORY$')
                 STATUS.emit('update-machine-log', temp, 'TIME')
                 LOG.info("Probe history updated to machine log")
@@ -307,11 +310,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             ACTION.ensure_mode(self._premode)
 
     def send_error(self, w, kind, text):
-        message ='_ErroR_ {},{} \n'.format(kind,text)
-        if sys.version_info.major > 2:
-            self.proc.writeData(bytes(message, 'utf-8'))
-        else:
-            self.proc.writeData(message)
+        if self.process_busy:
+            message ={kind:text}
+            #ACTION.ABORT()
+            string_to_send = '_ErroR_$' + json.dumps(message) + '\n'
+            if sys.version_info.major > 2:
+                self.proc.writeData(bytes(string_to_send, 'utf-8'))
+            else:
+                self.proc.writeData(string_to_send)
 
 #####################################################
 # button callbacks
@@ -361,10 +367,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def show_results(self, line):
-        print 'results:', line
+        LOG.debug('results:{}'.format(line))
         for key in self.status_list:
             try:
-                self['status_' + key].setText()
+                self['status_' + key].setText(line[key])
             except:
                 if key == 'bh' and line.get(key) is not None:
                     self.input_tool_block_height.setText(line[key])
