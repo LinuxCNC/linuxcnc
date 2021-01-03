@@ -356,6 +356,8 @@ class Notification(Tkinter.Frame):
         button.configure(command=lambda: self.remove(widgets))
         frame.pack(side="top", anchor="e")
         self.widgets.append(widgets)
+        if iconname == "error":
+            comp["error"] = True
 
     def remove(self, widgets):
         self.widgets.remove(widgets)
@@ -366,6 +368,7 @@ class Notification(Tkinter.Frame):
             widgets[0].destroy()
         if len(self.widgets) == 0:
             self.place_forget()
+            comp["error"] = False
 
 def soft_limits():
     def fudge(x):
@@ -743,14 +746,11 @@ class LivePlotter:
             kind, text = error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
-                comp["error"] = True
-                time.sleep(0.3)
             else:
                 icon = "info"
             notifications.add(icon, text)
             error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
-        comp["error"] = False 
 
     def update(self):
         if not self.running.get():
