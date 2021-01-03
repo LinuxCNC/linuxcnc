@@ -709,7 +709,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/writer
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/writer/ext
-	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/conversational
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/qtplasmac
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_vismach
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/gcode_utility
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/plugins
@@ -735,7 +735,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/qtvcp/lib/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib
 	$(FILE) ../lib/python/qtvcp/lib/writer/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/writer
 	$(FILE) ../lib/python/qtvcp/lib/writer/ext/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/writer/ext
-	$(FILE) ../lib/python/qtvcp/lib/conversational/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/conversational
+	$(FILE) ../lib/python/qtvcp/lib/qtplasmac/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/qtplasmac
 	$(FILE) ../lib/python/qtvcp/lib/qt_vismach/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_vismach
 	$(FILE) ../lib/python/qtvcp/lib/gcode_utility/*.py ../lib/python/qtvcp/lib/gcode_utility/*.ui ../lib/python/qtvcp/lib/gcode_utility/*.txt $(DESTDIR)$(SITEPY)/qtvcp/lib/gcode_utility
 	$(FILE) ../lib/python/gmoccapy/*.py $(DESTDIR)$(SITEPY)/gmoccapy
