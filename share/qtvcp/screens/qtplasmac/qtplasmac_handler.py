@@ -22,7 +22,8 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
 from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
-from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
+#from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
+from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
 from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets import camview_widget as CAMWIDGET
@@ -44,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.12'
+VERSION = '0.9.13'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -592,15 +593,13 @@ class HandlerClass:
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
             flag = False
+            conversational = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
                     flag = True
                     break
-                if isinstance(receiver2, QtWidgets.QLineEdit):
-                    flag = True
-                    break
-                if isinstance(receiver2, MDI_WIDGET):
+                if isinstance(receiver2, MDI_LINE):
                     flag = True
                     break
                 if isinstance(receiver2, EDITOR):
@@ -609,10 +608,21 @@ class HandlerClass:
                 if isinstance(receiver2, PARAMETER):
                     flag = True
                     break
+                if self.w.main_tab_widget.currentIndex() == 1 and \
+                   (isinstance(receiver2, QtWidgets.QLineEdit) or \
+                   isinstance(receiver2, QtWidgets.QComboBox) or \
+                   isinstance(receiver2, QtWidgets.QPushButton) or \
+                   isinstance(receiver2, QtWidgets.QRadioButton)):
+                    conversational = True
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
             if flag:
                 if is_pressed:
-                    receiver.keyPressEvent(event)
+                    if conversational and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
+                        self.keyPressEvent(event)
+                    else:
+                        receiver.keyPressEvent(event)
                     event.accept()
                     return True
                 else:
@@ -2770,8 +2780,8 @@ class HandlerClass:
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
 
     def conv_shape_request(self, shape, module, material):
-# TEMP FOR TESTING
-#        reload(module)
+# TEMP TESTING
+        reload(module)
 
         if material:
             self.w.conv_material.show()

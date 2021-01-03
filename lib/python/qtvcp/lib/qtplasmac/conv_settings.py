@@ -157,3 +157,4 @@ def widgets(P, W):
     for w in bt:
         W[w].setFixedWidth(80)
         W[w].setFixedHeight(24)
+    W.preEntry.setFocus()

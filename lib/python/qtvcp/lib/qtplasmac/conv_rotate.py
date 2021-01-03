@@ -165,7 +165,6 @@ def widgets(P, W):
     W.xEntry.setText('0')
     W.yEntry.setText('0')
     P.conv_undo_shape()
-    W.aEntry.setFocus()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:accept(P, W))
@@ -201,3 +200,4 @@ def widgets(P, W):
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
+    W.aEntry.setFocus()

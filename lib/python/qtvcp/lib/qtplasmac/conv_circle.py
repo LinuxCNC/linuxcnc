@@ -311,7 +311,6 @@ def widgets(P, W):
     W.xsEntry.setText('{}'.format(P.xSaved))
     W.ysEntry.setText('{}'.format(P.ySaved))
     P.conv_undo_shape()
-    W.dEntry.setFocus()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:cut_type_toggled(P, W))
@@ -389,3 +388,4 @@ def widgets(P, W):
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
+    W.dEntry.setFocus()
