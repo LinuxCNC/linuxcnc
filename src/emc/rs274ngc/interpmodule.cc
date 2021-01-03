@@ -786,7 +786,12 @@ static inline int get_current_tool(Interp &interp)  {
 static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
 }
-
+static inline int get_tool_change_at_g30 (Interp &interp)  {
+    return interp._setup.tool_change_at_g30;
+}
+static inline void set_tool_change_at_g30(Interp &interp, int value)  {
+    interp._setup.tool_change_at_g30 = value;
+}
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
 
@@ -972,6 +977,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)
+	.add_property("tool_change_at_g30", &get_tool_change_at_g30, &set_tool_change_at_g30)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,
