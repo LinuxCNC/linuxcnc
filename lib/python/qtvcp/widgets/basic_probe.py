@@ -18,11 +18,12 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QByteArray
+from PyQt5.QtCore import QProcess, QByteArray, QEvent
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info
 from qtvcp import logger
+from linuxcnc import MODE_MDI, OPERATOR_ERROR
 
 ACTION = Action()
 STATUS = Status()
@@ -31,6 +32,9 @@ LOG = logger.getLogger(__name__)
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 CONFIG_DIR = os.getcwd()
+
+# Force the log level for this module
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -55,7 +59,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "EDGE ANGLE", "BOSS and POCKETS",
                            "RIDGE and VALLEY", "CALIBRATE"]
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta', 'ts', 'bh']
 
         #create parameter dictionary
         self.send_dict = {}
@@ -78,9 +82,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'cal_diameter',
                           'cal_x_width',
                           'cal_y_width',
-                          'calibration_offset']
+                          'calibration_offset',
+                          'tool_probe_height',
+                          'tool_block_height']
 
         self.process_busy = False
+        self._premode = None
+        self.dialog_code = 'CALCULATOR'
+
         # button connections
         self.cmb_probe_select.activated.connect(self.cmb_probe_select_changed)
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
@@ -99,9 +108,23 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
+        # TODO add widgets for probe height and work height
+        # and remove the try statement
         for i in self.parm_list:
-            self['lineEdit_' + i].setValidator(self.valid)
-        
+            try:
+                self['lineEdit_' + i].setValidator(self.valid)
+            except:
+                print 'error',i
+
+    # catch focusIn event to pop calculator dialog
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            if isinstance(obj, QtWidgets.QLineEdit):
+                # only if mouse selected
+                if event.reason () == 0:
+                    self.popEntry(obj)
+        return super(BasicProbe, self).eventFilter(obj, event)
+
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -109,6 +132,29 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('error', self.send_error)
+        STATUS.connect('general',self.return_value)
+
+        # install event filters on all the lineedits
+        self.lineEdit_probe_tool.installEventFilter(self)
+        self.lineEdit_extra_depth.installEventFilter(self)
+        self.lineEdit_max_z.installEventFilter(self)
+        self.lineEdit_search_vel.installEventFilter(self)
+        self.lineEdit_probe_vel.installEventFilter(self)
+        self.lineEdit_z_clearance.installEventFilter(self)
+        self.lineEdit_max_travel.installEventFilter(self)
+        self.lineEdit_latch_return_dist.installEventFilter(self)
+        self.lineEdit_probe_diam.installEventFilter(self)
+        self.lineEdit_xy_clearance.installEventFilter(self)
+        self.lineEdit_side_edge_length.installEventFilter(self)
+        #TODO
+        #self.lineEdit_tool_probe_height.installEventFilter(self)
+        #self.lineEdit_tool_block_height.installEventFilter(self)
+        self.lineEdit_cal_x_width.installEventFilter(self)
+        self.lineEdit_cal_y_width.installEventFilter(self)
+        self.lineEdit_cal_diameter.installEventFilter(self)
+        self.lineEdit_calibration_offset.installEventFilter(self)
+        self.lineEdit_rapid_vel.installEventFilter(self)
 
         if self.PREFS_:
             self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
@@ -150,6 +196,28 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref('Cal diameter', self.lineEdit_cal_diameter.text(), str, 'PROBE OPTIONS')
         self.proc.terminate()
 
+    # process the STATUS return message
+    # set the line edit to the value if not cancelled
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
+            LOG.debug('message return:{}'.format (message))
+            obj = message.get('OBJECT')
+            obj.setText(str(num))
+
+    def popEntry(self, obj):
+            mess = {'NAME':self.dialog_code,
+                    'ID':'%s__' % self.objectName(),
+                    'OVERLAY':False,
+                    'OBJECT':obj,
+                    'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
+                    'GEONAME':'_{}'.format(self.dialog_code)
+            }
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
+
 #################
 # process control
 #################
@@ -177,6 +245,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_busy is True:
             LOG.error("Probing processor is busy")
             return
+
+        # record the mode we are in so we can return to it
+        # you are probably in jog mode to move around during set up.
+        fail, self._premode = ACTION.ensure_mode(MODE_MDI)
+
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
 #        print("String to send ", string_to_send)
         if sys.version_info.major > 2:
@@ -203,9 +276,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         print(("Probe Process signals finished exitCode {} exitStatus {}".format(exitCode, exitStatus)))
 
     def parse_input(self, line):
-        self.process_busy = False
         if b"ERROR" in line:
-            print(line)
+            self.process_busy = False
+            STATUS.emit('error', OPERATOR_ERROR, line)
         elif b"DEBUG" in line:
             print(line)
         elif b"INFO" in line:
@@ -215,19 +288,25 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
             self.show_results(data)
+            self.process_busy = False
         elif "HISTORY" in line:
             temp = line.strip('HISTORY$')
             STATUS.emit('update-machine-log', temp, 'TIME')
             LOG.info("Probe history updated to machine log")
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+        if b"COMPLETE" in line or b"ERROR" in line:
+            ACTION.ensure_mode(self._premode)
 
     def send_error(self, w, kind, text):
-        if sys.version_info.major > 2:
-            message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
-        else:
-            message = 'ERROR {},{} \n'.format(kind,text)
-        self.proc.writeData(message)
+        if self.process_busy:
+            message = {kind:text}
+            #ACTION.ABORT()
+            string_to_send = '_ErroR_$' + json.dumps(message) + '\n'
+            if sys.version_info.major > 2:
+                self.proc.writeData(bytes(string_to_send, 'utf-8'))
+            else:
+                self.proc.writeData(string_to_send)
 
 # Main button handler routines
     def probe_help_clicked(self):
@@ -318,8 +397,17 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.send_dict.update( {key: val} )
 
     def show_results(self, line):
+        LOG.debug('results:{}'.format(line))
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            try:
+                self['status_' + key].setText(line[key])
+            except:
+                #TODO add these widgets
+                return
+                if key == 'bh' and line.get(key) is not None:
+                    self.lineEdit_tool_block_height.setText(line[key])
+                elif key == 'ts' and line.get(key) is not None:
+                    self.lineEdit_tool_probe_height.setText(line[key])
 
     ##############################
     # required class boiler code #
