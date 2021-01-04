@@ -90,7 +90,8 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.data_adj_angle = 0.0
         self.tool_probe_height = 0.0
         self.tool_block_height = 0.0
-        self.ts_diam = float(INFO.INI.find('TOOLSENSOR', 'TS_DIAMETER')) or None
+        # default o a huge unreasonable number - should move this to istat
+        self.ts_diam = float(INFO.INI.find('TOOLSENSOR', 'TS_DIAMETER') or 500)
         # BasicProbe exclusive
         self.data_x_hint_bp = 0.0
         self.data_y_hint_bp = 0.0
