@@ -169,8 +169,10 @@ class HandlerClass:
         self.height_ovr = 0.0
 
     def initialized__(self):
+        self.make_hal_pins()
         self.init_preferences()
         self.init_widgets()
+        self.link_hal_pins()
         self.set_color_styles()
         self.set_signal_connections()
         self.set_axes_and_joints()
@@ -207,7 +209,6 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('mdi-history-changed', self.mdi_entered)
-        self.link_hal_pins()
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
@@ -335,8 +336,30 @@ class HandlerClass:
 #################################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
 #################################################################################################################################
+    def make_hal_pins(self):
+        self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
+        self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
+        self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
+        self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.laserOnPin = self.h.newpin('laser_on', hal.HAL_S32, hal.HAL_OUT)
+        self.materialChangePin = self.h.newpin('material_change', hal.HAL_S32, hal.HAL_IN)
+        self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
+        self.materialChangeTimeoutPin = self.h.newpin('material_change_timeout', hal.HAL_BIT, hal.HAL_IN)
+        self.materialReloadPin = self.h.newpin('material_reload', hal.HAL_BIT, hal.HAL_IN)
+        self.materialTempPin = self.h.newpin('material_temp', hal.HAL_BIT, hal.HAL_IN)
+        self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485CurrentMinPin = self.h.newpin('pmx485_current_min', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485FaultPin = self.h.newpin('pmx485_fault', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485ModePin = self.h.newpin('pmx485_mode', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485PressurePin = self.h.newpin('pmx485_pressure', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485PressureMaxPin = self.h.newpin('pmx485_pressure_max', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485PressureMinPin = self.h.newpin('pmx485_pressure_min', hal.HAL_FLOAT, hal.HAL_IN)
+        self.pmx485StatusPin = self.h.newpin('pmx485_status', hal.HAL_BIT, hal.HAL_IN)
+        self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
+        self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
+
     def link_hal_pins(self):
-        self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -885,7 +908,7 @@ class HandlerClass:
         self.height_ovr += height
         if self.height_ovr < -9.9 :self.height_ovr = -9.9
         if self.height_ovr > 9.9 :self.height_ovr = 9.9
-        self.h['height_override'] = self.height_ovr
+        self.heightOverridePin.set(self.height_ovr)
         self.w.height_ovr_label.setText('{:.1f}'.format(self.height_ovr))
 
     def touch_xy_clicked(self):
@@ -1126,11 +1149,11 @@ class HandlerClass:
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
-        self.w.material_change.hal_pin_changed.connect(lambda w:self.material_change_pin_changed(w))
-        self.w.material_change_number.hal_pin_changed.connect(lambda w:self.material_change_number_pin_changed(w))
-        self.w.material_change_timeout.hal_pin_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
-        self.w.material_reload.hal_pin_changed.connect(lambda w:self.material_reload_pin_changed(w))
-        self.w.material_temp.hal_pin_changed.connect(lambda w:self.material_temp_pin_changed(w))
+        self.materialChangePin.value_changed.connect(lambda w:self.material_change_pin_changed(w))
+        self.materialChangeNumberPin.value_changed.connect(lambda w:self.material_change_number_pin_changed(w))
+        self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
+        self.materialReloadPin.value_changed.connect(lambda w:self.material_reload_pin_changed(w))
+        self.materialTempPin.value_changed.connect(lambda w:self.material_temp_pin_changed(w))
         self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-0.1))
         self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(0.1))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
@@ -1160,8 +1183,8 @@ class HandlerClass:
         self.w.cut_rec_sw.pressed.connect(lambda:self.cutrec_move(-1, -1))
         self.w.cut_rec_w.pressed.connect(lambda:self.cutrec_move(-1, 0))
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
-        self.w.x_offset.hal_pin_changed.connect(lambda:self.cutrec_offset_changed(self.w.x_offset.hal_pin.get()))
-        self.w.y_offset.hal_pin_changed.connect(lambda:self.cutrec_offset_changed(self.w.y_offset.hal_pin.get()))
+        self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
+        self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
         self.w.cam_zoom_plus.pressed.connect(self.cam_zoom_plus_pressed)
@@ -1501,12 +1524,12 @@ class HandlerClass:
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
             if self.cutType:
-                hal.set_p('qtplasmac.cut_type','1')
+                self.cutTypePin.set(1)
                 self.button_active(self.ctButton)
                 self.cutTypeText = self.w[self.ctButton].text()
                 self.w[self.ctButton].setText('PIERCE\nONLY')
             else:
-                hal.set_p('qtplasmac.cut_type','0')
+                self.cutTypePin.set(0)
                 self.button_normal(self.ctButton)
                 self.w[self.ctButton].setText(self.cutTypeText)
             self.w.gcode_progress.setValue(0)
@@ -1686,7 +1709,7 @@ class HandlerClass:
 # MATERIAL HANDLING FUNCTIONS #
 #########################################################################################################################
     def save_materials_clicked(self):
-        material = self.w.material_change_number.hal_pin.get()
+        material = self.w.materialChangeNumberPin.hal_pin.get()
         index = self.w.materials_box.currentIndex()
         self.save_materials(material, index)
 
@@ -1698,7 +1721,7 @@ class HandlerClass:
         self.load_materials()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
-        self.w.material_reload.hal_pin.set(0)
+        self.w.materialReloadPin.set(0)
 
     def new_material_clicked(self, repeat, value):
         text = 'New Material Number:'
@@ -1837,14 +1860,14 @@ class HandlerClass:
     def material_changed(self, index):
         if self.w.materials_box.currentText():
             if self.getMaterialBusy:
-                self.w.material_change.hal_pin.set(0)
+                self.materialChangePin.set(0)
                 self.autoChange = False
                 return
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
             if self.autoChange:
                 hal.set_p('motion.digital-in-03','0')
                 self.change_material(material)
-                self.w.material_change.hal_pin.set(2)
+                self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
             else:
                 self.change_material(material)
@@ -1860,13 +1883,13 @@ class HandlerClass:
     def material_change_number_pin_changed(self, halpin):
         if self.getMaterialBusy:
             return
-        if self.w.material_change.hal_pin.get() == 1:
+        if self.materialChangePin.get() == 1:
             self.autoChange = True
             # material already loaded so do a phantom handshake
             if halpin < 0:
-                self.w.material_change.hal_pin.set(2)
+                self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
-                self.w.material_change_number.hal_pin.set(halpin * -1)
+                self.w.materialChangeNumberPin.set(halpin * -1)
                 return
         if not self.material_exists(halpin):
             self.autoChange = False
@@ -1878,8 +1901,8 @@ class HandlerClass:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
 #           FIX_ME do we need to stop the program if a timeout occurs???
             print('\nMaterial change timeout occured for material #{}'.format(material))
-            self.w.material_change_number.hal_pin.set(material)
-            self.w.material_change_timeout.hal_pin.set(0)
+            self.w.materialChangeNumberPin.set(material)
+            self.w.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
 
     def material_reload_pin_changed(self, halpin):
@@ -1923,7 +1946,7 @@ class HandlerClass:
             self.display_materials()
             self.change_material(0)
             self.w.materials_box.setCurrentIndex(0)
-            self.w.material_temp.hal_pin.set(0)
+            self.w.materialTempPin.set(0)
 
     def save_materials(self, material, index):
         if index == 0:
@@ -1965,7 +1988,7 @@ class HandlerClass:
             self.w.pause_at_end.setValue(self.materialFileDict[material][10])
             self.w.gas_pressure.setValue(self.materialFileDict[material][11])
             self.w.cut_mode.setValue(self.materialFileDict[material][12])
-            self.w.material_change_number.hal_pin.set(material)
+            self.materialChangeNumberPin.set(material)
 
     def save_material_file(self, material, index):
         COPY(self.materialFile, self.tmpMaterialFile)
@@ -2172,8 +2195,8 @@ class HandlerClass:
             return True
         else:
             if self.autoChange:
-                self.w.material_change.hal_pin.set(-1)
-                self.w.material_change_number.hal_pin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
+                self.materialChangePin.set(-1)
+                self.w.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
             self.dialog_error('MATERIALS ERROR', '\nMaterial #{} not in material list'.format(int(material)))
             return False
 
@@ -2228,11 +2251,11 @@ class HandlerClass:
 
     def laser_pressed(self):
         if self.w.laser.text() == 'LASER':
-            self.w.laser_on.hal_pin.set(1)
+            self.laserOnPin.set(1)
             self.w.laser.setText('MARK\nEDGE')
             return
         elif self.w.laser.text() == 'SET\nORIGIN':
-            self.w.laser_on.hal_pin.set(0)
+            self.laserOnPin.set(0)
         self.sheet_align(self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
     def sheet_align(self, button, offsetX, offsetY):
@@ -2340,9 +2363,9 @@ class HandlerClass:
                 return
             self.w.pmx485Status = False
             self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
-            self.w.pmx485_status.hal_pin_changed.connect(lambda w:self.pmx485_status_changed(w))
-            self.w.pmx485_mode.hal_pin_changed.connect(self.pmx485_mode_changed)
-            self.w.pmx485_fault.hal_pin_changed.connect(lambda w:self.pmx485_fault_changed(w))
+            self.pmx485StatusPin.value_changed.connect(lambda w:self.pmx485_status_changed(w))
+            self.pmx485ModePin.value_changed.connect(self.pmx485_mode_changed)
+            self.pmx485FaultPin.value_changed.connect(lambda w:self.pmx485_fault_changed(w))
             self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
             self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
             self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
@@ -2445,10 +2468,10 @@ class HandlerClass:
 
     def pmx485_min_max_changed(self):
         if not self.pmx485Connected: return
-        self.w.cut_amps.setMinimum(self.w.pmx485_current_min.hal_pin.get())
-        self.w.cut_amps.setMaximum(self.w.pmx485_current_max.hal_pin.get())
-        self.gas_minimum = self.w.pmx485_pressure_min.hal_pin.get()
-        self.gas_maximum = self.w.pmx485_pressure_max.hal_pin.get()
+        self.w.cut_amps.setMinimum(self.pmx485CurrentMinPin.get())
+        self.w.cut_amps.setMaximum(self.pmx485CurrentMaxPin.get())
+        self.gas_minimum = self.pmx485PressureMinPin.get()
+        self.gas_maximum = self.pmx485PressureMaxPin.get()
         self.w.gas_pressure.setMinimum(-1)
         self.w.gas_pressure.setMaximum(self.gas_maximum + 1)
         if self.gas_maximum > 15:
@@ -2895,14 +2918,14 @@ class HandlerClass:
                 for line in inFile:
                     if 'foregnd' in line:
                         outFile.write(line.replace('foregnd', self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
-                        self.w.colorfg.hal_pin.set(int(self.w.color_foregrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
+                        self.colorFgPin.set(int(self.w.color_foregrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
                     elif 'highlight' in line:
                         outFile.write(line.replace('highlight', self.w.color_foregalt.styleSheet().split(':')[1].strip()))
                     elif 'l-e-d' in line:
                         outFile.write(line.replace('l-e-d', self.w.color_led.styleSheet().split(':')[1].strip()))
                     elif 'backgnd' in line:
                         outFile.write(line.replace('backgnd', self.w.color_backgrnd.styleSheet().split(':')[1].strip()))
-                        self.w.colorbg.hal_pin.set(int(self.w.color_backgrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
+                        self.colorBgPin.set(int(self.w.color_backgrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
                     elif 'backalt' in line:
                         outFile.write(line.replace('backalt', self.w.color_backgalt.styleSheet().split(':')[1].strip()))
                     elif 'frames' in line:

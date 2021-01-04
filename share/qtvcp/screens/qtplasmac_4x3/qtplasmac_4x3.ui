@@ -159,7 +159,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -14202,249 +14202,6 @@ EDGE</string>
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QFrame" name="halpin_frame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <widget class="GeneralHALInput" name="cut_type">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>10</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="s32_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="material_change_number">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>50</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="s32_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="material_change_timeout">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>70</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="material_change">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>30</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="s32_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="material_reload">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>90</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="material_temp">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>110</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALOutput" name="colorfg">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>140</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="s32_float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALOutput" name="colorbg">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>170</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="s32_float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_status">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>190</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_fault">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>220</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_mode">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>250</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_current">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>280</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_pressure">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>310</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_pressure_max">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>570</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_current_max">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>510</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_current_min">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>480</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="pmx485_pressure_min">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>550</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="x_offset">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>330</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALInput" name="y_offset">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>350</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="float_pin_type" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="GeneralHALOutput" name="laser_on">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>16</width>
-                <height>16</height>
-               </rect>
-              </property>
-             </widget>
-            </widget>
-           </item>
           </layout>
          </widget>
         </widget>
@@ -14562,12 +14319,6 @@ EDGE</string>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
-   <class>GeneralHALInput</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_input</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>FileManager</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.file_manager</header>
@@ -14593,12 +14344,6 @@ EDGE</string>
    <class>MDIHistory</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.mdi_history</header>
-  </customwidget>
-  <customwidget>
-   <class>GeneralHALOutput</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_output</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
