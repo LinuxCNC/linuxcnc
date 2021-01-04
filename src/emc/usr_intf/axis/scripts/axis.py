@@ -356,8 +356,6 @@ class Notification(Tkinter.Frame):
         button.configure(command=lambda: self.remove(widgets))
         frame.pack(side="top", anchor="e")
         self.widgets.append(widgets)
-        if iconname == "error":
-            comp["error"] = True
 
     def remove(self, widgets):
         self.widgets.remove(widgets)
@@ -368,7 +366,6 @@ class Notification(Tkinter.Frame):
             widgets[0].destroy()
         if len(self.widgets) == 0:
             self.place_forget()
-            comp["error"] = False
 
 def soft_limits():
     def fudge(x):
@@ -3836,7 +3833,6 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
