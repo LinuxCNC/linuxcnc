@@ -427,10 +427,6 @@ For the Float and Ohmic switches this equates to a 0.001mm (0.00004") increase i
 
 It is recommended to keep the debounce values as low as possible while still achieving consistent results. Using link:http://linuxcnc.org/docs/2.8/html/hal/tutorial.html#_halscope[Halscope] to plot the inputs is a good way to establish the correct value.
 
-There are two versions of contact debouncing available in QtPlasmaC. The method used is determined by when the configuration was first created. There is no automatic update method available to convert from the original debounce setup to the alternate debounce setup as it is difficult to apply the necessary changes without understanding any manual edits that may have been made to the machine's configuration files and potentially "breaking" a working configuration. If the user wishes to change from the original setup to the new setup, they must do so manually.
-
-==== Debounce
-
 For QtPlasmaC installations, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
 
 All four signals above have an individual debounce component so the debounce periods can be catered individually to each input. Any changes made to these values in the <machine_name>_connections.hal file will not be overwritten by later updates of QtPlasmaC.
@@ -506,11 +502,9 @@ NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that a
 
 NOTE: The .prefs file is plain text and may be edited with any text editor.
 
-=== INI File
+=== INI File Common
 
 QtPlasmaC requires some specific <machine_name>.ini file variables as follows:
-
-==== Common
 
 [[ini-mode]]
 
@@ -605,15 +599,12 @@ For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other
 
 QtPlasmaC will automatically move the Z axis to the correct height at the beginning of every G-Code program.
 
-=== QtPlasmaC GUI Panels
+[[config-panel]]
 
-QtPlasmaC makes several modifications to the GUI. Some additions are panels on permanent display and others are tabs behind the preview tab.
+=== Config Panel
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
-[[config-panel]]
-
-==== Config Panel
 This panel is used to display configuration parameters that are modified infrequently.
 
 It is possible to disable this panel so machine settings cannot be modified by unauthorized personnel. This is achieved by setting the following variable in the <machine_name>.ini file:
@@ -731,7 +722,7 @@ The **Backup** button will create a complete machine configuration backup for ar
 
 [[run-panel]]
 
-==== Run Panel
+=== Run Panel
 
 This panel shows the parameters which are active for the current cut.
 
@@ -856,7 +847,7 @@ image::images/plasmac_save_dialog.png[width=20%]
 
 [[monitor-panel]]
 
-==== Monitor Panel
+=== Monitor Panel
 
 The Monitor Panel is used to display the status of various relevant I/O's. Both Axis and Gmoccapy have similar Monitor Panels.
 
@@ -881,7 +872,7 @@ image::images/plasmac_monitor.png[width=40%]
 
 NOTE: The Ohmic Probe LED will show the status of the probe input regardless of whether Ohmic Probe is enabled or disabled.
 
-==== Button Panel
+=== Button Panel
 
 The Button Panel contains buttons useful for the operation of the machine.
 
@@ -899,7 +890,7 @@ The *Torch Disable/Enable* button toggles between Enabling and Disabling the tor
 
 If "Torch Disabled" is displayed by this button, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
 
-==== Control Panel
+=== Control Panel
 
 The Control Panel allows the user to pulse the torch for a desired period of time, manually override the height control, and manipulate the machine during paused motion at a desired speed. Both Axis and Gmoccapy are similar except the Gmoccapy Control Panel is integrated into the existing frame containing feed and rapid overrides.
 
@@ -948,7 +939,7 @@ In the event of a paused program, this interface allows X/Y motion to follow the
 
 For advanced recovery from a failed cut see <<cut-recovery, cut recovery>>.
 
-==== Statistics Panel
+=== Statistics Panel
 
 The Statistics Panel provides statistics to allow for the tracking of consumable wear and job run times.
 
@@ -960,7 +951,7 @@ The total values may be reset either individually by clicking the corresponding 
 
 image::images/plasmac_stats.png[width=60%]
 
-==== Extras Panel
+=== Extras Panel
 
 The Extras Panel provides ten additional user-customizable buttons plus a button to bring up the Conversational dialog box. The Conversational shapes library enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
 
@@ -1128,15 +1119,13 @@ NOTE: All references to CutFeedRate refer to the *Cut Feed Rate* value displayed
 
 [[material-handling]]
 
-=== Material Handling
+=== Material File
 
 Material handling uses a material file that was created for the machine configuration when the qtplasmac-setup program was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G Code. The resulting <<material-file, material file>> is named *<machine_name>_material.cfg*.
 
 QtPlasmaC does not require the use of a material file. Instead, the user could change the cut parameters manually from the Run Panel. It is also not required to use the automatic material changes. If the user does not wish to use this feature they can simply omit the material change codes from the G-Code file.
 
 [[material-file]]
-
-==== Material File
 
 Material numbers in the materials file do not need to be consecutive nor do they need to be in numerical order.
 
@@ -1186,7 +1175,7 @@ It is possible to add new material, delete material, or edit existing material f
 
 The material file may be edited with a text editor while LinuxCNC is running. After any changes have been saved, press *Reload* in the Run Panel to reload the material file.
 
-==== Manual Material Handling
+=== Manual Material Handling
 
 For manual material handling, the user would manually select the material from the materials list in the Run Panel before starting the G-Code program. In addition to selecting materials with materials list in the Run Panel, the user could use the MDI to change materials with the following command:
 
@@ -1206,7 +1195,7 @@ M5 $0
 
 NOTE: Manual material handling will restrict the user to only one material for the entire job.
 
-==== Automatic Material Handling
+=== Automatic Material Handling
 
 For automatic material handling, the user would add commands to their G-Code file which will enable QtPlasmaC to change the material automatically.
 
@@ -1228,7 +1217,7 @@ M3 $0 S1
 M5 $0
 ----
 
-==== Materialverter
+=== Materialverter
 
 This application is used to convert existing tool tables into QtPlasmaC material files. It can also create a material file from manual user input to entry fields.
 
@@ -1272,7 +1261,7 @@ NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the
 
 [[magic-comments]]
 
-==== Materials Adding And Editing Via G-Code
+=== Materials Adding And Editing Via G-Code
 
 It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
 
@@ -1749,7 +1738,7 @@ If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the Conversational
 
 NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
-==== Settings
+=== Conversational Settings
 
 Global settings for the shape library can be set by pressing the *Settings* button in the Conversational Panel. This will display all of the available settings parameters that are used for G-Code program creation. These include:
 
@@ -1768,7 +1757,7 @@ Pressing the *Save* button will save all the settings as displayed and will chan
 
 After saving the user may press *Quit* or they may click on any shape to start the Conversational process.
 
-==== Lines And Arcs
+=== Conversational Lines And Arcs
 
 image::images/plasmac_conversational_line.png[width=5%]
 
@@ -1796,7 +1785,7 @@ If the user wishes to create a closed shape, they will need to create any requir
 
 NOTE: At this stage there is no automatic option for a lead-in/lead-out creation if the shape is closed.
 
-==== Single Shape
+=== Conversational Single Shape
 
 The following shapes are available for creation:
 
@@ -1810,7 +1799,7 @@ To create a shape:
 . Press *Add* to add the shape to the G-Code file.
 . Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-==== Group Of Shapes
+=== Conversational Group Of Shapes
 
 Multiple shapes can be added together to create a complex group.
 
@@ -1829,7 +1818,7 @@ To create a group of shapes:
 . Repeat until all the required shapes to complete the group have been added.
 . Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-==== Rotate
+=== Conversational Rotate
 
 image::images/plasmac_conversational_rotate.png[width=5%]
 
@@ -1846,7 +1835,7 @@ Rotation will not work on G-Code that is mathematically calculated, the values n
 . Press *Add* to complete the procedure.
 . Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-==== Array
+=== Conversational Array
 
 image::images/plasmac_conversational_array.png[width=5%]
 
@@ -1863,7 +1852,7 @@ The cut order of an array is from the left column to the right column, starting 
 . Press *Add* to complete the procedure.
 . Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-==== Saving A Job
+=== Conversational Saving A Job
 
 The current job displayed in the Preview Panel may be saved at any time by using the bottom *Save* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the Conversational dialog box has closed, the user may still save the G-Code file from the GUI. Alternatively, the user could click the Conversational button in the Extras tab which will reload the job, at which time they can press the *Save* button.
 
@@ -2014,11 +2003,9 @@ sudo apt install python-serial
 
 A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
-=== Error Messages
+=== Critical Errors
 
 There are a number of error messages printed by QtPlasmaC to inform the user of faults as they occur. The messages can be split into two groups, *Critical* and *Warning*.
-
-==== Critical Errors
 
 Critical Errors will cause the running program to pause, and the operator will need to clear the cause of the error before proceeding.
 
@@ -2067,7 +2054,7 @@ THC has caused the top limit to be reached while cutting:
 
 * *top limit reached while THC moving up program is paused*
 
-==== Warning errors
+=== Warning errors
 
 Warning errors will not pause a running program and are informational only.
 
@@ -2095,13 +2082,11 @@ This indicates that the value for the Arc Voltage was invalid (NAN or INF) when 
 
 [[update-qtplasmac]]
 
-=== Updating QtPlasmaC
+=== Standard Update
 
 QtPlasmaC update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates
 
 *Users are strongly encouraged to create a Username and subscribe to the above thread to receive update notices.*
-
-==== Standard Update
 
 For a standard ISO installation, LinuxCNC will only be updated when a new minor release has been released. QtPlasmaC will then automatically update its configuration the first time it is run after a LinuxCNC update.
 
@@ -2112,7 +2097,7 @@ sudo apt update
 sudo apt dist-upgrade
 ----
 
-==== Continuous Update
+=== Continuous Update
 
 Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If the user wishes to update whenever a new QtPlasmaC version has been pushed, they could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
 
@@ -2126,7 +2111,7 @@ There are eight buttons available in the QtPlasmaC GUI that are programmable by 
 
 All <machine_name>.ini file settings for the buttons are found in the [QTPLASMAC] section.
 
-==== Button Names
+.Button Names
 
 The text that appears on the button is set the following way:
 
@@ -2142,7 +2127,7 @@ For text on multiple lines, split the text with a \
 BUTTON_n_NAME = HAL\Show
 ----
 
-==== Button Code
+.Button Code
 
 Buttons can run the following:
 
@@ -2673,7 +2658,7 @@ The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma
 
 The preferred method is to setup the required parameters for the THCAD in the <machine_name>_connections.hal file.
 
-==== Parallel Port Config
+.Parallel Port Config
 
 An example parallel port config using a link:http://linuxcnc.org/docs/html/man/man9/encoder.9.html[software encoder].
 
@@ -2696,7 +2681,7 @@ The user then needs to note that the *Arc Voltage HAL Pin* entry in the qtplasma
 encoder.0.velocity
 ----
 
-==== Mesa 7i96 Config:
+.Mesa 7i96 Config:
 
 An example Mesa 7i96 config using the onboard hardware encoder is shown below. Other Mesa hardware will be similar but with a different board identifiers.
 
@@ -2716,7 +2701,7 @@ hm2_7i96.0.encoder.00.velocity
 
 NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
-==== Obtaining The Divider Ratio
+.Obtaining The Divider Ratio
 
 [underline]*THCAD-10*
 
@@ -2734,7 +2719,7 @@ This is connected to the plasma machines full arc voltage and the divider ratio 
 
 [[calibration-values]]
 
-==== Calibration Values
+.Calibration Values
 
 These values are used to obtain starting values for Voltage Offset and Voltage Scale in the Config Panel.
 
