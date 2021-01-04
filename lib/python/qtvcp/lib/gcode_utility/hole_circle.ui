@@ -1277,7 +1277,7 @@ PROGRAM</string>
               </size>
              </property>
              <property name="toolTip">
-              <string>Create temparary macro and load in linuxcnc</string>
+              <string>Create temporary macro and load in linuxcnc</string>
              </property>
              <property name="text">
               <string>SEND AS
