@@ -53,9 +53,6 @@ class Configurator(QMainWindow, object):
         self.setFixedHeight(120)
         self.new = QPushButton('New')
         self.rec = QPushButton('Reconfigure')
-
-        self.rec.setEnabled(False)
-
         self.can = QPushButton('Exit')
         self.layout.addWidget(self.new, 0)
         self.layout.addWidget(self.rec, 1)
@@ -290,6 +287,7 @@ class Configurator(QMainWindow, object):
         if not self.check_entries():
             return
         if self.configureType == 'reconfigure':
+            if not self.link_to_common_folder(): return
             self.reconfigure()
             self.dialog_ok('RECONFIGURE','\nReconfigure is complete.\n\n')
             return
@@ -842,19 +840,19 @@ class Configurator(QMainWindow, object):
             if self.floatPin.text():
                 outFile.write('net plasmac:float-switch {} => db_float.in\n'.format(self.floatPin.text()))
             elif not self.floatPin.text():
-                outFile.write('# net plasmac:float-switch {YOUR FLOAT SWITCH PIN} => db_float.in\n')
+                outFile.write('# net plasmac:float-switch {YOUR_FLOAT_SWITCH_PIN} => db_float.in\n')
             if self.breakPin.text():
                 outFile.write('net plasmac:breakaway {} => db_breakaway.in\n'.format(self.breakPin.text()))
             elif not self.breakPin.text():
-                outFile.write('# net plasmac:breakaway {YOUR BREAKAWAY PIN} => db_breakaway.in\n')
+                outFile.write('# net plasmac:breakaway {YOUR_BREAKAWAY_PIN} => db_breakaway.in\n')
             if self.ohmicInPin.text():
                 outFile.write('net plasmac:ohmic-probe {} => db_ohmic.in\n'.format(self.ohmicInPin.text()))
             elif not self.ohmicInPin.text():
-                outFile.write('# net plasmac:ohmic-probe {YOUR OHMIC PROBE PIN} => db_ohmic.in\n')
+                outFile.write('# net plasmac:ohmic-probe {YOUR_OHMIC_PROBE_PIN} => db_ohmic.in\n')
             if self.ohmicOutPin.text():
                 outFile.write('net plasmac:ohmic-enable plasmac.ohmic-enable  => {}\n'.format(self.ohmicOutPin.text()))
             elif not self.ohmicOutPin.text():
-                outFile.write('# net plasmac:ohmic-enable plasmac.ohmic-enable  => {YOUR OHMIC ENABLE PIN}\n')
+                outFile.write('# net plasmac:ohmic-enable plasmac.ohmic-enable  => {YOUR_OHMIC_ENABLE_PIN}\n')
             if self.torchPin.text():
                 outFile.write('net plasmac:torch-on => {}\n'.format(self.torchPin.text()))
             if self.moveUpPin.text() and self.mode == 2:
@@ -865,11 +863,11 @@ class Configurator(QMainWindow, object):
             if self.scribeArmPin.text():
                 outFile.write('net plasmac:scribe-arm plasmac.scribe-arm => {}\n'.format(self.scribeArmPin.text()))
             else:
-                outFile.write('# net plasmac:scribe-arm plasmac.scribe-arm => ***YOUR_SCRIBE_ARMING_OUTPUT***\n')
+                outFile.write('# net plasmac:scribe-arm plasmac.scribe-arm => {YOUR_SCRIBE_ARMING_OUTPUT}\n')
             if self.scribeOnPin.text():
                 outFile.write('net plasmac:scribe-on  plasmac.scribe-on  => {}\n'.format(self.scribeOnPin.text()))
             else:
-                outFile.write('# net plasmac:scribe-on  plasmac.scribe-on  => ***YOUR_SCRIBE_ON_OUTPUT***\n')
+                outFile.write('# net plasmac:scribe-on  plasmac.scribe-on  => {YOUR_SCRIBE_ON_OUTPUT}\n')
             outFile.write('\n#***** PUT YOUR CUSTOM CONNECTION BELOW HERE *****\n')
         return True
 
@@ -933,20 +931,35 @@ class Configurator(QMainWindow, object):
 
 # RECONFIGURE IF CORRECT DATA
     def reconfigure(self):
-        if self.mode != self.oldMode or self.panel != self.oldPanel or self.oldPmPortName != self.pmPortName.text():
-            COPY(self.orgIniFile,self.orgIniFile + '.bakr')
-            outFile = open('{}'.format(self.orgIniFile), 'w')
-            with open('{}.bakr'.format(self.orgIniFile), 'r') as inFile:
+        if self.mode != self.oldMode or \
+           self.oldPmPortName != self.pmPortName.text() or \
+           self.laserX != self.oldLaserX or self.laserY != self.oldLaserY or \
+           self.cameraX != self.oldCameraX or self.cameraY != self.oldCameraY:
+            backupFile = '{}/backups/reconfigure_{}.{}'.format(os.path.dirname(self.orgIniFile), os.path.basename(self.orgIniFile), time.time())
+            COPY(self.orgIniFile, backupFile)
+            outFile = open(self.orgIniFile, 'w')
+            with open(backupFile, 'r') as inFile:
                 while 1:
                     line = inFile.readline()
                     if not line:
                         break
                     elif line.startswith('MODE') and self.mode != self.oldMode:
                         self.oldMode = self.mode
-                        outFile.write('MODE = {}\n'.format(self.mode))
+                        outFile.write('MODE                    = {}\n'.format(self.mode))
                     elif line.startswith('PM_PORT') and self.oldPmPortName != self.pmPortName.text():
                         self.oldPmPortName = self.pmPortName.text()
-                        outFile.write('PM_PORT = {}\n'.format(self.pmPortName.text()))
+                        outFile.write('PM_PORT                 = {}\n'.format(self.oldPmPortName))
+                    elif line.startswith('LASER_TOUCHOFF') and (self.oldLaserX != self.laserX.text() or self.oldLaserY != self.laserY.text()):
+                        self.oldLaserX = self.laserX.text()
+                        self.oldLaserY = self.laserY.text()
+                        outFile.write('LASER_TOUCHOFF          = X{}  Y{}\n'.format(self.oldLaserX, self.oldLaserY))
+                    elif line.startswith('CAMERA_TOUCHOFF') and (self.oldCameraX != self.cameraX.text() or self.oldCameraY != self.cameraY.text()):
+                        self.oldCameraX = self.cameraX.text()
+                        self.oldCameraY = self.cameraY.text()
+                        outFile.write('CAMERA_TOUCHOFF         = X{}  Y{}\n'.format(self.oldCameraX, self.oldCameraY))
+                    elif line.startswith('DISPLAY') and self.aspect != self.oldAspect:
+                        self.oldAspect = self.aspect
+                        outFile.write('DISPLAY                 = qtvcp qtplasmac{}\n'.format(self.aspect))
                     else:
                         outFile.write(line)
         arcVoltMissing = True
@@ -954,13 +967,15 @@ class Configurator(QMainWindow, object):
         moveUpMissing = True
         moveDownMissing = True
         newConex = '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())
-        oldConex = '{}.bakr'.format(newConex)
+        oldConex = '{}/backups/reconfigure_{}_connections.hal.{}'.format(self.configDir,self.machineName.lower(), time.time())
         COPY(newConex, oldConex)
         outFile = open(newConex, 'w')
         with open(oldConex, 'r') as inFile:
             for line in inFile:
                 newLine = line
-                if 'arc-voltage-in' in line:
+                if 'PLASMA CONNECTIONS' in line:
+                    outFile.write('#***** PLASMA CONNECTIONS FOR MODE {} *****\n'.format(self.mode))
+                elif ':arc-voltage-in' in line:
                     arcVoltMissing = False
                     if self.arcVoltPin.text() and (self.mode == 0 or self.mode == 1):
                         if self.oldArcVoltPin != self.arcVoltPin.text() or self.oldMode != self.mode:
@@ -973,7 +988,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'plasmac:arc-ok-in' in line:
+                elif ':arc-ok-in' in line:
                     arcOkMissing = False
                     if self.arcOkPin.text() and (self.mode == 1 or self.mode == 2):
                         if self.oldArcOkPin != self.arcOkPin.text() or self.oldMode != self.mode:
@@ -986,7 +1001,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'ohmic-probe' in line:
+                elif ':ohmic-probe' in line:
                     if self.ohmicInPin.text():
                         if self.oldOhmicInPin != self.ohmicInPin.text():
                             a, b = line.strip('#').strip().split(self.oldOhmicInPin)
@@ -998,7 +1013,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'ohmic-enable' in line:
+                elif ':ohmic-enable' in line:
                     if self.ohmicOutPin.text():
                         if self.oldOhmicOutPin != self.ohmicOutPin.text():
                             a, b = line.strip('#').strip().split(self.oldOhmicOutPin)
@@ -1010,7 +1025,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'float-switch' in line:
+                elif ':float-switch' in line:
                     if self.floatPin.text():
                         if self.oldFloatPin != self.floatPin.text():
                             a, b = line.strip('#').strip().split(self.oldFloatPin)
@@ -1022,7 +1037,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'breakaway' in line:
+                elif ':breakaway' in line:
                     if self.breakPin.text():
                         if self.oldBreakPin != self.breakPin.text():
                             a, b = line.strip('#').strip().split(self.oldBreakPin)
@@ -1034,7 +1049,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'torch-on' in line:
+                elif ':torch-on' in line:
                     if self.torchPin.text():
                         if self.oldTorchPin != self.torchPin.text():
                             a = line.strip('#').rsplit(self.oldTorchPin, 1)[0]
@@ -1046,7 +1061,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'move-up' in line:
+                elif ':move-up' in line:
                     moveUpMissing = False
                     if self.moveUpPin.text() and self.mode == 2:
                         if self.oldMoveUpPin != self.moveUpPin.text() or self.oldMode != self.mode:
@@ -1059,7 +1074,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'move-down' in line:
+                elif ':move-down' in line:
                     moveDownMissing = False
                     if self.moveDownPin.text() and self.mode == 2:
                         if self.oldMoveDownPin != self.moveDownPin.text() or self.oldMode != self.mode:
@@ -1072,7 +1087,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'scribe-arm' in line:
+                elif ':scribe-arm' in line:
                     if self.scribeArmPin.text():
                         if self.oldScribeArmPin != self.scribeArmPin.text():
                             a, b = line.strip('#').strip().split(self.oldScribeArmPin)
@@ -1084,7 +1099,7 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'scribe-on' in line:
+                elif ':scribe-on' in line:
                     if self.scribeOnPin.text():
                         if self.oldscribeOnPin != self.scribeOnPin.text():
                             a, b = line.strip('#').strip().split(self.oldscribeOnPin)
@@ -1096,16 +1111,30 @@ class Configurator(QMainWindow, object):
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
+                elif 'SCRIBE CONNECTIONS' in line:
+                    blank = False
+                    if (self.mode == 0 or self.mode == 1) and arcVoltMissing and self.arcVoltPin.text():
+                        outFile.write('net plasmac:arc-voltage-in {} => plasmac.arc-voltage-in\n'.format(self.arcVoltPin.text()))
+                        self.oldArcVoltPin = self.arcVoltPin.text()
+                        blank = True
+                    if (self.mode == 1 or self.mode) == 2 and arcOkMissing and self.arcOkPin.text():
+                        outFile.write('net plasmac:arc-ok-in {} => plasmac.arc-ok-in\n'.format(self.arcOkPin.text()))
+                        self.oldArcOkPin = self.arcOkPin.text()
+                        blank = True
+                    if self.mode == 2 and moveUpMissing and self.moveUpPin.text():
+                        outFile.write('net plasmac:move-up {} => plasmac.move-up\n'.format(self.moveUpPin.text()))
+                        self.oldMoveUpPin = self.moveUpPin.text()
+                        blank = True
+                    if self.mode == 2 and moveDownMissing and self.moveDownPin.text():
+                        outFile.write('net plasmac:move-down {} => plasmac.move-down\n'.format(self.moveDownPin.text()))
+                        self.oldMoveDownPin = self.moveDownPin.text()
+                        blank = True
+                    if blank:
+                        outFile.write('\n')
+                    outFile.write(line)
+
                 else:
                     outFile.write(line)
-        if arcVoltMissing and self.arcVoltPin.text():
-            outFile.write('net plasmac:arc-voltage-in {} => plasmac.arc-voltage-in\n'.format(self.arcVoltPin.text()))
-        if arcOkMissing and self.arcOkPin.text():
-            outFile.write('net plasmac:arc-ok-in {} => plasmac.arc-ok-in\n'.format(self.arcOkPin.text()))
-        if moveUpMissing and self.moveUpPin.text():
-            outFile.write('net plasmac:move-up {} => plasmac.move-up\n'.format(self.moveUpPin.text()))
-        if moveDownMissing and self.moveDownPin.text():
-            outFile.write('net plasmac:move-down {} => plasmac.move-down\n'.format(self.moveDownPin.text()))
         self.oldMode = self.mode
         return
 
@@ -1115,7 +1144,7 @@ class Configurator(QMainWindow, object):
             with open(self.orgIniFile,'r') as inFile:
                 while 1:
                     line = inFile.readline()
-                    if line.startswith('[PLASMAC]'): break
+                    if line.startswith('[QTPLASMAC]'): break
                 while 1:
                     line = inFile.readline()
                     if line.startswith('MODE'):
@@ -1125,8 +1154,31 @@ class Configurator(QMainWindow, object):
                     elif line.startswith('[') or not line:
                         inFile.close()
                         break
-            [self.mode0, self.mode1, self.mode2][self.oldMode].set_active(True)
+            [self.mode0, self.mode1, self.mode2][self.oldMode].setChecked(True)
+            self.mode = self.oldMode
             self.modeSet = True
+        with open(self.orgIniFile,'r') as inFile:
+            while 1:
+                line = inFile.readline()
+                if line.startswith('[DISPLAY]'): break
+            while 1:
+                line = inFile.readline()
+                if line.startswith('DISPLAY'):
+                    aspect = line.split('qtplasmac')[1].strip()
+                    if aspect == '_4x3':
+                        self.oldAspect = '_4x3'
+                        self.aspect2.setChecked(True)
+                    elif aspect == '_9x16':
+                        self.oldAspect = '_9x16'
+                        self.aspect1.setChecked(True)
+                    else:
+                        self.oldAspect = ''
+                        self.aspect0.setChecked(True)
+                    inFile.close()
+                    break
+                elif line.startswith('[') or not line:
+                    inFile.close()
+                    break
         self.arcVoltPin.setText('')
         self.oldArcVoltPin = ''
         self.arcOkPin.setText('')
@@ -1151,77 +1203,94 @@ class Configurator(QMainWindow, object):
         self.oldScribeOnPin = ''
         self.pmPortName.setText('')
         self.oldPmPortName = ''
-
-#ADD CAMERA STUFF HERE
-
-        try:
-            with open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'r') as inFile:
-                for line in inFile:
-                    if 'arc-voltage-in' in line:
-                        self.oldArcVoltPin = (line.split('age-in', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.arcVoltPin.setText(self.oldArcVoltPin)
-                    elif 'plasmac:arc-ok-in' in line:
-                        self.oldArcOkPin = (line.split('plasmac:arc-ok-in', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.arcOkPin.setText(self.oldArcOkPin)
-                    elif 'ohmic-probe' in line:
-                        self.oldOhmicInPin = (line.split('-probe', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.ohmicInPin.setText(self.oldOhmicInPin)
-                    elif 'ohmic-enable' in line:
-                        self.oldOhmicOutPin = (line.strip().split(' ' )[-1].strip())
-                        if not line.strip().startswith('#'):
-                            self.ohmicOutPin.setText(self.oldOhmicOutPin)
-                    elif 'float-switch' in line:
-                        self.oldFloatPin = (line.split('-switch', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.floatPin.setText(self.oldFloatPin)
-                    elif 'breakaway' in line:
-                        self.oldBreakPin = (line.split('breakaway', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.breakPin.setText(self.oldBreakPin)
-                    elif 'torch-on' in line:
-                        self.oldTorchPin = (line.strip().split(' ')[-1].strip())
-                        if not line.strip().startswith('#'):
-                            self.torchPin.setText(self.oldTorchPin)
-                    elif 'move-up' in line:
-                        self.oldMoveUpPin = (line.split('move-up', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.moveUpPin.setText(self.oldMoveUpPin)
-                    elif 'move-down' in line:
-                        self.oldMoveDownPin = (line.split('move-down', 1)[1].strip().split(' ', 1)[0].strip())
-                        if not line.strip().startswith('#'):
-                            self.moveDownPin.setText(self.oldMoveDownPin)
-                    elif 'scribe-arm' in line:
-                        self.oldScribeArmPin = (line.strip().split(' ')[-1].strip())
-                        if not line.strip().startswith('#'):
-                            self.scribeArmPin.setText(self.oldScribeArmPin)
-                    elif 'scribe-on' in line:
-                        self.oldscribeOnPin = (line.strip().split(' ')[-1].strip())
-                        if not line.strip().startswith('#'):
-                            self.scribeOnPin.setText(self.oldscribeOnPin)
-        except:
-            self.iniFile.setText('')
-            self.dialog_ok(
-                'FILE ERROR',
-                '\nCannot open connections file:\n'
-                '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()))
-#            return
+        self.laserX.setText('')
+        self.oldLaserX = ''
+        self.laserY.setText('')
+        self.oldLaserY = ''
+        self.cameraX.setText('')
+        self.oldCameraX = ''
+        self.cameraY.setText('')
+        self.oldCameraY = ''
+        # try:
+        with open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'r') as inFile:
+            for line in inFile:
+                if ':arc-voltage-in' in line:
+                    self.oldArcVoltPin = (line.split('age-in', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.arcVoltPin.setText(self.oldArcVoltPin)
+                elif ':arc-ok-in' in line:
+                    self.oldArcOkPin = (line.split('plasmac:arc-ok-in', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.arcOkPin.setText(self.oldArcOkPin)
+                elif ':ohmic-probe' in line:
+                    self.oldOhmicInPin = (line.split('-probe', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.ohmicInPin.setText(self.oldOhmicInPin)
+                elif ':ohmic-enable' in line:
+                    self.oldOhmicOutPin = (line.strip().split(' ' )[-1].strip())
+                    if not line.strip().startswith('#'):
+                        self.ohmicOutPin.setText(self.oldOhmicOutPin)
+                elif ':float-switch' in line:
+                    self.oldFloatPin = (line.split('-switch', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.floatPin.setText(self.oldFloatPin)
+                elif ':breakaway' in line:
+                    self.oldBreakPin = (line.split('breakaway', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.breakPin.setText(self.oldBreakPin)
+                elif ':torch-on' in line:
+                    self.oldTorchPin = (line.strip().split(' ')[-1].strip())
+                    if not line.strip().startswith('#'):
+                        self.torchPin.setText(self.oldTorchPin)
+                elif ':move-up' in line:
+                    self.oldMoveUpPin = (line.split('move-up', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.moveUpPin.setText(self.oldMoveUpPin)
+                elif ':move-down' in line:
+                    self.oldMoveDownPin = (line.split('move-down', 1)[1].strip().split(' ', 1)[0].strip())
+                    if not line.strip().startswith('#'):
+                        self.moveDownPin.setText(self.oldMoveDownPin)
+                elif ':scribe-arm' in line:
+                    self.oldScribeArmPin = (line.strip().split(' ')[-1].strip())
+                    if not line.strip().startswith('#'):
+                        self.scribeArmPin.setText(self.oldScribeArmPin)
+                elif ':scribe-on' in line:
+                    self.oldscribeOnPin = (line.strip().split(' ')[-1].strip())
+                    if not line.strip().startswith('#'):
+                        self.scribeOnPin.setText(self.oldscribeOnPin)
+        # except:
+        #     self.iniFile.setText('')
+        #     self.dialog_ok(
+        #         'FILE ERROR',
+        #         '\nCannot open connections file:\n'
+        #         '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()))
+        #     return
         with open(self.orgIniFile,'r') as inFile:
             while 1:
                 line = inFile.readline()
-                if line.startswith('[PLASMAC]') or not line:
+                if line.startswith('[QTPLASMAC]'): break
+            while 1:
+                line = inFile.readline()
+                if line.startswith('LASER_TOUCHOFF'):
+                    line = line.lower().replace('x',' ').replace('y',' ').split('=')[1].strip()
+                    axis = line.split(' ', 1)
+                    self.oldLaserX = axis[0].strip()
+                    self.laserX.setText(self.oldLaserX)
+                    self.oldLaserY = axis[1].strip()
+                    self.laserY.setText(self.oldLaserY)
+                elif line.startswith('CAMERA_TOUCHOFF'):
+                    line = line.lower().replace('x',' ').replace('y',' ').split('=')[1].strip()
+                    axis = line.split(' ', 1)
+                    self.oldCameraX = axis[0].strip()
+                    self.cameraX.setText(self.oldCameraX)
+                    self.oldCameraY = axis[1].strip()
+                    self.cameraY.setText(self.oldCameraY)
+                elif line.startswith('PM_PORT'):
+                    self.oldPmPortName = line.split('=')[1].strip()
+                    self.pmPortName.setText(self.oldPmPortName)
+                elif line.startswith('[') or not line:
+                    inFile.close()
                     break
-            if line:
-                while 1:
-                    line = inFile.readline()
-                    if line.startswith('[DISPLAY]') or not line:
-                        break
-                    elif line.startswith('PM_PORT'):
-                        self.oldPmPortName = line.split('=')[1].strip()
-                        self.pmPortName.setText(self.oldPmPortName)
-                        break
         self.set_mode()
 
 # SUCCESSFUL CONFIG COMPLETED

@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.13'
+VERSION = '0.9.14'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
