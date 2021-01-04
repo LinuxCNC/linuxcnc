@@ -268,7 +268,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         if sys.version_info.major > 2:
             if bytes("ERROR" ,'utf-8') in line:
                 self.process_busy = False
-                print(line)
+                STATUS.emit('error', OPERATOR_ERROR, line)
             elif bytes("DEBUG", 'utf-8') in line:
                 print(line)
             elif bytes("INFO", 'utf-8') in line:
