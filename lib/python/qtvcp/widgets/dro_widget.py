@@ -55,6 +55,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.force_diameter = False
         self.force_radius = False
         self._scale = 1
+        self._user = 0
 
         # for stylesheet reading
         self._isHomed = False
@@ -107,6 +108,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
             self._mode = True
 
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(float)
+    def update_user(self, data):
+        self._user = data
+
     def update_rotation(self, widget, rotation):
         degtmpl = lambda s: self.angular_text_template % s
         self.setText(degtmpl(rotation))
@@ -129,6 +135,9 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 self.setText(tmpl(relative[self.joint_number]*self._scale))
             elif self.reference_type == 2:
                 self.setText(tmpl(dtg[self.joint_number]*self._scale))
+
+            elif self.reference_type == 10:
+                self.setText(tmpl(self._user*self._scale))
         except:
             pass
 
