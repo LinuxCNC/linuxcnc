@@ -1714,7 +1714,7 @@ class HandlerClass:
 # MATERIAL HANDLING FUNCTIONS #
 #########################################################################################################################
     def save_materials_clicked(self):
-        material = self.w.materialChangeNumberPin.hal_pin.get()
+        material = self.materialChangeNumberPin.hal_pin.get()
         index = self.w.materials_box.currentIndex()
         self.save_materials(material, index)
 
@@ -1894,7 +1894,7 @@ class HandlerClass:
             if halpin < 0:
                 self.materialChangePin.set(2)
                 hal.set_p('motion.digital-in-03','1')
-                self.w.materialChangeNumberPin.set(halpin * -1)
+                self.materialChangeNumberPin.set(halpin * -1)
                 return
         if not self.material_exists(halpin):
             self.autoChange = False
@@ -1906,8 +1906,8 @@ class HandlerClass:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
 #           FIX_ME do we need to stop the program if a timeout occurs???
             print('\nMaterial change timeout occured for material #{}'.format(material))
-            self.w.materialChangeNumberPin.set(material)
-            self.w.materialChangeTimeoutPin.set(0)
+            self.materialChangeNumberPin.set(material)
+            self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
 
     def material_reload_pin_changed(self, halpin):
@@ -2201,7 +2201,7 @@ class HandlerClass:
         else:
             if self.autoChange:
                 self.materialChangePin.set(-1)
-                self.w.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
+                self.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
             self.dialog_error('MATERIALS ERROR', '\nMaterial #{} not in material list'.format(int(material)))
             return False
 
