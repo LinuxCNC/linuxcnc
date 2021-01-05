@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.190 - 2020 Dec 31
+0.191 - 2021 Jan 04
 
 .I SUMMARY:
 .br
@@ -160,6 +160,7 @@ pin out bit     xy_offset_enable            "enable x and y offsets, connect to 
 pin out s32     z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
 pin out bit     z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out float   z_relative                  "distance of Z from last probed height";
+pin out float   z_height                    "current z axis height relative to the probed zero height";
 
 /* VARIABLES */
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
@@ -546,6 +547,9 @@ FUNCTION(_) {
             arc_ok_out = FALSE;
         }
     }
+
+    /* output current z height */
+    z_height = (z_offset_counts - zero_target) * offset_scale;
 
     /* reset program states */
     if(program_is_idle){

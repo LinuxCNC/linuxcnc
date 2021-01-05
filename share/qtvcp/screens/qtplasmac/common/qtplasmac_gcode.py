@@ -40,8 +40,8 @@ tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MAC
 prefsFile = 'qtplasmac.prefs'
 cutType = int(Popen('halcmd getp qtplasmac.cut_type', stdout = PIPE, shell = True).communicate()[0])
 currentMat = int(Popen('halcmd getp qtplasmac.material_change_number', stdout = PIPE, shell = True).communicate()[0])
-fgColor = str(hex(int(Popen('halcmd getp qtplasmac.colorfg-s32', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
-bgColor = str(hex(int(Popen('halcmd getp qtplasmac.colorbg-s32', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
+fgColor = str(hex(int(Popen('halcmd getp qtplasmac.color_fg', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
+bgColor = str(hex(int(Popen('halcmd getp qtplasmac.color_bg', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
 zMaxOffset = float(Popen('halcmd getp plasmac.max-offset', stdout = PIPE, shell = True).communicate()[0])
 metric = ['mm', 4]
 imperial = ['in', 6]

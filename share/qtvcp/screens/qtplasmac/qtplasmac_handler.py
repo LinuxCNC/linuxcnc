@@ -240,28 +240,9 @@ class HandlerClass:
         CAM.wheelEvent = self.wheelEvent
         self.old_drawText = CAM.drawText
         CAM.drawText = self.drawText
-
-# # testing to find who is updating their view
-#        self.old_view_signal = PREVIEW.set_view_signal
-#        PREVIEW.set_view_signal = self.set_view_signal
-#
 # #testing for different video sources
 #         self.old_showEvent = CAM.showEvent
 #         CAM.showEvent = self.showEvent
-# 
-#     def showEvent(self, event):
-#         if CAMWIDGET.LIB_GOOD:
-# #            try:
-#             print('SETTING STREAM')
-#             self.w.camview.video = CAMWIDGET.WebcamVideoStream(src=0).start()
-# #            except:
-# #                LOG.error('Video capture error: {}'.format(self.w.camview.video))
-#
-# # testing to find who is updating their view
-# patched gcode graphics functions
-#    def set_view_signal(self, w, view, args):
-#        pass
-#        print('GCODE VIEW CHANGED',self.w.sender().objectName(),w,view,args)
 
 # patched style functions
     def styleText(self, start, end):
@@ -332,6 +313,15 @@ class HandlerClass:
         if self.w.camview.scale < 1: self.w.camview.scale = 1
         if self.w.camview.scale > 5: self.w.camview.scale = 5
 
+# #testing for different video sources
+#     def showEvent(self, event):
+#         if CAMWIDGET.LIB_GOOD:
+# #            try:
+#             print('SETTING STREAM')
+#             self.w.camview.video = CAMWIDGET.WebcamVideoStream(src=0).start()
+# #            except:
+# #                LOG.error('Video capture error: {}'.format(self.w.camview.video))
+
 
 #################################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
@@ -358,8 +348,12 @@ class HandlerClass:
         self.pmx485StatusPin = self.h.newpin('pmx485_status', hal.HAL_BIT, hal.HAL_IN)
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
+        self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
+        self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
 
     def link_hal_pins(self):
+        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
+        CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -1015,6 +1009,15 @@ class HandlerClass:
             self.w.conv_preview.set_current_view()
             self.conv_setup()
 
+    def z_height_changed(self, value):
+        self.w.dro_z.update_user(value)
+
+    def state_changed(self, value):
+        if value > 3:
+            self.w.dro_z.setProperty('Qreference_type', 10)
+        else:
+            self.w.dro_z.setProperty('Qreference_type', 1)
+
     def file_reload_clicked(self):
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
@@ -1219,6 +1222,8 @@ class HandlerClass:
         self.w.camera.pressed.connect(self.camera_pressed)
         self.w.laser.pressed.connect(self.laser_pressed)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
+        self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
+        self.statePin.value_changed.connect(lambda v:self.state_changed(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
