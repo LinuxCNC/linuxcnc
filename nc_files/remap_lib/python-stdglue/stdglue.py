@@ -488,10 +488,11 @@ def index_lathe_tool_with_wear(self,**words):
 # required INI settings
 # (Abs coordinates/ machine based units)
 #
-#[CHANGE_POSITION]
-#X = 5
-#Y = 0
-#Z = 0
+# will follow these directives:
+#{EMCIO]
+#TOOL_CHANGE_POSITION = 0 0 0
+#TOOL_CHANGE_WITH_SPINDLE_ON = 1
+#TOOL_CHANGE_QUILL_UP = 1
 
 #[TOOLSENSOR]
 #X = 5.00
@@ -510,6 +511,11 @@ def tool_probe_m6(self, **words):
         yield INTERP_OK
 
     IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
+
+    # turn off all spindles if required
+    if not self.tool_change_with_spindle_on:
+        for s in range(0,self.num_spindles):
+            emccanon.STOP_SPINDLE_TURNING(s)
 
     try:
         # we need to be in machine based units
@@ -534,6 +540,11 @@ def tool_probe_m6(self, **words):
         # cancel tool offset
         self.execute("G49")
 
+        # Z up first i required
+        if self.tool_change_quill_up:
+            self.execute("G53 G0 Z0")
+
+        #
         # change tool where ever we are
         # user sets toolchange position prior to toolchange
         # we will return here after
@@ -604,7 +615,7 @@ def tool_probe_m6(self, **words):
 
             # return to recorded tool change positon
             self.execute("G53 G0 Z{:.5f}".format(Z))
-            yield INTERP_EXECUTE_FINISH
+
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
 
             # adjust tool offset from calculations
