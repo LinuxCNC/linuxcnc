@@ -547,11 +547,11 @@ class HandlerClass:
                 else:
                     self.w.camera.hide()
                     msg = '000 Invalid entry for camera offset'
-                    self.dialog_error('INI FILE ERROR', msg)
+                    self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
             except:
                 self.w.camera.hide()
                 msg = '111 Invalid entry for camera offset'
-                self.dialog_error('INI FILE ERROR', msg)
+                self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
 
         lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         if lCode == '0':
@@ -567,11 +567,11 @@ class HandlerClass:
                 else:
                     self.w.laser.hide()
                     msg = 'Invalid entry for laser offset'
-                    self.dialog_error('INI FILE ERROR', msg)
+                    self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
             except:
                 self.w.laser.hide()
                 msg = 'Invalid entry for laser offset'
-                self.dialog_error('INI FILE ERROR', msg)
+                self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
 
     def closing_cleanup__(self):
         # disconnect powermax
@@ -1379,9 +1379,9 @@ class HandlerClass:
         else:
             self.overlay.hide()
 
-    def dialog_error(self, title, error):
+    def dialog_error(self, icon, title, error):
         msg = QMessageBox(self.w)
-        msg.setIcon(QMessageBox.Critical)
+        msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
         msg.exec_()
@@ -1476,7 +1476,7 @@ class HandlerClass:
                 self.button_normal(self.ccButton)
             else:
                 if self.ccFeed == 'None' or self.ccFeed < 1:
-                    self.dialog_error('USER BUTTON ERROR', 'Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
+                    self.dialog_error(QMessageBox.Warning, 'USER BUTTON ERROR', 'Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
                     return
                 else:
                     hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
@@ -1650,17 +1650,17 @@ class HandlerClass:
         sC = QDialog(self.w)
         sC.setWindowTitle('SINGLE CUT')
         l1 = QLabel('X Length:')
-        singleX = QDoubleSpinBox()
-        singleX.setAlignment(Qt.AlignRight)
-        singleX.setMinimum(-9999)
-        singleX.setMaximum(9999)
-        singleX.setDecimals(1)
+        xLength = QDoubleSpinBox()
+        xLength.setAlignment(Qt.AlignRight)
+        xLength.setMinimum(-9999)
+        xLength.setMaximum(9999)
+        xLength.setDecimals(1)
         l2 = QLabel('Y Length:')
-        singleY = QDoubleSpinBox()
-        singleY.setAlignment(Qt.AlignRight)
-        singleY.setMinimum(-9999)
-        singleY.setMaximum(9999)
-        singleY.setDecimals(1)
+        yLength = QDoubleSpinBox()
+        yLength.setAlignment(Qt.AlignRight)
+        yLength.setMinimum(-9999)
+        yLength.setMaximum(9999)
+        yLength.setDecimals(1)
         l3 = QLabel('')
         buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         buttonBox = QDialogButtonBox(buttons)
@@ -1672,27 +1672,35 @@ class HandlerClass:
         buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
         layout = QVBoxLayout()
         layout.addWidget(l1)
-        layout.addWidget(singleX)
+        layout.addWidget(xLength)
         layout.addWidget(l2)
-        layout.addWidget(singleY)
+        layout.addWidget(yLength)
         layout.addWidget(l3)
         layout.addWidget(buttonBox)
         sC.setLayout(layout)
-        singleX.setValue(self.w.PREFS_.getpref('X length', 0.0, float, 'SINGLE CUT'))
-        singleY.setValue(self.w.PREFS_.getpref('Y length', 0.0, float, 'SINGLE CUT'))
+        xLength.setValue(self.w.PREFS_.getpref('X length', 0.0, float, 'SINGLE CUT'))
+        yLength.setValue(self.w.PREFS_.getpref('Y length', 0.0, float, 'SINGLE CUT'))
         result = sC.exec_()
         if not result:
             self.w[self.scButton].setEnabled(True)
             return
-        self.w.PREFS_.putpref('X length', singleX.value(), float, 'SINGLE CUT')
-        self.w.PREFS_.putpref('Y length', singleY.value(), float, 'SINGLE CUT')
+        self.w.PREFS_.putpref('X length', xLength.value(), float, 'SINGLE CUT')
+        self.w.PREFS_.putpref('Y length', yLength.value(), float, 'SINGLE CUT')
         self.oldFile = ACTION.prefilter_path if ACTION.prefilter_path else None
+        if 910 in STATUS.stat.gcodes:
+            msg  = '\nSingle Cut switches to absolute mode (G90)\n'
+            msg += '\nAfter this cut, if you wish to return to\n'
+            msg += 'relative mode (G91), you will need to\n'
+            msg += 'do this manually from the MDI frame.\n\n'
+            self.dialog_error(QMessageBox.Warning, 'WARNING', msg)
+        xEnd = STATUS.stat.position[0] + xLength.value()
+        yEnd = STATUS.stat.position[1] + yLength.value()
         newFile = '{}single_cut.ngc'.format(self.tmpPath)
         with open(newFile, 'w') as f:
-            f.write('M3 $0 S1\n')
-            f.write('G91\n')
-            f.write('G1 X{} Y{} F#<_hal[plasmac.cut-feed-rate]>\n'.format(singleX.value(), singleY.value()))
             f.write('G90\n')
+            f.write('F#<_hal[plasmac.cut-feed-rate]>\n')
+            f.write('M3 $0 S1\n')
+            f.write('G1 X{:0.6f} Y{:0.6f}\n'.format(xEnd, yEnd))
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
@@ -2105,7 +2113,7 @@ class HandlerClass:
                         self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                         for item in required:
                             if item not in received:
-                                self.dialog_error('MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
+                                self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
@@ -2123,13 +2131,13 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         p_height = float(line.split('=')[1].strip())
                     elif t_number:
-                        self.dialog_error('MATERIALS ERROR', '\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
+                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('PIERCE_DELAY'):
                     received.append('PIERCE_DELAY')
                     if line.split('=')[1].strip():
                         p_delay = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('MATERIALS ERROR', '\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
+                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
                 elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                     if line.split('=')[1].strip():
                         pj_height = float(line.split('=')[1].strip())
@@ -2141,13 +2149,13 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         c_height = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('MATERIALS ERROR', '\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
+                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('CUT_SPEED'):
                     received.append('CUT_SPEED')
                     if line.split('=')[1].strip():
                         c_speed = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('MATERIALS ERROR', '\nNo value for CUT_SPEED in Material #{}'.format(t_number))
+                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for CUT_SPEED in Material #{}'.format(t_number))
                 elif line.startswith('CUT_AMPS'):
                     if line.split('=')[1].strip():
                         c_amps = float(line.split('=')[1].strip().replace(' ',''))
@@ -2167,7 +2175,7 @@ class HandlerClass:
                 self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                 for item in required:
                     if item not in received:
-                        self.dialog_error('MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
+                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
         self.display_materials()
         self.change_material(0)
         self.getMaterialBusy = 0
@@ -2205,7 +2213,7 @@ class HandlerClass:
             if self.autoChange:
                 self.materialChangePin.set(-1)
                 self.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
-            self.dialog_error('MATERIALS ERROR', '\nMaterial #{} not in material list'.format(int(material)))
+            self.dialog_error(QMessageBox.Critical, 'MATERIALS ERROR', '\nMaterial #{} not in material list'.format(int(material)))
             return False
 
     def save_default_material(self):
@@ -2366,8 +2374,8 @@ class HandlerClass:
             self.pmx485Exists = True
             self.pmx485CommsError = False
             if not hal.component_exists('pmx485'):
-                self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
-                                                  '\nPowermax communications is not available\n')
+                self.dialog_error(QMessageBox.Critical, 'COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
+                                                        '\nPowermax communications is not available\n')
                 return
             self.w.pmx485Status = False
             self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
@@ -2425,13 +2433,13 @@ class HandlerClass:
                             self.w.pmx485_enable.setChecked(False)
                             self.w.pmx485_label.setText('')
                             self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                            self.dialog_error('COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
+                            self.dialog_error(QMessageBox.Warning, 'COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
                             return
                         if hal.component_exists('pmx485'):
                             break
                 except:
-                    self.dialog_error('COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
-                                                      '\nPowermax communications is not available\n')
+                    self.dialog_error(QMessageBox.Critical, 'COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
+                                                            '\nPowermax communications is not available\n')
                     return
             # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
@@ -2439,7 +2447,7 @@ class HandlerClass:
                     hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
-                self.dialog_error('MATERIALS ERROR', '\nInvalid Cut Mode or Cut Amps\n\nCannot connect to Powermax\n')
+                self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nInvalid Cut Mode or Cut Amps\n\nCannot connect to Powermax\n')
                 self.w.pmx485_enable.setChecked(False)
                 self.pmx485Loaded = False
                 return
@@ -2526,12 +2534,12 @@ class HandlerClass:
                     self.w.pmx485_label.setText('Fault Code: {}'.format(faultCode))
                     self.w.pmx485_label.setStatusTip('Powermax error ({}) {}'.format(faultCode, faultMsg))
                     self.w.pmx485_label.setStyleSheet('QLabel { color: #ff0000 }')
-                    self.dialog_error('POWERMAX ERROR', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
+                    self.dialog_error(QMessageBox.Warning, 'POWERMAX ERROR', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
             else:
                 self.w.pmx485_label.setText('Fault Code: {}'.format(faultRaw))
                 self.w.pmx485_label.setStatusTip('Powermax error ({}) Unknown Powermax fault code'.format(faultRaw))
                 self.w.pmx485_label.setStyleSheet('QLabel { color: #ff0000 }')
-                self.dialog_error('Powermax Error','Unknown Powermax fault code: {}'.format(faultCode))
+                self.dialog_error(QMessageBox.Warning, 'Powermax Error','Unknown Powermax fault code: {}'.format(faultCode))
 
     def pmx485_mesh_enable_changed(self, state):
         if state and not self.meshMode:
@@ -2644,13 +2652,13 @@ class HandlerClass:
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
             msg = 'X axis motion would trip X maximum limit'
-            self.dialog_error('CUT RECOVERY ERROR', msg)
+            self.dialog_error(QMessageBox.Warning, 'CUT RECOVERY ERROR', msg)
             return
         moveX = int(distX / self.oScale)
         if hal.get_value('plasmac.axis-y-position') + \
            hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
             msg = 'Y axis motion would trip Y maximum limit'
-            self.dialog_error('CUT RECOVERY ERROR', msg)
+            self.dialog_error(QMessageBox.Warning, 'CUT RECOVERY ERROR', msg)
             return
         moveY = int(distY / self.oScale)
         hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
@@ -2754,7 +2762,7 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error('SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
+                    self.dialog_error(QMessageBox.Warning, 'SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
                     return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -2790,7 +2798,7 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error('ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
+                    self.dialog_error(QMessageBox.Warning, 'ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
                     return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
 
@@ -2798,10 +2806,10 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error('ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    self.dialog_error(QMessageBox.Warning, 'ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
                     return
                 elif '#<ucs_' in line:
-                    self.dialog_error('ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    self.dialog_error(QMessageBox.Warning, 'ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
                     return
                 elif '(conversational' in line:
                     self.arrayMode = 'conversational'
@@ -2864,7 +2872,7 @@ class HandlerClass:
             try:
                 a = float(widget.text())
             except:
-                self.dialog_error('NUMERIC ENTRY', 'An invalid entry has been detected')
+                self.dialog_error(QMessageBox.Warning, 'NUMERIC ENTRY', 'An invalid entry has been detected')
                 widget.setText('0')
         if name == 'gsEntry':
             # grid size is in inches
