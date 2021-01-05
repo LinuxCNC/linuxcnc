@@ -4854,7 +4854,6 @@ class gmoccapy(object):
             self.jv_counts = self.ro_counts = counts
 
     def _on_analog_enable_changed(self, pin, widget):
-        print(pin, widget)
         if not self.initialized:
             return
         if widget == "spc_spindle":
