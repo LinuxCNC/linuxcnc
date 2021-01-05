@@ -110,7 +110,7 @@ class _Lcnc_Action(object):
             STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            # make it temparary
+            # make it temporary
             STATUS.emit('error',255,'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
@@ -247,7 +247,7 @@ class _Lcnc_Action(object):
 
     def SET_AXIS_ORIGIN(self,axis,value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
-            log.warning("Couldn't set orgin -axis >{}< not recognized:".format(axis))
+            log.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
         m = "G10 L20 P0 %s%f"%(axis,value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)

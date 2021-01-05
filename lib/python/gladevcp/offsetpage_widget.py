@@ -186,7 +186,7 @@ class OffsetPage(gtk.VBox):
 
         degree_tmpl = "%11.2f"
 
-        # fill each row of the liststore fron the offsets arrays
+        # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([tool, g5x, rot, g92, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 2:
@@ -306,7 +306,7 @@ class OffsetPage(gtk.VBox):
         self.queue_draw()
 
     # When the column is edited this does the work
-    # TODO the edited column does not end up showing the editted number even though linuxcnc
+    # TODO the edited column does not end up showing the edited number even though linuxcnc
     # registered the change
     def col_editted(self, widget, filtered_path, new_text, col):
         (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)

@@ -64,7 +64,7 @@ def init(app_name):
             DBUS_IFACE.connect_to_signal('ActionInvoked', _onActionInvoked)
             DBUS_IFACE.connect_to_signal('NotificationClosed', _onNotificationClosed)
     except Exception as e:
-        LOG.warning('Descktop Notify not availale:: {}'.format(e))
+        LOG.warning('Desktop Notify not available:: {}'.format(e))
 
 def _onActionInvoked(nid, action):
     """Called when a notification action is clicked"""
@@ -134,7 +134,7 @@ class Notification(object):
             NOTIFICATIONS[self.id] = self
             return True
         except Exception as e:
-            LOG.debug('Descktop Notify: {}'.format(e))
+            LOG.debug('Desktop Notify: {}'.format(e))
 
     def close(self):
         """Ask the notification server to close the notification"""

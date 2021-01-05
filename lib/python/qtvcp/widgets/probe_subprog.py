@@ -99,7 +99,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.cal_avg_error = False
         self.cal_x_error = False
         self.cal_y_error = False
-        # list of results to be transfered to main program
+        # list of results to be transferred to main program
         self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a', 'delta']
         # data structure to hold result values
         self.status_xm = 0.0
@@ -149,7 +149,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 if not self.check_pid(self.PID):
 #                    sys.exit(0)
                     self.terminate()
-    # check for an error messsage was sent to us or
+    # check for an error message was sent to us or
     # check that the command is actually a method in our class else
     # this message isn't for us - ignore it
     def process_command(self, cmd):

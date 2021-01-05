@@ -733,14 +733,14 @@ G59.3 = select coordinate system 9
 
 G61 = """G61 Exact Path Mode
 G61 = Exact path mode, movement exactly as
-programed. Moves will slow or stop as needed to
-reach every programed point. If two sequential
+programmed. Moves will slow or stop as needed to
+reach every programmed point. If two sequential
 moves are exactly co-linear movement will not stop
 """
 
 G61_1 = """G61.1 Exact Stop Mode
 G61.1 - Exact stop mode, movement will stop at the
-end of each programed segment.
+end of each programmed segment.
 """
 
 G64 = """G64 Path Blending

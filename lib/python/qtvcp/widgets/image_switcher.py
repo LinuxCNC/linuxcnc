@@ -67,7 +67,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
             if number <0 or number > len(self._imagePath)-1:
                 LOG.debug('Path reference number out of range: {}'.format(number))
                 return
-            # resouces file images.
+            # resources file images.
             if ':/' in self._imagePath[number]:
                 path = self._imagePath[number]
                 pixmap = QPixmap(path)
@@ -79,7 +79,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
             LOG.error('Path reference number: {}'.format(e))
             path = os.path.expanduser(self._defaultImage)
         #print 'requested:',number,self._imagePath[number]
-        # if path doesn't exisit try referencing
+        # if path doesn't exist try referencing
         # from the built in image folder
         if not os.path.exists(path):
             path = os.path.join(INFO.IMAGE_PATH, path)
@@ -178,7 +178,7 @@ class StatusImageSwitcher(ImageSwitcher):
             #print 'bool images'
             self.set_image_number(1)
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS)):
-            #print 'per joint limts images', self._last_limit, group
+            #print 'per joint limits images', self._last_limit, group
             for i in range(0,len(INFO.AVAILABLE_JOINTS)):
                 if group[i] == self._last_limit[i]:
                     pass
@@ -189,7 +189,7 @@ class StatusImageSwitcher(ImageSwitcher):
                     break
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS) * 2):
             pass
-            #print 'per joint and per end limts images'
+            #print 'per joint and per end limits images'
         self._last_limit = group
 
     #########################################################################

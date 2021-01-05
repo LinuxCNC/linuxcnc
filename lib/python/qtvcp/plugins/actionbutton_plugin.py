@@ -291,7 +291,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.combo)
 
         # related data selection - note the name 'self.ud' uses a number
-        # that doubles each time - binary coded. thsi is so we can specify
+        # that doubles each time - binary coded. this is so we can specify
         # multiple selectors  code 1 give ud1, code 2 gives ud2, code 3 gives
         # ud1 and ud2 etc
  
@@ -1044,7 +1044,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
 
     def updateWidget(self):
         # check action-combobox last pick because it sometimes
-        # forgets whats selected. anyways...
+        # forgets what's selected. anyways...
         winProperty = self.combo.getLastPick()
         if winProperty is None:
             winProperty = 'unused'

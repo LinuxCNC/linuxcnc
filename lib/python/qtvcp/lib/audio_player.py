@@ -54,7 +54,7 @@ try:
 except:
     ESPEAK = False
     log.warning('audio alerts - Is python-espeak installed?')
-    log.warning('Text to speach output not available. ')
+    log.warning('Text to speech output not available. ')
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -155,7 +155,7 @@ class Player:
             #file ended, stop
             self.player.set_state(gst.STATE_NULL)
         elif t == gst.MESSAGE_ERROR:
-            #Error ocurred, print and stop
+            #Error occurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
             log.error('Audio player - Error {}'.format(err, debug))

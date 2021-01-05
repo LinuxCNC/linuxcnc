@@ -56,8 +56,8 @@ def keyboard_forward(window, forward):
         This is kind of hack needed to properly function inside Tk windows.
         Gtk app will receive _all_ events, even not needed. So we have to forward
         back things that left over after our widgets. Connect handlers _after_
-        all others and listen for key-presss and key-release events. If key is not
-        in ignore list - forward it to window id found in evironment.
+        all others and listen for key-press and key-release events. If key is not
+        in ignore list - forward it to window id found in environment.
     """
     if not forward:
         return

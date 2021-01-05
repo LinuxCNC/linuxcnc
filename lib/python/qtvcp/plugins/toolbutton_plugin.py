@@ -30,7 +30,7 @@ class SystemToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('systemtoolbutton')))
     def toolTip(self):
-        return "Button for selecting a User Co-ordinate System"
+        return "Button for selecting a User Coordinate System"
     def whatsThis(self):
         return ""
     def isContainer(self):

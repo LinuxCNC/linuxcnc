@@ -544,7 +544,7 @@ class ToolBarActions():
         except:
             widget.addAction(impAct)
 
-        # is this a dublicate ?
+        # is this a duplicate ?
         for i in alist:
             if i.text() == filename:
                 widget.removeAction(i)

@@ -233,7 +233,7 @@ class MacroTabDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return "Macro program Selection Dialog"
 
     def whatsThis(self):
-        return "Uses it to select short convience subroutines"
+        return "Uses it to select short convenience subroutines"
 
     def isContainer(self):
         return False
@@ -279,7 +279,7 @@ class OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return QIcon(QPixmap(ICON.get_path('originoffsetdialog')))
 
     def toolTip(self):
-        return "Orgin Offset Editting Dialog"
+        return "Origin Offset Editing Dialog"
 
     def whatsThis(self):
         return ""
@@ -328,7 +328,7 @@ class ToolOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return QIcon(QPixmap(ICON.get_path('Tooloffsetdialog')))
 
     def toolTip(self):
-        return "Tool Offset Editting Dialog"
+        return "Tool Offset Editing Dialog"
 
     def whatsThis(self):
         return ""

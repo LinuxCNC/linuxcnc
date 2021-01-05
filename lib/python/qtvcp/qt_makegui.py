@@ -91,7 +91,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
-        # make an instance with embeded variables so they
+        # make an instance with embedded variables so they
         # are available to all subclassed objects
         _HalWidgetBase(halcomp,path,self)
 
