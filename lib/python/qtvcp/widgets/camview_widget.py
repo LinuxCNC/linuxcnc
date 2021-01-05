@@ -222,7 +222,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         circles = CV.HoughCircles(gray,CV.cv.CV_HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=10,maxRadius=15)
         # print circles
         if circles is not None:
-            print circles
+            #print circles
             circles = np.uint16(np.around(circles))
             for i in circles[0,:]:
                 # draw the outer circle
