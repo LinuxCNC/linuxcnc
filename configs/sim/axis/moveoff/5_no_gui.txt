@@ -10,7 +10,7 @@ A halshow application widget shows a watch panel for pins associated with the z-
 
 A halscope session is started (select 'Roll' to start) to show behavior of important moveoff inputs and outputs
 
-These utilties can be augmented or disabled using the inifile settings:
+These utilities can be augmented or disabled using the inifile settings:
  [APPLICATIONS]APP = program_name
 
 Note: This is a Hal-only implementation and the offset positions are NOT shown on the axis gui preview.

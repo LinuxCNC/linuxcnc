@@ -3,7 +3,7 @@
 # Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
 loadrt hal_parport cfg="0xa400 0xac00"
 
-# Connect both Paralell Ports to Threads for Read / Write
+# Connect both Parallel Ports to Threads for Read / Write
 addf parport.0.read base-thread 1
 addf parport.0.write base-thread -1
 addf parport.1.read base-thread 1

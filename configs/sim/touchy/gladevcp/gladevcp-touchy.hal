@@ -1,4 +1,4 @@
-# touchy doesnt use halui, so just set these boxes to permanently active
+# touchy doesn't use halui, so just set these boxes to permanently active
 
 setp gladevcp.status 1
 setp gladevcp.settings 1

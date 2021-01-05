@@ -46,7 +46,7 @@ class HandlerClass:
     
     def colorize(self, w, state, color):
         ''' helper method: try to do the right thing when setting the color of a widget.
-        The GtkLabel, and hence HAL_Label widget doesnt take a color, so
+        The GtkLabel, and hence HAL_Label widget doesn't take a color, so
         it needs an enclosing Eventbox which can be colorized.'''
         if isinstance(w,gtk.Label):
             parent = w.get_parent()

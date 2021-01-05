@@ -351,7 +351,7 @@ w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
 if orientation == 'portrait':
     w(fpausedmotion,'configure','-relief','raised','-bd','1')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
-w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
+w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin forwardd direction')
 w('DynamicHelp::add',fpausedmotion + '.display.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
 
 # hide bottom pane until modified

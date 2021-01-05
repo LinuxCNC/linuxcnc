@@ -24,7 +24,7 @@ net override-counts       gmoccapy.spindle.spindle-override.counts
 net override-counts       gmoccapy.jog.jog-velocity.counts
 
 # the scales of the counts are set on the settings page of the GUI, not here
-# this is differnet from using halui pin!!
+# this is different from using halui pin!!
 
 # jog velocity mode on (1) or off(0) / Geschwindigkeitsmodus an (1) oder aus (0)
 # 0 is default / 0 ist Standardwert

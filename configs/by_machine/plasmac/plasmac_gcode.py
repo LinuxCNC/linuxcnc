@@ -700,7 +700,7 @@ with open(inCode, 'r') as fRead:
             if offsetG41:
                 codeError = True
                 wng  = '\nCannot validate a material change\n'
-                wng += 'with cutter compensation acive\n'
+                wng += 'with cutter compensation active\n'
                 wng += '\nError near line #{}\n'.format(lineNum)
                 dialog_error(gtk.MESSAGE_ERROR, 'ERROR', wng)
             print(line)
