@@ -267,11 +267,9 @@ class HandlerClass:
             self.overlay.show()
 
     def gcode_lexer_call(self):
-        print('NEED TO HIDE GCODE LEXER BUTTON')
         pass
 
     def python_lexer_call(self):
-        print('NEED TO HIDE PYTHON LEXER BUTTON')
         pass
 
     def kill_check(self):
@@ -350,10 +348,12 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetCounts = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
+        CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -1013,9 +1013,11 @@ class HandlerClass:
         self.w.dro_z.update_user(value)
 
     def state_changed(self, value):
-        if value > 3:
+        if (value > 3 and not STATUS.is_interp_idle()) or value == 19:
             self.w.dro_z.setProperty('Qreference_type', 10)
-        else:
+
+    def z_offset_changed(self, counts):
+        if not counts:
             self.w.dro_z.setProperty('Qreference_type', 1)
 
     def file_reload_clicked(self):
@@ -1224,6 +1226,7 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.statePin.value_changed.connect(lambda v:self.state_changed(v))
+        self.zOffsetCounts.value_changed.connect(lambda v:self.z_offset_changed(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -1714,7 +1717,7 @@ class HandlerClass:
 # MATERIAL HANDLING FUNCTIONS #
 #########################################################################################################################
     def save_materials_clicked(self):
-        material = self.materialChangeNumberPin.hal_pin.get()
+        material = self.materialChangeNumberPin.get()
         index = self.w.materials_box.currentIndex()
         self.save_materials(material, index)
 
