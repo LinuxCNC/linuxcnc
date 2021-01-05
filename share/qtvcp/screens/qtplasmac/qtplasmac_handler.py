@@ -1711,14 +1711,14 @@ class HandlerClass:
                     'QPushButton {{ color: {0}; background: {1} }} \
                      QPushButton:pressed {{ color: {0}; background: {1} }} \
                      QPushButton:disabled {{ color: {2}}}' \
-                     .format(self.backColor, self.highColor, self.inactive))
+                     .format(self.backColor, self.fore1Color, self.disabledColor))
 
     def button_normal(self, button):
         self.w[button].setStyleSheet( \
                     'QPushButton {{ color: {0}; background: {1} }} \
                      QPushButton:pressed {{ color: {0}; background: {1} }} \
                      QPushButton:disabled {{ color: {2}}}' \
-                     .format(self.foreColor, self.backColor, self.inactive))
+                     .format(self.foreColor, self.backColor, self.disabledColor))
 
 
 #########################################################################################################################
@@ -2958,12 +2958,19 @@ class HandlerClass:
            self.w.setStyleSheet(set_style.read())
 # set colors
         self.foreColor = QColor(self.w.color_foregrnd.palette().color(QPalette.Background)).name()
+        self.fore1Color = QColor(self.w.color_foregalt.palette().color(QPalette.Background)).name()
         self.backColor = QColor(self.w.color_backgrnd.palette().color(QPalette.Background)).name()
-        self.highColor = QColor(self.w.color_foregalt.palette().color(QPalette.Background)).name()
-        self.inactive = QColor(self.w.color_disabled.palette().color(QPalette.Background)).name()
-        fcolor = QColor(self.foreColor)
-        bcolor = QColor(self.backColor)
-        hcolor = QColor(self.highColor)
+        self.back1Color = QColor(self.w.color_backgalt.palette().color(QPalette.Background)).name()
+        self.disabledColor = QColor(self.w.color_disabled.palette().color(QPalette.Background)).name()
+        self.previewColor = QColor(self.w.color_preview.palette().color(QPalette.Background)).name()
+        fColor = QColor(self.foreColor)
+        f1Color = QColor(self.fore1Color)
+        bColor = QColor(self.backColor)
+        b1Color = QColor(self.back1Color)
+        pColor = QColor(self.previewColor)
+
+        print self.foreColor, fColor, QColor('transparent')
+
 # set icon colors
         buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
                    'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
@@ -2979,36 +2986,48 @@ class HandlerClass:
                 self.color_button_image(button, self.foreColor)
 # gcode display, editor and graphics cannot use .qss file
         for i in range(0,4):
-            self.w.gcode_display.lexer.setColor(fcolor, i)
-            self.w.gcode_editor.editor.lexer.setColor(fcolor, i)
-        self.w.gcode_display.set_background_color(bcolor)
-        self.w.gcode_display.setMarginsForegroundColor(fcolor)
-        self.w.gcode_display.setMarginsBackgroundColor(QColor(self.w.color_backgalt.palette().color(QPalette.Background)))
-        self.w.gcode_display.setMarkerBackgroundColor(QColor(self.w.color_backgalt.palette().color(QPalette.Background)))
-        self.w.gcode_display.setCaretForegroundColor(bcolor)
-        self.w.gcode_display.setCaretLineBackgroundColor(QColor(self.w.color_backgalt.palette().color(QPalette.Background)))
-        self.w.gcode_display.setSelectionForegroundColor(fcolor)
-        self.w.gcode_display.setSelectionBackgroundColor(bcolor)
-        self.w.gcode_editor.editor.set_background_color(bcolor)
-        self.w.gcode_editor.editor.setMarginsForegroundColor(fcolor)
-        self.w.gcode_editor.editor.setMarginsBackgroundColor(QColor(self.w.color_backgalt.palette().color(QPalette.Background)))
-        self.w.gcode_editor.editor.setMarkerBackgroundColor(bcolor)
-        self.w.gcode_editor.editor.setCaretForegroundColor(hcolor)
-        self.w.gcode_editor.editor.setCaretLineBackgroundColor(bcolor)
-        self.w.gcode_editor.editor.setSelectionForegroundColor(bcolor)
-        self.w.gcode_editor.editor.setSelectionBackgroundColor(fcolor)
-        self.w.gcodegraphics.setBackgroundColor(QColor(self.w.color_preview.palette().color(QPalette.Background)))
-        self.w.conv_preview.setBackgroundColor(QColor(self.w.color_preview.palette().color(QPalette.Background)))
+            self.w.gcode_display.lexer.setColor(fColor, i)
+            self.w.gcode_editor.editor.lexer.setColor(fColor, i)
+# display background
+        self.w.gcode_display.set_background_color(bColor)
+# display left margin
+        self.w.gcode_display.setMarginsForegroundColor(fColor)
+        self.w.gcode_display.setMarginsBackgroundColor(bColor)
+# display current gcode line
+        self.w.gcode_display.setMarkerBackgroundColor(b1Color)
+# display active line
+        self.w.gcode_display.setCaretWidth(0)
+        self.w.gcode_display.setCaretLineBackgroundColor(b1Color)
+# display selected text
+        self.w.gcode_display.setSelectionForegroundColor(fColor)
+        self.w.gcode_display.setSelectionBackgroundColor(QColor('transparent'))
+# editor background
+        self.w.gcode_editor.editor.set_background_color(bColor)
+# editor left margin
+        self.w.gcode_editor.editor.setMarginsForegroundColor(fColor)
+        self.w.gcode_editor.editor.setMarginsBackgroundColor(bColor)
+# editor current gcode line
+        self.w.gcode_editor.editor.setMarkerBackgroundColor(bColor)
+        self.w.gcode_editor.editor.setCaretForegroundColor(f1Color)
+# editor active line
+        self.w.gcode_editor.editor.setCaretWidth(4)
+        self.w.gcode_editor.editor.setCaretLineBackgroundColor(bColor)
+# editor selected text
+        self.w.gcode_editor.editor.setSelectionForegroundColor(bColor)
+        self.w.gcode_editor.editor.setSelectionBackgroundColor(fColor)
+# graphics background
+        self.w.gcodegraphics.setBackgroundColor(pColor)
+        self.w.conv_preview.setBackgroundColor(pColor)
 
     def color_button_image(self, button, color):
         image_path = '{}{}.png'.format(self.IMAGES, button)
         self.image = QImage(image_path)
         for x in range(self.image.width()):
             for y in range(self.image.height()):
-                pcolor = self.image.pixelColor(x, y)
-                if pcolor.alpha() > 0:
+                pColor = self.image.pixelColor(x, y)
+                if pColor.alpha() > 0:
                     newColor = QColor(color)
-                    newColor.setAlpha(pcolor.alpha())
+                    newColor.setAlpha(pColor.alpha())
                     self.image.setPixelColor(x, y, newColor)
         self.w['{}'.format(button)].setIcon(QIcon(QPixmap.fromImage(self.image)))
 
