@@ -597,11 +597,11 @@ def tool_probe_m6(self, **words):
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
                 if METRIC_BASED:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
-                else:
                     self.execute("G21")
                     print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
             if AbsoluteFlag:
                  self.execute("G90")
             else:
@@ -658,11 +658,11 @@ def tool_probe_m6(self, **words):
                 # if we switched units for tool change - switch back
                 if switchUnitsFlag:
                     if METRIC_BASED:
+                        self.execute("G22")
+                        print ("switched Units back to metric")
+                    else:
                         self.execute("G20")
                         print ("switched Units back to imperial")
-                    else:
-                        self.execute("G21")
-                        print ("switched Units back to metric")
                 if AbsoluteFlag:
                     self.execute("G90")
                 else:
@@ -685,11 +685,11 @@ def tool_probe_m6(self, **words):
                      # if we switched units for tool change - switch back
                      if switchUnitsFlag:
                          if METRIC_BASED:
-                             self.execute("G20")
-                             print ("switched Units back to imperial")
-                         else:
                              self.execute("G21")
                              print ("switched Units back to metric")
+                         else:
+                             self.execute("G20")
+                             print ("switched Units back to imperial")
                      if AbsoluteFlag:
                           self.execute("G90")
                      else:
@@ -713,11 +713,11 @@ def tool_probe_m6(self, **words):
                 # if we switched units for tool change - switch back
                 if switchUnitsFlag:
                     if METRIC_BASED:
-                        self.execute("G20")
-                        print ("switched Units back to imperial")
-                    else:
                         self.execute("G21")
                         print ("switched Units back to metric")
+                    else:
+                        self.execute("G20")
+                        print ("switched Units back to imperial")
                 if AbsoluteFlag:
                     self.execute("G90")
                 else:
@@ -779,21 +779,21 @@ def tool_probe_m6(self, **words):
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
                 if METRIC_BASED:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
-                else:
                     self.execute("G21")
                     print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
 
         except InterpreterException as e:
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
                 if METRIC_BASED:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
-                else:
                     self.execute("G21")
                     print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
             if AbsoluteFlag:
                 self.execute("G90")
             else:
