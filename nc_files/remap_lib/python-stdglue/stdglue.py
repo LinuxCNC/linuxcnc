@@ -556,7 +556,6 @@ def tool_probe_m6(self, **words):
 
         yield INTERP_EXECUTE_FINISH
 
-
         try:
 
 # TODO allow the autoprobe section to be a configurable option from some interface (restoring manual mode)
@@ -589,7 +588,7 @@ def tool_probe_m6(self, **words):
                 self.params["_backup_offset"] = self.params[5363]
             elif self.params["_coord_system"] == 593:
                 self.params["_backup_offset"] = self.params[5383]
-            print (self.params["_backup_offset"])
+            print ("backup_offset", self.params["_backup_offset"])
 
             self.execute("G10 L2 P0 Z0")                           # reset G5x offset for correct tool measurement
 
@@ -609,6 +608,7 @@ def tool_probe_m6(self, **words):
                 yield INTERP_ERROR
 
             if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1:
+                     print("------------G38.4 used WITH SPRING SETTER-------------")
                      # Spring mounted latch probe                                                                         # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
                      self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
                      # Wait for results
@@ -672,11 +672,6 @@ def tool_probe_m6(self, **words):
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
-
-    except Exception as e:
-        print (e)
-        self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
-        yield INTERP_ERROR
 
 
 
