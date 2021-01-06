@@ -603,7 +603,9 @@ def tool_probe_m6(self, **words):
                     self.execute("G20")
                     print ("switched Units back to imperial")
             if AbsoluteFlag:
-                self.execute("G90")
+                 self.execute("G90")
+            else:
+                 self.execute("G91")
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -663,6 +665,8 @@ def tool_probe_m6(self, **words):
                         print ("switched Units back to imperial")
                 if AbsoluteFlag:
                     self.execute("G90")
+                else:
+                    self.execute("G91")
                 # restore G5x offset if something fail
                 self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
                 self.set_errormsg("tool_probe_m6 remap error:")
@@ -687,7 +691,9 @@ def tool_probe_m6(self, **words):
                                  self.execute("G20")
                                  print ("switched Units back to imperial")
                          if AbsoluteFlag:
-                             self.execute("G90")
+                              self.execute("G90")
+                         else:
+                              self.execute("G91")
                          # restore G5x offset if something fail
                          self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
                          self.set_errormsg("tool_probe_m6 remap error:")
@@ -714,6 +720,8 @@ def tool_probe_m6(self, **words):
                         print ("switched Units back to imperial")
                 if AbsoluteFlag:
                     self.execute("G90")
+                else:
+                    self.execute("G91")
                 # restore G5x offset if something fail
                 self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
                 self.set_errormsg("tool_probe_m6 remap error:")
@@ -753,10 +761,6 @@ def tool_probe_m6(self, **words):
             # Attempt for wait to position before call self.execute("G1 Z{:.5f}".format(Z)) # Value are ok but this code seem to be not executed
             yield INTERP_EXECUTE_FINISH
 
-            # set back the saved absolute state if needed
-            if AbsoluteFlag:
-                self.execute("G90")
-
             if Z != 0 and AbsoluteFlag:
                   print("******************RESTORING Z", Z)
                   self.execute("F100")
@@ -769,6 +773,13 @@ def tool_probe_m6(self, **words):
             else:
                   print("******************NO Z RESTORING DUE TO SOMETHING WRONG")
 
+            # set back the saved absolute state if needed
+            if AbsoluteFlag:
+                   self.execute("G90")
+            else:
+                   self.execute("G91")
+
+                    
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
                 if IMPERIAL_BASED:
@@ -790,6 +801,8 @@ def tool_probe_m6(self, **words):
                     print ("switched Units back to imperial")
             if AbsoluteFlag:
                 self.execute("G90")
+            else:
+                self.execute("G91")
             # restore G5x offset if something fail
             self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
