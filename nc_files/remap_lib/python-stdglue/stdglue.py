@@ -520,15 +520,11 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
+    # Saving G20 G21 at startup
     METRIC_BASED = (bool(self.params['_metric_machine']))
 
     # Saving G90 G91 at startup
-    if bool(self.params["_absolute"]) == 1:
-        print ("Absolute G90")
-        AbsoluteFlag = True
-    else:
-        print ("Incremental G91")
-        AbsoluteFlag = False
+    AbsoluteFlag = bool(self.params["_absolute"])
 
     # cancel tool offset
     self.execute("G49")
