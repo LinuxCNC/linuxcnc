@@ -473,17 +473,19 @@ def index_lathe_tool_with_wear(self,**words):
 # REMAP=M6 modalgroup=10 python=tool_probe_m6
 #
 # auto tool probe on m6
+# move to Z max - configurable offset
 # move to tool change position for toolchange
-# wait for acknoledge of tool change
+# backup offset and position
+# wait for acknowledge of tool change
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position
-# set offsets
+# set tool offsets
+# move to Z max - configurable offset
+# goto position backup
 # based on Versaprobe remap
 #
-# param 5000 holds the work piece height
-# param 4999 should be set to 1 if the 
-# machine is based in imperial
+# param _backup_offset holds the work piece height
 #
 # required INI settings
 # (Abs coordinates/ machine based units)
@@ -495,13 +497,20 @@ def index_lathe_tool_with_wear(self,**words):
 #TOOL_CHANGE_QUILL_UP = 1
 
 #[TOOLSENSOR]
-#X = 5.00
+#X = -5.00
 #Y = -1
 #Z = -1
-#PROBEHEIGHT = 2.3
+
+#SETTER_HEIGHT = 40
 #MAXPROBE =  -3
-#SEARCH_VEL = 20
-#PROBE_VEL = 5
+#TS_LATCH = 0.3
+#REVERSE_LATCH = 2
+#SEARCH_VEL = 300
+#PROBE_VEL = 10
+
+
+# What about checking machine is homed before allow this?
+# TODO ver's use a configurable setterheight that can be set manually or using probe
 
 def tool_probe_m6(self, **words):
 
@@ -516,15 +525,20 @@ def tool_probe_m6(self, **words):
     # record current position; probably should record every axis
     X = emccanon.GET_EXTERNAL_POSITION_X()
     Y = emccanon.GET_EXTERNAL_POSITION_Y()
-    Z = emccanon.GET_EXTERNAL_POSITION_Z()
-    print ("X",X)
-    print ("Y",Y)
-    print ("Z",Z)
+#    Z = emccanon.GET_EXTERNAL_POSITION_Z()
+    print ("X ",X)
+    print ("Y ",Y)
+#    print ("Z ",Z)
+    if self.current_pocket == 0:                                      # if current tool is 0 do not restore Z
+        Z = 0
+        print ("Z if TOOL 0 ",Z)
+    else:                                                             # if current tool is GT 0 try restore Z with all offset including new tool offset
+        Z = self.params[5422]
+        print ("Z if TOOL 1 ",Z)
 
     # Z up first if required
     if self.tool_change_quill_up:
         self.execute("G53 G0 Z0")
-        yield INTERP_EXECUTE_FINISH
 
     # turn off all spindles if required
     if not self.tool_change_with_spindle_on:
@@ -556,6 +570,7 @@ def tool_probe_m6(self, **words):
 
         yield INTERP_EXECUTE_FINISH
 
+
         try:
 
 # TODO allow the autoprobe section to be a configurable option from some interface (restoring manual mode)
@@ -565,13 +580,11 @@ def tool_probe_m6(self, **words):
             # move to tool setter position (from INI)
             self.execute("G90")
             self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
-            yield INTERP_EXECUTE_FINISH
-
             self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
-            yield INTERP_EXECUTE_FINISH
+
 
             if self.params["_coord_system"] == 540:
-                self.params["_backup_offset"] = self.params[5223]    # backup G5x offset for correct tool measurement
+                self.params["_backup_offset"] = self.params[5223]         # backup G5x offset for correct tool measurement
             elif self.params["_coord_system"] == 550:
                 self.params["_backup_offset"] = self.params[5243]
             elif self.params["_coord_system"] == 560:
@@ -590,7 +603,7 @@ def tool_probe_m6(self, **words):
                 self.params["_backup_offset"] = self.params[5383]
             print ("backup_offset", self.params["_backup_offset"])
 
-            self.execute("G10 L2 P0 Z0")                           # reset G5x offset for correct tool measurement
+            self.execute("G10 L2 P0 Z0")                                  # reset G5x offset for correct tool measurement
 
             # set incremental mode
             self.execute("G91")
@@ -607,10 +620,10 @@ def tool_probe_m6(self, **words):
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
 
-            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1:
+            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1:    # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
                      print("------------G38.4 used WITH SPRING SETTER-------------")
-                     # Spring mounted latch probe                                                                         # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
-                     self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
+                     # Spring mounted latch probe                                                                
+                     self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                      # Wait for results
                      yield INTERP_EXECUTE_FINISH
 
@@ -621,10 +634,8 @@ def tool_probe_m6(self, **words):
                          self.set_errormsg("tool_probe_m6 remap error:")
                          yield INTERP_ERROR
 
-            # Latch probe
-            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
-            # Wait for final retract
-            yield INTERP_EXECUTE_FINISH
+            # Final Latch probe
+            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
 
             # Final probe
             self.execute("G38.2 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
@@ -641,22 +652,11 @@ def tool_probe_m6(self, **words):
             # set back absolute state
             self.execute("G90")
 
-            # Z up first if required
-            if self.tool_change_quill_up:
-                 self.execute("G53 G0 Z0")
-                 yield INTERP_EXECUTE_FINISH
-
-            # return to recorded positon
-            self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
-            yield INTERP_EXECUTE_FINISH
-            self.execute("G53 G0 Z{:.5f}".format(Z))
-            yield INTERP_EXECUTE_FINISH
-
-
             # adjust tool offset from calculations
             proberesult = self.params[5063]
             probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]  # TODO using global_var from some interface allow to set and save this value using probe or by hand
             workheight = self.params["_backup_offset"]                  # load G5x backup_offset after correct tool measurement
+
 
             adj = proberesult - probeheight                             # IMO better to save tool offset without G5x offset and to do this separatly
             self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))
@@ -666,6 +666,25 @@ def tool_probe_m6(self, **words):
 
             # apply tool offset
             self.execute("G43")
+            # Wait for acceptance
+            yield INTERP_EXECUTE_FINISH
+
+            # Z up first if required
+             if self.tool_change_quill_up:
+                 self.execute("G53 G0 Z0")
+
+            # return to recorded positon
+            self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
+#            Zcalc = Z + self.params["_backup_offset"]
+#            print("Zcalc", Zcalc)
+#            self.execute("G53 G0 Z{:.5f}".format(Zcalc))
+
+            if Z <> 0:
+                  print("******************RESTORING Z", Z)
+                  self.execute("F100")
+                  self.execute("G1 Z{:.5f}".format(Z))                   # Value ar ok but this code seem to be not executed
+                  print("******************Why not move to ", Z)
+
 
 
         except InterpreterException as e:
