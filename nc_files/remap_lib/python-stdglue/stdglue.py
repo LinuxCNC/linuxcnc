@@ -658,7 +658,7 @@ def tool_probe_m6(self, **words):
                 # if we switched units for tool change - switch back
                 if switchUnitsFlag:
                     if METRIC_BASED:
-                        self.execute("G22")
+                        self.execute("G21")
                         print ("switched Units back to metric")
                     else:
                         self.execute("G20")
