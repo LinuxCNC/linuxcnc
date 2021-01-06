@@ -524,7 +524,7 @@ def tool_probe_m6(self, **words):
     METRIC_BASED = (bool(self.params['_metric_machine']))
 
     # Saving G90 G91 at startup
-    AbsoluteFlag = bool(self.params["_absolute"])
+    AbsoluteFlag = (bool(self.params["_absolute"])
 
     # cancel tool offset
     self.execute("G49")
