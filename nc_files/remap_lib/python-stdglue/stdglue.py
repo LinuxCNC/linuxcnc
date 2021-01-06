@@ -520,6 +520,8 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
+    IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
+    
     # cancel tool offset
     self.execute("G49")
 
@@ -547,6 +549,20 @@ def tool_probe_m6(self, **words):
             emccanon.STOP_SPINDLE_TURNING(s)
 
     try:
+        # we need to be in machine based units
+        # if we aren't - switch
+        # remember so we can switch back later
+        switchUnitsFlag = False
+        if bool(self.params["_imperial"]) != IMPERIAL_BASED:
+            print ("not right Units: {}".format(bool(self.params["_imperial"])))
+            if IMPERIAL_BASED:
+                print ("switched Units to imperial")
+                self.execute("G20")
+            else:
+                print ("switched Units to metric")
+                self.execute("G21")
+            switchUnitsFlag = True
+
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
         self.params["current_pocket"] = self.current_pocket
@@ -616,13 +632,21 @@ def tool_probe_m6(self, **words):
             # FIXME if there is an error it never comes back
             # which leaves linuxcnc in g91 state
             if self.params[5070] == 0 or self.return_value > 0.0:
+                # if we switched units for tool change - switch back
+                if switchUnitsFlag:
+                    if IMPERIAL_BASED:
+                        self.execute("G21")
+                        print ("switched Units back to metric")
+                    else:
+                        self.execute("G20")
+                        print ("switched Units back to imperial")
                 self.execute("G90")
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
 
-            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1:    # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
+            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
                      print("------------G38.4 used WITH SPRING SETTER-------------")
-                     # Spring mounted latch probe                                                                
+                     # Spring mounted latch probe
                      self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                      # Wait for results
                      yield INTERP_EXECUTE_FINISH
@@ -630,6 +654,14 @@ def tool_probe_m6(self, **words):
                      # FIXME if there is an error it never comes back
                      # which leaves linuxcnc in g91 state
                      if self.params[5070] == 0 or self.return_value > 0.0:
+                     # if we switched units for tool change - switch back
+                         if switchUnitsFlag:
+                             if IMPERIAL_BASED:
+                                 self.execute("G21")
+                                 print ("switched Units back to metric")
+                             else:
+                                 self.execute("G20")
+                                 print ("switched Units back to imperial")
                          self.execute("G90")
                          self.set_errormsg("tool_probe_m6 remap error:")
                          yield INTERP_ERROR
@@ -645,6 +677,14 @@ def tool_probe_m6(self, **words):
             # FIXME if there is an error it never comes back
             # which leaves linuxcnc in g91 state
             if self.params[5070] == 0 or self.return_value > 0.0:
+                # if we switched units for tool change - switch back
+                if switchUnitsFlag:
+                    if IMPERIAL_BASED:
+                        self.execute("G21")
+                        print ("switched Units back to metric")
+                    else:
+                        self.execute("G20")
+                        print ("switched Units back to imperial")
                 self.execute("G90")
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
@@ -679,12 +719,22 @@ def tool_probe_m6(self, **words):
 #            print("Zcalc", Zcalc)
 #            self.execute("G53 G0 Z{:.5f}".format(Zcalc))
 
+
+
             if Z <> 0:
                   print("******************RESTORING Z", Z)
                   self.execute("F100")
                   self.execute("G1 Z{:.5f}".format(Z))                   # Value ar ok but this code seem to be not executed
                   print("******************Why not move to ", Z)
 
+            # if we switched units for tool change - switch back
+            if switchUnitsFlag:
+                if IMPERIAL_BASED:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
 
 
         except InterpreterException as e:
