@@ -473,7 +473,7 @@ def index_lathe_tool_with_wear(self,**words):
 # REMAP=M6 modalgroup=10 python=tool_probe_m6
 #
 # auto tool probe on m6
-# move to Z max - configurable offset
+# move to Z max
 # move to tool change position for toolchange
 # backup offset and position
 # wait for acknowledge of tool change
@@ -481,7 +481,7 @@ def index_lathe_tool_with_wear(self,**words):
 # probe tool on tool setter
 # move back to tool change position
 # set tool offsets
-# move to Z max - configurable offset
+# move to Z max
 # goto position backup
 # based on Versaprobe remap
 #
@@ -493,20 +493,21 @@ def index_lathe_tool_with_wear(self,**words):
 # will follow these directives:
 #{EMCIO]
 #TOOL_CHANGE_POSITION = 0 0 0
-#TOOL_CHANGE_WITH_SPINDLE_ON = 1
+#TOOL_CHANGE_WITH_SPINDLE_ON = 0
 #TOOL_CHANGE_QUILL_UP = 1
 
+# exemple with imperial unit
 #[TOOLSENSOR]
 #X = -5.00
 #Y = -1
 #Z = -1
 
-#SETTER_HEIGHT = 40
+#SETTER_HEIGHT = 1.6
 #MAXPROBE =  -3
-#TS_LATCH = 0.3
-#REVERSE_LATCH = 2
-#SEARCH_VEL = 300
-#PROBE_VEL = 10
+#TS_LATCH = 0.012
+#REVERSE_LATCH = 0.08
+#SEARCH_VEL = 12
+#PROBE_VEL = 0.4
 
 
 # What about checking machine is homed before allow this?
@@ -574,7 +575,6 @@ def tool_probe_m6(self, **words):
         try:
 
 # TODO allow the autoprobe section to be a configurable option from some interface (restoring manual mode)
-# TODO the dialog box using hal_manualtoolchange come too early before goto change position
 
 
             # move to tool setter position (from INI)
@@ -654,7 +654,7 @@ def tool_probe_m6(self, **words):
 
             # adjust tool offset from calculations
             proberesult = self.params[5063]
-            probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]  # TODO using global_var from some interface allow to set and save this value using probe or by hand
+            probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]  # TODO using a way from some interface allow to set and save this value using probe or by hand
             workheight = self.params["_backup_offset"]                  # load G5x backup_offset after correct tool measurement
 
 
