@@ -510,7 +510,21 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-    IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
+    # cancel tool offset
+    self.execute("G49")
+
+    # record current position; probably should record every axis
+    X = emccanon.GET_EXTERNAL_POSITION_X()
+    Y = emccanon.GET_EXTERNAL_POSITION_Y()
+    Z = emccanon.GET_EXTERNAL_POSITION_Z()
+    print ("X",X)
+    print ("Y",Y)
+    print ("Z",Z)
+
+    # Z up first if required
+    if self.tool_change_quill_up:
+        self.execute("G53 G0 Z0")
+        yield INTERP_EXECUTE_FINISH
 
     # turn off all spindles if required
     if not self.tool_change_with_spindle_on:
@@ -518,33 +532,11 @@ def tool_probe_m6(self, **words):
             emccanon.STOP_SPINDLE_TURNING(s)
 
     try:
-        # we need to be in machine based units
-        # if we aren't - switch
-        # remember so we can switch back later
-        switchUnitsFlag = False
-        if bool(self.params["_imperial"]) != IMPERIAL_BASED:
-            print ("not right Units: {}".format(bool(self.params["_imperial"])))
-            if IMPERIAL_BASED:
-                print ("switched Units to imperial")
-                self.execute("G20")
-            else:
-                print ("switched Units to metric")
-                self.execute("G21")
-            switchUnitsFlag = True
-
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
         self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
 
-        # cancel tool offset
-        self.execute("G49")
-
-        # Z up first i required
-        if self.tool_change_quill_up:
-            self.execute("G53 G0 Z0")
-
-        #
         # change tool where ever we are
         # user sets toolchange position prior to toolchange
         # we will return here after
@@ -564,24 +556,48 @@ def tool_probe_m6(self, **words):
 
         yield INTERP_EXECUTE_FINISH
 
-        # record current position; probably should record every axis
-        X = emccanon.GET_EXTERNAL_POSITION_X()
-        Y = emccanon.GET_EXTERNAL_POSITION_Y()
-        Z = emccanon.GET_EXTERNAL_POSITION_Z()
 
         try:
-            # move to tool probe position (from INI)
+
+# TODO allow the autoprobe section to be a configurable option from some interface (restoring manual mode)
+# TODO the dialog box using hal_manualtoolchange come too early before goto change position
+
+
+            # move to tool setter position (from INI)
             self.execute("G90")
-            self.execute("G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
-            self.execute("G53 G0 Z[#<_ini[TOOLSENSOR]Z>]")
+            self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
+            yield INTERP_EXECUTE_FINISH
+
+            self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
+            yield INTERP_EXECUTE_FINISH
+
+            if self.params["_coord_system"] == 540:
+                self.params["_backup_offset"] = self.params[5223]    # backup G5x offset for correct tool measurement
+            elif self.params["_coord_system"] == 550:
+                self.params["_backup_offset"] = self.params[5243]
+            elif self.params["_coord_system"] == 560:
+                self.params["_backup_offset"] = self.params[5263]
+            elif self.params["_coord_system"] == 570:
+                self.params["_backup_offset"] = self.params[5283]
+            elif self.params["_coord_system"] == 580:
+                self.params["_backup_offset"] = self.params[5303]
+            elif self.params["_coord_system"] == 590:
+                self.params["_backup_offset"] = self.params[5323]
+            elif self.params["_coord_system"] == 591:
+                self.params["_backup_offset"] = self.params[5343]
+            elif self.params["_coord_system"] == 592:
+                self.params["_backup_offset"] = self.params[5363]
+            elif self.params["_coord_system"] == 593:
+                self.params["_backup_offset"] = self.params[5383]
+            print (self.params["_backup_offset"])
+
+            self.execute("G10 L2 P0 Z0")                           # reset G5x offset for correct tool measurement
 
             # set incremental mode
             self.execute("G91")
 
-            # course probe
-            self.execute("F [#<_ini[TOOLSENSOR]SEARCH_VEL>]")
-            self.execute("G38.2 Z [#<_ini[TOOLSENSOR]MAXPROBE>]")
-
+            # Search probe
+            self.execute("G38.2 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
 
@@ -592,15 +608,27 @@ def tool_probe_m6(self, **words):
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
 
-            # rapid up off trigger point to do it again
-            if bool(self.params["_imperial"]):
-                f = 0.25
-            else:
-                f = 4.0
-            self.execute("G0 Z{}".format(f))
+            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1:
+                     # Spring mounted latch probe                                                                         # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
+                     self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
+                     # Wait for results
+                     yield INTERP_EXECUTE_FINISH
 
-            self.execute("F [#<_ini[TOOLSENSOR]PROBE_VEL>]")
-            self.execute("G38.2 Z-0.5")
+                     # FIXME if there is an error it never comes back
+                     # which leaves linuxcnc in g91 state
+                     if self.params[5070] == 0 or self.return_value > 0.0:
+                         self.execute("G90")
+                         self.set_errormsg("tool_probe_m6 remap error:")
+                         yield INTERP_ERROR
+
+            # Latch probe
+            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
+            # Wait for final retract
+            yield INTERP_EXECUTE_FINISH
+
+            # Final probe
+            self.execute("G38.2 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
+            # Wait for final results
             yield INTERP_EXECUTE_FINISH
 
             # FIXME if there is an error it never comes back
@@ -613,31 +641,33 @@ def tool_probe_m6(self, **words):
             # set back absolute state
             self.execute("G90")
 
-            # return to recorded tool change positon
-            self.execute("G53 G0 Z{:.5f}".format(Z))
+            # Z up first if required
+            if self.tool_change_quill_up:
+                 self.execute("G53 G0 Z0")
+                 yield INTERP_EXECUTE_FINISH
 
+            # return to recorded positon
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
+            yield INTERP_EXECUTE_FINISH
+            self.execute("G53 G0 Z{:.5f}".format(Z))
+            yield INTERP_EXECUTE_FINISH
+
 
             # adjust tool offset from calculations
             proberesult = self.params[5063]
-            probeheight = self.params["_ini[TOOLSENSOR]PROBEHEIGHT"] 
-            workheight = self.params[5000]
+            probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]  # TODO using global_var from some interface allow to set and save this value using probe or by hand
+            workheight = self.params["_backup_offset"]                  # load G5x backup_offset after correct tool measurement
 
-            adj = proberesult - probeheight + workheight
+            adj = proberesult - probeheight                             # IMO better to save tool offset without G5x offset and to do this separatly
             self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))
+
+            adj = workheight
+            self.execute("G10 L2 P0 Z{}".format(adj))                    # restore G5x offset after correct tool measurement
 
             # apply tool offset
             self.execute("G43")
 
-            # if we switched units for tool change - switch back
-            if switchUnitsFlag:
-                if IMPERIAL_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
- 
+
         except InterpreterException as e:
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
