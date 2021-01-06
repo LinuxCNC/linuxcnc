@@ -509,10 +509,6 @@ def index_lathe_tool_with_wear(self,**words):
 #SEARCH_VEL = 12
 #PROBE_VEL = 0.4
 
-
-# What about checking machine is homed before allow this?
-# TODO ver's use a configurable setterheight that can be set manually or using probe
-
 def tool_probe_m6(self, **words):
 
     # only run this if we are really moving the machine
@@ -562,6 +558,14 @@ def tool_probe_m6(self, **words):
                 print ("switched Units to metric")
                 self.execute("G21")
             switchUnitsFlag = True
+            
+        # Saving G90 G91 at startup
+        if bool(self.params["_absolute"]) != 1:
+            print ("Incremental G91")
+            AbsoluteFlag = True
+        else:
+            print ("Absolute G90")
+            AbsoluteFlag = False
 
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
@@ -590,7 +594,6 @@ def tool_probe_m6(self, **words):
                 else:
                     self.execute("G20")
                     print ("switched Units back to imperial")
-            self.execute("G90")
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -649,7 +652,8 @@ def tool_probe_m6(self, **words):
                     else:
                         self.execute("G20")
                         print ("switched Units back to imperial")
-                self.execute("G90")
+                if AbsoluteFlag:
+                    self.execute("G90")
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
 
@@ -671,7 +675,8 @@ def tool_probe_m6(self, **words):
                              else:
                                  self.execute("G20")
                                  print ("switched Units back to imperial")
-                         self.execute("G90")
+                         if AbsoluteFlag:
+                             self.execute("G90")
                          self.set_errormsg("tool_probe_m6 remap error:")
                          yield INTERP_ERROR
 
@@ -694,12 +699,14 @@ def tool_probe_m6(self, **words):
                     else:
                         self.execute("G20")
                         print ("switched Units back to imperial")
-                self.execute("G90")
+                if AbsoluteFlag:
+                    self.execute("G90")
                 self.set_errormsg("tool_probe_m6 remap error:")
                 yield INTERP_ERROR
 
             # set back absolute state
-            self.execute("G90")
+            if AbsoluteFlag:
+                self.execute("G90")
 
             # adjust tool offset from calculations
             proberesult = self.params[5063]
@@ -755,7 +762,8 @@ def tool_probe_m6(self, **words):
                 else:
                     self.execute("G20")
                     print ("switched Units back to imperial")
-            self.execute("G90")
+            if AbsoluteFlag:
+                self.execute("G90")
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
