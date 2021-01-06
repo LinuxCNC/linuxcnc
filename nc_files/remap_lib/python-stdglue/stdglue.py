@@ -582,6 +582,15 @@ def tool_probe_m6(self, **words):
             self.set_tool_parameters()
             self.toolchange_flag = True
         except InterpreterException as e:
+            # if we switched units for tool change - switch back
+            if switchUnitsFlag:
+                if IMPERIAL_BASED:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
+            self.execute("G90")
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -738,6 +747,15 @@ def tool_probe_m6(self, **words):
 
 
         except InterpreterException as e:
+            # if we switched units for tool change - switch back
+            if switchUnitsFlag:
+                if IMPERIAL_BASED:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
+            self.execute("G90")
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
