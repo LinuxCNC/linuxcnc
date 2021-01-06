@@ -520,7 +520,7 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-    IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
+    METRIC_BASED = (bool(self.params['_metric_machine']))
 
     # Saving G90 G91 at startup
     if bool(self.params["_absolute"]) == 1:
@@ -560,12 +560,12 @@ def tool_probe_m6(self, **words):
         switchUnitsFlag = False
         if bool(self.params["_imperial"]) != IMPERIAL_BASED:
             print ("not right Units: {}".format(bool(self.params["_imperial"])))
-            if IMPERIAL_BASED:
-                print ("switched Units to imperial")
-                self.execute("G20")
-            else:
+            if METRIC_BASED:
                 print ("switched Units to metric")
                 self.execute("G21")
+            else:
+                print ("switched Units to imperial")
+                self.execute("G20")
             switchUnitsFlag = True
 
         # Force absolute for G53 move
@@ -596,12 +596,12 @@ def tool_probe_m6(self, **words):
         except InterpreterException as e:
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
-                if IMPERIAL_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
+                if METRIC_BASED:
                     self.execute("G20")
                     print ("switched Units back to imperial")
+                else:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
             if AbsoluteFlag:
                  self.execute("G90")
             else:
@@ -622,7 +622,7 @@ def tool_probe_m6(self, **words):
 
             # backup G5x offset for correct tool measurement
             if self.params["_coord_system"] == 540:
-                self.params["_backup_offset"] = self.params[5223]    
+                self.params["_backup_offset"] = self.params[5223]
             elif self.params["_coord_system"] == 550:
                 self.params["_backup_offset"] = self.params[5243]
             elif self.params["_coord_system"] == 560:
@@ -657,12 +657,12 @@ def tool_probe_m6(self, **words):
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
                 if switchUnitsFlag:
-                    if IMPERIAL_BASED:
-                        self.execute("G21")
-                        print ("switched Units back to metric")
-                    else:
+                    if METRIC_BASED:
                         self.execute("G20")
                         print ("switched Units back to imperial")
+                    else:
+                        self.execute("G21")
+                        print ("switched Units back to metric")
                 if AbsoluteFlag:
                     self.execute("G90")
                 else:
@@ -683,21 +683,21 @@ def tool_probe_m6(self, **words):
                      # which leaves linuxcnc in g91 state
                      if self.params[5070] == 0 or self.return_value > 0.0:
                      # if we switched units for tool change - switch back
-                         if switchUnitsFlag:
-                             if IMPERIAL_BASED:
-                                 self.execute("G21")
-                                 print ("switched Units back to metric")
-                             else:
-                                 self.execute("G20")
-                                 print ("switched Units back to imperial")
-                         if AbsoluteFlag:
-                              self.execute("G90")
+                     if switchUnitsFlag:
+                         if METRIC_BASED:
+                             self.execute("G20")
+                             print ("switched Units back to imperial")
                          else:
-                              self.execute("G91")
-                         # restore G5x offset if something fail
-                         self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
-                         self.set_errormsg("tool_probe_m6 remap error:")
-                         yield INTERP_ERROR
+                             self.execute("G21")
+                             print ("switched Units back to metric")
+                     if AbsoluteFlag:
+                          self.execute("G90")
+                     else:
+                          self.execute("G91")
+                     # restore G5x offset if something fail
+                     self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
+                     self.set_errormsg("tool_probe_m6 remap error:")
+                     yield INTERP_ERROR
 
             # Final Latch probe
             self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
@@ -712,12 +712,12 @@ def tool_probe_m6(self, **words):
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
                 if switchUnitsFlag:
-                    if IMPERIAL_BASED:
-                        self.execute("G21")
-                        print ("switched Units back to metric")
-                    else:
+                    if METRIC_BASED:
                         self.execute("G20")
                         print ("switched Units back to imperial")
+                    else:
+                        self.execute("G21")
+                        print ("switched Units back to metric")
                 if AbsoluteFlag:
                     self.execute("G90")
                 else:
@@ -753,18 +753,15 @@ def tool_probe_m6(self, **words):
 
             # return to recorded positon
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
-            
+            yield INTERP_EXECUTE_FINISH
 #            Zcalc = Z + self.params["_backup_offset"]
 #            print("Zcalc", Zcalc)
 #            self.execute("G53 G0 Z{:.5f}".format(Zcalc))
 
-            # Attempt for wait to position before call self.execute("G1 Z{:.5f}".format(Z)) # Value are ok but this code seem to be not executed
-            yield INTERP_EXECUTE_FINISH
-
             if Z != 0 and AbsoluteFlag:
                   print("******************RESTORING Z", Z)
                   self.execute("F100")
-                  self.execute("G1 Z{:.5f}".format(Z))                   # Value are ok but this code seem to be not executed
+                  self.execute("G1 Z{:.5f}".format(Z))                   # Value ar ok but this code seem to be not executed
                   print("******************Why not move to ", Z)
             elif AbsoluteFlag == 0:
                   print("******************NO Z RESTORING IF STARTUP MODE IS INCREMENTAL")
@@ -779,26 +776,24 @@ def tool_probe_m6(self, **words):
             else:
                    self.execute("G91")
 
-                    
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
-                if IMPERIAL_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
+                if METRIC_BASED:
                     self.execute("G20")
                     print ("switched Units back to imperial")
-
+                else:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
 
         except InterpreterException as e:
             # if we switched units for tool change - switch back
             if switchUnitsFlag:
-                if IMPERIAL_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
+                if METRIC_BASED:
                     self.execute("G20")
                     print ("switched Units back to imperial")
+                else:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
             if AbsoluteFlag:
                 self.execute("G90")
             else:
