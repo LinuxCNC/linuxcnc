@@ -232,7 +232,6 @@ QRadioButton:checked:pressed {
 /*QRadioButton::indicator:checked:pressed {
     background: backgnd }*/
 
-
 /****** SETTINGS PUSHBUTTONS ************/
 #color_foregrnd, #color_foregalt, 
 #color_led, #color_backgrnd,
@@ -566,7 +565,6 @@ QScrollBar:horizontal {
     height: 20px }
 
 QScrollBar::handle:horizontal {
-/*    background: foregnd;*/
     background: foregnd;
     border: 2px solid foregnd;
     border-radius: 4px;
@@ -587,7 +585,6 @@ QScrollBar:vertical {
     width: 20px }
 
 QScrollBar::handle:vertical {
-/*    background: foregnd;*/
     background: foregnd;
     border: 2px solid foregnd;
     border-radius: 4px;
@@ -658,6 +655,27 @@ LED {
 QPlainTextEdit {
     border: 1px solid foregnd;
     border-radius: 4px }
+
+/****** GCODE GRAPHICS ************/
+#gcodegraphics {
+    qproperty-background_color: prevu }
+
+/****** GCODE EDITOR & GCODE DISPLAY ************/
+EditorBase {
+    qproperty-styleColorBackground: backgnd;
+    qproperty-styleColor0: foregnd;
+    qproperty-styleColor1: foregnd;
+    qproperty-styleColor2: foregnd;
+    qproperty-styleColor3: foregnd;
+    qproperty-styleColor4: foregnd;
+    qproperty-styleColorMarginText: foregnd;
+    qproperty-styleColorMarginBackground: backgnd;
+    qproperty-styleFont0: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont1: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont2: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont3: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont4: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFontMargin: 'Lato,12,-1,0,20,00,0,0,0,0' }
 
 /****** GCODE EDITOR ************/
 #gcode_editorTopButtonFrame {
@@ -737,78 +755,3 @@ border-radius: 4px }
 
 MyFlatPushButton {
 margin:3px }
-
-
-
-
-
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#gcodeeditorTopButtonFrame {
-    border: 2px solid #fce94f;
-    border-radius: 11px;
-    background: @bgcolor }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#gcodeeditorBottomButtonFrame {
-    border: 2px solid #fce94f;
-    border-radius: 11px;
-    background: @bgcolor }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** GCODE DISPLAY ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-GcodeDisplay {
-    background: green }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QsciScintilla::setMatchedBraceForegroundColor {
-    color: green;
-    background: blue;
-    font: 10pt Lato }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QsciScintilla::setCaretForegroundColor {
-    color: green;
-    background: blue;
-    font: 10pt Lato }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** QLINEEDIT ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QLineEdit {
-    background: backalt;
-    border: 1px solid foregnd;
-    border-radius: 4px }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#mdi_list{
-    color:#000000;
-    background-color:#C0C0C0;
-    alternate-background-color:#909090;}
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#error_text{
-    background-color:#C0C0C0;}
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** TABLE ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QTableView {
-    alternate-background-color: green;
-    background: red }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-OriginOffsetView, ToolOffsetView {
-    font: 12pt "Lato Heavy" }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/

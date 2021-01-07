@@ -76,16 +76,6 @@ class HandlerClass:
 #        for item in dir(self.PATHS):
 #            if item[0].isupper():
 #                print('{} = {}'.format(item, getattr(self.PATHS, item)))
-        self.foreColor = '#ffee06'
-        try:
-            pFile = '{}/qtplasmac.prefs'.format(self.PATHS.CONFIGPATH)
-            with open(pFile, 'r') as inFile:
-                for line in inFile:
-                    if line.startswith('Foreground ='):
-                        self.foreColor = line.split('=')[1].strip()
-                        break
-        except:
-            pass
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
 # if older development version, exit and warn the user. This can be removed down the track
@@ -226,10 +216,6 @@ class HandlerClass:
 # CLASS PATCHING SECTION #
 #################################################################################################################################
     def class_patch__(self):
-        self.old_styleText = LEXER.styleText
-        LEXER.styleText = self.styleText
-        self.old_defaultColor = LEXER.defaultColor
-        LEXER.defaultColor = self.defaultColor
         self.old_exitCall = EDITOR.exitCall
         EDITOR.exitCall = self.exit_call
         self.old_gcodeLexerCall = EDITOR.gcodeLexerCall
@@ -243,13 +229,6 @@ class HandlerClass:
 # #testing for different video sources
 #         self.old_showEvent = CAM.showEvent
 #         CAM.showEvent = self.showEvent
-
-# patched style functions
-    def styleText(self, start, end):
-        pass
-
-    def defaultColor(self, style):
-        return QColor(self.foreColor)
 
 # patched gcode editor functions
     def exit_call(self):
@@ -482,22 +461,12 @@ class HandlerClass:
 #         self.w.filemanager.copyButton.setText('COPY')
 #         self.w.filemanager.pasteButton.setText('PASTE')
 #         self.w.filemanager.showCopyControls(True)
-        self.font = QFont()
-        self.font.setFamily('Lato')
-        self.font.setFixedPitch(True)
-        self.font.setBold(False)
-        self.font.setPointSize(12)
-        for i in range(0,4):
-            self.w.gcode_display.lexer.setFont(self.font, i)
-            self.w.gcode_editor.editor.lexer.setFont(self.font, i)
-        self.font.setBold(True)
-        self.w.gcode_display.font = self.font
-        self.w.gcode_editor.editor.font = self.font
         self.w.gcode_display.set_margin_width(3)
         self.w.gcode_display.setBraceMatching(False)
+        self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_editor.set_margin_width(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
-        self.w.gcode_editor.editor.setCaretWidth(2)
+        self.w.gcode_editor.editor.setCaretWidth(4)
         self.w.gcode_editor.editMode()
         self.w.gcode_editor.pythonLexerAction.setVisible(False)
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
@@ -2950,28 +2919,20 @@ class HandlerClass:
                         outFile.write(line.replace('e-stop', self.w.color_estop.styleSheet().split(':')[1].strip()))
                     elif 'inactive' in line:
                         outFile.write(line.replace('inactive', self.w.color_disabled.styleSheet().split(':')[1].strip()))
+                    elif 'prevu' in line:
+                        outFile.write(line.replace('prevu', self.w.color_preview.styleSheet().split(':')[1].strip()))
                     else:
                         outFile.write(line)
-# apply the new stylesheet
-        self.w.setStyleSheet('')
-        with open(styleSheetFile, 'r') as set_style:
-           self.w.setStyleSheet(set_style.read())
 # set colors
         self.foreColor = QColor(self.w.color_foregrnd.palette().color(QPalette.Background)).name()
         self.fore1Color = QColor(self.w.color_foregalt.palette().color(QPalette.Background)).name()
         self.backColor = QColor(self.w.color_backgrnd.palette().color(QPalette.Background)).name()
         self.back1Color = QColor(self.w.color_backgalt.palette().color(QPalette.Background)).name()
         self.disabledColor = QColor(self.w.color_disabled.palette().color(QPalette.Background)).name()
-        self.previewColor = QColor(self.w.color_preview.palette().color(QPalette.Background)).name()
         fColor = QColor(self.foreColor)
         f1Color = QColor(self.fore1Color)
         bColor = QColor(self.backColor)
         b1Color = QColor(self.back1Color)
-        pColor = QColor(self.previewColor)
-
-        print self.foreColor, fColor, QColor('transparent')
-
-# set icon colors
         buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
                    'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
                    'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se', 
@@ -2984,40 +2945,27 @@ class HandlerClass:
                 self.color_button_image(button, self.backColor)
             else:
                 self.color_button_image(button, self.foreColor)
-# gcode display, editor and graphics cannot use .qss file
-        for i in range(0,4):
-            self.w.gcode_display.lexer.setColor(fColor, i)
-            self.w.gcode_editor.editor.lexer.setColor(fColor, i)
-# display background
-        self.w.gcode_display.set_background_color(bColor)
-# display left margin
-        self.w.gcode_display.setMarginsForegroundColor(fColor)
-        self.w.gcode_display.setMarginsBackgroundColor(bColor)
+# some gcode display/editor colors cannot use .qss file
 # display current gcode line
         self.w.gcode_display.setMarkerBackgroundColor(b1Color)
 # display active line
-        self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_display.setCaretLineBackgroundColor(b1Color)
 # display selected text
         self.w.gcode_display.setSelectionForegroundColor(fColor)
         self.w.gcode_display.setSelectionBackgroundColor(QColor('transparent'))
-# editor background
-        self.w.gcode_editor.editor.set_background_color(bColor)
-# editor left margin
-        self.w.gcode_editor.editor.setMarginsForegroundColor(fColor)
-        self.w.gcode_editor.editor.setMarginsBackgroundColor(bColor)
 # editor current gcode line
         self.w.gcode_editor.editor.setMarkerBackgroundColor(bColor)
         self.w.gcode_editor.editor.setCaretForegroundColor(f1Color)
 # editor active line
-        self.w.gcode_editor.editor.setCaretWidth(4)
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(bColor)
 # editor selected text
         self.w.gcode_editor.editor.setSelectionForegroundColor(bColor)
         self.w.gcode_editor.editor.setSelectionBackgroundColor(fColor)
-# graphics background
-        self.w.gcodegraphics.setBackgroundColor(pColor)
-        self.w.conv_preview.setBackgroundColor(pColor)
+
+# apply the new stylesheet
+        self.w.setStyleSheet('')
+        with open(styleSheetFile, 'r') as set_style:
+           self.w.setStyleSheet(set_style.read())
 
     def color_button_image(self, button, color):
         image_path = '{}{}.png'.format(self.IMAGES, button)
