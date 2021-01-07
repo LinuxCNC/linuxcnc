@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -184,9 +184,9 @@ def preview(P, W):
     else:
         P.dialogError = True
         if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
-            P.dialog_error('TRIANGLE', 'A + B + C must equal 180')
+            P.dialog_error(QMessageBox.Warning, 'TRIANGLE', 'A + B + C must equal 180')
         else:
-            P.dialog_error('TRIANGLE', 'Minimum requirements are:\n\n'\
+            P.dialog_error(QMessageBox.Warning, 'TRIANGLE', 'Minimum requirements are:\n\n'\
                                      'a + b + c\n\n'\
                                      'or\n\n'\
                                      'a + b + C\n\n'\

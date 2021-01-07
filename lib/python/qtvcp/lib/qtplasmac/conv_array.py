@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 from shutil import copy as COPY
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup 
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def cancel(P, W, widget):
@@ -176,7 +176,7 @@ def preview(P, W):
         if yOffset == 0 and rows > 1:
             msg += 'Row Offset is required'
         P.dialogError = True
-        P.dialog_error('ARRAY', msg)
+        P.dialog_error(QMessageBox.Warning, 'ARRAY', msg)
         return
     W.add.setEnabled(True)
 

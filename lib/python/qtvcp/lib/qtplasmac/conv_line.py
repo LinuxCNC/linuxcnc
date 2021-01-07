@@ -22,7 +22,7 @@ import math
 import numpy
 from shutil import copy as COPY
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -38,7 +38,7 @@ def preview(P, W):
         except:
             msg  = 'Invalid entry detected\n'
             P.dialogError = True
-            P.dialog_error('LINE', msg)
+            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -108,7 +108,7 @@ def preview(P, W):
             msg  = 'Last entry is not valid\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_error('LINE', msg)
+            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
             outNgc.close()
             outTmp.close()
             return
@@ -168,7 +168,7 @@ def preview(P, W):
             msg  = 'Last entry is not Invalid\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_error('LINE', msg)
+            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
             outNgc.close()
             outTmp.close()
             return

@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup 
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -33,12 +33,12 @@ def preview(P, W):
                 msg += 'and\n\n'
                 msg += 'A positive Y Length is required\n'
                 P.dialogError = True
-                P.dialog_error('RECTANGLE', msg)
+                P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
                 return
         except:
             msg = 'Invalid X Length or Y Length\n'
             P.dialogError = True
-            P.dialog_error('RECTANGLE', msg)
+            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
             return
         if W.r1Entry.text():
             radius1 = float(W.r1Entry.text())
@@ -60,25 +60,25 @@ def preview(P, W):
             msg  = 'Radius 1 plus Radius 2 ({})\n\n'.format(radius1 + radius2)
             msg += 'can not be greater than {}\n'.format(float(W.xlEntry.text()))
             P.dialogError = True
-            P.dialog_error('RECTANGLE', msg)
+            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
             return
         if radius1 + radius3 > float(W.ylEntry.text()):
             msg  = 'Radius 1 plus Radius 3 ({})\n\n'.format(radius1 + radius3)
             msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
             P.dialogError = True
-            P.dialog_error('RECTANGLE', msg)
+            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
             return
         if radius2 + radius4 > float(W.ylEntry.text()):
             msg  = 'Radius 2 plus Radius 4 ({})\n\n'.format(radius2 + radius4)
             msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
             P.dialogError = True
-            P.dialog_error('RECTANGLE', msg)
+            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
             return
         if radius3 > float(W.xlEntry.text()) / 2 or radius4 > float(W.xlEntry.text()) / 2:
             msg  = 'Neither Radius 3 nor Radius 4\n\n'
             msg += 'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
             P.dialogError = True
-            P.dialog_error('RECTANGLE', msg)
+            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
             return
         if W.xlEntry.text():
             xLB = float(W.xlEntry.text()) - (radius3 + radius4)
@@ -379,7 +379,7 @@ def preview(P, W):
         msg += 'and\n\n'
         msg += 'A positive Y Length is required\n'
         P.dialogError = True
-        P.dialog_error('RECTANGLE', msg)
+        P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
 
 def rad_button_pressed(P, W, button, value):
     if button.text()[:3] == 'RAD':

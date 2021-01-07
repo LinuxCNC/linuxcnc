@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -44,7 +44,7 @@ def preview(P, W):
             if radius > height or radius > width:
                 msg = 'Radius must be less than width and height\n\n'
                 P.dialogError = True
-                P.dialog_error('GUSSET', msg)
+                P.dialog_error(QMessageBox.Warning, 'GUSSET', msg)
                 return
         else:
             radius = 0.0
@@ -194,7 +194,7 @@ def preview(P, W):
         if height <= 0:
             msg += 'A positive height value is required\n\n'
         P.dialogError = True
-        P.dialog_error('GUSSET', msg)
+        P.dialog_error(QMessageBox.Warning, 'GUSSET', msg)
 
 def rad_button_pressed(P, W, widget):
     if widget.text()[:3] == 'Rad':

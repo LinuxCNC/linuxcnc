@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -50,7 +50,7 @@ def preview(P, W):
     if msg:
         errMsg = 'Valid numerical entries required for:\n\n{}'.format(msg)
         P.dialogError = True
-        P.dialog_error('SECTOR', errMsg)
+        P.dialog_error(QMessageBox.Warning, 'SECTOR', errMsg)
         return
     if radius == 0 or sAngle == 0:
         P.conv_undo_shape()
@@ -59,7 +59,7 @@ def preview(P, W):
         msg  = 'A Lead In is required if\n\n'
         msg += 'kerf width offset is enabled\n'
         P.dialogError = True
-        P.dialog_error('SECTOR', msg)
+        P.dialog_error(QMessageBox.Warning, 'SECTOR', msg)
         return
 # set origin position
     kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2

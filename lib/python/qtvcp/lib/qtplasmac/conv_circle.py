@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -157,7 +157,7 @@ def preview(P, W):
         W.undo.setEnabled(True)
     else:
         P.dialogError = True
-        P.dialog_error('CIRCLE', 'Diameter is required')
+        P.dialog_error(QMessageBox.Warning, 'CIRCLE', 'Diameter is required')
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:

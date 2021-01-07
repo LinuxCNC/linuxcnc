@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -169,7 +169,7 @@ def preview(P, W):
         if length < width:
             msg += 'Length must be greater than or equal to Width'
         P.dialogError = True
-        P.dialog_error('SLOT', msg)
+        P.dialog_error(QMessageBox.Warning, 'SLOT', msg)
 
 def auto_preview(P, W):
     if W.lEntry.text() and W.wEntry.text():

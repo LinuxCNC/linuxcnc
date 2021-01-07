@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -161,7 +161,7 @@ def preview(P, W):
         if iRadius <= 0:
             msg += 'Inside Diameter is required'
         P.dialogError = True
-        P.dialog_error('STAR', msg)
+        P.dialog_error(QMessageBox.Warning, 'STAR', msg)
 
 def auto_preview(P, W):
     if W.pEntry.text() and W.odEntry.text() and W.idEntry.text():

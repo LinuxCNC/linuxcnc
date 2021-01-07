@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -149,7 +149,7 @@ def preview(P, W):
         if radius <= 0:
             msg += 'Diameter is required'
         P.dialogError = True
-        P.dialog_error('POLYGON', msg)
+        P.dialog_error(QMessageBox.Warning, 'POLYGON', msg)
 
 def mode_changed(P, W):
     if W.mCombo.currentIndex() == 2:

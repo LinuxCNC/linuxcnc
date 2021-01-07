@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap 
 
 def preview(P, W):
@@ -33,19 +33,17 @@ def preview(P, W):
         hRadius = float(W.hdEntry.text()) / 2
     else:
         hRadius = 0
-    if W.hEntry.text():
+    holes = 0
+    if cRadius > 0 and hRadius > 0 and int(W.hEntry.text()) > 0:
         holes = int(W.hEntry.text())
-    else:
-        holes = 0
-    if W.caEntry.text():
-        cAngle = float(W.caEntry.text())
-    else:
-        cAngle = 360.0
-    if cAngle == 360:
-        hAngle = math.radians(cAngle / holes)
-    else:
-        hAngle = math.radians(cAngle / (holes - 1))
-    if cRadius > 0 and hRadius > 0 and holes > 0:
+        if W.caEntry.text():
+            cAngle = float(W.caEntry.text())
+        else:
+            cAngle = 360.0
+        if cAngle == 360:
+            hAngle = math.radians(cAngle / holes)
+        else:
+            hAngle = math.radians(cAngle / (holes - 1))
         ijDiff = float(W.kerf_width.text()) *W.kOffset.isChecked() / 2
         right = math.radians(0)
         up = math.radians(90)
@@ -154,7 +152,7 @@ def preview(P, W):
         if holes == 0:
             msg += '# of Holes are required'
         P.dialogError = True
-        P.dialog_error('BOLT-CIRCLE', msg)
+        P.dialog_error(QMessageBox.Warning, 'BOLT-CIRCLE', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
