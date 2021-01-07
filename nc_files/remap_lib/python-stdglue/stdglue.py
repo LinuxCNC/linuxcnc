@@ -571,6 +571,9 @@ def tool_probe_m6(self, **words):
         # user sets toolchange position prior to toolchange
         # we will return here after only for XY
 ############################################################## TODO ACTUAL SYSTEM DOES NOT SHOW CONFIRMATION POPUP IF YOU M6Tx SAME TOOL AS ACTUAL
+
+############################################################## IMO TODO check if tool is 0 for reset tool number only after goto to toolchange pos
+
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL(self.selected_pocket)
@@ -628,6 +631,8 @@ def tool_probe_m6(self, **words):
 
             # Search probe
             self.execute("G38.3 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
+            # Wait for results
+            yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
             tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
@@ -635,6 +640,8 @@ def tool_probe_m6(self, **words):
                      print ("------------G38.5 used WITH SPRING SETTER-------------")
                      # Spring mounted latch probe
                      self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                     # Wait for results
+                     yield INTERP_EXECUTE_FINISH
                      # Check if we have get contact or not
                      tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
@@ -643,6 +650,8 @@ def tool_probe_m6(self, **words):
 
             # Final probe
             self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
+            # Wait for results
+            yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
             tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
@@ -706,9 +715,6 @@ def tool_probe_retract_and_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_b
                  
 # Check if we have get contact or not
 def tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
-
-            # Wait for results
-            yield INTERP_EXECUTE_FINISH
             
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
@@ -740,5 +746,4 @@ def tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, MET
                     print ("switched Units back to imperial")
 
             print(AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
-          
-          
+
