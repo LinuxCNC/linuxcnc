@@ -628,34 +628,26 @@ def tool_probe_m6(self, **words):
 
             # Search probe
             self.execute("G38.3 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
-            # Wait for results
-            yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
                      print ("------------G38.5 used WITH SPRING SETTER-------------")
                      # Spring mounted latch probe
                      self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-                     # Wait for results
-                     yield INTERP_EXECUTE_FINISH
                      # Check if we have get contact or not
-                     tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+                     tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Retract Latch probe
-            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-            tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_retract_and_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Final probe
             self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
-            # Wait for final results
-            yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Final Latch probe
-            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-            tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_retract_and_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Force absolute for G53 move
             self.execute("G90")
@@ -701,19 +693,23 @@ def tool_probe_m6(self, **words):
 
 
 # Check if we have get contact or not
-def tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
+def tool_probe_retract_and_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
 
-            print ("TRY TO CHECK STATUS")
+            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+
             if Popen('halcmd getp motion.probe-input',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
                  print ("tool_probe_m6 remap error: Probe stay triggered after retrac")
-                 tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+                 tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
             else:
                  print ("succefull retract")
               
                  
 # Check if we have get contact or not
-def tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
+def tool_probe_result_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
 
+            # Wait for results
+            yield INTERP_EXECUTE_FINISH
+            
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
                 tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
@@ -745,6 +741,4 @@ def tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, MET
 
             print(AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
           
-
-
-
+          
