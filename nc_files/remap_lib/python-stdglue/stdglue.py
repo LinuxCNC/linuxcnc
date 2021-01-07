@@ -520,29 +520,20 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-    # Saving G20 G21 at startup
     METRIC_BASED = (bool(self.params['_metric_machine']))
 
     # Saving G90 G91 at startup
-    AbsoluteFlag = (bool(self.params["_absolute"])
+    AbsoluteFlag = (bool(self.params["_absolute"]))
+
+    # Saving feed at startup
+    feed_backup = (bool(self.params["_feed"]))
 
     # cancel tool offset
     self.execute("G49")
 
-    # record current position; probably should record every axis
+    # record current position XY but Z stay in latched position or go up if toolchange_quill_up in enabled
     X = emccanon.GET_EXTERNAL_POSITION_X()
     Y = emccanon.GET_EXTERNAL_POSITION_Y()
-#    Z = emccanon.GET_EXTERNAL_POSITION_Z()
-    print ("X ",X)
-    print ("Y ",Y)
-#    print ("Z ",Z)
-    if self.current_pocket == 0:                                      # if current tool is 0 do not restore Z
-        Z = 0
-        print ("Z if TOOL 0 ",Z)
-    else:                                                             # if current tool is GT 0 try restore Z with all offset including new tool offset
-        Z = self.params[5422]
-        print ("Z if TOOL 1 ",Z)
-
 
     # turn off all spindles if required
     if not self.tool_change_with_spindle_on:
@@ -563,7 +554,7 @@ def tool_probe_m6(self, **words):
                 print ("switched Units to imperial")
                 self.execute("G20")
             switchUnitsFlag = True
-
+        print(AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
         # Force absolute for G53 move
         self.execute("G90")
 
@@ -578,8 +569,8 @@ def tool_probe_m6(self, **words):
 
         # change tool where ever we are
         # user sets toolchange position prior to toolchange
-        # we will return here after
-
+        # we will return here after only for XY
+############################################################## TODO ACTUAL SYSTEM DOES NOT SHOW CONFIRMATION POPUP IF YOU M6Tx SAME TOOL AS ACTUAL
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
             emccanon.CHANGE_TOOL(self.selected_pocket)
@@ -590,18 +581,10 @@ def tool_probe_m6(self, **words):
             self.set_tool_parameters()
             self.toolchange_flag = True
         except InterpreterException as e:
+
             # if we switched units for tool change - switch back
-            if switchUnitsFlag:
-                if METRIC_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
-            if AbsoluteFlag:
-                 self.execute("G90")
-            else:
-                 self.execute("G91")
+            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -644,158 +627,69 @@ def tool_probe_m6(self, **words):
             self.execute("G91")
 
             # Search probe
-            self.execute("G38.2 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
+            self.execute("G38.3 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
+            # Check if we have get contact or not
+            tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
-            # FIXME if there is an error it never comes back   # A possible solution is G38.3 and check if the var 5070 is 1 ???
-            # which leaves linuxcnc in g91 state
-            if self.params[5070] == 0 or self.return_value > 0.0:
-                # if we switched units for tool change - switch back
-                if switchUnitsFlag:
-                    if METRIC_BASED:
-                        self.execute("G21")
-                        print ("switched Units back to metric")
-                    else:
-                        self.execute("G20")
-                        print ("switched Units back to imperial")
-                if AbsoluteFlag:
-                    self.execute("G90")
-                else:
-                    self.execute("G91")
-                # restore G5x offset if something fail
-                self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
-                self.set_errormsg("tool_probe_m6 remap error:")
-                yield INTERP_ERROR
-
-            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
-                     print("------------G38.4 used WITH SPRING SETTER-------------")
+            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
+                     print ("------------G38.5 used WITH SPRING SETTER-------------")
                      # Spring mounted latch probe
                      self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                      # Wait for results
                      yield INTERP_EXECUTE_FINISH
+                     # Check if we have get contact or not
+                     tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
-                     # FIXME if there is an error it never comes back   # A possible solution is G38.5 and check if the var 5070 is 1 ???
-                     # which leaves linuxcnc in g91 state
-                     if self.params[5070] == 0 or self.return_value > 0.0:
-                     # if we switched units for tool change - switch back
-                          if switchUnitsFlag:
-                              if METRIC_BASED:
-                                  self.execute("G21")
-                                  print ("switched Units back to metric")
-                              else:
-                                  self.execute("G20")
-                                  print ("switched Units back to imperial")
-                          if AbsoluteFlag:
-                               self.execute("G90")
-                          else:
-                               self.execute("G91")
-                          # restore G5x offset if something fail
-                          self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
-                          self.set_errormsg("tool_probe_m6 remap error:")
-                          yield INTERP_ERROR
+            # Retract Latch probe
+            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+            tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+
+            # Final probe
+            self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
+            # Wait for final results
+            yield INTERP_EXECUTE_FINISH
+            # Check if we have get contact or not
+            tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Final Latch probe
             self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-
-            # Final probe
-            self.execute("G38.2 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
-            # Wait for final results
-            yield INTERP_EXECUTE_FINISH
-
-            # FIXME if there is an error it never comes back   # A possible solution is G38.3 and check if the var 5070 is 1 ???
-            # which leaves linuxcnc in g91 state
-            if self.params[5070] == 0 or self.return_value > 0.0:
-                # if we switched units for tool change - switch back
-                if switchUnitsFlag:
-                    if METRIC_BASED:
-                        self.execute("G21")
-                        print ("switched Units back to metric")
-                    else:
-                        self.execute("G20")
-                        print ("switched Units back to imperial")
-                if AbsoluteFlag:
-                    self.execute("G90")
-                else:
-                    self.execute("G91")
-                # restore G5x offset if something fail
-                self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
-                self.set_errormsg("tool_probe_m6 remap error:")
-                yield INTERP_ERROR
+            tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # Force absolute for G53 move
             self.execute("G90")
 
             # adjust tool offset from calculations
             proberesult = self.params[5063]
-            probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]
-            workheight = self.params["_backup_offset"]                  # load G5x backup_offset after correct tool measurement
+            probeheight = self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"]          # you says possibly: _probed_toolsetter_height but how to mix that ?
 
-
-            adj = proberesult - probeheight                             # IMO better to save tool offset without G5x offset and to do this separatly
-            self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))
-
-            adj = workheight
-            self.execute("G10 L2 P0 Z{}".format(adj))                    # restore G5x offset after correct tool measurement
+            adj = proberesult - probeheight                                     # IMO better to save tool offset without G5x offset and to do this separatly
+            self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))            # REGISTER NEW TOOL LENGTH
+            self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"])) # restore G5x offset USED AS workheight after correct tool measurement
 
             # apply tool offset
             self.execute("G43")
-            # Wait for acceptance
-            yield INTERP_EXECUTE_FINISH
 
             # Z up first if required
-            if self.tool_change_quill_up:
-                self.execute("G53 G0 Z0")
+             if self.tool_change_quill_up:
+                 self.execute("G53 G0 Z0")
 
             # return to recorded positon
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
-            yield INTERP_EXECUTE_FINISH
-#            Zcalc = Z + self.params["_backup_offset"]
-#            print("Zcalc", Zcalc)
-#            self.execute("G53 G0 Z{:.5f}".format(Zcalc))
 
-            if Z != 0 and AbsoluteFlag:
-                  print("******************RESTORING Z", Z)
-                  self.execute("F100")
-                  self.execute("G1 Z{:.5f}".format(Z))                   # Value ar ok but this code seem to be not executed
-                  print("******************Why not move to ", Z)
-            elif AbsoluteFlag == 0:
-                  print("******************NO Z RESTORING IF STARTUP MODE IS INCREMENTAL")
-            elif Z ==0:
-                  print("******************NO Z RESTORING IF LAST TOOL WAS 0")
-            else:
-                  print("******************NO Z RESTORING DUE TO SOMETHING WRONG")
-
-            # set back the saved absolute state if needed
-            if AbsoluteFlag:
-                   self.execute("G90")
-            else:
-                   self.execute("G91")
-
-            # if we switched units for tool change - switch back
-            if switchUnitsFlag:
-                if METRIC_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
+            print ("------------888888-------------")
+            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            print ("------------999999-------------")
 
         except InterpreterException as e:
+
             # if we switched units for tool change - switch back
-            if switchUnitsFlag:
-                if METRIC_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
-            if AbsoluteFlag:
-                self.execute("G90")
-            else:
-                self.execute("G91")
+            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+
             # restore G5x offset if something fail
             self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
+
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
@@ -804,6 +698,53 @@ def tool_probe_m6(self, **words):
         print (e)
         self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
         yield INTERP_ERROR
+
+
+# Check if we have get contact or not
+def tool_probe_already_triggered_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
+
+            print ("TRY TO CHECK STATUS")
+            if Popen('halcmd getp motion.probe-input',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
+                 print ("tool_probe_m6 remap error: Probe stay triggered after retrac")
+                 tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            else:
+                 print ("succefull retract")
+              
+                 
+# Check if we have get contact or not
+def tool_probe_error_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
+
+            if self.params[5070] == 0 or self.return_value > 0.0:
+                # if we switched units for tool change - switch back
+                tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+
+                # restore G5x offset if something fail
+                self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
+                self.set_errormsg("tool_probe_m6 remap error: Probe contact not found")
+                yield INTERP_ERROR
+            else:
+                 print ("succefull found contact")
+              
+
+# if we switched units for tool change - switch back
+def tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
+
+            if AbsoluteFlag:
+                self.execute("G90")
+            else:
+                self.execute("G91")
+            self.params["feed"] = feed_backup
+
+            if switchUnitsFlag:
+                if METRIC_BASED:
+                    self.execute("G21")
+                    print ("switched Units back to metric")
+                else:
+                    self.execute("G20")
+                    print ("switched Units back to imperial")
+
+            print(AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+          
 
 
 
