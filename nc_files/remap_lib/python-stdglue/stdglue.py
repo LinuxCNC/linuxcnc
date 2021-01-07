@@ -554,8 +554,8 @@ def tool_probe_m6(self, **words):
         # if we aren't - switch
         # remember so we can switch back later
         switchUnitsFlag = False
-        if bool(self.params["_imperial"]) != IMPERIAL_BASED:
-            print ("not right Units: {}".format(bool(self.params["_imperial"])))
+        if bool(self.params["_metric"]) != METRIC_BASED:
+            print ("not right Units: {}".format(bool(self.params["_metric"])))
             if METRIC_BASED:
                 print ("switched Units to metric")
                 self.execute("G21")
