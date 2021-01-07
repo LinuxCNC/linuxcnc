@@ -156,7 +156,7 @@ class HandlerClass:
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
         self.dialogError = False
         self.cutTypeText = ''
-        self.height_ovr = 0.0
+        self.heightOvr = 0.0
 
     def initialized__(self):
         self.make_hal_pins()
@@ -226,9 +226,9 @@ class HandlerClass:
         CAM.wheelEvent = self.wheelEvent
         self.old_drawText = CAM.drawText
         CAM.drawText = self.drawText
-# #testing for different video sources
-#         self.old_showEvent = CAM.showEvent
-#         CAM.showEvent = self.showEvent
+# testing for different video sources
+#        self.old_showEvent = CAM.showEvent
+#        CAM.showEvent = self.showEvent
 
 # patched gcode editor functions
     def exit_call(self):
@@ -768,7 +768,7 @@ class HandlerClass:
                 self.w.pmx485_label.setText('COMMS ERROR')
             else:
                 self.w.pmx485_label.setText('')
-        if self.height_ovr > 0.01 or self.height_ovr < -0.01:
+        if self.heightOvr > 0.01 or self.heightOvr < -0.01:
             if QColor(self.w.height_ovr_label.palette().color(QPalette.Foreground)).name() == self.foreColor:
                 self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.backColor))
             else:
@@ -868,11 +868,11 @@ class HandlerClass:
         self.user_button_up(button)
 
     def height_ovr_pressed(self, height):
-        self.height_ovr += height
-        if self.height_ovr < -9.9 :self.height_ovr = -9.9
-        if self.height_ovr > 9.9 :self.height_ovr = 9.9
-        self.heightOverridePin.set(self.height_ovr)
-        self.w.height_ovr_label.setText('{:.1f}'.format(self.height_ovr))
+        self.heightOvr += height
+        if self.heightOvr < -9.9 :self.heightOvr = -9.9
+        if self.heightOvr > 9.9 :self.heightOvr = 9.9
+        self.heightOverridePin.set(self.heightOvr)
+        self.w.height_ovr_label.setText('{:.1f}'.format(self.heightOvr))
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -2961,7 +2961,6 @@ class HandlerClass:
 # editor selected text
         self.w.gcode_editor.editor.setSelectionForegroundColor(bColor)
         self.w.gcode_editor.editor.setSelectionBackgroundColor(fColor)
-
 # apply the new stylesheet
         self.w.setStyleSheet('')
         with open(styleSheetFile, 'r') as set_style:
