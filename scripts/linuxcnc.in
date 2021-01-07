@@ -622,7 +622,7 @@ function Cleanup() {
     fi
 
     # now kill all the other user space components
-    for KILL_TASK in linuxcncsvr milltask; do
+    for KILL_TASK in linuxcncsvr motion-logger milltask; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
