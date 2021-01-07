@@ -671,7 +671,7 @@ def tool_probe_m6(self, **words):
             if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED PROBE AND SETTER
                      print("------------G38.4 used WITH SPRING SETTER-------------")
                      # Spring mounted latch probe
-                     self.execute("G38.4 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                     self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                      # Wait for results
                      yield INTERP_EXECUTE_FINISH
 
@@ -679,21 +679,21 @@ def tool_probe_m6(self, **words):
                      # which leaves linuxcnc in g91 state
                      if self.params[5070] == 0 or self.return_value > 0.0:
                      # if we switched units for tool change - switch back
-                     if switchUnitsFlag:
-                         if METRIC_BASED:
-                             self.execute("G21")
-                             print ("switched Units back to metric")
-                         else:
-                             self.execute("G20")
-                             print ("switched Units back to imperial")
-                     if AbsoluteFlag:
-                          self.execute("G90")
-                     else:
-                          self.execute("G91")
-                     # restore G5x offset if something fail
-                     self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
-                     self.set_errormsg("tool_probe_m6 remap error:")
-                     yield INTERP_ERROR
+                          if switchUnitsFlag:
+                              if METRIC_BASED:
+                                  self.execute("G21")
+                                  print ("switched Units back to metric")
+                              else:
+                                  self.execute("G20")
+                                  print ("switched Units back to imperial")
+                          if AbsoluteFlag:
+                               self.execute("G90")
+                          else:
+                               self.execute("G91")
+                          # restore G5x offset if something fail
+                          self.execute("G10 L2 P0 Z{}".format(self.params["_backup_offset"]))
+                          self.set_errormsg("tool_probe_m6 remap error:")
+                          yield INTERP_ERROR
 
             # Final Latch probe
             self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
