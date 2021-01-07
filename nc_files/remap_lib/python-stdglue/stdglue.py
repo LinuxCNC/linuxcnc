@@ -692,7 +692,7 @@ def tool_probe_m6(self, **words):
         yield INTERP_ERROR
 
 
-# Check if we have get contact or not
+# Check if we have correctly retracted or not
 def tool_probe_retract_and_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
 
             self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
