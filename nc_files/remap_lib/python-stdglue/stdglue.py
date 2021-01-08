@@ -25,10 +25,10 @@ def setspeed_prolog(self,**words):
             self.set_errormsg("S requires a value") 
             return INTERP_ERROR
         self.params["speed"] = c.s_number
+        return INTERP_OK
     except Exception,e:
         self.set_errormsg("S/setspeed_prolog: %s)" % (e))
         return INTERP_ERROR
-    return INTERP_OK
 
 def setspeed_epilog(self,**words):
     try:
@@ -84,7 +84,6 @@ def setfeed_epilog(self,**words):
     except Exception,e:
         self.set_errormsg("F/setfeed_epilog: %s)" % (e))
         return INTERP_ERROR
-    return INTERP_OK    
 
 # REMAP=T   prolog=prepare_prolog ngc=prepare epilog=prepare_epilog
 # exposed parameters: #<tool> #<pocket>
