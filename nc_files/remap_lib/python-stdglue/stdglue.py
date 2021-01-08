@@ -50,7 +50,6 @@ def setspeed_epilog(self,**words):
     except Exception,e:
         self.set_errormsg("S/setspeed_epilog: %s)" % (e))
         return INTERP_ERROR
-    return INTERP_OK    
 
 # REMAP=F   prolog=setfeed_prolog  ngc=setfeed epilog=setfeed_epilog
 # exposed parameter: #<feed>
@@ -62,10 +61,10 @@ def setfeed_prolog(self,**words):
             self.set_errormsg("F requires a value") 
             return INTERP_ERROR
         self.params["feed"] = c.f_number
+        return INTERP_OK  
     except Exception,e:
         self.set_errormsg("F/setfeed_prolog: %s)" % (e))
         return INTERP_ERROR
-    return INTERP_OK    
 
 def setfeed_epilog(self,**words):
     try:
@@ -192,6 +191,7 @@ def change_epilog(self, **words):
                 self.set_tool_parameters()
                 self.toolchange_flag = True
                 yield INTERP_EXECUTE_FINISH
+                return INTERP_OK
             else:
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 yield INTERP_ERROR
@@ -242,6 +242,7 @@ def settool_epilog(self,**words):
                 # cause a sync()
                 self.tool_change_flag = True
                 self.set_tool_parameters()
+                return INTERP_OK
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
                 return INTERP_ERROR
