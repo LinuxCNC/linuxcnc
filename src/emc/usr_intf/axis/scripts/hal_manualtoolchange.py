@@ -37,8 +37,12 @@ def stop_polling_hal_in_background():
     _after = None
 
 def do_change(n):
+    CONFIGPATH = os.environ["CONFIG_DIR"]
+    toolfile = os.path.join(CONFIGPATH, tooltable)
+    self.tooledit1.set_filename(toolfile)
+    tooldescr = self.tooledit1.get_toolinfo(toolprepnumber)[16]
     if n:
-        message = _("Insert tool %d and click continue when ready") % n
+        message = _("Insert tool %d %s and click continue when ready") % n, tooldescr
     else:
         message = _("Remove the tool and click continue when ready")
     app.wm_withdraw()
