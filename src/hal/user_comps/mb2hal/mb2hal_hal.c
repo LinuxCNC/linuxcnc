@@ -102,7 +102,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         case mbtx_05_WRITE_SINGLE_COIL:
         case mbtx_15_WRITE_MULTIPLE_COILS:
             if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, gbl.hal_mod_id,
-                                      "%s", hal_pin_name)) {
+                                      "%s.bit", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
@@ -158,7 +158,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         case mbtx_06_WRITE_SINGLE_REGISTER:
         case mbtx_16_WRITE_MULTIPLE_REGISTERS:
             if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
-                                        "%s", hal_pin_name)) {
+                                        "%s.float", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
