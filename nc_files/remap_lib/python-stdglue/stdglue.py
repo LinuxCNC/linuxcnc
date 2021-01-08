@@ -244,7 +244,6 @@ def settool_epilog(self,**words):
             else:
                 self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
                 return INTERP_ERROR
-        return INTERP_OK
     except Exception,e:
         self.set_errormsg("M61/settool_epilog: %s)" % (e))
         return INTERP_ERROR
