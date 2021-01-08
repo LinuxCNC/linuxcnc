@@ -24,6 +24,18 @@
  * USA.
  */
 
+2020-01-08:
+    - INI: added invert bit for fnct_02_read_discrete_inputs
+    - Added:
+      . fnct_01_read_coils
+      . fnct_05_write_single_coil
+    (Hans Unzner <hansunzner@gmail.com>)
+
+2018-08-19
+  # Add fnct_06_write_single_register function as not all devices (e.g.
+    Parker AC10 VFD) support fnct_16_write_multiple_registers.
+    (Lars Bensmann <lars@almosthappy.de>)
+
 2012-11-12:
   # Arduino example added.
     - Tested with Arduino Mega 2560 R3 using Modbusino over USB at 115200 bps.

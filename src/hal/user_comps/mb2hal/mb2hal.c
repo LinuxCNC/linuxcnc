@@ -186,6 +186,10 @@ void *link_loop_and_logic(void *thrd_link_num)
                 this_mb_tx->protocol_debug);
 
             switch (this_mb_tx->mb_tx_fnct) {
+
+            case mbtx_01_READ_COILS:
+                ret = fnct_01_read_coils(this_mb_tx, this_mb_link);
+                break;
             case mbtx_02_READ_DISCRETE_INPUTS:
                 ret = fnct_02_read_discrete_inputs(this_mb_tx, this_mb_link);
                 break;
@@ -194,6 +198,9 @@ void *link_loop_and_logic(void *thrd_link_num)
                 break;
             case mbtx_04_READ_INPUT_REGISTERS:
                 ret = fnct_04_read_input_registers(this_mb_tx, this_mb_link);
+                break;
+            case mbtx_05_WRITE_SINGLE_COIL:
+                ret = fnct_05_write_single_coil(this_mb_tx, this_mb_link);
                 break;
             case mbtx_06_WRITE_SINGLE_REGISTER:
                 ret = fnct_06_write_single_register(this_mb_tx, this_mb_link);
@@ -397,9 +404,11 @@ void set_init_gbl_params()
     gbl.init_dbg     = debugERR; //until readed in config file
     gbl.slowdown     = 0;        //until readed in config file
     gbl.mb_tx_fncts[mbtxERR]                         = "";
+    gbl.mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
     gbl.mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";
     gbl.mb_tx_fncts[mbtx_03_READ_HOLDING_REGISTERS]  = "fnct_03_read_holding_registers";
     gbl.mb_tx_fncts[mbtx_04_READ_INPUT_REGISTERS]    = "fnct_04_read_input_registers";
+    gbl.mb_tx_fncts[mbtx_05_WRITE_SINGLE_COIL]       = "fnct_05_write_single_coil";
     gbl.mb_tx_fncts[mbtx_06_WRITE_SINGLE_REGISTER]   = "fnct_06_write_single_register";
     gbl.mb_tx_fncts[mbtx_15_WRITE_MULTIPLE_COILS]    = "fnct_15_write_multiple_coils";
     gbl.mb_tx_fncts[mbtx_16_WRITE_MULTIPLE_REGISTERS]= "fnct_16_write_multiple_registers";

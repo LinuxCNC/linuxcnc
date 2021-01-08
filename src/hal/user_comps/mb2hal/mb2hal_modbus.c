@@ -1,6 +1,42 @@
 #include <sys/time.h>
 #include "mb2hal.h"
 
+retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+{
+    char *fnct_name = "fnct_01_read_coils";
+    int counter, ret;
+    uint8_t bits[MB2HAL_MAX_FNCT01_ELEMENTS];
+
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT01_ELEMENTS) {
+        return retERR;
+    }
+
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, modbus_get_socket(this_mb_link->modbus),
+        this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
+
+    ret = modbus_read_bits(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem, bits);
+    if (ret < 0) {
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
+        }
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
+        return retERR;
+    }
+
+    for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
+        *(this_mb_tx->bit[counter]) = bits[counter];
+        *(this_mb_tx->bit_inv[counter]) = !bits[counter];
+    }
+
+    return retOK;
+}
+
 retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_02_read_discrete_inputs";
@@ -110,6 +146,38 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         //val *= this_mb_tx->scale[counter];
         *(this_mb_tx->float_value[counter]) = val;
         *(this_mb_tx->int_value[counter]) = (hal_s32_t) val;
+    }
+
+    return retOK;
+}
+
+retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+{
+    char *fnct_name = "fnct_05_write_single_coil";
+    int ret, bit;
+
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT05_ELEMENTS) {
+        return retERR;
+    }
+
+    bit = *(this_mb_tx->bit[0]);
+
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
+
+    ret = modbus_write_bit(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, bit);
+    if (ret < 0) {
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
+        }
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
+        return retERR;
     }
 
     return retOK;
