@@ -194,7 +194,6 @@ def change_epilog(self, **words):
             else:
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 yield INTERP_ERROR
-        return INTERP_OK
     except Exception, e:
         self.set_errormsg("M6/change_epilog: %s" % (e))
         yield INTERP_ERROR
