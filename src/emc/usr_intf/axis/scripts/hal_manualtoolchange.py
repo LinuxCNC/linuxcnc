@@ -3,6 +3,9 @@ import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+CONFIGPATH = os.environ["CONFIG_DIR"]
+toolfile = os.path.join(CONFIGPATH, tooltable)
+self.tooledit1.set_filename(toolfile)
 
 import linuxcnc, hal
 
@@ -33,8 +36,9 @@ def stop_polling_hal_in_background():
     _after = None
 
 def do_change(n):
+    tooldescr = self.tooledit1.get_toolinfo(n)[16]
     if n:
-        message = _("Insert tool %d and click continue when ready") % n
+        message = _("Insert tool %d %s and click continue when ready") % n, tooldescr
     else:
         message = _("Remove the tool and click continue when ready")
     app.wm_withdraw()
