@@ -64,7 +64,7 @@ class ToolBarActions():
         def update_selected(line):
             self.selected_line = line
             if self.runfromLineWidget is not None:
-                self.runfromLineWidget.setText('Run From Line: {}'.format(line+1))
+                self.runfromLineWidget.setText('Run From Line: {}'.format(line))
 
         if action == 'estop':
             STATUS.connect('state-estop', lambda w: widget.setChecked(True))

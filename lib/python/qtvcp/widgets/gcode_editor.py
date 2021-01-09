@@ -50,7 +50,7 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # load this after Logging set up so we get a nice dialog.
 try:
@@ -186,10 +186,13 @@ class GcodeLexer(QsciLexerCustom):
 # Base editor class
 ##########################################################
 class EditorBase(QsciScintilla):
-    ARROW_MARKER_NUM = 8
+    CURRENT_MARKER_NUM = 0
+    USER_MARKER_NUM = 1
     _styleMarginsForegroundColor = QColor("#000000")
     _styleMarginsBackgroundColor = QColor("#000000")
     _styleBackgroundColor = QColor("#000000")
+    _styleSelectionForegroundColor = QColor("#ffffff")
+    _styleSelectionBackgroundColor = QColor("#000000")
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
@@ -201,6 +204,7 @@ class EditorBase(QsciScintilla):
         self.font.setFixedPitch(True)
         self.font.setPointSize(12)
         self.setFont(self.font)
+        self._lastUserLine = 0
 
         # Margin 0 is used for line numbers
         self.setMarginsFont(self.font)
@@ -208,26 +212,36 @@ class EditorBase(QsciScintilla):
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
 
-        # Clickable margin 1 for showing markers
-        self.setMarginSensitivity(1, False)
+        # Clickable margin for showing markers
+        self.marginClicked.connect(self.on_margin_clicked)
+
+        self.setMarginMarkerMask(0, 0b1111)
+        self.setMarginSensitivity(0, True)
         # setting marker margin width to zero make the marker highlight line
-        self.setMarginWidth(1, 0)
-        #self.matginClicked.connect(self.on_margin_clicked)
-        self.markerDefine(QsciScintilla.Background,
-                          self.ARROW_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("#ffe4e4"),
-                                      self.ARROW_MARKER_NUM)
+        self.setMarginWidth(1, 5)
+
+
+        # Gcode highlight line
+        self.currentHandle = self.markerDefine(QsciScintilla.Background,
+                          self.CURRENT_MARKER_NUM)
+        self.setMarkerBackgroundColor(QColor("yellow"),
+                                      self.CURRENT_MARKER_NUM)
+
+        # user Hightlight line
+        self.userHandle = self.markerDefine(QsciScintilla.Background,
+                          self.USER_MARKER_NUM)
+        self.setMarkerBackgroundColor(QColor("red"),
+                                      self.USER_MARKER_NUM)
 
         # Brace matching: enable for a brace immediately before or after
         # the current position
-        #
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
 
         # Current line visible with special background color
-        self.setCaretLineVisible(True)
+        self.setCaretLineVisible(False)
         self.SendScintilla(QsciScintilla.SCI_GETCARETLINEVISIBLEALWAYS, True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
-        self. ensureLineVisible(True)
+        self.ensureLineVisible(True)
 
         # Set custom gcode lexer
         self.set_gcode_lexer()
@@ -246,6 +260,9 @@ class EditorBase(QsciScintilla):
         # not too small
         self.setMinimumSize(200, 100)
         self.filepath = None
+
+    def mouseDoubleClickEvent(self, event):
+        pass
 
     def setMarginsForegroundColor(self, color):
         super(EditorBase, self).setMarginsForegroundColor(color)
@@ -278,12 +295,34 @@ class EditorBase(QsciScintilla):
         self.SendScintilla(QsciScintilla.SCI_STYLESETBACK, QsciScintilla.STYLE_DEFAULT, QColor(color))
         self.lexer.setPaperBackground(QColor(color))
 
+    def setSelectionBackgroundColor(self, color):
+        super(EditorBase, self).setSelectionBackgroundColor(color)
+        self._styleSelectionBackgroundColor = color
+
+    def selectionBackgroundColor(self):
+        return self._styleSelectionBackgroundColor
+
+    def setSelectionForegroundColor(self, color):
+        super(EditorBase, self).setSelectionForegroundColor(color)
+        self._styleSelectionForegroundColor = color
+
+    def selectionForegroundColor(self):
+        return self._styleSelectionForegroundColor
+
     def on_margin_clicked(self, nmargin, nline, modifiers):
         # Toggle marker for the line the margin was clicked on
-        if self.markersAtLine(nline) != 0:
-            self.markerDelete(nline, self.ARROW_MARKER_NUM)
+        # 2 means it's already there
+        if self.markersAtLine(nline) != 2:
+            self.markerDelete(self._lastUserLine, self.USER_MARKER_NUM)
+            self.markerAdd(nline, self.USER_MARKER_NUM)
+        elif self._lastUserLine != nline:
+            self.markerAdd(nline, self.USER_MARKER_NUM)
+            self.markerDelete(self._lastUserLine, self.USER_MARKER_NUM)
         else:
-            self.markerAdd(nline, self.ARROW_MARKER_NUM)
+            self.markerDelete(self._lastUserLine, self.USER_MARKER_NUM)
+            self._lastUserLine = 0
+            return
+        self._lastUserLine = nline
 
     def set_python_lexer(self):
         self.lexer = QsciLexerPython()
@@ -368,6 +407,18 @@ class EditorBase(QsciScintilla):
         self.setMarginsBackgroundColor(value)
     styleColorMarginBackground = pyqtProperty(QColor, getColorMarginBackground, setColorMarginBackground)
 
+    def getColorSelectionText(self):
+        return self.selectionForegroundColor()
+    def setColorSelectionText(self, value):
+        self.setSelectionForegroundColor(value)
+    styleColorSelectionText = pyqtProperty(QColor, getColorSelectionText, setColorSelectionText)
+
+    def getColorSelectionBackground(self):
+        return self.selectionBackgroundColor()
+    def setColorSelectionBackground(self, value):
+        self.setSelectionBackgroundColor(value)
+    styleColorSelectionBackground = pyqtProperty(QColor, getColorSelectionBackground, setColorSelectionBackground)
+
     def getColorBackground(self):
         return self.backgroundColor()
     def setColorBackground(self, value):
@@ -415,8 +466,8 @@ class EditorBase(QsciScintilla):
 # Gcode display widget (intended read-only)
 ##########################################################
 class GcodeDisplay(EditorBase, _HalWidgetBase):
-    ARROW_MARKER_NUM = 8
-
+    CURRENT_MARKER_NUM = 0
+    USER_MARKER_NUM = 1
     def __init__(self, parent=None):
         super(GcodeDisplay, self).__init__(parent)
         # linuxcnc defaults
@@ -425,7 +476,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_mdi = True
         self.auto_show_manual = False
         self.auto_show_preference = True
-        self.last_line = None
+        self.last_line = 0
 
     def _hal_init(self):
         self.cursorPositionChanged.connect(self.line_changed)
@@ -441,14 +492,13 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.auto_show_preference:
             STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
-        STATUS.connect('line-changed', self.highlight_line)
-        STATUS.connect('graphics-line-selected', self.highlight_line)
+        STATUS.connect('line-changed', self.external_highlight_request)
+        STATUS.connect('graphics-line-selected', self.external_highlight_request)
         STATUS.connect('command-stopped', lambda w: self.run_stopped())
 
         if self.idle_line_reset:
-            STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
-
-
+            STATUS.connect('interp_idle', lambda w: self.set_line_number(0))
+        self.markerDeleteHandle(self.currentHandle)
 
     def load_program(self, w, filename=None):
         if filename is None:
@@ -490,7 +540,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             try:
                 fp = os.path.expanduser(filename)
                 self.setText(open(fp).read())
-                self.last_line = None
+                self.last_line = 0
                 self.ensureCursorVisible()
                 self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
                 return
@@ -498,22 +548,40 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 LOG.error('File path is not valid: {}'.format(filename))
         self.setText('')
 
+    # external line numbers start at 1 - convert that to start at 0
+    def external_highlight_request(self, w, line):
+        if line in (-1, None):
+            return
+        if STATUS.is_auto_running():
+            self.highlight_line(None, line-1)
+            return
+        LOG.debug('editor: got external hilight {}'.format(line))
+        #self.highlight_line(None, line-1)
+        self.ensureLineVisible(line-1)
+        #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
+        self.moveMarker(line-1)
+        self.selectAll(False)
 
+    def moveMarker(self, line):
+        if STATUS.stat.file == '':
+            self.last_line = 0
+            return
+        self.markerDeleteHandle(self.currentHandle)
+        self.currentHandle = self.markerAdd(line, self.CURRENT_MARKER_NUM)
+        self.last_line = line
 
     def highlight_line(self, w, line):
+        LOG.debug('editor: highlight line {}'.format(line))
         if STATUS.is_auto_running():
             if not STATUS.old['file'] == self._last_filename:
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
             self.emit_percent(line*100/self.lines())
-        self.markerAdd(line, self.ARROW_MARKER_NUM)
-        if self.last_line:
-            self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
+        self.moveMarker(line)
         self.setCursorPosition(line, 0)
         self.ensureCursorVisible()
         self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
-        self.last_line = line
 
     def emit_percent(self, percent):
         pass
@@ -522,16 +590,16 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.emit_percent(-1)
 
     def set_line_number(self, line):
-        STATUS.emit('gcode-line-selected', line)
+        STATUS.emit('gcode-line-selected', line+1)
 
     def line_changed(self, line, index):
-        #LOG.debug('Line changed: {}'.format(line))
+        LOG.debug('Line changed: {}'.format(line))
         if STATUS.is_auto_running() is False:
-            self.markerDeleteAll(-1)
             if STATUS.is_mdi_mode():
                 line_text = str(self.text(line)).strip()
                 STATUS.emit('mdi-line-selected', line_text, self._last_filename)
             else:
+                self.moveMarker(line)
                 self.set_line_number(line)
 
     def select_lineup(self, w):
