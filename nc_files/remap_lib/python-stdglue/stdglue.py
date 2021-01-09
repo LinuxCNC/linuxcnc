@@ -521,10 +521,7 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-    #METRIC_BASED = (bool(self.params['_metric_machine']))
-    METRIC_BASED = (bool(self.params['_metric']))
-    #if self.params["_ini[TRAJ]LINEAR_UNITS"] not in ["imperial", "inch"]:
-    METRIC_BASED = 1
+    METRIC_BASED = (bool(self.params['_metric_machine']))
 
     # Saving G90 G91 at startup
     AbsoluteFlag = (bool(self.params["_absolute"]))
