@@ -78,8 +78,10 @@ class QPin(hal.Pin, QObject):
         QPin.UPDATE = False
 
 # so errors when making QPins aren't fatal
-class DummyPin(object):
+class DummyPin(QObject):
+    value_changed = pyqtSignal('PyQt_PyObject')
     def __init__(self, *a, **kw):
+        super(DummyPin, self).__init__(None)
         self._a = a
         self._kw = kw
 
