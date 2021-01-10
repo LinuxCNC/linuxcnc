@@ -93,6 +93,8 @@ class _HalScaleBase(_HalWidgetBase):
         self.valueChanged.connect(lambda data: self._pin_update(data))
         # default scale
         self.input = 1
+        # force pin update
+        self.valueChanged.emit(self.value())
 
     def _pin_update(self, data):
         self.hal_pin_f.set(data * self.input)
