@@ -335,27 +335,29 @@ class Notification(Tkinter.Frame):
 
     def add(self, iconname, message):
         self.place(relx=1, rely=1, y=-20, anchor="se")
-        iconname = self.tk.call("load_image", "std_" + iconname)
+        iconname_image = self.tk.call("load_image", "std_" + iconname)
         close = self.tk.call("load_image", "close", "notification-close")
         if len(self.widgets) > 10:
             self.remove(self.widgets[0])
         if self.cache:
             frame, icon, text, button, discard = self.cache.pop()
-            icon.configure(image=iconname)
+            icon.configure(image=iconname_image)
             text.configure(text=message)
-            widgets = frame, icon, text, button, iconname
+            widgets = frame, icon, text, button, iconname_image
         else:
             frame = Tkinter.Frame(self)
-            icon = Tkinter.Label(frame, image=iconname)
+            icon = Tkinter.Label(frame, image=iconname_image)
             text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
             button = Tkinter.Button(frame, image=close)
-            widgets = frame, icon, text, button, iconname
+            widgets = frame, icon, text, button, iconname_image
             text.pack(side="left")
             icon.pack(side="left")
             button.pack(side="left")
         button.configure(command=lambda: self.remove(widgets))
         frame.pack(side="top", anchor="e")
         self.widgets.append(widgets)
+        if iconname == "error":
+           comp["error"] = True
 
     def remove(self, widgets):
         self.widgets.remove(widgets)
@@ -366,6 +368,18 @@ class Notification(Tkinter.Frame):
             widgets[0].destroy()
         if len(self.widgets) == 0:
             self.place_forget()
+        if self._remaining_error_count() == 0:
+            comp["error"] = False
+
+    def _remaining_error_count(self):
+        """ Returns the count of remaining error messages """
+        count = 0
+        for i, item in enumerate(self.widgets):
+            frame, icon, text, button, iname = item
+            if iname == "icon_std_error":
+                count += 1
+        return count
+
 
 def soft_limits():
     def fudge(x):
@@ -3830,6 +3844,7 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
