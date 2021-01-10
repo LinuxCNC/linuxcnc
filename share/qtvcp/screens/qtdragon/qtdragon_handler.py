@@ -77,6 +77,7 @@ class HandlerClass:
         STATUS.connect('mode-mdi', lambda w: self.enable_auto(True))
         STATUS.connect('mode-auto', lambda w: self.enable_auto(False))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
+        STATUS.connect('graphics-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_spindle_pause.setEnabled(state))
         STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm(speed))
