@@ -40,10 +40,10 @@ class Configurator(QMainWindow, object):
         super(Configurator, self).__init__(parent)
         self.appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
         if 'usr' in self.appPath:
-            self.commonPath = '/usr/share/qtvcp/screens/qtplasmac/common/'
+            self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
         else:
             pass
-            self.commonPath = self.appPath.replace('bin', 'share/qtvcp/screens/qtplasmac/common/') 
+            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac/') 
         wid = QWidget(self)
         self.setCentralWidget(wid)
         self.layout = QHBoxLayout()  
@@ -921,11 +921,10 @@ class Configurator(QMainWindow, object):
     def link_to_common_folder(self):
         for dir in ['qtplasmac', 'plasmac', 'common']:
             oldDir = '{}/{}'.format(self.configDir, dir)
-            if os.path.exists(oldDir):
-                if os.path.islink(oldDir):
-                    os.unlink(oldDir)
-                else:
-                    os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
+            if os.path.islink(oldDir):
+                os.unlink(oldDir)
+            elif os.path.exists(oldDir):
+                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
         os.symlink(self.commonPath, '{}/qtplasmac'.format(self.configDir))
         return True
 

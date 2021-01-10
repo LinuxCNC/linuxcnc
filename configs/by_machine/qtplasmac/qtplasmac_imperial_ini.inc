@@ -1,5 +1,5 @@
 
-[PLASMAC]
+[QTPLASMAC]
 # set the operating mode (default is 0)
 MODE                    = 0
 
