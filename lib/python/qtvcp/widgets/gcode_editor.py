@@ -508,6 +508,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.load_text(filename)
         #self.zoomTo(6)
         self.setCursorPosition(0, 0)
+        self.markerDeleteHandle(self.currentHandle)
         self.setModified(False)
 
     # when switching from MDI to AUTO we need to reload the
