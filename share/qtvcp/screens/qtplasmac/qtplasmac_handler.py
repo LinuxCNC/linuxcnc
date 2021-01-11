@@ -664,6 +664,8 @@ class HandlerClass:
             if self.oldFile:
                 ACTION.OPEN_PROGRAM(self.oldFile)
             self.w[self.scButton].setEnabled(True)
+            if self.g91:
+                ACTION.CALL_MDI('G91')
         for widget in self.idleList:
             self.w[widget].setEnabled(True)
             if self.w.file_open.text() == 'OPEN':
@@ -1656,20 +1658,16 @@ class HandlerClass:
         self.w.PREFS_.putpref('X length', xLength.value(), float, 'SINGLE CUT')
         self.w.PREFS_.putpref('Y length', yLength.value(), float, 'SINGLE CUT')
         self.oldFile = ACTION.prefilter_path if ACTION.prefilter_path else None
-        if 910 in STATUS.stat.gcodes:
-            msg  = '\nSingle Cut switches to absolute mode (G90)\n'
-            msg += '\nAfter this cut, if you wish to return to\n'
-            msg += 'relative mode (G91), you will need to\n'
-            msg += 'do this manually from the MDI frame.\n\n'
-            self.dialog_error(QMessageBox.Warning, 'WARNING', msg)
-        xEnd = STATUS.stat.position[0] + xLength.value()
-        yEnd = STATUS.stat.position[1] + yLength.value()
+        self.g91 = True if 910 in STATUS.stat.gcodes else False
+        xEnd = STATUS.get_position()[0][0] + xLength.value()
+        yEnd = STATUS.get_position()[0][1] + yLength.value()
         newFile = '{}single_cut.ngc'.format(self.tmpPath)
         with open(newFile, 'w') as f:
             f.write('G90\n')
             f.write('F#<_hal[plasmac.cut-feed-rate]>\n')
+            f.write('G53 G0 X{:0.6f} Y{:0.6f}\n'.format(STATUS.get_position()[0][0], STATUS.get_position()[0][1]))
             f.write('M3 $0 S1\n')
-            f.write('G1 X{:0.6f} Y{:0.6f}\n'.format(xEnd, yEnd))
+            f.write('G53 G1 X{:0.6f} Y{:0.6f}\n'.format(xEnd, yEnd))
             f.write('M5 $0\n')
             f.write('M2\n')
         self.single_cut_request = True
