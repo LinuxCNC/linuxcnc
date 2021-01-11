@@ -78,6 +78,7 @@ spotting = False
 offsetG41 = False
 feedWarning = False
 zSetup = False
+zBypass = False
 
 # feedback dialog
 def dialog_box(title, text):
@@ -590,8 +591,15 @@ with open(inCode, 'r') as fRead:
                     line = line[:1] + line[2:]
                 else:
                     break
+        # if hole sensing code
+        if line.startswith('#<keep-z-motion>'):
+            if line.split('=')[1][0] == '1':
+                zBypass = True
+            else:
+                zBypass = False
+            continue
         # set initial Z height
-        if not zSetup and ('g0' in line or 'g1' in line or 'm3' in line):
+        if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):
             if not line.startswith('g0z[#<_ini[axis_z]max_limit>-'):
                 print('g0 z[#<_ini[axis_z]max_limit> - {}] (Z just below max height)'.format(zMaxOffset * unitsPerMm))
             zSetup = True
@@ -737,17 +745,19 @@ with open(inCode, 'r') as fRead:
         if holeEnable and 'y' in line: check_math('y')
         if holeEnable and 'i' in line: check_math('i')
         if holeEnable and 'j' in line: check_math('j')
-        # if z axis in line but no other axes comment it
-        if 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and line.split('z')[1][0].isdigit():
-            print('({})'.format(line))
-            continue
-        # if z axis and other axes in line, comment out the Z axis
-        if 'z' in line and not '(z' in line and line.split('z')[1][0] in '0123456789.- ':
-            if holeEnable:
-                lastX, lastY = set_last_position(lastX, lastY)
-            result = comment_out_z_commands()
-            print(result)
-            continue
+
+        if not zBypass:
+            # if z axis in line but no other axes comment it
+            if 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and line.split('z')[1][0].isdigit():
+                print('({})'.format(line))
+                continue
+            # if z axis and other axes in line, comment out the Z axis
+            if 'z' in line and not '(z' in line and line.split('z')[1][0] in '0123456789.- ':
+                if holeEnable:
+                    lastX, lastY = set_last_position(lastX, lastY)
+                result = comment_out_z_commands()
+                print(result)
+                continue
         # if an arc command
         if (line.startswith('g2') or line.startswith('g3')) and line[2].isalpha():
             if holeEnable:
