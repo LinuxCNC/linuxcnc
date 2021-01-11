@@ -675,9 +675,14 @@ EditorBase {
     qproperty-styleFont2: 'Lato,12,-1,0,60,0,0,0,0,0';
     qproperty-styleFont3: 'Lato,12,-1,0,60,0,0,0,0,0';
     qproperty-styleFont4: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFontMargin: 'Lato,12,-1,0,20,00,0,0,0,0' }
+    qproperty-styleFontMargin: 'Lato,12,-1,0,20,00,0,0,0,0';
+    qproperty-styleColorSelectionText: backgnd;
+    qproperty-styleColorSelectionBackground: foregnd }
 
-/****** GCODE EDITOR ************/
+#gcode_display {
+    qproperty-styleColorSelectionText: foregnd;
+    qproperty-styleColorSelectionBackground: transparent }
+
 #gcode_editorTopButtonFrame {
     border: 1px solid foregnd;
     border-radius: 4px;

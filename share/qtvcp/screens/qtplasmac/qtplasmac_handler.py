@@ -2921,6 +2921,12 @@ class HandlerClass:
                         outFile.write(line.replace('prevu', self.w.color_preview.styleSheet().split(':')[1].strip()))
                     else:
                         outFile.write(line)
+
+# apply the new stylesheet
+        self.w.setStyleSheet('')
+        with open(styleSheetFile, 'r') as set_style:
+           self.w.setStyleSheet(set_style.read())
+
 # set colors
         self.foreColor = QColor(self.w.color_foregrnd.palette().color(QPalette.Background)).name()
         self.fore1Color = QColor(self.w.color_foregalt.palette().color(QPalette.Background)).name()
@@ -2948,21 +2954,11 @@ class HandlerClass:
         self.w.gcode_display.setMarkerBackgroundColor(b1Color)
 # display active line
         self.w.gcode_display.setCaretLineBackgroundColor(b1Color)
-# display selected text
-        self.w.gcode_display.setSelectionForegroundColor(fColor)
-        self.w.gcode_display.setSelectionBackgroundColor(QColor('transparent'))
 # editor current gcode line
         self.w.gcode_editor.editor.setMarkerBackgroundColor(bColor)
         self.w.gcode_editor.editor.setCaretForegroundColor(f1Color)
 # editor active line
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(bColor)
-# editor selected text
-        self.w.gcode_editor.editor.setSelectionForegroundColor(bColor)
-        self.w.gcode_editor.editor.setSelectionBackgroundColor(fColor)
-# apply the new stylesheet
-        self.w.setStyleSheet('')
-        with open(styleSheetFile, 'r') as set_style:
-           self.w.setStyleSheet(set_style.read())
 
     def color_button_image(self, button, color):
         image_path = '{}{}.png'.format(self.IMAGES, button)
