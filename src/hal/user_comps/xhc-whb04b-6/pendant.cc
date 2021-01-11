@@ -332,7 +332,7 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""),  // user jarenk seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
     undefined(0x00, "", ""),
     codeMap{
