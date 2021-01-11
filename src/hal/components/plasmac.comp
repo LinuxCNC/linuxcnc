@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.191 - 2021 Jan 04
+0.192 - 2021 Jan 11
 
 .I SUMMARY:
 .br
@@ -242,6 +242,8 @@ variable float  velocity_scale;             /* the velocity multiplier */
 variable int    x_velocity;                 /* velocity for x motion for consumable change */
 variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    zero_target;                /* zero height target offset */
+variable int    z_pierce;                   /* pierce height for testing against max height*/
+variable int    z_max;                      /* max height for testing against pierce height*/
 
 /* PARAMETERS */
 param rw bit    debug_print = FALSE         "print debug messages";
@@ -642,7 +644,7 @@ FUNCTION(_) {
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
                                     rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.\n"
-                                                                  "probe test aborted.");
+                                                                  "probe test aborted.\n");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -668,7 +670,7 @@ FUNCTION(_) {
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
                                     rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.\n"
-                                                                  "probe test aborted.");
+                                                                  "probe test aborted.\n");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -727,6 +729,21 @@ FUNCTION(_) {
                     break;
                 }
                 if((float_switch && !float_detected) || ohmic_detected){
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    if(z_pierce > z_max){
+                        stop_type = PAUSE;
+                        program_pause = TRUE;
+                        if(float_switch){
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                                                          "while float switch probing\n");
+                        }else{
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
+                                                          "while ohmic probing\n");
+                        }
+                        state = MAX_HEIGHT;
+                        break;
+                    }
                     probe_retry = TRUE;
                     state = PROBE_UP;
                 }else if(z_offset_counts - setup_velocity > probe_start_target){
@@ -763,12 +780,22 @@ FUNCTION(_) {
                         if(float_switch || ohmic_detected){
                             state = PROBE_UP;
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.");
+                            rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.\n");
                             state = IDLE;
                         }
                     }
                 }else if(float_switch && !float_detected){
                     if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
+                        z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                        z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                        if(z_pierce > z_max){
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                                                          "while float switch probing\n");
+                            stop_type = PAUSE;
+                            program_pause = TRUE;
+                            state = MAX_HEIGHT;
+                            break;
+                        }
                         probe_type = FLOAT;
                         target_sensed = TRUE;
                         probe_force = probe_force_val;
@@ -780,6 +807,16 @@ FUNCTION(_) {
                         float_detected = TRUE;
                     }
                 }else if(ohmic_detected){
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    if(z_pierce > z_max){
+                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
+                                                      "while ohmic probing\n");
+                        stop_type = PAUSE;
+                        program_pause = TRUE;
+                        state = MAX_HEIGHT;
+                        break;
+                    }
                     probe_type = OHMIC;
                     target_sensed = TRUE;
                     probe_force = probe_force_val;
@@ -842,8 +879,8 @@ FUNCTION(_) {
                     cut_target = zero_target + (cut_height / offset_scale);
                     pierce_target = zero_target + (pierce_height / offset_scale);
                     puddle_jump_target = zero_target + ((pierce_height * puddle_jump_percent * 0.01) / offset_scale );
-                    safe_min = (pierce_height + (1 * units_per_mm)) / offset_scale;
-                    safe_preferred = safe_height / offset_scale;
+                    safe_min = pierce_target + ((1 * units_per_mm) / offset_scale);
+                    safe_preferred = zero_target + (safe_height / offset_scale);
                     offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
                     offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(safe_height == 0){
@@ -854,15 +891,17 @@ FUNCTION(_) {
                         }else{
                             state = ZERO_HEIGHT;
                         }
-                    }else if(z_offset_counts + safe_min >= offset_max){
+                    }else if(safe_min > offset_max){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
                                                        "program is paused.\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
-                    }else if(z_offset_counts + safe_preferred >= offset_max && !safe_height_is_limited){
-                        rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                    }else if(safe_preferred >= offset_max){
+                        if(!safe_height_is_limited){
+                            rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                        }
                         safe_target = offset_max;
                         safe_height_is_limited = TRUE;
                         ohmic_enable = FALSE;
@@ -872,7 +911,7 @@ FUNCTION(_) {
                             state = ZERO_HEIGHT;
                         }
                     }else{
-                        safe_target = z_offset_counts + safe_preferred;
+                        safe_target = safe_preferred;
                         ohmic_enable = FALSE;
                         if(ohmic_probe_offset < 0 && probe_type == OHMIC){
                             state = PIERCE_HEIGHT;
@@ -938,7 +977,7 @@ FUNCTION(_) {
                     rtapi_print_msg(RTAPI_MSG_ERR,"invalid pierce height.\n"
                                                   "or invalid cut height.\n"
                                                   "or invalid cut volts.\n"
-                                                  "program is paused.");
+                                                  "program is paused.\n");
                 }
                 break;
             case TORCH_ON:
@@ -1269,7 +1308,7 @@ FUNCTION(_) {
                             safe_target = offset_max;
                             if(!safe_height_is_limited){
                                 safe_height_is_limited = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
                             }
                         }
                     }
