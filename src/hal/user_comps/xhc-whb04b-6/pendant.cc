@@ -332,8 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""), //0x1b is sent from device XHC-WHB04B-6 else all the logic is broken inside the compoent for feed and spindle override
-    //lead(0x9b, "Lead", ""), //0x9b  is sent from device i don't know why the change to 9b was done but this is not correct with XHC-WHB04B-6
+    lead(0x1c, "Lead", ""),  // user jarenk seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
@@ -1356,7 +1356,7 @@ void Pendant::onFeedActiveEvent(const KeyCode& feed)
 // ----------------------------------------------------------------------
 void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.lead.code)
+    if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHandWheel.counters().enableLeadCounter(isActive);
     }
@@ -1388,7 +1388,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected100(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.lead.code)
+    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
