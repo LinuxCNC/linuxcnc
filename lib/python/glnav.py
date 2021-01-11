@@ -1,4 +1,11 @@
-from minigl import *
+# import OpenGL
+# OpenGL.ERROR_CHECKING = True
+# OpenGL.ERROR_LOGGING = True
+# OpenGL.FULL_LOGGING = True
+# OpenGL.ERROR_ON_COPY = True
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
 import math
 import array, itertools
 import sys
@@ -6,11 +13,11 @@ import sys
 if sys.version_info[0] == 3:
     def use_pango_font(font, start, count, will_call_prepost=False):
         import gi
-        gi.require_version('Pango','1.0')
-        gi.require_version('PangoCairo','1.0')
+        gi.require_version('Pango', '1.0')
+        gi.require_version('PangoCairo', '1.0')
         from gi.repository import Pango
         from gi.repository import PangoCairo
-        #from gi.repository import Cairo as cairo
+        # from gi.repository import Cairo as cairo
         import cairo
 
         fontDesc = Pango.FontDescription(font)
@@ -152,6 +159,7 @@ def pango_font_post():
 def glTranslateScene(w, s, x, y, mousex, mousey):
     glMatrixMode(GL_MODELVIEW)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
+    mat = [i for i in itertools.chain(*mat.tolist())]
     glLoadIdentity()
     glTranslatef(s * (x - mousex), s * (mousey - y), 0.0)
     glMultMatrixd(mat)
@@ -174,6 +182,7 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
 
     glTranslatef(xcenter, ycenter, zcenter)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
+    mat = [i for i in itertools.chain(*mat.tolist())]
 
     glLoadIdentity()
     tx, ty, tz = mat[12:15]
