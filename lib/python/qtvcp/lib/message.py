@@ -55,7 +55,7 @@ class Message:
 
     # This is part of the user message system
     # There is status that prints to the status bar
-    # There is Okdialog that prints a dialog that the user must acknoledge
+    # There is Okdialog that prints a dialog that the user must acknowledge
     # there is yes/no dialog where the user must choose between yes or no
     # you can combine status and dialog messages so they print to the status bar 
     # and pop a dialog
@@ -118,7 +118,7 @@ class Message:
     # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily
     # add user data - it seems you only get the last set added
     # found this closure technique hack on the web
-    # truely weird black magic
+    # truly weird black magic
     def dummy(self,pin,name,bt,t,d,c,i):
         def calluser():
             self.on_printmessage(pin,name,bt,t,d,c,i)

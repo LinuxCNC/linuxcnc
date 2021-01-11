@@ -56,8 +56,8 @@ class OverlayWidget(QWidget):
 
     # There seems to be no way to get the very top level widget
     # in QT the parent widget can be owned in another parent
-    # this addes an event filter the widget in 'top_level'
-    # so we can track what is happenning to it.
+    # this adds an event filter the widget in 'top_level'
+    # so we can track what is happening to it.
     def newParent(self):
         self.parent = self.top_level
         self.last = self.parent
@@ -136,7 +136,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     # This is how we plant the very top level parent into
     # our overlay widget
-    # QTVCP_INSTANCE is not accessable from Designer
+    # QTVCP_INSTANCE is not accessible from Designer
     # it should work with any main window but doesn't.
     # this worked so i stopped looking why
     # this also sets up following show or hide etc based on
@@ -286,7 +286,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.setLayout(vbox)
         self.setGeometry(300, 300, 300, 150)
 
-    # would need to class patch for something realy useful
+    # would need to class patch for something really useful
     def okChecked(self):
         self.hide()
     def cancelChecked(self):

@@ -75,6 +75,9 @@ class _IStat(object):
         self.QTVCP_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
         self.PREFERENCE_PATH = self.INI.find("DISPLAY","PREFERENCE_FILE_PATH") or None
+        self.PROGRAM_PREFIX = self.get_error_safe_setting("DISPLAY","PROGRAM_PREFIX", '~/linuxcnc/nc_files')
+        if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
+            log.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
         self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
@@ -116,7 +119,7 @@ class _IStat(object):
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION ))
 
         axes = self.INI.find("TRAJ", "COORDINATES")
-        if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
+        if axes is not None: # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
             log.debug('TRAJ COORDINATES: {}'.format(axes))
             self.AVAILABLE_AXES = []
@@ -145,7 +148,7 @@ class _IStat(object):
                 else:
                     self.GET_JOG_FROM_NAME[c] = num
 
-                # list of availble joint numbers
+                # list of available joint numbers
                 self.AVAILABLE_JOINTS.append(num)
 
                 # AXIS sanity check
@@ -168,7 +171,7 @@ class _IStat(object):
 
         # home all check
         self.HOME_ALL_FLAG = 1
-        # set Home All Flage only if ALL joints specify a HOME_SEQUENCE
+        # set Home All Flag only if ALL joints specify a HOME_SEQUENCE
         jointcount = len(self.AVAILABLE_JOINTS)
         self.JOINT_SEQUENCE_LIST = {}
         for j in range(jointcount):
@@ -179,13 +182,18 @@ class _IStat(object):
             self.JOINT_SEQUENCE_LIST[j] = int(seq)
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
+        self.JOINT_TYPE_INT = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
         for j in range(jointcount):
             section = "JOINT_%d" % j
             self.JOINT_TYPE[j] = self.INI.find(section, "TYPE") or "LINEAR"
+            if self.JOINT_TYPE[j] == "LINEAR" :
+                self.JOINT_TYPE_INT[j] = 1
+            else:
+                self.JOINT_TYPE_INT[j] = 2
             self.JOINT_SEQUENCE[j]  = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
-        # jog syncronized sequence
+        # jog synchronized sequence
         templist = []
         for j in self.AVAILABLE_JOINTS:
             temp = []
@@ -399,7 +407,7 @@ class _IStat(object):
         c = self.MACHINE_UNIT_CONVERSION_9
         return list(map(lambda x,y: x*y, v, c))
 
-    # This finds the filter program's initilizing
+    # This finds the filter program's initializing
     # program eg python for .py from INI
     def get_filter_program(self, fname):
         ext = os.path.splitext(fname)[1]

@@ -330,7 +330,7 @@ class _TStat(object):
             LOG.debug("Save line: {}".format(line))
             if not skip:
                 print(line, file=file)
-        # Theses lines are required to make sure the OS doesn't cache the data
+        # These lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
         os.fsync(file.fileno())

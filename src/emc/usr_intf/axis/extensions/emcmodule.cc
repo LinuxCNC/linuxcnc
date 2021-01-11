@@ -1552,10 +1552,14 @@ static PyTypeObject Error_Type = {
 
 #include <GL/gl.h>
 
+#define AXIS_MASK_A 0x08
+#define AXIS_MASK_B 0x10
+#define AXIS_MASK_C 0x20
 static struct rotation_offsets {
     double x;
     double y;
     double z;
+    unsigned int axis_mask;
     unsigned int respect_offsets;
 } roffsets;
 
@@ -1626,9 +1630,19 @@ static void vertex9(const double pt[9], double p[3], const char *geometry) {
             case 'U': translate(p, pt[6] * sign, 0, 0); sign=1; break;
             case 'V': translate(p, 0, pt[7] * sign, 0); sign=1; break;
             case 'W': translate(p, 0, 0, pt[8] * sign); sign=1; break;
-            case 'A': rotate_x(p, pt[3] * sign); sign=1; break;
-            case 'B': rotate_y(p, pt[4] * sign); sign=1; break;
-            case 'C': rotate_z(p, pt[5] * sign); sign=1; break;
+            case 'A': if (roffsets.axis_mask & AXIS_MASK_A) {
+                          rotate_x(p, pt[3] * sign);
+                      }
+                      sign=1; break;
+            case 'B': if (roffsets.axis_mask & AXIS_MASK_B) {
+                          rotate_y(p, pt[4] * sign);
+                      }
+                      sign=1; break;
+            case 'C': if (roffsets.axis_mask & AXIS_MASK_C) {
+                          rotate_z(p, pt[5] * sign);
+                      }
+                      sign=1; break;
+
         }
     }
 }
@@ -1721,10 +1735,16 @@ static PyObject *pyvertex9(PyObject *s, PyObject *o) {
 }
 
 static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
-    if(!PyArg_ParseTuple(o, "i", &roffsets.respect_offsets)) {
+    char* coords;
+
+    if(!PyArg_ParseTuple(o, "si",&coords, &roffsets.respect_offsets)) {
         return NULL;
     }
-    fprintf(stderr,"%s respect_offsets=%d\n",__FILE__,roffsets.respect_offsets);
+    // GEOMETRY rotations only if letters (ABC) included in [TRAJ]COORDINATES
+    if (strchr(coords,'A')) roffsets.axis_mask |= AXIS_MASK_A;
+    if (strchr(coords,'B')) roffsets.axis_mask |= AXIS_MASK_B;
+    if (strchr(coords,'C')) roffsets.axis_mask |= AXIS_MASK_C;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1950,6 +1970,22 @@ static PyObject *Logger_set_depth(pyPositionLogger *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
+    struct color *c = s->colors;
+    if(!PyArg_ParseTuple(a, "(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+            &c[0].r,&c[0].g, &c[0].b, &c[0].a,
+            &c[1].r,&c[1].g, &c[1].b, &c[1].a,
+            &c[2].r,&c[2].g, &c[2].b, &c[2].a,
+            &c[3].r,&c[3].g, &c[3].b, &c[3].a,
+            &c[4].r,&c[4].g, &c[4].b, &c[4].a,
+            &c[5].r,&c[5].g, &c[5].b, &c[5].a
+            ))
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static double dist2(double x1, double y1, double x2, double y2) {
     double dx = x2-x1;
     double dy = y2-y1;
@@ -2169,6 +2205,8 @@ static PyMethodDef Logger_methods[] = {
         "Plot the backplot now"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
+    {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
+        "set the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},

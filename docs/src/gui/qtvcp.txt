@@ -63,17 +63,21 @@ If you are using this to make a CNC control screen: +
 Under the [DISPLAY] heading:
 
 ----
-DISPLAY = qtvcp <screen_name>
+DISPLAY = qtvcp <options> <screen_name>
   options:
     -d debugging on
     -a set window always on top
     -c HAL component name. Default is to use the UI file name.
-    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET
-    -m maximise window
+    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET example: -g 200x400+0+100
+    -m maximize window
     -f fullscreen the window
     -t theme. Default is system theme
-    -x embed into a X11 window that doesn't supoort embedding.
+    -x embed into a X11 window that doesn't support embedding.
     --push_xid send qtvcp's X11 window id number to standard output; for embedding
+    -u file path of a substitude handler file
+    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
+
+    all <options> must be before <screen name>
     <screen_name> is the base name of the .ui and _handler.py files.
     If <screen_name> is missing the default screen will be loaded.
 ----
@@ -142,11 +146,17 @@ If you wish to modify a stock screen, copy it's UI and handler file to your conf
 Qtvcp can be used to create control panels that interface with HAL. +
 
 === Builtin panels
-There are some buit in panels that may be useful. +
 
-* test_panel - comvience panel useable for basic testing controls.
-* cam_align - panel that displays a camera image with alignment controls.
-* sim_panel - can be used to simulate MPG jogging controls
+There are several builtin HAL panels available. +
+in a  terminal type 'qtvcp' <return> to see a list. +
+
+* test_panel - collect of useful widgets for testing HAL component. Including speech of LED state.
+* cam_align - a camera display widget for rotational alignment
+* sim_panel - a small control panel to simulate MPG jogging controls etc. for simulated configurations
+* vismach_mill_xyz - 3d openGL view of a 3 axis milling machine
+
+.qtvismach- 3 Axis Mill Builtin panel
+image::images/qtvismach.png["QtVismach Mill",align="left"]
 
 [source,hal]
 ----
@@ -205,6 +215,7 @@ You must have designer installed; These commands should add it: +
 Or use your package manager to install the same: +
 'sudo apt-get install qttools5-dev-tools' +
 'sudo apt-get install qttools5.dev' +
+'sudo apt-get install libpython-dev' +
 
 Then you need the python-module loading library added. +
 Qtvcp uses QT5 with python2 - this combination is not normally available from +

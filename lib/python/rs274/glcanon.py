@@ -468,7 +468,7 @@ class GlCanonDraw:
                    msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
         g = self.get_geometry().upper()
-        linuxcnc.gui_respect_offsets(int('!' in g))
+        linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
 
         geometry_chars = "XYZABCUVW-!"
         dupchars = []; badchars = []
@@ -1099,7 +1099,7 @@ class GlCanonDraw:
 
     def show_icon(self,idx,icon):
         # only show icon once for idx for home,limit icons
-        #   accomodates hal_gremlin override format_dro()
+        #   accommodates hal_gremlin override format_dro()
         #   and prevents display for both Rad and Dia
         if icon == homeicon:
             if idx in self.show_icon_home_list: return
@@ -1316,7 +1316,7 @@ class GlCanonDraw:
                 g = re.split(" *(-?[XYZABCUVW])", self.get_geometry())
                 g = "".join(reversed(g))
 
-                for ch in g: # Apply in orignal non-reversed GEOMETRY order
+                for ch in g: # Apply in original non-reversed GEOMETRY order
                     if ch == '-':
                         sign = -1
                     elif ch == 'A':
@@ -1758,7 +1758,7 @@ class GlCanonDraw:
         glDepthFunc(GL_ALWAYS)
         diameter, frontangle, backangle, orientation = current_tool[-4:]
         w = 3/8.
-        glDisable(GL_CULL_FACE)#lathe tool needs to be visable form both sides
+        glDisable(GL_CULL_FACE)#lathe tool needs to be visible form both sides
         radius = self.to_internal_linear_unit(diameter) / 2.
         glColor3f(*self.colors['lathetool'])
         glBegin(GL_LINES)

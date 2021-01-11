@@ -42,6 +42,7 @@ COLORS = {
     }
 
 MAPPING = {
+    'Level VERBOSE' : 'blue',
     'DEBUG'   : 'white',
     'INFO'    : 'cyan',
     'WARNING' : 'yellow',

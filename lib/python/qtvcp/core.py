@@ -2,6 +2,7 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
+import inspect
 
 import sys
 if sys.version_info.major > 2:
@@ -20,7 +21,7 @@ from qtvcp.qt_istat import _IStat as IStatParent
 # Set up logging
 from . import logger
 log = logger.getLogger(__name__)
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
 
 class QPin(hal.Pin, QObject):
@@ -28,7 +29,6 @@ class QPin(hal.Pin, QObject):
 
     REGISTRY = []
     UPDATE = False
-
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
@@ -45,6 +45,12 @@ class QPin(hal.Pin, QObject):
 
     def text(self):
         return self.get_name()
+
+    # always returns False because
+    # there was no errpr when making pin
+    # see class DUMMY
+    def error(self):
+        return False
 
     @classmethod
     def update_all(self):
@@ -75,6 +81,28 @@ class QPin(hal.Pin, QObject):
     def update_stop(self, timeout=100):
         QPin.UPDATE = False
 
+# so errors when making QPins aren't fatal
+class DummyPin(QObject):
+    value_changed = pyqtSignal('PyQt_PyObject')
+    def __init__(self, *a, **kw):
+        super(DummyPin, self).__init__(None)
+        self._a = a
+        self._kw = kw
+
+    # always returns True because
+    # there was an errpr when making HAL pin
+    # see class QPin
+    def error(self):
+        return True
+
+    def getError(self):
+        print('{}'.format(self._kw.get('ERROR')))
+
+    def get(self):
+        return 0
+
+    def set(self, *a, **kw):
+        pass
 
 class QComponent:
     def __init__(self, comp):
@@ -83,7 +111,16 @@ class QComponent:
         self.comp = comp
 
     def newpin(self, *a, **kw):
-        return QPin(_hal.component.newpin(self.comp, *a, **kw))
+        try:
+            p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+        except Exception as e:
+            if log.getEffectiveLevel() == logger.VERBOSE:
+                raise
+            t = inspect.getframeinfo(inspect.currentframe().f_back)
+            log.error("QComponent: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+                format(e, t[0], t[1], t[2]))
+            p = DummyPin(*a, ERROR=e)
+        return p
 
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 

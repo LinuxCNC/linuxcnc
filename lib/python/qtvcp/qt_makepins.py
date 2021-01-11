@@ -68,7 +68,7 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 self.window.registerHalWidget(widget)
                 idname = widget.objectName()
-                LOG.debug('HAL-ified instance found: {}'.format(idname))
+                LOG.verbose('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init()
 
     # Search all hal-ifed widgets for closing clean up functions and call them

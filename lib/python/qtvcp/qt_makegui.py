@@ -91,7 +91,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
-        # make an instance with embeded variables so they
+        # make an instance with embedded variables so they
         # are available to all subclassed objects
         _HalWidgetBase(halcomp,path,self)
 
@@ -187,11 +187,7 @@ Python Error:\n {}'''.format(str(e))
                 rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
             else:
                 log.critical(e)
-                sys.exit(0)
-        else:
-            log.debug('QTVCP top instance: {}'.format(self))
-            for widget in instance.findChildren(QtCore.QObject):
-                log.debug('QTVCP Widget: {}'.format(widget))
+                raise
 
     def apply_styles(self, fname = None):
         if self.PATHS.IS_SCREEN:
@@ -278,7 +274,7 @@ Python Error:\n {}'''.format(str(e))
                 mod = __import__(basename)
             except ImportError as e:
                 log.critical("module '{}' skipped - import error: ".format(basename), exc_info=e)
-                sys.exit(0)
+                raise
                 continue
             log.debug("module '{}' imported green<OK>".format(mod.__name__))
 
@@ -306,12 +302,12 @@ Python Error:\n {}'''.format(str(e))
                         if method.startswith('_'):
                             continue
                         if callable(f):
-                            log.debug("Register callback '{}' in {}".format(method, object))
+                            log.debug("Register callback '{}'".format(method))
                             add_handler(method, f)
             except Exception as e:
                 log.exception("Trouble looking for handlers in '{}':".format(basename), exc_info=e)
                 # we require a working handler file!
-                sys.exit()
+                raise
 
         # Wrap lists in Trampoline, unwrap single functions
         for n,v in list(handlers.items()):

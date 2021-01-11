@@ -67,6 +67,10 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
         hm2->stepgen.instance[i].subcounts += acc_delta;
 
+        if ((*(hm2->stepgen.instance[i].hal.pin.position_reset)) != 0) {
+        hm2->stepgen.instance[i].subcounts = 0;
+        }
+
         *(hm2->stepgen.instance[i].hal.pin.counts) = hm2->stepgen.instance[i].subcounts >> 16;
 
         // note that it's important to use "subcounts/65536.0" instead of just
@@ -807,6 +811,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position_reset", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.position_reset), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
             // debug pins
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hm2->llio->name, i);
@@ -960,6 +972,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.enable) = 0;
             *(hm2->stepgen.instance[i].hal.pin.control_type) = 0;
+            *(hm2->stepgen.instance[i].hal.pin.position_reset) = 0;
 
             hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
             hm2->stepgen.instance[i].hal.param.maxvel = 0.0;

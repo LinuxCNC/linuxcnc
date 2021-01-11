@@ -9,7 +9,11 @@ QStatusBar {
     color: #FFFFD0;
 }
 
-QPushButton, ActionButton, SystemToolButton, AxisToolButton {
+QPushButton,
+ActionButton,
+SystemToolButton,
+AxisToolButton,
+QToolButton {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid brown;
     border-radius: 4px;
@@ -17,16 +21,21 @@ QPushButton, ActionButton, SystemToolButton, AxisToolButton {
     color: white;
 }
 
-QPushButton:checked, QPushButton:pressed {
+QPushButton:checked,
+QPushButton:pressed {
     border-color: #00FF00;
     color: #00FF00;
 }
 
-QPushButton:hover, ActionButton:hover, SystemToolButton:hover, AxisToolButton:hover {
+QPushButton:hover,
+ActionButton:hover,
+SystemToolButton:hover,
+AxisToolButton:hover {
     border: 1px solid #00FF00;
 }
 
-QPushButton:disabled, ActionButton:disabled {
+QPushButton:disabled,
+ActionButton:disabled {
     color: gray;
 }
 
@@ -55,7 +64,10 @@ QLabel {
 }
 
 DROLabel, 
-QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_axis_a {
+QLabel#label_axis_x,
+QLabel#label_axis_y,
+QLabel#label_axis_z,
+QLabel#label_axis_a {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -67,7 +79,8 @@ DROLabel[homed=false] {
     color: red;
 }
 
-QLabel#lbl_cycle_start, QLabel#lbl_home_all {
+QLabel#lbl_cycle_start,
+QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
     color: white;
 }
@@ -86,6 +99,10 @@ QLineEdit {
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color:white;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
 }
 
 QLineEdit#mdiline{
@@ -188,7 +205,8 @@ QProgressBar::chunk {
     border: 1px solid orange;
 }
 
-QFrame#frame_cycle_start, QFrame#frame_home_all {
+QFrame#frame_cycle_start,
+QFrame#frame_home_all {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -196,7 +214,8 @@ QFrame#frame_cycle_start, QFrame#frame_home_all {
     color: white;
 }
 
-QFrame#frame_cycle_start:hover, QFrame#frame_home_all:hover {
+QFrame#frame_cycle_start:hover,
+QFrame#frame_home_all:hover {
     border: 1px solid #00FF00;
 }
 
@@ -209,7 +228,8 @@ QHeaderView {
     font: 10pt "Lato Heavy";
 }
 
-QHeaderView::section::vertical::first, QHeaderView::section::vertical::only-one {
+QHeaderView::section::vertical::first,
+QHeaderView::section::vertical::only-one {
     width: 60px;
 }
 
@@ -286,27 +306,41 @@ QSlider::sub-page:horizontal:disabled, QSlider::sub-page:vertical:disabled {
     border-color: #999;
 }
 
-QSlider::add-page:horizontal:disabled,  QSlider::add-page:vertical:disabled{
+QSlider::add-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled{
     background: #eee;
     border-color: #999;
 }
 
-QSlider::handle:horizontal:disabled,  QSlider::handle:vertical:disabled{
+QSlider::handle:horizontal:disabled,
+QSlider::handle:vertical:disabled{
     background: #eee;
     border: 1px solid #aaa;
     border-radius: 4px;
 }
-LcncDialog,ToolDialog,CloseDialog,EntryDialog{
+
+QDialog,
+LcncDialog,
+ToolDialog,
+CloseDialog,
+EntryDialog,
+CalculatorDialog {
 background-color: gray;
 }
-LcncDialog QPushButton,ToolDialog QPushButton{
+
+LcncDialog QPushButton,
+ToolDialog QPushButton {
     width: 100px;
     height: 40px;
 }
-EntryDialog QPushButton, CloseDialog QPushButton{
+
+CalculatorDialog QPushButton,
+EntryDialog QPushButton,
+CloseDialog QPushButton {
     width: 80px;
     height: 40px;
 }
+
 QMenu {
     background-color: #ABABAB; /* sets background of the menu */
     border: 1px solid black;
@@ -320,4 +354,10 @@ QMenu::item {
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: darkblue;
+}
+
+QHeaderView::section {
+    background-color:  foregnd;
+    color: white;
+    border: 1px solid #6c6c6c;
 }

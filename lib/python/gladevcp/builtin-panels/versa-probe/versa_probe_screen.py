@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 
 import hal                  # base hal class to react to hal signals
-import os                   # needed to get the paths and directorys
+import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
 import gtk                  # base for pygtk widgets and constants
 import gtk.glade

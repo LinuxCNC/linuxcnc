@@ -1,0 +1,27 @@
+# Keep your post GUI customisations here to prevent them from being overwritten
+# by updates or pncconf/stepconf changes.
+
+# As an example:
+# You currently have a plasmac:thc-enable signal which connects the
+# plasmac_run.thc-enable-out output to the plasmac.thc-enable input.
+
+# You want to connect the thc-enable pin of the plasmac component to a switch
+# on your machine rather than let it be controlled from the GUI Run tab.
+
+# First disconnect the GUI Run tab from the plasmac:thc-enable signal:
+# unlinkp plasmac_run.thc.enable-out
+
+# Then connect the plasmac:thc-enable signal to your switch:
+# net plasmac:thc-enable your.switch-pin
+
+
+# simulator panel connections
+loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui
+net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on
+net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in
+net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in
+net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in
+net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in
+net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in
+net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up
+net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down

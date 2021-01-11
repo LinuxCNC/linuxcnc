@@ -22,6 +22,8 @@
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin
 from qtvcp.plugins.hal_label_plugin import HALLabelPlugin
+from qtvcp.plugins.detach_tabs_plugin import DetachTabWidgetPlugin
+from qtvcp.plugins.round_progress_bar_plugin import RoundProgressBarPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
@@ -44,3 +46,4 @@ from qtvcp.plugins.versa_probe_plugin import VersaProbePlugin
 from qtvcp.plugins.basic_probe_plugin import BasicProbePlugin
 from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin
 from qtvcp.plugins.virtualkeyboard_plugin import VirtualKeyboardPlugin
+

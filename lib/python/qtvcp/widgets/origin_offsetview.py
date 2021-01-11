@@ -246,7 +246,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         degree_tmpl = "%11.2f"
 
-        # fill each row of the liststore fron the offsets arrays
+        # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:

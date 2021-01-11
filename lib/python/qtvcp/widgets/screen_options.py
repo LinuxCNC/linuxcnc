@@ -261,7 +261,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_tabs:
             self.add_xembed_tabs()
 
-        # clear and add an intial machine log message
+        # clear and add an initial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
         STATUS.emit('update-machine-log', '', 'INITIAL')
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
@@ -273,7 +273,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.init_zmq_publish()
 
     # This is called early by qt_makegui.py for access to
-    # be able to pass the preference object to ther widgets
+    # be able to pass the preference object to the widgets
     def _pref_init(self):
         if self.use_pref_file:
             # we prefer INI settings
@@ -304,22 +304,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.emit('error',kind,text)
 
     def process_error(self, w, kind, text):
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            if kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='ERROR:', message=text)
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
+            elif kind == linuxcnc.OPERATOR_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR TEXT:', message=text)
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text)
+            elif kind == linuxcnc.OPERATOR_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='OPERATOR DISPLAY:', message=text)
-            elif kind == 255: # temparary info
+                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text)
+
+            elif kind == linuxcnc.NML_ERROR:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text)
+            elif kind == linuxcnc.NML_TEXT:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text)
+            elif kind == linuxcnc.NML_DISPLAY:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
+
+            elif kind == 255: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Low Priority:',
                                      message=text,
                                     status_timeout=0,
                                     timeout=2)
+
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
@@ -337,7 +349,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
-                                                                 focus_text='Close Linuxcnc?',
+                                                                 focus_text='',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
             # system shutdown

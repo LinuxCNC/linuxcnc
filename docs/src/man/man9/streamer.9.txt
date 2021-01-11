@@ -20,7 +20,7 @@ the FIFO, so that *streamer* can write it to the HAL pins.
 *depth*=_depth1[,depth2...]_::
 
     Sets the depth of the user->realtime FIFO that *streamer* creates
-    to receive data from *hal‐streamer*.  Multiple values of _depth_
+    to receive data from *hal-streamer*.  Multiple values of _depth_
     (separated by commas) can be specified if you need more than one
     FIFO (for example if you want to stream data from two different
     realtime threads).

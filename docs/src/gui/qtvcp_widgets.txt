@@ -494,14 +494,43 @@ It is based on pyQT's QToolButton
 This is used to align the work piece or zero part features using a webcam. +
 It uses opencv vision library. +
 
-===  DRO Widget
+===  DRO_Label Widget
 This will display the current position of an axis. +
-Qjoint_number
-Qreference_type
-metric_template
-imperial_template
-angular_template 
 
+* Qjoint_number - joint number of offset to display (10 will specify rotational offset)
+* Qreference_type - actual, relative or distance to go (0,1,2)
+* metric_template - format of display ie '%10.3f'
+* imperial_template - format of display ie '%9.af'
+* angular_template  - format of display ie '%Rotational: 10.1f'
+
+The DRO_Label widget holds a property 'isHomed' that can be used with a stylesheet +
+to change the color of the DRO_Label based on home state of the joint number in linuxcnc. +
+
+Here is a sample stylesheet entry. +
+It sets the font of all DRO_Label widgets. +
+Then sets the text color based on the Qt 'isHomed' Property. +
+
+----
+DROLabel {
+    font: 25pt "Lato Heavy";
+}
+
+DROLabel[isHomed=false] {
+    color: red;
+}
+
+DROLabel[isHomed=true] {
+  color: green;
+}
+----
+
+Here is how you specify a particular widget - by it's objectName in designer. +
+
+----
+DROLabel #dr0_x_axis [isHomed=false] {
+    color: yellow;
+}
+----
 
 It is based on pyQT's QLabel
 
@@ -511,17 +540,20 @@ The GcodeDisplay properties can be set in a stylesheet with the following code a
 
 ----
 EditorBase{
-background: lightblue;
+qproperty-styleColorBackground: lightblue;
 qproperty-styleColor0: black;
 qproperty-styleColor1: #000000; /* black */
 qproperty-styleColor2: red;
 qproperty-styleColor3: black;
 qproperty-styleColor4: yellow;
+qproperty-styleColorMarginText: White;
+qproperty-styleColorMarginBackground: blue;
 qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont1: "Times,18,-1,0,90,1,0,0,0,0";
 qproperty-styleFont2: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont3: "Times,12,-1,0,90,0,0,0,0,0";
 qproperty-styleFont4: "Times,12,-1,0,90,0,0,0,0,0";
+qproperty-styleFontMargin: "Times,14,-1,0,90,0,0,0,0,0";
 }
 ----
 

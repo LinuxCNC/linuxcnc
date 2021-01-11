@@ -240,7 +240,7 @@ class _GStat(GObject.GObject):
         self.set_timer()
 
     # we put this in a function so qtvcp
-    # can overide it to fix a seg fault
+    # can override it to fix a seg fault
     def set_timer(self):
         GObject.timeout_add(100, self.update)
 
@@ -251,7 +251,7 @@ class _GStat(GObject.GObject):
         self.old['interp']= self.stat.interp_state
         # Only update file if call level is 0, which
         # means we are not executing a subroutine/remap
-        # This avoids emiting signals for bogus file names below
+        # This avoids emitting signals for bogus file names below
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
@@ -389,7 +389,7 @@ class _GStat(GObject.GObject):
             elif state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
 
-            # reset modes/interpeter on machine on
+            # reset modes/interpreter on machine on
             if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
@@ -431,7 +431,7 @@ class _GStat(GObject.GObject):
             # still be emitted if aborting a program shortly after it ran an
             # external file subroutine, but that is fixed by not updating the
             # file name if call level != 0 in the merge() function above.
-            # do avoid that a signal is emited in that case, causing
+            # do avoid that a signal is emitted in that case, causing
             # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.emit('file-loaded', file_new)
@@ -483,7 +483,7 @@ class _GStat(GObject.GObject):
                 self._is_all_homed = False
                 self.emit('not-all-homed', unhomed_joints)
 
-        # override limts
+        # override limits
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
         or_limits_set_new = self.old['override-limits-set']
@@ -768,7 +768,7 @@ class _GStat(GObject.GObject):
             self._is_all_homed = False
             self.emit('not-all-homed', unhomed_joints)
 
-        # update external ojects
+        # update external objects
         self.emit('forced-update')
 
     # ********** Helper function ********************
@@ -807,7 +807,7 @@ class _GStat(GObject.GObject):
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    # check for requied modes
+    # check for required modes
     # fail if mode is 0
     # fail if machine is busy
     # true if all ready in mode
@@ -818,7 +818,10 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         premode = self.stat.task_mode
         if not modes: return (None, premode)
-        if  self.stat.task_mode in modes: return (True, premode)
+        try:
+            if  self.stat.task_mode in modes[0]: return (True, premode)
+        except:
+            if  self.stat.task_mode == modes[0]: return (True, premode)
         if running( self.stat): return (None, premode)
         return (False, premode)
 

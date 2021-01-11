@@ -39,7 +39,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         self.linear = True
         self._block_signal = False
 
-    # Default to continous jogging
+    # Default to continuous jogging
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):
