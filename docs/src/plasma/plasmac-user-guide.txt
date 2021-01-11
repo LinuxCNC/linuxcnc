@@ -2866,7 +2866,7 @@ options: +
 
 The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter. The THCAD may be used for parallel port configurations or for configurations using Mesa Electronics hardware.
 
-The preferred method is to setup the required parameters for the THCAD in the <machine_name>_connections.hal file.
+Add these parameters to the .hal file that was created as a result of making a working and tested base machine configuration.
 
 .Parallel Port Config
 
