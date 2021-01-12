@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.16'
+VERSION = '0.9.17'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -116,7 +116,7 @@ class HandlerClass:
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
+        self.idleHomedList = ['run', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
@@ -157,6 +157,9 @@ class HandlerClass:
         self.dialogError = False
         self.cutTypeText = ''
         self.heightOvr = 0.0
+        self.startLine = 0
+        self.preRflFile = ''
+        self.rflActive = False
 
     def initialized__(self):
         self.make_hal_pins()
@@ -189,6 +192,8 @@ class HandlerClass:
         STATUS.connect('homed', self.joint_homed)
         STATUS.connect('all-homed', self.joints_all_homed)
         STATUS.connect('not-all-homed', self.joint_unhomed)
+        STATUS.connect('gcode-line-selected', lambda w, line:self.set_start_line(line))
+        STATUS.connect('graphics-line-selected', lambda w, line:self.set_start_line(line))
         STATUS.connect('g-code-changed', self.gcodes_changed)
         STATUS.connect('m-code-changed', self.mcodes_changed)
         STATUS.connect('program-pause-changed', self.pause_changed) 
@@ -415,7 +420,7 @@ class HandlerClass:
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
-#        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -551,7 +556,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
-#        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview cone size', int(self.w.cone_size.value() * 100) / 100, float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview grid size', int(self.w.grid_size.value() * 100) / 100, float, 'GUI_OPTIONS')
@@ -693,6 +698,9 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
+        if self.rflActive:
+            self.rflActive = False
+            ACTION.OPEN_PROGRAM(ACTION.prefilter_path)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
         self.w.main_tab_widget.setTabEnabled(1, True)
@@ -710,7 +718,6 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
-        self.w.run.setEnabled(False)
         self.w.abort.setEnabled(True)
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
@@ -731,7 +738,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(True)
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
-            self.w.run.setEnabled(False)
             self.w.wcs_button.setEnabled(False)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
@@ -777,6 +783,13 @@ class HandlerClass:
                 self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
         else:
             self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
+        if self.startLine > 0:
+            if self.w.run.text() == (''):
+                self.w.run.setText(self.runText)
+            else:
+                self.w.run.setText('')
+        else:
+            self.w.run.setText('CYCLE START')
 
     def percent_loaded(self, object, percent):
         if percent < 1:
@@ -811,15 +824,16 @@ class HandlerClass:
             ACTION.RUN()
         self.w.gcodegraphics.logger.clear()
         self.w.file_edit.setEnabled(True)
-        if not STATUS.is_all_homed():
-            self.w.run.setEnabled(False)
+        if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            self.preRflFile = ''
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
-        if self.w.file_open.text() == 'OPEN':
-            self.w.run.setEnabled(False)
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates.lower()[int(joint)]
@@ -856,10 +870,25 @@ class HandlerClass:
     def mcodes_changed(self, obj, cod):
         self.w.lbl_mcodes.setText('M-Codes: {}'.format(cod))
 
+    def set_start_line(self, line):
+        if self.w.chk_run_from_line.isChecked() and line > 1:
+            self.runText = 'SELECTED {}'.format(line)
+            self.startLine = line - 1
+        elif not self.rflActive:
+            self.startLine = 0
+
 
 ###########################################################################################################################
 # CALLBACKS FROM FORM #
 ###########################################################################################################################
+    def run_pressed(self):
+        if self.startLine and not self.rflActive:
+            self.w.run.setEnabled(False)
+            self.rflActive = True
+            self.do_run_from_line()
+        else:
+            ACTION.RUN(0)
+
     def escape_pressed(self):
         self.torch_timeout()
 
@@ -1001,6 +1030,11 @@ class HandlerClass:
             self.w.dro_z.setProperty('Qreference_type', 1)
 
     def file_reload_clicked(self):
+        if self.rflActive:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            self.preRflFile = ''
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
             self.w.gcode_progress.setValue(0)
@@ -1024,10 +1058,6 @@ class HandlerClass:
     def chk_override_limits_checked(self, state):
         if state:
             ACTION.SET_LIMITS_OVERRIDE()
-
-#    def chk_run_from_line_checked(self, state):
-#        if not state:
-#            self.w.lbl_start_line.setText('1')
 
 
 #########################################################################################################################
@@ -1101,6 +1131,7 @@ class HandlerClass:
         self.w.thc_threshold.setValue(self.w.PREFS_.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
+        self.w.run.pressed.connect(self.run_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
@@ -1370,6 +1401,280 @@ class HandlerClass:
         msg.exec_()
         self.dialogError = False
         return msg
+
+    def do_run_from_line(self):
+        inData,outData,newFile,params = [],[],[],[]
+        g2,g4,g6,g9,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','',''
+        count = 0
+        with open(self.lastLoadedProgram, 'r') as inFile:
+            for line in inFile:
+                if count < self.startLine:
+                    inData.append(line.lower())
+                else:
+                    outData.append(line.lower())
+                count += 1
+        cutComp = False
+        for line in inData:
+            if line.startswith('('):
+                continue
+            if line.startswith('#<'):
+                params.append(line.strip())
+                continue
+            if 'm190' in line:
+                material = line.strip()
+                continue
+            for t1 in ['g20','g21','g40','g41.1','g42.1','g61', 'g61.1', 'g64', 'g90','g91']:
+                if t1 in line:
+                    if t1[1] == '2':
+                        g2 = t1
+                    elif t1[1] == '4':
+                        g4 = t1
+                        if t1 != 'g40':
+                            cutComp = True
+                        else:
+                            cutComp = False
+                    elif t1[1] == '6':
+                        g6 = t1
+                        if t1 == 'g64':
+                            tmp = line.split('64')[1]
+                            if tmp[0] == 'p':
+                                p = ''
+                                tmp = tmp[1:]
+                                while 1:
+                                    if tmp[0] in '.0123456789q':
+                                        p += tmp[0]
+                                        tmp = tmp[1:]
+                                    else:
+                                        break
+                                g6 = 'g64p{}'.format(p)
+                    elif t1[1] == '9':
+                        g9 = t1
+            if 'g0' in line:
+                code = 'g0'
+            if 'g1' in line:
+                tmp = line.split('g1')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g1'
+            if 'g2' in line:
+                tmp = line.split('g2')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g2'
+            if 'g3' in line:
+                tmp = line.split('g3')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g3'
+            if 'x' in line:
+                x = self.get_rfl_pos(line.strip(), x, 'x')
+            if 'y' in line:
+                y = self.get_rfl_pos(line.strip(), y, 'y')
+            if 'm3' in line:
+                rflSpindle = 'm3'
+                tmp = line.split('m3')[1]
+                while 1:
+                    if tmp[0] in '0123456789s$':
+                        rflSpindle += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+            if 'm5' in line:
+                rflSpindle = ''
+            if 'm62p3' in line:
+                d3 = 'm62p3'
+            elif 'm63p3' in line:
+                d3 = 'm63p3'
+            elif 'm64p3' in line:
+                d3 = 'm64p3'
+            elif 'm65p3' in line:
+                d3 = 'm65p3'
+            if 'm62p2' in line:
+                d2 = 'm62p2'
+            elif 'm63p2' in line:
+                d2 = 'm63p2'
+            elif 'm64p2' in line:
+                d2 = 'm64p2'
+            elif 'm65p2' in line:
+                d2 = 'm65p2'
+            if 'm67e3q' in line:
+                a3 = 'm67e3q'
+                tmp = line.split('m67e3q')[1]
+                while 1:
+                    if tmp[0] in '-.0123456789':
+                        a3 += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+            if 'm68e3q' in line:
+                a3 = 'm68e3q'
+                tmp = line.split('m68e3q')[1]
+                bb=1
+                while 1:
+                    if tmp[0] in '-.0123456789':
+                        a3 += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+        if cutComp:
+            msg  = '\nCannot run from line while\n'
+            msg += 'cutter compensation is active\n'
+            self.dialog_error(QMessageBox.Critical, 'ERROR', msg)
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            return
+        rFl = QDialog(self.w)
+        rFl.setWindowTitle('RUN FROM LINE')
+        l1 = QLabel('USE LEADIN:')
+        l2 = QLabel('LEADIN LENGTH:')
+        l3 = QLabel('LEADIN ANGLE:')
+        l4 = QLabel('')
+        use = QCheckBox()
+        len = QDoubleSpinBox()
+        ang = QDoubleSpinBox()
+        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonBox = QDialogButtonBox(buttons)
+        buttonBox.accepted.connect(rFl.accept)
+        buttonBox.rejected.connect(rFl.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText('Load')
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Cancel).setText('Cancel')
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        layout = QGridLayout()
+        layout.addWidget(l1, 0, 0)
+        layout.addWidget(l2, 1, 0)
+        layout.addWidget(l3, 2, 0)
+        layout.addWidget(l4, 3, 0)
+        layout.addWidget(use, 0, 1)
+        layout.addWidget(len, 1, 1)
+        layout.addWidget(ang, 2, 1)
+        layout.addWidget(buttonBox, 4, 0, 1, 2)
+        rFl.setLayout(layout)
+        l1.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        l2.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        l3.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        if self.units == 'inch':
+            len.setDecimals(2)
+            len.setSingleStep(0.05)
+            len.setSuffix(' inch')
+            len.setMinimum(0.05)
+        else:
+            len.setDecimals(0)
+            len.setSingleStep(1)
+            len.setSuffix(' mm')
+            len.setMinimum(1)
+        ang.setDecimals(0)
+        ang.setSingleStep(1)
+        ang.setSuffix(' deg')
+        ang.setRange(0, 359)
+        ang.setWrapping(True)
+        result = rFl.exec_()
+        if not result:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            return
+        xL = x
+        yL = y
+        try:
+            if use.isChecked():
+                xL = float(x) + (len.value() * math.cos(math.radians(ang.value())))
+                yL = float(y) + (len.value() * math.sin(math.radians(ang.value())))
+        except:
+            msg  = '\nUnable to calculate a leadin for this cut\n'
+            self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
+        for param in params:
+            if param:
+                newFile.append(param)
+        if g2:
+            zLimit = 5.0 if g2 == 'g21' else 0.2
+            newFile.append(g2)
+        else:
+            zLimit = 5.0 if self.unitsPerMm == 1 else 0.2
+        if g4:
+            newFile.append(g4)
+        if g6:
+            newFile.append(g6)
+        if g9:
+            newFile.append(g9)
+        newFile.append('M52 P1')
+        if d3:
+            newFile.append(d3)
+        if d2:
+            newFile.append(d2)
+        if a3:
+            newFile.append(a3)
+        newFile.append('g0z[#<_ini[axis_z]max_limit>-{}]'.format(zLimit))
+        if material:
+            newFile.append(material)
+            newFile.append('m66p3l3q1')
+        newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
+        if xL != x and yL != y:
+            print '00000'
+            newFile.append('G0 X{} Y{}'.format(xL, yL))
+            rflLead = [x, y]
+        else:
+            if x and y:
+                newFile.append('G0 X{} Y{}'.format(x, y))
+            elif x:
+                newFile.append('G0 X{}'.format(x))
+            elif y:
+                newFile.append('G0 Y{}'.format(y))
+            rflLead = None
+        if rflSpindle:
+            newFile.append(rflSpindle)
+        if rflLead:
+            newFile.append('G1 X{} Y{}'.format(rflLead[0], rflLead[1]))
+        for line in outData:
+            if outData.index(line) == 0 and (line.startswith('x') or line.startswith('y')):
+                line = '{}{}'.format(code, line)
+            newFile.append(line.strip())
+        rflFile = '{}rfl.ngc'.format(self.tmpPath)
+        with open(rflFile, 'w') as outFile:
+            for line in newFile:
+                outFile.write('{}\n'.format(line))
+        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+            self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+        ACTION.OPEN_PROGRAM(rflFile)
+        ACTION.prefilter_path = self.preRflFile
+        self.w.run.setEnabled(True)
+        self.runText = 'RUN FROM {}'.format(self.startLine + 1)
+
+
+    def get_rfl_pos(self, line, axisPos, axisLetter):
+        maths = 0
+        pos = ''
+        done = False
+        if line.startswith('(') or line.startswith(';'):
+            return pos if pos else axisPos
+        while len(line):
+            if line[0] == ('('):
+                break
+            if not line[0] == axisLetter:
+                line = line[1:]
+            else:
+                while 1:
+                    line = line[1:]
+                    if line[0] in '-.0123456789#':
+                        pos += line[0]
+                    elif line[0] == '[' or line[0] == '<':
+                        pos += line[0]
+                        maths += 1
+                    elif (line[0] == ']' or line[0] == '>') and maths > 0:
+                        pos += line[0]
+                        maths -= 1
+                    elif maths:
+                        pos += line[0]
+                    elif (pos and not maths) or line[0] == '(':
+                        done = True
+                        break
+                    else:
+                        if len(line) == 1: break
+                        break
+                    if len(line) == 1:
+                        break
+            if done:
+                break
+        return pos if pos else axisPos
+
 
 #########################################################################################################################
 # USER BUTTON FUNCTIONS #
@@ -1892,7 +2197,7 @@ class HandlerClass:
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
 #           FIXME do we need to stop or pause the program if a timeout occurs???
-            print('\nMaterial change timeout occured for material #{}'.format(material))
+            print('\nMaterial change timeout occurred for material #{}'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
