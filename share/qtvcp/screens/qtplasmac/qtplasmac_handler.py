@@ -199,6 +199,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('mdi-history-changed', self.mdi_entered)
+        STATUS.connect('jograte-changed', self.jog_rate_changed)
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
@@ -743,6 +744,9 @@ class HandlerClass:
         self.mdi_selection.clearSelection()
         self.w.mdihistory.MDILine.setText('')
 
+    def jog_rate_changed(self, object, value):
+        self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
+
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
             if self.w.pause.text() == '':
@@ -751,20 +755,16 @@ class HandlerClass:
                 self.w.pause.setText('')
         else:
             self.w.pause.setText('CYCLE PAUSE')
-        if self.w.feed_slider.value() != 100:
-            if self.w.feed_label.text() == 'FEED':
-                self.w.feed_label.setText('')
-            else:
-                self.w.feed_label.setText('FEED')
+        if self.w.feed_slider.value() != 100 and \
+           self.w.feed_label.text() == 'FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100):
+                self.w.feed_label.setText(' \n ')
         else:
-            self.w.feed_label.setText('FEED')
-        if self.w.rapid_slider.value() != 100:
-            if self.w.rapid_label.text() == 'RAPID':
-                self.w.rapid_label.setText('')
-            else:
-                self.w.rapid_label.setText('RAPID')
+            self.w.feed_label.setText('FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100))
+        if self.w.rapid_slider.value() != 100 and \
+           self.w.rapid_label.text() == 'RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100):
+                self.w.rapid_label.setText(' \n ')
         else:
-            self.w.rapid_label.setText('RAPID')
+            self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
         if self.pmx485CommsError:
             if self.w.pmx485_label.text() == '':
                 self.w.pmx485_label.setText('COMMS ERROR')
@@ -893,6 +893,15 @@ class HandlerClass:
 
     def backup_config_clicked(self):
         print('BACKUP CONFIGURATION NOT DONE YET')
+
+    def feed_label_pressed(self):
+        self.w.feed_slider.setValue(100)
+
+    def rapid_label_pressed(self):
+        self.w.rapid_slider.setValue(100)
+
+    def jogs_label_pressed(self):
+        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -1198,6 +1207,9 @@ class HandlerClass:
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.statePin.value_changed.connect(lambda v:self.state_changed(v))
         self.zOffsetCounts.value_changed.connect(lambda v:self.z_offset_changed(v))
+        self.w.feed_label.pressed.connect(self.feed_label_pressed)
+        self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
+        self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -1879,7 +1891,7 @@ class HandlerClass:
     def material_change_timeout_pin_changed(self, halpin):
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-#           FIX_ME do we need to stop or pause the program if a timeout occurs???
+#           FIXME do we need to stop or pause the program if a timeout occurs???
             print('\nMaterial change timeout occured for material #{}'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
