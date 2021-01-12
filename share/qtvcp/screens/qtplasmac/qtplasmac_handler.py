@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.15'
+VERSION = '0.9.16'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1716,7 +1716,7 @@ class HandlerClass:
         self.load_materials()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
-        self.w.materialReloadPin.set(0)
+        self.materialReloadPin.set(0)
 
     def new_material_clicked(self, repeat, value):
         text = 'New Material Number:'
