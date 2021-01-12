@@ -43,13 +43,13 @@ def set_change(value):
 def set_timeout():
     Popen(['halcmd setp qtplasmac.material_change_timeout 1'], shell=True)
 
-set_change(1)
+if materialNum != get_material():
+    set_change(1)
+    set_material(materialNum)
+else:
+    set_change(3)
 start = time.time()
-# if material already loaded set a phantom material
-if materialNum == get_material():
-    materialNum = materialNum * -1
-set_material(materialNum)
-while get_change() == 1:
+while get_change() == 1 or get_change() == 3:
     if time.time() > start + timeout:
         set_timeout()
         break

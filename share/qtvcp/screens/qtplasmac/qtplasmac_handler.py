@@ -1862,18 +1862,15 @@ class HandlerClass:
     def material_change_pin_changed(self, halpin):
         if halpin == 0:
             hal.set_p('motion.digital-in-03','0')
+        elif halpin == 3:
+            hal.set_p('motion.digital-in-03','1')
+            self.materialChangePin.set(0)
 
     def material_change_number_pin_changed(self, halpin):
         if self.getMaterialBusy:
             return
         if self.materialChangePin.get() == 1:
             self.autoChange = True
-            # material already loaded so do a phantom handshake
-            if halpin < 0:
-                self.materialChangePin.set(2)
-                hal.set_p('motion.digital-in-03','1')
-                self.materialChangeNumberPin.set(halpin * -1)
-                return
         if not self.material_exists(halpin):
             self.autoChange = False
             return
@@ -1882,7 +1879,7 @@ class HandlerClass:
     def material_change_timeout_pin_changed(self, halpin):
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-#           FIX_ME do we need to stop the program if a timeout occurs???
+#           FIX_ME do we need to stop or pause the program if a timeout occurs???
             print('\nMaterial change timeout occured for material #{}'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
