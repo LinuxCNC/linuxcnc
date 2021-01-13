@@ -474,19 +474,17 @@ def index_lathe_tool_with_wear(self,**words):
 # REMAP=M6 modalgroup=10 python=tool_probe_m6
 #
 # auto tool probe on m6
+# save user units
 # move to Z max
-# move to tool change position for toolchange
+# move to EMCIO position for toolchange
 # backup offset and position
 # wait for acknowledge of tool change
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position
-# set tool offsets
+# set tool offsets using toolsetterheight and _coord_offset_backup
 # move to Z max
-# goto position backup
-# based on Versaprobe remap
-#
-# param _backup_offset holds the work piece height
+# restore user units
 #
 # required INI settings
 # (Abs coordinates/ machine based units)
@@ -497,18 +495,22 @@ def index_lathe_tool_with_wear(self,**words):
 #TOOL_CHANGE_WITH_SPINDLE_ON = 0
 #TOOL_CHANGE_QUILL_UP = 1
 
-# exemple with imperial unit
-#[TOOLSENSOR]
-#X = -5.00
-#Y = -1
-#Z = -1
+# exemple with metric unit mm
+# The height of you tool setter
+#SETTER_HEIGHT = 40
+# Maximum search distance and direction (sign)
+#MAXPROBE =  -80
+# Latched distance after probing use value like 1mm for standalone
+# or something like 0.3mm is enough if you use REVERSE_LATCH
+#TS_LATCH = 0.3
+# If setter as spring inside you can use REVERSE_LATCH with G38.5 with value like 1mm
+# or if your setter does not have a spring inside (inhibit G38.5) with value 0
+#REVERSE_LATCH = 1
+# Fast first probe tool velocity
+#SEARCH_VEL = 100
+# Slow final probe velocity
+#PROBE_VEL = 5
 
-#SETTER_HEIGHT = 1.6
-#MAXPROBE =  -3
-#TS_LATCH = 0.012
-#REVERSE_LATCH = 0.08
-#SEARCH_VEL = 12
-#PROBE_VEL = 0.4
 
 def tool_probe_m6(self, **words):
 
@@ -517,16 +519,22 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
-    METRIC_BASED = (bool(self.params['_metric_machine']))      #(comment out workaround for 2.8)       
+    METRIC_BASED = (bool(self.params['_metric_machine']))      #(comment out workaround for 2.8)
 #    if Popen('halcmd getp halui.machine.units-per-mm',stdout=PIPE,shell=True).communicate()[0].strip() == "1":
-#   	    METRIC_BASED = 1
+#        METRIC_BASED = 1
 #    else:
-#   	    METRIC_BASED = 0
+#        METRIC_BASED = 0
+
+    if Popen('halcmd getp probe.use_tool_measurement',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
+        BYPASS_MEASURE = 1
+    else:
+        BYPASS_MEASURE = 0
 
     # Saving G90 G91 at startup
-    AbsoluteFlag = (bool(self.params["_absolute"]))
+    ABSOLUTE_FLAG = (bool(self.params["_absolute"]))
+
     # Saving feed at startup
-    feed_backup = (bool(self.params["_feed"]))
+    FEED_BACKUP = (bool(self.params["_feed"]))
 
     # cancel tool offset
     self.execute("G49")
@@ -536,7 +544,7 @@ def tool_probe_m6(self, **words):
     Y = emccanon.GET_EXTERNAL_POSITION_Y()
     Z = emccanon.GET_EXTERNAL_POSITION_Z()                     # restoring Z can be removed or keep this need to choosed
 
-    # turn off all spindles if required                        #(comment out workaround for 2.8) 
+    # turn off all spindles if required                        #(comment out workaround for 2.8)
     if not self.tool_change_with_spindle_on:
         for s in range(0,self.num_spindles):
             emccanon.STOP_SPINDLE_TURNING(s)
@@ -549,7 +557,7 @@ def tool_probe_m6(self, **words):
         # we need to be in machine based units
         # if we aren't - switch
         # remember so we can switch back later
-        switchUnitsFlag = False
+        SWITCH_UNITS_FLAG = False
         if bool(self.params["_metric"]) != METRIC_BASED:
             print ("not right Units: {}".format(bool(self.params["_metric"])))
             if METRIC_BASED:
@@ -558,20 +566,16 @@ def tool_probe_m6(self, **words):
             else:
                 print ("switched Units to imperial")
                 self.execute("G20")
-            switchUnitsFlag = True
+            SWITCH_UNITS_FLAG = True
 
         # Force absolute for G53 move
         self.execute("G90")
 
-
-        # Z up first if required + status test + wait finished       #(comment out workaround for 2.8)
+        # Z up first if required + wait finished : NEVED TRY TO safety check here or issue appears because this is before change tool #(comment out workaround for 2.8)
         if self.tool_change_quill_up:
 #        if self.params["_ini[EMCIO]TOOL_CHANGE_QUILL_UP"]:
-            # Test the status of the probe before moving but only if use tool measurement is active (user can remove temporary the setter) # TODO choose the final way for this check
-            if Popen('halcmd getp probe.use_tool_measurement',stdout=PIPE,shell=True).communicate()[0].strip() == 'TRUE':
-                tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
             self.execute("G53 G0 Z0")
-            yield INTERP_EXECUTE_FINISH                                                                          # sometime i will have diagonal move without waiting
+            yield INTERP_EXECUTE_FINISH                                                                 # sometime i will have diagonal move without waiting
 
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
@@ -583,7 +587,7 @@ def tool_probe_m6(self, **words):
         # we will return here after only for XY
 ############################################################## TODO ACTUAL SYSTEM DOES NOT SHOW CONFIRMATION POPUP IF YOU M6Tx SAME TOOL AS ACTUAL
         try:
-            #self.selected_pocket =  int(self.params["selected_pocket"])                                         # why this code imo is redundant with line 578 ???
+            #self.selected_pocket =  int(self.params["selected_pocket"])                                # this code imo is redundant with line 578 but need review???
             emccanon.CHANGE_TOOL(self.selected_pocket)
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
@@ -591,9 +595,11 @@ def tool_probe_m6(self, **words):
             # cause a sync()
             self.set_tool_parameters()
             self.toolchange_flag = True
+            # Wait for machine goto EMCIO toolchange_position else safety check is executed before popup for toolchange
+            yield INTERP_EXECUTE_FINISH
         except InterpreterException as e:
             # if we switched units for tool change - switch back
-            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -607,168 +613,174 @@ def tool_probe_m6(self, **words):
         if self.params["selected_tool"] < 1:
             yield INTERP_OK
 
-        # TODO choose the final way for this check (restoring simple manual mode)
-        if Popen('halcmd getp halui.machine.units-per-mm',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
+        # bypass option for restoring simple manual mode without autolength
+        if BYPASS_MEASURE:
             # re-apply tool offset
             self.execute("G43")
             yield INTERP_OK
 
+
         try:
+# Here i like to add a possible custom file for allow user to manage multiple probe or what user wan't like retractable probe
             # move to tool setter position (from INI)
             self.execute("G90")
-            tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
+            tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
             yield INTERP_EXECUTE_FINISH                                                                          # sometime i will have diagonal move without waiting
-            tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
+            tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
             yield INTERP_EXECUTE_FINISH                                                                          # sometime i will have diagonal move without waiting
-            tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
 
             # backup G5x offset for correct tool measurement
             if self.params["_coord_system"] == 540:
-                self.params["_backup_offset"] = self.params[5223]
+                self.params["_coord_offset_backup"] = self.params[5223]
             elif self.params["_coord_system"] == 550:
-                self.params["_backup_offset"] = self.params[5243]
+                self.params["_coord_offset_backup"] = self.params[5243]
             elif self.params["_coord_system"] == 560:
-                self.params["_backup_offset"] = self.params[5263]
+                self.params["_coord_offset_backup"] = self.params[5263]
             elif self.params["_coord_system"] == 570:
-                self.params["_backup_offset"] = self.params[5283]
+                self.params["_coord_offset_backup"] = self.params[5283]
             elif self.params["_coord_system"] == 580:
-                self.params["_backup_offset"] = self.params[5303]
+                self.params["_coord_offset_backup"] = self.params[5303]
             elif self.params["_coord_system"] == 590:
-                self.params["_backup_offset"] = self.params[5323]
+                self.params["_coord_offset_backup"] = self.params[5323]
             elif self.params["_coord_system"] == 591:
-                self.params["_backup_offset"] = self.params[5343]
+                self.params["_coord_offset_backup"] = self.params[5343]
             elif self.params["_coord_system"] == 592:
-                self.params["_backup_offset"] = self.params[5363]
+                self.params["_coord_offset_backup"] = self.params[5363]
             elif self.params["_coord_system"] == 593:
-                self.params["_backup_offset"] = self.params[5383]
-            print ("backup_offset", self.params["_backup_offset"])
+                self.params["_coord_offset_backup"] = self.params[5383]
+            print ("_coord_offset_backup", self.params["_coord_offset_backup"])
 
             # set incremental mode
             self.execute("G91")
+
+            # safety check
+            tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
 
             # Fast Search probe
             self.execute("G38.3 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
 
-            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER OR NEED TO RETEST THAT NOW
-                     # Spring mounted latch probe
-                     self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-                     # Wait for results
-                     yield INTERP_EXECUTE_FINISH
-                     # Check if we have get contact or not
-                     tool_probe_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
-
-            # Retract Latch or additional retract WANTED regardless of spring mounted tool setter or not
-            self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
-            #tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
+                # Spring mounted latch probe
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                # Wait for results
+                yield INTERP_EXECUTE_FINISH
+                # Check if we have get contact or not
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                # Additional Retract
+                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
+                tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            else:
+                # Retract Latch
+                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
 
             # Final probe
             self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
 
             # Save the probe result now due to possible use of G38.5 for retract
             proberesult = self.params[5063]
 
-            if self.params["_ini[TOOLSENSOR]SETTER_WITH_SPRING"] == 1: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER OR NEED TO RETEST THAT NOW
-                     # Spring mounted latch probe
-                     self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-                     # Wait for results
-                     yield INTERP_EXECUTE_FINISH
-                     # Check if we have get contact or not
-                     tool_probe_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
+                # Spring mounted latch probe
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                # Wait for results
+                yield INTERP_EXECUTE_FINISH
+                # Check if we have get contact or not
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                # safety check done here if tool touch the setter at this moment we prevent tool registering
+                tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             else:
-                     # Final Latch needed only without spring mounted tool setter
-                     self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
-                     #tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+                # Final Latch needed only without spring mounted tool setter
+                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
+
+
 
             # Force absolute for G53 move
             self.execute("G90")
 
             # calculations for tool offset savec in the tooltable
-            adj = proberesult - self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"] + self.params["_backup_offset"]     # Your welcome for other solution !
+            adj = proberesult - self.params["_ini[TOOLSENSOR]SETTER_HEIGHT"] + self.params["_coord_offset_backup"]     # Your welcome for other solution !
             self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))            # REGISTER NEW TOOL LENGTH
 
             # apply tool offset
             self.execute("G43")
 
-            # Z up first if required + status test + wait finished       #(comment out workaround for 2.8)
-            tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            # Z up first if required + wait finished (status test already done before)      #(comment out workaround for 2.8)
             if self.tool_change_quill_up:
 #            if self.params["_ini[EMCIO]TOOL_CHANGE_QUILL_UP"]:
                 self.execute("G53 G0 Z0")
-            else:                                                                                            # restoring Z can be removed or keep this need to choosed
+            else:                                                                                 # restoring Z can be removed or keep this need to be chosen
                 self.execute("G53 G0 Z{:.5f}".format(Z))
-            yield INTERP_EXECUTE_FINISH                                                                      # Is something like motion.in-position can be a good things to use in the python M6 remap ?
-            	 
+            yield INTERP_EXECUTE_FINISH                                                           # Is something like motion.in-position can replace this and can be a good thing to use in the python M6 remap ?
 
             # Test the status of the probe before moving to recorded positon + wait finished
-            tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
             yield INTERP_EXECUTE_FINISH
 
             # if we switched units for tool change - switch back and act ok to interp
-            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             yield INTERP_OK
 
         except InterpreterException as e:
             # if we switched units for tool change - switch back
-            tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
 
     except Exception as e:
         print (e)
-        self.set_errormsg("tool_probe_m6 remap error: nothing restored or unknow state : %s" % (e))
+        self.set_errormsg("tool_probe_m6 remap error: nothing restored or unknown state : %s" % (e))
         yield INTERP_ERROR
 
 
-# Check if we have correctly retracted or not but do not work fine (not needed with G38.5)
-def tool_probe_safety_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
-            self.execute("(DEBUG, TEST 1)")
+# Check if we have correctly retracted or not but do not work fine without spring mounted toolsetter after retract with G1
+def tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED):
+            self.execute("(DEBUG,TEST 1)")
             if Popen('halcmd getp motion.probe-input',stdout=PIPE,shell=True).communicate()[0].strip() == 'TRUE':
                 # if we switched units for tool change - switch back
-                tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
-                self.set_errormsg("tool_probe_m6 remap error: Tool Setter already triggered or missing")
+                tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                #self.set_errormsg("tool_probe_m6 remap error: Tool Setter already triggered or missing")
                 #yield INTERP_ERROR
-                self.execute("(ABORT, Tool Setter already triggered or missing)")
+                self.execute("(ABORT,Tool Setter already triggered or missing)")
 
 # Check if we have get contact or not
-def tool_probe_check_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
-            self.execute("(DEBUG, TEST 10)")
+def tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED):
+            self.execute("(DEBUG,TEST 10)")
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
-                tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
-                self.set_errormsg("tool_probe_m6 remap error: Probe contact not found")
+                tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                #self.set_errormsg("tool_probe_m6 remap error: Probe contact not found")
                 #yield INTERP_ERROR
-                self.execute("(ABORT, Probe contact not found)")                    # Need help for understand what append
+                self.execute("(ABORT,Probe contact not found)")
 
 # if we switched units for tool change - switch back
-def tool_probe_restore_sub(self, AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED):
-            print (AbsoluteFlag, switchUnitsFlag, feed_backup, METRIC_BASED)
-            self.execute("(DEBUG, RESTORE)")
-            print ("restore Units ")
-            if AbsoluteFlag:
+def tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED):
+            print ("restore Units", ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            if ABSOLUTE_FLAG:
                 self.execute("G90")
             else:
                 self.execute("G91")
-            self.params["feed"] = feed_backup
 
-            if switchUnitsFlag:
+            if SWITCH_UNITS_FLAG:
                 if METRIC_BASED:
                     self.execute("G21")
                     print ("switched Units back to metric")
                 else:
                     self.execute("G20")
                     print ("switched Units back to imperial")
+
+            self.params["feed"] = FEED_BACKUP
 
