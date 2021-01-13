@@ -271,7 +271,6 @@ static int iniLoad(const char *filename)
 {
     IniFile inifile;
     const char *inistring;
-    char version[LINELEN], machine[LINELEN];
 
     /* Open the ini file */
     if (inifile.Open(filename) == false) {
@@ -291,23 +290,6 @@ static int iniLoad(const char *filename)
     // make it verbose if debugging RCS
     if (emc_debug & EMC_DEBUG_IOCONTROL) {
 	rtapi_set_msg_level(RTAPI_MSG_DBG);
-    }
-
-    if (emc_debug & EMC_DEBUG_VERSIONS) {
-	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
-	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
-		strncpy(version, "unknown", LINELEN-1);
-	    }
-	} else {
-	    strncpy(version, "unknown", LINELEN-1);
-	}
-
-	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, inistring, LINELEN-1);
-	} else {
-	    strncpy(machine, "unknown", LINELEN-1);
-	}
-	rtapi_print_msg(RTAPI_MSG_DBG,"%s: machine: '%s'  version '%s'\n", progname,machine, version);
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
