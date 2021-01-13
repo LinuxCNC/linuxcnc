@@ -106,9 +106,9 @@ class HandlerClass:
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
-        KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
-        KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
-        KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
+        KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
+        # KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
+        # KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
         self.axisList = INFO.AVAILABLE_AXES
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -488,10 +488,10 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-        self.keyTimer=QTimer()
-        self.keyTimer.setSingleShot(True)
-        self.keyTimer.timeout.connect(self.key_timer_timeout)
-        self.jogAxis = []
+        # self.keyTimer=QTimer()
+        # self.keyTimer.setSingleShot(True)
+        # self.keyTimer.timeout.connect(self.key_timer_timeout)
+        # self.jogAxis = {}
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -622,21 +622,22 @@ class HandlerClass:
                     return True
         if event.isAutoRepeat():
             return True
-        elif event.type() == QEvent.KeyPress:
-            if self.keyTimer.isActive():
-                self.keyTimer.stop()
-                return
-        elif event.type() == QEvent.KeyRelease:
-            self.keyTimer.start(1)
-            return
+        # elif event.type() == QEvent.KeyPress:
+        #     if self.keyTimer.isActive():
+        #         self.keyTimer.stop()
+        #         return
+        # elif event.type() == QEvent.KeyRelease:
+        #     self.keyTimer.start(1)
+        #     return
         if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
             self.escape_pressed()
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
-    def key_timer_timeout(self):
-        for axis in self.jogAxis:
-            self.kb_jog(0, axis, 0)
-            self.jogAxis = []
+    # def key_timer_timeout(self):
+    #     for button in self.jogAxis:
+    #         print 'JOG STOP:', axis
+    #         self.kb_jog(0, axis, 0)
+    #         self.jogAxis = []
 
 
 #############################################################################################################################
@@ -1364,7 +1365,7 @@ class HandlerClass:
             if shift:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             ACTION.JOG(joint, direction, rate, distance)
-            self.jogAxis.append(joint)
+            # self.jogAxis.append(joint)
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
@@ -3336,49 +3337,52 @@ class HandlerClass:
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
-    def on_keycall_pause(self,event,state,shift,cntrl):
+    def on_keycall_PAUSE(self,event,state,shift,cntrl):
         if state and STATUS.is_auto_mode() and self.keyboard_shortcuts():
             ACTION.PAUSE()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 1, -1, shift)
 
+
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 2, -1, shift)
 
-    # def on_keycall_APOS(self,event,state,shift,cntrl):
-    #     if not event.isAutoRepeat() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 2, 1, shift)
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        print 'APOS'
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, 1, shift)
+    
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        print 'ANEG'
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, -1, shift)
+
+    # def on_keycall_plus(self,event,state,shift,cntrl):
+    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+    #         self.kb_jog(state, 3, 1, shift, False)
     # 
-    # def on_keycall_ANEG(self,event,state,shift,cntrl):
-    #     if not event.isAutoRepeat() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 2, -1, shift)
-
-    def on_keycall_plus(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, 1, shift, False)
-
-    def on_keycall_minus(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, -1, shift, False)
+    # def on_keycall_minus(self,event,state,shift,cntrl):
+    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+    #         self.kb_jog(state, 3, -1, shift, False)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if not event.isAutoRepeat() and state:
