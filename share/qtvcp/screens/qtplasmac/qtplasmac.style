@@ -100,7 +100,15 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     color: foregnd;
     background: backgnd }
 
-/******    ESTOP BUTTON ************/
+/****** RESET BUTTONS ************/
+#feed_label, #rapid_label, #jogs_label {
+    border: none }
+    
+#feed_label:pressed, #rapid_label:pressed, #jogs_label:pressed {
+    color: foregnd;
+    background: backgnd }
+
+/****** ESTOP BUTTON ************/
 #estop:pressed {
     background: e-stop;
     border-color: e-stop }
