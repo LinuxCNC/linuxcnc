@@ -1405,6 +1405,7 @@ class HandlerClass:
     def do_run_from_line(self):
         inData,outData,newFile,params = [],[],[],[]
         g2,g4,g6,g9,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','',''
+        oSub = False
         count = 0
         with open(self.lastLoadedProgram, 'r') as inFile:
             for line in inFile:
@@ -1417,7 +1418,7 @@ class HandlerClass:
         for line in inData:
             if line.startswith('('):
                 continue
-            if line.startswith('#<'):
+            if line.startswith('#'):
                 params.append(line.strip())
                 continue
             if 'm190' in line:
@@ -1513,9 +1514,18 @@ class HandlerClass:
                         tmp = tmp[1:]
                     else:
                         break
-        if cutComp:
-            msg  = '\nCannot run from line while\n'
-            msg += 'cutter compensation is active\n'
+            if line.startswith('o'):
+                if 'end' in line:
+                    oSub = False
+                else:
+                    oSub = True
+        if cutComp or oSub:
+            if cutComp:
+                msg  = '\nCannot run from line while\n'
+                msg += 'cutter compensation is active\n'
+            elif oSub:
+                msg  = '\nCannot do run from line\n'
+                msg += 'inside a subroutine\n'
             self.dialog_error(QMessageBox.Critical, 'ERROR', msg)
             self.rflActive = False
             self.w.run.setEnabled(True)
@@ -1564,7 +1574,7 @@ class HandlerClass:
         ang.setDecimals(0)
         ang.setSingleStep(1)
         ang.setSuffix(' deg')
-        ang.setRange(0, 359)
+        ang.setRange(-359, 359)
         ang.setWrapping(True)
         result = rFl.exec_()
         if not result:
@@ -1572,28 +1582,29 @@ class HandlerClass:
             self.w.run.setEnabled(True)
             self.startLine = 0
             return
-        xL = x
-        yL = y
-        try:
-            if use.isChecked():
-                xL = float(x) + (len.value() * math.cos(math.radians(ang.value())))
-                yL = float(y) + (len.value() * math.sin(math.radians(ang.value())))
-        except:
-            msg  = '\nUnable to calculate a leadin for this cut\n'
-            self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
         for param in params:
             if param:
                 newFile.append(param)
         if g2:
-            zLimit = 5.0 if g2 == 'g21' else 0.2
+            if self.unitsPerMm == 1 and g2 == 'g20':
+                scale = 0.03937
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * {}]'.format(scale)
+            elif self.unitsPerMm == 0.03937 and g2 == 'g22':
+                scale = 25.4
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> * {}] - 5]'.format(scale)
+            else:
+                scale = 1
+                zMax = 'g0z[#<_ini[axis_z]max_limit> - [{} * {}]]'.format(5, scale)
             newFile.append(g2)
         else:
-            zLimit = 5.0 if self.unitsPerMm == 1 else 0.2
+            scale = 1
+            zMax = ''
         if g4:
             newFile.append(g4)
         if g6:
             newFile.append(g6)
         if g9:
+            print g9
             newFile.append(g9)
         newFile.append('M52 P1')
         if d3:
@@ -1602,11 +1613,27 @@ class HandlerClass:
             newFile.append(d2)
         if a3:
             newFile.append(a3)
-        newFile.append('g0z[#<_ini[axis_z]max_limit>-{}]'.format(zLimit))
+        if zMax:
+            newFile.append(zMax)
         if material:
             newFile.append(material)
             newFile.append('m66p3l3q1')
+# probably should not scale this as all params should be set correctly in material file
+#        newFile.append('f[#<_hal[plasmac.cut-feed-rate]> * {}]'.format(scale))
         newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
+        xL = x
+        yL = y
+        try:
+            if use.isChecked():
+                if x[-1] == ']':
+                    xL = '{}[[{}*{}]+{:0.6f}]'.format(x[:1], x[1:], scale, (len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = '{}[[{}*{}]+{:0.6f}]'.format(y[:1], y[1:], scale, (len.value() * scale) * math.sin(math.radians(ang.value())))
+                else:
+                    xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
+        except:
+            msg  = '\nUnable to calculate a leadin for this cut\n'
+            self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
         if xL != x and yL != y:
             print '00000'
             newFile.append('G0 X{} Y{}'.format(xL, yL))
@@ -1637,7 +1664,7 @@ class HandlerClass:
         ACTION.prefilter_path = self.preRflFile
         self.w.run.setEnabled(True)
         self.runText = 'RUN FROM {}'.format(self.startLine + 1)
-
+        self.w.gcodegraphics.highlight_graphics(None)
 
     def get_rfl_pos(self, line, axisPos, axisLetter):
         maths = 0
