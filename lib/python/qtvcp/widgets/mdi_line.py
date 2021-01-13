@@ -106,8 +106,8 @@ class MDILine(MDI):
         super(MDILine, self).__init__(parent)
         self._PARENT_WIDGET = parent
         self.dialog_code = 'KEYBOARD'
-        self.soft_keyboard = True
         self.soft_keyboard = False
+        self.dialog_keyboard = False
         self._input_panel_full = SoftInputWidget(self, 'default')
         self.installEventFilter(self)
 
@@ -116,7 +116,8 @@ class MDILine(MDI):
         if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
             if self.soft_keyboard:
                 self._input_panel_full.show_input_panel(widget)
-            self.request_keyboard()
+            elif self.dialog_keyboard:
+                self.request_keyboard()
             try:
                 ACTION.SET_MDI_MODE()
             except:
@@ -154,7 +155,7 @@ class MDILine(MDI):
     def get_soft_keyboard(self):
         return self.soft_keyboard
     def reset_soft_keyboard(self):
-        self.soft_keyboard = True
+        self.soft_keyboard = False
 
     # designer will show these properties in this order:
     soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
