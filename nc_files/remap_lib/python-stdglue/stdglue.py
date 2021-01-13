@@ -626,12 +626,16 @@ def tool_probe_m6(self, **words):
             self.execute("G90")
 
             tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
+
             self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
             yield INTERP_EXECUTE_FINISH                                                                          # sometime i will have diagonal move without waiting
 
             tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
+
             self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
-            yield INTERP_EXECUTE_FINISH                                                                          # sometime i will have diagonal move without waiting
+            yield INTERP_EXECUTE_FINISH                                                                    # sometime i will have diagonal move without waiting
 
             # backup G5x offset for correct tool measurement
             if self.params["_coord_system"] == 540:
@@ -659,34 +663,38 @@ def tool_probe_m6(self, **words):
 
             # safety check
             tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
-
+            yield INTERP_EXECUTE_FINISH
             # Fast Search probe
             self.execute("G38.3 Z#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
             tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
 
             if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
                 # Spring mounted latch probe
                 self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-                # Wait for results
                 yield INTERP_EXECUTE_FINISH
                 # Check if we have get contact or not
                 tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                yield INTERP_EXECUTE_FINISH
                 # Additional Retract
                 self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
                 tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                yield INTERP_EXECUTE_FINISH
             else:
                 # Retract Latch
                 self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
+                # Does not found how to wait correctly for tool_probe_safety_sub
 
             # Final probe
             self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
-            # Wait for results
             yield INTERP_EXECUTE_FINISH
+
             # Check if we have get contact or not
             tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
 
             # Save the probe result now due to possible use of G38.5 for retract
             proberesult = self.params[5063]
@@ -694,17 +702,13 @@ def tool_probe_m6(self, **words):
             if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0: # DO NOT WORK FINE WITHOUT SPRING MOUNTED SETTER
                 # Spring mounted latch probe
                 self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
-                # Wait for results
                 yield INTERP_EXECUTE_FINISH
                 # Check if we have get contact or not
                 tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                yield INTERP_EXECUTE_FINISH
                 # safety check done here if tool touch the setter at this moment we prevent tool registering
                 tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
-            else:
-                # Final Latch needed only without spring mounted tool setter
-                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
-
-
+                yield INTERP_EXECUTE_FINISH
 
             # Force absolute for G53 move
             self.execute("G90")
@@ -726,11 +730,13 @@ def tool_probe_m6(self, **words):
 
             # Test the status of the probe before moving to recorded positon + wait finished
             tool_probe_safety_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
             yield INTERP_EXECUTE_FINISH
 
             # if we switched units for tool change - switch back and act ok to interp
             tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            yield INTERP_EXECUTE_FINISH
             yield INTERP_OK
 
         except InterpreterException as e:
