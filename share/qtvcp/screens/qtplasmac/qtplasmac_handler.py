@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.17'
+VERSION = '0.9.18'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -872,6 +872,9 @@ class HandlerClass:
         self.w.lbl_mcodes.setText('M-Codes: {}'.format(cod))
 
     def set_start_line(self, line):
+        if self.w.sender():
+            if self.w.sender().objectName() == 'gcode_editor_display':
+                return
         if self.w.chk_run_from_line.isChecked() and line > 1:
             self.runText = 'SELECTED {}'.format(line)
             self.startLine = line - 1
