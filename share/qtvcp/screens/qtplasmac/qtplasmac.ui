@@ -97,20 +97,20 @@
        <bool>true</bool>
       </property>
       <property name="message_overlay_color" stdset="0">
-       <color alpha="150">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
        </color>
       </property>
       <property name="closeDialog_option" stdset="0">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="close_overlay_color" stdset="0">
-       <color alpha="150">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
        </color>
       </property>
       <property name="entryDialog_option" stdset="0">
@@ -120,33 +120,99 @@
        <bool>true</bool>
       </property>
       <property name="entry_overlay_color" stdset="0">
-       <color alpha="150">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="tool_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
        </color>
       </property>
       <property name="fileDialog_option" stdset="0">
        <bool>true</bool>
       </property>
       <property name="file_overlay_color" stdset="0">
-       <color alpha="150">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="keyboardDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="keyboard_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="versaProbe_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="macroTab_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
        </color>
       </property>
       <property name="camViewDialog_option" stdset="0">
        <bool>false</bool>
       </property>
+      <property name="camView_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="toolOffset_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="originOffset_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
       <property name="calculatorDialog_option" stdset="0">
        <bool>true</bool>
       </property>
       <property name="calculator_overlay_color" stdset="0">
-       <color alpha="150">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="machineLog_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
+      <property name="runFromLine_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
        </color>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_16">

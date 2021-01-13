@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.18'
+VERSION = '0.9.19'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1382,10 +1382,10 @@ class HandlerClass:
 
     def soft_keyboard(self):
         if self.w.chk_soft_keyboard.isChecked():
-            self.w.mdihistory.soft_keyboard_option = True
+            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',True)
             input = 'CALCULATOR'
         else:
-            self.w.mdihistory.soft_keyboard_option = False
+            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
             input = 'ENTRY'
         for axis in 'xyza':
             button = 'touch_{}'.format(axis)
@@ -1608,7 +1608,6 @@ class HandlerClass:
         if g6:
             newFile.append(g6)
         if g9:
-            print g9
             newFile.append(g9)
         newFile.append('M52 P1')
         if d3:
@@ -1639,7 +1638,6 @@ class HandlerClass:
             msg  = '\nUnable to calculate a leadin for this cut\n'
             self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
         if xL != x and yL != y:
-            print '00000'
             newFile.append('G0 X{} Y{}'.format(xL, yL))
             rflLead = [x, y]
         else:
@@ -3370,12 +3368,10 @@ class HandlerClass:
             self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self,event,state,shift,cntrl):
-        print 'APOS'
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 3, 1, shift)
     
     def on_keycall_ANEG(self,event,state,shift,cntrl):
-        print 'ANEG'
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 3, -1, shift)
 
