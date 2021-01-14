@@ -581,7 +581,7 @@ def tool_probe_m6(self, **words):
         if self.tool_change_quill_up:
 #        if self.params["_ini[EMCIO]TOOL_CHANGE_QUILL_UP"]:
             self.execute("G53 G0 Z0")
-            yield INTERP_EXECUTE_FINISH                                                                 # sometime i will have diagonal move without waiting
+            #yield INTERP_EXECUTE_FINISH                                                                 # sometime i will have diagonal move without waiting
 
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
