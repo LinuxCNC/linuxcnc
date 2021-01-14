@@ -783,7 +783,6 @@ static inline void set_current_tool(Interp &interp, int value)  {
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
-    using namespace boost;
 
     scope().attr("__doc__") =
         "Interpreter introspection\n"
@@ -837,7 +836,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     export_ParamClass();
     export_Internals();
     export_Block();
-    class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
+    bp::class_<InterpreterException>InterpreterExceptionClass("InterpreterException",	bp::init<std::string, int, std::string>());
     InterpreterExceptionClass
 	.add_property("error_message", &InterpreterException::get_error_message)
 	.add_property("line_number", &InterpreterException::get_line_number)
@@ -849,7 +848,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    class_< Interp, noncopyable >("Interp",no_init) 
+    bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
