@@ -342,7 +342,6 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     Py_SetProgramName((char *) abs_path);
     if ((inittab != NULL) && PyImport_ExtendInittab(inittab)) {
 	    logPP(-1, "cant extend inittab");
-	    Py_DECREF(module);
 	    status = PLUGIN_INITTAB_FAILED;
 	    return;
     }
