@@ -306,11 +306,14 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
+#if PY_MAJOR_VERSION >= 3
   if (abs_path) {
     wchar_t *program = Py_DecodeLocale(abs_path, NULL);
     Py_SetProgramName(program);
   }
-
+#else
+ Py_SetProgramName((char *) abs_path);
+#endif
   if (inittab != NULL) {
     if (!Py_IsInitialized()) {
       if (PyImport_ExtendInittab(inittab) != 0) {
