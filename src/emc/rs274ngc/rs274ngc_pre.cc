@@ -140,7 +140,6 @@ Interp::Interp()
 
 // KLUDGE just to get unit tests to stop complaining about python modules we won't use anyway
 #ifndef UNIT_TEST
-#if PY_MAJOR_VERSION < 3
   try {
     // this import will register the C++->Python converter for Interp
     bp::object interp_module = bp::import("interpreter");
@@ -171,7 +170,6 @@ Interp::Interp()
     PyErr_Clear();
     Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
   }
-#endif
 #endif
 }
 
