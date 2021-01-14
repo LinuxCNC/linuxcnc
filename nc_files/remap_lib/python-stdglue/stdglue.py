@@ -495,20 +495,26 @@ def index_lathe_tool_with_wear(self,**words):
 #TOOL_CHANGE_WITH_SPINDLE_ON = 0
 #TOOL_CHANGE_QUILL_UP = 1
 
-# exemple with metric unit mm
-# The height of you tool setter
+## exemple with metric unit mm
+#[TOOLSENSOR]
+## Absolute coordinates of the toolsetter pad G53 machine cooordinates
+#X = -40
+#Y = -40
+## Absolute Z start search coordinates is a move relative G0 from toolchange position
+#Z = -30
+## The height of you tool setter
 #TS_HEIGHT = 40
-# Maximum search distance and direction (sign)
+## Maximum search distance and direction (sign)
 #TS_MAXPROBE =  -80
-# Latched distance after probing use value like 1mm for standalone
-# or something like 0.3mm is enough if you use TS_REVERSE_LATCH
+## Latched distance after probing use value like 1mm for standalone
+## or something like 0.3mm is enough if you use TS_REVERSE_LATCH
 #TS_LATCH = 0.3
-# If setter as spring inside you can use TS_REVERSE_LATCH with G38.5 with value like 1mm
-# or if your setter does not have a spring inside (inhibit G38.5) with value 0
+## If setter as spring inside you can use TS_REVERSE_LATCH with G38.5 with value like 1mm
+## or if your setter does not have a spring inside (inhibit G38.5) with value 0
 #TS_REVERSE_LATCH = 1
-# Fast first probe velocity
+## Fast first probe velocity
 #TS_SEARCH_VEL = 100
-# Slow final probe velocity
+## Slow final probe velocity
 #TS_PROBE_VEL = 5
 
 
