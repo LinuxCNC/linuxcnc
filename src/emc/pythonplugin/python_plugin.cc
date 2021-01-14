@@ -339,7 +339,9 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
       }
     }
   }
+#if PY_MAJOR_VERSION >= 3
   Py_UnbufferedStdioFlag = 1;
+#endif
   Py_Initialize();
   initialize();
 }
