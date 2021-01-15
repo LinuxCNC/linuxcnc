@@ -600,7 +600,7 @@ with open(inCode, 'r') as fRead:
             continue
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):
-            if not line.startswith('g0z[#<_ini[axis_z]max_limit>-'):
+            if not '[#<_ini[axis_z]max_limit>' in line:
                 print('g0 z[#<_ini[axis_z]max_limit> - {}] (Z just below max height)'.format(zMaxOffset * unitsPerMm))
             zSetup = True
         # set default units

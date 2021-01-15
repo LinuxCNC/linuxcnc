@@ -1368,6 +1368,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
+        self.edit.setFocus()
         if preload is not None:
             self.edit.setFocus()
             self.edit.setText(str(preload))

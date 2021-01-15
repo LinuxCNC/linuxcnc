@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.15'
+VERSION = '0.9.19'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -106,9 +106,9 @@ class HandlerClass:
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
-        KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
-        KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
-        KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
+        KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
+        # KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
+        # KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
         self.axisList = INFO.AVAILABLE_AXES
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -116,7 +116,7 @@ class HandlerClass:
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
+        self.idleHomedList = ['run', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
@@ -157,6 +157,9 @@ class HandlerClass:
         self.dialogError = False
         self.cutTypeText = ''
         self.heightOvr = 0.0
+        self.startLine = 0
+        self.preRflFile = ''
+        self.rflActive = False
 
     def initialized__(self):
         self.make_hal_pins()
@@ -189,6 +192,8 @@ class HandlerClass:
         STATUS.connect('homed', self.joint_homed)
         STATUS.connect('all-homed', self.joints_all_homed)
         STATUS.connect('not-all-homed', self.joint_unhomed)
+        STATUS.connect('gcode-line-selected', lambda w, line:self.set_start_line(line))
+        STATUS.connect('graphics-line-selected', lambda w, line:self.set_start_line(line))
         STATUS.connect('g-code-changed', self.gcodes_changed)
         STATUS.connect('m-code-changed', self.mcodes_changed)
         STATUS.connect('program-pause-changed', self.pause_changed) 
@@ -199,6 +204,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('mdi-history-changed', self.mdi_entered)
+        STATUS.connect('jograte-changed', self.jog_rate_changed)
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
@@ -414,7 +420,7 @@ class HandlerClass:
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
-#        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -482,10 +488,10 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-        self.keyTimer=QTimer()
-        self.keyTimer.setSingleShot(True)
-        self.keyTimer.timeout.connect(self.key_timer_timeout)
-        self.jogAxis = []
+        # self.keyTimer=QTimer()
+        # self.keyTimer.setSingleShot(True)
+        # self.keyTimer.timeout.connect(self.key_timer_timeout)
+        # self.jogAxis = {}
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -550,7 +556,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
-#        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview cone size', int(self.w.cone_size.value() * 100) / 100, float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview grid size', int(self.w.grid_size.value() * 100) / 100, float, 'GUI_OPTIONS')
@@ -616,21 +622,22 @@ class HandlerClass:
                     return True
         if event.isAutoRepeat():
             return True
-        elif event.type() == QEvent.KeyPress:
-            if self.keyTimer.isActive():
-                self.keyTimer.stop()
-                return
-        elif event.type() == QEvent.KeyRelease:
-            self.keyTimer.start(1)
-            return
+        # elif event.type() == QEvent.KeyPress:
+        #     if self.keyTimer.isActive():
+        #         self.keyTimer.stop()
+        #         return
+        # elif event.type() == QEvent.KeyRelease:
+        #     self.keyTimer.start(1)
+        #     return
         if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
             self.escape_pressed()
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
-    def key_timer_timeout(self):
-        for axis in self.jogAxis:
-            self.kb_jog(0, axis, 0)
-            self.jogAxis = []
+    # def key_timer_timeout(self):
+    #     for button in self.jogAxis:
+    #         print 'JOG STOP:', axis
+    #         self.kb_jog(0, axis, 0)
+    #         self.jogAxis = []
 
 
 #############################################################################################################################
@@ -692,6 +699,9 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
+        if self.rflActive:
+            self.rflActive = False
+            ACTION.OPEN_PROGRAM(ACTION.prefilter_path)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
         self.w.main_tab_widget.setTabEnabled(1, True)
@@ -709,7 +719,6 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
-        self.w.run.setEnabled(False)
         self.w.abort.setEnabled(True)
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
@@ -730,7 +739,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(True)
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
-            self.w.run.setEnabled(False)
             self.w.wcs_button.setEnabled(False)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
@@ -743,6 +751,9 @@ class HandlerClass:
         self.mdi_selection.clearSelection()
         self.w.mdihistory.MDILine.setText('')
 
+    def jog_rate_changed(self, object, value):
+        self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
+
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
             if self.w.pause.text() == '':
@@ -751,20 +762,16 @@ class HandlerClass:
                 self.w.pause.setText('')
         else:
             self.w.pause.setText('CYCLE PAUSE')
-        if self.w.feed_slider.value() != 100:
-            if self.w.feed_label.text() == 'FEED':
-                self.w.feed_label.setText('')
-            else:
-                self.w.feed_label.setText('FEED')
+        if self.w.feed_slider.value() != 100 and \
+           self.w.feed_label.text() == 'FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100):
+                self.w.feed_label.setText(' \n ')
         else:
-            self.w.feed_label.setText('FEED')
-        if self.w.rapid_slider.value() != 100:
-            if self.w.rapid_label.text() == 'RAPID':
-                self.w.rapid_label.setText('')
-            else:
-                self.w.rapid_label.setText('RAPID')
+            self.w.feed_label.setText('FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100))
+        if self.w.rapid_slider.value() != 100 and \
+           self.w.rapid_label.text() == 'RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100):
+                self.w.rapid_label.setText(' \n ')
         else:
-            self.w.rapid_label.setText('RAPID')
+            self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
         if self.pmx485CommsError:
             if self.w.pmx485_label.text() == '':
                 self.w.pmx485_label.setText('COMMS ERROR')
@@ -777,6 +784,13 @@ class HandlerClass:
                 self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
         else:
             self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
+        if self.startLine > 0:
+            if self.w.run.text() == (''):
+                self.w.run.setText(self.runText)
+            else:
+                self.w.run.setText('')
+        else:
+            self.w.run.setText('CYCLE START')
 
     def percent_loaded(self, object, percent):
         if percent < 1:
@@ -811,15 +825,16 @@ class HandlerClass:
             ACTION.RUN()
         self.w.gcodegraphics.logger.clear()
         self.w.file_edit.setEnabled(True)
-        if not STATUS.is_all_homed():
-            self.w.run.setEnabled(False)
+        if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            self.preRflFile = ''
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
-        if self.w.file_open.text() == 'OPEN':
-            self.w.run.setEnabled(False)
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates.lower()[int(joint)]
@@ -856,10 +871,28 @@ class HandlerClass:
     def mcodes_changed(self, obj, cod):
         self.w.lbl_mcodes.setText('M-Codes: {}'.format(cod))
 
+    def set_start_line(self, line):
+        if self.w.sender():
+            if self.w.sender().objectName() == 'gcode_editor_display':
+                return
+        if self.w.chk_run_from_line.isChecked() and line > 1:
+            self.runText = 'SELECTED {}'.format(line)
+            self.startLine = line - 1
+        elif not self.rflActive:
+            self.startLine = 0
+
 
 ###########################################################################################################################
 # CALLBACKS FROM FORM #
 ###########################################################################################################################
+    def run_pressed(self):
+        if self.startLine and not self.rflActive:
+            self.w.run.setEnabled(False)
+            self.rflActive = True
+            self.do_run_from_line()
+        else:
+            ACTION.RUN(0)
+
     def escape_pressed(self):
         self.torch_timeout()
 
@@ -893,6 +926,15 @@ class HandlerClass:
 
     def backup_config_clicked(self):
         print('BACKUP CONFIGURATION NOT DONE YET')
+
+    def feed_label_pressed(self):
+        self.w.feed_slider.setValue(100)
+
+    def rapid_label_pressed(self):
+        self.w.rapid_slider.setValue(100)
+
+    def jogs_label_pressed(self):
+        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -992,6 +1034,11 @@ class HandlerClass:
             self.w.dro_z.setProperty('Qreference_type', 1)
 
     def file_reload_clicked(self):
+        if self.rflActive:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            self.preRflFile = ''
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
             self.w.gcode_progress.setValue(0)
@@ -1015,10 +1062,6 @@ class HandlerClass:
     def chk_override_limits_checked(self, state):
         if state:
             ACTION.SET_LIMITS_OVERRIDE()
-
-#    def chk_run_from_line_checked(self, state):
-#        if not state:
-#            self.w.lbl_start_line.setText('1')
 
 
 #########################################################################################################################
@@ -1092,6 +1135,7 @@ class HandlerClass:
         self.w.thc_threshold.setValue(self.w.PREFS_.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
+        self.w.run.pressed.connect(self.run_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
@@ -1198,6 +1242,9 @@ class HandlerClass:
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.statePin.value_changed.connect(lambda v:self.state_changed(v))
         self.zOffsetCounts.value_changed.connect(lambda v:self.z_offset_changed(v))
+        self.w.feed_label.pressed.connect(self.feed_label_pressed)
+        self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
+        self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -1321,7 +1368,7 @@ class HandlerClass:
             if shift:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             ACTION.JOG(joint, direction, rate, distance)
-            self.jogAxis.append(joint)
+            # self.jogAxis.append(joint)
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
@@ -1335,10 +1382,10 @@ class HandlerClass:
 
     def soft_keyboard(self):
         if self.w.chk_soft_keyboard.isChecked():
-            self.w.mdihistory.soft_keyboard_option = True
+            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',True)
             input = 'CALCULATOR'
         else:
-            self.w.mdihistory.soft_keyboard_option = False
+            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
             input = 'ENTRY'
         for axis in 'xyza':
             button = 'touch_{}'.format(axis)
@@ -1358,6 +1405,305 @@ class HandlerClass:
         msg.exec_()
         self.dialogError = False
         return msg
+
+    def do_run_from_line(self):
+        inData,outData,newFile,params = [],[],[],[]
+        g2,g4,g6,g9,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','',''
+        oSub = False
+        count = 0
+        with open(self.lastLoadedProgram, 'r') as inFile:
+            for line in inFile:
+                if count < self.startLine:
+                    inData.append(line.lower())
+                else:
+                    outData.append(line.lower())
+                count += 1
+        cutComp = False
+        for line in inData:
+            if line.startswith('('):
+                continue
+            if line.startswith('#'):
+                params.append(line.strip())
+                continue
+            if 'm190' in line:
+                material = line.strip()
+                continue
+            for t1 in ['g20','g21','g40','g41.1','g42.1','g61', 'g61.1', 'g64', 'g90','g91']:
+                if t1 in line:
+                    if t1[1] == '2':
+                        g2 = t1
+                    elif t1[1] == '4':
+                        g4 = t1
+                        if t1 != 'g40':
+                            cutComp = True
+                        else:
+                            cutComp = False
+                    elif t1[1] == '6':
+                        g6 = t1
+                        if t1 == 'g64':
+                            tmp = line.split('64')[1]
+                            if tmp[0] == 'p':
+                                p = ''
+                                tmp = tmp[1:]
+                                while 1:
+                                    if tmp[0] in '.0123456789q':
+                                        p += tmp[0]
+                                        tmp = tmp[1:]
+                                    else:
+                                        break
+                                g6 = 'g64p{}'.format(p)
+                    elif t1[1] == '9':
+                        g9 = t1
+            if 'g0' in line:
+                code = 'g0'
+            if 'g1' in line:
+                tmp = line.split('g1')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g1'
+            if 'g2' in line:
+                tmp = line.split('g2')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g2'
+            if 'g3' in line:
+                tmp = line.split('g3')[1]
+                if tmp[0] not in '0123456789':
+                    code = 'g3'
+            if 'x' in line:
+                x = self.get_rfl_pos(line.strip(), x, 'x')
+            if 'y' in line:
+                y = self.get_rfl_pos(line.strip(), y, 'y')
+            if 'm3' in line:
+                rflSpindle = 'm3'
+                tmp = line.split('m3')[1]
+                while 1:
+                    if tmp[0] in '0123456789s$':
+                        rflSpindle += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+            if 'm5' in line:
+                rflSpindle = ''
+            if 'm62p3' in line:
+                d3 = 'm62p3'
+            elif 'm63p3' in line:
+                d3 = 'm63p3'
+            elif 'm64p3' in line:
+                d3 = 'm64p3'
+            elif 'm65p3' in line:
+                d3 = 'm65p3'
+            if 'm62p2' in line:
+                d2 = 'm62p2'
+            elif 'm63p2' in line:
+                d2 = 'm63p2'
+            elif 'm64p2' in line:
+                d2 = 'm64p2'
+            elif 'm65p2' in line:
+                d2 = 'm65p2'
+            if 'm67e3q' in line:
+                a3 = 'm67e3q'
+                tmp = line.split('m67e3q')[1]
+                while 1:
+                    if tmp[0] in '-.0123456789':
+                        a3 += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+            if 'm68e3q' in line:
+                a3 = 'm68e3q'
+                tmp = line.split('m68e3q')[1]
+                bb=1
+                while 1:
+                    if tmp[0] in '-.0123456789':
+                        a3 += tmp[0]
+                        tmp = tmp[1:]
+                    else:
+                        break
+            if line.startswith('o'):
+                if 'end' in line:
+                    oSub = False
+                else:
+                    oSub = True
+        if cutComp or oSub:
+            if cutComp:
+                msg  = '\nCannot run from line while\n'
+                msg += 'cutter compensation is active\n'
+            elif oSub:
+                msg  = '\nCannot do run from line\n'
+                msg += 'inside a subroutine\n'
+            self.dialog_error(QMessageBox.Critical, 'ERROR', msg)
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            return
+        rFl = QDialog(self.w)
+        rFl.setWindowTitle('RUN FROM LINE')
+        l1 = QLabel('USE LEADIN:')
+        l2 = QLabel('LEADIN LENGTH:')
+        l3 = QLabel('LEADIN ANGLE:')
+        l4 = QLabel('')
+        use = QCheckBox()
+        len = QDoubleSpinBox()
+        ang = QDoubleSpinBox()
+        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonBox = QDialogButtonBox(buttons)
+        buttonBox.accepted.connect(rFl.accept)
+        buttonBox.rejected.connect(rFl.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText('Load')
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Cancel).setText('Cancel')
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        layout = QGridLayout()
+        layout.addWidget(l1, 0, 0)
+        layout.addWidget(l2, 1, 0)
+        layout.addWidget(l3, 2, 0)
+        layout.addWidget(l4, 3, 0)
+        layout.addWidget(use, 0, 1)
+        layout.addWidget(len, 1, 1)
+        layout.addWidget(ang, 2, 1)
+        layout.addWidget(buttonBox, 4, 0, 1, 2)
+        rFl.setLayout(layout)
+        l1.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        l2.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        l3.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        if self.units == 'inch':
+            len.setDecimals(2)
+            len.setSingleStep(0.05)
+            len.setSuffix(' inch')
+            len.setMinimum(0.05)
+        else:
+            len.setDecimals(0)
+            len.setSingleStep(1)
+            len.setSuffix(' mm')
+            len.setMinimum(1)
+        ang.setDecimals(0)
+        ang.setSingleStep(1)
+        ang.setSuffix(' deg')
+        ang.setRange(-359, 359)
+        ang.setWrapping(True)
+        result = rFl.exec_()
+        if not result:
+            self.rflActive = False
+            self.w.run.setEnabled(True)
+            self.startLine = 0
+            return
+        for param in params:
+            if param:
+                newFile.append(param)
+        if g2:
+            if self.unitsPerMm == 1 and g2 == 'g20':
+                scale = 0.03937
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * {}]'.format(scale)
+            elif self.unitsPerMm == 0.03937 and g2 == 'g22':
+                scale = 25.4
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> * {}] - 5]'.format(scale)
+            else:
+                scale = 1
+                zMax = 'g0z[#<_ini[axis_z]max_limit> - [{} * {}]]'.format(5, scale)
+            newFile.append(g2)
+        else:
+            scale = 1
+            zMax = ''
+        if g4:
+            newFile.append(g4)
+        if g6:
+            newFile.append(g6)
+        if g9:
+            newFile.append(g9)
+        newFile.append('M52 P1')
+        if d3:
+            newFile.append(d3)
+        if d2:
+            newFile.append(d2)
+        if a3:
+            newFile.append(a3)
+        if zMax:
+            newFile.append(zMax)
+        if material:
+            newFile.append(material)
+            newFile.append('m66p3l3q1')
+# probably should not scale this as all params should be set correctly in material file
+#        newFile.append('f[#<_hal[plasmac.cut-feed-rate]> * {}]'.format(scale))
+        newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
+        xL = x
+        yL = y
+        try:
+            if use.isChecked():
+                if x[-1] == ']':
+                    xL = '{}[[{}*{}]+{:0.6f}]'.format(x[:1], x[1:], scale, (len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = '{}[[{}*{}]+{:0.6f}]'.format(y[:1], y[1:], scale, (len.value() * scale) * math.sin(math.radians(ang.value())))
+                else:
+                    xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
+        except:
+            msg  = '\nUnable to calculate a leadin for this cut\n'
+            self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
+        if xL != x and yL != y:
+            newFile.append('G0 X{} Y{}'.format(xL, yL))
+            rflLead = [x, y]
+        else:
+            if x and y:
+                newFile.append('G0 X{} Y{}'.format(x, y))
+            elif x:
+                newFile.append('G0 X{}'.format(x))
+            elif y:
+                newFile.append('G0 Y{}'.format(y))
+            rflLead = None
+        if rflSpindle:
+            newFile.append(rflSpindle)
+        if rflLead:
+            newFile.append('G1 X{} Y{}'.format(rflLead[0], rflLead[1]))
+        for line in outData:
+            if outData.index(line) == 0 and (line.startswith('x') or line.startswith('y')):
+                line = '{}{}'.format(code, line)
+            newFile.append(line.strip())
+        rflFile = '{}rfl.ngc'.format(self.tmpPath)
+        with open(rflFile, 'w') as outFile:
+            for line in newFile:
+                outFile.write('{}\n'.format(line))
+        if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+            self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+        ACTION.OPEN_PROGRAM(rflFile)
+        ACTION.prefilter_path = self.preRflFile
+        self.w.run.setEnabled(True)
+        self.runText = 'RUN FROM {}'.format(self.startLine + 1)
+        self.w.gcodegraphics.highlight_graphics(None)
+
+    def get_rfl_pos(self, line, axisPos, axisLetter):
+        maths = 0
+        pos = ''
+        done = False
+        if line.startswith('(') or line.startswith(';'):
+            return pos if pos else axisPos
+        while len(line):
+            if line[0] == ('('):
+                break
+            if not line[0] == axisLetter:
+                line = line[1:]
+            else:
+                while 1:
+                    line = line[1:]
+                    if line[0] in '-.0123456789#':
+                        pos += line[0]
+                    elif line[0] == '[' or line[0] == '<':
+                        pos += line[0]
+                        maths += 1
+                    elif (line[0] == ']' or line[0] == '>') and maths > 0:
+                        pos += line[0]
+                        maths -= 1
+                    elif maths:
+                        pos += line[0]
+                    elif (pos and not maths) or line[0] == '(':
+                        done = True
+                        break
+                    else:
+                        if len(line) == 1: break
+                        break
+                    if len(line) == 1:
+                        break
+            if done:
+                break
+        return pos if pos else axisPos
+
 
 #########################################################################################################################
 # USER BUTTON FUNCTIONS #
@@ -1704,7 +2050,7 @@ class HandlerClass:
         self.load_materials()
         self.w.materials_box.setCurrentIndex(index)
         self.materialUpdate = False
-        self.w.materialReloadPin.set(0)
+        self.materialReloadPin.set(0)
 
     def new_material_clicked(self, repeat, value):
         text = 'New Material Number:'
@@ -1862,18 +2208,15 @@ class HandlerClass:
     def material_change_pin_changed(self, halpin):
         if halpin == 0:
             hal.set_p('motion.digital-in-03','0')
+        elif halpin == 3:
+            hal.set_p('motion.digital-in-03','1')
+            self.materialChangePin.set(0)
 
     def material_change_number_pin_changed(self, halpin):
         if self.getMaterialBusy:
             return
         if self.materialChangePin.get() == 1:
             self.autoChange = True
-            # material already loaded so do a phantom handshake
-            if halpin < 0:
-                self.materialChangePin.set(2)
-                hal.set_p('motion.digital-in-03','1')
-                self.materialChangeNumberPin.set(halpin * -1)
-                return
         if not self.material_exists(halpin):
             self.autoChange = False
             return
@@ -1882,8 +2225,8 @@ class HandlerClass:
     def material_change_timeout_pin_changed(self, halpin):
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
-#           FIX_ME do we need to stop the program if a timeout occurs???
-            print('\nMaterial change timeout occured for material #{}'.format(material))
+#           FIXME do we need to stop or pause the program if a timeout occurs???
+            print('\nMaterial change timeout occurred for material #{}'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
@@ -2995,49 +3338,50 @@ class HandlerClass:
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
-    def on_keycall_pause(self,event,state,shift,cntrl):
+    def on_keycall_PAUSE(self,event,state,shift,cntrl):
         if state and STATUS.is_auto_mode() and self.keyboard_shortcuts():
             ACTION.PAUSE()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 1, -1, shift)
 
+
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 2, -1, shift)
 
-    # def on_keycall_APOS(self,event,state,shift,cntrl):
-    #     if not event.isAutoRepeat() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 2, 1, shift)
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, 1, shift)
+    
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, -1, shift)
+
+    # def on_keycall_plus(self,event,state,shift,cntrl):
+    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+    #         self.kb_jog(state, 3, 1, shift, False)
     # 
-    # def on_keycall_ANEG(self,event,state,shift,cntrl):
-    #     if not event.isAutoRepeat() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 2, -1, shift)
-
-    def on_keycall_plus(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, 1, shift, False)
-
-    def on_keycall_minus(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, -1, shift, False)
+    # def on_keycall_minus(self,event,state,shift,cntrl):
+    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+    #         self.kb_jog(state, 3, -1, shift, False)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if not event.isAutoRepeat() and state:
