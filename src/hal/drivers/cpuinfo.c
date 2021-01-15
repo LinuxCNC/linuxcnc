@@ -86,28 +86,28 @@ int get_rpi_revision(void)
       return 2;
    else if ((strcmp(revision, "a01040") == 0) ||   /* Raspberry Pi 2B */
             (strcmp(revision, "a01041") == 0) ||
-			   (strcmp(revision, "a02042") == 0) ||
+	    (strcmp(revision, "a02042") == 0) ||
             (strcmp(revision, "a21041") == 0) ||
             (strcmp(revision, "a22042") == 0))
       return 3;
    else if ((strcmp(revision, "a02082") == 0) ||   /* Raspberry Pi 3B */
             (strcmp(revision, "a22082") == 0) ||
             (strcmp(revision, "a32082") == 0) ||
-			   (strcmp(revision, "a52082") == 0) ||
-			   (strcmp(revision, "a22083") == 0) ||									   
+	    (strcmp(revision, "a52082") == 0) ||
+	    (strcmp(revision, "a22083") == 0) ||									   
             (strcmp(revision, "a020d3") == 0))     /* Raspberry Pi 3B+ */
       return 4;
    else if ((strcmp(revision, "a03111") == 0) ||   /* Raspberry Pi 4B */
             (strcmp(revision, "b03111") == 0) ||
             (strcmp(revision, "b03112") == 0) ||
-			   (strcmp(revision, "b03114") == 0) ||
+	    (strcmp(revision, "b03114") == 0) ||
             (strcmp(revision, "c03111") == 0) ||
             (strcmp(revision, "c03112") == 0) ||
-			   (strcmp(revision, "c03114") == 0) ||
+	    (strcmp(revision, "c03114") == 0) ||
             (strcmp(revision, "d03114") == 0)) 
       return 5;
    else if  (strcmp(revision, "c03130") == 0)      /* Raspberry Pi 400 */
-       return 6;
+      return 6;
    else // assume rev 7
       return 7;
 }
