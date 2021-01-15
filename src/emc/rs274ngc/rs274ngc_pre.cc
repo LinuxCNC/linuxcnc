@@ -143,17 +143,17 @@ Interp::Interp()
   try {
     // this import will register the C++->Python converter for Interp
     bp::object interp_module = bp::import("interpreter");
-	
+
     // use a boost::cref to avoid per-call instantiation of the
     // Interp Python wrapper (used for the 'self' parameter in handlers)
     // since interp.init() may be called repeatedly this would create a new
     // wrapper instance on every init(), abandoning the old one and all user attributes
     // tacked onto it, so make sure this is done exactly once
-    _setup.pythis = new boost::python::object(boost::cref(*this));
-	
+    _setup.pythis = new bp::object(boost::cref(*this));
+
     // alias to 'interpreter.this' for the sake of ';py, .... ' comments
     // besides 'this', eventually use proper instance names to handle
-	// several instances 
+	// several instances
     bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
     // make "this" visible without importing interpreter explicitly
