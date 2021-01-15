@@ -1,6 +1,10 @@
 /*
 Copyright (c) 2012 Ben Croston
 
+Revised by Ernesto Lo Valvo  (ernesto.lovalvo@unipa.it) (12/01/2021)
+ Added new version of Raspberry Pi4 and Raspberry Pi 400
+ https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+ 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
@@ -68,22 +72,30 @@ int get_rpi_revision(void)
             (strcmp(revision, "0006") == 0) ||
             (strcmp(revision, "1000006") == 0 ))
       return 2;
-   else if ((strcmp(revision, "a01041") == 0) ||
+   else if ((strcmp(revision, "a01040") == 0) ||   /* Raspberry Pi 2B */
+            (strcmp(revision, "a01041") == 0) ||
+			(strcmp(revision, "a02042") == 0) ||
             (strcmp(revision, "a21041") == 0) ||
             (strcmp(revision, "a22042") == 0))
       return 3;
-   else if ((strcmp(revision, "a22082") == 0) ||
-            (strcmp(revision, "a02082") == 0) ||
+   else if ((strcmp(revision, "a02082") == 0) ||   /* Raspberry Pi 3B */
+            (strcmp(revision, "a22082") == 0) ||
             (strcmp(revision, "a32082") == 0) ||
-            (strcmp(revision, "a020d3") == 0))
+			(strcmp(revision, "a52082") == 0) ||
+			(strcmp(revision, "a22083") == 0) ||									   
+            (strcmp(revision, "a020d3") == 0))     /* Raspberry Pi 3B+ */
       return 4;
-   else if ((strcmp(revision, "a03111") == 0) ||
+   else if ((strcmp(revision, "a03111") == 0) ||   /* Raspberry Pi 4B */
             (strcmp(revision, "b03111") == 0) ||
             (strcmp(revision, "b03112") == 0) ||
+			(strcmp(revision, "b03114") == 0) ||
             (strcmp(revision, "c03111") == 0) ||
             (strcmp(revision, "c03112") == 0) ||
-            (strcmp(revision, "d03114") == 0))
+			(strcmp(revision, "c03114") == 0) ||
+            (strcmp(revision, "d03114") == 0)) 
       return 5;
-   else // assume rev 6
-      return 6;
+   else if  (strcmp(revision, "c03130") == 0)      /* Raspberry Pi 400 */
+       return 6;
+   else // assume rev 7
+      return 7;
 }
