@@ -22,7 +22,7 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
 from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
-#from qtvcp.widgets.mdi_history import MDIHistory as MDI_WIDGET
+from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
 from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
 from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.19'
+VERSION = '0.9.20'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -204,7 +204,6 @@ class HandlerClass:
         STATUS.connect('interp-reading', self.interp_reading)
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
-        STATUS.connect('mdi-history-changed', self.mdi_entered)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
@@ -499,7 +498,6 @@ class HandlerClass:
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
         self.overlay = overlayMaterial(self.w.gcodegraphics)
-        self.mdi_selection = self.w.mdihistory.list.selectionModel()
 
     def get_overlay_text(self):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
@@ -595,6 +593,9 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, MDI_LINE):
+                    flag = True
+                    break
+                if isinstance(receiver2, MDI_HISTORY):
                     flag = True
                     break
                 if isinstance(receiver2, EDITOR):
@@ -763,10 +764,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             self.w[self.tpButton].setEnabled(False)
 
-    def mdi_entered(self, object):
-        self.mdi_selection.clearSelection()
-        self.w.mdihistory.MDILine.setText('')
-
     def jog_rate_changed(self, object, value):
         self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
 
@@ -846,6 +843,7 @@ class HandlerClass:
             self.w.run.setEnabled(True)
             self.startLine = 0
             self.preRflFile = ''
+        self.w.mdihistory.reload()
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
@@ -1006,9 +1004,8 @@ class HandlerClass:
             if self.w.mdi_show.text() == 'MDI':
                 self.w.mdi_show.setText('MDI\nCLOSE')
                 self.w.gcode_stack.setCurrentIndex(1)
+                self.w.mdihistory.reload()
                 self.w.mdihistory.MDILine.setFocus()
-                self.mdi_selection.clearSelection()
-                self.w.mdihistory.MDILine.setText('')
             else:
                 self.w.mdi_show.setText('MDI')
                 self.w.gcode_stack.setCurrentIndex(0)
