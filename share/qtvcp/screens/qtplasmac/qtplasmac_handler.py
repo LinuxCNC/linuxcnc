@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.20'
+VERSION = '0.9.21'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -73,9 +73,9 @@ class HandlerClass:
         self.h.comp.setprefix('qtplasmac')
         self.PATHS = paths
 # print all the paths
-#        for item in dir(self.PATHS):
-#            if item[0].isupper():
-#                print('{} = {}'.format(item, getattr(self.PATHS, item)))
+        # for item in dir(self.PATHS):
+        #     if item[0].isupper():
+        #         print('{} = {}'.format(item, getattr(self.PATHS, item)))
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
 # if older development version, exit and warn the user. This can be removed down the track
@@ -95,6 +95,15 @@ class HandlerClass:
             err += '******************************************************\n\n'
             print(err)
             sys.exit()
+# changes sim common folder to a link so sims keep up to date
+        if 'by_machine.qtplasmac' in self.PATHS.CONFIGPATH:
+            if os.path.isdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+                if '/usr' in self.PATHS.BASEDIR:
+                    linkFolder = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/')
+                else:
+                    linkFolder = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/qtplasmac/')
+                os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
+                os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
