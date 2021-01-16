@@ -160,6 +160,7 @@ class HandlerClass:
         self.startLine = 0
         self.preRflFile = ''
         self.rflActive = False
+        self.jogStop = None
 
     def initialized__(self):
         self.make_hal_pins()
@@ -488,10 +489,12 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-        # self.keyTimer=QTimer()
-        # self.keyTimer.setSingleShot(True)
-        # self.keyTimer.timeout.connect(self.key_timer_timeout)
-        # self.jogAxis = {}
+# part of a workaround for Qt randomly sending a rapid release prese sequnce during autorepeat
+        self.keyTimer=QTimer()
+        self.keyTimer.setSingleShot(True)
+        self.keyTimer.timeout.connect(self.key_timer_timeout)
+        self.jogAxis = {}
+# end workaround
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -622,22 +625,35 @@ class HandlerClass:
                     return True
         if event.isAutoRepeat():
             return True
-        # elif event.type() == QEvent.KeyPress:
-        #     if self.keyTimer.isActive():
-        #         self.keyTimer.stop()
-        #         return
-        # elif event.type() == QEvent.KeyRelease:
-        #     self.keyTimer.start(1)
-        #     return
+# part of a workaround for Qt randomly sending a rapid release press sequence during autorepeat
+        elif event.type() == QEvent.KeyPress:
+            print('key: {}'.format(key))
+            if self.keyTimer.isActive():
+                self.keyTimer.stop()
+                return
+        elif event.type() == QEvent.KeyRelease:
+            if code in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
+                        Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_BracketLeft, Qt.Key_BracketRight):
+                self.jogStop = code
+                self.keyTimer.start(1)
+                return
+# end workaround
         if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
             self.escape_pressed()
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
-    # def key_timer_timeout(self):
-    #     for button in self.jogAxis:
-    #         print 'JOG STOP:', axis
-    #         self.kb_jog(0, axis, 0)
-    #         self.jogAxis = []
+# part of a workaround for Qt randomly sending a rapid release press sequence during autorepeat
+    def key_timer_timeout(self):
+        if self.jogStop == Qt.Key_Left or self.jogStop == Qt.Key_Right:
+            self.kb_jog(0, 0, 0)
+        elif self.jogStop == Qt.Key_Up or self.jogStop == Qt.Key_Down:
+            self.kb_jog(0, 1, 0)
+        elif self.jogStop == Qt.Key_PageUp or self.jogStop == Qt.Key_PageDown:
+            self.kb_jog(0, 2, 0)
+        elif self.jogStop == Qt.Key_BracketLeft or self.jogStop == Qt.Key_BracketRight:
+            self.kb_jog(0, 3, 0)
+        self.jogStop = None
+# end workaround
 
 
 #############################################################################################################################
@@ -1383,13 +1399,13 @@ class HandlerClass:
     def soft_keyboard(self):
         if self.w.chk_soft_keyboard.isChecked():
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',True)
-            input = 'CALCULATOR'
+            inputType = 'CALCULATOR'
         else:
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
-            input = 'ENTRY'
+            inputType = 'ENTRY'
         for axis in 'xyza':
             button = 'touch_{}'.format(axis)
-            self.w[button].dialog_code = input
+            self.w[button].dialog_code = inputType
 
     def overlay_changed(self):
         if self.w.chk_overlay.isChecked():
