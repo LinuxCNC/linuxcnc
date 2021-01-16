@@ -71,7 +71,6 @@ class MDIHistory(QWidget, _HalWidgetBase):
             open(self.fp, 'a+')
             LOG.debug('MDI History file created: {}'.format(self.fp))
         self.reload()
-        self.select_row('last')
 
     def _hal_init(self):
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
@@ -85,15 +84,21 @@ class MDIHistory(QWidget, _HalWidgetBase):
     def reload(self, w=None ):
         self.model.clear()
         try:
+            self.rows = 0
             with open(self.fp,'r') as inputfile:
                 for line in inputfile:
                     line = line.rstrip('\n')
                     item = QStandardItem(line)
                     self.model.appendRow(item)
+                    self.rows += 1
+            if isinstance(self.sender(), QListView):
+                self.select_row('down')
+            else:
+                self.row = self.rows
             self.list.setModel(self.model)
-            self.list.scrollToBottom()
-            if self.MDILine.hasFocus():
-                self.select_row('last')
+            if self.row == self.rows:
+                self.list.scrollToBottom()
+                self.MDILine.setText('')
         except:
             LOG.debug('File path is not valid: {}'.format(fp))
 
@@ -101,8 +106,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
         cmd = self.getSelected()
         self.MDILine.setText(cmd)
         selectionModel = self.list.selectionModel()
-        if selectionModel.hasSelection():
-            self.row = selectionModel.currentIndex().row()
+        self.row = selectionModel.currentIndex().row()
 
     def getSelected(self):
         selected_indexes = self.list.selectedIndexes()
@@ -116,7 +120,6 @@ class MDIHistory(QWidget, _HalWidgetBase):
         cmd = self.getSelected()
         self.MDILine.setText(cmd)
         self.MDILine.submit()
-        self.select_row('down')
 
     def run_command(self):
         self.MDILine.submit()
@@ -128,17 +131,19 @@ class MDIHistory(QWidget, _HalWidgetBase):
         parent = QModelIndex()
         self.rows = self.model.rowCount(parent) - 1
         if style == 'last':
-            self.row = self.rows
+            self.row = self.rows - 2
+        elif style == 'first':
+            self.row = 0
         elif style == 'up':
             if self.row > 0:
                 self.row -= 1
             else:
-                self.row = 0
+                self.row = self.rows
         elif style == 'down':
             if self.row < self.rows:
                 self.row += 1
             else:
-                self.row = self.rows
+                self.row = 0
         else:
             return
         top = self.model.index(self.row, 0, parent)
