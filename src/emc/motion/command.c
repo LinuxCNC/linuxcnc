@@ -203,13 +203,13 @@ static int check_axis_constraint(double target, int id, char *move_type,
          && (fabs(axes[axis_no].min_pos_limit) < eps)
          && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
 
-    if(target < nl) {
+    if(target < (nl - 0.000000000001)) { // see pull request #1047
         in_range = 0;
         reportError(_("%s move on line %d would exceed %c's %s limit"),
                     move_type, id, axis_name, _("negative"));
     }
 
-    if(target > pl) {
+    if(target > (pl + 0.000000000001)) { // see pull request #1047
         in_range = 0;
         reportError(_("%s move on line %d would exceed %c's %s limit"),
                     move_type, id, axis_name, _("positive"));
