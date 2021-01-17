@@ -1,4 +1,5 @@
 #include <sys/time.h>
+//#include <stdint.h>
 #include "mb2hal.h"
 
 retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
@@ -106,7 +107,7 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         //val *= this_mb_tx->scale[counter];
         //val += this_mb_tx->offset[counter];
         *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = (hal_s32_t) val;
+        *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -145,7 +146,7 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         //val += this_mb_tx->offset[counter];
         //val *= this_mb_tx->scale[counter];
         *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = (hal_s32_t) val;
+        *(this_mb_tx->int_value[counter]) = data[counter];
     }
 
     return retOK;
@@ -195,9 +196,12 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         return retERR;
     }
 
-    float val = *(this_mb_tx->float_value[0]);
-    data = (int) val;
-
+    float float_val = *(this_mb_tx->float_value[0]);
+    data = (int) float_val + *(this_mb_tx->int_value[0]);
+    if(data > UINT16_MAX) { // prevent wrap on overflow
+        data = UINT16_MAX;
+    }
+    
     DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
@@ -267,8 +271,14 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
         //val -= this_mb_tx->offset[counter];
-        float val = *(this_mb_tx->float_value[counter]);
-        data[counter] = (int) val;
+        float float_val = *(this_mb_tx->float_value[counter]);
+        int data32 = (uint16_t) float_val + *(this_mb_tx->int_value[counter]);
+        if(data32 > UINT16_MAX) { // prevent wrap on overflow
+            data[counter] = UINT16_MAX;
+        }
+        else {
+            data[counter] = (uint16_t) data32;
+        }
     }
 
     DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
