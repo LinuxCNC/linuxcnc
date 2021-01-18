@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.2"
+_RELEASE = " 3.1.2.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2531,13 +2531,16 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
+    def on_hal_status_override_limits_changed(self, object, state, limits_list):
+        # object = hal_status from glade file
+        # state = true if override_limit is active
+        # limits_list = list of joint with active override limits, normally all)
+        self.widgets.chk_ignore_limits.set_active(state)
+
     def on_hal_status_limits_tripped(self, object, state, lst_limits):
         # object = hal_status from glade file
         # state = true if limit has been tripped
         # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
-        print("limits tripped ", state, lst_limits)
-        if not state:
-            self.widgets.chk_ignore_limits.set_active(state)
         self.widgets.chk_ignore_limits.set_sensitive(state)
 
     def on_hal_status_mode_manual(self, widget):
@@ -2753,7 +2756,7 @@ class gmoccapy(object):
 
         # set up the hal pin status of tool measurement
         # could not be done prior to this, as the hal pin are not created before
-        # the tool measure check, due to the reason we need tzo know if creation
+        # the tool measure check, due to the reason we need to know if creation
         # of tool measurement button is needed. So we call the toogle action to
         # set all up and running
         self.on_chk_use_tool_measurement_toggled(self.widgets.chk_use_tool_measurement)
@@ -3646,7 +3649,7 @@ class gmoccapy(object):
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
-            self.command.override_limits()
+           self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
         name = gtk.Buildable.get_name(widget)
@@ -4854,7 +4857,6 @@ class gmoccapy(object):
             self.jv_counts = self.ro_counts = counts
 
     def _on_analog_enable_changed(self, pin, widget):
-        print(pin, widget)
         if not self.initialized:
             return
         if widget == "spc_spindle":
