@@ -1405,6 +1405,7 @@ class HAL:
             if let == 's':
                 print >>file, "net spindle-revs             <=   " + encoderpinname + ".position"
                 print >>file, "net spindle-vel-fb-rps       <=   " + encoderpinname + ".velocity"
+                print >>file, "net spindle-vel-fb-rpm       <=   " + encoderpinname + ".velocity-rpm"
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
@@ -1424,6 +1425,7 @@ class HAL:
             if let == 's':
                 print >>file, "net spindle-revs             <=   " + resolverpinname + ".position"
                 print >>file, "net spindle-vel-fb-rps       <=   " + resolverpinname + ".velocity"
+                print >>file, "net spindle-vel-fb-rpm       <=   " + resolverpinname + ".velocity-rpm"
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
