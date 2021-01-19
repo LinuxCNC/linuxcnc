@@ -637,7 +637,6 @@ class HandlerClass:
             return True
 # part of a workaround for Qt randomly sending a rapid release press sequence during autorepeat
         elif event.type() == QEvent.KeyPress:
-            print('key: {}'.format(key))
             if self.keyTimer.isActive():
                 self.keyTimer.stop()
                 return
@@ -1018,6 +1017,7 @@ class HandlerClass:
             else:
                 self.w.mdi_show.setText('MDI')
                 self.w.gcode_stack.setCurrentIndex(0)
+                ACTION.SET_MANUAL_MODE()
 
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
