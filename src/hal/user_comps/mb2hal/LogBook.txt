@@ -24,6 +24,21 @@
  * USA.
  */
 
+2021-01-17:
+    - Added Pins:
+      . added bit-inv (invert bit) output for fnct_02_read_discrete_inputs and fnct_01_read_coils
+      . added int input for fnct_06_write_single_register and fnct_16_write_multiple_register, 
+        renamed float pin to sub-pin '.float'        
+    - Added function codes:
+      . fnct_01_read_coils
+      . fnct_05_write_single_coil
+    (Hans Unzner <hansunzner@gmail.com>)
+
+2018-08-19
+  # Add fnct_06_write_single_register function as not all devices (e.g.
+    Parker AC10 VFD) support fnct_16_write_multiple_registers.
+    (Lars Bensmann <lars@almosthappy.de>)
+
 2012-11-12:
   # Arduino example added.
     - Tested with Arduino Mega 2560 R3 using Modbusino over USB at 115200 bps.
