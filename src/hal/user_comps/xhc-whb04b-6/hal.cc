@@ -118,6 +118,8 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->in.isModeMdi));
     freeSimulatedPin((void**)(&memory->in.isModeTeleop));
 
+    // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+    // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
     freeSimulatedPin((void**)(&memory->in.JointXisHomed));
     freeSimulatedPin((void**)(&memory->in.JointYisHomed));
     freeSimulatedPin((void**)(&memory->in.JointZisHomed));
@@ -552,6 +554,8 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_IN, &(memory->in.isModeTeleop), mHalCompId, "%s.halui.mode.is-teleop", mComponentPrefix);
 
 
+    // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+    // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
     newHalBit(HAL_IN, &(memory->in.JointXisHomed), mHalCompId, "%s.halui.joint.x.is-homed", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.JointYisHomed), mHalCompId, "%s.halui.joint.y.is-homed", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.JointZisHomed), mHalCompId, "%s.halui.joint.z.is-homed", mComponentPrefix);
