@@ -169,6 +169,8 @@ class HandlerClass:
         self.startLine = 0
         self.preRflFile = ''
         self.rflActive = False
+        self.jogInhibit = ''
+        self.isJogging = {0:False, 1:False, 2:False, 3:False}
 
     def initialized__(self):
         self.make_hal_pins()
@@ -342,6 +344,7 @@ class HandlerClass:
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zOffsetCounts = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
@@ -1083,6 +1086,29 @@ class HandlerClass:
             self.w.gcode_progress.setValue(0)
             ACTION.OPEN_PROGRAM(file)
 
+    def jog_inhibit_changed(self, state, switch):
+        if state and not self.jogInhibit:
+            for axis in [0,1,2,3]:
+                if self.isJogging[axis]:
+                    ACTION.JOG(axis, 0, 0, 0)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Jogging stopped, {} tripped'.format(switch))
+                    self.isJogging[axis] = False
+            self.jogInhibit = switch
+            self.jogInhibitPin.set(True)
+        else:
+            if self.w.led_float_switch.hal_pin.get():
+                self.jogInhibit = 'float switch'
+                self.jogInhibitPin.set(True)
+            elif self.w.led_ohmic_probe.hal_pin.get():
+                self.jogInhibit = 'ohmic probe'
+                self.jogInhibitPin.set(True)
+            elif self.w.led_breakaway_switch.hal_pin.get():
+                self.jogInhibit = 'breakaway switch'
+                self.jogInhibitPin.set(True)
+            else:
+                self.jogInhibit = ''
+                self.jogInhibitPin.set(False)
+
     def jog_slow_clicked(self, state):
         slider = self.w.jog_slider
         current = slider.value()
@@ -1098,9 +1124,9 @@ class HandlerClass:
             slider.setValue(current * self.slowJogFactor)
             slider.setPageStep(100)
 
-    def chk_override_limits_checked(self, state):
+    def chk_override_limits_changed(self, state):
         if state:
-            ACTION.SET_LIMITS_OVERRIDE()
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
 
 
 #########################################################################################################################
@@ -1178,6 +1204,7 @@ class HandlerClass:
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
+        self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
@@ -1284,6 +1311,9 @@ class HandlerClass:
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
+        self.w.led_float_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'float switch'))
+        self.w.led_ohmic_probe.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'ohmic probe'))
+        self.w.led_breakaway_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'breakaway switch'))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -1397,6 +1427,9 @@ class HandlerClass:
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
+        if self.jogInhibit and state and (joint != 2 or direction != 1):
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot jog while {} tripped'.format(self.jogInhibit))
+            return
         if linear:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
@@ -1407,6 +1440,7 @@ class HandlerClass:
             if shift:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             ACTION.JOG(joint, direction, rate, distance)
+            self.isJogging[joint] = True
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
