@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.21'
+VERSION = '0.9.22'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -169,7 +169,6 @@ class HandlerClass:
         self.startLine = 0
         self.preRflFile = ''
         self.rflActive = False
-        self.jogStop = None
 
     def initialized__(self):
         self.make_hal_pins()
@@ -424,7 +423,7 @@ class HandlerClass:
 
     def init_preferences(self):
         if not self.w.PREFS_:
-            print('CRITICAL - no preference file found, enable preferences in screenoptions widget')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nNo preference file found, enable preferences in screenoptions widget')
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
@@ -497,11 +496,12 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-# part of a workaround for Qt randomly sending a rapid release prese sequnce during autorepeat
+# part 1 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
+        self.jogKeys = {Qt.Key_Left:0, Qt.Key_Right:0, Qt.Key_Up:0, Qt.Key_Down:0,
+                       Qt.Key_PageUp:0, Qt.Key_PageDown:0, Qt.Key_BracketLeft:0, Qt.Key_BracketRight:0}
         self.keyTimer=QTimer()
         self.keyTimer.setSingleShot(True)
         self.keyTimer.timeout.connect(self.key_timer_timeout)
-        self.jogAxis = {}
 # end workaround
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
@@ -635,33 +635,50 @@ class HandlerClass:
                     return True
         if event.isAutoRepeat():
             return True
-# part of a workaround for Qt randomly sending a rapid release press sequence during autorepeat
+# part 2 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
         elif event.type() == QEvent.KeyPress:
+            if code in self.jogKeys:
+                self.jogKeys[code] = 1
             if self.keyTimer.isActive():
                 self.keyTimer.stop()
-                return
+                return True
         elif event.type() == QEvent.KeyRelease:
-            if code in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
-                        Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_BracketLeft, Qt.Key_BracketRight):
-                self.jogStop = code
-                self.keyTimer.start(1)
-                return
+            if code in self.jogKeys:
+                if self.jogKeys[code] == 1:
+                    self.jogKeys[code] = 0
+                self.keyTimer.start(5)
+                return True
 # end workaround
         if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
             self.escape_pressed()
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
-# part of a workaround for Qt randomly sending a rapid release press sequence during autorepeat
+# part 3 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
     def key_timer_timeout(self):
-        if self.jogStop == Qt.Key_Left or self.jogStop == Qt.Key_Right:
+        if self.jogKeys[Qt.Key_Right] == 0 and self.jogKeys[Qt.Key_Left] == 0:
             self.kb_jog(0, 0, 0)
-        elif self.jogStop == Qt.Key_Up or self.jogStop == Qt.Key_Down:
+        elif self.jogKeys[Qt.Key_Right] == 1 and self.jogKeys[Qt.Key_Left] == 0:
+            self.kb_jog(1, 0, 1)
+        elif self.jogKeys[Qt.Key_Right] == 0 and self.jogKeys[Qt.Key_Left] == 1:
+            self.kb_jog(1, 0, -1)
+        if self.jogKeys[Qt.Key_Up] == 0 and self.jogKeys[Qt.Key_Down] == 0:
             self.kb_jog(0, 1, 0)
-        elif self.jogStop == Qt.Key_PageUp or self.jogStop == Qt.Key_PageDown:
+        elif self.jogKeys[Qt.Key_Up] == 1 and self.jogKeys[Qt.Key_Down] == 0:
+            self.kb_jog(1, 1, 1)
+        elif self.jogKeys[Qt.Key_Up] == 0 and self.jogKeys[Qt.Key_Down] == 1:
+            self.kb_jog(1, 1, -1)
+        if self.jogKeys[Qt.Key_PageUp] == 0 and self.jogKeys[Qt.Key_PageDown] == 0:
             self.kb_jog(0, 2, 0)
-        elif self.jogStop == Qt.Key_BracketLeft or self.jogStop == Qt.Key_BracketRight:
+        elif self.jogKeys[Qt.Key_PageUp] == 1 and self.jogKeys[Qt.Key_PageDown] == 0:
+            self.kb_jog(1, 2, 1)
+        elif self.jogKeys[Qt.Key_PageUp] == 0 and self.jogKeys[Qt.Key_PageDown] == 1:
+            self.kb_jog(1, 2, -1)
+        if self.jogKeys[Qt.Key_BracketRight] == 0 and self.jogKeys[Qt.Key_BracketLeft] == 0:
             self.kb_jog(0, 3, 0)
-        self.jogStop = None
+        elif self.jogKeys[Qt.Key_BracketRight] == 1 and self.jogKeys[Qt.Key_BracketLeft] == 0:
+            self.kb_jog(1, 3, 1)
+        elif self.jogKeys[Qt.Key_BracketRight] == 0 and self.jogKeys[Qt.Key_BracketLeft] == 1:
+            self.kb_jog(1, 3, -1)
 # end workaround
 
 
@@ -947,7 +964,7 @@ class HandlerClass:
         self.load_plasma_parameters()
 
     def backup_config_clicked(self):
-        print('BACKUP CONFIGURATION NOT DONE YET')
+        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nConfiguration backup not implemented yet')
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -1390,7 +1407,6 @@ class HandlerClass:
             if shift:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             ACTION.JOG(joint, direction, rate, distance)
-            # self.jogAxis.append(joint)
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
@@ -1808,7 +1824,6 @@ class HandlerClass:
         if 'change-consumables' in commands.lower():
             self.consumable_change_setup()
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
-                print('reset consumable change')
                 hal.set_p('plasmac.consumable-change', '0')
                 hal.set_p('plasmac.x-offset', '0')
                 hal.set_p('plasmac.y-offset', '0')
@@ -1901,7 +1916,7 @@ class HandlerClass:
                 if command.strip()[0] == '%':
                     command = command.strip().strip('%') + '&'
                     msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
-                    print(msg.communicate()[0])
+#                    print(msg.communicate()[0])
                 else:
                     if '{' in command:
                         newCommand = subCommand = ''
@@ -2248,7 +2263,7 @@ class HandlerClass:
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
 #           FIXME do we need to stop or pause the program if a timeout occurs???
-            print('\nMaterial change timeout occurred for material #{}'.format(material))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nMaterial change timeout occurred for material #{}'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
@@ -2536,7 +2551,7 @@ class HandlerClass:
                     '#GAS_PRESSURE       = \n'\
                     '#CUT_MODE           = \n'\
                     '\n')
-            print('*** creating new material file, {}'.format(self.materialFile))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\ncreating new material file, {}'.format(self.materialFile))
 
     def material_exists(self, material):
         if int(material) in self.materialList:
