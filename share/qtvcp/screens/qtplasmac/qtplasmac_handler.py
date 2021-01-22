@@ -153,7 +153,7 @@ class HandlerClass:
         self.pmx485Loaded = False
         self.pmx485Connected = False
         self.pmx485CommsError = False
-        self.fault = '0000'
+        self.pmx485FaultCode = 0.0
         self.cutRecovering = False
         self.camCurrentX = self.camCurrentY = 0
         self.degreeSymbol = u"\u00b0"
@@ -426,7 +426,7 @@ class HandlerClass:
 
     def init_preferences(self):
         if not self.w.PREFS_:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nNo preference file found, enable preferences in screenoptions widget')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'No preference file found\nenable preferences in screenoptions widget\n')
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
         self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
@@ -534,12 +534,12 @@ class HandlerClass:
                     self.w.camera.setEnabled(False)
                 else:
                     self.w.camera.hide()
-                    msg = '000 Invalid entry for camera offset'
-                    self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
+                    msg = '000 Invalid entry for camera offset\n'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI File Error\n{}'.format(msg))
             except:
                 self.w.camera.hide()
-                msg = '111 Invalid entry for camera offset'
-                self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
+                msg = '111 Invalid entry for camera offset\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI File Error\n{}'.format(msg))
 
         lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         if lCode == '0':
@@ -554,12 +554,12 @@ class HandlerClass:
                     self.w.laser.setEnabled(False)
                 else:
                     self.w.laser.hide()
-                    msg = 'Invalid entry for laser offset'
-                    self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
+                    msg = 'Invalid entry for laser offset\n'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI File Error\n{}'.format(msg))
             except:
                 self.w.laser.hide()
-                msg = 'Invalid entry for laser offset'
-                self.dialog_error(QMessageBox.Warning, 'INI FILE ERROR', msg)
+                msg = 'Invalid entry for laser offset\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI File Error\n{}'.format(msg))
 
     def closing_cleanup__(self):
         # disconnect powermax
@@ -813,11 +813,6 @@ class HandlerClass:
                 self.w.rapid_label.setText(' \n ')
         else:
             self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
-        if self.pmx485CommsError:
-            if self.w.pmx485_label.text() == '':
-                self.w.pmx485_label.setText('COMMS ERROR')
-            else:
-                self.w.pmx485_label.setText('')
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
             if QColor(self.w.height_ovr_label.palette().color(QPalette.Foreground)).name() == self.foreColor:
                 self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.backColor))
@@ -832,6 +827,16 @@ class HandlerClass:
                 self.w.run.setText('')
         else:
             self.w.run.setText('CYCLE START')
+        if self.pmx485CommsError:
+            if self.w.pmx485_label.text() == '':
+                self.w.pmx485_label.setText('COMMS ERROR')
+            else:
+                self.w.pmx485_label.setText('')
+        elif not self.w.pmx485_label.text().startswith('CONN'):
+            if self.w.pmx485_label.text() == '':
+                self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
+            else:
+                self.w.pmx485_label.setText('')
 
     def percent_loaded(self, object, percent):
         if percent < 1:
@@ -967,7 +972,7 @@ class HandlerClass:
         self.load_plasma_parameters()
 
     def backup_config_clicked(self):
-        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nConfiguration backup not implemented yet')
+        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Configuration backup not implemented yet\n')
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -1091,7 +1096,7 @@ class HandlerClass:
             for axis in [0,1,2,3]:
                 if self.isJogging[axis]:
                     ACTION.JOG(axis, 0, 0, 0)
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Jogging stopped, {} tripped'.format(switch))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Jogging Stopped\n{} tripped\n'.format(switch))
                     self.isJogging[axis] = False
             self.jogInhibit = switch
             self.jogInhibitPin.set(True)
@@ -1428,7 +1433,7 @@ class HandlerClass:
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot jog while {} tripped'.format(self.jogInhibit))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot Jog\n{} tripped\n'.format(self.jogInhibit))
             return
         if linear:
             distance = STATUS.get_jog_increment()
@@ -1597,12 +1602,12 @@ class HandlerClass:
                     oSub = True
         if cutComp or oSub:
             if cutComp:
-                msg  = '\nCannot run from line while\n'
+                msg  = 'Cannot run from line while\n'
                 msg += 'cutter compensation is active\n'
             elif oSub:
-                msg  = '\nCannot do run from line\n'
+                msg  = 'Cannot do run from line\n'
                 msg += 'inside a subroutine\n'
-            self.dialog_error(QMessageBox.Critical, 'ERROR', msg)
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCode Error\n{}'.format(msg))
             self.rflActive = False
             self.w.run.setEnabled(True)
             self.startLine = 0
@@ -1707,8 +1712,8 @@ class HandlerClass:
                     xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
                     yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
         except:
-            msg  = '\nUnable to calculate a leadin for this cut\n'
-            self.dialog_error(QMessageBox.Warning, 'LEADIN ERROR', msg)
+            msg  = 'Unable to calculate a leadin for this cut\n'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCode Error\n{}'.format(msg))
         if xL != x and yL != y:
             newFile.append('G0 X{} Y{}'.format(xL, yL))
             rflLead = [x, y]
@@ -1864,7 +1869,10 @@ class HandlerClass:
                 self.button_normal(self.ccButton)
             else:
                 if self.ccFeed == 'None' or self.ccFeed < 1:
-                    self.dialog_error(QMessageBox.Warning, 'USER BUTTON ERROR', 'Invalid feed rate for consumable change\n\nCheck .ini file settings\n\nBUTTON_{}_CODE'.format(str(button)))
+                    msg  = 'Invalid feed rate for consumable change\n'
+                    msg += 'Check .ini file settings\n'
+                    msg += 'BUTTON_{}_CODE\n'.format(str(button))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'User Button Error\n{}'.format(msg))
                     return
                 else:
                     hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
@@ -2297,7 +2305,7 @@ class HandlerClass:
         if halpin:
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
 #           FIXME do we need to stop or pause the program if a timeout occurs???
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\nMaterial change timeout occurred for material #{}'.format(material))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Material change timeout occurred for material #{}\n'.format(material))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
@@ -2494,7 +2502,8 @@ class HandlerClass:
                         self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                         for item in required:
                             if item not in received:
-                                self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
+                                msg = '{} is missing from Material #{}\n'.format(item, t_number)
+                                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
@@ -2512,13 +2521,15 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         p_height = float(line.split('=')[1].strip())
                     elif t_number:
-                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
+                        msg = 'No value for PIERCE_HEIGHT in Material #{}\n'.format(t_number)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                 elif line.startswith('PIERCE_DELAY'):
                     received.append('PIERCE_DELAY')
                     if line.split('=')[1].strip():
                         p_delay = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
+                        msg = 'No value for PIERCE_DELAY in Material #{}\n'.format(t_number)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                 elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                     if line.split('=')[1].strip():
                         pj_height = float(line.split('=')[1].strip())
@@ -2530,13 +2541,15 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         c_height = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
+                        msg = 'No value for CUT_HEIGHT in Material #{}\n'.format(t_number)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                 elif line.startswith('CUT_SPEED'):
                     received.append('CUT_SPEED')
                     if line.split('=')[1].strip():
                         c_speed = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nNo value for CUT_SPEED in Material #{}'.format(t_number))
+                        msg = 'No value for CUT_SPEED in Material #{}\n'.format(t_number)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                 elif line.startswith('CUT_AMPS'):
                     if line.split('=')[1].strip():
                         c_amps = float(line.split('=')[1].strip().replace(' ',''))
@@ -2556,7 +2569,8 @@ class HandlerClass:
                 self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                 for item in required:
                     if item not in received:
-                        self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\n{} is missing from Material #{}'.format(item, t_number))
+                        msg = '{} is missing from Material #{}\n'.format(item, t_number)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
         self.display_materials()
         self.change_material(0)
         self.getMaterialBusy = 0
@@ -2585,7 +2599,7 @@ class HandlerClass:
                     '#GAS_PRESSURE       = \n'\
                     '#CUT_MODE           = \n'\
                     '\n')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\ncreating new material file, {}'.format(self.materialFile))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Creating New Material File\n{}\n'.format(self.materialFile))
 
     def material_exists(self, material):
         if int(material) in self.materialList:
@@ -2594,7 +2608,8 @@ class HandlerClass:
             if self.autoChange:
                 self.materialChangePin.set(-1)
                 self.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
-            self.dialog_error(QMessageBox.Critical, 'MATERIALS ERROR', '\nMaterial #{} not in material list'.format(int(material)))
+                msg = 'Material #{} not in material list'.format(int(material))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
             return False
 
     def save_default_material(self):
@@ -2755,8 +2770,9 @@ class HandlerClass:
             self.pmx485Exists = True
             self.pmx485CommsError = False
             if not hal.component_exists('pmx485'):
-                self.dialog_error(QMessageBox.Critical, 'COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
-                                                        '\nPowermax communications is not available\n')
+                msg  = 'pmx485 component is not loaded\n'
+                msg += 'Powermax communications is not available\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Communications Error\n{}'.format(msg))
                 return
             self.w.pmx485Status = False
             self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
@@ -2814,13 +2830,16 @@ class HandlerClass:
                             self.w.pmx485_enable.setChecked(False)
                             self.w.pmx485_label.setText('')
                             self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                            self.dialog_error(QMessageBox.Warning, 'COMMUNICATIONS ERROR', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
+                            msg  = 'Timeout while reconnecting\n'
+                            msg += 'Check cables and connections then re-enable\n'
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Communications Error\n{}'.format(msg))
                             return
                         if hal.component_exists('pmx485'):
                             break
                 except:
-                    self.dialog_error(QMessageBox.Critical, 'COMMUNICATIONS ERROR', '\npmx485 component is not loaded.\n' \
-                                                            '\nPowermax communications is not available\n')
+                    msg  = 'pmx485 component is not loaded\n'
+                    msg += 'Powermax communications is not available\n'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Communications Error\n{}'.format(msg))
                     return
             # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
@@ -2828,7 +2847,9 @@ class HandlerClass:
                     hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
-                self.dialog_error(QMessageBox.Warning, 'MATERIALS ERROR', '\nInvalid Cut Mode or Cut Amps\n\nCannot connect to Powermax\n')
+                msg  = 'Invalid Cut Mode or Cut Amps\n'
+                msg += 'Cannot connect to Powermax\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Materials Error\n{}'.format(msg))
                 self.w.pmx485_enable.setChecked(False)
                 self.pmx485Loaded = False
                 return
@@ -2887,6 +2908,8 @@ class HandlerClass:
                 self.w.pmx485_label.setText('CONNECTED')
                 self.pmx485Connected = True
                 self.pmx485_min_max_changed()
+                if self.pmx485FaultPin.get():
+                    self.pmx485_fault_changed(self.pmx485FaultPin.get())
                 self.pmx485CommsTimer.stop()
                 self.pmx485RetryTimer.stop()
             else:
@@ -2898,11 +2921,10 @@ class HandlerClass:
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
             faultRaw = '{:04.0f}'.format(fault)
-            faultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
+            self.pmx485FaultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
             if faultRaw == '0000':
                 self.w.pmx485_label.setText('CONNECTED')
                 self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                self.w.pmx485_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
             elif faultRaw in self.pmx485FaultName.keys():
                 if faultRaw == '0210' and self.w.pmx485.current_max.value() > 110:
                     faultMsg = self.pmx485FaultName[faultRaw][1]
@@ -2910,17 +2932,13 @@ class HandlerClass:
                     faultMsg = self.pmx485FaultName[faultRaw][0]
                 else:
                     faultMsg = self.pmx485FaultName[faultRaw]
-                if faultRaw != self.fault:
-                    self.fault = faultRaw
-                    self.w.pmx485_label.setText('Fault Code: {}'.format(faultCode))
-                    self.w.pmx485_label.setStatusTip('Powermax error ({}) {}'.format(faultCode, faultMsg))
-                    self.w.pmx485_label.setStyleSheet('QLabel { color: #ff0000 }')
-                    self.dialog_error(QMessageBox.Warning, 'POWERMAX ERROR', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
+                self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
+                self.w.pmx485_label.setStatusTip('Powermax error ({}) {}'.format(self.pmx485FaultCode, faultMsg))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Powermax Error Code: {}\n{}\n'.format(self.pmx485FaultCode, faultMsg))
             else:
                 self.w.pmx485_label.setText('Fault Code: {}'.format(faultRaw))
                 self.w.pmx485_label.setStatusTip('Powermax error ({}) Unknown Powermax fault code'.format(faultRaw))
-                self.w.pmx485_label.setStyleSheet('QLabel { color: #ff0000 }')
-                self.dialog_error(QMessageBox.Warning, 'Powermax Error','Unknown Powermax fault code: {}'.format(faultCode))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Powermax Error\nUnknown Powermax fault code: {}\n'.format(self.pmx485FaultCode))
 
     def pmx485_mesh_enable_changed(self, state):
         if state and not self.meshMode:
@@ -3033,13 +3051,13 @@ class HandlerClass:
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
             msg = 'X axis motion would trip X maximum limit'
-            self.dialog_error(QMessageBox.Warning, 'CUT RECOVERY ERROR', msg)
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cut Recovery Error\n{}\n'.format(msg))
             return
         moveX = int(distX / self.oScale)
         if hal.get_value('plasmac.axis-y-position') + \
            hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
             msg = 'Y axis motion would trip Y maximum limit'
-            self.dialog_error(QMessageBox.Warning, 'CUT RECOVERY ERROR', msg)
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cut Recovery Error\n{}\n'.format(msg))
             return
         moveY = int(distY / self.oScale)
         hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
