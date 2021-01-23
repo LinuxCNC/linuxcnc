@@ -109,17 +109,19 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: backgnd }
 
 /****** ESTOP BUTTON ************/
-#estop:pressed {
-    background: e-stop;
-    border-color: e-stop }
-
-#estop:checked {
-    background: e-stop;
-    border-color: e-stop }
-
-#estop:checked:pressed {
-    background: backgnd;
+#estop,
+#estop:checked:pressed,
+#estop:disabled {
+    color: backgnd;
+    background: foregnd;
     border-color: foregnd }
+
+#estop:pressed,
+#estop:checked,
+#estop:disabled:checked {
+    color: backgnd;
+    background: e-stop;
+    border-color: e-stop }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_a, #touch_x, #touch_y, #touch_z    {

@@ -3,6 +3,13 @@
 # set the operating mode (default is 0)
 MODE                    = 0
 
+# estop is a indicator only
+ESTOP_TYPE = 0
+# estop is hidden
+#ESTOP_TYPE = 1
+# estop is a button
+#ESTOP_TYPE = 2
+
 CAMERA_TOUCHOFF         = 25 0
 LASER_TOUCHOFF          = -25 0
 

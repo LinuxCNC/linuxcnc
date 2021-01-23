@@ -194,7 +194,6 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
-        self.startupTimer.start(250)
         STATUS.connect('state-on', lambda w:self.power_state(True))
         STATUS.connect('state-off', lambda w:self.power_state(False))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -218,14 +217,20 @@ class HandlerClass:
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
-#        self.power_state(False)
+        self.startupTimer.start(1000)
 
     def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
-        self.w.power.setEnabled(False)
+        if STATUS.stat.estop:
+            self.w.power.setEnabled(False)
         self.w.run.setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
+        if self.w.estopButton == 1:
+            self.w.power.setGeometry(self.w.run.geometry().x(), \
+                                     self.w.power.geometry().y(), \
+                                     self.w.run.geometry().width(), \
+                                     self.w.power.geometry().height())
 
 
 #################################################################################################################################
@@ -496,9 +501,11 @@ class HandlerClass:
         self.w.conv_preview.setdro(False)
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
-        self.flasher = QTimer()
-        self.flasher.timeout.connect(self.flasher_timeout)
-        self.flasher.start(250)
+        self.w.estopButton = int(self.iniFile.find('QTPLASMAC', 'ESTOP_TYPE') or 0)
+        if self.w.estopButton == 0:
+            self.w.estop.setEnabled(False)
+        if self.w.estopButton == 1:
+            self.w.estop.hide()
 # part 1 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
         self.jogKeys = {Qt.Key_Left:0, Qt.Key_Right:0, Qt.Key_Up:0, Qt.Key_Down:0,
                        Qt.Key_PageUp:0, Qt.Key_PageDown:0, Qt.Key_BracketLeft:0, Qt.Key_BracketRight:0}
@@ -510,6 +517,9 @@ class HandlerClass:
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
         self.overlay = overlayMaterial(self.w.gcodegraphics)
+        self.flasher = QTimer()
+        self.flasher.timeout.connect(self.flasher_timeout)
+        self.flasher.start(250)
 
     def get_overlay_text(self):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
