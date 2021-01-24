@@ -562,9 +562,8 @@ def tool_probe_m6(self, **words):
     try:
         # we need to be in machine based units
         # if we aren't - switch
-        # remember so we can switch back later
-        SWITCH_UNITS_FLAG = False
-        if bool(self.params["_metric"]) != METRIC_BASED:
+        BACKUP_METRIC_FLAG = self.params["_metric"]
+        if BACKUP_METRIC_FLAG != METRIC_BASED:
             print ("not right Units: {}".format(bool(self.params["_metric"])))
             if METRIC_BASED:
                 print ("switched Units to metric")
@@ -572,7 +571,6 @@ def tool_probe_m6(self, **words):
             else:
                 print ("switched Units to imperial")
                 self.execute("G20")
-            SWITCH_UNITS_FLAG = True
 
         # Force absolute for G53 move
         self.execute("G90")
@@ -744,13 +742,12 @@ def tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, 
             else:
                 self.execute("G91")
 
-            if SWITCH_UNITS_FLAG:
-                if METRIC_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
+            if BACKUP_METRIC_FLAG:
+                self.execute("G21")
+                print ("switched Units back to metric")
+            else:
+                self.execute("G20")
+                print ("switched Units back to imperial")
 
             self.params["feed"] = FEED_BACKUP
             
