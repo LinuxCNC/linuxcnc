@@ -531,10 +531,10 @@ def tool_probe_m6(self, **words):
 #    else:
 #        METRIC_BASED = 0
 
-    if Popen('halcmd getp probe.use_tool_measurement',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
-        BYPASS_MEASURE = 1
-    else:
-        BYPASS_MEASURE = 0
+#    if Popen('halcmd getp probe.use_tool_measurement',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
+#        BYPASS_MEASURE = 1
+#    else:
+#        BYPASS_MEASURE = 0
 
     # Saving G90 G91 at startup
     ABSOLUTE_FLAG = (bool(self.params["_absolute"]))
@@ -615,11 +615,11 @@ def tool_probe_m6(self, **words):
         if self.params["selected_tool"] < 1:
             yield INTERP_OK
 
-        # bypass option for restoring simple manual mode without autolength
-        if BYPASS_MEASURE:
-            # re-apply tool offset
-            self.execute("G43")
-            yield INTERP_OK
+#        # bypass option for restoring simple manual mode without autolength
+#        if BYPASS_MEASURE:
+#            # re-apply tool offset
+#            self.execute("G43")
+#            yield INTERP_OK
 
 
         try:
