@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.192 - 2021 Jan 11
+0.193 - 2021 Jan 26
 
 .I SUMMARY:
 .br
@@ -182,6 +182,7 @@ variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
 variable bool   cut_started;                /* cut has started */
 variable int    cut_target;                 /* cut height target offset */
+variable float  dwell_timer;                /* dwell timer for end of cut*/
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
@@ -247,6 +248,7 @@ variable int    z_max;                      /* max height for testing against pi
 
 /* PARAMETERS */
 param rw bit    debug_print = FALSE         "print debug messages";
+param rw float  dwell_time = 0.16            "dwell time at end of cut";
 
 function _;
 
@@ -440,6 +442,11 @@ FUNCTION(_) {
                 axis_y_finish = 0;
                 if(!external_estop){
                     pause_at_end_timer = pause_at_end;
+                    if(pause_at_end >= dwell_time){
+                        dwell_timer = 0;
+                    }else{
+                        dwell_timer = dwell_time - pause_at_end;
+                    }
                     state = PAUSE_AT_END;
                 }else{
                     state = MAX_HEIGHT;
@@ -451,6 +458,11 @@ FUNCTION(_) {
                 stop_type = PAUSE;
                 probe_required = TRUE;
                 pause_at_end_timer = pause_at_end;
+                if(pause_at_end >= dwell_time){
+                    dwell_timer = 0;
+                }else{
+                    dwell_timer = dwell_time - pause_at_end;
+                }
                 state = MAX_HEIGHT;
             }else if(tool == EMPTY){
                 if(!pause_at_end){
@@ -465,6 +477,11 @@ FUNCTION(_) {
                     axis_y_finish = 0;
                 }
                 pause_at_end_timer = pause_at_end;
+                if(pause_at_end >= dwell_time){
+                    dwell_timer = 0;
+                }else{
+                    dwell_timer = dwell_time - pause_at_end;
+                }
                 state = PAUSE_AT_END;
             }else if(breakaway){
                 torch_on = FALSE;
@@ -1323,10 +1340,14 @@ FUNCTION(_) {
                 if(pause_at_end_timer <= 0){
                     pause_at_end_timer = 0;
                     torch_on = FALSE;
-                    if(program_is_idle){
-                        state = MAX_HEIGHT;
-                    }else{
-                        state = SAFE_HEIGHT;
+                    dwell_timer -= fperiod;
+                    if(dwell_timer <= 0){
+                        dwell_timer = 0;
+                        if(program_is_idle){
+                            state = MAX_HEIGHT;
+                        }else{
+                            state = SAFE_HEIGHT;
+                        }
                     }
                 }
                 break;
