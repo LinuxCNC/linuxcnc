@@ -342,7 +342,7 @@ settings[4] = `G64 Q` naive CAM tolerance.
 
 *spindle*:: ' (returns tuple of dicts) ' -
 returns the current spindle status
-see <sec:the-spindle-dictionary, The spindle dictionary>>
+see <<sec:the-spindle-dictionary, The spindle dictionary>>
 
 *spindles*:: '(returns integer)' -
 number of spindles. Reflects [TRAJ]SPINDLES ini value.
