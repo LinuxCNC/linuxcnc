@@ -155,6 +155,7 @@ class Configurator(QMainWindow, object):
 # ESTOP CHANGED
     def estop_group_clicked(self, button):
         self.estop = self.estopGroup.id(button)
+        self.set_estop()
 
 # ENSURE VALID MACHINE NAME
     def machine_name_changed(self,widget):
@@ -227,7 +228,8 @@ class Configurator(QMainWindow, object):
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
                     caption=self.tr("Select a ini file"),
-                    filter=self.tr('HAL files (*.[hH][aA][lL]);;All Files (*)'),
+#                    filter=self.tr('HAL files (*.[hH][aA][lL] *.[tT][cC][lL]);;All Files (*)'),
+                    filter=self.tr('HAL files (*.hal *.tcl);;All Files (*.*)'),
                     directory=DIR
                     )
         if name:
@@ -808,7 +810,10 @@ class Configurator(QMainWindow, object):
             if 'servo_period_nsec' in line:
                 if 'num_spindles' in line:
                     line = line.split('num_spindles')[0].strip()
-                line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
+                if self.readHalFile.split('.')[1].lower() == 'tcl':
+                    line = '{} num_spindles=$::TRAJ(SPINDLES)\n'.format(line.strip())
+                else:
+                    line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
                 outFile.write(line)
         # remove spindle lines
             elif 'spindle' in line.lower():
@@ -1451,7 +1456,7 @@ class Configurator(QMainWindow, object):
             self.modeVBox.addLayout(self.modeHBox)
             self.vBL.addLayout(self.modeVBox)
             self.estopVBox = QVBoxLayout()
-            self.estopLabel = QLabel('Estop is indicator only')
+            self.estopLabel = QLabel('Estop is an indicator only')
             self.estopHBox = QHBoxLayout()
             self.estopGroup = QButtonGroup()
             self.estop0 = QRadioButton('Estop: 0')
