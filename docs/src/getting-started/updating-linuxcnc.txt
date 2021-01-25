@@ -875,7 +875,7 @@ The axis gui supports configurations using non-identity kinematics with:
 
 ==== Home icons
 
-For identity kinematics, 'Home' icons are shown for the correspoinding
+For identity kinematics, 'Home' icons are shown for the corresponding
 (one-to-one) axis letter when a joint is homed.
 
 For non-identity kinematics, 'Home' icons are shown for individual joints when
