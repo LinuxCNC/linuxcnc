@@ -217,7 +217,7 @@ class HandlerClass:
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
-        self.startupTimer.start(1000)
+        self.startupTimer.start(1500)
 
     def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
@@ -837,7 +837,9 @@ class HandlerClass:
                 self.w.run.setText('')
         else:
             self.w.run.setText('CYCLE START')
-        if self.pmx485CommsError:
+        if not self.w.pmx485_enable.isChecked():
+            self.w.pmx485_label.setText('')
+        elif self.pmx485CommsError:
             if self.w.pmx485_label.text() == '':
                 self.w.pmx485_label.setText('COMMS ERROR')
             else:
