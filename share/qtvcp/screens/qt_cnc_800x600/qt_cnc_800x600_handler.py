@@ -78,7 +78,7 @@ class HandlerClass:
         self.w.feed_slider.setValue(100)
         self.w.rapid_slider.setValue(100)
 
-        # add a backgrund image
+        # add a background image
 
         bgpath = self.IMAGE_PATH+'/bg_800x600.png'
         self.w.setStyleSheet("#centralwidget { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
