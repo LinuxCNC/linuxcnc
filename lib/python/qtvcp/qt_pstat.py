@@ -20,9 +20,12 @@ import sys
 
 # Set up logging
 from . import logger
+
 LOG = logger.getLogger(__name__)
+
+
 # Force the log level for this module
-#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # BASE is the absolute path to linuxcnc base
 # LIBDIR is the path to qtvcp python files
@@ -31,11 +34,11 @@ LOG = logger.getLogger(__name__)
 class _PStat(object):
     def __init__(self):
         # only initialize once for all instances
-        if self.__class__._instanceNum >=1:
+        if self.__class__._instanceNum >= 1:
             return
         self.__class__._instanceNum += 1
 
-    def set_paths(self, filename='dummy', isscreen = False):
+    def set_paths(self, filename='dummy', isscreen=False):
         self.PREFS_FILENAME = None
         self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen
@@ -63,17 +66,17 @@ class _PStat(object):
         # python library directory
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
         sys.path.insert(0, self.LIBDIR)
-        self.IMAGEDIR = os.path.join(self.BASEDIR, "share","qtvcp","images")
-        self.SCREENDIR = os.path.join(self.BASEDIR, "share","qtvcp","screens")
-        self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp","panels")
+        self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
+        self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
+        self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASEPATH)
         if self.IS_SCREEN:
             default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
             local_handler_path = 'None Found'
-            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                if handler_fn in(files):
+            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
+                if handler_fn in (files):
                     local_handler_path = os.path.join(root, handler_fn)
                     break
         else:
@@ -98,8 +101,8 @@ class _PStat(object):
         if self.IS_SCREEN:
             defaultui = os.path.join(self.SCREENDIR, self.BASEPATH, ui_fn)
             localui = 'None Found'
-            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                if ui_fn in(files):
+            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
+                if ui_fn in (files):
                     localui = os.path.join(root, ui_fn)
                     break
         else:
@@ -141,8 +144,8 @@ class _PStat(object):
         if self.IS_SCREEN:
             defaultqss = os.path.join(self.SCREENDIR, self.BASEPATH, qss_fn)
             localqss = 'None Found'
-            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                if qss_fn in(files):
+            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
+                if qss_fn in (files):
                     localqss = os.path.join(root, qss_fn)
                     break
         else:
@@ -167,8 +170,8 @@ class _PStat(object):
         if self.IS_SCREEN:
             defaultqrc = os.path.join(self.SCREENDIR, self.BASEPATH, qrc_fn)
             localqrc = 'None Found'
-            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                if qrc_fn in(files):
+            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
+                if qrc_fn in (files):
                     localqrc = os.path.join(root, qrc_fn)
                     break
         else:
@@ -196,10 +199,10 @@ class _PStat(object):
         if self.IS_SCREEN:
             defaultqrcpy = os.path.join(self.SCREENDIR, self.BASEPATH, qrcpy_fn)
             localqrcpy = os.path.join(self.CONFIGPATH, qrcpy_fn)
-            #for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-                #if qrcpy_fn in(files):
-                    #localqrcpy = os.path.join(root, qrcpy_fn)
-                    #break
+            # for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+            # if qrcpy_fn in(files):
+            # localqrcpy = os.path.join(root, qrcpy_fn)
+            # break
         else:
             localqrcpy = os.path.join(self.WORKINGDIR, qrcpy_fn)
             defaultqrcpy = os.path.join(self.PANELDIR, self.BASEPATH, qrcpy_fn)
@@ -229,21 +232,19 @@ class _PStat(object):
         self.QRCPY = None
         LOG.info("No resources.py file found, No QRC file to compile one from.")
 
-
     def add_screen_paths(self):
         # check for a local translation folder
-        locallocale = os.path.join(self.CONFIGPATH,"locale")
+        locallocale = os.path.join(self.CONFIGPATH, "locale")
         if os.path.exists(locallocale):
             self.LOCALEDIR = locallocale
             self.DOMAIN = self.BASEPATH
-            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASEPATH))
+            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR, self.BASEPATH))
         else:
-            locallocale = os.path.join(self.SCREENDIR,"%s/locale"% self.BASEPATH)
+            locallocale = os.path.join(self.SCREENDIR, "%s/locale" % self.BASEPATH)
             if os.path.exists(locallocale):
                 self.LOCALEDIR = locallocale
                 self.DOMAIN = self.BASEPATH
-                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASEPATH))
+                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR, self.BASEPATH))
             else:
                 self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
                 self.DOMAIN = "linuxcnc"
-
