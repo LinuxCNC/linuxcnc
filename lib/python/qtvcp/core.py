@@ -7,9 +7,11 @@ import inspect
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
-else: import gobject as GObject
+else:
+    import gobject as GObject
 
-import _hal, hal
+import _hal
+import hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import GStat
 from qtvcp.qt_istat import _IStat as IStatParent
@@ -21,10 +23,11 @@ log = logger.getLogger(__name__)
 
 
 class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal('PyQt_PyObject')
 
+    value_changed = pyqtSignal('PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
+
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
@@ -77,9 +80,11 @@ class QPin(hal.Pin, QObject):
     def update_stop(self, timeout=100):
         QPin.UPDATE = False
 
+
 # so errors when making QPins aren't fatal
 class DummyPin(QObject):
     value_changed = pyqtSignal('PyQt_PyObject')
+
     def __init__(self, *a, **kw):
         super(DummyPin, self).__init__(None)
         self._a = a
@@ -99,6 +104,7 @@ class DummyPin(QObject):
 
     def set(self, *a, **kw):
         pass
+
 
 class QComponent:
     def __init__(self, comp):
@@ -204,6 +210,7 @@ from qtvcp.qt_tstat import _TStat as _TStatParent
 class Tool(_TStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
@@ -214,9 +221,11 @@ class Tool(_TStatParent):
 ################################################################
 from qtvcp.qt_pstat import _PStat as _PStatParent
 
+
 class Path(_PStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _PStatParent.__new__(cls, *args, **kwargs)

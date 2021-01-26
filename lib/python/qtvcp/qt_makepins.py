@@ -26,12 +26,15 @@ from PyQt5.QtWidgets import QDesktopWidget
 
 # Set up logging
 from . import logger
+
 LOG = logger.getLogger(__name__)
+
+
 # Force the log level for this module
-#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
-    def __init__(self,halcomp,path,window,debug):
+    def __init__(self, halcomp, path, window, debug):
         xmlname = path.XML
         self.window = window
         self.window['PREFS_'] = None
@@ -53,7 +56,7 @@ class QTPanel():
                         self.window['PREFS_'], pref_fn = widget._pref_init()
                     except Exception as e:
                         LOG.warning('Preference instance error: {}'.format(e))
-                        self.window['PREFS_'], pref_fn = (None,None)
+                        self.window['PREFS_'], pref_fn = (None, None)
                     path.PREFS_FILENAME = pref_fn
                     try:
                         widget._VCPObject_injection(window)
@@ -86,7 +89,7 @@ class QTPanel():
     # if there is a prefrence file and it is has digits (so no key word), then record
     # the window geometry
     def record_preference_geometry(self):
-        temp = self._geo_string.replace(' ','')
+        temp = self._geo_string.replace(' ', '')
         temp = temp.strip('-')
         if temp == '' or temp.isdigit():
             LOG.debug('Saving Main Window geometry to preference file.')
@@ -94,7 +97,7 @@ class QTPanel():
             y = self.window.geometry().y()
             w = self.window.geometry().width()
             h = self.window.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
+            geo = '%s %s %s %s' % (x, y, w, h)
             self.window['PREFS_'].putpref('mainwindow_geometry', geo, str, 'SCREEN_OPTIONS')
 
     # if there is a screen option widget and we haven't set INI switch geometry
@@ -106,13 +109,14 @@ class QTPanel():
             LOG.info('No preference file - can not set preference geometry.')
 
     def geometry_parsing(self):
-        def go(x,y,w,h):
-            self.window.setGeometry(x,y,w,h)
+        def go(x, y, w, h):
+            self.window.setGeometry(x, y, w, h)
+
         try:
             self._geo_string = self.window.PREFS_.getpref('mainwindow_geometry', '', str, 'SCREEN_OPTIONS')
             LOG.debug('Calculating geometry of main window using natural placement:{}'.format(self._geo_string))
             # If there is a preference file object use it to load the geometry
-            if self._geo_string in('default',''):
+            if self._geo_string in ('default', ''):
                 return
             elif 'center' in self._geo_string.lower():
                 geom = self.window.frameGeometry()
@@ -129,7 +133,8 @@ class QTPanel():
             y = self.window.geometry().y()
             w = self.window.geometry().width()
             h = self.window.geometry().height()
-            go( x,y,w,h)
+            go(x, y, w, h)
+
 
 if __name__ == "__main__":
     print("qtvcp_make_pins cannot be run on its own")

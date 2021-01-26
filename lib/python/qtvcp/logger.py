@@ -29,6 +29,7 @@ from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 VERBOSE = 5
 logging.addLevelName(VERBOSE, "VERBOSe")
 
+
 def verbose(self, message, *args, **kws):
     if self.isEnabledFor(VERBOSE):
         # Yes, logger takes its '*args' as 'args'.
