@@ -482,7 +482,7 @@ def index_lathe_tool_with_wear(self,**words):
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position
-# set tool offsets using toolsetterheight and _coord_offset_backup
+# set tool offsets using toolsetterheight and _backup_coord_offset
 # move to Z max
 # restore user units
 #
@@ -503,19 +503,19 @@ def index_lathe_tool_with_wear(self,**words):
 ## Absolute Z start search coordinates is a move relative G0 from toolchange position
 #Z = -30
 ## The height of you tool setter
-#TS_HEIGHT = 40
-## Maximum search distance and direction (sign)
-#TS_MAXPROBE =  -80
+#HEIGHT = 40
+## Maximum search distance and direction (positive number but used as negative inside macro)
+#MAXPROBE = 80
 ## Latched distance after probing use value like 1mm for standalone
-## or something like 0.3mm is enough if you use TS_REVERSE_LATCH
-#TS_LATCH = 0.3
-## If setter as spring inside you can use TS_REVERSE_LATCH with G38.5 with value like 1mm
+## or something like 0.3mm is enough if you use REVERSE_LATCH
+#LATCH = 0.3
+## If setter as spring inside you can use REVERSE_LATCH with G38.5 with value like 1mm
 ## or if your setter does not have a spring inside (inhibit G38.5) with value 0
-#TS_REVERSE_LATCH = 1
+#REVERSE_LATCH = 1
 ## Fast first probe velocity
-#TS_SEARCH_VEL = 100
+#SEARCH_VEL = 100
 ## Slow final probe velocity
-#TS_PROBE_VEL = 5
+#PROBE_VEL = 5
 
 
 def tool_probe_m6(self, **words):
@@ -591,7 +591,7 @@ def tool_probe_m6(self, **words):
         # we will return here after only for XY
 ############################################################## TODO ACTUAL SYSTEM DOES NOT SHOW CONFIRMATION POPUP IF YOU M6Tx SAME TOOL AS ACTUAL
         try:
-            #self.selected_pocket =  int(self.params["selected_pocket"])                                # this code imo is redundant with line 578 but need review???
+            self.selected_pocket =  int(self.params["selected_pocket"])                                # this code imo is redundant with line 578 but need review???
             emccanon.CHANGE_TOOL(self.selected_pocket)
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
@@ -601,7 +601,7 @@ def tool_probe_m6(self, **words):
             self.toolchange_flag = True
         except InterpreterException as e:
             # if we switched units for tool change - switch back
-            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
@@ -612,7 +612,12 @@ def tool_probe_m6(self, **words):
 
 
         # Prevent tool measurement if M6T0 or invalid negative number
-        if self.params["selected_tool"] < 1:
+        if self.params["selected_tool"] < 0:
+            self.execute("(ABORT,TOOLNUMBER NEGATIVE NOT POSSIBLE")
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+            yield INTERP_ERROR
+
+        if self.params["selected_tool"] == 0:
             yield INTERP_OK
 
 #        # bypass option for restoring simple manual mode without autolength
@@ -631,68 +636,68 @@ def tool_probe_m6(self, **words):
 
             # backup G5x offset for correct tool measurement
             if self.params["_coord_system"] == 540:
-                self.params["_coord_offset_backup"] = self.params[5223]
+                self.params["_backup_coord_offset"] = self.params[5223]
             elif self.params["_coord_system"] == 550:
-                self.params["_coord_offset_backup"] = self.params[5243]
+                self.params["_backup_coord_offset"] = self.params[5243]
             elif self.params["_coord_system"] == 560:
-                self.params["_coord_offset_backup"] = self.params[5263]
+                self.params["_backup_coord_offset"] = self.params[5263]
             elif self.params["_coord_system"] == 570:
-                self.params["_coord_offset_backup"] = self.params[5283]
+                self.params["_backup_coord_offset"] = self.params[5283]
             elif self.params["_coord_system"] == 580:
-                self.params["_coord_offset_backup"] = self.params[5303]
+                self.params["_backup_coord_offset"] = self.params[5303]
             elif self.params["_coord_system"] == 590:
-                self.params["_coord_offset_backup"] = self.params[5323]
+                self.params["_backup_coord_offset"] = self.params[5323]
             elif self.params["_coord_system"] == 591:
-                self.params["_coord_offset_backup"] = self.params[5343]
+                self.params["_backup_coord_offset"] = self.params[5343]
             elif self.params["_coord_system"] == 592:
-                self.params["_coord_offset_backup"] = self.params[5363]
+                self.params["_backup_coord_offset"] = self.params[5363]
             elif self.params["_coord_system"] == 593:
-                self.params["_coord_offset_backup"] = self.params[5383]
-            print ("_coord_offset_backup", self.params["_coord_offset_backup"])
+                self.params["_backup_coord_offset"] = self.params[5383]
+            print ("_backup_coord_offset", self.params["_backup_coord_offset"])
 
             # set incremental mode
             self.execute("G91")
 
             # Fast Search probe
-            self.execute("G38.3 Z#<_ini[TOOLSENSOR]TS_MAXPROBE> F#<_ini[TOOLSENSOR]TS_SEARCH_VEL>")
+            self.execute("G38.3 Z-#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
 
-            if self.params["_ini[TOOLSENSOR]TS_REVERSE_LATCH"] > 0:
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0:
                 # Spring mounted latch probe
-                self.execute("G38.5 Z#<_ini[TOOLSENSOR]TS_REVERSE_LATCH> F[#<_ini[TOOLSENSOR]TS_SEARCH_VEL>*0.5]")
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                 yield INTERP_EXECUTE_FINISH
                 # Check if we have get contact or not
-                tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
                 # Additional Retract
-                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]TS_SEARCH_VEL>]")
+                self.execute("G1 Z#<_ini[TOOLSENSOR]LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
             else:
                 # Retract Latch
-                self.execute("G1 Z#<_ini[TOOLSENSOR]TS_LATCH> F[#<_ini[TOOLSENSOR]TS_SEARCH_VEL>]")
+                self.execute("G1 Z#<_ini[TOOLSENSOR]LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
 
             # Final probe
-            self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]TS_LATCH>*2] F#<_ini[TOOLSENSOR]TS_PROBE_VEL>")
+            self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
             yield INTERP_EXECUTE_FINISH
             # Check if we have get contact or not
-            tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
 
             # Save the probe result now due to possible use of G38.5 for retract
             proberesult = self.params[5063]
 
-            if self.params["_ini[TOOLSENSOR]TS_REVERSE_LATCH"] > 0:
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0:
                 # Spring mounted latch probe
-                self.execute("G38.5 Z#<_ini[TOOLSENSOR]TS_REVERSE_LATCH> F[#<_ini[TOOLSENSOR]TS_SEARCH_VEL>*0.5]")
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
                 yield INTERP_EXECUTE_FINISH
                 # Check if we have get contact or not
-                tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
 
             # Force absolute for G53 move
             self.execute("G90")
 
-            # calculations for tool offset savec in the tooltable
-            adj = proberesult - self.params["_ini[TOOLSENSOR]TS_HEIGHT"] + self.params["_coord_offset_backup"]     # Your welcome for other solution !
+            # calculations for tool offset saved in the tooltable
+            adj = proberesult - self.params["_ini[TOOLSENSOR]HEIGHT"] + self.params["_backup_coord_offset"]     # Your welcome for other solution !
             self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))            # REGISTER NEW TOOL LENGTH
 
             # apply tool offset
@@ -708,35 +713,35 @@ def tool_probe_m6(self, **words):
             self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
 
             # if we switched units for tool change - switch back and act ok to interp
-            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             yield INTERP_OK
 
         except InterpreterException as e:
             # if we switched units for tool change - switch back
-            tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
 
     except Exception as e:
         # if we switched units for tool change - switch back
-        tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+        tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
         print (e)
         self.set_errormsg("tool_probe_m6 remap error: nothing restored or unknown state : %s" % (e))
         yield INTERP_ERROR
 
 # Check if we have get contact or not
-def tool_probe_check_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED):
+def tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG):
             if self.params[5070] == 0 or self.return_value > 0.0:
                 # if we switched units for tool change - switch back
-                tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+                tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
                 #self.set_errormsg("tool_probe_m6 remap error: Probe contact not found")
                 #yield INTERP_ERROR
                 self.execute("(ABORT,Probe contact not found)")
 
 # if we switched units for tool change - switch back
-def tool_probe_restore_sub(self, ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED):
-            print ("restore Units", ABSOLUTE_FLAG, SWITCH_UNITS_FLAG, FEED_BACKUP, METRIC_BASED)
+def tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG):
+            print ("restore Units", ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             if ABSOLUTE_FLAG:
                 self.execute("G90")
             else:
