@@ -19,6 +19,7 @@
 
 # Set up logging
 from qtvcp import logger
+
 log = logger.getLogger(__name__)
 
 import os
@@ -29,13 +30,14 @@ PY_LIB_GOOD = GST_LIB_GOOD = True
 try:
     # will update this when we go to python 3
     import pygst
+
     pygst.require("0.10")
     import gst
 except:
     PY_LIB_GOOD = False
     p = subprocess.Popen('gst-launch-1.0', shell=True,
-          stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, close_fds=True)
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, close_fds=True)
     output, error = p.communicate()
     if p.returncode > 1:
         log.warning('audio alerts - Is python-gst0.10 installed?')
@@ -44,6 +46,7 @@ except:
 
 from qtvcp.core import Status
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+
 # Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
@@ -56,6 +59,7 @@ except:
     log.warning('audio alerts - Is python-espeak installed?')
     log.warning('Text to speech output not available. ')
 
+
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
@@ -64,7 +68,7 @@ class Player:
         if PY_LIB_GOOD:
             self.player = gst.element_factory_make("playbin", "player")
             self.player.set_property("uri", "file://" + self.error)
-            #Enable message bus to check for errors in the pipeline
+            # Enable message bus to check for errors in the pipeline
             bus = self.player.get_bus()
             bus.add_signal_watch()
             bus.connect("message", self.on_message)
@@ -80,7 +84,7 @@ class Player:
             self.ring = '/usr/share/sounds/LinuxMint/stereo/phone-incoming-call.ogg'
             self.login = '/usr/share/sounds/LinuxMint/stereo/desktop-login.ogg'
             self.logout = '/usr/share/sounds/LinuxMint/stereo/desktop-logout.ogg'
-            if not  os.path.exists(self.error):
+            if not os.path.exists(self.error):
                 log.error('Audio player - Mint sound File not found {}'.format(self.error))
             return
         self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
@@ -90,7 +94,7 @@ class Player:
         self.ring = '/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga'
         self.login = '/usr/share/sounds/freedesktop/stereo/service-login.oga'
         self.logout = '/usr/share/sounds/freedesktop/stereo/service-logout.oga'
-        if not  os.path.exists(self.error):
+        if not os.path.exists(self.error):
             log.error('Audio player - Default sound File not found {}'.format(self.error))
 
     # play sounds on these messages from GStat
@@ -106,7 +110,7 @@ class Player:
     # jump to a builtin alert sound
     # This uses the system to play the sound because gst is not available
     # this can still fail if gstreamer/tools are not available 
-    def os_jump(self,w,f):
+    def os_jump(self, w, f):
         if 'beep' in f.lower():
             self[f.lower()]()
             return
@@ -120,16 +124,16 @@ class Player:
                 log.error('Audio player using system - file not found {}'.format(path))
                 return
         try:
-            cmd = '''gst-launch-1.0 playbin uri='file://%s' '''% path
+            cmd = '''gst-launch-1.0 playbin uri='file://%s' ''' % path
             self.p = subprocess.Popen(cmd, shell=True,
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, close_fds=True)
+                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE, close_fds=True)
         except:
             log.error('Audio player using system - file not found {}'.format(f))
 
     # jump to a builtin alert sound
     # we use this so we can trap errors easily
-    def jump(self,w,f):
+    def jump(self, w, f):
         if 'beep' in f.lower():
             self[f.lower()]()
             return
@@ -144,7 +148,7 @@ class Player:
             self.player.set_state(gst.STATE_PLAYING)
         else:
             try:
-                self['play_%s'%f.lower()]()
+                self['play_%s' % f.lower()]()
             except:
                 log.error('Audio player - Alert not found {}'.format(f))
 
@@ -152,14 +156,14 @@ class Player:
     def on_message(self, bus, message):
         t = message.type
         if t == gst.MESSAGE_EOS:
-            #file ended, stop
+            # file ended, stop
             self.player.set_state(gst.STATE_NULL)
         elif t == gst.MESSAGE_ERROR:
-            #Error occurred, print and stop
+            # Error occurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
             log.error('Audio player - Error {}'.format(err, debug))
-            #print "Error: %s" % err, debug
+            # print "Error: %s" % err, debug
 
     # play builtin alert sounds
     def play_error(self):
@@ -205,10 +209,10 @@ class Player:
     def beep(self):
         os.system("beep -f 555 ")
 
-    def os_speak(self,f):
+    def os_speak(self, f):
         if ESPEAK:
             cmd = f.lower().lstrip('speak')
-            os.system('''espeak -s 160 -v m3 -p 1 "%s" &'''% cmd)
+            os.system('''espeak -s 160 -v m3 -p 1 "%s" &''' % cmd)
 
     ##############################
     # required class boiler code #
@@ -216,11 +220,14 @@ class Player:
 
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+
 if __name__ == "__main__":
     import gobject
+
     try:
         test = Player()
         test.play_error()
@@ -231,5 +238,3 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(e)
-
- 

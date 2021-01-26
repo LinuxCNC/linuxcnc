@@ -5,6 +5,7 @@ import time
 
 # Set up logging
 from qtvcp import logger
+
 log = logger.getLogger(__name__)
 # Set the log level for this module
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -35,23 +36,23 @@ class MachineLogger():
             timestamp = time.strftime("%a, %b %d %Y %X ---\n")
             fp = open(self.mlp, 'a')
 
-            #fp.write(""" $$$$$$\  $$$$$$$$\ """)
-            #fp.write('\n')
-            #fp.write('''$$  __$$\ \__$$  __|''')
-            #fp.write('\n')
-            #fp.write('$$ /  $$ |   $$ |  $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$$\  ')
-            #fp.write('\n')
-            #fp.write('$$ |  $$ |   $$ | $$  _____|$$  _____|$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ ')
-            #fp.write('\n')
-            #fp.write('$$ |  $$ |   $$ | \$$$$$$\  $$ /      $$ |  \__|$$$$$$$$ |$$$$$$$$ |$$ |  $$ |')
-            #fp.write('\n')
-            #fp.write('$$ $$\$$ |   $$ |  \____$$\ $$ |      $$ |      $$   ____|$$   ____|$$ |  $$ |')
-            #fp.write('\n')
-            #fp.write('\$$$$$$ /    $$ | $$$$$$$  |\$$$$$$$\ $$ |      \$$$$$$$\ \$$$$$$$\ $$ |  $$ |')
-            #fp.write('\n')
-            #fp.write(' \___$$$\    \__| \_______/  \_______|\__|       \_______| \_______|\__|  \__|')
-            #fp.write('\n')
-            #fp.write('     \___|        ')
+            # fp.write(""" $$$$$$\  $$$$$$$$\ """)
+            # fp.write('\n')
+            # fp.write('''$$  __$$\ \__$$  __|''')
+            # fp.write('\n')
+            # fp.write('$$ /  $$ |   $$ |  $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$$\  ')
+            # fp.write('\n')
+            # fp.write('$$ |  $$ |   $$ | $$  _____|$$  _____|$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ ')
+            # fp.write('\n')
+            # fp.write('$$ |  $$ |   $$ | \$$$$$$\  $$ /      $$ |  \__|$$$$$$$$ |$$$$$$$$ |$$ |  $$ |')
+            # fp.write('\n')
+            # fp.write('$$ $$\$$ |   $$ |  \____$$\ $$ |      $$ |      $$   ____|$$   ____|$$ |  $$ |')
+            # fp.write('\n')
+            # fp.write('\$$$$$$ /    $$ | $$$$$$$  |\$$$$$$$\ $$ |      \$$$$$$$\ \$$$$$$$\ $$ |  $$ |')
+            # fp.write('\n')
+            # fp.write(' \___$$$\    \__| \_______/  \_______|\__|       \_______| \_______|\__|  \__|')
+            # fp.write('\n')
+            # fp.write('     \___|        ')
 
             fp.write('--- Qtvcp Screen Started on: ' + timestamp)
             fp.close()
@@ -92,5 +93,3 @@ class MachineLogger():
         fp.write('')
         fp.close()
         STATUS.emit('machine-log-changed')
-
-
