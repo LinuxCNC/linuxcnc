@@ -4,7 +4,10 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dialog_widget import *
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
+
 class DialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
@@ -50,6 +53,7 @@ class DialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
+
 
 ###############################################################################
 # manual Tool Change Dialog
@@ -100,6 +104,7 @@ class ToolDialogPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
 
+
 ###############################################################################
 # File Dialog
 ###############################################################################
@@ -148,6 +153,7 @@ class FileDialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
+
 
 ###############################################################################
 # Cam Dialog
@@ -198,6 +204,7 @@ class CamViewDialogPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
 
+
 ###############################################################################
 # MacroTab Dialog
 ###############################################################################
@@ -246,6 +253,7 @@ class MacroTabDialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
+
 
 ###############################################################################
 # OriginOffset Dialog
@@ -296,6 +304,7 @@ class OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
 
+
 ###############################################################################
 # ToolOffset Dialog
 ###############################################################################
@@ -344,6 +353,7 @@ class ToolOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
+
 
 ###############################################################################
 # VersaProbe Dialog
@@ -394,6 +404,7 @@ class VersaProbeDialogPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
 
+
 ###############################################################################
 # Entry Dialog
 ###############################################################################
@@ -407,27 +418,36 @@ class EntryDialogPlugin(QPyDesignerCustomWidgetPlugin):
         if self.initialized:
             return
         self.initialized = True
+
     def isInitialized(self):
         return self.initialized
+
     def createWidget(self, parent):
         return EntryDialog(parent)
+
     def name(self):
         return "EntryDialog"
+
     def group(self):
         return "Linuxcnc - Dialogs"
+
     def icon(self):
         return QIcon(QPixmap(ICON.get_path('entrydialog')))
+
     def toolTip(self):
         return "Basic Entry Dialog"
+
     def whatsThis(self):
         return ""
+
     def isContainer(self):
         return False
+
     # Returns an XML description of a custom widget instance that describes
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
         return '<widget class="EntryDialog" name="entrydialog" />\n'
+
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
-
