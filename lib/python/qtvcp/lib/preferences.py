@@ -11,30 +11,31 @@
 # GNU General Public License for more details.
 
 
-
 import os
 import sys
+
 if sys.version_info.major > 2:
     import configparser
 else:
     import ConfigParser as configparser
 
-    
 cp = configparser.RawConfigParser
-cp.optionxform=str
+cp.optionxform = str
+
+
 class Access(cp):
     types = {
         bool: cp.getboolean,
         float: cp.getfloat,
         int: cp.getint,
         str: cp.get,
-        repr: lambda self,section,option: eval(cp.get(self,section,option)),
+        repr: lambda self, section, option: eval(cp.get(self, section, option)),
     }
 
-    def __init__(self,path=None):
+    def __init__(self, path=None):
         cp.__init__(self)
         if not path:
-            path="~/.qtscreen_preferences"
+            path = "~/.qtscreen_preferences"
         self.fn = os.path.expanduser(path)
         try:
             fp = open(self.fn)
@@ -53,32 +54,32 @@ class Access(cp):
             try:
                 self.set(section, option, default)
             except configparser.NoSectionError:
-                print('Adding section %s'%section)
+                print('Adding section %s' % section)
                 # Create non-existent section
                 self.add_section(section)
                 self.set(section, option, default)
             self.write(open(self.fn, "w"))
-            if type in(bool,float,int):
+            if type in (bool, float, int):
                 o = type(default)
             else:
                 o = default
         return o
 
-    def getall(self, section = 'DEFAULT'):
+    def getall(self, section='DEFAULT'):
         store = {}
         try:
             for key, value in cp.items(self, section):
                 store[key] = value
             return store
         except configparser.NoSectionError:
-            print ('error with {}'.format(section))
+            print('error with {}'.format(section))
             return store
 
     def putpref(self, option, value, type=bool, section="DEFAULT"):
         try:
             self.set(section, option, type(value))
         except configparser.NoSectionError:
-            print('Adding section %s'%section)
+            print('Adding section %s' % section)
             # Create non-existent section
             self.add_section(section)
             self.set(section, option, type(value))

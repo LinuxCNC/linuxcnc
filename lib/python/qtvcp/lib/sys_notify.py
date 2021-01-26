@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 # Set up logging
 from qtvcp import logger
+
 LOG = logger.getLogger(__name__)
 
 DBusQtMainLoop = None
@@ -33,13 +34,16 @@ APP_NAME = ''
 DBUS_IFACE = None
 NOTIFICATIONS = {}
 
+
 class Urgency:
     """freedesktop.org notification urgency levels"""
     LOW, NORMAL, CRITICAL = list(range(3))
 
+
 class UninitializedError(RuntimeError):
     """Error raised if you try to show an error before initializing"""
     pass
+
 
 def init(app_name):
     """Initializes the DBus connection"""
@@ -66,6 +70,7 @@ def init(app_name):
     except Exception as e:
         LOG.warning('Desktop Notify not available:: {}'.format(e))
 
+
 def _onActionInvoked(nid, action):
     """Called when a notification action is clicked"""
     nid, action = int(nid), str(action)
@@ -75,6 +80,7 @@ def _onActionInvoked(nid, action):
         # must have been created by some other program
         return
     notification._onActionInvoked(action)
+
 
 def _onNotificationClosed(nid, reason):
     """Called when the notification is closed"""
@@ -86,6 +92,7 @@ def _onNotificationClosed(nid, reason):
         return
     notification._onNotificationClosed(notification)
     del NOTIFICATIONS[nid]
+
 
 class Notification(object):
     """Notification object"""
@@ -103,15 +110,15 @@ class Notification(object):
             icon (str, optional):     The icon to display with the notification
             timeout (TYPE, optional): The time in ms before the notification hides, -1 for default, 0 for never
         """
-        self.title = title              # title of the notification
-        self.body = body                # the body text of the notification
+        self.title = title  # title of the notification
+        self.body = body  # the body text of the notification
         if icon is None:
-            icon = ''                   # Fix for legacy use
-        self.icon = icon                # the path to the icon to use
-        self.timeout = timeout          # time in ms before the notification disappears
-        self.hints = {}                 # dict of various display hints
-        self.actions = OrderedDict()    # actions names and their callbacks
-        self.data = {}                  # arbitrary user data
+            icon = ''  # Fix for legacy use
+        self.icon = icon  # the path to the icon to use
+        self.timeout = timeout  # time in ms before the notification disappears
+        self.hints = {}  # dict of various display hints
+        self.actions = OrderedDict()  # actions names and their callbacks
+        self.data = {}  # arbitrary user data
 
     def show(self):
         try:
@@ -120,14 +127,14 @@ class Notification(object):
 
             """Asks the notification server to show the notification"""
             nid = DBUS_IFACE.Notify(APP_NAME,
-                               self.id,
-                               self.icon,
-                               self.title,
-                               self.body,
-                               self._makeActionsList(),
-                               self.hints,
-                               self.timeout,
-                            )
+                                    self.id,
+                                    self.icon,
+                                    self.title,
+                                    self.body,
+                                    self._makeActionsList(),
+                                    self.hints,
+                                    self.timeout,
+                                    )
 
             self.id = int(nid)
 
@@ -224,23 +231,27 @@ class Notification(object):
 # ----------------------- E X A M P L E -----------------------
 
 def onHelp(n, action):
-    assert(action == "help"), "Action was not help!"
+    assert (action == "help"), "Action was not help!"
     print("You clicked Help action")
     n.close()
 
+
 def onIgnore(n, action, data):
-    assert(action == "ignore"), "Action was not ignore!"
+    assert (action == "ignore"), "Action was not ignore!"
     print("You clicked Ignore action")
     print("Passed user data was: ", data)
     n.close()
+
 
 def onClose(n):
     print("Notification closed")
     app.quit()
 
+
 if __name__ == "__main__":
     import sys
     from PyQt5.QtCore import QCoreApplication
+
     app = QCoreApplication(sys.argv)
 
     # Initialize the DBus connection to the notification server
@@ -251,7 +262,7 @@ if __name__ == "__main__":
                      "This notification is very important as it " +
                      "notifies you that notifications are working.",
                      timeout=3000
-                    )
+                     )
     n.setUrgency(Urgency.NORMAL)
     n.setCategory("device")
     n.setIconPath("/usr/share/icons/Tango/scalable/status/dialog-error.svg")
