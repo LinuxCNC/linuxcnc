@@ -4,7 +4,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.round_progress import RoundProgressBar
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
 
 class RoundProgressBarPlugin(QPyDesignerCustomWidgetPlugin):
 

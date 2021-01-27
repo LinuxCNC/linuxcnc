@@ -79,6 +79,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # external source asked for hightlight,
     # make sure we block the propagation
     def highlight_graphics(self, line):
+        if self._current_file is None: return
         self._block_line_selected = True
         self.set_highlight_line(line)
 

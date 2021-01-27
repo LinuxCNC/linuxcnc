@@ -1,3 +1,9 @@
+ver 3.1.2.1
+- still a bug in handling ignore limits solved
+  issue #1000 reported by Hans470
+  solved by using new hal staus signal and deleted 
+  some unneded code
+
 ver 3.1.2
 - connecting macro button to physical button did send
   a clicked signal, but macro button did expect a pressed signal
@@ -17,7 +23,7 @@ ver 3.0.10
 - bug in handling ignore limits solved
   issue #1000 reported by Hans470
   solved by using new hal staus signal and deleted 
-  some uneeded code
+  some unneded code
 
 ver 3.0.9.1
 - bug in handling back tool lathe solved

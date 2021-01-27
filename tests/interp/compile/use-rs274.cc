@@ -20,8 +20,8 @@
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
-    int r = b->read(line);
-    r = b->execute();
+    b->read(line);
+    b->execute();
 }
 
 int main() {

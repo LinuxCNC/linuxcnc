@@ -17,6 +17,7 @@ class HandlerClass:
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
         self.w.sensor_brk.pressed.connect(self.break_pressed)
         self.w.arc_ok.pressed.connect(self.arc_ok_pressed)
+        self.w.estop.pressed.connect(self.estop_pressed)
         self.fTimer = QtCore.QTimer()
         self.fTimer.setInterval(500)
         self.fTimer.setSingleShot(True)
@@ -32,6 +33,8 @@ class HandlerClass:
         self.backColor = QColor(self.w.sensor_flt.palette().color(QPalette.Background)).name()
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
+        hal.set_p('estop_or.in0', '1')
+        self.w.estop.setStyleSheet('background: red')
 
     def arc_ok_pressed(self):
         if self.w.arc_ok.isChecked():
@@ -98,6 +101,14 @@ class HandlerClass:
                 self.w.sensor_breakaway.hal_pin.set(1)
                 self.w.sensor_brk.setStyleSheet('background: green')
                 self.bTimer.start()
+
+    def estop_pressed(self):
+        if hal.get_value('estop_or.in0') == 0:
+            hal.set_p('estop_or.in0', '1')
+            self.w.estop.setStyleSheet('background: red')
+        else:
+            hal.set_p('estop_or.in0', '0')
+            self.w.estop.setStyleSheet('background: {}'.format(self.backColor))
 
     def set_mode(self, mode):
         mode0 = [self.w.sensor_line, \

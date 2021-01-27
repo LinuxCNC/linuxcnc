@@ -8,12 +8,15 @@ import hal
 
 # Set up logging
 from . import logger
+
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from qtvcp.core import Status, Info
+
 INFO = Info()
 STATUS = Status()
+
 
 ################################################################
 # Action class
@@ -21,7 +24,7 @@ STATUS = Status()
 class _Lcnc_Action(object):
     def __init__(self):
         # only initialize once for all instances
-        if self.__class__._instanceNum >=1:
+        if self.__class__._instanceNum >= 1:
             return
         self.__class__._instanceNum += 1
         self.cmd = linuxcnc.command()
@@ -47,12 +50,12 @@ class _Lcnc_Action(object):
         if not INFO.HOME_ALL_FLAG and joint == -1:
             if not self.home_all_warning_flag == True:
                 self.home_all_warning_flag = True
-                STATUS.emit('error',linuxcnc.NML_ERROR,
-                    ''''Home-all not available according to INI Joint Home sequence
-         Set the joint sequence in the INI or
-         modify the screen for individual home buttons
-         to avoid this warning
-         Press again to home Z axis Joint''')
+                STATUS.emit('error', linuxcnc.NML_ERROR,
+                            ''''Home-all not available according to INI Joint Home sequence
+                            Set the joint sequence in the INI or
+                            modify the screen for individual home buttons
+                            to avoid this warning
+                            Press again to home Z axis Joint''')
             else:
                 if STATUS.is_all_homed():
                     self.home_all_warning_flag = False
@@ -64,28 +67,28 @@ class _Lcnc_Action(object):
                 if not STATUS.stat.homed[zj]:
                     log.info('Homing Joint: {}'.format(zj))
                     self.cmd.home(zj)
-                    STATUS.emit('error',linuxcnc.NML_ERROR,
-                        ''''Home-all not available according to INI Joint Home sequence
+                    STATUS.emit('error', linuxcnc.NML_ERROR,
+                                ''''Home-all not available according to INI Joint Home sequence
              Press again to home next Joint''')
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
-                for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
+                for num, j in enumerate(INFO.JOINT_SEQUENCE_LIST):
                     print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
                     # at the end so all homed
-                    if num == length -1:
+                    if num == length - 1:
                         self.home_all_warning_flag = False
                     # one from end but end is already homed
-                    if num == length -2 and STATUS.stat.homed[zj]:
+                    if num == length - 2 and STATUS.stat.homed[zj]:
                         self.home_all_warning_flag = False
                     # Z joint is homed first outside this for loop
-                    if j == zj : continue
+                    if j == zj: continue
                     # ok home it then stop and wait for next button push
                     if not STATUS.stat.homed[j]:
                         log.info('Homing Joint: {}'.format(j))
                         self.cmd.home(j)
                         if self.home_all_warning_flag:
-                            STATUS.emit('error',linuxcnc.NML_ERROR,
-                                ''''Home-all not available according to INI Joint Home sequence
+                            STATUS.emit('error', linuxcnc.NML_ERROR,
+                                        ''''Home-all not available according to INI Joint Home sequence
                      Press again to home next Joint''')
                         break
         else:
@@ -95,7 +98,7 @@ class _Lcnc_Action(object):
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        #self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
+        # self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
         self.cmd.unhome(joint)
 
     def SET_AUTO_MODE(self):
@@ -105,13 +108,13 @@ class _Lcnc_Action(object):
     # if called with flag set and now off hard limits - resets the flag
     def TOGGLE_LIMITS_OVERRIDE(self):
         if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'''Can Not Reset Limits Override - Still On Hard Limits''')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '''Can Not Reset Limits Override - Still On Hard Limits''')
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
             # make it temporary
-            STATUS.emit('error',255,'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', 255, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -122,27 +125,27 @@ class _Lcnc_Action(object):
 
     def CALL_MDI(self, code):
         self.ensure_mode(linuxcnc.MODE_MDI)
-        self.cmd.mdi('%s'%code)
+        self.cmd.mdi('%s' % code)
 
-    def CALL_MDI_WAIT(self, code, time = 5):
+    def CALL_MDI_WAIT(self, code, time=5):
         log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
         self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
             log.debug('MDI_COMMAND: {}'.format(l))
-            self.cmd.mdi( l )
+            self.cmd.mdi(l)
             result = self.cmd.wait_complete(time)
             if result == -1:
-                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( time, result))
-                #STATUS.emit('MDI time out error',)
+                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format(time, result))
+                # STATUS.emit('MDI time out error',)
                 self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format( time, result))
-                #STATUS.emit('MDI time out error',)
+                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format(time, result))
+                # STATUS.emit('MDI time out error',)
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
-                STATUS.emit('error',result[0],result[1])
+                STATUS.emit('error', result[0], result[1])
                 log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
         return 0
@@ -155,16 +158,16 @@ class _Lcnc_Action(object):
             return
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
-        for code in(mdi_list):
-            self.cmd.mdi('%s'% code)
+        for code in (mdi_list):
+            self.cmd.mdi('%s' % code)
 
-    def CALL_OWORD(self, code, time=5 ):
+    def CALL_OWORD(self, code, time=5):
         log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(code)
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
-                        STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
+                STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
             result = self.cmd.wait_complete(time)
             if result == -1:
                 log.error('Oword timeout oast () Error = # {}'.format(time, result))
@@ -175,7 +178,7 @@ class _Lcnc_Action(object):
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
-                STATUS.emit('error',result[0],result[1])
+                STATUS.emit('error', result[0], result[1])
                 log.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
@@ -185,7 +188,7 @@ class _Lcnc_Action(object):
             return -1
         result = linuxcnc.error_channel().poll()
         if result:
-            STATUS.emit('error',result[0],result[1])
+            STATUS.emit('error', result[0], result[1])
             log.error('Oword Error: {}'.format(result[1]))
             return -1
         log.debug('OWORD_COMMAND returns complete : {}'.format(result))
@@ -202,17 +205,17 @@ class _Lcnc_Action(object):
         flt = INFO.get_filter_program(str(fname))
 
         if flt:
-            log.debug('get {} filtered program {}'.format(flt,fname))
+            log.debug('get {} filtered program {}'.format(flt, fname))
             self.open_filter_program(str(fname), flt)
         else:
-            log.debug( 'Load program {}'.format(fname))
+            log.debug('Load program {}'.format(fname))
             self.cmd.program_open(str(fname))
 
             # STATUS can't tell if we are loading the same file.
             # for instance if you edit a file then load it again.
             # so we check for it and force an update:
             if old == fname:
-                STATUS.emit('file-loaded',fname)
+                STATUS.emit('file-loaded', fname)
 
     def SAVE_PROGRAM(self, source, fname):
         # no gcode - ignore
@@ -233,22 +236,22 @@ class _Lcnc_Action(object):
 
         # ok write the file
         try:
-            outfile = open(npath,'w')
+            outfile = open(npath, 'w')
             outfile.write(source)
             STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
             print(e)
-            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
         finally:
             try:
                 outfile.close()
             except:
                 pass
 
-    def SET_AXIS_ORIGIN(self,axis,value):
+    def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
             log.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
-        m = "G10 L20 P0 %s%f"%(axis,value)
+        m = "G10 L20 P0 %s%f" % (axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
@@ -256,9 +259,9 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
 
     # Adjust tool offsets so current position ends up the given value
-    def SET_TOOL_OFFSET(self,axis,value,fixture = False):
-        lnum = 10+int(fixture)
-        m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+    def SET_TOOL_OFFSET(self, axis, value, fixture=False):
+        lnum = 10 + int(fixture)
+        m = "G10 L%d P%d %s%f" % (lnum, STATUS.stat.tool_in_spindle, axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
@@ -268,8 +271,8 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
 
     # Set actual tool offset in tool table to the given value
-    def SET_DIRECT_TOOL_OFFSET(self,axis,value):
-        m = "G10 L1 P%d %s%f"%( STATUS.get_current_tool(), axis, value)
+    def SET_DIRECT_TOOL_OFFSET(self, axis, value):
+        m = "G10 L1 P%d %s%f" % (STATUS.get_current_tool(), axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
@@ -285,7 +288,7 @@ class _Lcnc_Action(object):
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
         elif not STATUS.is_auto_running():
-            self.cmd.auto(linuxcnc.AUTO_RUN,line)
+            self.cmd.auto(linuxcnc.AUTO_RUN, line)
 
     def STEP(self):
         if STATUS.is_auto_running() and not STATUS.is_auto_paused():
@@ -307,40 +310,47 @@ class _Lcnc_Action(object):
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
     def SET_MAX_VELOCITY_RATE(self, rate):
-        self.cmd.maxvel(rate/60.0)
+        self.cmd.maxvel(rate / 60.0)
+
     def SET_RAPID_RATE(self, rate):
-        self.cmd.rapidrate(rate/100.0)
+        self.cmd.rapidrate(rate / 100.0)
+
     def SET_FEED_RATE(self, rate):
-        self.cmd.feedrate(rate/100.0)
-    def SET_SPINDLE_RATE(self, rate, number = 0):
-        self.cmd.spindleoverride(rate/100.0, number)
+        self.cmd.feedrate(rate / 100.0)
+
+    def SET_SPINDLE_RATE(self, rate, number=0):
+        self.cmd.spindleoverride(rate / 100.0, number)
 
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
+
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
+
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
         # stop runaway jogging
         for jnum in range(STATUS.stat.joints):
             self.STOP_JOG(jnum)
+
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
         # stop runaway joging
         for jnum in range(STATUS.stat.joints):
             self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
+    def SET_SPINDLE_ROTATION(self, direction=1, rpm=100, number=-1):
         self.cmd.spindle(direction, rpm, number)
-    def SET_SPINDLE_FASTER(self, number = 0):
+
+    def SET_SPINDLE_FASTER(self, number=0):
         # if all spindles (-1) command , we must check each spindle
         if number == -1:
             a = 0
             b = INFO.AVAILABLE_SPINDLES
         else:
             a = number
-            b = number +1
-        for i in range(a,b):
+            b = number + 1
+        for i in range(a, b):
             cur = STATUS.get_spindle_speed(i)
             if cur > 0:
                 dir = 1
@@ -352,15 +362,15 @@ class _Lcnc_Action(object):
             else:
                 self.cmd.spindle(dir, abs(cur + (INFO.SPINDLE_INCREMENT * dir)), i)
 
-    def SET_SPINDLE_SLOWER(self, number = 0):
+    def SET_SPINDLE_SLOWER(self, number=0):
         # if all spindles (-1) command , we must check each spindle
         if number == -1:
             a = 0
             b = INFO.AVAILABLE_SPINDLES
         else:
             a = number
-            b = number +1
-        for i in range(a,b):
+            b = number + 1
+        for i in range(a, b):
             cur = STATUS.get_spindle_speed(i)
             if cur > 0:
                 dir = 1
@@ -371,29 +381,32 @@ class _Lcnc_Action(object):
                 continue
             else:
                 self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
-    def SET_SPINDLE_STOP(self, number = 0):
+
+    def SET_SPINDLE_STOP(self, number=0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 
     def SET_USER_SYSTEM(self, system):
         systemnum = str(system).strip('gG')
-        if systemnum in('54', '55', '56', '57', '58', '59', '59.1', '59.2', '59.3'):
+        if systemnum in ('54', '55', '56', '57', '58', '59', '59.1', '59.2', '59.3'):
             fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
-            self.cmd.mdi('G'+systemnum)
+            self.cmd.mdi('G' + systemnum)
             self.cmd.wait_complete()
             self.ensure_mode(premode)
-            
+
     def ZERO_G92_OFFSET(self):
         self.CALL_MDI("G92.1")
         self.RELOAD_DISPLAY()
+
     def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
         self.RELOAD_DISPLAY()
+
     def ZERO_G5X_OFFSET(self, num):
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         clear_command = "G10 L2 P%d R0" % num
         for a in INFO.AVAILABLE_AXES:
             clear_command += " %c0" % a
-        self.cmd.mdi('%s'% clear_command)
+        self.cmd.mdi('%s' % clear_command)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
@@ -410,13 +423,13 @@ class _Lcnc_Action(object):
         if isinstance(data, int):
             STATUS.set_selected_joint(data)
         else:
-            log.error( 'Selected joint must be an integer: {}'.format(data))
+            log.error('Selected joint must be an integer: {}'.format(data))
 
     def SET_SELECTED_AXIS(self, data):
         if isinstance(data, (str)):
             STATUS.set_selected_axis(data)
         else:
-            log.error( 'Selected axis must be a string: {}'.format(data))
+            log.error('Selected axis must be a string: {}'.format(data))
 
     # jog based on STATUS's rate and distance
     # use joint number for joint or letter for axis jogging
@@ -424,26 +437,26 @@ class _Lcnc_Action(object):
         angular = False
         if isinstance(joint_axis, int):
             if STATUS.stat.joint[joint_axis]['jointType'] == linuxcnc.ANGULAR:
-                angular =  True
+                angular = True
             jointnum = joint_axis
         else:
-            if joint_axis.upper() in('A','B','C'):
+            if joint_axis.upper() in ('A', 'B', 'C'):
                 angular = True
-            s ='XYZABCUVW'
+            s = 'XYZABCUVW'
             jointnum = s.find(joint_axis)
         # Get jog rate
         if angular:
-                distance = STATUS.get_jog_increment_angular()
-                rate = STATUS.get_jograte_angular()/60
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular() / 60
         else:
-                distance = STATUS.get_jog_increment()
-                rate = STATUS.get_jograte()/60
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte() / 60
         self.JOG(jointnum, direction, rate, distance)
 
     # jog based on given variables
     # checks for jog joint mode first
     def JOG(self, jointnum, direction, rate, distance=0):
-        jjogmode,j_or_a = self.get_jog_info(jointnum)
+        jjogmode, j_or_a = self.get_jog_info(jointnum)
         if jjogmode is None or j_or_a is None:
             return
         if direction == 0:
@@ -456,37 +469,45 @@ class _Lcnc_Action(object):
 
     def STOP_JOG(self, jointnum):
         if STATUS.machine_is_on() and STATUS.is_man_mode():
-            jjogmode,j_or_a = self.get_jog_info(jointnum)
+            jjogmode, j_or_a = self.get_jog_info(jointnum)
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 
     def TOGGLE_FLOOD(self):
-        self.cmd.flood(not(STATUS.stat.flood))
+        self.cmd.flood(not (STATUS.stat.flood))
+
     def SET_FLOOD_ON(self):
         self.cmd.flood(1)
+
     def SET_FLOOD_OFF(self):
         self.cmd.flood(0)
 
     def TOGGLE_MIST(self):
-        self.cmd.mist(not(STATUS.stat.mist))
+        self.cmd.mist(not (STATUS.stat.mist))
+
     def SET_MIST_ON(self):
         self.cmd.mist(1)
+
     def SET_MIST_OFF(self):
         self.cmd.mist(0)
 
     def RELOAD_TOOLTABLE(self):
-        self.cmd.load_tool_table()                
+        self.cmd.load_tool_table()
 
     def TOGGLE_OPTIONAL_STOP(self):
-        self.cmd.set_optional_stop(not(STATUS.stat.optional_stop))
+        self.cmd.set_optional_stop(not (STATUS.stat.optional_stop))
+
     def SET_OPTIONAL_STOP_ON(self):
         self.cmd.set_optional_stop(True)
+
     def SET_OPTIONAL_STOP_OFF(self):
         self.cmd.set_optional_stop(False)
 
     def TOGGLE_BLOCK_DELETE(self):
-        self.cmd.set_block_delete(not(STATUS.stat.block_delete))
+        self.cmd.set_block_delete(not (STATUS.stat.block_delete))
+
     def SET_BLOCK_DELETE_ON(self):
         self.cmd.set_block_delete(True)
+
     def SET_BLOCK_DELETE_OFF(self):
         self.cmd.set_block_delete(False)
 
@@ -494,30 +515,30 @@ class _Lcnc_Action(object):
         STATUS.emit('reload-display')
 
     def SET_GRAPHICS_VIEW(self, view):
-        if view.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
-                    'zoom-in','zoom-out','pan-up','pan-down',
-                    'pan-left','pan-right','rotate-up',
-                'rotate-down', 'rotate-cw','rotate-ccw',
-                'overlay_dro_on','overlay_dro_off',
-                'overlay-offsets-on','overlay-offsets-off',
-                'inhibit-selection-on','inhibit-selection-off',
-                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off'):
-            STATUS.emit('graphics-view-changed',view,None)
+        if view.lower() in ('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
+                            'zoom-in', 'zoom-out', 'pan-up', 'pan-down',
+                            'pan-left', 'pan-right', 'rotate-up',
+                            'rotate-down', 'rotate-cw', 'rotate-ccw',
+                            'overlay_dro_on', 'overlay_dro_off',
+                            'overlay-offsets-on', 'overlay-offsets-off',
+                            'inhibit-selection-on', 'inhibit-selection-off',
+                            'alpha-mode-on', 'alpha-mode-off', 'dimensions-on', 'dimensions-off'):
+            STATUS.emit('graphics-view-changed', view, None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
-            STATUS.emit('graphics-view-changed','GRID-SIZE',{'SIZE':size})
+        STATUS.emit('graphics-view-changed', 'GRID-SIZE', {'SIZE': size})
 
     def ADJUST_GRAPHICS_PAN(self, x, y):
-        STATUS.emit('graphics-view-changed','pan-view',{'X':x,'Y':y})
+        STATUS.emit('graphics-view-changed', 'pan-view', {'X': x, 'Y': y})
 
     def ADJUST_GRAPHICS_ROTATE(self, x, y):
-        STATUS.emit('graphics-view-changed','rotate-view',{'X':x,'Y':y})
+        STATUS.emit('graphics-view-changed', 'rotate-view', {'X': x, 'Y': y})
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
         try:
             try:
-                subprocess.call('gnome-session-quit --power-off',shell=True)
+                subprocess.call('gnome-session-quit --power-off', shell=True)
             except:
                 try:
                     subprocess.call('xfce4-session-logout', shell=True)
@@ -534,7 +555,7 @@ class _Lcnc_Action(object):
         subprocess.call('shutdown now')
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
-        if option not in('TIME', 'DATE','DELETE',None):
+        if option not in ('TIME', 'DATE', 'DELETE', None):
             log.warning("Machine_log option not recognized: {}".format(option))
         STATUS.emit('update-machine-log', text, option)
 
@@ -543,7 +564,7 @@ class _Lcnc_Action(object):
             a = command['NAME']
         except:
             log.warning("Call Dialog command Dict not recogzied: {}".format(option))
-        STATUS.emit('dialog-request',command)
+        STATUS.emit('dialog-request', command)
 
     def HIDE_POINTER(self, state):
         if state:
@@ -556,26 +577,34 @@ class _Lcnc_Action(object):
             STATUS.emit('play-sound', path)
         except AttributeError:
             log.warning("Sound request {} not recogzied".format(path))
+
     def PLAY_ERROR(self):
         self.PLAY_SOUND('ERROR')
+
     def PLAY_DONE(self):
         self.PLAY_SOUND('DONE')
+
     def PLAY_READY(self):
         self.PLAY_SOUND('READY')
+
     def PLAY_ATTENTION(self):
         self.PLAY_SOUND('ATTENTION')
+
     def PLAY_LOGIN(self):
         self.PLAY_SOUND('LOGIN')
+
     def PLAY_LOGOUT(self):
         self.PLAY_SOUND('LOGOUT')
 
     def SPEAK(self, speech):
-        STATUS.emit('play-sound','SPEAK {}'.format(speech))
+        STATUS.emit('play-sound', 'SPEAK {}'.format(speech))
 
     def BEEP(self):
         self.PLAY_SOUND('BEEP')
+
     def BEEP_RING(self):
         self.PLAY_SOUND('BEEP_RING')
+
     def BEEP_START(self):
         self.PLAY_SOUND('BEEP_START')
 
@@ -586,17 +615,17 @@ class _Lcnc_Action(object):
     # In free (joint) mode we use the plain joint number.
     # In axis mode we convert the joint number to the equivalent
     # axis number 
-    def get_jog_info (self,num):
+    def get_jog_info(self, num):
         if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             return True, self.jnum_check(num)
         return False, num
 
-    def jnum_check(self,num):
+    def jnum_check(self, num):
         if STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             log.warning("Joint jogging not supported for non-identity kinematics")
-            #return None
+            # return None
         if num > INFO.JOINT_COUNT:
-            log.error("Computed joint number={} exceeds jointcount={}".format(num,INFO.JOINT_COUNT))
+            log.error("Computed joint number={} exceeds jointcount={}".format(num, INFO.JOINT_COUNT))
             # decline to jog
             return None
         if num not in INFO.AVAILABLE_JOINTS:
@@ -613,8 +642,8 @@ class _Lcnc_Action(object):
         else:
             return (truth, premode)
 
-    def open_filter_program(self,fname, flt):
-        log.debug('Opening filtering program yellow<{}> for {}'.format(flt,fname))
+    def open_filter_program(self, fname, flt):
+        log.debug('Opening filtering program yellow<{}> for {}'.format(flt, fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))
@@ -622,14 +651,14 @@ class _Lcnc_Action(object):
 
     def _load_filter_result(self, fname):
         old = STATUS.stat.file
-        log.debug( 'Load filtered program {}'.format(fname))
+        log.debug('Load filtered program {}'.format(fname))
         self.cmd.program_open(str(fname))
 
         # STATUS can't tell if we are loading the same file.
         # for instance if you edit a file then load it again.
         # so we check for it and force an update:
         if old == fname:
-            STATUS.emit('file-loaded',fname)
+            STATUS.emit('file-loaded', fname)
 
     def _mktemp(self):
         if self.tmp:
@@ -637,11 +666,12 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
-
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 #############################
 
@@ -657,11 +687,11 @@ class Progress:
         if force or count - self.lastcount > 400:
             fraction = (self.phase + count * 1. / self.total) / self.num_phases
             self.lastcount = count
-            self.emit_percent(int(fraction *100))
+            self.emit_percent(int(fraction * 100))
 
     # Send out progress
     def emit_percent(self, percent):
-        STATUS.emit('progress',percent,self.text)
+        STATUS.emit('progress', percent, self.text)
 
     def nextphase(self, total):
         self.phase += 1
@@ -679,6 +709,7 @@ class Progress:
         else:
             self.text = text
 
+
 ###########################################
 # Filter Class
 ########################################################################
@@ -688,6 +719,8 @@ import tempfile, atexit, shutil
 # slightly reworked code from gladevcp
 # loads a filter program and collects the result
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
+
+
 class FilterProgram:
     def __init__(self, program_filter, infilename, outfilename, callback=None):
         import subprocess
@@ -695,15 +728,15 @@ class FilterProgram:
         infilename_q = infilename.replace("'", "'\\''")
 
         p = subprocess.Popen(["sh", "-c", "%s '%s'" % (program_filter, infilename_q)],
-                              stdin=subprocess.PIPE,
-                              stdout=outfile,
-                              stderr=subprocess.PIPE)
+                             stdin=subprocess.PIPE,
+                             stdout=outfile,
+                             stderr=subprocess.PIPE)
         p.stdin.close()  # No input for you
 
         self.p = p
         self.stderr_text = []
         self.program_filter = os.path.split(program_filter)[1]
-        self.filtered_program =  os.path.split(infilename_q)[1]
+        self.filtered_program = os.path.split(infilename_q)[1]
         self.callback = callback
 
         self.progress = Progress(1, 100)
@@ -717,7 +750,7 @@ class FilterProgram:
             STATUS.disconnect(self.gid)
             return False
         # check if there is something to read or pass
-        r,w,x = select.select([self.p.stderr], [], [], 0)
+        r, w, x = select.select([self.p.stderr], [], [], 0)
         if not r:
             return True
         # process message from standard error
@@ -753,34 +786,36 @@ class FilterProgram:
     # request an error dialog box
     def error(self, exitcode, stderr):
         message = '''The filter program '{}' that was filtering '{}' 
-                        exited with an error'''.format(self.program_filter,self.filtered_program)
+                        exited with an error'''.format(self.program_filter, self.filtered_program)
         if stderr != '':
             more = _("The error messages it produced are shown below:")
         else:
             more = None
-        mess = {'NAME':'MESSAGE','ID':'ACTION_ERROR__',
-            'MESSAGE':message,
-            'MORE': more,
-            'DETAILS':stderr,
-            'ICON':'CRITICAL',
-            'FOCUS_TEXT': _('Filter program Error'),
-            'TITLE':'Program Filter Error'}
+        mess = {'NAME': 'MESSAGE', 'ID': 'ACTION_ERROR__',
+                'MESSAGE': message,
+                'MORE': more,
+                'DETAILS': stderr,
+                'ICON': 'CRITICAL',
+                'FOCUS_TEXT': _('Filter program Error'),
+                'TITLE': 'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
-        log.error('Filter Program Error:{}'.format (stderr))
+        log.error('Filter Program Error:{}'.format(stderr))
+
 
 # For testing purposes
 
 if __name__ == "__main__":
-
     from qtvcp.core import Action
+
     testcase = Action()
 
-    # print status caught errors
-    def mess(error,text):
-        print('STATUS caught:',text)
 
-    STATUS.connect("error", lambda w, n, d: mess(n,d))
+    # print status caught errors
+    def mess(error, text):
+        print('STATUS caught:', text)
+
+
+    STATUS.connect("error", lambda w, n, d: mess(n, d))
 
     # test case
-    testcase.SAVE_PROGRAM('hi','/../../home')
-
+    testcase.SAVE_PROGRAM('hi', '/../../home')

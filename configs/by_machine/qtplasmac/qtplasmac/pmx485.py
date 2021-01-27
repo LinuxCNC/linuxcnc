@@ -172,7 +172,9 @@ def get_limits():
 # main loop
 try:
     while 1:
-        if hal.component_exists('qtplasmac'):
+        if hal.component_exists('qtplasmac') or \
+           hal.component_exists('qtplasmac_9x16') or \
+           hal.component_exists('qtplasmac_4x3'):
             if enabled != pmx485.enable:
                 enabled = pmx485.enable
                 if not enabled:

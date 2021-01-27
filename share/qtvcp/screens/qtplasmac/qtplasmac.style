@@ -109,17 +109,19 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: backgnd }
 
 /****** ESTOP BUTTON ************/
-#estop:pressed {
-    background: e-stop;
-    border-color: e-stop }
-
-#estop:checked {
-    background: e-stop;
-    border-color: e-stop }
-
-#estop:checked:pressed {
-    background: backgnd;
+#estop,
+#estop:checked:pressed,
+#estop:disabled {
+    color: backgnd;
+    background: foregnd;
     border-color: foregnd }
+
+#estop:pressed,
+#estop:checked,
+#estop:disabled:checked {
+    color: backgnd;
+    background: e-stop;
+    border-color: e-stop }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_a, #touch_x, #touch_y, #touch_z    {
@@ -761,10 +763,18 @@ Calculator QLineEdit {
     border-radius: 4px;
     font: 20pt }
 
+/****** KEYBOARD ************/
+KeyboardDialog QLineEdit{
+    font: 20pt;
+    height: 36px }
+
 /****** SOFT KEYBOARD ************/
-SoftInputWidget {
+/*SoftInputWidget {
+margin: 0;
 border: 1px solid foregnd;
 border-radius: 4px }
 
 MyFlatPushButton {
-margin:3px }
+margin: 3 ;
+max-height: 30;
+ } */

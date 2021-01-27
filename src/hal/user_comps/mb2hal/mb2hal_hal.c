@@ -46,15 +46,20 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 
     switch (mb_tx->mb_tx_fnct) {
 
+    case mbtx_01_READ_COILS:
     case mbtx_02_READ_DISCRETE_INPUTS:
+    case mbtx_05_WRITE_SINGLE_COIL:
     case mbtx_15_WRITE_MULTIPLE_COILS:
-        mb_tx->bit = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
-        if (mb_tx->bit == NULL) {
+        mb_tx->bit     = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        mb_tx->bit_inv = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        
+        if (mb_tx->bit == NULL || mb_tx->bit_inv == NULL) {
             ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
                 mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, mb_tx->mb_tx_nelem);
             return retERR;
         }
         memset(mb_tx->bit, 0, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
+        memset(mb_tx->bit_inv, 1, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);    
         break;
 
     case mbtx_03_READ_HOLDING_REGISTERS:
@@ -94,23 +99,32 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 
         switch (mb_tx->mb_tx_fnct) {
+        case mbtx_05_WRITE_SINGLE_COIL:
         case mbtx_15_WRITE_MULTIPLE_COILS:
             if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, gbl.hal_mod_id,
-                                      "%s", hal_pin_name)) {
+                                      "%s.bit", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
             *mb_tx->bit[pin_counter] = 0;
             break;
+        case mbtx_01_READ_COILS:
         case mbtx_02_READ_DISCRETE_INPUTS:
             if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, gbl.hal_mod_id,
-                                      "%s", hal_pin_name)) {
+                                      "%s.bit", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
+            if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit_inv + pin_counter, gbl.hal_mod_id,
+                                      "%s.bit-inv", hal_pin_name)) {
+                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
+                return retERR;
+            }            
             *mb_tx->bit[pin_counter] = 0;
+            *mb_tx->bit_inv[pin_counter] = 1;
             break;
         case mbtx_04_READ_INPUT_REGISTERS:
         case mbtx_03_READ_HOLDING_REGISTERS:
@@ -144,8 +158,14 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         case mbtx_06_WRITE_SINGLE_REGISTER:
         case mbtx_16_WRITE_MULTIPLE_REGISTERS:
             if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
-                                        "%s", hal_pin_name)) {
+                                        "%s.float", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
+                    mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
+                return retERR;
+            }
+            if (0 != hal_pin_s32_newf(HAL_IN, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+                                      "%s.int", hal_pin_name)) {
+                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
@@ -160,7 +180,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             //    return retERR;
             //}
             *mb_tx->float_value[pin_counter] = 0;
-            //*mb_tx->int_value[pin_counter] = 0;
+            *mb_tx->int_value[pin_counter] = 0;
             //mb_tx->scale[pin_counter] = 1;
             //mb_tx->offset[pin_counter] = 0;
             break;

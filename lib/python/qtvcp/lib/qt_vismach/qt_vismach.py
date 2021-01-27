@@ -11,6 +11,7 @@ import OpenGL.GL as GL
 from OpenGL import GLU
 from .primitives import *
 
+
 class Window(QWidget):
 
     def __init__(self):
@@ -68,7 +69,7 @@ class GLWidget(QOpenGLWidget):
     zRotationChanged = pyqtSignal(int)
     zoomChanged = pyqtSignal(int)
 
-    def __init__(self, parent=None ):
+    def __init__(self, parent=None):
         super(GLWidget, self).__init__(parent)
 
         self.model = None
@@ -84,7 +85,7 @@ class GLWidget(QOpenGLWidget):
         self.plotdata = []
         self.plotlen = 16000
 
-       # Where we are centering.
+        # Where we are centering.
         self.xcenter = 0.0
         self.ycenter = 0.0
         self.zcenter = 0.0
@@ -105,9 +106,9 @@ class GLWidget(QOpenGLWidget):
         self.minlat = -90
         self.maxlat = 90
 
-        #does not show HUD by default
+        # does not show HUD by default
         self.hud = Hud()
-        #self.hud.show("stuff")
+        # self.hud.show("stuff")
         # add a 100ms timer to poll linuxcnc stats
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
@@ -192,16 +193,16 @@ class GLWidget(QOpenGLWidget):
     def initializeGL(self):
         # basic_lighting
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, (1, -1, .5, 0))
-        GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, (.2,.2,.2,0))
-        GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, (.6,.6,.4,0))
-        GL.glLightfv(GL.GL_LIGHT0+1, GL.GL_POSITION, (-1, -1, .5, 0))
-        GL.glLightfv(GL.GL_LIGHT0+1, GL.GL_AMBIENT, (.0,.0,.0,0))
-        GL.glLightfv(GL.GL_LIGHT0+1, GL.GL_DIFFUSE, (.0,.0,.4,0))
-        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, (1,1,1,0))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, (.2, .2, .2, 0))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, (.6, .6, .4, 0))
+        GL.glLightfv(GL.GL_LIGHT0 + 1, GL.GL_POSITION, (-1, -1, .5, 0))
+        GL.glLightfv(GL.GL_LIGHT0 + 1, GL.GL_AMBIENT, (.0, .0, .0, 0))
+        GL.glLightfv(GL.GL_LIGHT0 + 1, GL.GL_DIFFUSE, (.0, .0, .4, 0))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, (1, 1, 1, 0))
         GL.glDisable(GL.GL_CULL_FACE)
         GL.glEnable(GL.GL_LIGHTING)
         GL.glEnable(GL.GL_LIGHT0)
-        GL.glEnable(GL.GL_LIGHT0+1)
+        GL.glEnable(GL.GL_LIGHT0 + 1)
         GL.glDepthFunc(GL.GL_LESS)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glMatrixMode(GL.GL_MODELVIEW)
@@ -216,7 +217,7 @@ class GLWidget(QOpenGLWidget):
         GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0)
 
         # draw Objects
-        GL.glPushMatrix()          # Protect our matrix
+        GL.glPushMatrix()  # Protect our matrix
         w = self.winfo_width()
         h = self.winfo_height()
         GL.glViewport(0, 0, w, h)
@@ -227,25 +228,25 @@ class GLWidget(QOpenGLWidget):
 
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
-        GLU.gluPerspective(self.fovy, float(w)/float(h), self.near, self.far)
+        GLU.gluPerspective(self.fovy, float(w) / float(h), self.near, self.far)
 
         if 0:
             # Now translate the scene origin away from the world origin
             GL.glMatrixMode(GL.GL_MODELVIEW)
             mat = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
             GL.glLoadIdentity()
-            GL.glTranslatef(-self.xcenter, -self.ycenter, -(self.zcenter+self.distance))
+            GL.glTranslatef(-self.xcenter, -self.ycenter, -(self.zcenter + self.distance))
             GL.glMultMatrixd(mat)
         else:
             GLU.gluLookAt(self.xcenter, self.ycenter, self.zcenter + self.distance,
-                self.xcenter, self.ycenter, self.zcenter,
-                0., 1., 0.)
+                          self.xcenter, self.ycenter, self.zcenter,
+                          0., 1., 0.)
             GL.glMatrixMode(GL.GL_MODELVIEW)
-    
+
         # Call objects redraw method.
         self.drawObjects()
-        GL.glFlush()               # Tidy up
-        GL.glPopMatrix()           # Restore the matrix
+        GL.glFlush()  # Tidy up
+        GL.glPopMatrix()  # Restore the matrix
 
     def drawObjects(self, *args):
         if self.winfo_width() == 1: return
@@ -272,33 +273,32 @@ class GLWidget(QOpenGLWidget):
         # is easy
         tx, ty, tz = self.tool2view.t[12:15]
         # now we have to transform them to the work frame
-        wx = tx*view2work[0]+ty*view2work[4]+tz*view2work[8]+view2work[12]
-        wy = tx*view2work[1]+ty*view2work[5]+tz*view2work[9]+view2work[13]
-        wz = tx*view2work[2]+ty*view2work[6]+tz*view2work[10]+view2work[14]
+        wx = tx * view2work[0] + ty * view2work[4] + tz * view2work[8] + view2work[12]
+        wy = tx * view2work[1] + ty * view2work[5] + tz * view2work[9] + view2work[13]
+        wz = tx * view2work[2] + ty * view2work[6] + tz * view2work[10] + view2work[14]
         # wx, wy, wz are the values to use for backplot
         # so we save them in a buffer
         if len(self.plotdata) == self.plotlen:
             del self.plotdata[:self.plotlen / 10]
-        point = [ wx, wy, wz ]
+        point = [wx, wy, wz]
         if not self.plotdata or point != self.plotdata[-1]:
             self.plotdata.append(point)
 
         # now lets draw something in the tool coordinate system
-        #GL.glPushMatrix()
+        # GL.glPushMatrix()
         # matrixes take effect in reverse order, so the next
         # two lines do "tool -> view -> world"
-        #GL.glMultMatrixd(view2world)
-        #GL.glMultMatrixd(self.tool2view.t)
+        # GL.glMultMatrixd(view2world)
+        # GL.glMultMatrixd(self.tool2view.t)
 
         # do drawing here
         # cylinder normally goes to +Z, we want it down
-        #GL.glTranslatef(0,0,-60)
-        #GLU.gluCylinder(self.q1, 20, 20, 60, 32, 16)
+        # GL.glTranslatef(0,0,-60)
+        # GLU.gluCylinder(self.q1, 20, 20, 60, 32, 16)
 
         # back to world coords
-        #GL.glPopMatrix()
-        
-        
+        # GL.glPopMatrix()
+
         # we can also draw in the work coord system
         GL.glPushMatrix()
         # "work -> view -> world"
@@ -310,16 +310,16 @@ class GLWidget(QOpenGLWidget):
         # respect to the world
 
         # just a test object, sitting on the table
-        #GLU.gluCylinder(self.q2, 40, 20, 60, 32, 16)
-        
-        #draw head up display
-        if(hasattr(self.hud, "draw")):
-                self.hud.draw()
+        # GLU.gluCylinder(self.q2, 40, 20, 60, 32, 16)
+
+        # draw head up display
+        if (hasattr(self.hud, "draw")):
+            self.hud.draw()
 
         # draw backplot
         GL.glDisable(GL.GL_LIGHTING)
         GL.glLineWidth(2)
-        GL.glColor3f(1.0,0.5,0.5)
+        GL.glColor3f(1.0, 0.5, 0.5)
 
         GL.glBegin(GL.GL_LINE_STRIP)
         for p in self.plotdata:
@@ -327,7 +327,7 @@ class GLWidget(QOpenGLWidget):
         GL.glEnd()
 
         GL.glEnable(GL.GL_LIGHTING)
-        GL.glColor3f(1,1,1)
+        GL.glColor3f(1, 1, 1)
         GL.glLineWidth(1)
         GL.glDisable(GL.GL_BLEND)
         GL.glDepthFunc(GL.GL_LESS)
@@ -344,7 +344,7 @@ class GLWidget(QOpenGLWidget):
             return
 
         GL.glViewport((width - side) // 2, (height - side) // 2, side,
-                           side)
+                      side)
 
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
@@ -373,7 +373,7 @@ class GLWidget(QOpenGLWidget):
 
     def wheelEvent(self, event):
         # Use the mouse wheel to zoom in/out
-        a = event.angleDelta().y()/200
+        a = event.angleDelta().y() / 200
         if a < 0:
             self.zoomout()
         else:
@@ -386,7 +386,6 @@ class GLWidget(QOpenGLWidget):
         while angle > 360 * 16:
             angle -= 360 * 16
         return angle
-
 
 
 def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
@@ -412,7 +411,4 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
 
 
 if __name__ == '__main__':
-
     print('This is a library file - it needs to be imported')
-
-

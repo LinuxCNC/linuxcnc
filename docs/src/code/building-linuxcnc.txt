@@ -84,7 +84,7 @@ Preempt-RT::
     https://snapshot.debian.org.
 
 To make use of the realtime capabilities of LinuxCNC, certain parts of
-LinuxCNC need to run with root priviledges.  To enable root for these
+LinuxCNC need to run with root privileges.  To enable root for these
 parts, run this extra command after the `make` that builds LinuxCNC:
 
 -----

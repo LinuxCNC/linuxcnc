@@ -37,6 +37,7 @@ WIDGETS = VCPWindow()
 
 CONFIGDIR = os.environ['CONFIG_DIR']
 
+
 class ToolBarActions():
     def __init__(self):
         self._recentActionWidget = None
@@ -48,7 +49,7 @@ class ToolBarActions():
         self._touchoffActiongroup = QtWidgets.QActionGroup(None)
         self.runfromLineWidget = None
 
-    def configure_action(self, widget, action, extFunction = None):
+    def configure_action(self, widget, action, extFunction=None):
         action = action.lower()
         function = None
 
@@ -56,11 +57,14 @@ class ToolBarActions():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED)
                     and STATUS.is_file_loaded())
+
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
         def update_properties(d):
             self.gcode_properties = d
+
         def update_selected(line):
             self.selected_line = line
             if self.runfromLineWidget is not None:
@@ -273,7 +277,7 @@ class ToolBarActions():
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
             self.addZeroSystemsActions(widget)
         elif submenu == 'grid_size_submenu':
-           self.addGridSize(widget)
+            self.addGridSize(widget)
         else:
             LOG.warning('Unrecogzied sunmenu command: {}'.format(submenu))
 
@@ -297,17 +301,17 @@ class ToolBarActions():
     def actOnPower(self, widget, state):
         ACTION.SET_MACHINE_STATE(state)
 
-    def actOnLoad(self,widget, state=None):
-        STATUS.emit('dialog-request',{'NAME':'LOAD'})
+    def actOnLoad(self, widget, state=None):
+        STATUS.emit('dialog-request', {'NAME': 'LOAD'})
 
-    def actOnReload(self,widget, state=None):
+    def actOnReload(self, widget, state=None):
         STATUS.emit('reload-display')
 
-    def actOnProperties(self,widget, state=None):
+    def actOnProperties(self, widget, state=None):
         mess = ''
         if self.gcode_properties:
             for i in self.gcode_properties:
-                mess +='<b>%s</b>: %s<br>'%( i, self.gcode_properties[i])
+                mess += '<b>%s</b>: %s<br>' % (i, self.gcode_properties[i])
         else:
             mess = 'No properties to display'
         msg = QtWidgets.QMessageBox()
@@ -318,15 +322,16 @@ class ToolBarActions():
         msg.show()
         retval = msg.exec_()
 
-    def actOnRun(self,widget, state=None):
+    def actOnRun(self, widget, state=None):
         ACTION.RUN()
-    def actOnPause(self,widget, state=None):
+
+    def actOnPause(self, widget, state=None):
         ACTION.PAUSE()
 
-    def actOnAbort(self,widget, state=None):
+    def actOnAbort(self, widget, state=None):
         ACTION.ABORT()
 
-    def actOnBlockDelete(self, widget,  state):
+    def actOnBlockDelete(self, widget, state):
         if state:
             ACTION.SET_BLOCK_DELETE_ON()
         else:
@@ -338,61 +343,61 @@ class ToolBarActions():
         else:
             ACTION.SET_OPTIONAL_STOP_OFF()
 
-    def actOnLoadCalibration(self,widget, state=None):
+    def actOnLoadCalibration(self, widget, state=None):
         AUX_PRGM.load_calibration()
 
-    def actOnLoadHalmeter(self,widget, state=None):
+    def actOnLoadHalmeter(self, widget, state=None):
         AUX_PRGM.load_halmeter()
 
-    def actOnLoadStatus(self,widget, state=None):
+    def actOnLoadStatus(self, widget, state=None):
         AUX_PRGM.load_status()
 
-    def actOnLoadHalshow(self,widget, state=None):
+    def actOnLoadHalshow(self, widget, state=None):
         AUX_PRGM.load_halshow()
 
-    def actOnLoadHalscope(self,widget, state=None):
+    def actOnLoadHalscope(self, widget, state=None):
         AUX_PRGM.load_halscope()
 
-    def actOnLoadExtTooledit(self,widget, state=None):
+    def actOnLoadExtTooledit(self, widget, state=None):
         AUX_PRGM.load_tooledit()
 
-    def actOnLoadClassicladder(self,widget, state=None):
+    def actOnLoadClassicladder(self, widget, state=None):
         AUX_PRGM.load_ladder()
 
-    def actOnZoomIn(self,widget, state=None):
+    def actOnZoomIn(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('zoom-in')
 
-    def actOnZoomOut(self,widget, state=None):
+    def actOnZoomOut(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('zoom-out')
 
-    def actOnViewX(self,widget, state=None):
+    def actOnViewX(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('x')
 
-    def actOnViewY(self,widget, state=None):
+    def actOnViewY(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('y')
 
-    def actOnViewY2(self,widget, state=None):
+    def actOnViewY2(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('y2')
 
-    def actOnViewZ(self,widget, state=None):
+    def actOnViewZ(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('z')
 
-    def actOnViewZ2(self,widget, state=None):
+    def actOnViewZ2(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('z2')
 
-    def actOnViewp(self,widget, state=None):
+    def actOnViewp(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('p')
 
-    def actOnViewClear(self,widget, state=None):
+    def actOnViewClear(self, widget, state=None):
         ACTION.SET_GRAPHICS_VIEW('clear')
 
-    def actOnViewOffsets(self,widget, state=None):
+    def actOnViewOffsets(self, widget, state=None):
         if state:
             ACTION.SET_GRAPHICS_VIEW('overlay-offsets-on')
         else:
             ACTION.SET_GRAPHICS_VIEW('overlay-offsets-off')
 
-    def actOnQuit(self,widget, state=None):
+    def actOnQuit(self, widget, state=None):
         STATUS.emit('shutdown')
 
     def actOnSystemShutdown(self, widget, state=None):
@@ -407,10 +412,10 @@ class ToolBarActions():
         else:
             ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
-    def actOnAbout(self,widget, state=None):
+    def actOnAbout(self, widget, state=None):
         msg = QtWidgets.QMessageBox()
 
-        mess =''
+        mess = ''
         path = os.path.join(CONFIGDIR, 'README')
         if os.path.exists(path):
             for line in open(path):
@@ -430,13 +435,13 @@ class ToolBarActions():
         ACTION.RUN(self.selected_line)
 
     def actOnToolOffsetDialog(self, wudget, state=None):
-        STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
+        STATUS.emit('dialog-request', {'NAME': 'TOOLOFFSET'})
 
     def actOnOriginOffsetDialog(self, wudget, state=None):
-        STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
+        STATUS.emit('dialog-request', {'NAME': 'ORIGINOFFSET'})
 
     def actOnCalculatorDialog(self, wudget, state=None):
-        STATUS.emit('dialog-request',{'NAME':'CALCULATOR'})
+        STATUS.emit('dialog-request', {'NAME': 'CALCULATOR'})
 
     def actOnAlphaMode(self, widget, state):
         if state:
@@ -459,30 +464,30 @@ class ToolBarActions():
     #########################################################
     # Sub menus
     #########################################################
-    def addHomeActions(self,widget):
+    def addHomeActions(self, widget):
         def home(joint):
             ACTION.SET_MACHINE_HOMING(joint)
 
-        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        conversion = {"X": 0, "Y": 1, "Z": 2, "A": 3, "B": 4, "C": 5, "U": 6, "V": 7, "W": 8}
         homeAct = QtWidgets.QAction('Home ALL', widget)
         homeAct.triggered.connect(lambda: home(-1))
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
-            homeAct = QtWidgets.QAction('Home %s'%i, widget)
+            homeAct = QtWidgets.QAction('Home %s' % i, widget)
             # weird lambda i=i to work around 'function closure'
             homeAct.triggered.connect(lambda state, i=i: home(conversion[i]))
             widget.addAction(homeAct)
 
-    def addUnHomeActions(self,widget):
+    def addUnHomeActions(self, widget):
         def unHome(joint):
             ACTION.SET_MACHINE_UNHOMED(joint)
 
-        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        conversion = {"X": 0, "Y": 1, "Z": 2, "A": 3, "B": 4, "C": 5, "U": 6, "V": 7, "W": 8}
         homeAct = QtWidgets.QAction('Unhome ALL', widget)
         homeAct.triggered.connect(lambda: unHome(-1))
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
-            homeAct = QtWidgets.QAction('Unhome %s'%i, widget)
+            homeAct = QtWidgets.QAction('Unhome %s' % i, widget)
             # weird lambda i=i to work around 'function closure'
             homeAct.triggered.connect(lambda state, i=i: unHome(conversion[i]))
             widget.addAction(homeAct)
@@ -524,23 +529,21 @@ class ToolBarActions():
         zeroSysAct.triggered.connect(lambda: ACTION.ZERO_ROTATIONAL_OFFSET())
         widget.addAction(zeroSysAct)
 
-
-
     def updateRecentPaths(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 
         # get a list of the current actions
-        alist =  widget.actions()
+        alist = widget.actions()
 
-        #build the action
+        # build the action
         impAct = QtWidgets.QAction(filename, widget)
-        impAct.triggered.connect(lambda:loadRecent(impAct))
+        impAct.triggered.connect(lambda: loadRecent(impAct))
 
         # adding actions is different if it's the first
         # if it's not the first add it before the first
         try:
-            widget.insertAction(alist[0],impAct)
+            widget.insertAction(alist[0], impAct)
         except:
             widget.addAction(impAct)
 
@@ -552,24 +555,24 @@ class ToolBarActions():
 
         # are we past 5 files? remove the lowest
         # else update cuurrent number
-        if self.recentNum  >self.maxRecent:
+        if self.recentNum > self.maxRecent:
             widget.removeAction(alist[self.maxRecent])
         else:
-            self.recentNum +=1
+            self.recentNum += 1
 
     def addRecentPaths(self):
         if self._recentActionWidget is not None and WIDGETS.PREFS_ is not None:
-            for num in range(self.maxRecent,-1,-1):
-                path_string = WIDGETS.PREFS_.getpref('RecentPath_%d'% num, None, str, 'BOOK_KEEPING')
+            for num in range(self.maxRecent, -1, -1):
+                path_string = WIDGETS.PREFS_.getpref('RecentPath_%d' % num, None, str, 'BOOK_KEEPING')
                 if not path_string in ('None', None):
-                    self.updateRecentPaths(self._recentActionWidget,path_string)
+                    self.updateRecentPaths(self._recentActionWidget, path_string)
 
     def saveRecentPaths(self):
         if self._recentActionWidget is not None and WIDGETS.PREFS_ is not None:
             for num, i in enumerate(self._recentActionWidget.actions()):
-                WIDGETS.PREFS_.putpref('RecentPath_%d'% num, i.text(), str, 'BOOK_KEEPING')
+                WIDGETS.PREFS_.putpref('RecentPath_%d' % num, i.text(), str, 'BOOK_KEEPING')
 
-    def addGridSize(self,widget):
+    def addGridSize(self, widget):
         def setSize(data):
             ACTION.SET_GRAPHICS_GRID_SIZE(data)
 
@@ -581,7 +584,7 @@ class ToolBarActions():
                 widget.addAction(sizeAct)
                 continue
             i = self.parse_increment(temp)
-            sizeAct = QtWidgets.QAction('%s'%temp, widget)
+            sizeAct = QtWidgets.QAction('%s' % temp, widget)
             # weird lambda i=i to work around 'function closure'
             sizeAct.triggered.connect(lambda state, i=i: setSize(i))
             widget.addAction(sizeAct)
@@ -595,9 +598,9 @@ class ToolBarActions():
         elif gridIncr.endswith("um"):
             scale = self.conversion(.001)
         elif gridIncr.endswith("in") or gridIncr.endswith("inch"):
-            scale = self.conversion(1., metric = False)
+            scale = self.conversion(1., metric=False)
         elif gridIncr.endswith("mil"):
-            scale = self.conversion(.001, metric = False)
+            scale = self.conversion(.001, metric=False)
         else:
             scale = 1
         incr = gridIncr.rstrip(" inchmuil")
@@ -611,7 +614,7 @@ class ToolBarActions():
 
     # This does the conversion
     # calling function must tell us if the data is metric or not.
-    def conversion(self, data, metric = True):
+    def conversion(self, data, metric=True):
         if INFO.MACHINE_IS_METRIC:
             if metric:
                 return INFO.convert_metric_to_machine(data)
@@ -630,25 +633,27 @@ class ToolBarActions():
     def addMessageControlsClose(self, bar):
         def close():
             WIDGETS._NOTICE.external_close()
+
         bar.setMaximumHeight(20)
         bar.setSizeGripEnabled(False)
         WIDGETS.statusClear = QtWidgets.QPushButton()
         icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
         WIDGETS.statusClear.setIcon(icon)
-        WIDGETS.statusClear.setMaximumSize(20,20)
-        WIDGETS.statusClear.setIconSize(QtCore.QSize(22,22))
-        WIDGETS.statusClear.clicked.connect(lambda:close())
+        WIDGETS.statusClear.setMaximumSize(20, 20)
+        WIDGETS.statusClear.setIconSize(QtCore.QSize(22, 22))
+        WIDGETS.statusClear.clicked.connect(lambda: close())
         bar.addPermanentWidget(WIDGETS.statusClear)
 
     def addMessageControlsRecall(self, bar):
         def last():
             WIDGETS._NOTICE.show_last()
+
         bar.setMaximumHeight(20)
         bar.setSizeGripEnabled(False)
         icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
         WIDGETS.statusLast = QtWidgets.QPushButton()
         WIDGETS.statusLast.setIcon(icon)
-        WIDGETS.statusLast.setMaximumSize(20,20)
-        WIDGETS.statusLast.setIconSize(QtCore.QSize(22,22))
+        WIDGETS.statusLast.setMaximumSize(20, 20)
+        WIDGETS.statusLast.setIconSize(QtCore.QSize(22, 22))
         WIDGETS.statusLast.clicked.connect(lambda: last())
         bar.addPermanentWidget(WIDGETS.statusLast)

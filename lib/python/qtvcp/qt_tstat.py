@@ -29,7 +29,7 @@ INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 KEYWORDS = ['T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -38,7 +38,7 @@ class _TStat(object):
 
     def __init__(self):
         # only initialize once for all instances
-        if self.__class__._instanceNum >=1:
+        if self.__class__._instanceNum >= 1:
             return
         self.__class__._instanceNum += 1
         self._delay = 0
@@ -59,13 +59,13 @@ class _TStat(object):
         self.BACKANGLE = 13
         self.ORIENTATION = 14
         self.COMMENTS = 15
-        self.hash_check = None 
+        self.hash_check = None
         self.toolfile = INFO.TOOL_FILE_PATH
         self.tool_wear_info = None
         self.current_tool_num = -1
         self.toolinfo = None
         STATUS.connect('periodic', self.periodic_check)
-        STATUS.connect('forced-update',lambda o: self.emit_update())
+        STATUS.connect('forced-update', lambda o: self.emit_update())
 
     def GET_TOOL_INFO(self, toolnum):
         self.current_tool_num = int(toolnum)
@@ -74,7 +74,7 @@ class _TStat(object):
 
     def GET_TOOL_ARRAY(self):
         info = self.GET_TOOL_MODELS()
-        return info[0]+info[1]
+        return info[0] + info[1]
 
     def GET_TOOL_MODELS(self):
         return self._reload()
@@ -82,10 +82,10 @@ class _TStat(object):
     def SAVE_TOOLFILE(self, array):
         return self._save(array)
 
-    def ADD_TOOL(self, newtool = [-99, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'New Tool']):
+    def ADD_TOOL(self, newtool=[-99, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']):
         info = self.GET_TOOL_MODELS()
         info[0].insert(0, newtool)
-        return self._save(info[0]+info[1])
+        return self._save(info[0] + info[1])
 
     def DELETE_TOOLS(self, tools):
         ta = self.GET_TOOL_ARRAY()
@@ -114,7 +114,7 @@ class _TStat(object):
         if self.toolfile is None or not os.path.exists(self.toolfile):
             LOG.debug("Toolfile does not exist' {}".format(self.toolfile))
             return None
-        #print 'file',self.toolfile
+        # print 'file',self.toolfile
         # clear the current liststore, search the tool file, and add each tool
         tool_model = []
         wear_model = []
@@ -125,24 +125,24 @@ class _TStat(object):
             # ignore blank lines
             if rawline == '':
                 continue
-            #print 'raw:',rawline
+            # print 'raw:',rawline
             # strip the comments from line and add directly to array
             # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
-            comment =''
+            comment = ''
             if not index == -1:
-                comment = (rawline[index+1:])
+                comment = (rawline[index + 1:])
                 comment = comment.rstrip("\n")
                 line = rawline.rstrip(comment)
             else:
                 line = rawline
-            array = [0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,comment]
+            array = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, comment]
             wear_flag = False
             # search beginning of each word for keyword letters
             # if i = ';' that is the comment and we have already added it
             # offset 0 and 1 are integers the rest floats
             # we strip leading and following spaces from the comments
-            for offset,i in enumerate(KEYWORDS):
+            for offset, i in enumerate(KEYWORDS):
                 if i == ';': continue
                 for word in line.split():
                     if word.startswith(';'): break
@@ -156,21 +156,21 @@ class _TStat(object):
                             # check if tool is greater then 10000 -then it's a wear tool
                             if int(word.lstrip(i)) > 10000:
                                 wear_flag = True
-                        if offset in(0,1,14):
+                        if offset in (0, 1, 14):
                             try:
-                                array[offset]= int(word.lstrip(i))
+                                array[offset] = int(word.lstrip(i))
                             except ValueError as e:
                                 try:
-                                    array[offset]= int(float(word.lstrip(i)))
+                                    array[offset] = int(float(word.lstrip(i)))
                                 except Exception as e:
                                     LOG.error("toolfile integer access: {} : {}".format(word.lstrip(i), e))
                         else:
                             try:
                                 # we will call this range zero:
                                 if float(word.lstrip(i)) < 0.000001 and float(word.lstrip(i)) > -0.000001:
-                                    array[offset]= 0.0
+                                    array[offset] = 0.0
                                 else:
-                                    array[offset]= float(word.lstrip(i))
+                                    array[offset] = float(word.lstrip(i))
                             except:
                                 LOG.error("toolfile float access: {}".format(self.toolfile))
                         break
@@ -183,11 +183,11 @@ class _TStat(object):
         if toolinfo_flag:
             self.toolinfo = temp
         else:
-            self.toolinfo = [0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']
-        #print 'load'
-        #for i in tool_model:
+            self.toolinfo = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'No Tool']
+        # print 'load'
+        # for i in tool_model:
         #    print i
-        #print wear_model
+        # print wear_model
         return (tool_model, wear_model)
 
     # converts from linuxcnc toolfile array to toolwear array
@@ -195,38 +195,39 @@ class _TStat(object):
     # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_WEAR_TYPE(self, data):
         if data is None:
-            data = ([],[])
+            data = ([], [])
         if not INFO.MACHINE_IS_LATHE:
             maintool = data[0] + data[1]
             weartool = []
         else:
             maintool = data[0]
             weartool = data[1]
-        #print 'main',data
+        # print 'main',data
         tool_num_list = {}
         full_tool_list = []
         for rnum, row in enumerate(maintool):
-            new_line = [False, 0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']
-            valuesInRow = [ value for value in row ]
-            for cnum,i in enumerate(valuesInRow):
+            new_line = [False, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0,
+                        'No Tool']
+            valuesInRow = [value for value in row]
+            for cnum, i in enumerate(valuesInRow):
                 if cnum == 0:
                     # keep a dict of actual tools numbers vrs row index
                     tool_num_list[i] = rnum
-                if cnum in(0,1,2):
+                if cnum in (0, 1, 2):
                     # transfer these positions directly to new line (offset by 1 for checkbox)
-                    new_line[cnum +1] = i
+                    new_line[cnum + 1] = i
                 elif cnum == 3:
                     # move Y past x wear position
                     new_line[5] = i
                 elif cnum == 4:
                     # move z past y wear position
                     new_line[7] = i
-                elif cnum in(5,6,7,8,9,10,11,12,13,14,15):
+                elif cnum in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15):
                     # a;; the rest past z wear position
-                    new_line[cnum+4] = i
+                    new_line[cnum + 4] = i
             full_tool_list.append(new_line)
-            #print 'row',row
-            #print 'new row',new_line
+            # print 'row',row
+            # print 'new row',new_line
         # any tool number over 10000 is a wear offset
         # It's already been separated in the weartool variable.
         # now we pull the values we need out and put it in our
@@ -235,9 +236,9 @@ class _TStat(object):
         # for now only if in lathe mode
         if INFO.MACHINE_IS_LATHE:
             for rnum, row in enumerate(weartool):
-                values = [ value for value in row ]
+                values = [value for value in row]
                 try:
-                    parent_tool = tool_num_list[( values[0]-10000)]
+                    parent_tool = tool_num_list[(values[0] - 10000)]
                 except KeyError:
                     LOG.error("tool wear number has no parent Tool: {}".format(values))
                     continue
@@ -251,45 +252,45 @@ class _TStat(object):
     # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
     # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_STANDARD_TYPE(self, data):
-        #for i in data:
+        # for i in data:
         #    print i
         if data is None:
             data = ([])
-        tool_wear_list = []           
+        tool_wear_list = []
         full_tool_list = []
         for rnum, row in enumerate(data):
-            new_line = [0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'']
-            new_wear_line = [0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'Wear Offset']
+            new_line = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, '']
+            new_wear_line = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'Wear Offset']
             wear_flag = False
-            values = [ value for value in row ]
-            for cnum,i in enumerate(values):
-                #print cnum, i, type(i)
-                if cnum in(1,2):
-                    new_line[cnum-1] = int(i)
+            values = [value for value in row]
+            for cnum, i in enumerate(values):
+                # print cnum, i, type(i)
+                if cnum in (1, 2):
+                    new_line[cnum - 1] = int(i)
                 elif cnum == 3:
-                    new_line[cnum-1] = float(i)
-                elif cnum == 4 and i !='0':
+                    new_line[cnum - 1] = float(i)
+                elif cnum == 4 and i != '0':
                     wear_flag = True
                     new_wear_line[2] = float(i)
-                elif cnum == 5 and i !='0':
-                    new_line[cnum-2] = float(i)
-                elif cnum == 6 and i !='0':
+                elif cnum == 5 and i != '0':
+                    new_line[cnum - 2] = float(i)
+                elif cnum == 6 and i != '0':
                     wear_flag = True
                     new_wear_line[3] = float(i)
-                elif cnum == 7 and i !='0':
-                    new_line[cnum-3] = float(i)
-                elif cnum == 8 and i !='0':
+                elif cnum == 7 and i != '0':
+                    new_line[cnum - 3] = float(i)
+                elif cnum == 8 and i != '0':
                     wear_flag = True
                     new_wear_line[4] = float(i)
-                elif cnum in(9,10,11,12,13,14,15,16,17):
-                    new_line[cnum-4] = float(i)
+                elif cnum in (9, 10, 11, 12, 13, 14, 15, 16, 17):
+                    new_line[cnum - 4] = float(i)
                 elif cnum == 18:
-                    new_line[cnum-4] = int(i)
+                    new_line[cnum - 4] = int(i)
                 elif cnum == 19:
-                    new_line[cnum-4] = str(i)
+                    new_line[cnum - 4] = str(i)
             if wear_flag:
-                new_wear_line[0] = int(values[1]+10000)
-                new_wear_line[15] = 'Wear Offset %d'% values[1]
+                new_wear_line[0] = int(values[1] + 10000)
+                new_wear_line[15] = 'Wear Offset %d' % values[1]
                 tool_wear_list.append(new_wear_line)
             # add tool line to tool list
             full_tool_list.append(new_line)
@@ -300,33 +301,33 @@ class _TStat(object):
         return full_tool_list
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
-    
+
     def _save(self, new_model, delete=()):
         if self.toolfile == None:
             return True
         file = open(self.toolfile, "w")
         for row in new_model:
-            values = [ value for value in row ]
+            values = [value for value in row]
             line = ""
             skip = False
-            for num,i in enumerate(values):
-                #print KEYWORDS[num], i, #type(i), int(i)
+            for num, i in enumerate(values):
+                # print KEYWORDS[num], i, #type(i), int(i)
                 if num == 0 and i in delete:
                     LOG.debug("delete tool ' {}".format(i))
                     skip = True
-                if num in (0,1,14): # tool# pocket# orientation
-                    line = line + "%s%d "%(KEYWORDS[num], i)
-                elif num == 15: # comments
+                if num in (0, 1, 14):  # tool# pocket# orientation
+                    line = line + "%s%d " % (KEYWORDS[num], i)
+                elif num == 15:  # comments
                     test = i.strip()
-                    line = line + "%s%s "%(KEYWORDS[num],test)
+                    line = line + "%s%s " % (KEYWORDS[num], test)
                 else:
                     test = float(str(i).lstrip())  # floats
                     if test == 0.0:
-                        line = line + "%s%d "%(KEYWORDS[num], test)
-                    elif num in(12,13):
-                        line = line + "%s%3.1f "%(KEYWORDS[num], test)
+                        line = line + "%s%d " % (KEYWORDS[num], test)
+                    elif num in (12, 13):
+                        line = line + "%s%3.1f " % (KEYWORDS[num], test)
                     else:
-                        line = line + "%s%.5f "%(KEYWORDS[num], test)
+                        line = line + "%s%.5f " % (KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
             if not skip:
                 print(line, file=file)
@@ -342,7 +343,8 @@ class _TStat(object):
             return True
 
         # create a hash code
-    def md5sum(self,filename):
+
+    def md5sum(self, filename):
         try:
             f = open(filename, "rb")
         except:
@@ -354,7 +356,7 @@ class _TStat(object):
     def emit_update(self):
         data = self.GET_TOOL_MODELS()
         if data is not None:
-            STATUS.emit('toolfile-stale',data)
+            STATUS.emit('toolfile-stale', data)
 
     # check the hash code on the toolfile against
     # the saved hash code when last reloaded.
@@ -369,4 +371,3 @@ class _TStat(object):
         if m1 and self._hash_code != m1:
             self._hash_code = m1
             self.emit_update()
-

@@ -22,10 +22,11 @@
 #define MB2HAL_DEFAULT_MB_RESPONSE_TIMEOUT_MS 500
 #define MB2HAL_DEFAULT_MB_BYTE_TIMEOUT_MS     500
 #define MB2HAL_DEFAULT_TCP_PORT    502
+#define MB2HAL_MAX_FNCT01_ELEMENTS 100
 #define MB2HAL_MAX_FNCT02_ELEMENTS 100
 #define MB2HAL_MAX_FNCT03_ELEMENTS 100
 #define MB2HAL_MAX_FNCT04_ELEMENTS 100
-#define MB2HAL_MAX_FNCT05_ELEMENTS 100
+#define MB2HAL_MAX_FNCT05_ELEMENTS 1
 #define MB2HAL_MAX_FNCT06_ELEMENTS 1
 #define MB2HAL_MAX_FNCT15_ELEMENTS 100
 #define MB2HAL_MAX_FNCT16_ELEMENTS 100
@@ -41,9 +42,11 @@ typedef enum { linkRTU,
              } link_type_t;
 
 typedef enum { mbtxERR,
+               mbtx_01_READ_COILS,
                mbtx_02_READ_DISCRETE_INPUTS,
                mbtx_03_READ_HOLDING_REGISTERS,
                mbtx_04_READ_INPUT_REGISTERS,
+               mbtx_05_WRITE_SINGLE_COIL,
                mbtx_06_WRITE_SINGLE_REGISTER,
                mbtx_15_WRITE_MULTIPLE_COILS,
                mbtx_16_WRITE_MULTIPLE_REGISTERS,
@@ -102,6 +105,7 @@ typedef struct {
     //hal_float_t *scale;  //not yet implemented
     //hal_float_t *offset; //not yet implemented
     hal_bit_t **bit;
+    hal_bit_t **bit_inv;
     hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
@@ -178,9 +182,11 @@ retCode create_HAL_pins();
 retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx);
 
 //mb2hal_modbus.c
-retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
+retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
-retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
+retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
+retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
+retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);

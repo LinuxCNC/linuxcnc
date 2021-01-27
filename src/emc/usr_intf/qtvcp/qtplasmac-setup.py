@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''
-qtplasmac-config.py
+qtplasmac-setup.py
 
 This file is used to install a QtPlasmaC configuration.
 
@@ -28,7 +28,6 @@ import linuxcnc
 import time
 from shutil import copy as COPY
 from shutil import move as MOVE
-from shutil import rmtree as RMTREE
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
@@ -100,8 +99,10 @@ class Configurator(QMainWindow, object):
         if self.configureType == 'new' or self.configureType == 'reconfigure':
             self.aspectGroup.buttonClicked.connect(self.aspect_group_clicked)
             self.modeGroup.buttonClicked.connect(self.mode_group_clicked)
+            self.estopGroup.buttonClicked.connect(self.estop_group_clicked)
             self.aspect = ''
             self.mode = 0
+            self.estop = 0
             self.newIniFile = ''
             self.orgHalFile = ''
             self.inPlace = False
@@ -150,6 +151,11 @@ class Configurator(QMainWindow, object):
     def mode_group_clicked(self, button):
         self.mode = self.modeGroup.id(button)
         self.set_mode()
+
+# ESTOP CHANGED
+    def estop_group_clicked(self, button):
+        self.estop = self.estopGroup.id(button)
+        self.set_estop()
 
 # ENSURE VALID MACHINE NAME
     def machine_name_changed(self,widget):
@@ -222,7 +228,8 @@ class Configurator(QMainWindow, object):
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
                     caption=self.tr("Select a ini file"),
-                    filter=self.tr('HAL files (*.[hH][aA][lL]);;All Files (*)'),
+#                    filter=self.tr('HAL files (*.[hH][aA][lL] *.[tT][cC][lL]);;All Files (*)'),
+                    filter=self.tr('HAL files (*.hal *.tcl);;All Files (*.*)'),
                     directory=DIR
                     )
         if name:
@@ -282,6 +289,15 @@ class Configurator(QMainWindow, object):
             for widget in [self.arcOkLabel, self.arcOkPin, self.moveUpLabel, self.moveUpPin, self.moveDownLabel, self.moveDownPin]:
                 widget.show()
 
+# SET FOR ESTOP TYPE
+    def set_estop(self):
+        if self.estop == 0:
+            self.estopLabel.setText('Estop is an indicator only')
+        elif self.estop == 1:
+            self.estopLabel.setText('Estop is hidden')
+        elif self.estop == 2:
+            self.estopLabel.setText('Estop is a button')
+
 # CREATE A NEW CONFIG
     def on_create_clicked(self,button):
         if not self.check_entries():
@@ -289,6 +305,7 @@ class Configurator(QMainWindow, object):
         if self.configureType == 'reconfigure':
             if not self.link_to_common_folder(): return
             self.reconfigure()
+            self.cancel_clicked(None)
             self.dialog_ok('RECONFIGURE','\nReconfigure is complete.\n\n')
             return
         if not self.check_new_path(): return
@@ -303,6 +320,7 @@ class Configurator(QMainWindow, object):
         if not self.write_new_material_file(): return
         if not self.write_new_prefs_file(): return
         if not self.link_to_common_folder(): return
+        self.cancel_clicked(None)
         self.success_dialog()
 
 # CHECK IF ENTRIES ARE VALID
@@ -525,6 +543,8 @@ class Configurator(QMainWindow, object):
         self.outFile.write('[QTPLASMAC]\n' \
                            '# set the operating mode (default is 0)\n' \
                            'MODE                    = {}\n' \
+                           '\n# set the estop type (0=indicator, 1=hidden, 2=button)\n' \
+                           'ESTOP_TYPE              = {}\n' \
                            '\n# user buttons in the main window\n' \
                            'BUTTON_1_NAME           = OHMIC\TEST\n' \
                            'BUTTON_1_CODE           = ohmic-test\n' \
@@ -538,7 +558,7 @@ class Configurator(QMainWindow, object):
                            'BUTTON_5_CODE           = torch-pulse .5\n' \
                            'BUTTON_6_NAME           = \n' \
                            'BUTTON_6_CODE           = \n' \
-                        '\n# powermax communications\n'.format(self.mode) \
+                        '\n# powermax communications\n'.format(self.mode, self.estop) \
                         )
         if self.pmPortName.text():
             self.outFile.write('PM_PORT                 = {}\n'.format(self.pmPortName.text()))
@@ -790,7 +810,10 @@ class Configurator(QMainWindow, object):
             if 'servo_period_nsec' in line:
                 if 'num_spindles' in line:
                     line = line.split('num_spindles')[0].strip()
-                line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
+                if self.readHalFile.split('.')[1].lower() == 'tcl':
+                    line = '{} num_spindles=$::TRAJ(SPINDLES)\n'.format(line.strip())
+                else:
+                    line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
                 outFile.write(line)
         # remove spindle lines
             elif 'spindle' in line.lower():
@@ -945,6 +968,9 @@ class Configurator(QMainWindow, object):
                     elif line.startswith('MODE') and self.mode != self.oldMode:
                         self.oldMode = self.mode
                         outFile.write('MODE                    = {}\n'.format(self.mode))
+                    elif line.startswith('ESTOP_TYPE') and self.estop != self.oldEstop:
+                        self.oldEstop = self.estop
+                        outFile.write('ESTOP_TYPE              = {}\n'.format(self.estop))
                     elif line.startswith('PM_PORT') and self.oldPmPortName != self.pmPortName.text():
                         self.oldPmPortName = self.pmPortName.text()
                         outFile.write('PM_PORT                 = {}\n'.format(self.oldPmPortName))
@@ -1178,6 +1204,30 @@ class Configurator(QMainWindow, object):
                 elif line.startswith('[') or not line:
                     inFile.close()
                     break
+        with open(self.orgIniFile,'r') as inFile:
+            while 1:
+                line = inFile.readline()
+                if line.startswith('[QTPLASMAC]'): break
+            while 1:
+                line = inFile.readline()
+                if line.startswith('ESTOP_TYPE'):
+                    estop = line.split('=')[1].strip()
+                    if estop == '2':
+                        self.oldEstop = '2'
+                        self.estop2.setChecked(True)
+                    elif estop == '1':
+                        self.oldEstop = '1'
+                        self.estop1.setChecked(True)
+                    else:
+                        self.oldEstop = '0'
+                        self.estop0.setChecked(True)
+                    inFile.close()
+                    break
+                elif line.startswith('[') or not line:
+                    self.oldEstop = '0'
+                    self.estop0.setChecked(True)
+                    inFile.close()
+                    break
         self.arcVoltPin.setText('')
         self.oldArcVoltPin = ''
         self.arcOkPin.setText('')
@@ -1405,6 +1455,24 @@ class Configurator(QMainWindow, object):
             self.modeVBox.addWidget(self.modeLabel)
             self.modeVBox.addLayout(self.modeHBox)
             self.vBL.addLayout(self.modeVBox)
+            self.estopVBox = QVBoxLayout()
+            self.estopLabel = QLabel('Estop is an indicator only')
+            self.estopHBox = QHBoxLayout()
+            self.estopGroup = QButtonGroup()
+            self.estop0 = QRadioButton('Estop: 0')
+            self.estop0.setFixedHeight(25)
+            self.estop0.setChecked(True)
+            self.estopHBox.addWidget(self.estop0)
+            self.estopGroup.addButton(self.estop0, 0)
+            self.estop1 = QRadioButton('Estop: 1')
+            self.estopHBox.addWidget(self.estop1)
+            self.estopGroup.addButton(self.estop1, 1)
+            self.estop2 = QRadioButton('Estop: 2')
+            self.estopHBox.addWidget(self.estop2)
+            self.estopGroup.addButton(self.estop2, 2)
+            self.estopVBox.addWidget(self.estopLabel)
+            self.estopVBox.addLayout(self.estopHBox)
+            self.vBL.addLayout(self.estopVBox)
         if self.configureType == 'new' or self.configureType == 'reconfigure':
             self.arcVoltVBox = QVBoxLayout()
             self.arcVoltLabel = QLabel('Arc Voltage HAL pin: (float input)')
@@ -1508,7 +1576,7 @@ class Configurator(QMainWindow, object):
             self.vBR.addLayout(self.cameraVBox)
             for widget in [self.aspectLabel, iniLabel, halLabel, self.modeLabel, self.arcVoltLabel, \
                            self.arcOkLabel, torchLabel, self.moveUpLabel, self.moveDownLabel, \
-                           floatLabel, breakLabel, ohmicInLabel, ohmicOutLabel, \
+                           self.estopLabel, floatLabel, breakLabel, ohmicInLabel, ohmicOutLabel, \
                            scribeArmLabel, scribeOnLabel, pmPortLabel, laserLabel, cameraLabel]:
                 widget.setFixedHeight(24)
                 widget.setAlignment(Qt.AlignBottom)

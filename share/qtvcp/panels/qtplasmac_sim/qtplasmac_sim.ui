@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>180</width>
-    <height>324</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="maximumSize">
    <size>
     <width>180</width>
-    <height>324</height>
+    <height>400</height>
    </size>
   </property>
   <property name="baseSize">
@@ -63,14 +63,8 @@
     <property name="verticalSpacing">
      <number>8</number>
     </property>
-    <item row="16" column="0">
-     <widget class="PushButton" name="move_up">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="9" column="2">
+     <widget class="QPushButton" name="sensor_brk">
       <property name="minimumSize">
        <size>
         <width>54</width>
@@ -84,12 +78,18 @@
        </size>
       </property>
       <property name="text">
-       <string>UP</string>
+       <string>BREAK</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="0" colspan="2">
-     <widget class="QLabel" name="arc_voltage_label">
+    <item row="7" column="0" colspan="2">
+     <widget class="QLabel" name="sensor_label">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>170</width>
@@ -103,123 +103,10 @@
        </size>
       </property>
       <property name="text">
-       <string>ARC VOLTAGE</string>
+       <string>SENSORS</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="0" colspan="3">
-     <widget class="PushButton" name="arc_ok">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>ARC OK</string>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="16" column="1">
-     <widget class="GeneralHALInput" name="torch_on">
-      <property name="pin_name" stdset="0">
-       <string>torch_on</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="mode_label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>MODE 0</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="Line" name="mode_line">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="3">
-     <widget class="Line" name="arc_voltage_line">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -251,8 +138,199 @@
       </property>
      </widget>
     </item>
+    <item row="16" column="0">
+     <widget class="PushButton" name="move_up">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>UP</string>
+      </property>
+     </widget>
+    </item>
     <item row="11" column="0">
      <widget class="Line" name="sensor_line">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <widget class="QPushButton" name="sensor_flt">
+      <property name="minimumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>FLOAT</string>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="0" colspan="3">
+     <widget class="Line" name="arc_ok_line">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="2">
+     <widget class="GeneralHALOutput" name="sensor_breakaway">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>4</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="mode_label">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>MODE 0</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="HALLabel" name="arc_voltage_in">
+      <property name="minimumSize">
+       <size>
+        <width>54</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>54</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>0.00 V</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="float_pin_type" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="textTemplate" stdset="0">
+       <string>%0.0f</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0" colspan="2">
+     <widget class="QLabel" name="arc_ok_label">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>ARC OK</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="3">
+     <widget class="Line" name="arc_voltage_line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -301,14 +379,8 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0" colspan="2">
-     <widget class="QLabel" name="sensor_label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="19" column="0">
+     <widget class="QLabel" name="label">
       <property name="minimumSize">
        <size>
         <width>170</width>
@@ -322,15 +394,15 @@
        </size>
       </property>
       <property name="text">
-       <string>SENSORS</string>
+       <string>MACHINE</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
-     <widget class="QPushButton" name="sensor_flt">
+    <item row="9" column="1">
+     <widget class="QPushButton" name="sensor_ohm">
       <property name="minimumSize">
        <size>
         <width>54</width>
@@ -344,7 +416,49 @@
        </size>
       </property>
       <property name="text">
-       <string>FLOAT</string>
+       <string>OHMIC</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <widget class="GeneralHALOutput" name="sensor_ohmic">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>4</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QLabel" name="arc_voltage_label">
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>ARC VOLTAGE</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0">
+     <widget class="GeneralHALOutput" name="sensor_float">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>4</height>
+       </size>
       </property>
      </widget>
     </item>
@@ -385,67 +499,15 @@
       </property>
      </widget>
     </item>
-    <item row="12" column="0" colspan="2">
-     <widget class="QLabel" name="arc_ok_label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>ARC OK</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
+    <item row="16" column="1">
+     <widget class="GeneralHALInput" name="torch_on">
+      <property name="pin_name" stdset="0">
+       <string>torch_on</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="HALLabel" name="arc_voltage_in">
-      <property name="minimumSize">
-       <size>
-        <width>54</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>54</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>0.00 V</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="float_pin_type" stdset="0">
-       <bool>true</bool>
-      </property>
-      <property name="textTemplate" stdset="0">
-       <string>%0.0f</string>
-      </property>
-     </widget>
-    </item>
-    <item row="14" column="0" colspan="3">
-     <widget class="Line" name="arc_ok_line">
+    <item row="18" column="0">
+     <widget class="Line" name="line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -469,8 +531,61 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
-     <widget class="QPushButton" name="sensor_ohm">
+    <item row="1" column="0">
+     <widget class="Line" name="mode_line">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="0" colspan="3">
+     <widget class="PushButton" name="arc_ok">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>ARC OK</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="1">
+     <widget class="QPushButton" name="estop">
       <property name="minimumSize">
        <size>
         <width>54</width>
@@ -484,56 +599,10 @@
        </size>
       </property>
       <property name="text">
-       <string>OHMIC</string>
+       <string>ESTOP</string>
       </property>
-     </widget>
-    </item>
-    <item row="9" column="2">
-     <widget class="QPushButton" name="sensor_brk">
-      <property name="minimumSize">
-       <size>
-        <width>54</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>54</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>BREAK</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="0">
-     <widget class="GeneralHALOutput" name="sensor_float">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="1">
-     <widget class="GeneralHALOutput" name="sensor_ohmic">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="2">
-     <widget class="GeneralHALOutput" name="sensor_breakaway">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
+      <property name="checkable">
+       <bool>false</bool>
       </property>
      </widget>
     </item>

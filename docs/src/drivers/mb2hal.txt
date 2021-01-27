@@ -129,23 +129,33 @@ FIRST_ELEMENT=0
 NELEMENTS=16
 
 #REQUIRED: Modbus transaction function code (see www.modbus.org specifications).
+#    fnct_01_read_coils               (01 = 0x01)
 #    fnct_02_read_discrete_inputs     (02 = 0x02)
 #    fnct_03_read_holding_registers   (03 = 0x03)
 #    fnct_04_read_input_registers     (04 = 0x04)
+#    fnct_05_write_single_coil        (05 = 0x05)
+#    fnct_06_write_single_register    (06 = 0x06)
 #    fnct_15_write_multiple_coils     (15 = 0x0F)
 #    fnct_16_write_multiple_registers (16 = 0x10)
 
-#fnct_02_read_discrete_inputs: creates boolean output HAL pins.
-#fnct_03_read_holding_registers: creates a floating point output HAL pins.
-#                           also creates a u32 output HAL pins.
-#fnct_04_read_input_registers: creates a floating point output HAL pins.
-#                         also creates a u32 output HAL pins.
-#fnct_15_write_multiple_coils: creates boolean input HAL pins.
-#fnct_16_write_multiple_registers: creates a floating point input HAL pins.
+#fnct_01_read_coils and
+#fnct_02_read_discrete_inputs: creates boolean output HAL pins 'bit' and 'bit-inv'.
+#fnct_03_read_holding_registers and
+#fnct_04_read_input_registers: creates floating point output HAL pins 'float'.
+#                         also creates u32 output HAL pins 'int'.
+#fnct_05_write_single_coil:    creates a boolean input HAL pin 'bit'
+#	NELEMENTS needs to be 1 or PIN_NAMES must contain just one name
+#fnct_06_write_single_register: creates a floating point input HAL pin 'float'
+#                          also creates a u32 input HAL pin 'int'.
+#	NELEMENTS needs to be 1 or PIN_NAMES must contain just one name
+#   Both pin values are added and limited to 65535 (UINT16_MAX). Normally use one and let the other open (read as 0).
+#fnct_15_write_multiple_coils: creates boolean input HAL pins 'bit'.
+#fnct_16_write_multiple_registers: creates floating point input HAL pins 'float'.
+#                             also creates u32 input HAL pins 'int'.
+#    Both pin values are added and limited to 65535 (UINT16_MAX). Normally use one and let the other open (read as 0).
 
 #The pins are named based on component name, transaction number and order number.
-#Example: mb2hal.00.01 (transaction=00, second register=01 (00 is the first one))
-
+#Example: mb2hal.00.01.<type> (transaction=00, second register=01 (00 is the first one))
 MB_TX_CODE=fnct_03_read_holding_registers
 
 #OPTIONAL: Response timeout for this transaction. In INTEGER ms. Defaults to 500 ms.
@@ -160,7 +170,7 @@ MB_BYTE_TIMEOUT_MS=500
 
 #OPTIONAL: Instead of giving the transaction number, use a name.
 #Example: mb2hal.00.01 could become mb2hal.plcin.01
-#The name must not exceed 32 characters.
+#The name must not exceed 28 characters.
 #NOTE: when using names be careful that you dont end up with two transactions
 #usign the same name.
 
