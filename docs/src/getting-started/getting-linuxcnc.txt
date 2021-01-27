@@ -43,11 +43,20 @@ http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip
+http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip
 
 This can be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
 including with the Raspberry Pi Imager app.
+
+This SD image is reported not to work with the Raspberry Pi4 8GB model.
+Note also that this version of the SD image limits available memory to
+3GB as this is necessary to persuade it to run with both WiFi and USB
+working  on some versions of the Pi. You can experiment with removing
+this limit by editing the config-rt.txt file in the boot directory. If
+you can't boot after the change then the file can be edited back by
+mounting the SD card in a a different computer (maybe even a Pi with a
+USB card reader)
 
 === Download using zsync
 
