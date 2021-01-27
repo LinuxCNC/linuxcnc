@@ -12,6 +12,7 @@
 #REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
 
 import emccanon
+import linuxcnc
 from interpreter import *
 from emccanon import MESSAGE
 from subprocess import PIPE, Popen
@@ -525,6 +526,10 @@ def tool_probe_m6(self, **words):
     if not self.task:
         yield INTERP_OK
 
+    # create a connection to the linuxcnc status channel
+    self.stat = linuxcnc.stat() 
+    self.stat.poll()            # get current Linuxcnc.stat values
+    
     METRIC_BASED = (bool(self.params['_metric_machine']))      #(commented out a workaround for 2.8)
 #    if Popen('halcmd getp halui.machine.units-per-mm',stdout=PIPE,shell=True).communicate()[0].strip() == "1":
 #        METRIC_BASED = 1
@@ -634,27 +639,6 @@ def tool_probe_m6(self, **words):
             self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
             self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
 
-            # backup G5x offset for correct tool measurement
-            if self.params["_coord_system"] == 540:
-                self.params["_backup_coord_offset"] = self.params[5223]
-            elif self.params["_coord_system"] == 550:
-                self.params["_backup_coord_offset"] = self.params[5243]
-            elif self.params["_coord_system"] == 560:
-                self.params["_backup_coord_offset"] = self.params[5263]
-            elif self.params["_coord_system"] == 570:
-                self.params["_backup_coord_offset"] = self.params[5283]
-            elif self.params["_coord_system"] == 580:
-                self.params["_backup_coord_offset"] = self.params[5303]
-            elif self.params["_coord_system"] == 590:
-                self.params["_backup_coord_offset"] = self.params[5323]
-            elif self.params["_coord_system"] == 591:
-                self.params["_backup_coord_offset"] = self.params[5343]
-            elif self.params["_coord_system"] == 592:
-                self.params["_backup_coord_offset"] = self.params[5363]
-            elif self.params["_coord_system"] == 593:
-                self.params["_backup_coord_offset"] = self.params[5383]
-            print ("_backup_coord_offset", self.params["_backup_coord_offset"])
-
             # set incremental mode
             self.execute("G91")
 
@@ -697,7 +681,7 @@ def tool_probe_m6(self, **words):
             self.execute("G90")
 
             # calculations for tool offset saved in the tooltable
-            adj = proberesult - self.params["_ini[TOOLSENSOR]HEIGHT"] + self.params["_backup_coord_offset"]     # Your welcome for other solution !
+            adj = proberesult - self.params["_ini[TOOLSENSOR]HEIGHT"] + self.stat.g5x_offset[2]     # Your welcome for other solution !
             self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))            # REGISTER NEW TOOL LENGTH
 
             # apply tool offset
