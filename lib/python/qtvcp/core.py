@@ -52,11 +52,11 @@ class QPin(hal.Pin, QObject):
         return False
 
     @classmethod
-    def update_all(self):
-        if not self.UPDATE:
+    def update_all(cls):
+        if not cls.UPDATE:
             return
         kill = []
-        for p in self.REGISTRY:
+        for p in cls.REGISTRY:
             try:
                 p.update()
             except Exception as e:
@@ -64,20 +64,20 @@ class QPin(hal.Pin, QObject):
                 log.error("Error updating pin {}; Removing".format(p))
                 log.exception(e)
         for p in kill:
-            self.REGISTRY.remove(p)
-        return self.UPDATE
+            cls.REGISTRY.remove(p)
+        return cls.UPDATE
 
     @classmethod
-    def update_start(self, timeout=100):
+    def update_start(cls, timeout=100):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_all)
-        self.timer.start(100)
+        cls.timer = QTimer()
+        cls.timer.timeout.connect(cls.update_all)
+        cls.timer.start(100)
 
     @classmethod
-    def update_stop(self, timeout=100):
+    def update_stop(cls, timeout=100):
         QPin.UPDATE = False
 
 
@@ -119,8 +119,7 @@ class QComponent:
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
             t = inspect.getframeinfo(inspect.currentframe().f_back)
-            log.error("QComponent: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
-                format(e, t[0], t[1], t[2]))
+            log.error(f"QComponent: Error making new HAL pin: {e}\n    {t[0]}\n    Line {t[1]}\n    Function: {t[2]}")
             p = DummyPin(*a, ERROR=e)
         return p
 
@@ -201,6 +200,7 @@ class Action(_ActionParent):
             cls._instance = _ActionParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
+
 ################################################################
 # TStat class
 ################################################################
@@ -215,6 +215,7 @@ class Tool(_TStatParent):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
 
 ################################################################
 # PStat class
