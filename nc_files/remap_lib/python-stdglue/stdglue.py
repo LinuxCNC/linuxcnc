@@ -12,8 +12,10 @@
 #REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
 
 import emccanon
+import linuxcnc
 from interpreter import *
 from emccanon import MESSAGE
+from subprocess import PIPE, Popen
 throw_exceptions = 1
 
 # REMAP=S   prolog=setspeed_prolog  ngc=setspeed epilog=setspeed_epilog
@@ -473,17 +475,17 @@ def index_lathe_tool_with_wear(self,**words):
 # REMAP=M6 modalgroup=10 python=tool_probe_m6
 #
 # auto tool probe on m6
-# move to tool change position for toolchange
-# wait for acknoledge of tool change
+# save user units
+# move to Z max
+# move to EMCIO position for toolchange
+# backup offset and position
+# wait for acknowledge of tool change
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position
-# set offsets
-# based on Versaprobe remap
-#
-# param 5000 holds the work piece height
-# param 4999 should be set to 1 if the 
-# machine is based in imperial
+# set tool offsets using toolsetterheight and _backup_coord_offset
+# move to Z max
+# restore user units
 #
 # required INI settings
 # (Abs coordinates/ machine based units)
@@ -491,66 +493,110 @@ def index_lathe_tool_with_wear(self,**words):
 # will follow these directives:
 #{EMCIO]
 #TOOL_CHANGE_POSITION = 0 0 0
-#TOOL_CHANGE_WITH_SPINDLE_ON = 1
+#TOOL_CHANGE_WITH_SPINDLE_ON = 0
 #TOOL_CHANGE_QUILL_UP = 1
 
+## exemple with metric unit mm
 #[TOOLSENSOR]
-#X = 5.00
-#Y = -1
-#Z = -1
-#PROBEHEIGHT = 2.3
-#MAXPROBE =  -3
-#SEARCH_VEL = 20
+## Absolute coordinates of the toolsetter pad G53 machine cooordinates
+#X = -40
+#Y = -40
+## Absolute Z start search coordinates is a move relative G0 from toolchange position
+#Z = -30
+## The height of you tool setter
+#HEIGHT = 40
+## Maximum search distance and direction (positive number but used as negative inside macro)
+#MAXPROBE = 80
+## Latched distance after probing use value like 1mm for standalone
+## or something like 0.3mm is enough if you use REVERSE_LATCH
+#LATCH = 0.3
+## If setter as spring inside you can use REVERSE_LATCH with G38.5 with value like 1mm
+## or if your setter does not have a spring inside (inhibit G38.5) with value 0
+#REVERSE_LATCH = 1
+## Fast first probe velocity
+#SEARCH_VEL = 100
+## Slow final probe velocity
 #PROBE_VEL = 5
+
 
 def tool_probe_m6(self, **words):
 
-    # only run this if we are really moving the machine
+# only run this if we are really moving the machine
     # skip this if running task for the screen
     if not self.task:
         yield INTERP_OK
 
-    IMPERIAL_BASED = not(bool(self.params['_metric_machine']))
+    # create a connection to the linuxcnc status channel
+    self.stat = linuxcnc.stat() 
+    self.stat.poll()            # get current Linuxcnc.stat values
+    
+    METRIC_BASED = (bool(self.params['_metric_machine']))      #(commented out a workaround for 2.8)
+#    if Popen('halcmd getp halui.machine.units-per-mm',stdout=PIPE,shell=True).communicate()[0].strip() == "1":
+#        METRIC_BASED = 1
+#    else:
+#        METRIC_BASED = 0
 
-    # turn off all spindles if required
+#    if Popen('halcmd getp probe.use_tool_measurement',stdout=PIPE,shell=True).communicate()[0].strip() == 'FALSE':
+#        BYPASS_MEASURE = 1
+#    else:
+#        BYPASS_MEASURE = 0
+
+    # Saving G90 G91 at startup
+    ABSOLUTE_FLAG = (bool(self.params["_absolute"]))
+
+    # Saving feed at startup
+    FEED_BACKUP = (bool(self.params["_feed"]))
+
+    # cancel tool offset
+    self.execute("G49")
+
+    # record current position XY but Z only without toolchange_quill_up enabled
+    X = emccanon.GET_EXTERNAL_POSITION_X()
+    Y = emccanon.GET_EXTERNAL_POSITION_Y()
+    Z = emccanon.GET_EXTERNAL_POSITION_Z()                     # restoring Z can be removed or keep this need to choosed
+
+    # turn off all spindles if required                        #(commented out a workaround for 2.8)
     if not self.tool_change_with_spindle_on:
         for s in range(0,self.num_spindles):
             emccanon.STOP_SPINDLE_TURNING(s)
 
+#    if not self.params["_ini[EMCIO]TOOL_CHANGE_WITH_SPINDLE_ON"]:
+#        for s in range(0,int(self.params["_ini[EMCMOT]NUM_SPINDLES"])):
+#            emccanon.STOP_SPINDLE_TURNING(s)
+
     try:
         # we need to be in machine based units
         # if we aren't - switch
-        # remember so we can switch back later
-        switchUnitsFlag = False
-        if bool(self.params["_imperial"]) != IMPERIAL_BASED:
-            print ("not right Units: {}".format(bool(self.params["_imperial"])))
-            if IMPERIAL_BASED:
-                print ("switched Units to imperial")
-                self.execute("G20")
-            else:
+        BACKUP_METRIC_FLAG = self.params["_metric"]
+        if BACKUP_METRIC_FLAG != METRIC_BASED:
+            print ("not right Units: {}".format(bool(self.params["_metric"])))
+            if METRIC_BASED:
                 print ("switched Units to metric")
                 self.execute("G21")
-            switchUnitsFlag = True
+            else:
+                print ("switched Units to imperial")
+                self.execute("G20")
+
+        # Force absolute for G53 move
+        self.execute("G90")
+
+        # Z up first if required + wait finished : NEVED TRY TO safety check here or issue appears because this is before change tool #(comment out workaround for 2.8)
+        if self.tool_change_quill_up:
+#        if self.params["_ini[EMCIO]TOOL_CHANGE_QUILL_UP"]:
+            self.execute("G53 G0 Z0")
+            #yield INTERP_EXECUTE_FINISH                                                                 # sometime i will have diagonal move without waiting
 
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
         self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
 
-        # cancel tool offset
-        self.execute("G49")
-
-        # Z up first i required
-        if self.tool_change_quill_up:
-            self.execute("G53 G0 Z0")
-
-        #
         # change tool where ever we are
         # user sets toolchange position prior to toolchange
-        # we will return here after
-
+        # we will return here after only for XY
+############################################################## TODO ACTUAL SYSTEM DOES NOT SHOW CONFIRMATION POPUP IF YOU M6Tx SAME TOOL AS ACTUAL
         try:
-            self.selected_pocket =  int(self.params["selected_pocket"])
+            self.selected_pocket =  int(self.params["selected_pocket"])                                # this code imo is redundant with line 578 but need review???
             emccanon.CHANGE_TOOL(self.selected_pocket)
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
@@ -559,94 +605,139 @@ def tool_probe_m6(self, **words):
             self.set_tool_parameters()
             self.toolchange_flag = True
         except InterpreterException as e:
+            # if we switched units for tool change - switch back
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
             yield INTERP_ERROR
 
-        yield INTERP_EXECUTE_FINISH
+        print (self.params["tool_in_spindle"], self.current_tool)
+        print (self.params["selected_tool"], self.selected_tool)
+        print (self.params["current_pocket"], self.current_pocket)
+        print (self.params["selected_pocket"], self.selected_pocket)
 
-        # record current position; probably should record every axis
-        X = emccanon.GET_EXTERNAL_POSITION_X()
-        Y = emccanon.GET_EXTERNAL_POSITION_Y()
-        Z = emccanon.GET_EXTERNAL_POSITION_Z()
+
+        # Prevent tool measurement if M6T0 or invalid negative number
+        if self.params["selected_tool"] < 0:
+            self.execute("(ABORT,TOOLNUMBER NEGATIVE NOT POSSIBLE")
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+            yield INTERP_ERROR
+
+        if self.params["selected_tool"] == 0:
+            yield INTERP_OK
+
+#        # bypass option for restoring simple manual mode without autolength
+#        if BYPASS_MEASURE:
+#            # re-apply tool offset
+#            self.execute("G43")
+#            yield INTERP_OK
+
 
         try:
-            # move to tool probe position (from INI)
+            # move to tool setter position (from INI)
             self.execute("G90")
-            self.execute("G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>]")
-            self.execute("G53 G0 Z[#<_ini[TOOLSENSOR]Z>]")
+
+            self.execute("G53 G0 X#<_ini[TOOLSENSOR]X> Y#<_ini[TOOLSENSOR]Y>")
+            self.execute("G53 G0 Z#<_ini[TOOLSENSOR]Z>")
 
             # set incremental mode
             self.execute("G91")
 
-            # course probe
-            self.execute("F [#<_ini[TOOLSENSOR]SEARCH_VEL>]")
-            self.execute("G38.2 Z [#<_ini[TOOLSENSOR]MAXPROBE>]")
-
+            # Fast Search probe
+            self.execute("G38.3 Z-#<_ini[TOOLSENSOR]MAXPROBE> F#<_ini[TOOLSENSOR]SEARCH_VEL>")
             # Wait for results
             yield INTERP_EXECUTE_FINISH
+            # Check if we have get contact or not
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
 
-            # FIXME if there is an error it never comes back
-            # which leaves linuxcnc in g91 state
-            if self.params[5070] == 0 or self.return_value > 0.0:
-                self.execute("G90")
-                self.set_errormsg("tool_probe_m6 remap error:")
-                yield INTERP_ERROR
-
-            # rapid up off trigger point to do it again
-            if bool(self.params["_imperial"]):
-                f = 0.25
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0:
+                # Spring mounted latch probe
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                yield INTERP_EXECUTE_FINISH
+                # Check if we have get contact or not
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+                # Additional Retract
+                self.execute("G1 Z#<_ini[TOOLSENSOR]LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
             else:
-                f = 4.0
-            self.execute("G0 Z{}".format(f))
+                # Retract Latch
+                self.execute("G1 Z#<_ini[TOOLSENSOR]LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>]")
 
-            self.execute("F [#<_ini[TOOLSENSOR]PROBE_VEL>]")
-            self.execute("G38.2 Z-0.5")
+            # Final probe
+            self.execute("G38.3 Z-[#<_ini[TOOLSENSOR]LATCH>*2] F#<_ini[TOOLSENSOR]PROBE_VEL>")
             yield INTERP_EXECUTE_FINISH
+            # Check if we have get contact or not
+            tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
 
-            # FIXME if there is an error it never comes back
-            # which leaves linuxcnc in g91 state
-            if self.params[5070] == 0 or self.return_value > 0.0:
-                self.execute("G90")
-                self.set_errormsg("tool_probe_m6 remap error:")
-                yield INTERP_ERROR
+            # Save the probe result now due to possible use of G38.5 for retract
+            proberesult = self.params[5063]
 
-            # set back absolute state
+            if self.params["_ini[TOOLSENSOR]REVERSE_LATCH"] > 0:
+                # Spring mounted latch probe
+                self.execute("G38.5 Z#<_ini[TOOLSENSOR]REVERSE_LATCH> F[#<_ini[TOOLSENSOR]SEARCH_VEL>*0.5]")
+                yield INTERP_EXECUTE_FINISH
+                # Check if we have get contact or not
+                tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+
+            # Force absolute for G53 move
             self.execute("G90")
 
-            # return to recorded tool change positon
-            self.execute("G53 G0 Z{:.5f}".format(Z))
-
-            self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
-
-            # adjust tool offset from calculations
-            proberesult = self.params[5063]
-            probeheight = self.params["_ini[TOOLSENSOR]PROBEHEIGHT"] 
-            workheight = self.params[5000]
-
-            adj = proberesult - probeheight + workheight
-            self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))
+            # calculations for tool offset saved in the tooltable
+            adj = proberesult - self.params["_ini[TOOLSENSOR]HEIGHT"] + self.stat.g5x_offset[2]     # Your welcome for other solution !
+            self.execute("G10 L1 P#<selected_tool> Z{}".format(adj))            # REGISTER NEW TOOL LENGTH
 
             # apply tool offset
             self.execute("G43")
 
-            # if we switched units for tool change - switch back
-            if switchUnitsFlag:
-                if IMPERIAL_BASED:
-                    self.execute("G21")
-                    print ("switched Units back to metric")
-                else:
-                    self.execute("G20")
-                    print ("switched Units back to imperial")
- 
+            # Z up first if required + wait finished (status test already done before)      #(commented out a workaround for 2.8)
+            if self.tool_change_quill_up:
+#            if self.params["_ini[EMCIO]TOOL_CHANGE_QUILL_UP"]:
+                self.execute("G53 G0 Z0")
+            else:                                                                           # restoring Z can be removed or keep this need to be chosen
+                self.execute("G53 G0 Z{:.5f}".format(Z))
+
+            self.execute("G53 G0 X{:.5f} Y{:.5f}".format(X,Y))
+
+            # if we switched units for tool change - switch back and act ok to interp
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+            yield INTERP_OK
+
         except InterpreterException as e:
+            # if we switched units for tool change - switch back
+            tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
             msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
             print (msg)
             yield INTERP_ERROR
 
     except Exception as e:
+        # if we switched units for tool change - switch back
+        tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
         print (e)
-        self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
+        self.set_errormsg("tool_probe_m6 remap error: nothing restored or unknown state : %s" % (e))
         yield INTERP_ERROR
 
+# Check if we have get contact or not
+def tool_probe_check_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG):
+            if self.params[5070] == 0 or self.return_value > 0.0:
+                # if we switched units for tool change - switch back
+                tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+                #self.set_errormsg("tool_probe_m6 remap error: Probe contact not found")
+                #yield INTERP_ERROR
+                self.execute("(ABORT,Probe contact not found)")
 
+# if we switched units for tool change - switch back
+def tool_probe_restore_sub(self, ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG):
+            print ("restore Units", ABSOLUTE_FLAG, FEED_BACKUP, BACKUP_METRIC_FLAG)
+            if ABSOLUTE_FLAG:
+                self.execute("G90")
+            else:
+                self.execute("G91")
 
+            if BACKUP_METRIC_FLAG:
+                self.execute("G21")
+                print ("switched Units back to metric")
+            else:
+                self.execute("G20")
+                print ("switched Units back to imperial")
+
+            self.params["feed"] = FEED_BACKUP
+            
+            
