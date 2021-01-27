@@ -350,6 +350,8 @@ class HandlerClass:
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zOffsetCounts = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
+        self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
+        self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
@@ -1145,6 +1147,22 @@ class HandlerClass:
         if state:
             ACTION.TOGGLE_LIMITS_OVERRIDE()
 
+    def param_tab_changed(self, state):
+        if state:
+            self.w.main_tab_widget.setTabEnabled(2, False)
+            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+                self.w.main_tab_widget.setTabEnabled(3, False)
+        else:
+            self.w.main_tab_widget.setTabEnabled(2, True)
+            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+                self.w.main_tab_widget.setTabEnabled(3, True)
+
+    def conv_tab_changed(self, state):
+        if state:
+            self.w.main_tab_widget.setTabEnabled(1, False)
+        else:
+            self.w.main_tab_widget.setTabEnabled(1, True)
+
 
 #########################################################################################################################
 # GENERAL FUNCTIONS #
@@ -1331,6 +1349,8 @@ class HandlerClass:
         self.w.led_float_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'float switch'))
         self.w.led_ohmic_probe.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'ohmic probe'))
         self.w.led_breakaway_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'breakaway switch'))
+        self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
+        self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
