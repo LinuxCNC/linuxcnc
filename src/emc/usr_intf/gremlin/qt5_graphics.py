@@ -251,6 +251,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.show_rapids = True
         self.use_relative = True
         self.show_tool = True
+        self.show_lathe_radius = False
         self.show_dtg = True
         self.grid_size = 0.0
         temp = self.inifile.find("DISPLAY", "LATHE")
