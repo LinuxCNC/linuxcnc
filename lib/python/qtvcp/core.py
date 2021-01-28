@@ -21,6 +21,21 @@ from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
+################################################################
+# IStat class
+################################################################
+class Info(IStatParent):
+    _instance = None
+    _instanceNum = 0
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+
+
+# Now that the class is defined create a reference to it for the other classes
+INI = Info()
 
 class QPin(hal.Pin, QObject):
 
@@ -68,16 +83,16 @@ class QPin(hal.Pin, QObject):
         return self.UPDATE
 
     @classmethod
-    def update_start(self, timeout=100):
+    def update_start(self):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_all)
-        self.timer.start(100)
+        self.timer.start(INI.GRAPHICS_CYCLE_TIME*1000)
 
     @classmethod
-    def update_stop(self, timeout=100):
+    def update_stop(self):
         QPin.UPDATE = False
 
 
@@ -133,23 +148,6 @@ class QComponent:
 
 
 ################################################################
-# IStat class
-################################################################
-class Info(IStatParent):
-    _instance = None
-    _instanceNum = 0
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
-        return cls._instance
-
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-
-
-################################################################
 # GStat class
 ################################################################
 # use the same Gstat as gladeVCP uses
@@ -183,7 +181,7 @@ class Status(GStat):
     # seg fault without it
     def set_timer(self):
         GObject.threads_init()
-        GObject.timeout_add(100, self.update)
+        GObject.timeout_add(int(INI.CYCLE_TIME*1000), self.update)
 
 
 ################################################################

@@ -280,11 +280,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.xRot = 0
         self.yRot = 0
         self.zRot = 0
-  
-        # add a 100ms timer to poll linuxcnc stats
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.poll)
-        self.timer.start(100)
 
         self.Green = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.inhibit_selection = True
@@ -293,7 +288,14 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_mm = "% 9.3f"
         self.dro_deg = "% 9.2f"
         self.dro_vel = "   Vel:% 9.2F"
+        self.addTimer()
 
+    # add a 100ms timer to poll linuxcnc stats
+    # this may be overriden in sub widgets
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(100)
 
     def poll(self):
         s = self.stat

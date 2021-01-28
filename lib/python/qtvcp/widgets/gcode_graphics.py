@@ -23,7 +23,7 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, QTimer
 from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
@@ -67,6 +67,11 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._view_incr = 20
         self.inhibit_selection = False
         self._block_line_selected = False
+
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(INFO.GRAPHICS_CYCLE_TIME*1000)
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
