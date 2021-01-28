@@ -59,6 +59,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.actual_spindle_speed = False
         self.actual_surface_speed = False
         self.user_system = False
+        self.blendcode = False
+        self.fcode = False
         self.gcodes = False
         self.mcodes = False
         self.tool_diameter = False
@@ -108,6 +110,10 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: _f(data))
         elif self.user_system:
             STATUS.connect('user-system-changed', self._set_user_system_text)
+        elif self.blendcode:
+            STATUS.connect('blend-code-changed', lambda w, blend, cam: self._set_blend_text(blend, cam))
+        elif self.fcode:
+            STATUS.connect('f-code-changed', lambda w, data: self._set_fcode_text(data))
         elif self.gcodes:
             STATUS.connect('g-code-changed', lambda w, data: _f(data))
         elif self.mcodes:
@@ -149,6 +155,14 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _set_alt_text(self, data):
             tmpl = lambda s: str(self._alt_textTemplate) % s
             self.setText(tmpl(data))
+
+    def _set_blend_text(self, blend, cam):
+        tmpl = lambda s: str(self._textTemplate) % s
+        alttmpl = lambda s: str(self._alt_textTemplate) % s
+        self.setText(tmpl(blend) + alttmpl(cam))
+
+    def _set_fcode_text(self, data):
+        self._set_text(data)
 
     def _set_feedrate_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
@@ -298,7 +312,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
                 'machine_state', 'time_stamp', 'max_velocity', 'tool_offset',
-                'gcode_selected')
+                'gcode_selected', 'fcode', 'blendcode')
 
         for i in data:
             if not i == picked:
@@ -487,6 +501,26 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_user_system(self):
         self.user_system = False
 
+    # fcode status
+    def set_fcode(self, data):
+        self.fcode = data
+        if data:
+            self._toggle_properties('fcode')
+    def get_fcode(self):
+        return self.fcode
+    def reset_fcode(self):
+        self.fcode = False
+
+    # blendcode status
+    def set_blendcode(self, data):
+        self.blendcode = data
+        if data:
+            self._toggle_properties('blendcode')
+    def get_blendcode(self):
+        return self.blendcode
+    def reset_blendcode(self):
+        self.blendcode = False
+
     # gcodes status
     def set_gcodes(self, data):
         self.gcodes = data
@@ -625,6 +659,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed,
                                                       reset_actual_spindle_speed)
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
+    blendcode_status = QtCore.pyqtProperty(bool, get_blendcode, set_blendcode, reset_blendcode)
+    fcode_status = QtCore.pyqtProperty(bool, get_fcode, set_fcode, reset_fcode)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
