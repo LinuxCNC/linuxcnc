@@ -1343,6 +1343,9 @@
                    <string>DRO</string>
                   </attribute>
                   <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
                    <property name="leftMargin">
                     <number>0</number>
                    </property>
@@ -1530,6 +1533,9 @@
                            </property>
                            <item>
                             <layout class="QHBoxLayout" name="horizontalLayout_g53_x">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
                              <item>
                               <widget class="DROLabel" name="dro_label_g53_x">
                                <property name="sizePolicy">
@@ -1552,6 +1558,18 @@
                             <widget class="QWidget" name="dro_absolute_y" native="true">
                              <layout class="QHBoxLayout" name="horizontalLayout_g53_y">
                               <property name="spacing">
+                               <number>0</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
                                <number>0</number>
                               </property>
                               <item>
@@ -1611,6 +1629,18 @@
                        <widget class="QWidget" name="dro_relative_y" native="true">
                         <layout class="QHBoxLayout" name="horizontalLayout_18">
                          <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
                           <number>0</number>
                          </property>
                          <item>
