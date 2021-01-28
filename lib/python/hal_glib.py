@@ -23,6 +23,13 @@ try:
 except:
     pass
 
+# get cycle time which could be in ms or seconds
+# convert to ms
+ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+if ct < 1:
+    CYCLE_TIME = int(ct * 1000)
+else:
+    CYCLE_TIME = int(ct)
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -242,7 +249,7 @@ class _GStat(GObject.GObject):
     # we put this in a function so qtvcp
     # can override it to fix a seg fault
     def set_timer(self):
-        GObject.timeout_add(100, self.update)
+        GObject.timeout_add(CYCLE_TIME, self.update)
 
     def merge(self):
         self.old['command-state'] = self.stat.state
