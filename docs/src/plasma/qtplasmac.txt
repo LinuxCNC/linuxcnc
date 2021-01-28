@@ -632,15 +632,9 @@ OFFSET_AV_RATIO  = 0.5
 
 NOTE: QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused. For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
 
-== Using QtPlasmaC
+== QTPlasmaC GUI Overview
 
-Once QtPlasmaC is successfully installed, no Z axis motion is required to be part of the G-Code cut program. In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
-
-For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other than the coordinate system offsets (G54-G59.3).
-
-QtPlasmaC will automatically move the Z axis to the correct height at the beginning of every G-Code program.
-
-*Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
+The following sections will give a general overview of the QtPlasmaC layout.
 
 === MAIN Tab
 
@@ -663,7 +657,7 @@ Some functions/features are only used for particular modes and are not displayed
 |CH:|If "View Material" is selected on the PARAMETERS tab, this displays the currently selected material's Cut Height.
 |CA:|If "View Material" is selected on the PARAMETERS tab, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |P|This button changes the preview to an isometric view.
-|P|This button changes the preview to a top down view.
+|Z|This button changes the preview to a top down view.
 |Right Arrow|This button the preview right.
 |Left Arrow|This button the preview left.
 |Up Arrow|This button the preview up.
@@ -693,7 +687,7 @@ Clicking the label will return the slider to 100%.
 |RAPID|This slider overrides the rapid rate for all rapid moves. +
 Any value other than 100% will cause the label to flash. +
 Clicking the label will return the slider to 100%.
-|RAPID|This slider sets the jog rate. +
+|JOG|This slider sets the jog rate. +
 Clicking the label will return the slider to the default linear velocity as set in the <machine_name).ini file.
 |===
 
@@ -701,7 +695,9 @@ Clicking the label will return the slider to the default linear velocity as set 
 
 The Button Panel contains buttons useful for the operation of the machine.
 
-The *EDIT* and *MDI* buttons are permanent, all other buttons are <<custom-user-buttons, user programmable>> in the <machine_name>.ini file.
+The *EDIT* and *MDI* buttons are permanent, all other buttons are user programmable in the <machine_name>.ini file.
+
+See <<custom-user-buttons, custom user buttons>> for detailed information on custom user buttons.
 
 [width="100%",cols="4,16"]
 |===
@@ -745,7 +741,7 @@ If this box is not filled, then running a loaded program will cause the machine 
 |VELOCITY A/DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY A/DIVE.
 |VOID A/DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID A/DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID A/DIVE.
-|MESH MODE|0, 1, 2|This box will enable or disable Mesh Mode for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. Additionally this mode may be enabled or disabled via proper M codes in a running program. +
+|MESH MODE|0, 1, 2|This box will enable or disable <<mesh-mode, Mesh Mode>> for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. Additionally this mode may be enabled or disabled via proper M codes in a running program. +
 Mesh mode: +
 - Will require an Arc OK signal to start machine motion. +
 - Will disable the THC. +
@@ -769,44 +765,91 @@ For more information, see the <<pm_comms, PowerMax Communications>> section.
 
 [underline]*SENSOR*
 
-[width="100%",cols="6,2,14"]
+[width="100%",cols="4,16"]
 |===
-|*Name*|*Modes*|*Description*
-|FLOAT|0, 1, 2|Indicates that the float switch is activated.
-|OHMIC|0, 1, 2|Indicates that the probe has sensed the material.
-|BREAK|0, 1, 2|Indicates that the torch breakaway sensor is activated.
+|*Name*|*Description*
+|FLOAT|Indicates that the float switch is activated.
+|OHMIC|Indicates that the probe has sensed the material.
+|BREAK|Indicates that the torch breakaway sensor is activated.
 |===
 
 [underline]*THC*
 
-[width="100%",cols="6,2,14"]
+[width="100%",cols="4,16"]
 |===
-|*Name*|*Modes*|*Description*
-|ENABLE|0, 1, 2|This box determines whether the THC will be enabled or disabled during a cut.
-|ENABLED|0, 1, 2|This LED indicates whether the THC is enabled or disabled.
-|THC Active|0, 1, 2|This LED indicates that the THC is actively controlling the Z axis.
-|THC Up|0, 1, 2|This LED indicates that the THC is commanding the Z axis to raise.
-|THC Down|0, 1, 2|This LED indicates that the THC is commanding the Z axis to lower.
+|*Name*|*Description*
+|ENABLE|This box determines whether the THC will be enabled or disabled during a cut.
+|ENABLED|This LED indicates whether the THC is enabled or disabled.
+|THC Active|This LED indicates that the THC is actively controlling the Z axis.
+|THC Up|This LED indicates that the THC is commanding the Z axis to raise.
+|THC Down|This LED indicates that the THC is commanding the Z axis to lower.
 |===
 
-////
-ADD THIS TO THE JOGGING SECTION
-[[paused-motion-speed]]
+[underline]*JOGGING*
 
-[underline]*Paused Motion Speed*
-
-In the event of a paused program, this interface allows X/Y motion to follow the programmed path in the reverse or forward direction.
+NOTE: During Paused Motion, this section will become <<cut-recovery, CUT RECOVERY>>
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Rev|In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
-|Motion Speed Slider|This slider will set the percentage of the current Cut Feed Rate shown in the Run Panel's Cut Parameters section for the currently selected material.
-|Fwd|In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
+|CONTINUOUS|This drop down button will change the jog increment.  Options are determined by the values in the [DISPLAY] section of the <machine_name>.ini file and begin with the label "INCREMENTS =".
+|FAST|This button will toggle between FAST which is the default linear velocity in the <machine_name>.ini file or SLOW which is 10% of the default value.
+|Y+|This button moves the Y axis in the positive direction.
+|Y-|This button moves the Y axis in the negative direction.
+|X+|This button moves the X axis in the positive direction.
+|X-|This button moves the X axis in the negative direction.
+|Z+|This button moves the Z axis in the positive direction.
+|Z-|This button moves the Z axis in the negative direction.
 |===
 
-For advanced recovery from a failed cut see <<cut-recovery, cut recovery>>.
-////
+[[paused-motion-speed]]
+
+[underline]*CUT RECOVERY*
+
+NOTE: During Paused Motion, this section will be shown on top of the JOGGING panel.  The following section will cover each button encountered in this panel.  Please see <<cut-recovery, CUT RECOVERY>> for a detailed description of the cut recovery functionality.
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|PAUSED MOTION FEED SLIDER|In the event of a paused program, this interface allows X/Y motion to follow the programmed path in the reverse or forward direction. +
+This slider's range is from 1%-100% of the Cut Feed Rate for the currently selected material. +
+The feed rate is displayed to the right of the slider.
+|REV|In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
+|FWD|In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
+|CANCEL|This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
+Note that if FWD or REV were used to move the torch, CANCEL will not return to the position of the torch when the pause occurred.
+|MOVE x.xxx|This displays the amount of travel that will be incurred with each press of an arrow key, in the direction the arrow key was pressed. +
+This value displayed below MOVE is the Kerf Width of the currently selected material.
+|DIRECTIONAL ARROWS|These buttons will move the torch in the direction indicated by a distance of one Kerf Width (of the currently selected material) per press.
+|===
+
+[underline]*G-CODE WINDOW*
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|OPEN|This button will open a FILE OPEN panel over the PREVIEW WINDOW.
+|RELOAD|This button will reload the currently loaded G-Code File.
+|===
+
+[underline]*DRO*
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|HOME ALL|This button will home all of the axes in the order set by HOME_SEQUENCE in the <machine_name>.ini file.
+|WCS G54|This drop down button will change the current work offset.
+|CAMERA|This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<camera, CAMERA section>> for detailed instructions.
+|LASER|This button will allow the user to set an origin with or without rotation. See the <<laser, LASER section>> for detailed instructions.
+|X0 Y0|This button will set the current position to X0 Y0.
+|HOME [AXIS]|This button will home the corresponding axis.
+|0 [AXIS]|This drop down button will display the following options: +
+Zero - zeros the axis. +
+Set - launches a dialog box to manually input the axis' coordinate. +
+Divide By 2 - divides the currently displayed coordinate in the DRO by two. +
+Set To Last - sets the axis to the previously set coordinate.
+|===
+
 [[parameters-tab]]
 
 === PARAMETERS Tab
@@ -821,13 +864,11 @@ Due to space constraints, the 4x3 GUI's PARAMETERS tab will be spread across two
 
 This tab is used to display configuration parameters that are modified infrequently.
 
-It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a hal file using the following command:
+It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
 ----
 setp qtplasmac.param_disable 1
 ----
-
-//FIXME image::images/plasmac_config.png[width=50%]
 
 [underline]*PLASMAC CONFIGURATION - ARC*
 
@@ -937,8 +978,6 @@ The **BACKUP** button will create a complete machine configuration backup for ar
 
 This section shows the parameters which are active for the current cut.
 
-//FIXME(ORDELETE?) image::images/plasmac_run.png[width=70%]
-
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
@@ -1005,6 +1044,24 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Cone Size|This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the MAIN tab.
 |===
 
+[[conversational-tab]]
+
+=== CONVERSATIONAL Tab
+
+Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
+
+image::images/qtplasmac_conversational.png[width=100%]
+
+The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+
+See <<shape-library, Conversational Shape Library>> for detailed information on the Conversational feature.
+
+It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+
+----
+setp qtplasmac.conv_disable 1
+----
+
 //FIXME=== STATISTICS Tab
 
 //FIXMEThe Statistics Panel provides statistics to allow for the tracking of consumable wear and job run times.
@@ -1017,31 +1074,15 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 
 //FIXMEimage::images/plasmac_stats.png[width=60%]
 
-=== Extras Panel
+== Using QtPlasmaC
 
-The Extras Panel provides ten additional user-customizable buttons plus a button to bring up the Conversational dialog box. The Conversational shapes library enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+Once QtPlasmaC is successfully installed, no Z axis motion is required to be part of the G-Code cut program. In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
 
-See <<shape-library, conversational shape library>> for detailed information on the Conversational feature.
+For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other than the coordinate system offsets (G54-G59.3).
 
-See <<custom-user-buttons, custom user buttons>> for detailed information on custom user buttons.
+QtPlasmaC will automatically move the Z axis to the correct height at the beginning of every G-Code program.
 
-image::images/plasmac_extras.png[width=60%]
-
-The Extras panel may be disabled by making the appropriate edits in the [DISPLAY] section of the <machine_name>.ini file. This will have no effect on the operation of the QtPlasmaC software.
-
-To disable the Extras Panel, change:
-
-----
-EMBED_TAB_NAME          = Extras
-EMBED_TAB_COMMAND       = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
-----
-
-To:
-
-----
-#EMBED_TAB_NAME          = Extras
-#EMBED_TAB_COMMAND       = gladevcp -c plasmac_wizards -x {XID} -u ./plasmac/plasmac_wizards.py ./plasmac/plasmac_wizards.glade
-----
+*Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
 
 === Mandatory Codes
 
@@ -1068,6 +1109,80 @@ Before starting a program, jog the Z axis up to approximately 5mm (0.196") from 
 If the user intends to place the material in the exact same place on the table every time, the user could jog the X and Y axes to the machine to the corresponding X0 Y0 position as established by the CAM software and then *Touch Off* both axes with a zero offset.
 
 If the user intends to place the material randomly on the table then the user must *Touch Off* the X and Y axes at the appropriate position before starting the program.
+
+[[camera]]
+
+=== CAMERA
+
+QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
+
+To use this feature, the user must set the camera's offset from the torch center line in the <machine_name>.ini file. This offset may be set manually by editing the ini file, or the user may use the configurator in <<modify-config, reconfigure>> mode to add the offsets.
+
+To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
+
+----
+CAMERA_TOUCHOFF = Xoffset Yoffset
+----
+
+"offset" is distance from the center line of the torch to the camera's cross hairs. Offsets could be specified as x25.4, X25.4 or 25.4.
+
+*To set the origin with zero rotation:*
+. Jog until the cross hairs are on top of the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The offset is now successful set.
+
+*To set the origin with rotation:*
+. Jog until the cross hairs are at the edge of the material a suitable distance away from the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
+. Jog until the cross hairs are at the origin point of the material.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The offset is now successful set.
+
+In the CAMVIEW panel, the mouse can effect the cross hairs and the zoom level as follows:
+* Mouse Wheel Scroll - Change cross hair diameter.
+* Mouse Wheel Button Double Click - Restores cross hair diameter to default.
+* Mouse Left Button Clicked + Wheel Scroll - Changes camera zoom level.
+* Mouse Left Button Clicked + Wheel Button Double Click - Restores default camera zoom level.
+
+[[laser]]
+
+=== LASER
+
+QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. The LASER button will be enabled after the machine is homed.
+
+To use this feature, the user must set the laser's offset from the torch center line in the <machine_name>.ini file. This offset may be set manually by editing the ini file, or the user may use the configurator in <<modify-config, reconfigure>> mode to add the offsets.
+
+To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
+
+----
+LASER_TOUCHOFF = Xoffset Yoffset
+----
+
+"offset" is distance from the center line of the torch to the camera's cross hairs. Offsets could be specified as x25.4, X25.4 or 25.4.
+
+Additionally, the laser can be tied to any available output to turn the laser on and off via a HAL pin with the following name:
+
+----
+qtplasmac.laser_on
+----
+
+*To set the origin with zero rotation:*
+. Press the *LASER* button.
+. *LASER* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned on.
+. Jog until the laser cross hairs are on top of the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned off.
+. The offset is now successful set.
+
+*To set the origin with rotation:*
+. Press the *LASER* button.
+. *LASER* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned on.
+. Jog until the laser cross hairs are at the edge of the material a suitable distance away from the desired origin point.
+. Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
+. Jog until the laser cross hairs are at the origin point of the material.
+. Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned off.
+. The offset is now successful set.
 
 [[path-tolerance]]
 
@@ -1764,7 +1879,7 @@ Both *Mesh Mode* and *Ignore Arc OK* can be enabled/disabled at any time during 
 === Cut Recovery
 
 image::images/plasmac_cut_recovery.png[width=40%]
-
+//FIXME UPDATE IMAGE
 This feature will produce a dialog box that will allow the torch to be moved away from the cut path during a <<paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. This feature is only available from a user-programmed button (named Cut-Recovery by default) in the Extras panel and may only be clicked while motion is paused.
 
 It is preferable to make torch position adjustments from the point at which paused motion occurred, however if moving along the cut path is necessary prior to setting the new start point, the user may use the paused motion controls (Rev, Fwd, and a jog-speed slider) at the top of the dialog box. Once the user is satisfied with the positioning of the torch along the cut path, moving off the cut path is achieved by pressing the direction buttons. Each press of the direction button will move the torch a distance equivalent to the *Kerf Width* parameter of the currently selected material.
@@ -1777,9 +1892,7 @@ Pressing Cancel (or the X in the title bar) will cause the torch to move back to
 
 [[shape-library]]
 
-=== Conversational Shape Library
-
-image::images/qtplasmac_conversational.png[width=40%]
+== Conversational Shape Library
 
 The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-Code at the machine to cut simple shapes quickly. This feature is started by clicking the *Conversational* button found in the Extras tab.
 
@@ -1838,7 +1951,7 @@ After saving the user may press *Quit* or they may click on any shape to start t
 === Conversational Lines And Arcs
 
 image::images/plasmac_conversational_line.png[width=5%]
-
+//FIXME UPDATE IMAGE
 Lines and arcs have an additional option in that they may be strung together to create a complex shape.
 
 There are two line types and three arc types available:
@@ -1868,7 +1981,7 @@ NOTE: At this stage there is no automatic option for a lead-in/lead-out creation
 The following shapes are available for creation:
 
 image::images/plasmac_conversational_shapes.png[width=75%]
-
+//FIXME UPDATE IMAGE
 To create a shape:
 
 . Select the shape to create. The available parameters will be displayed.
@@ -1899,7 +2012,7 @@ To create a group of shapes:
 === Conversational Rotate
 
 image::images/plasmac_conversational_rotate.png[width=5%]
-
+//FIXME UPDATE IMAGE
 The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
 
 Arrays created via Conversational may be rotated, however arrays that have been imported cannot be rotated.
@@ -1916,7 +2029,7 @@ Rotation will not work on G-Code that is mathematically calculated, the values n
 === Conversational Array
 
 image::images/plasmac_conversational_array.png[width=5%]
-
+//FIXME UPDATE IMAGE
 An array can be created from a shape, a group or an imported G-Code file.
 
 Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
@@ -2029,57 +2142,7 @@ NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machi
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
 
-[[pm_comms]]
-
-=== Hypertherm PowerMax Communications
-
-Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
-
-If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
-
-Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
-
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
-
-This feature is enabled by setting the correct port name for the PM_PORT variable in the [QTPLASMAC] section of the <machine_name>.ini file. If the PM_PORT variable is not set in the <machine_name>.ini file then the widgets associated with this feature will not be visible.
-
-Example showing enabling the Hypertherm PowerMax Communications on USB0:
-
-----
-[QTPLASMAC]
-PM_PORT = /dev/ttyusb0
-----
-
-If the user is unsure of the name of the port, there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the QtPlasmaC GUI.
-
-To use the test script enter the following command into a terminal window:
-
-----
-python ~/<user_name>/linuxcnc/configs/<the_user_config>/pmx_test.py
-----
-
-The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
-
-The PowerMax machine will go into remote mode after communications have been established and may only be controlled remotely (via the QtPlasmaC GUI) at this point. The connection can be validated by observing the PowerMax display.
-
-To switch the PowerMax back to local mode the user can either:
-
-. Disable PowerMax Comms from the Run panel
-. Close LinuxCNC which will put the PowerMax into local mode during shutdown.
-. Turn the PowerMax off for 30 seconds and then power it back on.
-
-TIP: If PowerMax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
-
-NOTE: To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
-If pyserial is not installed an error message will be displayed.
-
-To install pyserial, enter the following command into a terminal window:
-
-----
-sudo apt install python-serial
-----
-
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
+== Error Messages
 
 === Critical Errors
 
@@ -2160,6 +2223,8 @@ This indicates that the value for the Arc Voltage was invalid (NAN or INF) when 
 
 [[update-qtplasmac]]
 
+== Updating QtPlasmaC
+
 === Standard Update
 
 QtPlasmaC update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates
@@ -2180,6 +2245,58 @@ sudo apt dist-upgrade
 Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If the user wishes to update whenever a new QtPlasmaC version has been pushed, they could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
 
 == QtPlasmaC Advanced Topics
+
+[[pm_comms]]
+
+=== Hypertherm PowerMax Communications
+
+Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
+
+If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
+
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
+
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
+
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [QTPLASMAC] section of the <machine_name>.ini file. If the PM_PORT variable is not set in the <machine_name>.ini file then the widgets associated with this feature will not be visible.
+
+Example showing enabling the Hypertherm PowerMax Communications on USB0:
+
+----
+[QTPLASMAC]
+PM_PORT = /dev/ttyusb0
+----
+
+If the user is unsure of the name of the port, there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the QtPlasmaC GUI.
+
+To use the test script enter the following command into a terminal window:
+
+----
+python ~/<user_name>/linuxcnc/configs/<the_user_config>/pmx_test.py
+----
+
+The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
+
+The PowerMax machine will go into remote mode after communications have been established and may only be controlled remotely (via the QtPlasmaC GUI) at this point. The connection can be validated by observing the PowerMax display.
+
+To switch the PowerMax back to local mode the user can either:
+
+. Disable PowerMax Comms from the Run panel
+. Close LinuxCNC which will put the PowerMax into local mode during shutdown.
+. Turn the PowerMax off for 30 seconds and then power it back on.
+
+TIP: If PowerMax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
+
+NOTE: To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
+If pyserial is not installed an error message will be displayed.
+
+To install pyserial, enter the following command into a terminal window:
+
+----
+sudo apt install python-serial
+----
+
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
 [[custom-user-buttons]]
 
