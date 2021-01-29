@@ -16,20 +16,25 @@ else:
 # constants
 JOGJOINT  = 1
 JOGTELEOP = 0
+
+# add try for QtVCP Designer and probably GTK GLADE editor too
+# The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
     jointcount = int(inifile.find("KINS", "JOINTS"))
 except:
     pass
-
-# get cycle time which could be in ms or seconds
-# convert to ms
-ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
-if ct < 1:
-    CYCLE_TIME = int(ct * 1000)
-else:
-    CYCLE_TIME = int(ct)
+try:
+    # get cycle time which could be in ms or seconds
+    # convert to ms - use this to set update time
+    ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+    if ct < 1:
+        CYCLE_TIME = int(ct * 1000)
+    else:
+        CYCLE_TIME = int(ct)
+except:
+    pass
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
