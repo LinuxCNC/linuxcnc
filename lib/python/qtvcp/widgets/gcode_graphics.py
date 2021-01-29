@@ -71,7 +71,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def addTimer(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
-        self.timer.start(INFO.GRAPHICS_CYCLE_TIME*1000)
+        self.timer.start(INFO.GRAPHICS_CYCLE_TIME)
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)

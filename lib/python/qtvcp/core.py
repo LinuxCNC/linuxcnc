@@ -89,7 +89,7 @@ class QPin(hal.Pin, QObject):
         QPin.UPDATE = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_all)
-        self.timer.start(INI.GRAPHICS_CYCLE_TIME*1000)
+        self.timer.start(INI.GRAPHICS_CYCLE_TIME)
 
     @classmethod
     def update_stop(self):
@@ -181,7 +181,7 @@ class Status(GStat):
     # seg fault without it
     def set_timer(self):
         GObject.threads_init()
-        GObject.timeout_add(int(INI.CYCLE_TIME*1000), self.update)
+        GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
 
 
 ################################################################

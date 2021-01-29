@@ -73,7 +73,13 @@ class _IStat(object):
         self.update()
 
     def update(self):
-        self.CYCLE_TIME = float(self.INI.find('DISPLAY', 'CYCLE_TIME') or 0.1) # in seconds
+        ct = float(self.INI.find('DISPLAY', 'CYCLE_TIME') or 100) # possibly in seconds or ms
+        print ct
+        if ct < 1:
+            self.CYCLE_TIME = int(ct * 1000)
+        else:
+            self.CYCLE_TIME = int(ct)
+        print self.CYCLE_TIME
         self.GRAPHICS_CYCLE_TIME = float(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 0.1) # in seconds
         self.HALPIN_CYCLE_TIME = float(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 0.1) # in seconds
         self.MDI_HISTORY_PATH = self.INI.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
