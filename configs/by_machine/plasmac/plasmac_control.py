@@ -95,11 +95,11 @@ class HandlerClass:
         self.builder.get_object('rapid-override').set_active(100)
 
     def on_heightLower_pressed(self, widget):
-        self.torch_height -= 0.1
+        self.torch_height -= hal.get_value('plasmac.thc-threshold')
         self.set_height(self.torch_height)
 
     def on_heightRaise_pressed(self, widget):
-        self.torch_height += 0.1
+        self.torch_height += hal.get_value('plasmac.thc-threshold')
         self.set_height(self.torch_height)
 
     def on_heightReset_pressed(self, widget):
@@ -107,7 +107,7 @@ class HandlerClass:
         self.set_height(self.torch_height)
 
     def set_height(self,height):
-        self.builder.get_object('height-override').set_text('{:.1f} V'.format(height))
+        self.builder.get_object('height-override').set_text('{:.2f} V'.format(height))
         hal.set_p('plasmac.height-override','{:f}'.format(height))
 
     def on_forward_pressed(self, widget):
@@ -154,7 +154,7 @@ class HandlerClass:
         self.feed_override = 0
         self.rapid_override = 0
         self.torch_height = 0
-        self.builder.get_object('height-override').set_text('{:.1f} V'.format(self.torch_height))
+        self.builder.get_object('height-override').set_text('{:.2f} V'.format(self.torch_height))
         hal.set_p('plasmac.height-override','{:f}'.format(self.torch_height))
         self.configure_comboboxes('feed-override', 0, self.maxFeed, 1, '100')
         self.feed_override = 1

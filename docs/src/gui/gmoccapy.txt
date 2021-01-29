@@ -861,7 +861,7 @@ net gmoccapy-pin gmoccapy.messages.pin
 ----
 
 For more information on HAL files and the net command see the
-<<cha:basic-hal-reference,Basic HAL Reference>>.
+<<cha:basic-hal-reference,HAL Basics>>.
 
 === Spindle Feedback Pins
 

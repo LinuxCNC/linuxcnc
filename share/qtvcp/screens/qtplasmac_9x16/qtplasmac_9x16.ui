@@ -1999,7 +1999,7 @@ ORIGIN</string>
                    <property name="frameShadow">
                     <enum>QFrame::Plain</enum>
                    </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,0,1">
+                   <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,0,0,1">
                     <property name="spacing">
                      <number>4</number>
                     </property>
@@ -2044,26 +2044,17 @@ ORIGIN</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="machine_buttons">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
+                     <widget class="QFrame" name="frame_27">
                       <property name="frameShape">
                        <enum>QFrame::NoFrame</enum>
                       </property>
                       <property name="frameShadow">
                        <enum>QFrame::Plain</enum>
                       </property>
-                      <layout class="QGridLayout" name="gridLayout_5">
+                      <layout class="QHBoxLayout" name="horizontalLayout_36">
+                       <property name="spacing">
+                        <number>4</number>
+                       </property>
                        <property name="leftMargin">
                         <number>4</number>
                        </property>
@@ -2076,10 +2067,7 @@ ORIGIN</string>
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
-                       <property name="spacing">
-                        <number>4</number>
-                       </property>
-                       <item row="0" column="0">
+                       <item>
                         <widget class="ActionButton" name="estop">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2207,7 +2195,7 @@ SET</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="1">
+                       <item>
                         <widget class="ActionButton" name="power">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2299,7 +2287,74 @@ ON</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="4" column="0" colspan="2">
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="machine_buttons">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="frameShape">
+                       <enum>QFrame::NoFrame</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Plain</enum>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_57">
+                       <property name="spacing">
+                        <number>4</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QPushButton" name="run">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="statusTip">
+                          <string>Run the current G-Code program</string>
+                         </property>
+                         <property name="text">
+                          <string>CYCLE START</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
                         <widget class="ActionButton" name="pause">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2494,7 +2549,7 @@ ON</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="5" column="0" colspan="2">
+                       <item>
                         <widget class="ActionButton" name="abort">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2686,34 +2741,6 @@ ON</string>
                          </property>
                          <property name="alt_textTemplate" stdset="0">
                           <string>%1.2f mm</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="3" column="0" colspan="2">
-                        <widget class="QPushButton" name="run">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>60</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                         <property name="statusTip">
-                          <string>Run the current G-Code program</string>
-                         </property>
-                         <property name="text">
-                          <string>CYCLE START</string>
                          </property>
                         </widget>
                        </item>
@@ -6945,7 +6972,7 @@ HOME ALL</string>
                                  <number>0</number>
                                 </property>
                                 <item>
-                                 <widget class="QLabel" name="label_50">
+                                 <widget class="QPushButton" name="height_reset">
                                   <property name="minimumSize">
                                    <size>
                                     <width>82</width>
@@ -6960,9 +6987,6 @@ HOME ALL</string>
                                   </property>
                                   <property name="text">
                                    <string>OVERRIDE</string>
-                                  </property>
-                                  <property name="alignment">
-                                   <set>Qt::AlignCenter</set>
                                   </property>
                                  </widget>
                                 </item>

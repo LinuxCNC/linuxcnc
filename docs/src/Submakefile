@@ -508,7 +508,7 @@ $(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.p
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+	@(cd $(DOC_DIR)/man; groff -Thtml -man stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_

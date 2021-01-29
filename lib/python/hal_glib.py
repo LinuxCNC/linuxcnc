@@ -18,13 +18,25 @@ else:
 # constants
 JOGJOINT  = 1
 JOGTELEOP = 0
+
+# add try for QtVCP Designer and probably GTK GLADE editor too
+# The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
     jointcount = int(inifile.find("KINS", "JOINTS"))
 except:
     pass
-
+try:
+    # get cycle time which could be in ms or seconds
+    # convert to ms - use this to set update time
+    ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+    if ct < 1:
+        CYCLE_TIME = int(ct * 1000)
+    else:
+        CYCLE_TIME = int(ct)
+except:
+    pass
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -168,6 +180,8 @@ class _GStat(GObject.GObject):
 
         'm-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'g-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'f-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'blend-code-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
         'metric-mode-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'user-system-changed': (go_run_first, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -242,7 +256,7 @@ class _GStat(GObject.GObject):
     # we put this in a function so qtvcp
     # can override it to fix a seg fault
     def set_timer(self):
-        GObject.timeout_add(100, self.update)
+        GObject.timeout_add(CYCLE_TIME, self.update)
 
     def merge(self):
         self.old['command-state'] = self.stat.state
@@ -348,6 +362,10 @@ class _GStat(GObject.GObject):
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
         self.old['tool-info']  = self.stat.tool_table[0]
+        settings = self.stat.settings
+        self.old['f-code'] = settings[1]
+        self.old['blend-tolerance-code'] = settings[3]
+        self.old['nativecam-tolerance-code'] = settings[4]
 
     def update(self):
         try:
@@ -636,6 +654,25 @@ class _GStat(GObject.GObject):
         if tool_info_new != tool_info_old:
             self.emit('tool-info-changed', tool_info_new)
 
+        #####################################
+        # settings
+        #####################################
+        # feed code
+        f_code_old = old.get('f-code', None)
+        f_code_new = self.old['f-code']
+        if f_code_new != f_code_old:
+            self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_old = old.get('blend-tolerance-code', None)
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_old = old.get('nativecam-tolerance-code', None)
+        cam_code_new = self.old['nativecam-tolerance-code']
+
+        if blend_code_new != blend_code_old or \
+           blend_code_new != blend_code_old:
+                self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
         # AND DONE... Return true to continue timeout
         self.emit('periodic')
         return True
@@ -733,6 +770,15 @@ class _GStat(GObject.GObject):
         self.emit('tool-in-spindle-changed', tool_new)
         tool_num_new = self.old['tool-prep-number']
         self.emit('tool-prep-changed', tool_num_new)
+
+        # feed code
+        f_code_new = self.old['f-code']
+        self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_new = self.old['nativecam-tolerance-code']
+        self.emit('blend-code-changed',blend_code_new, cam_code_new)
 
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']

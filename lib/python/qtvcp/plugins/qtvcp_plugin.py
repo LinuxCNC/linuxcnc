@@ -18,6 +18,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+print('Qtvcp python plugin found:',__file__)
 # HAL only widgets
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin

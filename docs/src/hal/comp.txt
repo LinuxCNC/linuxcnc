@@ -56,7 +56,7 @@ addf ddt.0 servo-thread
 ----
 
 More information on 'loadrt' and 'addf' can be found in the
-<<cha:basic-hal-reference,Hal Basic Referece>>.
+<<cha:basic-hal-reference,Hal Basics>>.
 
 To test your component you can follow the examples in the
 <<cha:hal-tutorial,HAL Tutorial>>.
