@@ -1474,3 +1474,21 @@ root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-wid
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----
+
+=== Change Plotter Colors
+In RGBA format, in this order:
+jog, rapid, feed, arc, toolchange, probe
+
+[source,python]
+----
+# change plotter colors
+try:
+    live_plotter.logger.set_colors((255,0,0,255),
+                                    (0,255,0,255),
+                                    (0,0,255,255),
+                                    (255,255,0,255),
+                                    (255,255,255,255),
+                                    (0,255,255,255))
+except Exception as e:
+    print (e)
+----
