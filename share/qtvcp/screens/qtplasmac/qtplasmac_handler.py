@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.25'
+VERSION = '0.9.26'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -226,11 +226,6 @@ class HandlerClass:
         self.w.run.setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
-        if self.w.estopButton == 1:
-            self.w.power.setGeometry(self.w.run.geometry().x(), \
-                                     self.w.power.geometry().y(), \
-                                     self.w.run.geometry().width(), \
-                                     self.w.power.geometry().height())
 
 
 #################################################################################################################################
