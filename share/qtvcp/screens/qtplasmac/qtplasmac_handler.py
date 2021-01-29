@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.24'
+VERSION = '0.9.25'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -779,6 +779,7 @@ class HandlerClass:
         self.w.abort.setEnabled(True)
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
+        self.w.height_reset.setEnabled(True)
         if STATUS.is_auto_mode() and self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
@@ -964,11 +965,14 @@ class HandlerClass:
         self.user_button_up(button)
 
     def height_ovr_pressed(self, height):
-        self.heightOvr += height
-        if self.heightOvr < -9.9 :self.heightOvr = -9.9
-        if self.heightOvr > 9.9 :self.heightOvr = 9.9
+        if height:
+            self.heightOvr += height * self.w.thc_threshold.value()
+        else:
+            self.heightOvr = 0
+        if self.heightOvr < -10 :self.heightOvr = -10
+        if self.heightOvr > 10 :self.heightOvr = 10
         self.heightOverridePin.set(self.heightOvr)
-        self.w.height_ovr_label.setText('{:.1f}'.format(self.heightOvr))
+        self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -1275,8 +1279,9 @@ class HandlerClass:
         self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
         self.materialReloadPin.value_changed.connect(lambda w:self.material_reload_pin_changed(w))
         self.materialTempPin.value_changed.connect(lambda w:self.material_temp_pin_changed(w))
-        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-0.1))
-        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(0.1))
+        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-1))
+        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1))
+        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(0))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
         self.w.button_1.released.connect(lambda:self.user_button_released(1))
         self.w.button_2.pressed.connect(lambda:self.user_button_pressed(2))
@@ -3066,9 +3071,9 @@ class HandlerClass:
 
     def cutrec_speed_changed(self, speed):
         if STATUS.is_metric_mode():
-            self.w.cut_rec_feed.setText('{:0.0f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText('FEED\n{:0.0f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
         else:
-            self.w.cut_rec_feed.setText('{:0.1f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText('FEED\n{:0.1f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
 
     def cutrec_move_changed(self, distance):
         self.w.cut_rec_move_label.setText('MOVE\n{}'.format(distance))

@@ -3237,7 +3237,7 @@ ON</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="QLabel" name="label_57">
+                           <widget class="QPushButton" name="height_reset">
                             <property name="minimumSize">
                              <size>
                               <width>82</width>
@@ -3252,9 +3252,6 @@ ON</string>
                             </property>
                             <property name="text">
                              <string>OVERRIDE</string>
-                            </property>
-                            <property name="alignment">
-                             <set>Qt::AlignCenter</set>
                             </property>
                            </widget>
                           </item>

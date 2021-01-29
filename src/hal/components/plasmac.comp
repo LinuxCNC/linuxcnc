@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.193 - 2021 Jan 26
+0.194 - 2021 Jan 29
 
 .I SUMMARY:
 .br
@@ -752,10 +752,10 @@ FUNCTION(_) {
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         if(float_switch){
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
                                                           "while float switch probing\n");
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
                                                           "while ohmic probing\n");
                         }
                         state = MAX_HEIGHT;
@@ -1177,8 +1177,8 @@ FUNCTION(_) {
                                     target_volts = cut_volts;
                                 }
                             /* height override setup*/
-                            }else if(fabs(height_override - height_ovr_old) > 0.05){
-                                height_ovr_counts -= (height_override - height_ovr_old) / 10 * units_per_mm / offset_scale;
+                            }else if(fabs(height_override - height_ovr_old) > 0.005){
+                                height_ovr_counts -= (height_override - height_ovr_old) * height_per_volt / offset_scale;
                                 height_ovr_old = height_override;
                             /* height override z motion */
                             }else if(height_ovr_counts != 0){

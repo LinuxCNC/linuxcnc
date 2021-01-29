@@ -101,10 +101,12 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: backgnd }
 
 /****** RESET BUTTONS ************/
-#feed_label, #rapid_label, #jogs_label {
+#feed_label, #rapid_label,
+#jogs_label, #height_reset {
     border: none }
     
-#feed_label:pressed, #rapid_label:pressed, #jogs_label:pressed {
+#feed_label:pressed, #rapid_label:pressed,
+#jogs_label:pressed, #height_reset:pressed {
     color: foregnd;
     background: backgnd }
 

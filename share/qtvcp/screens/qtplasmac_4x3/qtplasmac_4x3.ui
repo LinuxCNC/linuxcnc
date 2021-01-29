@@ -6730,7 +6730,7 @@ EDGE</string>
                               <number>0</number>
                              </property>
                              <item>
-                              <widget class="QLabel" name="label_50">
+                              <widget class="QPushButton" name="height_reset">
                                <property name="minimumSize">
                                 <size>
                                  <width>82</width>
@@ -6745,9 +6745,6 @@ EDGE</string>
                                </property>
                                <property name="text">
                                 <string>OVERRIDE</string>
-                               </property>
-                               <property name="alignment">
-                                <set>Qt::AlignCenter</set>
                                </property>
                               </widget>
                              </item>
