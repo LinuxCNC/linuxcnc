@@ -1,36 +1,35 @@
+VERSION = '0.9.28'
+
 import os, sys
 from shutil import copy as COPY
-from shutil import rmtree as RMDIR
+#from shutil import rmtree as RMDIR
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 import time
 import math
-
 import linuxcnc
 import hal, hal_glib
-
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
-
 from qtvcp import logger
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
+#from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
-from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
+#from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
 from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
 from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.widgets import camview_widget as CAMWIDGET
+# #testing for different video sources
+#from qtvcp.widgets import camview_widget as CAMWIDGET
 from qtvcp.widgets.camview_widget import CamView as CAM
-from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
+#from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
 from qtvcp.widgets.simple_widgets import DoubleScale as PARAMETER
-
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -44,8 +43,6 @@ from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
 from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
-
-VERSION = '0.9.27'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1707,20 +1704,22 @@ class HandlerClass:
         for param in params:
             if param:
                 newFile.append(param)
-        if g2:
-            if self.unitsPerMm == 1 and g2 == 'g20':
+        scale = 1
+        zMax = ''
+        if self.unitsPerMm == 1:
+            if g2 == 'g20':
                 scale = 0.03937
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * {}]'.format(scale)
-            elif self.unitsPerMm == 0.03937 and g2 == 'g22':
-                scale = 25.4
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> * {}] - 5]'.format(scale)
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
             else:
-                scale = 1
-                zMax = 'g0z[#<_ini[axis_z]max_limit> - [{} * {}]]'.format(5, scale)
+                zMax = 'g0z[#<_ini[axis_z]max_limit> - 5]'
+        elif self.unitsPerMm == 0.03937:
+            if g2 == 'g21':
+                scale = 25.4
+                zMax = 'g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
+            else:
+                zMax = 'g0z[#<_ini[axis_z]max_limit> - 0.02]'
+        if g2:
             newFile.append(g2)
-        else:
-            scale = 1
-            zMax = ''
         if g4:
             newFile.append(g4)
         if g6:
@@ -1747,8 +1746,8 @@ class HandlerClass:
         try:
             if use.isChecked():
                 if x[-1] == ']':
-                    xL = '{}[[{}*{}]+{:0.6f}]'.format(x[:1], x[1:], scale, (len.value() * scale) * math.cos(math.radians(ang.value())))
-                    yL = '{}[[{}*{}]+{:0.6f}]'.format(y[:1], y[1:], scale, (len.value() * scale) * math.sin(math.radians(ang.value())))
+                    xL = '{}[[{}]+{:0.6f}]'.format(x[:1], x[1:], (len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = '{}[[{}]+{:0.6f}]'.format(y[:1], y[1:], (len.value() * scale) * math.sin(math.radians(ang.value())))
                 else:
                     xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
                     yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
