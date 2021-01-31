@@ -632,7 +632,7 @@ OFFSET_AV_RATIO  = 0.5
 
 NOTE: QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused. For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
 
-== QTPlasmaC GUI Overview
+== QtPlasmaC GUI Overview
 
 The following sections will give a general overview of the QtPlasmaC layout.
 
@@ -1294,12 +1294,12 @@ The maximum percentage allowed is 100%, values above this will be set to 100%.
 
 If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-Code program so the machine starts and ends in a known state.
 
-TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]* with a multiplier.
+TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]>* with a multiplier.
 
 For example:
 
 ----
-F[#<_hal[plasmac.cut-feed-rate] * 0.6]
+F[#<_hal[plasmac.cut-feed-rate]> * 0.6]
 ----
 
 IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
@@ -1454,7 +1454,7 @@ NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the
 
 === Magic G-Code Comments
 
-*Keep Z Motion*
+* *Keep Z Motion*
 
 By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements in a G-Code file via the following magic comment:
 
@@ -1464,7 +1464,7 @@ By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add
 
 Omitting this magic comment, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-Code file and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
 
-*Materials Adding And Editing Via G-Code*
+* *Materials Adding And Editing Via G-Code*
 
 It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
 
@@ -2072,6 +2072,7 @@ To use lines and arcs:
 
 . Select Lines and Arcs.
 . Select the type of line or arc to create.
+. Choose the material from the MATERIAL drop down. If no material is chosen, the default material (00000) will be used.
 . Enter the desired parameters.
 . Press *Preview* to see the shape.
 . If satisfied with the shape press *Continue*.
@@ -2091,6 +2092,7 @@ image::images/plasmac_conversational_shapes.png[width=400,align="center"]
 To create a shape:
 
 . Select the shape to create. The available parameters will be displayed.
+. Choose the material from the MATERIAL drop down. If no material is chosen, the default material (00000) will be used.
 . Enter the appropriate values and press *Preview* to display the shape.
 . If the shape is not correct, edit the values and press *Preview* and the new shape will be displayed. Repeat until satisfied with the shape.
 . Press *Add* to add the shape to the G-Code file.
