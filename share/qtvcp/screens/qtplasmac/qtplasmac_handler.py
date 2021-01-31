@@ -45,7 +45,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 
-VERSION = '0.9.26'
+VERSION = '0.9.27'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -343,7 +343,7 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
-        self.zOffsetCounts = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetCountPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -741,6 +741,8 @@ class HandlerClass:
                     self.w[widget].setEnabled(True)
                 for widget in self.idleHomedPlusPausedList:
                     self.w[widget].setEnabled(True)
+                if self.zOffsetCountPin.get():
+                    self.w.run.setEnabled(False)
             else :
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(False)
@@ -1085,13 +1087,20 @@ class HandlerClass:
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value)
 
+    def z_offset_changed(self, value):
+        if value > -0.000001 and value < 0.000001 and STATUS.is_interp_idle and \
+           STATUS.is_all_homed and self.lastLoadedProgram != 'None':
+            self.w.run.setEnabled(True)
+
     def state_changed(self, value):
         if (value > 3 and not STATUS.is_interp_idle()) or value == 19:
             self.w.dro_z.setProperty('Qreference_type', 10)
 
-    def z_offset_changed(self, counts):
+    def z_offset_count_changed(self, counts):
         if not counts:
             self.w.dro_z.setProperty('Qreference_type', 1)
+            if STATUS.is_interp_idle and STATUS.is_all_homed and self.lastLoadedProgram != 'None':
+                self.w.run.setEnabled(True)
 
     def file_reload_clicked(self):
         if self.rflActive:
@@ -1306,6 +1315,7 @@ class HandlerClass:
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
         self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
         self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
+        self.zOffsetCountPin.value_changed.connect(lambda v:self.z_offset_count_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
         self.w.cam_zoom_plus.pressed.connect(self.cam_zoom_plus_pressed)
@@ -1342,7 +1352,6 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.statePin.value_changed.connect(lambda v:self.state_changed(v))
-        self.zOffsetCounts.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
