@@ -1,3 +1,9 @@
+/* misnomer: _setup.current_pocket,selected_pocket
+** These variables are actually indexes to sequential tool
+** data structs (not real pockets).
+** Future renaming will affect current usage in python remaps.
+*/
+
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -702,12 +708,6 @@ static inline int get_plane (Interp &interp)  {
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);
 }
-static inline int get_pockets_max (Interp &interp)  {
-    return interp._setup.pockets_max;
-}
-static inline void set_pockets_max(Interp &interp, int value)  {
-    interp._setup.pockets_max = value;
-}
 static inline int get_random_toolchanger (Interp &interp)  {
     return interp._setup.random_toolchanger;
 }
@@ -952,7 +952,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("motion_mode", &get_motion_mode, &set_motion_mode)
 	.add_property("origin_index", &get_origin_index, &set_origin_index)
 	.add_property("plane", &get_plane, &set_plane)
-	.add_property("pockets_max", &get_pockets_max, &set_pockets_max)
 	.add_property("random_toolchanger", &get_random_toolchanger, &set_random_toolchanger)
 	.add_property("remap_level", &get_remap_level, &set_remap_level)
 	.add_property("retract_mode", &get_retract_mode, &set_retract_mode)

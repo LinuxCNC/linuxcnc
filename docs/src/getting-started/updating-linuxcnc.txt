@@ -1267,7 +1267,27 @@ index that does not reset upon receipt of index pulse following
 assertion of index_enable.
 
 axis.py default for [DISPLAY]GEOMETRY was:"XYZBCUVW",is:"XYZABCUVW"
+
 === Code Updates
+
+Management of the internal storage of tool data and the communication
+of same between EMCIO and TASK has been refactored to use memory mapped
+storage.  Legacy use of nml messages for tooldata is deprecated and
+may be removed before a new release.
+
+Code references to the sequential indexes for internal tooldata have
+been clarified but legacy variable names persist for *selected_pocket*
+and *current_pocket*.  Variables with these names refer to the 
+sequential index for internal tooldata not an actual pocket number.
+These variable names may be renamed in the future and require changes
+to user-fielded python remap applications that modify tool handling.
+
+A new optional interface is provided to support management of
+tool data by an external database application.
+
+The ioControl_v2.cc file providing the userspace program iov2 has 
+no maintainter and its use is deprecated -- it may be removed before
+the next release.
 
 ==== Reverse Run
 

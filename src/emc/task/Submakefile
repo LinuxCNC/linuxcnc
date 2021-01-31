@@ -19,7 +19,6 @@ MILLTASKSRCS := \
 	emc/task/taskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
-	emc/rs274ngc/tool_parse.cc \
 	emc/task/taskmodule.cc \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
@@ -28,7 +27,10 @@ USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
+                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 \
+                 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0 \
+                 ../lib/libtooldata.so.0
 
 
 	$(ECHO) Linking $(notdir $@)

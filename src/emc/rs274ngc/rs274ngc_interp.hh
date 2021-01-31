@@ -150,7 +150,7 @@ public:
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
- int find_tool_index(setup_pointer settings, int toolno, int *pocket);
+ int find_tool_index(setup_pointer settings, int toolno, int *index);
 
     // private:
     //protected:  // for boost wrapper access

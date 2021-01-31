@@ -60,6 +60,7 @@
 #include <locale.h>
 #include "usrmotintf.h"
 #include <rtapi_string.h>
+#include "tooldata.hh"
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -3322,6 +3323,12 @@ int main(int argc, char *argv[])
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
+#ifdef TOOL_NML //{
+    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+    // initialize database tool finder:
+#endif //}
     // get the Python plugin going
 
     // inistantiate task methods object, too
@@ -3560,11 +3567,13 @@ int main(int argc, char *argv[])
         else if (deltaTime > maxTime)
             maxTime = deltaTime;
         startTime = endTime;
-        if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
-            if (num_latency_warnings < 10) {
-                rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+        if (!getenv( (char*)"QUIET_TASK") ) {
+            if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
+                if (num_latency_warnings < 10) {
+                    rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+                }
+                num_latency_warnings ++;
             }
-            num_latency_warnings ++;
         }
 
 	if ((emcTaskNoDelay) || (emcTaskEager)) {

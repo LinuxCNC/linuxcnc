@@ -147,6 +147,7 @@ DOC_SRCS_EN := \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
 	plasma/qtplasmac.txt \
+	tooldatabase/tooldatabase.txt \
 	plasma/plasmac-user-guide.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \

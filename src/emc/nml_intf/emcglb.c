@@ -32,8 +32,6 @@ double emc_io_cycle_time = DEFAULT_EMC_IO_CYCLE_TIME;
 
 int emc_task_interp_max_len = DEFAULT_EMC_TASK_INTERP_MAX_LEN;
 
-char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
-
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
 

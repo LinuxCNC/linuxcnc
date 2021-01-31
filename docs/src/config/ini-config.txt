@@ -1595,6 +1595,10 @@ image::images/encoder-scale.png[align="center"]
     The file which contains tool information, described in
     the User Manual.
 
+* 'DB_PROGRAM = db_program' -
+    Path to an executable program that manages tool data.
+    (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
+
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
     Specifies the XYZ location to move to when performing a
     tool change if three digits are used.

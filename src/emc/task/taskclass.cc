@@ -31,7 +31,6 @@
 #include "emc_nml.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
-#include "initool.hh"
 
 #include "py3c/py3c.h"
 #include "python_plugin.hh"
@@ -491,6 +490,83 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 
 Task::~Task() {};
 
+// set the have_tool_change_position global
+static int readToolChange(IniFile *toolInifile)
+{
+    int retval = 0;
+    const char *inistring;
+
+    if (NULL !=
+	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+	/* found an entry */
+        if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c,
+                        &tool_change_position.u,
+                        &tool_change_position.v,
+                        &tool_change_position.w)) {
+            have_tool_change_position=9;
+            retval=0;
+        } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c)) {
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+            have_tool_change_position = 6;
+            retval = 0;
+        } else if (3 == sscanf(inistring, "%lf %lf %lf",
+                               &tool_change_position.tran.x,
+                               &tool_change_position.tran.y,
+                               &tool_change_position.tran.z)) {
+	    /* read them OK */
+	    tool_change_position.a = 0.0;
+	    tool_change_position.b = 0.0;
+	    tool_change_position.c = 0.0;
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+	    have_tool_change_position = 3;
+	    retval = 0;
+	} else {
+	    /* bad format */
+	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
+	    have_tool_change_position = 0;
+	    retval = -1;
+	}
+    } else {
+	/* didn't find an entry */
+	have_tool_change_position = 0;
+    }
+    return retval;
+}
+
+static int iniTool(const char *filename)
+{
+    int retval = 0;
+    IniFile toolInifile;
+
+    if (toolInifile.Open(filename) == false) {
+	return -1;
+    }
+    // read the tool change positions
+    if (0 != readToolChange(&toolInifile)) {
+	retval = -1;
+    }
+    // close the inifile
+    toolInifile.Close();
+
+    return retval;
+}
+
 // NML commands
 
 int Task::emcIoInit()
@@ -506,6 +582,7 @@ int Task::emcIoInit()
     if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
+
     // send init command to emcio
     if (forceCommand(&ioInitMsg)) {
 	rcs_print_error("Can't forceCommand(ioInitMsg)\n");
@@ -766,6 +843,3 @@ int Task::emcIoPluginCall(int len, const char *msg)
     }
     return 0;
 }
-
-
-

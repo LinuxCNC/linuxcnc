@@ -30,7 +30,6 @@
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
 #include "taskclass.hh"
-#include "initool.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
 namespace bp = boost::python;
@@ -178,11 +177,13 @@ typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_cod
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_tw)( EMC_TASK_STAT &t );
 typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_tw)( EMC_TASK_STAT &t );
 
+#ifdef TOOL_NML //{
 typedef pp::array_1_t< CANON_TOOL_TABLE, CANON_POCKETS_MAX> tool_array, (*tool_w)( EMC_TOOL_STAT &t );
 
 static  tool_array tool_wrapper ( EMC_TOOL_STAT & t) {
     return tool_array(t.toolTable);
 }
+#endif //}
 
 static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
     return axis_array(m.axis);
@@ -472,9 +473,11 @@ BOOST_PYTHON_MODULE(emctask) {
     class_ <EMC_TOOL_STAT, boost::noncopyable>("EMC_TOOL_STAT",no_init)
 	.def_readwrite("pocketPrepped", &EMC_TOOL_STAT::pocketPrepped )
 	.def_readwrite("toolInSpindle", &EMC_TOOL_STAT::toolInSpindle )
+#ifdef TOOL_NML //{
 	.add_property( "toolTable",
 		       bp::make_function( tool_w(&tool_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+#endif //}
 	;
 
     class_ <EMC_AUX_STAT, boost::noncopyable>("EMC_AUX_STAT",no_init)
