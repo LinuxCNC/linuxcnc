@@ -1,4 +1,4 @@
-VERSION = '0.9.28'
+VERSION = '0.9.29'
 
 import os, sys
 from shutil import copy as COPY
@@ -1709,15 +1709,15 @@ class HandlerClass:
         if self.unitsPerMm == 1:
             if g2 == 'g20':
                 scale = 0.03937
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
+                zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
             else:
-                zMax = 'g0z[#<_ini[axis_z]max_limit> - 5]'
+                zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 5]'
         elif self.unitsPerMm == 0.03937:
             if g2 == 'g21':
                 scale = 25.4
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
+                zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
             else:
-                zMax = 'g0z[#<_ini[axis_z]max_limit> - 0.02]'
+                zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 0.02]'
         if g2:
             newFile.append(g2)
         if g4:
