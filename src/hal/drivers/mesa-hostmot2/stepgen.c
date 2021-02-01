@@ -535,8 +535,10 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
         if (need_mode_update) {
             hm2_stepgen_update_mode(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.mode_reg[i], sizeof(rtapi_u32));
-            inst->written_index_enable  = *inst->hal.pin.index_enable; // we need to update these only after the write has occured
-            inst->written_probe_enable  = *inst->hal.pin.latch_enable; // to avoid a race condition (index detected before index enable has been set)
+            if (hm2->stepgen.firmware_supports_index) {
+                inst->written_index_enable  = *inst->hal.pin.index_enable; // we need to update these only after the write has occured
+                inst->written_probe_enable  = *inst->hal.pin.latch_enable; // to avoid a race condition (index detected before index enable has been set)
+            }
         }
     }
 
@@ -1190,7 +1192,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
         }
     }
 
-
+    HM2_PRINT(" end of stepgen init/n");
     return hm2->stepgen.num_instances;
 
 
