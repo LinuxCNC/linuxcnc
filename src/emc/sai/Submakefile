@@ -1,15 +1,15 @@
 TARGETS += ../bin/rs274
 #  builtin_modules.cc
 SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc dummyemcstat.cc) \
-	emc/rs274ngc/tool_parse.cc emc/task/taskmodule.cc emc/task/taskclass.cc
+	 emc/task/taskmodule.cc emc/task/taskclass.cc
 USERSRCS += $(SAISRCS)
 
 INCLUDES += emc/sai
 
 ../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-	../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libpyplugin.so.0
+	../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libpyplugin.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(READLINE_LIBS) $(LDFLAGS) 
+	$(Q)$(CXX) -o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(READLINE_LIBS) $(LDFLAGS)
 
 $(patsubst ./emc/sai/%,../include/%,$(wildcard ./emc/sai/*.h)): ../include/%.h: ./emc/sai/%.h
 	cp $^ $@

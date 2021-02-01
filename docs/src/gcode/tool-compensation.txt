@@ -48,12 +48,12 @@ The G10 L1/L10/L11 commands can be used to set tool table offsets:
 
 The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
-and is called 'tool.tbl'. The tools might be in a tool changer or just
-changed manually. The file can be edited with a text editor or be
-updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
-Section for an example of the lathe tool table format.
-The maximum number of entries in the tool table is 1000.
-The maximum tool and pocket number is 99999.
+and is called 'tool.tbl' by default.  A file name may be specified
+with the ini file [EMCIO]TOOL_TABLE setting.  The tools might be in a
+tool changer or just changed manually.  The file can be edited with a
+text editor or be updated using G10 L1. See the
+<<sec:lathe-tool-table,Lathe Tool Table>> Section for an example of
+the lathe tool table format.  The maximum pocket number is 1000.
 
 The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the
 tool table. If you use a text editor make sure you reload the tool table in
@@ -67,7 +67,6 @@ the GUI.
 [width="100%", options="header"]
 |====
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
-|; 15+^|(no data after opening semicolon)
 |T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
@@ -75,9 +74,9 @@ the GUI.
 
 In general, the new tool table line format is:
 
- - ; - opening semicolon, no data
- - T - tool number, 0-99999 (tool numbers must be unique)
- - P - pocket number, 1-99999 (pocket numbers must be unique)
+ - T - tool number (tool numbers must be unique)
+ - P - pocket number, 1-1000 (pocket numbers must be unique, Pocket 0 
+   represents the spindle)
  - X..W - tool offset on specified axis - floating-point
  - D - tool diameter - floating-point, absolute value
  - I - front angle (lathe only) - floating-point
@@ -85,14 +84,6 @@ In general, the new tool table line format is:
  - Q - tool orientation (lathe only) - integer, 0-9
  - ; - beginning of comment or remark - text
 
-The file consists of one opening semicolon on the first line,
-followed by up to a maximum of 1000 tool entries.
-
-[NOTE]
-Although tool numbers up to 99999 are allowed, the number of entries in the
-tool table, at the moment, is still limited to a maximum of 1000 tools for
-technical reasons. The LinuxCNC developers plan to remove that limitation
-eventually. If you have a very large tool changer, please be patient.
 
 Earlier versions of LinuxCNC had two different tool table formats for
 mills and lathes, but since the 2.4.x release, one tool table format
@@ -178,30 +169,92 @@ The 'Comment' column may optionally be used to describe the tool. Any
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon.
 
+[[sec:tool-io]]
+
+=== Tool IO
+
+The userspace program specified by *[EMCIO]EMCIO = io* is conventionally
+used for tool changer management (and other io functions for enabling
+LinuxCNC and the conrol of coolant/lube hardware).  The hal pins used for
+tool management are prefixed with *iocontrol.0.*
+
+A gcode *TN* command asserts the hal output pin *iocontrol.0.tool-prepare*.
+The hal input pin, *iocontrol.0.tool-prepared*, must be set by external
+hal logic to complete tool preparation leading to a subsequent reset of
+the tool-prepare pin.
+
+A gcode *M6* command asserts the hal output pin *iocontrol.0.tool-change*.
+The related hal input pin, *iocontrol.0.tool-prepared*, must be set by
+external hal logic to indicate completion of the tool change leading
+to a subsequent reset of the tool-change pin.
+
+Tooldata is accessed by an ordered index (idx) that depends on the
+type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
+
+. For *RANDOM_TOOLCHANGER = 0*, (0 is default and specifies a non-random
+toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
+
+. For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
+for the toolnumber specifed by the gcode select tool command *Tn*.
+
+The io program provides hal output pins to facilitate toolchanger management:
+
+. *iocontrol.0.tool-prep-number*
+. *iocontrol.0.tool-prep-index*
+. *iocontrol.0.tool-prep-pocket*
+
+==== IO for non-random toolchanger
+
+. Tool number N==0 indicates no tool
+. The pocket number for a tool is fixed when tooldata is loaded
+. At gcode *TN* (N != 0) command:
+..      *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
+..      *iocontrol.0.tool-prep-number* = N
+..      *iocontrol.0.tool-prep-pocket* = the fixed pocketno for N
+. At gcode *T0* (N == 0 remove) command:
+..      *iocontrol.0.tool-prep-index*  = 0
+..      *iocontrol.0.tool-prep-number* = 0
+..      *iocontrol.0.tool-prep-pocket* = 0
+
+==== IO for random toolchanger
+
+. Tool number N==0 is *not special*
+. Pocket number 0 is *special* as it indicates the *spindle*
+. The *current* pocket number for tool N is the tooldata index (idx) for tool N
+. At gcode command *TN*:
+..      *iocontrol.0.tool-prep-index*  = pocket number for tool N
+..      *iocontrol.0.tool-prep-number* = N
+..      *iocontrol.0.tool-prep-pocket* = pocket number for tool N
+
 [[sec:tool-changers]]
 
 === Tool Changers
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
-and 'fixed location'. Information about configuring a LinuxCNC tool changer
+and 'non-random or fixed location'. Information about configuring a LinuxCNC tool changer
 is in the <<sec:emcio-section,EMCIO Section>> of the INI chapter.
 
 .Manual Tool Changer
 
 Manual tool changer (you change the tool by hand) is treated like a
-fixed location tool changer and the P number is ignored. Using the
-manual tool changer only makes sense if you have tool holders that
-remain with the tool (Cat, NMTB, Kwik Switch etc.) when changed thus
-preserving the location of the tool to the spindle. Machines with R-8
-or router collet type tool holders do not preserve the location of the
-tool and the manual tool changer should not be used.
+fixed location tool changer.  Manual toolchanges can be aided by
+a hal configuration that employs the userspace program
+*hal_manualtoolchange* and is typically specified in an ini file
+with ini statements:
+
+----
+[HAL]
+...
+HALFILE = axis_manualtoolchange.hal
+...
+---- 
 
 .Fixed Location Tool Changers
 
 Fixed location tool changers always return the tools to a
 fixed position in the tool changer. This would also include
 designs like lathe turrets. When LinuxCNC is configured for a fixed
-location tool changer the 'P' number is ignored (but read, preserved
+location tool changer the 'P' number is not used internally (but read, preserved
 and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
 want.
 

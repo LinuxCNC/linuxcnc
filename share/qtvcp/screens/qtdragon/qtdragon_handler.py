@@ -56,7 +56,7 @@ class HandlerClass:
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
-        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0)
+        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0, 0)
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
@@ -77,6 +77,7 @@ class HandlerClass:
         STATUS.connect('mode-mdi', lambda w: self.enable_auto(True))
         STATUS.connect('mode-auto', lambda w: self.enable_auto(False))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
+        STATUS.connect('graphics-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
         STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_spindle_pause.setEnabled(state))
         STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm(speed))
@@ -113,6 +114,7 @@ class HandlerClass:
         self.init_preferences()
         self.init_widgets()
         self.init_probe()
+        self.init_utils()
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.stackedWidget.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
@@ -163,6 +165,14 @@ class HandlerClass:
                     self.w.web_view.setHtml(self.html)
         except Exception as e:
             print("No default setup file found - {}".format(e))
+
+    def init_utils(self):
+        from qtvcp.lib.gcode_utility.facing import Facing
+        self.facing = Facing()
+        self.w.layout_facing.addWidget(self.facing)
+        from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
+        self.hole_circle = Hole_Circle()
+        self.w.layout_hole_circle.addWidget(self.hole_circle)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -267,6 +277,8 @@ class HandlerClass:
         self.w.gcode_editor.hide()
         self.w.filemanager.list.setAlternatingRowColors(False)
         self.w.filemanager_usb.list.setAlternatingRowColors(False)
+        self.w.filemanager_usb.showList()
+
         if INFO.MACHINE_IS_METRIC:
             self.w.lbl_tool_sensor_B2W.setText('INCH')
             self.w.lbl_tool_sensor_B2S.setText('INCH')

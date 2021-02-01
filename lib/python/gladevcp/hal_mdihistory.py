@@ -33,7 +33,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     '''
     EMC_MDIHistory will store each MDI command to a file on your hard drive
     and display the grabbed commands in a treeview so they can be used again
-    without typing the complete comand again
+    without typing the complete command again
     '''
 
     __gtype_name__ = 'EMC_MDIHistory'

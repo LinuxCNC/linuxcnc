@@ -173,7 +173,7 @@ Example:
 * 'halui.joint.N.on-hard-min-limit' (bit out) - status  pin  telling  that  joint  N is on the negative hardware limit
 * 'halui.joint.N.on-soft-max-limit' (bit out) - status pin telling that joint N  is  on  the  positive  software limit
 * 'halui.joint.N.on-soft-min-limit' (bit out) - status  pin  telling  that  joint  N is on the negative software limit
-* 'halui.joint.N.override-limits' (bit out) - status pin telling that joint N's limits are  temporarily  over‐ridden
+* 'halui.joint.N.override-limits' (bit out) - status pin telling that joint N's limits are  temporarily  overridden
 * 'halui.joint.N.unhome' (bit in) - pin for unhoming joint N
 * 'halui.joint.selected' (u32 out) - selected joint number (0 ... num_joints-1)
 * 'halui.joint.selected.has-fault' (bit out) - status pin selected joint is faulted
@@ -194,7 +194,7 @@ N = joint number (0 ... num_joints-1)
        (jog  analog  inputs  smaller/slower  than this (in absolute value) are
        ignored)
 * 'halui.joint.jog-speed' (float in) - pin for setting jog speed for plus/minus jogging.
-* 'halui.joint.N.analog' (float in) - pin for jogging the joint N using  an  float  value  (e.g.  joy‐stick).   The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
+* 'halui.joint.N.analog' (float in) - pin for jogging the joint N using  an  float  value  (e.g.  joy-stick).   The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
 * 'halui.joint.N.increment' (float in) - pin for setting the jog increment for joint N when using  increment-plus/minus
 * 'halui.joint.N.increment-minus' (bit in) - a  rising edge will will make joint N jog in the negative direction by the increment amount
 * 'halui.joint.N.increment-plus' (bit in) - a rising edge will will make joint N jog in the positive  direction by the increment amount
@@ -227,7 +227,7 @@ L = axis letter (xyzabcuvw)
 * 'halui.axis.jog-deadband' (float in) - pin  for  setting  jog  analog  deadband  (jog   analog   inputs smaller/slower than this (in absolute value) are ignored)
 * 'halui.axis.jog-speed' (float in) - pin for setting jog speed for plus/minus jogging.
 * 'halui.axis.L.analog' (float in) - pin for jogging the axis L using an float value (e.g. joystick). The value, typically set between 0.0 and  ±1.0,  is  used as a jog-speed multiplier.
-* 'halui.axis.L.increment' (float in) - pin  for  setting the jog increment for axis L when using incre‐ ment-plus/minus
+* 'halui.axis.L.increment' (float in) - pin  for  setting the jog increment for axis L when using increment-plus/minus
 * 'halui.axis.L.increment-minus' (bit in) - a rising edge will will make axis L jog in the  negative  direction by the increment amount
 * 'halui.axis.L.increment-plus' (bit in) - a  rising  edge will will make axis L jog in the positive direction by the increment amount
 * 'halui.axis.L.minus' (bit in) - pin  for  jogging  axis  L  in   negative   direction   at   the halui.axis.jog-speed velocity

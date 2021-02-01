@@ -7,9 +7,11 @@ import inspect
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
-else: import gobject as GObject
+else:
+    import gobject as GObject
 
-import _hal, hal
+import _hal
+import hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import GStat
 from qtvcp.qt_istat import _IStat as IStatParent
@@ -19,12 +21,28 @@ from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
+################################################################
+# IStat class
+################################################################
+class Info(IStatParent):
+    _instance = None
+    _instanceNum = 0
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+
+
+# Now that the class is defined create a reference to it for the other classes
+INI = Info()
 
 class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal('PyQt_PyObject')
 
+    value_changed = pyqtSignal('PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
+
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
@@ -65,21 +83,25 @@ class QPin(hal.Pin, QObject):
         return self.UPDATE
 
     @classmethod
-    def update_start(self, timeout=100):
+    def update_start(self):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_all)
-        self.timer.start(100)
+        self.timer.start(INI.HALPIN_CYCLE_TIME)
 
     @classmethod
-    def update_stop(self, timeout=100):
+    def update_stop(self):
         QPin.UPDATE = False
 
+
 # so errors when making QPins aren't fatal
-class DummyPin(object):
+class DummyPin(QObject):
+    value_changed = pyqtSignal('PyQt_PyObject')
+
     def __init__(self, *a, **kw):
+        super(DummyPin, self).__init__(None)
         self._a = a
         self._kw = kw
 
@@ -97,6 +119,7 @@ class DummyPin(object):
 
     def set(self, *a, **kw):
         pass
+
 
 class QComponent:
     def __init__(self, comp):
@@ -122,23 +145,6 @@ class QComponent:
 
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
-
-
-################################################################
-# IStat class
-################################################################
-class Info(IStatParent):
-    _instance = None
-    _instanceNum = 0
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
-        return cls._instance
-
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
 
 
 ################################################################
@@ -175,7 +181,7 @@ class Status(GStat):
     # seg fault without it
     def set_timer(self):
         GObject.threads_init()
-        GObject.timeout_add(100, self.update)
+        GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
 
 
 ################################################################
@@ -202,6 +208,7 @@ from qtvcp.qt_tstat import _TStat as _TStatParent
 class Tool(_TStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
@@ -212,9 +219,11 @@ class Tool(_TStatParent):
 ################################################################
 from qtvcp.qt_pstat import _PStat as _PStatParent
 
+
 class Path(_PStatParent):
     _instance = None
     _instanceNum = 0
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _PStatParent.__new__(cls, *args, **kwargs)

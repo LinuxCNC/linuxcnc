@@ -4,7 +4,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.jog_increments import JogIncrements
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
 
 class JogIncrementsPlugin(QPyDesignerCustomWidgetPlugin):
 

@@ -4,7 +4,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.status_slider import StatusSlider
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
 
 class StatusSliderPlugin(QPyDesignerCustomWidgetPlugin):
 
@@ -50,5 +52,3 @@ class StatusSliderPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.status_slider"
-
-

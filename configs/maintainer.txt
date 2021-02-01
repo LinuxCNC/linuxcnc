@@ -35,7 +35,7 @@ a .demo file is usable.
 
 -------------------------------------------------------
 
-The configuraton picker (pickconfig.tcl) walks through
+The configuration picker (pickconfig.tcl) walks through
 existing _user_ configurations in ~/linuxcnc/configs and the
 distribution's root/configs directory.  It presents both
 existing user configurations and sample configurations.
@@ -71,7 +71,7 @@ A configuration directory may contain subdirectories.
 If a subdirectory contains a file with a .ini or .demo
 suffix, it is considered to be a selectable configuration
 directory and will be included in the selection tree
-provided by the configuraton picker.
+provided by the configuration picker.
 
 Subdirectories required for other purposes must not
 contain a file with a .ini or .demo suffix.

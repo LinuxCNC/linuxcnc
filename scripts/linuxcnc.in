@@ -540,7 +540,7 @@ function KillTaskWithTimeout() {
 	# first a "gentle" kill with signal TERM
 	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
-	# wait and see if it dissappears
+	# wait and see if it disappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
             NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
@@ -556,7 +556,7 @@ function KillTaskWithTimeout() {
 	    echo "Timeout, trying kill -9" >>$PRINT_FILE
 	    $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
-	    # wait and see if it dissappears
+	    # wait and see if it disappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
                 NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
@@ -622,7 +622,7 @@ function Cleanup() {
     fi
 
     # now kill all the other user space components
-    for KILL_TASK in linuxcncsvr milltask; do
+    for KILL_TASK in linuxcncsvr motion-logger milltask; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi

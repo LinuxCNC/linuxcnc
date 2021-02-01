@@ -4,7 +4,7 @@
 loadrt  plasmac
 addf    plasmac  servo-thread
 
-# COMPONEMT INPUTS ###########################################################
+# COMPONENT INPUTS ###########################################################
 net plasmac:arc-ok                  db_arc-ok.out               =>  plasmac.arc-ok-in
 net plasmac:axis-x-position         axis.x.pos-cmd              =>  plasmac.axis-x-position
 net plasmac:axis-y-position         axis.y.pos-cmd              =>  plasmac.axis-y-position
@@ -59,5 +59,7 @@ if [info exists ::TRAJ(SPINDLES)] {
 }
 
 # powermax serial communications
-#if [info exists ::PLASMAC(PM_PORT)] {loadusr -Wn pmx485 pmx485 [lindex $::PLASMAC(PM_PORT) 0]}
+# for qtplasmac
+if [info exists ::QTPLASMAC(PM_PORT)] {loadusr -Wn pmx485 qtplasmac/pmx485.py [lindex $::QTPLASMAC(PM_PORT) 0]}
+# for plasmac
 if [info exists ::PLASMAC(PM_PORT)] {loadusr -Wn pmx485 plasmac/pmx485.py [lindex $::PLASMAC(PM_PORT) 0]}

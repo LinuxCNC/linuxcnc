@@ -1197,6 +1197,7 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     double spindle_scale;	// spindle over-ride
     double css_maximum;
     double css_factor;  // CSS Status
+    int state;
     int direction;		// 0 stopped, 1 forward, -1 reverse
     int brake;			// 0 released, 1 engaged
     int increasing;		// 1 increasing, -1 decreasing, 0 neither
@@ -1663,9 +1664,14 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT operator =(EMC_TOOL_STAT s);	// need this for [] members
 
-    int pocketPrepped;		// pocket ready for loading from
+    int pocketPrepped;		// idx ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool
+#ifdef TOOL_NML //{
     CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
+#else //}{
+    CANON_TOOL_TABLE toolTableCurrent; //current tool data
+#endif //}
+
 };
 
 // EMC_AUX type declarations

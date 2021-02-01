@@ -75,6 +75,8 @@ include::gui/tklinuxcnc.txt[]
 
 include::plasma/plasmac-user-guide.txt[]
 
+include::plasma/qtplasmac.txt[]
+
 :leveloffset: 1
 
 = Programming
@@ -287,6 +289,8 @@ include::motion/5-axis-kinematics.txt[]
 include::motion/pid-theory.txt[]
 
 include::motion/external-offsets.txt[]
+
+include::tooldatabase/tooldatabase.txt[]
 
 include::code/rs274.txt[]
 

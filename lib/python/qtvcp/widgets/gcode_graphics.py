@@ -23,7 +23,7 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, QTimer
 from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
@@ -66,6 +66,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self._view_incr = 20
         self.inhibit_selection = False
+        self._block_line_selected = False
+
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(INFO.GRAPHICS_CYCLE_TIME)
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
@@ -73,6 +79,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
         STATUS.connect('graphics-view-changed', self.set_view_signal)
+        STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+
+    # external source asked for hightlight,
+    # make sure we block the propagation
+    def highlight_graphics(self, line):
+        if self._current_file is None: return
+        self._block_line_selected = True
+        self.set_highlight_line(line)
 
     def set_view_signal(self, w, view, args):
         v = view.lower()
@@ -186,8 +200,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.emit("graphics-gcode-error", errortext)
 
     # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
+    # block sending out signal if the highlight request
+    # came from an external source - we only send it out
+    # if someone clicked on us
     def update_highlight_variable(self, line):
         self.highlight_line = line
+        if self._block_line_selected:
+            self._block_line_selected = False
+            return
         if line is None:
             line = -1
         STATUS.emit('graphics-line-selected', line)

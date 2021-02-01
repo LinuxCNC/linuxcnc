@@ -11,6 +11,7 @@ import os
 # Time increment and timeout, seconds
 TIME_INCR = 0.1
 TIMEOUT = 10.0
+MAX_QWAIT_TRIES = 4
 
 #
 # connect to LinuxCNC
@@ -87,8 +88,16 @@ c.program_open('3D_Chips.ngc')
 c.auto(linuxcnc.AUTO_RUN, 0)
 start_time = time.time()
 s.poll()
+MAX_QWAIT_TRIES=4
+ct=0
 while not (s.queue > 1000):
-    if (time.time() - start_time) > TIMEOUT:
+    delta_t = time.time() - start_time
+    if delta_t > TIMEOUT:
+        sys.stderr.write("ct=%d s.queue=%d delta_t=%f TIMEOUT=%f\n"%(
+                          ct,s.queue,delta_t,TIMEOUT))
+        start_time = time.time()
+        ct += 1
+    if ct > MAX_QWAIT_TRIES:
         sys.stderr.write("Failed to load segments from program\n")
         sys.exit(1)
 

@@ -305,8 +305,7 @@ On multi spindle machine there will be entries for each spindle number. Qtvcp on
 
 * 'INTRO_TIME = 5' - The maximum time to show the splash screen, in seconds.
 
-* 'CYCLE_TIME = 0.05' - Cycle time in seconds that display will sleep between
-   polls.
+* 'CYCLE_TIME = 0.1' - Cycle time of the Display GUI. Depending on the screen, this can be in seconds or ms. This is often the update rate rather then sleep time between updates. If the update time is not set right the screen can become unresponsive or very jerky. A value of 100ms (0.1 seconds) is a common setting though a range of 50 - 200ms (.05 - .2 seconds) may be useable. An under powered CPU may see improvement with a longer setting. Usually the default is fine.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
@@ -1595,6 +1594,10 @@ image::images/encoder-scale.png[align="center"]
 * 'TOOL_TABLE = tool.tbl' -
     The file which contains tool information, described in
     the User Manual.
+
+* 'DB_PROGRAM = db_program' -
+    Path to an executable program that manages tool data.
+    (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
 
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
     Specifies the XYZ location to move to when performing a

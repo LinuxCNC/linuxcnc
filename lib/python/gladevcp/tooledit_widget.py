@@ -81,7 +81,7 @@ class ToolEdit(gtk.VBox):
         # toggle button useable
         renderer = self.wTree.get_object("cell_toggle1")
         renderer.set_property('activatable', True)
-        # make colums editable
+        # make columns editable
         self.tool_cell_list = "cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b","cell_c","cell_u","cell_v","cell_w","cell_d", \
                 "cell_front","cell_back","cell_orient","cell_comments"
         for col,name in enumerate(self.tool_cell_list):
@@ -309,7 +309,7 @@ class ToolEdit(gtk.VBox):
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
             print(line, file=file)
-        # Theses lines are required to make sure the OS doesn't cache the data
+        # These lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
         os.fsync(file.fileno())
@@ -410,7 +410,7 @@ class ToolEdit(gtk.VBox):
             except:
                 pass
 
-        # depending what is editted add the right type of info integer,float or text
+        # depending what is edited add the right type of info integer,float or text
         # If it's a filtered display then we must convert the path 
     def col_editted(self, widget, path, new_text, col, filter):
         if filter == 'wear':

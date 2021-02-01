@@ -34,6 +34,10 @@
 #include "nml_oi.hh"
 #include "rcs_print.hh"
 #include <rtapi_string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "tooldata.hh"
 
 #include <cmath>
 
@@ -284,7 +288,18 @@ static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
     return true;
 }
 
+static bool initialized=0;
+
 static PyObject *poll(pyStatChannel *s, PyObject *o) {
+#ifdef TOOL_NML //{
+    if (!initialized) {
+      //fprintf(stderr,"%8d tool_nml_register\n",getpid());
+      tool_nml_register( (CANON_TOOL_TABLE*)&s->status.io.tool.toolTable);
+      initialized=1;
+    }
+#else //}{
+    if (!initialized) { tool_mmap_user();initialized=1;}
+#endif //}
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
@@ -659,21 +674,34 @@ static PyStructSequence_Desc tool_result_desc = {
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(CANON_POCKETS_MAX);
-    int j=0;
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
+    PyObject *res;
+    int j = 0;
+
+    if (!initialized) {
+        // invalid until initialized (by poll())
+        res = PyTuple_New(0);
+        return res;
+    }
+
+    int idxmax = tooldata_last_index_get() + 1;
+    res = PyTuple_New(idxmax);
+    for(int idx=0; idx < idxmax; idx++) {
+        struct CANON_TOOL_TABLE tdata;
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        }
+        struct CANON_TOOL_TABLE &t = tdata;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.offset.tran.y));
-        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.offset.tran.z));
-        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.offset.a));
-        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.offset.b));
-        PyStructSequence_SET_ITEM(tool, 6, PyFloat_FromDouble(t.offset.c));
-        PyStructSequence_SET_ITEM(tool, 7, PyFloat_FromDouble(t.offset.u));
-        PyStructSequence_SET_ITEM(tool, 8, PyFloat_FromDouble(t.offset.v));
-        PyStructSequence_SET_ITEM(tool, 9, PyFloat_FromDouble(t.offset.w));
+        PyStructSequence_SET_ITEM(tool,  0, PyInt_FromLong(t.toolno));
+        PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
+        PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
+        PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
+        PyStructSequence_SET_ITEM(tool,  4, PyFloat_FromDouble(t.offset.a));
+        PyStructSequence_SET_ITEM(tool,  5, PyFloat_FromDouble(t.offset.b));
+        PyStructSequence_SET_ITEM(tool,  6, PyFloat_FromDouble(t.offset.c));
+        PyStructSequence_SET_ITEM(tool,  7, PyFloat_FromDouble(t.offset.u));
+        PyStructSequence_SET_ITEM(tool,  8, PyFloat_FromDouble(t.offset.v));
+        PyStructSequence_SET_ITEM(tool,  9, PyFloat_FromDouble(t.offset.w));
         PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
         PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
@@ -1970,6 +1998,22 @@ static PyObject *Logger_set_depth(pyPositionLogger *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
+    struct color *c = s->colors;
+    if(!PyArg_ParseTuple(a, "(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+            &c[0].r,&c[0].g, &c[0].b, &c[0].a,
+            &c[1].r,&c[1].g, &c[1].b, &c[1].a,
+            &c[2].r,&c[2].g, &c[2].b, &c[2].a,
+            &c[3].r,&c[3].g, &c[3].b, &c[3].a,
+            &c[4].r,&c[4].g, &c[4].b, &c[4].a,
+            &c[5].r,&c[5].g, &c[5].b, &c[5].a
+            ))
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static double dist2(double x1, double y1, double x2, double y2) {
     double dx = x2-x1;
     double dy = y2-y1;
@@ -2189,6 +2233,8 @@ static PyMethodDef Logger_methods[] = {
         "Plot the backplot now"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
+    {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
+        "set the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},

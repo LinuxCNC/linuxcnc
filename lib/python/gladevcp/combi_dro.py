@@ -462,8 +462,8 @@ class Combi_DRO(gtk.VBox):
             self.homed = self.status.homed[self.joint_no]
             self._set_labels()
 
-    # sets the DRO explicity to inch or mm
-    # attentions auto_units takes also effekt on that!
+    # sets the DRO explicitly to inch or mm
+    # attentions auto_units also takes effect on that!
     def set_to_inch(self, state):
         '''
         sets the DRO to show imperial units
@@ -493,7 +493,7 @@ class Combi_DRO(gtk.VBox):
     # multiplied by 2
     def set_to_diameter(self, state):
         '''
-        if True the DRO will show the diameter not the radius, specialy needed for lathes
+        if True the DRO will show the diameter not the radius, specially needed for lathes
         the DRO value will be multiplied by 2
 
         Combi_DRO.set_to_diameter(state)
@@ -503,7 +503,7 @@ class Combi_DRO(gtk.VBox):
         '''
         self.diameter = state
 
-    # this will toggle the DRO around, mainly used to mantain all DRO
+    # this will toggle the DRO around, mainly used to maintain all DRO
     # at the same state, because a click on one will only change that DRO
     # This can be used to change also the others
     def toogle_readout(self):
@@ -517,7 +517,7 @@ class Combi_DRO(gtk.VBox):
         self._set_labels()
         self.emit("clicked", self.joint_number, self._ORDER)
 
-    # You can change the automatic given axisletter using this funktion
+    # You can change the automatic given axisletter using this function
     # i.e. to use an axis as R or D insteadt of X on a lathe
     def change_axisletter(self, letter):
         '''
@@ -550,11 +550,11 @@ class Combi_DRO(gtk.VBox):
         '''
         self.axis_no = "xyzabcuvws".index(axis.lower())
 
-    # returns the order of the DRO, mainly used to mantain them consistent
+    # returns the order of the DRO, mainly used to maintain them consistent
     # the order will also be transmitted with the clicked signal
     def get_order(self):
         '''
-        returns the order of the DRO in the widget mainly used to mantain them consistent
+        returns the order of the DRO in the widget mainly used to maintain them consistent
         the order will also be transmitted with the clicked signal
 
         Combi_DRO.get_order()
@@ -563,10 +563,10 @@ class Combi_DRO(gtk.VBox):
         '''
         return self._ORDER
 
-    # sets the order of the DRO, mainly used to mantain them consistent
+    # sets the order of the DRO, mainly used to maintain them consistent
     def set_order(self, order):
         '''
-        sets the order of the DRO, mainly used to mantain them consistent
+        sets the order of the DRO, mainly used to maintain them consistent
 
         Combi_DRO.set_order(order)
 
@@ -649,7 +649,7 @@ def clicked(self, axis_number, order):
     print(self.get_position())
 #    self.set_property("joint_number", 0)
     # other_widget.set_order(order)
-    # so they may be mantained consistent
+    # so they may be maintained consistent
 
 if __name__ == "__main__":
     main()

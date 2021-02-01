@@ -44,7 +44,16 @@ http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
 
 Para la Raspberry Pi, una imagen completa de la tarjeta SD está disponible aquí:
 
-https://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip
+https://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip
+
+Se informa que esta imagen SD no funciona con el modelo Raspberry Pi4 de 8GB.
+Tenga en cuenta también que esta versión de la imagen SD limita la memoria disponible a
+3GB ya que esto es necesario para persuadirlo de que se ejecute tanto con WiFi como con USB
+trabajando en algunas versiones del Pi. Puedes experimentar quitando
+este límite editando el archivo config-rt.txt en el directorio de arranque. Si
+no puede arrancar después del cambio, entonces el archivo puede ser editado nuevamente por
+montar la tarjeta SD en una computadora diferente (tal vez incluso un Pi con un
+Lector de tarjetas USB)
 
 Esto se puede instalar usando el Pi normal
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[proceso de instalación]

@@ -17,10 +17,11 @@ INFO = Info()
 ICONPATH = os.path.join(INFO.LIB_PATH, 'images/widgets/writer')
 IMAGEPATH = os.path.join(INFO.LIB_PATH, 'images')
 
+
 class Main(QtWidgets.QMainWindow):
 
-    def __init__(self,parent=None):
-        super(Main,self).__init__(parent)
+    def __init__(self, parent=None):
+        super(Main, self).__init__(parent)
         self.filename = None
         self.image_filename = None
         self.changesSaved = True
@@ -30,87 +31,100 @@ class Main(QtWidgets.QMainWindow):
 
     def initToolbar(self):
 
-        self.newAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/blue-document.png")),"New",self)
+        self.newAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/blue-document.png")), "New", self)
         self.newAction.setShortcut("Ctrl+N")
         self.newAction.setStatusTip("Create a new document from scratch.")
         self.newAction.triggered.connect(self.new)
 
-        self.openAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/blue-folder-open.png")),"Open file",self)
+        self.openAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/blue-folder-open.png")),
+                                            "Open file", self)
         self.openAction.setStatusTip("Open existing document")
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
 
-        self.saveAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/disk-black.png")),"Save",self)
+        self.saveAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/disk-black.png")), "Save", self)
         self.saveAction.setStatusTip("Save document")
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
 
-        self.printAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/printer.png")),"Print document",self)
+        self.printAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/printer.png")), "Print document",
+                                             self)
         self.printAction.setStatusTip("Print document")
         self.printAction.setShortcut("Ctrl+P")
         self.printAction.triggered.connect(self.printHandler)
 
-        self.previewAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/eye.png")),"Page view",self)
+        self.previewAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/eye.png")), "Page view", self)
         self.previewAction.setStatusTip("Preview page before printing")
         self.previewAction.setShortcut("Ctrl+Shift+P")
         self.previewAction.triggered.connect(self.preview)
 
-        self.findAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/magnifier-left.png")),"Find and replace",self)
+        self.findAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/magnifier-left.png")),
+                                            "Find and replace", self)
         self.findAction.setStatusTip("Find and replace words in your document")
         self.findAction.setShortcut("Ctrl+F")
         self.findAction.triggered.connect(find.Find(self).show)
 
-        self.cutAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/scissors.png")),"Cut to clipboard",self)
+        self.cutAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/scissors.png")),
+                                           "Cut to clipboard", self)
         self.cutAction.setStatusTip("Delete and copy text to clipboard")
         self.cutAction.setShortcut("Ctrl+X")
         self.cutAction.triggered.connect(self.text.cut)
 
-        self.copyAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/document-copy.png")),"Copy to clipboard",self)
+        self.copyAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/document-copy.png")),
+                                            "Copy to clipboard", self)
         self.copyAction.setStatusTip("Copy text to clipboard")
         self.copyAction.setShortcut("Ctrl+C")
         self.copyAction.triggered.connect(self.text.copy)
 
-        self.pasteAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/stamp.png")),"Paste from clipboard",self)
+        self.pasteAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/stamp.png")),
+                                             "Paste from clipboard", self)
         self.pasteAction.setStatusTip("Paste text from clipboard")
         self.pasteAction.setShortcut("Ctrl+V")
         self.pasteAction.triggered.connect(self.text.paste)
 
-        self.undoAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/arrow-curve-180.png")),"Undo last action",self)
+        self.undoAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/arrow-curve-180.png")),
+                                            "Undo last action", self)
         self.undoAction.setStatusTip("Undo last action")
         self.undoAction.setShortcut("Ctrl+Z")
         self.undoAction.triggered.connect(self.text.undo)
 
-        self.redoAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/arrow-curve.png")),"Redo last undone thing",self)
+        self.redoAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/arrow-curve.png")),
+                                            "Redo last undone thing", self)
         self.redoAction.setStatusTip("Redo last undone thing")
         self.redoAction.setShortcut("Ctrl+Y")
         self.redoAction.triggered.connect(self.text.redo)
 
-        dateTimeAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/calendar-blue.png")),"Insert current date/time",self)
+        dateTimeAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/calendar-blue.png")),
+                                           "Insert current date/time", self)
         dateTimeAction.setStatusTip("Insert current date/time")
         dateTimeAction.setShortcut("Ctrl+D")
         dateTimeAction.triggered.connect(datetime.DateTime(self).show)
 
-        wordCountAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/counter.png")),"See word/symbol count",self)
+        wordCountAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/counter.png")),
+                                            "See word/symbol count", self)
         wordCountAction.setStatusTip("See word/symbol count")
         wordCountAction.setShortcut("Ctrl+W")
         wordCountAction.triggered.connect(self.wordCount)
 
-        tableAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/table.png")),"Insert table",self)
+        tableAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/table.png")), "Insert table", self)
         tableAction.setStatusTip("Insert table")
         tableAction.setShortcut("Ctrl+T")
         tableAction.triggered.connect(table.Table(self).show)
 
-        imageAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/image-import.png")),"Insert image",self)
+        imageAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/image-import.png")), "Insert image",
+                                        self)
         imageAction.setStatusTip("Insert image")
         imageAction.setShortcut("Ctrl+Shift+I")
         imageAction.triggered.connect(self.insertImage)
 
-        bulletAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-list.png")),"Insert bullet List",self)
+        bulletAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-list.png")),
+                                         "Insert bullet List", self)
         bulletAction.setStatusTip("Insert bullet list")
         bulletAction.setShortcut("Ctrl+Shift+B")
         bulletAction.triggered.connect(self.bulletList)
 
-        numberedAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-list-order.png")),"Insert numbered List",self)
+        numberedAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-list-order.png")),
+                                           "Insert numbered List", self)
         numberedAction.setStatusTip("Insert numbered list")
         numberedAction.setShortcut("Ctrl+Shift+L")
         numberedAction.triggered.connect(self.numberList)
@@ -163,58 +177,70 @@ class Main(QtWidgets.QMainWindow):
 
         fontSize.setValue(14)
 
-        fontColor = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-color.png")),"Change font color",self)
+        fontColor = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-color.png")), "Change font color",
+                                      self)
         fontColor.triggered.connect(self.fontColorChanged)
 
-        boldAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-bold.png")),"Bold",self)
+        boldAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-bold.png")), "Bold", self)
         boldAction.setCheckable(True)
         boldAction.triggered.connect(self.bold)
 
-        italicAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-italic.png")),"Italic",self)
+        italicAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-italic.png")), "Italic", self)
         italicAction.setCheckable(True)
         italicAction.triggered.connect(self.italic)
 
-        underlAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-underline.png")),"Underline",self)
+        underlAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-underline.png")), "Underline",
+                                         self)
         underlAction.setCheckable(True)
         underlAction.triggered.connect(self.underline)
 
-        strikeAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-strike.png")),"Strike-out",self)
+        strikeAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-strike.png")), "Strike-out",
+                                         self)
         strikeAction.setCheckable(True)
         strikeAction.triggered.connect(self.strike)
 
-        superAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-superscript.png")),"Superscript",self)
+        superAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-superscript.png")),
+                                        "Superscript", self)
         superAction.setCheckable(True)
         superAction.triggered.connect(self.superScript)
 
-        subAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-subscript.png")),"Subscript",self)
+        subAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-subscript.png")), "Subscript",
+                                      self)
         subAction.setCheckable(True)
         subAction.triggered.connect(self.subScript)
 
-        alignLeft = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment.png")),"Align left",self)
+        alignLeft = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment.png")), "Align left",
+                                      self)
         alignLeft.setCheckable(True)
         alignLeft.triggered.connect(self.alignLeft)
 
-        alignCenter = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-center.png")),"Align center",self)
+        alignCenter = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-center.png")),
+                                        "Align center", self)
         alignCenter.setCheckable(True)
         alignCenter.triggered.connect(self.alignCenter)
 
-        alignRight = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-right.png")),"Align right",self)
+        alignRight = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-right.png")),
+                                       "Align right", self)
         alignRight.setCheckable(True)
         alignRight.triggered.connect(self.alignRight)
 
-        alignJustify = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-justify.png")),"Align justify",self)
+        alignJustify = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-alignment-justify.png")),
+                                         "Align justify", self)
         alignJustify.setCheckable(True)
         alignJustify.triggered.connect(self.alignJustify)
 
-        indentAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-outdent.png")),"Indent Area",self)
+        indentAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-outdent.png")), "Indent Area",
+                                         self)
         indentAction.setShortcut("Ctrl+Tab")
         indentAction.triggered.connect(self.indent)
 
-        dedentAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-outdent-rtl.png")),"Dedent Area",self)
+        dedentAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/edit-outdent-rtl.png")),
+                                         "Dedent Area", self)
         dedentAction.setShortcut("Shift+Tab")
         dedentAction.triggered.connect(self.dedent)
 
-        backColor = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/color-swatch.png")),"Change background color",self)
+        backColor = QtWidgets.QAction(QtGui.QIcon(os.path.join(ICONPATH, "icons/color-swatch.png")),
+                                      "Change background color", self)
         backColor.triggered.connect(self.highlight)
 
         self.formatbar = self.addToolBar("Format")
@@ -279,13 +305,13 @@ class Main(QtWidgets.QMainWindow):
         edit.addAction(self.findAction)
 
         # Toggling actions for the various bars
-        toolbarAction = QtWidgets.QAction("Toggle Toolbar",self)
+        toolbarAction = QtWidgets.QAction("Toggle Toolbar", self)
         toolbarAction.triggered.connect(self.toggleToolbar)
 
-        formatbarAction = QtWidgets.QAction("Toggle Formatbar",self)
+        formatbarAction = QtWidgets.QAction("Toggle Formatbar", self)
         formatbarAction.triggered.connect(self.toggleFormatbar)
 
-        statusbarAction = QtWidgets.QAction("Toggle Statusbar",self)
+        statusbarAction = QtWidgets.QAction("Toggle Statusbar", self)
         statusbarAction.triggered.connect(self.toggleStatusbar)
 
         view.addAction(toolbarAction)
@@ -319,33 +345,33 @@ class Main(QtWidgets.QMainWindow):
 
         self.text.textChanged.connect(self.changed)
 
-        self.setGeometry(100,100,1030,800)
+        self.setGeometry(100, 100, 1030, 800)
         self.setWindowTitle("HTML Writer")
         self.setWindowIcon(QtGui.QIcon(os.path.join(ICONPATH, "icons/pencil.png")))
 
     def changed(self):
         self.changesSaved = False
 
-    def closeEvent(self,event):
+    def closeEvent(self, event):
 
         if self.changesSaved:
 
             event.accept()
 
         else:
-        
+
             popup = QtWidgets.QMessageBox(self)
 
             popup.setIcon(QtWidgets.QMessageBox.Warning)
-            
+
             popup.setText("The document has been modified")
-            
+
             popup.setInformativeText("Do you want to save your changes?")
-            
-            popup.setStandardButtons(QtWidgets.QMessageBox.Save   |
-                                      QtWidgets.QMessageBox.Cancel |
-                                      QtWidgets.QMessageBox.Discard)
-            
+
+            popup.setStandardButtons(QtWidgets.QMessageBox.Save |
+                                     QtWidgets.QMessageBox.Cancel |
+                                     QtWidgets.QMessageBox.Discard)
+
             popup.setDefaultButton(QtWidgets.QMessageBox.Save)
 
             answer = popup.exec_()
@@ -359,7 +385,7 @@ class Main(QtWidgets.QMainWindow):
             else:
                 event.ignore()
 
-    def context(self,pos):
+    def context(self, pos):
 
         # Grab the cursor
         cursor = self.text.textCursor()
@@ -374,36 +400,32 @@ class Main(QtWidgets.QMainWindow):
 
             menu = QtWidgets.QMenu(self)
 
-            appendRowAction = QtWidgets.QAction("Append row",self)
+            appendRowAction = QtWidgets.QAction("Append row", self)
             appendRowAction.triggered.connect(lambda: table.appendRows(1))
 
-            appendColAction = QtWidgets.QAction("Append column",self)
+            appendColAction = QtWidgets.QAction("Append column", self)
             appendColAction.triggered.connect(lambda: table.appendColumns(1))
 
-
-            removeRowAction = QtWidgets.QAction("Remove row",self)
+            removeRowAction = QtWidgets.QAction("Remove row", self)
             removeRowAction.triggered.connect(self.removeRow)
 
-            removeColAction = QtWidgets.QAction("Remove column",self)
+            removeColAction = QtWidgets.QAction("Remove column", self)
             removeColAction.triggered.connect(self.removeCol)
 
-
-            insertRowAction = QtWidgets.QAction("Insert row",self)
+            insertRowAction = QtWidgets.QAction("Insert row", self)
             insertRowAction.triggered.connect(self.insertRow)
 
-            insertColAction = QtWidgets.QAction("Insert column",self)
+            insertColAction = QtWidgets.QAction("Insert column", self)
             insertColAction.triggered.connect(self.insertCol)
 
-
-            mergeAction = QtWidgets.QAction("Merge cells",self)
+            mergeAction = QtWidgets.QAction("Merge cells", self)
             mergeAction.triggered.connect(lambda: table.mergeCells(cursor))
 
             # Only allow merging if there is a selection
             if not cursor.hasSelection():
                 mergeAction.setEnabled(False)
 
-
-            splitAction = QtWidgets.QAction("Split cells",self)
+            splitAction = QtWidgets.QAction("Split cells", self)
 
             cell = table.cellAt(cursor)
 
@@ -411,11 +433,10 @@ class Main(QtWidgets.QMainWindow):
             # than a normal cell
             if cell.rowSpan() > 1 or cell.columnSpan() > 1:
 
-                splitAction.triggered.connect(lambda: table.splitCell(cell.row(),cell.column(),1,1))
+                splitAction.triggered.connect(lambda: table.splitCell(cell.row(), cell.column(), 1, 1))
 
             else:
                 splitAction.setEnabled(False)
-
 
             menu.addAction(appendRowAction)
             menu.addAction(appendColAction)
@@ -447,7 +468,7 @@ class Main(QtWidgets.QMainWindow):
 
             if self.formatbar.isVisible():
                 pos.setY(pos.y() + 45)
-                
+
             # Move the menu to the new position
             menu.move(pos)
 
@@ -455,7 +476,7 @@ class Main(QtWidgets.QMainWindow):
 
         else:
 
-            event = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse,QtCore.QPoint())
+            event = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Mouse, QtCore.QPoint())
 
             self.text.contextMenuEvent(event)
 
@@ -472,7 +493,7 @@ class Main(QtWidgets.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Delete the cell's row
-        table.removeRows(cell.row(),1)
+        table.removeRows(cell.row(), 1)
 
     def removeCol(self):
 
@@ -487,7 +508,7 @@ class Main(QtWidgets.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Delete the cell's column
-        table.removeColumns(cell.column(),1)
+        table.removeColumns(cell.column(), 1)
 
     def insertRow(self):
 
@@ -502,7 +523,7 @@ class Main(QtWidgets.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Insert a new row at the cell's position
-        table.insertRows(cell.row(),1)
+        table.insertRows(cell.row(), 1)
 
     def insertCol(self):
 
@@ -517,8 +538,7 @@ class Main(QtWidgets.QMainWindow):
         cell = table.cellAt(cursor)
 
         # Insert a new row at the cell's position
-        table.insertColumns(cell.column(),1)
-
+        table.insertColumns(cell.column(), 1)
 
     def toggleToolbar(self):
 
@@ -550,16 +570,16 @@ class Main(QtWidgets.QMainWindow):
     def open(self):
 
         # Get filename and show only .writer files
-        #PYQT5 Returns a tuple in PyQt5, we only need the filename
+        # PYQT5 Returns a tuple in PyQt5, we only need the filename
         if self.filename is None:
             searchDir = self.default_path
         else:
             searchDir = self.filename
 
-        self.filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', searchDir,"(*.html)")[0]
+        self.filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', searchDir, "(*.html)")[0]
 
         if self.filename:
-            with open(self.filename,"rt") as file:
+            with open(self.filename, "rt") as file:
                 self.text.setText(file.read())
 
     def save(self):
@@ -571,14 +591,14 @@ class Main(QtWidgets.QMainWindow):
         self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', searchDir)[0]
 
         if self.filename:
-            
+
             # Append extension if not there yet
             if not self.filename.endswith(".html"):
-              self.filename += ".html"
+                self.filename += ".html"
 
             # We just store the contents of the text file along with the
             # format in html, which Qt does in a very nice way for us
-            with open(self.filename,"wt") as file:
+            with open(self.filename, "wt") as file:
                 file.write(self.text.toHtml())
 
             self.changesSaved = True
@@ -609,7 +629,7 @@ class Main(QtWidgets.QMainWindow):
         line = cursor.blockNumber() + 1
         col = cursor.columnNumber()
 
-        self.statusbar.showMessage("Line: {} | Column: {}".format(line,col))
+        self.statusbar.showMessage("Line: {} | Column: {}".format(line, col))
 
     def wordCount(self):
 
@@ -626,7 +646,8 @@ class Main(QtWidgets.QMainWindow):
         else:
             imagePath = self.image_filename
         # Get image file name
-        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Insert image',imagePath,"Images (*.png *.xpm *.jpg *.bmp *.gif)")[0]
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Insert image', imagePath,
+                                                         "Images (*.png *.xpm *.jpg *.bmp *.gif)")[0]
 
         if filename:
 
@@ -638,17 +659,17 @@ class Main(QtWidgets.QMainWindow):
             if image.isNull():
 
                 popup = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
-                                          "Image load error",
-                                          "Could not load image file!",
-                                          QtWidgets.QMessageBox.Ok,
-                                          self)
+                                              "Image load error",
+                                              "Could not load image file!",
+                                              QtWidgets.QMessageBox.Ok,
+                                              self)
                 popup.show()
 
             else:
 
                 cursor = self.text.textCursor()
 
-                cursor.insertImage(image,filename)
+                cursor.insertImage(image, filename)
 
     def fontColorChanged(self):
 
@@ -769,7 +790,6 @@ class Main(QtWidgets.QMainWindow):
 
             # Iterate over lines (diff absolute value)
             for n in range(abs(diff) + 1):
-
                 # Move to start of each line
                 cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 
@@ -784,7 +804,7 @@ class Main(QtWidgets.QMainWindow):
 
             cursor.insertText("\t")
 
-    def handleDedent(self,cursor):
+    def handleDedent(self, cursor):
 
         cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 
@@ -825,7 +845,6 @@ class Main(QtWidgets.QMainWindow):
 
             # Iterate over lines
             for n in range(abs(diff) + 1):
-
                 self.handleDedent(cursor)
 
                 # Move up
@@ -833,7 +852,6 @@ class Main(QtWidgets.QMainWindow):
 
         else:
             self.handleDedent(cursor)
-
 
     def bulletList(self):
 
@@ -849,6 +867,7 @@ class Main(QtWidgets.QMainWindow):
         # Insert list with numbers
         cursor.insertList(QtGui.QTextListFormat.ListDecimal)
 
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
@@ -856,6 +875,7 @@ def main():
     main.show()
 
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

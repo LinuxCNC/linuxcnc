@@ -29,31 +29,31 @@ PREFIX = '\033['
 SUFFIX = '\033[0m'
 
 COLORS = {
-    'black'  : 30,
-    'red'    : 31,
-    'green'  : 32,
-    'yellow' : 33,
-    'blue'   : 34,
+    'black': 30,
+    'red': 31,
+    'green': 32,
+    'yellow': 33,
+    'blue': 34,
     'magenta': 35,
-    'cyan'   : 36,
-    'white'  : 37,
-    'bgred'  : 41,
-    'bggrey' : 100
-    }
+    'cyan': 36,
+    'white': 37,
+    'bgred': 41,
+    'bggrey': 100
+}
 
 MAPPING = {
-    'Level VERBOSE' : 'blue',
-    'DEBUG'   : 'white',
-    'INFO'    : 'cyan',
-    'WARNING' : 'yellow',
-    'ERROR'   : 'red',
+    'Level VERBOSE': 'blue',
+    'DEBUG': 'white',
+    'INFO': 'cyan',
+    'WARNING': 'yellow',
+    'ERROR': 'red',
     'CRITICAL': 'bgred',
 }
 
 
 # Returns `text` warped in ASCII escape codes to produce `color`
 def COLORIZE(text, color=None):
-    seq = COLORS.get(color, 37) # default to white
+    seq = COLORS.get(color, 37)  # default to white
     return '{0}{1}m{2}{3}'.format(PREFIX, seq, text, SUFFIX)
 
 
@@ -95,7 +95,7 @@ class ColoredFormatter(Formatter):
     # version of the message with the tags removed for use by the file handler.
     def color_words(self, raw_msg):
         plain_msg = color_msg = raw_msg
-        if '<' in raw_msg: # If no tag don't try to match
+        if '<' in raw_msg:  # If no tag don't try to match
             iterater = RE.finditer(raw_msg)
             if iterater:
                 for match in iterater:
@@ -108,7 +108,6 @@ class ColoredFormatter(Formatter):
                     plain_msg = plain_msg.replace(group, word)
 
         return plain_msg, color_msg
-
 
 
 # ----------------------- E X A M P L E -----------------------
@@ -147,4 +146,3 @@ if __name__ == '__main__':
         print(False + "True")
     except Exception as e:
         log.debug('That did not work!', exc_info=e)
-

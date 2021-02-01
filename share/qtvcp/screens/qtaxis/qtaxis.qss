@@ -108,6 +108,8 @@ qproperty-styleColor1: black;
 qproperty-styleColor2: blue;
 qproperty-styleColor3: red;
 qproperty-styleColor4: green;
+qproperty-styleColorSelectionText: white;
+qproperty-styleColorSelectionBackground: blue;
 qproperty-styleFont0: "Times,12,-1,5,90,0,0,1,1,0";
 qproperty-styleFont1: "Times,12,-1,5,90,1,0,1,0,0";
 qproperty-styleFont2: "Times,12,-1,5,90,0,0,1,1,0";

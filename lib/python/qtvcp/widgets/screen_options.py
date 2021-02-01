@@ -261,7 +261,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.process_tabs:
             self.add_xembed_tabs()
 
-        # clear and add an intial machine log message
+        # clear and add an initial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
         STATUS.emit('update-machine-log', '', 'INITIAL')
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
@@ -273,7 +273,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.init_zmq_publish()
 
     # This is called early by qt_makegui.py for access to
-    # be able to pass the preference object to ther widgets
+    # be able to pass the preference object to the widgets
     def _pref_init(self):
         if self.use_pref_file:
             # we prefer INI settings
@@ -324,7 +324,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
 
-            elif kind == 255: # temparary info
+            elif kind == 255: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Low Priority:',
@@ -349,7 +349,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
-                                                                 focus_text='Close Linuxcnc?',
+                                                                 focus_text='',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
             # system shutdown

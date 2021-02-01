@@ -215,7 +215,7 @@ class NurbsEditor(QDialog):
         print(('G5.3'), file=self.workfile)
 
         ##############################
-        # rapids to show boundry
+        # rapids to show boundary
         ##############################
         print((''), file=self.workfile)
         print(('( Show control points with rapid lines )'), file=self.workfile)

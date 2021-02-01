@@ -143,17 +143,17 @@ Interp::Interp()
   try {
     // this import will register the C++->Python converter for Interp
     bp::object interp_module = bp::import("interpreter");
-	
+
     // use a boost::cref to avoid per-call instantiation of the
     // Interp Python wrapper (used for the 'self' parameter in handlers)
     // since interp.init() may be called repeatedly this would create a new
     // wrapper instance on every init(), abandoning the old one and all user attributes
     // tacked onto it, so make sure this is done exactly once
-    _setup.pythis = new boost::python::object(boost::cref(*this));
-	
+    _setup.pythis = new bp::object(boost::cref(*this));
+
     // alias to 'interpreter.this' for the sake of ';py, .... ' comments
     // besides 'this', eventually use proper instance names to handle
-	// several instances 
+	// several instances
     bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
     // make "this" visible without importing interpreter explicitly
@@ -963,7 +963,6 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-
           if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
@@ -1293,7 +1292,7 @@ int Interp::init()
       }
   }
   _setup.init_once = 0;
-  
+
   return INTERP_OK;
 }
 
@@ -1331,17 +1330,8 @@ int Interp::load_tool_table()
 {
   int n;
 
-  CHKS((_setup.pockets_max > CANON_POCKETS_MAX), NCE_POCKET_MAX_TOO_LARGE);
-  for (n = 0; n < _setup.pockets_max; n++) {
+  for (n = 0; n < CANON_POCKETS_MAX; n++) {
     _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
-  }
-  for (; n < CANON_POCKETS_MAX; n++) {
-    _setup.tool_table[n].toolno = -1;
-    ZERO_EMC_POSE(_setup.tool_table[n].offset);
-    _setup.tool_table[n].diameter = 0;
-    _setup.tool_table[n].orientation = 0;
-    _setup.tool_table[n].frontangle = 0;
-    _setup.tool_table[n].backangle = 0;
   }
   set_tool_parameters();
   return INTERP_OK;
@@ -2033,14 +2023,18 @@ int Interp::synch()
   _setup.w_current  = GET_EXTERNAL_POSITION_W();
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  /* misnomer: _setup.current_pocket,selected_pocket
+  ** These variables are actually indexes to sequential tool
+  ** data structs (not real pockets).
+  ** Future renaming will affect current usage in python remaps.
+  */
   _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
+  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
-  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
-  _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();

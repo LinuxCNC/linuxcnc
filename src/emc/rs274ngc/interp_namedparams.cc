@@ -1,3 +1,8 @@
+/*misnomer: _setup.current_pocket,selected_pocket
+**          These are indexes to sequential tooldata entries
+**          but the names are not changed due to frequent
+**          legacy usage in py files used for remapping
+*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *
@@ -731,7 +736,6 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _task;
 	break;
 
-
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
 	      nameBuf,index);
@@ -768,11 +772,15 @@ int Interp::init_named_parameters()
   const char *pkgversion = PACKAGE_VERSION;  //examples: 2.4.6, 2.5.0~pre
   const char *version_major = "_vmajor";// named_parameter name (use lower case)
   const char *version_minor = "_vminor";// named_parameter name (use lower case)
-  double vmajor=0.0, vminor=0.0;
+  const char *metric_machine = "_metric_machine";// named_parameter name (use lower case)
+  double vmajor=0.0, vminor=0.0, munits = 1.0;
   sscanf(pkgversion, "%lf%lf", &vmajor, &vminor);
 
   init_readonly_param(version_major,vmajor,0);
   init_readonly_param(version_minor,vminor,0);
+
+  munits = inicheck();
+  init_readonly_param(metric_machine,munits,0);
 
   // params tagged with PA_USE_LOOKUP will call the lookup_named_param()
   // method. The value is used as a index for the switch() statement.
@@ -892,4 +900,33 @@ int Interp::init_named_parameters()
   init_readonly_param("_remap_level", NP_REMAP_LEVEL, PA_USE_LOOKUP);
 
   return INTERP_OK;
+}
+
+double Interp::inicheck()
+{
+    IniFile inifile;
+    const char *filename;
+    const char *inistring;
+    double result = -1.0;
+
+	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
+	    return -1.0;
+    }
+
+    // open it
+    if (inifile.Open(filename) == false) {
+	    return -1.0;
+    }
+
+    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(inistring, "inch")) {
+             result = 0.0;
+        } else {
+            result = 1.0;
+        }
+    }
+    // close it
+    inifile.Close();
+
+    return result;
 }

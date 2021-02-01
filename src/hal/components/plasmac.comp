@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.187 - 2020 Dec 13
+0.194 - 2021 Jan 29
 
 .I SUMMARY:
 .br
@@ -47,7 +47,7 @@ pin in  bit     consumable_change           "change consumables in torch";
 pin in  bit     cornerlock_enable           "enable corner lock";
 pin in  float   cornerlock_threshold        "corner lock threshold (% of requested feed rate), speeds below this disable THC";
 pin in  float   current_velocity            "current machine velocity , connect to motion.current-vel";
-pin in  float   cut_feed_rate               "cut feed rate, set to 0 to use feed rate from gcod file (machine units per minute)";
+pin in  float   cut_feed_rate               "cut feed rate, set to 0 to use feed rate from gcode file (machine units per minute)";
 pin in  float   cut_height                  "cut height (machine units)";
 pin in  bit     cut_recovery                "recover from cut error";
 pin in  float   cut_volts                   "cut voltage (volts)";
@@ -62,10 +62,13 @@ pin in  float   height_per_volt             "torch height change per volt (machi
 pin in  bit     homed                       "machine is homed";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
+pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
 pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
 pin in  bit     machine_is_on               "machine is on signal";
+pin in  s32     max_offset = 5              "maximum height offset";
+pin in  bit     mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
 pin in  bit     mesh_enable                 "enable mesh cutting mode";
 pin in  s32     mode                        "operating mode";
 pin in  s32     motion_type                 "motion type, connect to motion.motion-type";
@@ -114,11 +117,12 @@ pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
 pin in  float   xy_feed_rate                "feed-rate for consumable change";
-pin in  float   x_offset                    "offest to apply to axis x for consumable change";
+pin in  float   x_offset                    "offset to apply to axis x for consumable change";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
-pin in  float   y_offset                    "offest to apply to axis y for consumable change";
+pin in  float   y_offset                    "offset to apply to axis y for consumable change";
 pin in  float   y_offset_current            "current z axis offset, connect to axis.y.eoffset";
 pin in  float   z_offset_current            "current z axis offset, connect to axis.z.eoffset";
+pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
@@ -137,7 +141,7 @@ pin out bit     led_up                      "thc move up indicator";
 pin out float   offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
 pin out s32     pierce_count                "number of pierce attempts";
-pin out bit     probe_test_error            "minimum limit reached while pobe testing";
+pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
 pin out bit     program_resume              "resume the currently paused program, connect to halui.program.resume";
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
@@ -156,6 +160,7 @@ pin out bit     xy_offset_enable            "enable x and y offsets, connect to 
 pin out s32     z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
 pin out bit     z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out float   z_relative                  "distance of Z from last probed height";
+pin out float   z_height                    "current z axis height relative to the probed zero height";
 
 /* VARIABLES */
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
@@ -177,6 +182,7 @@ variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
 variable bool   cut_started;                /* cut has started */
 variable int    cut_target;                 /* cut height target offset */
+variable float  dwell_timer;                /* dwell timer for end of cut*/
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
@@ -208,7 +214,7 @@ variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable int    probe_offset;               /* offset for active probe */
 variable bool   probe_required = 1;         /* a probe sequence is required */
-variable bool   probe_retry;                /* probe will retry after contact befor probe height */
+variable bool   probe_retry;                /* probe will retry after contact before probe height */
 variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
 variable int    probe_velocity;             /* probe down velocity */
@@ -233,18 +239,16 @@ variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable float  torch_pulse_timer;          /* torch pulse timer */
-variable float  velocity_scale;             /* the velocity multipler */
+variable float  velocity_scale;             /* the velocity multiplier */
 variable int    x_velocity;                 /* velocity for x motion for consumable change */
 variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    zero_target;                /* zero height target offset */
+variable int    z_pierce;                   /* pierce height for testing against max height*/
+variable int    z_max;                      /* max height for testing against pierce height*/
 
 /* PARAMETERS */
 param rw bit    debug_print = FALSE         "print debug messages";
-param rw s32    kerf_errors_max = 2         "allowable kerfcross threshold errors";
-param rw bit    mesh_arc_ok = FALSE         "don't require arc ok for mesh mode";
-
-/* temp for testing max overrun*/
-param rw s32    max_offset = 5              "maximum height offset";
+param rw float  dwell_time = 0.16            "dwell time at end of cut";
 
 function _;
 
@@ -384,7 +388,7 @@ FUNCTION(_) {
     }
 
     /* set THC state */
-    thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 ? 1:0);
+    thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 && (arc_lost_timer == arc_lost_delay) ? 1:0);
 
     /* set THC status */
     thc_active = (state == CUT) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
@@ -438,6 +442,11 @@ FUNCTION(_) {
                 axis_y_finish = 0;
                 if(!external_estop){
                     pause_at_end_timer = pause_at_end;
+                    if(pause_at_end >= dwell_time){
+                        dwell_timer = 0;
+                    }else{
+                        dwell_timer = dwell_time - pause_at_end;
+                    }
                     state = PAUSE_AT_END;
                 }else{
                     state = MAX_HEIGHT;
@@ -449,6 +458,11 @@ FUNCTION(_) {
                 stop_type = PAUSE;
                 probe_required = TRUE;
                 pause_at_end_timer = pause_at_end;
+                if(pause_at_end >= dwell_time){
+                    dwell_timer = 0;
+                }else{
+                    dwell_timer = dwell_time - pause_at_end;
+                }
                 state = MAX_HEIGHT;
             }else if(tool == EMPTY){
                 if(!pause_at_end){
@@ -463,6 +477,11 @@ FUNCTION(_) {
                     axis_y_finish = 0;
                 }
                 pause_at_end_timer = pause_at_end;
+                if(pause_at_end >= dwell_time){
+                    dwell_timer = 0;
+                }else{
+                    dwell_timer = dwell_time - pause_at_end;
+                }
                 state = PAUSE_AT_END;
             }else if(breakaway){
                 torch_on = FALSE;
@@ -522,7 +541,7 @@ FUNCTION(_) {
         arc_voltage_raw = arc_voltage_in;
     }
     arc_voltage_out = round(((fabs(arc_voltage_raw) - arc_voltage_offset) * fabs(arc_voltage_scale)) * 1000) / 1000;
-    if(arc_voltage_out < 0 && arc_voltage_out > -0.1){
+    if(arc_voltage_out < zero_window && arc_voltage_out > zero_window * -1){
         arc_voltage_out = 0;
     }
 
@@ -532,7 +551,7 @@ FUNCTION(_) {
         if(arc_ok_in){
             arc_ok_out = TRUE;
             arc_lost_timer = arc_lost_delay;
-        }else if(arc_lost_timer > 0){
+        }else if(arc_lost_timer > 0 && torch_on){
             arc_lost_timer -= fperiod;
         }else{
             arc_ok_out = FALSE;
@@ -541,12 +560,15 @@ FUNCTION(_) {
         if(arc_voltage_out >= arc_ok_low && arc_voltage_out <= arc_ok_high){
             arc_ok_out = TRUE;
             arc_lost_timer = arc_lost_delay;
-        }else if(arc_lost_timer > 0){
+        }else if(arc_lost_timer > 0 && torch_on){
             arc_lost_timer -= fperiod;
         }else{
             arc_ok_out = FALSE;
         }
     }
+
+    /* output current z height */
+    z_height = (z_offset_counts - zero_target) * offset_scale;
 
     /* reset program states */
     if(program_is_idle){
@@ -639,7 +661,7 @@ FUNCTION(_) {
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
                                     rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.\n"
-                                                                  "probe test aborted.");
+                                                                  "probe test aborted.\n");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -665,7 +687,7 @@ FUNCTION(_) {
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
                                     rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.\n"
-                                                                  "probe test aborted.");
+                                                                  "probe test aborted.\n");
                                     state = PROBE_TEST;
                                     probe_test_error = TRUE;
                                 }else{
@@ -724,6 +746,21 @@ FUNCTION(_) {
                     break;
                 }
                 if((float_switch && !float_detected) || ohmic_detected){
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    if(z_pierce > z_max){
+                        stop_type = PAUSE;
+                        program_pause = TRUE;
+                        if(float_switch){
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                          "while float switch probing\n");
+                        }else{
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                          "while ohmic probing\n");
+                        }
+                        state = MAX_HEIGHT;
+                        break;
+                    }
                     probe_retry = TRUE;
                     state = PROBE_UP;
                 }else if(z_offset_counts - setup_velocity > probe_start_target){
@@ -760,12 +797,22 @@ FUNCTION(_) {
                         if(float_switch || ohmic_detected){
                             state = PROBE_UP;
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.");
+                            rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.\n");
                             state = IDLE;
                         }
                     }
                 }else if(float_switch && !float_detected){
                     if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
+                        z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                        z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                        if(z_pierce > z_max){
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                                                          "while float switch probing\n");
+                            stop_type = PAUSE;
+                            program_pause = TRUE;
+                            state = MAX_HEIGHT;
+                            break;
+                        }
                         probe_type = FLOAT;
                         target_sensed = TRUE;
                         probe_force = probe_force_val;
@@ -777,6 +824,16 @@ FUNCTION(_) {
                         float_detected = TRUE;
                     }
                 }else if(ohmic_detected){
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    if(z_pierce > z_max){
+                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
+                                                      "while ohmic probing\n");
+                        stop_type = PAUSE;
+                        program_pause = TRUE;
+                        state = MAX_HEIGHT;
+                        break;
+                    }
                     probe_type = OHMIC;
                     target_sensed = TRUE;
                     probe_force = probe_force_val;
@@ -839,8 +896,8 @@ FUNCTION(_) {
                     cut_target = zero_target + (cut_height / offset_scale);
                     pierce_target = zero_target + (pierce_height / offset_scale);
                     puddle_jump_target = zero_target + ((pierce_height * puddle_jump_percent * 0.01) / offset_scale );
-                    safe_min = (pierce_height + (1 * units_per_mm)) / offset_scale;
-                    safe_preferred = safe_height / offset_scale;
+                    safe_min = pierce_target + ((1 * units_per_mm) / offset_scale);
+                    safe_preferred = zero_target + (safe_height / offset_scale);
                     offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
                     offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(safe_height == 0){
@@ -851,15 +908,17 @@ FUNCTION(_) {
                         }else{
                             state = ZERO_HEIGHT;
                         }
-                    }else if(z_offset_counts + safe_min >= offset_max){
+                    }else if(safe_min > offset_max){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
                                                        "program is paused.\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
-                    }else if(z_offset_counts + safe_preferred >= offset_max && !safe_height_is_limited){
-                        rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                    }else if(safe_preferred >= offset_max){
+                        if(!safe_height_is_limited){
+                            rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                        }
                         safe_target = offset_max;
                         safe_height_is_limited = TRUE;
                         ohmic_enable = FALSE;
@@ -869,7 +928,7 @@ FUNCTION(_) {
                             state = ZERO_HEIGHT;
                         }
                     }else{
-                        safe_target = z_offset_counts + safe_preferred;
+                        safe_target = safe_preferred;
                         ohmic_enable = FALSE;
                         if(ohmic_probe_offset < 0 && probe_type == OHMIC){
                             state = PIERCE_HEIGHT;
@@ -935,7 +994,7 @@ FUNCTION(_) {
                     rtapi_print_msg(RTAPI_MSG_ERR,"invalid pierce height.\n"
                                                   "or invalid cut height.\n"
                                                   "or invalid cut volts.\n"
-                                                  "program is paused.");
+                                                  "program is paused.\n");
                 }
                 break;
             case TORCH_ON:
@@ -1118,8 +1177,8 @@ FUNCTION(_) {
                                     target_volts = cut_volts;
                                 }
                             /* height override setup*/
-                            }else if(fabs(height_override - height_ovr_old) > 0.05){
-                                height_ovr_counts -= (height_override - height_ovr_old) / 10 * units_per_mm / offset_scale;
+                            }else if(fabs(height_override - height_ovr_old) > 0.005){
+                                height_ovr_counts -= (height_override - height_ovr_old) * height_per_volt / offset_scale;
                                 height_ovr_old = height_override;
                             /* height override z motion */
                             }else if(height_ovr_counts != 0){
@@ -1266,7 +1325,7 @@ FUNCTION(_) {
                             safe_target = offset_max;
                             if(!safe_height_is_limited){
                                 safe_height_is_limited = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.");
+                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
                             }
                         }
                     }
@@ -1281,10 +1340,14 @@ FUNCTION(_) {
                 if(pause_at_end_timer <= 0){
                     pause_at_end_timer = 0;
                     torch_on = FALSE;
-                    if(program_is_idle){
-                        state = MAX_HEIGHT;
-                    }else{
-                        state = SAFE_HEIGHT;
+                    dwell_timer -= fperiod;
+                    if(dwell_timer <= 0){
+                        dwell_timer = 0;
+                        if(program_is_idle){
+                            state = MAX_HEIGHT;
+                        }else{
+                            state = SAFE_HEIGHT;
+                        }
                     }
                 }
                 break;
@@ -1409,6 +1472,9 @@ FUNCTION(_) {
                         torch_on = TRUE;
                     }
                 }else{
+                    if(torch_pulse_time == 0){
+                        torch_pulse_timer = 0;
+                    }
                     if(torch_pulse_timer > 0){
                         torch_pulse_timer -= fperiod;
                     }else{

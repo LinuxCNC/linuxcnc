@@ -37,7 +37,7 @@ class _HalWidgetBase_(object):
         # only initialize once for all instances
         if self.__class__._instanceNum >=1:
             return
-        # embed these varibles in all instances
+        # embed these variables in all instances
         self.__class__.HAL_GCOMP_ = comp
         self.__class__.PATHS_ = path
         self.__class__.QTVCP_INSTANCE_ = window
@@ -93,6 +93,8 @@ class _HalScaleBase(_HalWidgetBase):
         self.valueChanged.connect(lambda data: self._pin_update(data))
         # default scale
         self.input = 1
+        # force pin update
+        self.valueChanged.emit(self.value())
 
     def _pin_update(self, data):
         self.hal_pin_f.set(data * self.input)

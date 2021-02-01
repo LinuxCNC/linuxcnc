@@ -40,7 +40,25 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
 
+/****** TOOLTIPS ************/
+QToolTip {
+    color: backgnd;
+    background: backgnd;
+    border: none;
+    font: 1px;
+    opacity: 0 }
 
+/****** VELOCITY LABELS ************/
+#velocity_label{
+    color: backgnd;
+    background: frames }
+
+#velocity_show {
+    color: backgnd;
+    background: frames;
+    border-top-right-radius: 2px }
+
+/****** QLINEEDITS ************/
 QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -82,18 +100,30 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     color: foregnd;
     background: backgnd }
 
-/******    ESTOP BUTTON ************/
-#estop:pressed {
-    background: e-stop;
-    border-color: e-stop }
+/****** RESET BUTTONS ************/
+#feed_label, #rapid_label,
+#jogs_label, #height_reset {
+    border: none }
+    
+#feed_label:pressed, #rapid_label:pressed,
+#jogs_label:pressed, #height_reset:pressed {
+    color: foregnd;
+    background: backgnd }
 
-#estop:checked {
-    background: e-stop;
-    border-color: e-stop }
-
-#estop:checked:pressed {
-    background: backgnd;
+/****** ESTOP BUTTON ************/
+#estop,
+#estop:checked:pressed,
+#estop:disabled {
+    color: backgnd;
+    background: foregnd;
     border-color: foregnd }
+
+#estop:pressed,
+#estop:checked,
+#estop:disabled:checked {
+    color: backgnd;
+    background: e-stop;
+    border-color: e-stop }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_a, #touch_x, #touch_y, #touch_z    {
@@ -156,7 +186,8 @@ DROLabel {
     font: 20pt 'Lato' }
 
 DROLabel[homed=false] {
-    color: inactive }
+    color: inactive;
+    border-color: inactive }
 
 /****** DRO LABEL ************/
 #dro_label_a,
@@ -169,12 +200,11 @@ DROLabel[homed=false] {
     border-radius: 4px;
     font: 20pt 'Lato' }
 
-#dro_label_a:disabled,
-#dro_label_x:disabled,
-#dro_label_y:disabled,
-#dro_label_z:disabled {
-    color: inactive;
-    background: backgnd;
+#dro_label_a[homed=false],
+#dro_label_x[homed=false],
+#dro_label_y[homed=false],
+#dro_label_z[homed=false] {
+    background: inactive;
     border-color: inactive }
 
 /****** ARC VOLTAGE ************/
@@ -213,7 +243,6 @@ QRadioButton:checked:pressed {
 
 /*QRadioButton::indicator:checked:pressed {
     background: backgnd }*/
-
 
 /****** SETTINGS PUSHBUTTONS ************/
 #color_foregrnd, #color_foregalt, 
@@ -439,15 +468,16 @@ QComboBox {
     border: 1px solid foregnd;
     border-radius: 4px;
     font: 11pt 'Lato';
-    padding: 0px 0px 0px 16px;
+    padding: 0px 0px 0px 12px;
     selection-color: backgnd;
     selection-background-color: foregnd }
 
 QComboBox::drop-down {
+    width: 0;
     image: none }
 
 QComboBox QListView {
-    border: 8px solid foregnd;
+    border: 4px solid foregnd;
     border-radius: 0px }
 
 /****** MATERIAL SELECTOR COMBO BOX ************/
@@ -456,7 +486,7 @@ QComboBox QListView {
     background: frames;
     border: none;
     border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     font: 11pt 'Lato';
@@ -475,48 +505,62 @@ QComboBox QListView {
 #material_selector QListView {
     border-color: frames }
 
-/****** FILE MANAGER & MDI HISTORY************/
-#filemanager QListView,
+/****** FILE DIALOGS************/
+QHeaderView::section {
+    background-color: backalt;
+    color: foregnd;
+    border: none }
+
+#filemanager QTableView {
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font: 13pt 'Lato';
+    alternate-background-color: backalt;
+    padding: 2px }
+
+#filemanager QTableView::item {
+    height: 36px;
+}
+
+#filemanager QTableView::item:selected:active {
+    color: backgnd;
+    background-color: foregnd }
+
+#filemanager QTableView::item:selected:!active {
+    color: backgnd;
+    background-color: foregnd }
+
+#filemanager QComboBox {
+    height: 40px;
+    font: 12pt;
+ }
+
+#filemanager QLineEdit {
+    height: 40px;
+    font: 12pt;
+ }
+
+#filemanager QToolButton {
+    font: 11pt;
+    height: 40px;
+/*    width: 80px;*/
+    margin: 0px;
+ }
+
+/****** MDI HISTORY************/
 #mdihistory QListView {
     border: 1px solid foregnd;
     border-radius: 4px;
     font: 13pt 'Lato';
     alternate-background-color: backalt;
     show-decoration-selected: 1;
-    selection-background-color: red;
-    selection-color:cyan;
+    selection-background-color: foregnd;
+    selection-color:backgnd;
     padding: 2 }
 
-#filemanager QListView::item,
 #mdihistory QListView::item {
     height: 36;
 }
-
-#filemanager QListView::item:selected:active,
-#mdihistory QListView::item:selected:active {
-    color: backgnd;
-    background-color: foregnd }
-
-#filemanager QListView::item:selected:!active,
-#mdihistory QListView::item:selected:!active {
-    color: backgnd;
-    background-color: foregnd }
-
-#filemanager QToolButton {
-    font: 10pt;
-    height: 40;
-/*    width: 60;*/
- }
-
-#filemanager QComboBox {
-    height: 40;
-    font: 12pt;
- }
-
-#filemanager QLineEdit {
-    height: 40;
-    font: 12pt;
- }
 
 #mdihistory QLineEdit {
     border: 1px solid foregnd;
@@ -533,7 +577,6 @@ QScrollBar:horizontal {
     height: 20px }
 
 QScrollBar::handle:horizontal {
-/*    background: foregnd;*/
     background: foregnd;
     border: 2px solid foregnd;
     border-radius: 4px;
@@ -554,7 +597,6 @@ QScrollBar:vertical {
     width: 20px }
 
 QScrollBar::handle:vertical {
-/*    background: foregnd;*/
     background: foregnd;
     border: 2px solid foregnd;
     border-radius: 4px;
@@ -626,7 +668,33 @@ QPlainTextEdit {
     border: 1px solid foregnd;
     border-radius: 4px }
 
-/****** GCODE EDITOR ************/
+/****** GCODE GRAPHICS ************/
+#gcodegraphics {
+    qproperty-background_color: prevu }
+
+/****** GCODE EDITOR & GCODE DISPLAY ************/
+EditorBase {
+    qproperty-styleColorBackground: backgnd;
+    qproperty-styleColor0: foregnd;
+    qproperty-styleColor1: foregnd;
+    qproperty-styleColor2: foregnd;
+    qproperty-styleColor3: foregnd;
+    qproperty-styleColor4: foregnd;
+    qproperty-styleColorMarginText: foregnd;
+    qproperty-styleColorMarginBackground: backgnd;
+    qproperty-styleFont0: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont1: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont2: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont3: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont4: 'Lato,12,-1,0,60,0,0,0,0,0';
+    qproperty-styleFontMargin: 'Lato,12,-1,0,20,00,0,0,0,0';
+    qproperty-styleColorSelectionText: backgnd;
+    qproperty-styleColorSelectionBackground: foregnd }
+
+#gcode_display {
+    qproperty-styleColorSelectionText: foregnd;
+    qproperty-styleColorSelectionBackground: transparent }
+
 #gcode_editorTopButtonFrame {
     border: 1px solid foregnd;
     border-radius: 4px;
@@ -641,8 +709,9 @@ QPlainTextEdit {
     spacing: 4 }
 
 #gcode_editor QToolButton {
+/*    qproperty-icon: none;*/
     width: 40px;
-    height: 40px }
+    height: 37px }
 
 #gcode_editor QLineEdit {
     border: 1px solid foregnd;
@@ -696,85 +765,18 @@ Calculator QLineEdit {
     border-radius: 4px;
     font: 20pt }
 
+/****** KEYBOARD ************/
+KeyboardDialog QLineEdit{
+    font: 20pt;
+    height: 36px }
+
 /****** SOFT KEYBOARD ************/
-SoftInputWidget {
+/*SoftInputWidget {
+margin: 0;
 border: 1px solid foregnd;
 border-radius: 4px }
 
 MyFlatPushButton {
-margin:3px }
-
-
-
-
-
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#gcodeeditorTopButtonFrame {
-    border: 2px solid #fce94f;
-    border-radius: 11px;
-    background: @bgcolor }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#gcodeeditorBottomButtonFrame {
-    border: 2px solid #fce94f;
-    border-radius: 11px;
-    background: @bgcolor }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** GCODE DISPLAY ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-GcodeDisplay {
-    background: green }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QsciScintilla::setMatchedBraceForegroundColor {
-    color: green;
-    background: blue;
-    font: 10pt Lato }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QsciScintilla::setCaretForegroundColor {
-    color: green;
-    background: blue;
-    font: 10pt Lato }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** QLINEEDIT ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QLineEdit {
-    background: backalt;
-    border: 1px solid foregnd;
-    border-radius: 4px }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#mdi_list{
-    color:#000000;
-    background-color:#C0C0C0;
-    alternate-background-color:#909090;}
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#error_text{
-    background-color:#C0C0C0;}
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/****** TABLE ************/
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-QTableView {
-    alternate-background-color: green;
-    background: red }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
-
-/*""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-OriginOffsetView, ToolOffsetView {
-    font: 12pt "Lato Heavy" }
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""*/
+margin: 3 ;
+max-height: 30;
+ } */

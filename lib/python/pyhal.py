@@ -157,7 +157,7 @@ class port(pin):
 
     def waitReadable(self, count):
         if self.dir != pinDir.IN:
-            raise HalException("cannot read ouput port")
+            raise HalException("cannot read output port")
 
         lib.hal_port_wait_readable(self.data_ptr, count, 0)
 

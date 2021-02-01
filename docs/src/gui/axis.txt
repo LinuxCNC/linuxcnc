@@ -22,6 +22,18 @@ section '[DISPLAY]' change the 'DISPLAY' line to read
 The sample configuration
 'sim/axis.ini' is already configured to use AXIS as its front-end.
 
+
+=== INI settings
+For more information on ini file settings that can change how AXIS
+works see the <<sec:display-section,Display Section>> of the INI 
+Configuration Chapter.
+
+Adjust the response rate of the GUI in seconds. Typical .1, useable range .05 - .2
+----
+[DISPLAY]
+CYCLE_TIME = .1
+----
+
 === A Typical Session
 
  . Start LinuxCNC.
@@ -852,10 +864,6 @@ the HAL file named in '[HAL]POSTGUI_HALFILE' in the ini file. Only one post
 GUI file may be used. Place all HAL commands that connect to the GUI HAL pins
 in the post gui HAL file.
 
-For more information on ini file settings that can change how AXIS
-works see the <<sec:display-section,Display Section>> of the INI 
-Configuration Chapter.
-
 === Program Filters
 
 AXIS has the ability to send loaded files through a 'filter program'.
@@ -1465,4 +1473,22 @@ root_window.tk.call('.toolbar.view_y','configure','-image','','-text','Front','-
 root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
+----
+
+=== Change Plotter Colors
+In RGBA format, in this order:
+jog, rapid, feed, arc, toolchange, probe
+
+[source,python]
+----
+# change plotter colors
+try:
+    live_plotter.logger.set_colors((255,0,0,255),
+                                    (0,255,0,255),
+                                    (0,0,255,255),
+                                    (255,255,0,255),
+                                    (255,255,255,255),
+                                    (0,255,255,255))
+except Exception as e:
+    print (e)
 ----

@@ -13,6 +13,10 @@ import signal
 import glob
 import re
 
+xtool   = 0.111 # [EMCIO]TOOL_CHANGE_POSITION x
+ytool   = 0.222 # [EMCIO]TOOL_CHANGE_POSITION y
+ztool   = 0.333 # [EMCIO]TOOL_CHANGE_POSITION z
+EPSILON = 1e-10
 
 def wait_for_hal_pin(name, value, timeout=10):
     start_time = time.time()
@@ -238,6 +242,10 @@ time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.pocket_prepped == 6)
+
+assert(abs(s.joint_position[0] -xtool) < EPSILON)
+assert(abs(s.joint_position[1] -ytool) < EPSILON)
+assert(abs(s.joint_position[2] -ztool) < EPSILON)
 
 
 sys.exit(0)

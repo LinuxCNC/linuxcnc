@@ -7,10 +7,11 @@ from collections import OrderedDict
 
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
                  QWidget, QVBoxLayout, QHBoxLayout, QListView,
-                 QComboBox, QPushButton, QToolButton,QSizePolicy,
-                 QMenu, QAction, QLineEdit, QLabel, QFrame)
+                 QComboBox, QPushButton, QToolButton, QSizePolicy,
+                 QMenu, QAction, QLineEdit, QLabel, QFrame,
+                    QTableView, QHeaderView)
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import (QModelIndex, QDir, Qt,
+from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot,
                     QItemSelectionModel, QEvent, QItemSelection)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -40,6 +41,8 @@ class FileManager(QWidget, _HalWidgetBase):
         self.top = 10
         self.width = 640
         self.height = 480
+        self._last = 0
+
         if INFO.PROGRAM_PREFIX is not None:
             self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
         else:
@@ -96,6 +99,24 @@ class FileManager(QWidget, _HalWidgetBase):
         self.list.clicked[QModelIndex].connect(self.listClicked)
         self.list.activated.connect(self._getPathActivated)
         self.list.setAlternatingRowColors(True)
+        self.list.hide()
+
+        self.table = QTableView()
+        self.table.setModel(self.model)
+        self.table.resize(640, 480)
+        self.table.clicked[QModelIndex].connect(self.listClicked)
+        self.table.activated.connect(self._getPathActivated)
+        self.table.setAlternatingRowColors(True)
+
+        header = self.table.horizontalHeader()       
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.swapSections(1,3)
+        header.setSortIndicator(1,Qt.AscendingOrder)
+        self.table.setSortingEnabled(True)
+        self.table.setColumnHidden(2, True) # type
+        self.table.verticalHeader().setVisible(False) # row count header
 
         self.cb = QComboBox()
         self.cb.currentIndexChanged.connect(self.filterChanged)
@@ -130,6 +151,7 @@ class FileManager(QWidget, _HalWidgetBase):
         windowLayout.addLayout(pasteBox)
         windowLayout.addWidget(self.copyBox)
         windowLayout.addWidget(self.list)
+        windowLayout.addWidget(self.table)
         windowLayout.addLayout(hbox)
         self.setLayout(windowLayout)
         self.show()
@@ -171,6 +193,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def updateDirectoryView(self, path, quiet = False):
         if os.path.exists(path):
             self.list.setRootIndex(self.model.setRootPath(path))
+            self.table.setRootIndex(self.model.setRootPath(path))
         else:
             LOG.debug("Set directory view error - no such path {}".format(path))
             if not quiet:
@@ -190,6 +213,7 @@ class FileManager(QWidget, _HalWidgetBase):
             return
         root_index = self.model.setRootPath(dir_path)
         self.list.setRootIndex(root_index)
+        self.table.setRootIndex(root_index)
 
     def onUserClicked(self):
         self.showUserDir()
@@ -238,8 +262,11 @@ class FileManager(QWidget, _HalWidgetBase):
     # then if the path is good load it into linuxcnc
     # record it in the preference file if available
     def _getPathActivated(self):
-        row = self.list.selectionModel().currentIndex()
-        self.listClicked(row)
+        if self.list.isVisible():
+            row = self.list.selectionModel().currentIndex()
+        else:
+            row = self.table.selectionModel().currentIndex()
+            self.listClicked(row)
 
         fname = self.currentPath
         if fname is None: 
@@ -267,6 +294,17 @@ class FileManager(QWidget, _HalWidgetBase):
     # helper functions
     ########################
 
+    def showList(self, state=True):
+        if state:
+            self.table.hide()
+            self.list.show()
+        else:
+            self.table.show()
+            self.list.hide()
+
+    def showTable(self, state=True):
+        self.showList(not state)
+
     def showCopyControls(self, state):
         if state:
             self.copyBox.show()
@@ -290,6 +328,15 @@ class FileManager(QWidget, _HalWidgetBase):
             STATUS.emit('error', OPERATOR_ERROR, "Copy file error: {}".format(e))
             return False
 
+    @pyqtSlot(float)
+    @pyqtSlot(int)
+    def scroll(self, data):
+        if data > self._last:
+            self.up()
+        elif data < self._last:
+            self.down()
+        self._last = data
+
     # moves the selection up
     # used with MPG scrolling
     def up(self):
@@ -302,9 +349,15 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def select_row(self, style='down'):
         style = style.lower()
-        selectionModel = self.list.selectionModel()
+        if self.list.isVisible():
+            i = self.list.rootIndex()
+            selectionModel = self.list.selectionModel()
+        else:
+            i = self.table.rootIndex()
+            selectionModel = self.table.selectionModel()
+
         row = selectionModel.currentIndex().row()
-        self.rows = self.model.rowCount(self.list.rootIndex())
+        self.rows = self.model.rowCount(i)
 
         if style == 'last':
             row = self.rows
@@ -314,13 +367,13 @@ class FileManager(QWidget, _HalWidgetBase):
             else:
                 row = 0
         elif style == 'down':
-            if row < self.rows:
+            if row < self.rows-1:
                 row += 1
             else:
-                row = self.rows
+                row = self.rows-1
         else:
             return
-        top = self.model.index(row, 0, self.list.rootIndex())
+        top = self.model.index(row, 0, i)
         selectionModel.setCurrentIndex(top, QItemSelectionModel.Select | QItemSelectionModel.Rows)
         selection = QItemSelection(top, top)
         selectionModel.clearSelection()
@@ -329,7 +382,10 @@ class FileManager(QWidget, _HalWidgetBase):
     # returns the current highlighted (selected) path as well as
     # whether it's a file or not.
     def getCurrentSelected(self):
-        selectionModel = self.list.selectionModel()
+        if self.list.isVisible():
+            selectionModel = self.list.selectionModel()
+        else:
+            selectionModel = self.table.selectionModel()
         index = selectionModel.currentIndex()
         dir_path = self.model.filePath(index)
         if self.model.fileInfo(index).isFile():

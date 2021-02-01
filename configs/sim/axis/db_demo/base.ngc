@@ -1,0 +1,23 @@
+#<toolno> = 12
+; demo file using tool from database
+
+t#<toolno>    (debug,tool:#<toolno>: zoffset=#5403)
+g4p1   ;dwell
+
+m6     (debug,m6  zoffset=#5403)
+g4p1   ;dwell
+
+g43    (debug,g43 zoffset=#5403)
+g4p1   ;dwell
+
+g43h12 (debug,g43h12 zoffset=#5403)
+
+g0x0y0
+g1f1000 x1
+g1f1000 y1
+g0x0y0
+
+g49 (debug,g49 zoffset=#5403)
+t0
+m6
+m2

@@ -48,7 +48,7 @@ class Override(gtk.HScale):
         self.set_value_pos(gtk.POS_LEFT)
         #self.add_mark(100.0,gtk.POS_RIGHT,'')
         self.connect('value-changed',self.update_value)
-        # The update time: every 100 milliseonds
+        # The update time: every 100 milliseconds
         gobject.timeout_add(100, self.periodic)
 
     # we set the adjustment limits based on the INI entries

@@ -33,7 +33,7 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
                 ACTION.SET_SELECTED_JOINT(self.joint)
             else:
                 ACTION.SET_SELECTED_AXIS(self.axis)
-                # set this whithout causing a STATUS message output
+                # set this without causing a STATUS message output
                 # in case we are selecting an axis to un/home
                 STATUS.selected_joint = self.joint
 

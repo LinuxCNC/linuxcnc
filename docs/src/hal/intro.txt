@@ -264,17 +264,17 @@ halui::
 === Internal Components
 
 stepgen::
-     Software step pulse generator with position loop. See section <<sec:stepgen>>(((stepgen)))
+     Software step pulse generator with position loop. See section <<sec:stepgen, Stepgen>>(((stepgen)))
 
 encoder::
-     Software based encoder counter. See section <<sec:encoder>>(((encoder)))
+     Software based encoder counter. See section <<sec:encoder, Encoder>>(((encoder)))
 
 pid::
-     Proportional/Integral/Derivative control loops. See section <<sec:pid>>
+     Proportional/Integral/Derivative control loops. See section <<sec:pid, PID>>
 
 siggen::
      A sine/cosine/triangle/square wave generator for testing.
-    See section <<sec:siggen>>
+    See section <<sec:siggen, Siggen>>
 
 supply::
      a simple source for testing(((supply)))
@@ -311,10 +311,10 @@ hal_vti::
 
 halcmd::
      (((halcmd))) Command line tool for configuration and tuning. See
-    section <<sec:halcmd>> 
+    section <<sec:halcmd, Halcmd>> 
 
 halmeter::
-     (((halmeter))) A handy multimeter for HAL signals. See section <<sec:halmeter>>. 
+     (((halmeter))) A handy multimeter for HAL signals. See section <<sec:halmeter, Halmeter>>. 
 
 halscope::
      (((halscope))) A full featured digital storage oscilloscope for HAL

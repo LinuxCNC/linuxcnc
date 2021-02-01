@@ -146,6 +146,8 @@ DOC_SRCS_EN := \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
+	plasma/qtplasmac.txt \
+	tooldatabase/tooldatabase.txt \
 	plasma/plasmac-user-guide.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
@@ -316,7 +318,7 @@ DOC_SRCS_ES := \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \
 	motion/tweaking-steppers_es.txt \
-        plasma/plasmac-user-guide_es.txt \
+	plasma/plasmac-user-guide_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	remap/remap_es.txt \
 	user/starting-linuxcnc_es.txt \
@@ -507,7 +509,7 @@ $(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.p
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+	@(cd $(DOC_DIR)/man; groff -Thtml -man stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_

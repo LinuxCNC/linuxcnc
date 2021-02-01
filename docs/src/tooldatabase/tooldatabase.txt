@@ -1,0 +1,189 @@
+[[cha:tooldatabase]]
+
+= Tool Database Interface
+
+Tool data is conventionally described by a tool table file specified
+by an inifile setting: [EMCIO]TOOL_TABLE=tooltable_filename.  A tool
+table file consists of a text line for each available tool describing
+the tool's parameters.
+
+See: <<sec:tool-table,Tool Table Format>>
+
+The tool database interface provides an alternative method for
+obtaining tool data via a separate program that manages a database of
+tools.
+
+==  Interface
+
+=== Ini file Settings
+
+Ini file settings enable the (optional) operation of a user-provided
+tool database program:
+
+----
+[EMCIO]
+DB_PROGRAM = db_program
+----
+
+The optional *db_program* specifies the path to a user-provided
+executable program that provides tool data.
+
+[NOTE]
+
+Ini file settings for [EMCIO]TOOL_TABLE are ignored when a *db_program*
+is specified.
+
+[NOTE]
+
+The *db_program* may be implemented in any language currently
+supported in LinuxCNC (e.g., bash scripts, python or tcl scripts,
+c/c++ programs) as long as it conforms to the interface messages
+received on stdin and replied on stdout.  A *db_program* could
+manage data from a flat file, a relational database (sqlite for
+example), or other data sources.
+
+=== *db_program* operation
+
+When a *db_progam* is specified, operation is as follows:
+
+. At startup, LinuxCNC starts the *db_program* and connects
+to its stdin and stdout.
+
+. The *db_program* must respond by writing a single line
+acknowledgement consisting of a version string.  No tools will be
+available if the version is not compatible with the LinuxCNC
+database interface version.
+
+. Upon a successful acknowledgement, LinuxCNC issues a 'g' (*get*)
+command to request all tools.  The *db_program* must respond with a
+sequence of replies to identify each available tool.  The textual
+reply format is identical to the line format used in conventional tool
+table files.  A final response of "FINI" terminates the response.
+
+. The *db_program* then enters an event wait loop to receive commands
+that indicate that tool data has been changed by LinuxCNC.  Tool data
+changes include:
+
+  * a) spindle loading(Tn M6)/unloading(T0 M6)
+  * b) tool parameter changes (G10L1Pn for example)
+  * c) tool substitutions (M61Qn).
+
+When a tool data change occurs, LinuxCNC sends a 'p' (*put*) command to
+the *db_program* which must respond with a reply to confirm receipt.
+If the reply includes the text "'NAK'", a message is printed to stdout
+but execution continues.
+
+When changes are received, the *db_program* must update its database
+to maintain consistency with LinuxCNC.   In addition to the required
+synchronization, the *db_program* may compute and save data on tool
+loads/unloads, tool hours, etc.
+
+=== Usage
+
+Using a *db_program* does not change the way LinuxCNC operates but
+provides support for new database functionality for tool management.
+
+For example, a *db_program* database application could maintain the
+operating hours for all tools by tracking each load/unload of a tool.
+A machine could then have three 6mm endmills in pockets 111,112, and
+113 with the database application programmed to assign tool number 110
+to the 6mm endmill with the fewest operating hours.  Then, when a
+LinuxCNC program requests tool 110, the database would specify the
+appropriate pocket based on tool usage history.  Identifying the
+correct pocket for a machine using a nonrandom toolchanger is
+straightforward; using a random toolchanger requires database logic to
+synchronize tool data when changes are made by LinuxCNC and reported
+to the *db_program* with "'p'" (put) commands.
+
+By default, requests for tooldata are made at startup only.  A
+database may update tool data on a continuous basis so long-lived
+LinuxCNC applications may benefit by refreshing the tool data.  A
+reload operation is typically provided by the gui but on-demand
+reloads can be done with a USER_M command. Example:
+
+----
+#!/usr/bin/python
+from  linuxcnc import command
+command().load_tool_table()
+----
+
+==== Debug Environmental Variables
+
+Setting the environmental variable DB_SHOW enables LinuxCNC prints (to
+stdout) that show tool data retrieved from the *db_program* at startup
+and at subsequent reloading of tool data.
+
+Setting the environmental variable DB_DEBUG enables LinuxCNC prints (to
+stdout) for additional debugging information about interface activity.
+
+=== Example program
+
+An example *db_program* (implemented as a python script) is provided
+with the simulation examples.  The program does *not* implement a
+database but illustrates the required operations to:
+
+. acknowledge startup version
+. receive tool data requests: 'g' (*get* command)
+. receive tool data updates:  'p' (*put* command)
+
+=== Python tooldb module
+
+The example program uses a LinuxCNC provided python module ('tooldb')
+that manages the low-level details for communication and version
+verification.  This module uses callback functions provided by the
+*db_program* to respond to  the 'g' (get) and 'p' (put) commands.
+
+The *db_program* uses the 'tooldb' module by implementing the
+following python code:
+
+----
+user_tools = list(...)   # list of available tool numbers
+
+def user_get_tool(toolno):
+    # function to respond to 'g' (get) commands 
+    # called once for each toolno in user_tools
+    ...
+def user_put_tool(toolno,params):
+    # function to respond to 'p' (put) commands
+    ...
+
+#------------------------------------------------------------
+# Begin:
+from tooldb import tooldb_tools     # identify known tools
+from tooldb import tooldb_callbacks # identify functions
+from tooldb import tooldb_loop      # main loop
+
+tooldb_tools(user_tools)
+tooldb_callbacks(user_get_tool, user_put_tool)
+tooldb_loop()
+----
+
+[NOTE]
+
+Use of 'tooldb' is not required -- it is provided as a demonstration
+of the required interface and as a convenience for implementing
+python-based applications that interface with an external database.
+
+
+== Simulation configs
+
+Simulation configs using the axis gui:
+
+. configs/sim/axis/db_demo/*db_ran*.ini    (   random_toolchanger)
+. configs/sim/axis/db_demo/*db_nonran*.ini (nonrandom_toolchanger)
+
+Each sim config simulates a *db_program* implementing a database
+with 10 tools numbered 10--19.
+
+The *db_program* is provided by a single script (db.py) and symbolic
+links to it for alternative uses: db_ran.py and db_nonran.py.   (By
+default, the script implements random_toolchanger functionality.
+Nonrandom toolchanger functions are substituted if the link name
+includes the text "'nonran'").
+
+=== Notes
+
+When a *db_program* is used in conjunction with a random tool changer
+([EMCIO]RANDOM_TOOLCHANGER), LinuxCNC maintains a file
+('db_spindle.tbl' in the configuration directory) that consists of a
+single tool table line identifying the current tool in the spindle.
