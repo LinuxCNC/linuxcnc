@@ -1192,7 +1192,6 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
         }
     }
 
-    HM2_PRINT(" end of stepgen init/n");
     return hm2->stepgen.num_instances;
 
 
