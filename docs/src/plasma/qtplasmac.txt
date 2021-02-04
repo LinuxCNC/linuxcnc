@@ -1408,11 +1408,11 @@ M3 $0 S1
 M5 $0
 ----
 
-=== Materialverter
+=== Material Converter
 
 This application is used to convert existing tool tables into QtPlasmaC material files. It can also create a material file from manual user input to entry fields.
 
-At this stage the only conversions available are to tool tables from SheetCam and Fusion360.
+At this stage the only conversions available are for tool tables exported from either SheetCam or Fusion360.
 
 SheetCam tool tables are complete and the conversion is fully automatic. The SheetCam tool file must be in the SheetCam .tools format.
 
@@ -1420,33 +1420,48 @@ Fusion360 tool tables do not have all of the required fields so the user will be
 
 If the user has a format from a different CAM software they would like converted, create a *New Topic* in the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum] to request this addition.
 
-Materialverter may be run from a GUI file manager by double clicking on *materialverter.py* in the user's configuration directory or may be run by entering the following command into a terminal window:
+Material Converter may be run from a terminal using one of the two following methods.
+
+For a package installation enter the following command in a terminal window:
 
 ----
-python ~/linuxcnc/configs/<machine_name>/materialverter.py
+qtplasmac-materials
 ----
 
-This will bring up the Materialverter dialog:
+For a run in place installation enter the following two commands in a terminal window:
 
-image::images/plasmac_material_main.png[width=300,align="center"]
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-materials
+----
+
+This will bring up the Material Converter Main dialog with Manual selected as the default.
 
 Select one of:
 
 * *Manual* - to manually create a new material file.
+
+image::images/qtplasmac_material_main_manual.png[width=300,align="center"]
+
 * *SheetCam* - to convert a SheetCam tool file.
-* *Fusion360* - to convert a Fusion360 tool file.
+
+image::images/qtplasmac_material_main_sheetcam.png[width=300,align="center"]
 
 For SheetCam only, select whether the user requires a metric or imperial output file.
 
+* *Fusion360* - to convert a Fusion360 tool file.
+
+image::images/qtplasmac_material_main_fusion360.png[width=300,align="center"]
+
 To convert:
 
-. Select the Input File to be converted.
-. Select the Output File to write to. This would normally be ~/linuxcnc/configs/<machine_name>_material.cfg. If necessary, the user could select a different file and hand edit the <machine_name>_material.cfg file.
+. Select the Input File to be converted, press Input to bring up a file selector or directly enter the file in the entry box.
+. Select the Output File to write to, press Output to bring up a file selector or directly enter the file in the entry box. This would normally be ~/linuxcnc/configs/<machine_name>_material.cfg. If necessary, the user could select a different file and hand edit the <machine_name>_material.cfg file.
 . Click Create/Convert and the new material file will be created.
 
 For both a Manual creation or a Fusion360 conversion, a dialog will show with all available parameters displayed for input. Any entry marked with pass:[***] is mandatory and all other entries are optional depending on the user's configuration needs.
 
-image::images/plasmac_material_dialogs.png[width=400,align="center"]
+image::images/qtplasmac_material_manual_dialog.png[width=400,align="center"]
 
 NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the file already exists, it will be overwritten.
 
