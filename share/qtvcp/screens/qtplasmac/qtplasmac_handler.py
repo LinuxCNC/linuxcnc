@@ -188,9 +188,6 @@ class HandlerClass:
             self.firstRun = False
         self.touchoff_buttons()
         self.widgetsLoaded = 1
-        self.startupTimer = QTimer()
-        self.startupTimer.timeout.connect(self.startup_timeout)
-        self.startupTimer.setSingleShot(True)
         STATUS.connect('state-on', lambda w:self.power_state(True))
         STATUS.connect('state-off', lambda w:self.power_state(False))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -214,9 +211,6 @@ class HandlerClass:
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
-        self.startupTimer.start(1500)
-
-    def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
         if STATUS.stat.estop:
             self.w.power.setEnabled(False)
