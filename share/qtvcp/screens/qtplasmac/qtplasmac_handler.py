@@ -115,7 +115,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
         # KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
         # KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
-        self.axisList = INFO.AVAILABLE_AXES
+        self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
         self.lastLoadedProgram = 'None'
@@ -124,6 +124,7 @@ class HandlerClass:
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['run', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
+        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
@@ -690,6 +691,8 @@ class HandlerClass:
         if state:
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if STATUS.is_all_homed():
@@ -706,6 +709,8 @@ class HandlerClass:
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
+                self.w[widget].setEnabled(False)
+            for widget in self.jogButtonList:
                 self.w[widget].setEnabled(False)
 
     def interp_idle(self, obj):
@@ -724,6 +729,8 @@ class HandlerClass:
             self.w.file_reload.setEnabled(False)
         if STATUS.machine_is_on():
             for widget in self.idleOnList:
+                self.w[widget].setEnabled(True)
+            for widget in self.jogButtonList:
                 self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
@@ -762,6 +769,8 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedList:
             self.w[widget].setEnabled(False)
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
         self.w.abort.setEnabled(True)
@@ -887,7 +896,7 @@ class HandlerClass:
         self.interp_idle(None)
 
     def joint_homed(self, obj, joint):
-        dro = self.coordinates.lower()[int(joint)]
+        dro = self.coordinates[int(joint)]
         self.w['dro_{}'.format(dro)].setProperty('homed', True)
         self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
         self.w['dro_label_{}'.format(dro)].setProperty('homed', True)
@@ -898,7 +907,7 @@ class HandlerClass:
 
     def joint_unhomed(self, obj, joints):
         for joint in joints:
-            dro = self.coordinates.lower()[int(joint)]
+            dro = self.coordinates[int(joint)]
             self.w['dro_{}'.format(dro)].setProperty('homed', False)
             self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
             self.w['dro_label_{}'.format(dro)].setProperty('homed', False)
@@ -988,6 +997,13 @@ class HandlerClass:
 
     def jogs_label_pressed(self):
         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
+
+    def gui_button_jog(self, state, joint, direction):
+        shift = False
+        if STATUS.is_joint_mode():
+            self.kb_jog(state, self.coordinates.index(joint), direction, shift)
+        else:
+            self.kb_jog(state, self.axisList.index(joint), direction, shift)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -1079,8 +1095,8 @@ class HandlerClass:
         self.w.dro_z.update_user(value)
 
     def z_offset_changed(self, value):
-        if value > -0.000001 and value < 0.000001 and STATUS.is_interp_idle and \
-           STATUS.is_all_homed and self.lastLoadedProgram != 'None':
+        if value > -0.000001 and value < 0.000001 and STATUS.is_interp_idle() and \
+           STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
             self.w.run.setEnabled(True)
 
     def state_changed(self, value):
@@ -1090,7 +1106,7 @@ class HandlerClass:
     def z_offset_count_changed(self, counts):
         if not counts:
             self.w.dro_z.setProperty('Qreference_type', 1)
-            if STATUS.is_interp_idle and STATUS.is_all_homed and self.lastLoadedProgram != 'None':
+            if STATUS.is_interp_idle() and STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
                 self.w.run.setEnabled(True)
 
     def file_reload_clicked(self):
@@ -1291,6 +1307,22 @@ class HandlerClass:
         self.w.button_6.released.connect(lambda:self.user_button_released(6))
         self.w.cut_rec_speed.valueChanged.connect(lambda w:self.cutrec_speed_changed(w))
         self.w.kerf_width.valueChanged.connect(lambda w:self.cutrec_move_changed(w))
+        self.w.jog_x_plus.pressed.connect(lambda:self.gui_button_jog(1, 'x', 1))
+        self.w.jog_x_plus.released.connect(lambda:self.gui_button_jog(0, 'x', 1))
+        self.w.jog_x_minus.pressed.connect(lambda:self.gui_button_jog(1, 'x', -1))
+        self.w.jog_x_minus.released.connect(lambda:self.gui_button_jog(0, 'x', -1))
+        self.w.jog_y_plus.pressed.connect(lambda:self.gui_button_jog(1, 'y', 1))
+        self.w.jog_y_plus.released.connect(lambda:self.gui_button_jog(0, 'y', 1))
+        self.w.jog_y_minus.pressed.connect(lambda:self.gui_button_jog(1, 'y', -1))
+        self.w.jog_y_minus.released.connect(lambda:self.gui_button_jog(0, 'y', -1))
+        self.w.jog_z_plus.pressed.connect(lambda:self.gui_button_jog(1, 'z', 1))
+        self.w.jog_z_plus.released.connect(lambda:self.gui_button_jog(0, 'z', 1))
+        self.w.jog_z_minus.pressed.connect(lambda:self.gui_button_jog(1, 'z', -1))
+        self.w.jog_z_minus.released.connect(lambda:self.gui_button_jog(0, 'z', -1))
+        self.w.jog_a_plus.pressed.connect(lambda:self.gui_button_jog(1, 'y', 1))
+        self.w.jog_a_plus.released.connect(lambda:self.gui_button_jog(0, 'y', 1))
+        self.w.jog_a_minus.pressed.connect(lambda:self.gui_button_jog(1, 'y', -1))
+        self.w.jog_a_minus.released.connect(lambda:self.gui_button_jog(0, 'y', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -1355,48 +1387,32 @@ class HandlerClass:
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
         kinstype = None
-        self.coordinates = 'XYZ'
+        self.coordinates = 'xyz'
         if 'kinstype' in kinematics:
             kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
             if 'coordinates' in kinematics:
                 kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
         if 'coordinates' in kinematics:
-            self.coordinates = kinematics.split('coordinates')[1].upper()
-# map axes to joints
-        for joint in range(len(self.axisList)):
-            if self.axisList[joint] == 'X':
-                self.w.home_x.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_x.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_x_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_x_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'Y':
-               self.w.home_y.set_joint(self.coordinates.index(self.axisList[joint]))
-               self.w.home_y.set_joint_number(self.coordinates.index(self.axisList[joint]))
-               self.w.jog_y_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-               self.w.jog_y_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'Z':
-                self.w.home_z.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_z.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_z_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_z_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'A':
-                self.w.home_a.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_a.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_a_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_a_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-# hide axis a if not being used
-        if 'A' not in self.axisList:
+            self.coordinates = kinematics.split('coordinates')[1].lower()
+        # hide axis a if not being used
+        if 'a' not in self.axisList:
             for i in self.axisAList:
                 self.w[i].hide()
-# see if home all button required
+        # setup home buttons
+        for axis in self.axisList:
+            self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
+            self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
+        # check if home all button required
         for joint in range(len(self.coordinates)):
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
-# see if not joggable before homing
+            # check if not joggable before homing
             if self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE').startswith('-'):
-                if 'jog_{}_plus'.format(self.coordinates[joint].lower()) not in self.idleHomedList:
-                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint].lower()))
-                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint].lower()))
+                if 'jog_{}_plus'.format(self.coordinates[joint]) not in self.idleHomedList:
+                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint]))
+                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint]))
+                    self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
+                    self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -1481,6 +1497,7 @@ class HandlerClass:
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
+            self.isJogging[joint] = False
             self.w.releaseKeyboard()
 
     def keyboard_shortcuts(self):
