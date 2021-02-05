@@ -56,10 +56,6 @@ typedef struct {
 
 #define TOOL_MMAP_STRIDE  sizeof(CANON_TOOL_TABLE)
 //---------------------------------------------------------------------
-#define TOOL_MMAP_HEADER   (tool_mmap_base \
-                           + TOOL_MMAP_HEADER_OFFSET \
-                           )
-
 #define HPTR()    (tooldata_header_t*)( tool_mmap_base \
                                       + TOOL_MMAP_HEADER_OFFSET)
 
