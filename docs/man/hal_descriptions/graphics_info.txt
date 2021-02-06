@@ -1,1 +1,0 @@
-The waveforms are created with https://wavedrom.com/editor.html from the json-data.

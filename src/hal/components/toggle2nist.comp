@@ -5,18 +5,13 @@ description
 Toggle2nist can be used with a momentary push button 
 to control a device that has separate on and off inputs
 and an is-on output. 
-.TP 1
-.ULS
-.LI
-On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high
-.LI
-On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low
-.ULE
 
-.TP 1
-.DLS
-.PIMG -L ../../../man/hal_descriptions/toggle2nist.png
-.DLE
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
+
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
+
+
+.PSPIC -L ../man/images/toggle2nist.ps
 """;
 
 pin in  bit in;
