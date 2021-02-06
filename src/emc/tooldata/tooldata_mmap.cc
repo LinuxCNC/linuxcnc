@@ -161,7 +161,17 @@ int tool_mmap_user()
 
     if (fd < 0) {
         perror("tool_mmap_user(): file open fail");
-        exit(EXIT_FAILURE);
+        /*
+        ** For the LinuxCNC application, tool_mmap_creator()
+        ** should start first and create the mmap file needed here.
+        ** Related designer applications may use emcmodule.cc
+        ** which calls this tool_mmap_user() but need to
+        ** continue execution if no mmap file is open.
+        ** So print message and return fail indicator.
+        */
+        fprintf(stderr,"tool_mmap_user(): no mmap file,continuing\n");
+        tool_mmap_base = (char*)0;
+        return(-1);
     }
     tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
                                  MAP_SHARED, fd, 0);

@@ -298,7 +298,16 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
       initialized=1;
     }
 #else //}{
-    if (!initialized) { tool_mmap_user();initialized=1;}
+    static bool mmap_available = 1;
+    if (!mmap_available) return NULL;
+    if (!initialized) {
+        initialized=1;
+        if (tool_mmap_user()) {
+          mmap_available = 0;
+          fprintf(stderr,"mmap tool data not available, continuing %s\n",
+                  __FILE__);
+        }
+    }
 #endif //}
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
