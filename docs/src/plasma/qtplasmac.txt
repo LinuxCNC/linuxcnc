@@ -21,15 +21,15 @@ Screenshot examples of QtPlasmaC are below:
 
 *16:9*
 
-image::images/qtplasmac_16x9.png[width=800,align="center"]
+image::images/qtplasmac_16x9.png[width=900,align="center"]
 
 *9:16*
 
-image::images/qtplasmac_9x16.png[width=450,align="center"]
+image::images/qtplasmac_9x16.png[width=550,align="center"]
 
 *4:3*
 
-image::images/qtplasmac_4x3.png[width=600,align="center"]
+image::images/qtplasmac_4x3.png[width=700,align="center"]
 
 The PlasmaC component will run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
 
@@ -236,13 +236,13 @@ qtplasmac-setup
 
 The selection window is now visible:
 
-image::images/qtplasmac_setup_main.png[width=200,align="center"]
+image::images/qtplasmac_setup_main.png[width=300,align="center"]
 
 Select *New* from the selection window, this will show an info dialog, select *Continue* and the New Configuration window will display.
 
 NOTE: There will be different fields visible depending on the mode selected.
 
-image::images/qtplasmac_setup_new.png[width=400,align="center"]
+image::images/qtplasmac_setup_new.png[width=500,align="center"]
 
 [[qtplasmac-setup-table]]
 
@@ -406,7 +406,7 @@ It is highly recommended that a <<qtplasmac-backup, backup>> copy of the existin
 
 After starting qtplasmac-setup the selection window is visible, select *Reconfigure* which shows an information dialog, select *Continue* and the Reconfigure window will display:
 
-image::images/qtplasmac_setup_reconfigure.png[width=400,align="center"]
+image::images/qtplasmac_setup_reconfigure.png[width=500,align="center"]
 
 Select the <machine_name>.ini file of the QtPlasmaC configuration to reconfigure.
 
@@ -642,7 +642,7 @@ The following sections will give a general overview of the QtPlasmaC layout.
 
 Screenshot example of the QtPlasmaC MAIN tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_16x9.png[width=800,align="center"]
+image::images/qtplasmac_16x9.png[width=900,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
@@ -861,7 +861,7 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 
 Screenshot example of the QtPlasmaC PARAMETERS tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_parameters.png[width=800,align="center"]
+image::images/qtplasmac_parameters.png[width=900,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
@@ -1055,7 +1055,7 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 
 Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_conversational.png[width=800,align="center"]
+image::images/qtplasmac_conversational.png[width=900,align="center"]
 
 The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
 
@@ -1117,7 +1117,7 @@ If the user intends to place the material randomly on the table then the user mu
 
 === CAMERA
 
-image::images/qtplasmac_camview.png[width=800,align="center"]
+image::images/qtplasmac_camview.png[width=900,align="center"]
 
 QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
 
@@ -1441,17 +1441,17 @@ Select one of:
 
 * *Manual* - to manually create a new material file.
 
-image::images/qtplasmac_material_main_manual.png[width=300,align="center"]
+image::images/qtplasmac_material_main_manual.png[width=350,align="center"]
 
 * *SheetCam* - to convert a SheetCam tool file.
 
-image::images/qtplasmac_material_main_sheetcam.png[width=300,align="center"]
+image::images/qtplasmac_material_main_sheetcam.png[width=350,align="center"]
 
 For SheetCam only, select whether the user requires a metric or imperial output file.
 
 * *Fusion360* - to convert a Fusion360 tool file.
 
-image::images/qtplasmac_material_main_fusion360.png[width=300,align="center"]
+image::images/qtplasmac_material_main_fusion360.png[width=350,align="center"]
 
 To convert:
 
@@ -1461,7 +1461,7 @@ To convert:
 
 For both a Manual creation or a Fusion360 conversion, a dialog will show with all available parameters displayed for input. Any entry marked with pass:[***] is mandatory and all other entries are optional depending on the user's configuration needs.
 
-image::images/qtplasmac_material_manual_dialog.png[width=400,align="center"]
+image::images/qtplasmac_material_manual_dialog.png[width=150,align="center"]
 
 NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the file already exists, it will be overwritten.
 
@@ -1902,7 +1902,7 @@ Both *Mesh Mode* and *Ignore Arc OK* can be enabled/disabled at any time during 
 
 === Cut Recovery
 
-image::images/qtplasmac_cut_recovery.png[width=300,align="center"]
+image::images/qtplasmac_cut_recovery.png[width=250,align="center"]
 
 This feature will produce a dialog box that will allow the torch to be moved away from the cut path during a <<qt_paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. This feature is only available from a user-programmed button (named Cut-Recovery by default) in the Extras panel and may only be clicked while motion is paused.
 
@@ -2013,7 +2013,7 @@ IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE 
 
 == Conversational Shape Library
 
-image::images/qtplasmac_conversational.png[width=800,align="center"]
+image::images/qtplasmac_conversational.png[width=900,align="center"]
 
 The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-Code at the machine to cut simple shapes quickly. This feature is found on the <<qt_conversational-tab, CONVERSATIONAL Tab>>.
 
