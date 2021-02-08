@@ -145,7 +145,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 10: return "Probe";
             }
             break;
-
+        case HM2_GTAG_SMARTSERIALB:
         case HM2_GTAG_SMARTSERIAL:
             if (sec_dir == 0x80){ // Output pin codes
                 switch (sec_pin) {
@@ -514,7 +514,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 10: return "probe";
             }
             break;
-
+        case HM2_GTAG_SMARTSERIALB:
         case HM2_GTAG_SMARTSERIAL:
             if (sec_dir == 0x80){ // Output pin codes
                 switch (sec_pin) {
@@ -969,6 +969,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_XY2MOD, hm2->xy2mod.num_instances, false);
     // smart-serial might also not be contiguous
     hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  HM2_SSERIAL_MAX_PORTS, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIALB,  HM2_SSERIAL_MAX_PORTS, true);
     // muxed encoder gets the sel pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances, true);
     // and about half as many I/Os as you'd expect
@@ -995,6 +996,7 @@ const char *hm2_get_general_function_hal_name(int gtag) {
 
         // XXX these don't seem to have consistent names of the expected form
         case HM2_GTAG_SMARTSERIAL: return "sserial";
+        case HM2_GTAG_SMARTSERIALB: return "sserialb";
         case HM2_GTAG_BSPI:     return "bspi";
         case HM2_GTAG_UART_RX:  return "uart";
         case HM2_GTAG_UART_TX:  return "uart";

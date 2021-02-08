@@ -26,6 +26,7 @@
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // '7i64' All newer cards self-declare
 #define HM2_SSERIAL_MAX_STRING_LENGTH       48
 #define HM2_SSERIAL_MAX_PORTS               8           // only used in pins.c
+#define HM2_SSERIAL_NUMREGS                 7           // 224 bits of data per channel in sserialb
 
 //Commands etc
 #define LBPNONVOL_flag      0xCC000000
@@ -153,6 +154,8 @@ typedef struct {
     int num_modes;
     int num_globals;
     int num_pins;
+    int num_read_regs; // data bits / 32. Was previously always 3. 
+    int num_write_regs;
     int num_read_bits;
     int num_write_bits;
     hm2_sserial_mode_t *modes;
@@ -165,22 +168,14 @@ typedef struct {
 
     rtapi_u32 *reg_cs_read;
     rtapi_u32 *reg_cs_write;
-    rtapi_u32 *reg_0_read;
-    rtapi_u32 *reg_0_write;
-    rtapi_u32 *reg_1_read;
-    rtapi_u32 *reg_1_write;
-    rtapi_u32 *reg_2_read;
-    rtapi_u32 *reg_2_write;
+    rtapi_u32 *read[HM2_SSERIAL_NUMREGS];
+    rtapi_u32 *write[HM2_SSERIAL_NUMREGS];
     rtapi_u32 reg_cs_addr;
-    rtapi_u32 reg_0_addr;
-    rtapi_u32 reg_1_addr;
-    rtapi_u32 reg_2_addr;
+    rtapi_u32 rw_addr[HM2_SSERIAL_NUMREGS];
     int index;
     rtapi_u32 command_reg_addr; // a duplicate so that a single channel can be passed
     rtapi_u32 data_reg_addr;
-    rtapi_u32 data_written;
-    rtapi_u32 data2_written;
-    rtapi_u32 data3_written;
+    rtapi_u32 data_written[3]; // only used by abs_encoder.c
     int myinst;
     char name[29];
     char raw_name[5];

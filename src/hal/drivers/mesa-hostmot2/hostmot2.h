@@ -130,7 +130,7 @@
 #define HM2_GTAG_SMARTSERIAL       (193)
 #define HM2_GTAG_TWIDDLER          (194) // Not supported
 #define HM2_GTAG_SSR               (195)
-
+#define HM2_GTAG_SMARTSERIALB      (198) // smart-serial with 224 data bits
 
 
 //
