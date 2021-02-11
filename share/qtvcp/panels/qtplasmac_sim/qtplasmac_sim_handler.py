@@ -9,9 +9,12 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.w.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint | \
+                              QtCore.Qt.WindowTitleHint | \
+                              QtCore.Qt.WindowStaysOnTopHint )
 
     def initialized__(self):
+        self.w.setWindowTitle('QtPlasmaC SimPanel')
         self.w.torch_on.hal_pin_changed.connect(self.torch_changed)
         self.w.sensor_flt.pressed.connect(self.float_pressed)
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
@@ -30,7 +33,7 @@ class HandlerClass:
         self.bTimer.setInterval(500)
         self.bTimer.setSingleShot(True)
         self.bTimer.timeout.connect(self.break_timer_done)
-        self.backColor = QColor(self.w.sensor_flt.palette().color(QPalette.Background)).name()
+        self.backColor = '#16160e'
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
         hal.set_p('estop_or.in0', '1')
