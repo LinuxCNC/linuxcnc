@@ -8,11 +8,11 @@
 # Top-level buffers to EMC
 B emcCommand            SHMEM   localhost       8192    0       0       1       16 1001 TCP=5005 xdr queue confirm_write serial
 B emcError              SHMEM   localhost       8192    0       0       3       16 1003 TCP=5005 xdr queue
-B emcStatus             SHMEM   localhost       170000  0       0       2       16 1002 TCP=5005 xdr
+B emcStatus             SHMEM   localhost      20480    0       0       2       16 1002 TCP=5005 xdr
 
 # These are for the IO controller, EMCIO
-B toolCmd               SHMEM   localhost       2048    0       0       4       16 1004 TCP=5005 xdr
-B toolSts               SHMEM   localhost       131072  0       0       5       16 1005 TCP=5005 xdr
+B toolCmd               SHMEM   localhost       1024    0       0       4       16 1004 TCP=5005 xdr
+B toolSts               SHMEM   localhost       1024    0       0       5       16 1005 TCP=5005 xdr
 
 # Processes
 # Name          Buffer          Type    Host            Ops     server? timeout master? cnum

@@ -13,7 +13,7 @@ iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
 
 
 .SH DESCRIPTION
-These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
+These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io and loaded by ini file setting: [EMCIO]EMCIO=io.
 .P
 The signals are turned on and off in userspace - if you have strict timing requirements or simply need more i/o, consider using the realtime synchronized i/o provided by \fBmotion\fR(9) instead.
 .P
@@ -81,11 +81,10 @@ mechanism) of the tool requested by the most recent T-word.
 \fBiocontrol.0.user\-request\-enable 
 (Bit, Out) TRUE when the user has requested that estop be cleared
 
-.SH PARAMETERS
 
 .TP
 \fBiocontrol.0.tool\-prep\-index
-(s32, RO) IO's internal array index of the prepped tool requested
+(Bit, Out) IO's internal array index of the prepped tool requested
 by the most recent T-word.  0 if no tool is prepped.  On Random
 toolchanger machines this is tool's pocket number (ie, the same as the
 tool\-prep\-pocket pin), on Non-random toolchanger machines this is

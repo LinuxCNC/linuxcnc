@@ -131,7 +131,6 @@ setup::setup() :
     stack{},
     stack_index(0),
     tool_offset{{0,0,0},0,0,0,0,0,0},
-    pockets_max(0),
     tool_table{},
     traverse_rate (0.0),
     orient_offset (0.0),

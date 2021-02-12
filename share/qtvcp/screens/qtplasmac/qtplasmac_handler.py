@@ -1,36 +1,35 @@
+VERSION = '0.9.31'
+
 import os, sys
 from shutil import copy as COPY
-from shutil import rmtree as RMDIR
+#from shutil import rmtree as RMDIR
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 import time
 import math
-
 import linuxcnc
 import hal, hal_glib
-
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 from PyQt5.QtGui import * 
 from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
-
 from qtvcp import logger
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
+#from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
-from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
+#from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
 from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
 from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.widgets import camview_widget as CAMWIDGET
+# #testing for different video sources
+#from qtvcp.widgets import camview_widget as CAMWIDGET
 from qtvcp.widgets.camview_widget import CamView as CAM
-from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
+#from qtvcp.widgets.gcode_graphics import GCodeGraphics as PREVIEW
 from qtvcp.widgets.simple_widgets import DoubleScale as PARAMETER
-
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -44,8 +43,6 @@ from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
 from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
-
-VERSION = '0.9.24'
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -118,7 +115,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
         # KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
         # KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
-        self.axisList = INFO.AVAILABLE_AXES
+        self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
         self.lastLoadedProgram = 'None'
@@ -127,6 +124,7 @@ class HandlerClass:
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['run', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
+        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
@@ -191,9 +189,6 @@ class HandlerClass:
             self.firstRun = False
         self.touchoff_buttons()
         self.widgetsLoaded = 1
-        self.startupTimer = QTimer()
-        self.startupTimer.timeout.connect(self.startup_timeout)
-        self.startupTimer.setSingleShot(True)
         STATUS.connect('state-on', lambda w:self.power_state(True))
         STATUS.connect('state-off', lambda w:self.power_state(False))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -217,20 +212,12 @@ class HandlerClass:
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
-        self.startupTimer.start(1500)
-
-    def startup_timeout(self):
         self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
         if STATUS.stat.estop:
             self.w.power.setEnabled(False)
         self.w.run.setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
-        if self.w.estopButton == 1:
-            self.w.power.setGeometry(self.w.run.geometry().x(), \
-                                     self.w.power.geometry().y(), \
-                                     self.w.run.geometry().width(), \
-                                     self.w.power.geometry().height())
 
 
 #################################################################################################################################
@@ -348,8 +335,10 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
-        self.zOffsetCounts = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetCountPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
+        self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
+        self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
@@ -443,7 +432,7 @@ class HandlerClass:
         self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_led.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_backgrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')))
-        self.w.color_backgalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')))
+        self.w.color_backgalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Background Alt', '#36362e', str, 'COLOR_OPTIONS')))
         self.w.color_frams.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Frames', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_estop.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
         self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
@@ -702,6 +691,8 @@ class HandlerClass:
         if state:
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if STATUS.is_all_homed():
@@ -718,6 +709,8 @@ class HandlerClass:
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
+                self.w[widget].setEnabled(False)
+            for widget in self.jogButtonList:
                 self.w[widget].setEnabled(False)
 
     def interp_idle(self, obj):
@@ -737,6 +730,8 @@ class HandlerClass:
         if STATUS.machine_is_on():
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if STATUS.is_all_homed():
@@ -744,6 +739,8 @@ class HandlerClass:
                     self.w[widget].setEnabled(True)
                 for widget in self.idleHomedPlusPausedList:
                     self.w[widget].setEnabled(True)
+                if self.zOffsetCountPin.get():
+                    self.w.run.setEnabled(False)
             else :
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(False)
@@ -772,11 +769,14 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedList:
             self.w[widget].setEnabled(False)
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
         self.w.abort.setEnabled(True)
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
+        self.w.height_reset.setEnabled(True)
         if STATUS.is_auto_mode() and self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
@@ -896,7 +896,7 @@ class HandlerClass:
         self.interp_idle(None)
 
     def joint_homed(self, obj, joint):
-        dro = self.coordinates.lower()[int(joint)]
+        dro = self.coordinates[int(joint)]
         self.w['dro_{}'.format(dro)].setProperty('homed', True)
         self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
         self.w['dro_label_{}'.format(dro)].setProperty('homed', True)
@@ -907,7 +907,7 @@ class HandlerClass:
 
     def joint_unhomed(self, obj, joints):
         for joint in joints:
-            dro = self.coordinates.lower()[int(joint)]
+            dro = self.coordinates[int(joint)]
             self.w['dro_{}'.format(dro)].setProperty('homed', False)
             self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
             self.w['dro_label_{}'.format(dro)].setProperty('homed', False)
@@ -962,11 +962,14 @@ class HandlerClass:
         self.user_button_up(button)
 
     def height_ovr_pressed(self, height):
-        self.heightOvr += height
-        if self.heightOvr < -9.9 :self.heightOvr = -9.9
-        if self.heightOvr > 9.9 :self.heightOvr = 9.9
+        if height:
+            self.heightOvr += height * self.w.thc_threshold.value()
+        else:
+            self.heightOvr = 0
+        if self.heightOvr < -10 :self.heightOvr = -10
+        if self.heightOvr > 10 :self.heightOvr = 10
         self.heightOverridePin.set(self.heightOvr)
-        self.w.height_ovr_label.setText('{:.1f}'.format(self.heightOvr))
+        self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -994,6 +997,13 @@ class HandlerClass:
 
     def jogs_label_pressed(self):
         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
+
+    def gui_button_jog(self, state, joint, direction):
+        shift = False
+        if STATUS.is_joint_mode():
+            self.kb_jog(state, self.coordinates.index(joint), direction, shift)
+        else:
+            self.kb_jog(state, self.axisList.index(joint), direction, shift)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -1084,13 +1094,20 @@ class HandlerClass:
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value)
 
+    def z_offset_changed(self, value):
+        if value > -0.000001 and value < 0.000001 and STATUS.is_interp_idle() and \
+           STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
+            self.w.run.setEnabled(True)
+
     def state_changed(self, value):
         if (value > 3 and not STATUS.is_interp_idle()) or value == 19:
             self.w.dro_z.setProperty('Qreference_type', 10)
 
-    def z_offset_changed(self, counts):
+    def z_offset_count_changed(self, counts):
         if not counts:
             self.w.dro_z.setProperty('Qreference_type', 1)
+            if STATUS.is_interp_idle() and STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
+                self.w.run.setEnabled(True)
 
     def file_reload_clicked(self):
         if self.rflActive:
@@ -1144,6 +1161,22 @@ class HandlerClass:
     def chk_override_limits_changed(self, state):
         if state:
             ACTION.TOGGLE_LIMITS_OVERRIDE()
+
+    def param_tab_changed(self, state):
+        if state:
+            self.w.main_tab_widget.setTabEnabled(2, False)
+            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+                self.w.main_tab_widget.setTabEnabled(3, False)
+        else:
+            self.w.main_tab_widget.setTabEnabled(2, True)
+            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+                self.w.main_tab_widget.setTabEnabled(3, True)
+
+    def conv_tab_changed(self, state):
+        if state:
+            self.w.main_tab_widget.setTabEnabled(1, False)
+        else:
+            self.w.main_tab_widget.setTabEnabled(1, True)
 
 
 #########################################################################################################################
@@ -1257,8 +1290,9 @@ class HandlerClass:
         self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
         self.materialReloadPin.value_changed.connect(lambda w:self.material_reload_pin_changed(w))
         self.materialTempPin.value_changed.connect(lambda w:self.material_temp_pin_changed(w))
-        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-0.1))
-        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(0.1))
+        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-1))
+        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1))
+        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(0))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
         self.w.button_1.released.connect(lambda:self.user_button_released(1))
         self.w.button_2.pressed.connect(lambda:self.user_button_pressed(2))
@@ -1273,6 +1307,22 @@ class HandlerClass:
         self.w.button_6.released.connect(lambda:self.user_button_released(6))
         self.w.cut_rec_speed.valueChanged.connect(lambda w:self.cutrec_speed_changed(w))
         self.w.kerf_width.valueChanged.connect(lambda w:self.cutrec_move_changed(w))
+        self.w.jog_x_plus.pressed.connect(lambda:self.gui_button_jog(1, 'x', 1))
+        self.w.jog_x_plus.released.connect(lambda:self.gui_button_jog(0, 'x', 1))
+        self.w.jog_x_minus.pressed.connect(lambda:self.gui_button_jog(1, 'x', -1))
+        self.w.jog_x_minus.released.connect(lambda:self.gui_button_jog(0, 'x', -1))
+        self.w.jog_y_plus.pressed.connect(lambda:self.gui_button_jog(1, 'y', 1))
+        self.w.jog_y_plus.released.connect(lambda:self.gui_button_jog(0, 'y', 1))
+        self.w.jog_y_minus.pressed.connect(lambda:self.gui_button_jog(1, 'y', -1))
+        self.w.jog_y_minus.released.connect(lambda:self.gui_button_jog(0, 'y', -1))
+        self.w.jog_z_plus.pressed.connect(lambda:self.gui_button_jog(1, 'z', 1))
+        self.w.jog_z_plus.released.connect(lambda:self.gui_button_jog(0, 'z', 1))
+        self.w.jog_z_minus.pressed.connect(lambda:self.gui_button_jog(1, 'z', -1))
+        self.w.jog_z_minus.released.connect(lambda:self.gui_button_jog(0, 'z', -1))
+        self.w.jog_a_plus.pressed.connect(lambda:self.gui_button_jog(1, 'y', 1))
+        self.w.jog_a_plus.released.connect(lambda:self.gui_button_jog(0, 'y', 1))
+        self.w.jog_a_minus.pressed.connect(lambda:self.gui_button_jog(1, 'y', -1))
+        self.w.jog_a_minus.released.connect(lambda:self.gui_button_jog(0, 'y', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -1288,6 +1338,7 @@ class HandlerClass:
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
         self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
         self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
+        self.zOffsetCountPin.value_changed.connect(lambda v:self.z_offset_count_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
         self.w.cam_zoom_plus.pressed.connect(self.cam_zoom_plus_pressed)
@@ -1324,59 +1375,44 @@ class HandlerClass:
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.statePin.value_changed.connect(lambda v:self.state_changed(v))
-        self.zOffsetCounts.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
         self.w.led_float_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'float switch'))
         self.w.led_ohmic_probe.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'ohmic probe'))
         self.w.led_breakaway_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'breakaway switch'))
+        self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
+        self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
         kinstype = None
-        self.coordinates = 'XYZ'
+        self.coordinates = 'xyz'
         if 'kinstype' in kinematics:
             kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
             if 'coordinates' in kinematics:
                 kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
         if 'coordinates' in kinematics:
-            self.coordinates = kinematics.split('coordinates')[1].upper()
-# map axes to joints
-        for joint in range(len(self.axisList)):
-            if self.axisList[joint] == 'X':
-                self.w.home_x.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_x.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_x_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_x_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'Y':
-               self.w.home_y.set_joint(self.coordinates.index(self.axisList[joint]))
-               self.w.home_y.set_joint_number(self.coordinates.index(self.axisList[joint]))
-               self.w.jog_y_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-               self.w.jog_y_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'Z':
-                self.w.home_z.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_z.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_z_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_z_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-            elif self.axisList[joint] == 'A':
-                self.w.home_a.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.home_a.set_joint_number(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_a_minus.set_joint(self.coordinates.index(self.axisList[joint]))
-                self.w.jog_a_plus.set_joint(self.coordinates.index(self.axisList[joint]))
-# hide axis a if not being used
-        if 'A' not in self.axisList:
+            self.coordinates = kinematics.split('coordinates')[1].lower()
+        # hide axis a if not being used
+        if 'a' not in self.axisList:
             for i in self.axisAList:
                 self.w[i].hide()
-# see if home all button required
+        # setup home buttons
+        for axis in self.axisList:
+            self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
+            self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
+        # check if home all button required
         for joint in range(len(self.coordinates)):
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
-# see if not joggable before homing
+            # check if not joggable before homing
             if self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE').startswith('-'):
-                if 'jog_{}_plus'.format(self.coordinates[joint].lower()) not in self.idleHomedList:
-                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint].lower()))
-                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint].lower()))
+                if 'jog_{}_plus'.format(self.coordinates[joint]) not in self.idleHomedList:
+                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint]))
+                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint]))
+                    self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
+                    self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -1461,6 +1497,7 @@ class HandlerClass:
             self.w.grabKeyboard()
         else:
             ACTION.JOG(joint, 0, 0, 0)
+            self.isJogging[joint] = False
             self.w.releaseKeyboard()
 
     def keyboard_shortcuts(self):
@@ -1678,20 +1715,22 @@ class HandlerClass:
         for param in params:
             if param:
                 newFile.append(param)
-        if g2:
-            if self.unitsPerMm == 1 and g2 == 'g20':
+        scale = 1
+        zMax = ''
+        if self.unitsPerMm == 1:
+            if g2 == 'g20':
                 scale = 0.03937
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> - 5] * {}]'.format(scale)
-            elif self.unitsPerMm == 0.03937 and g2 == 'g22':
-                scale = 25.4
-                zMax = 'g0z[[#<_ini[axis_z]max_limit> * {}] - 5]'.format(scale)
+                zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
             else:
-                scale = 1
-                zMax = 'g0z[#<_ini[axis_z]max_limit> - [{} * {}]]'.format(5, scale)
+                zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 5]'
+        elif self.unitsPerMm == 0.03937:
+            if g2 == 'g21':
+                scale = 25.4
+                zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
+            else:
+                zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 0.02]'
+        if g2:
             newFile.append(g2)
-        else:
-            scale = 1
-            zMax = ''
         if g4:
             newFile.append(g4)
         if g6:
@@ -1718,8 +1757,8 @@ class HandlerClass:
         try:
             if use.isChecked():
                 if x[-1] == ']':
-                    xL = '{}[[{}*{}]+{:0.6f}]'.format(x[:1], x[1:], scale, (len.value() * scale) * math.cos(math.radians(ang.value())))
-                    yL = '{}[[{}*{}]+{:0.6f}]'.format(y[:1], y[1:], scale, (len.value() * scale) * math.sin(math.radians(ang.value())))
+                    xL = '{}[[{}]+{:0.6f}]'.format(x[:1], x[1:], (len.value() * scale) * math.cos(math.radians(ang.value())))
+                    yL = '{}[[{}]+{:0.6f}]'.format(y[:1], y[1:], (len.value() * scale) * math.sin(math.radians(ang.value())))
                 else:
                     xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
                     yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
@@ -3046,9 +3085,9 @@ class HandlerClass:
 
     def cutrec_speed_changed(self, speed):
         if STATUS.is_metric_mode():
-            self.w.cut_rec_feed.setText('{:0.0f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText('FEED\n{:0.0f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
         else:
-            self.w.cut_rec_feed.setText('{:0.1f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
+            self.w.cut_rec_feed.setText('FEED\n{:0.1f}'.format(self.w.cut_feed_rate.value() * speed * 0.01))
 
     def cutrec_move_changed(self, distance):
         self.w.cut_rec_move_label.setText('MOVE\n{}'.format(distance))

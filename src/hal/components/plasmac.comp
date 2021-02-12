@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.193 - 2021 Jan 26
+0.195 - 2021 Feb 06
 
 .I SUMMARY:
 .br
@@ -177,6 +177,7 @@ variable bool   auto_cut;                   /* auto cut mode is active */
 variable float  spotting_timer;             /* spotting timer */
 variable bool   spotting;                   /* spotting flag */
 variable int    count;                      /* for counting */
+variable int    cons_change_clear;          /* consumable change is clearing */
 variable int    cut_height_first;           /* cut height at start of cut */
 variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
@@ -607,7 +608,9 @@ FUNCTION(_) {
         /* if machine is on */
         switch(state){
             case IDLE:
-                xy_offset_enable = FALSE;
+                if(!consumable_changing){
+                    xy_offset_enable = FALSE;
+                }
                 if((int)floor(z_offset_current / offset_scale) < 0.0000001 &&
                    (int)floor(z_offset_current / offset_scale) > -0.0000001 &&
                    program_is_idle){
@@ -752,10 +755,10 @@ FUNCTION(_) {
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         if(float_switch){
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
                                                           "while float switch probing\n");
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
                                                           "while ohmic probing\n");
                         }
                         state = MAX_HEIGHT;
@@ -1177,8 +1180,8 @@ FUNCTION(_) {
                                     target_volts = cut_volts;
                                 }
                             /* height override setup*/
-                            }else if(fabs(height_override - height_ovr_old) > 0.05){
-                                height_ovr_counts -= (height_override - height_ovr_old) / 10 * units_per_mm / offset_scale;
+                            }else if(fabs(height_override - height_ovr_old) > 0.005){
+                                height_ovr_counts -= (height_override - height_ovr_old) * height_per_volt / offset_scale;
                                 height_ovr_old = height_override;
                             /* height override z motion */
                             }else if(height_ovr_counts != 0){
@@ -1593,7 +1596,13 @@ FUNCTION(_) {
                     }
                     consumable_changing = TRUE;
                 }else{
-                    if(consumable_change){
+                    if(((int)floor(x_offset_current) <= x_offset * offset_scale + resolution &&
+                       (int)floor(x_offset_current) >= x_offset * offset_scale - resolution &&
+                       (int)floor(y_offset_current) <= y_offset * offset_scale + resolution &&
+                       (int)floor(y_offset_current) >= y_offset / offset_scale - resolution) ||
+                       !consumable_change){
+                        state = IDLE;
+                    }else if(consumable_change){
                         if(x_velocity && x_offset_counts != x_offset){
                             if(x_offset > 0){
                                 if(x_offset_counts + x_velocity < x_offset){
@@ -1626,49 +1635,57 @@ FUNCTION(_) {
                         }
                     }
                 }
-                if((x_offset_counts == x_offset && y_offset_counts == y_offset) || !consumable_change){
-                    state = IDLE;
-                }
                 break;
             case CONSUMABLE_CHANGE_OFF:
                 xy_offset_enable = TRUE;
-                if(x_velocity && x_offset_counts != 0){
-                    if(x_offset_counts > 0){
-                        if(x_offset_counts - x_velocity > 0){
-                            x_offset_counts -= x_velocity;
-                        }else{
-                            x_offset_counts = 0;
-                        }
+                if(((int)floor(x_offset_current) <= x_offset_counts * offset_scale + resolution &&
+                   (int)floor(x_offset_current) >= x_offset_counts * offset_scale - resolution &&
+                   (int)floor(y_offset_current) <= y_offset_counts * offset_scale + resolution &&
+                   (int)floor(y_offset_current) >= y_offset_counts * offset_scale - resolution)){
+                    cons_change_clear = TRUE;
+                }else{
+                }
+                if(cons_change_clear){
+                    if(((int)floor(x_offset_current / offset_scale) <= 0 + resolution &&
+                       (int)floor(x_offset_current / offset_scale) >= 0 - resolution &&
+                       (int)floor(y_offset_current / offset_scale) <= 0 + resolution &&
+                       (int)floor(y_offset_current / offset_scale) >= 0 - resolution)){
+                        consumable_changing = FALSE;
+                        cons_change_clear = FALSE;
+                        feed_hold = FALSE;
+                        state = IDLE;
                     }else{
-                        if(x_offset_counts + x_velocity < 0){
-                            x_offset_counts += x_velocity;
-                        }else{
-                            x_offset_counts = 0;
+                        if(x_velocity && x_offset_counts != 0){
+                            if(x_offset_counts > 0){
+                                if(x_offset_counts - x_velocity > 0){
+                                    x_offset_counts -= x_velocity;
+                                }else{
+                                    x_offset_counts = 0;
+                                }
+                            }else{
+                                if(x_offset_counts + x_velocity < 0){
+                                    x_offset_counts += x_velocity;
+                                }else{
+                                    x_offset_counts = 0;
+                                }
+                            }
+                        }
+                        if(y_velocity && y_offset_counts != 0){
+                            if(y_offset_counts > 0){
+                                if(y_offset_counts - y_velocity > 0){
+                                    y_offset_counts -= y_velocity;
+                                }else{
+                                    y_offset_counts = 0;
+                                }
+                            }else{
+                                if(y_offset_counts + y_velocity < 0){
+                                    y_offset_counts += y_velocity;
+                                }else{
+                                    y_offset_counts = 0;
+                                }
+                            }
                         }
                     }
-                }
-                if(y_velocity && y_offset_counts != 0){
-                    if(y_offset_counts > 0){
-                        if(y_offset_counts - y_velocity > 0){
-                            y_offset_counts -= y_velocity;
-                        }else{
-                            y_offset_counts = 0;
-                        }
-                    }else{
-                        if(y_offset_counts + y_velocity < 0){
-                            y_offset_counts += y_velocity;
-                        }else{
-                            y_offset_counts = 0;
-                        }
-                    }
-                }
-                if(x_offset_current < 0.05 * units_per_mm &&
-                   x_offset_current > -0.05 * units_per_mm &&
-                   y_offset_current < 0.05 * units_per_mm &&
-                   y_offset_current > -0.05 * units_per_mm){
-                    consumable_changing = FALSE;
-                    feed_hold = FALSE;
-                    state = IDLE;
                 }
                 break;
             case CUT_RECOVERY_ON:

@@ -241,6 +241,13 @@ Pressing cancel will close linuxcnc.""" % target)
         # actually build the widgets
         window.instance()
 
+        # title
+        if INIPATH:
+            title = 'QTvcp-Screen-%s'% opts.component
+        else:
+            title = 'QTvcp-Panel-%s'% opts.component
+        window.setWindowTitle(title)
+
         # make QT widget HAL pins
         self.panel = qt_makepins.QTPanel(self.hal, PATH, window, opts.debug)
 
@@ -316,13 +323,6 @@ Pressing cancel will close linuxcnc.""" % target)
         # appy qss file or default theme
         else:
             window.apply_styles()
-
-        # title
-        if INIPATH:
-            title = 'QTvcp-Screen-%s'% opts.component
-        else:
-            title = 'QTvcp-Panel-%s'% opts.component
-        window.setWindowTitle(title)
 
         LOG.debug('Show window')
         # maximize

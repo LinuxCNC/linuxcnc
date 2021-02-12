@@ -34,6 +34,10 @@
 #include "nml_oi.hh"
 #include "rcs_print.hh"
 #include <rtapi_string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "tooldata.hh"
 
 #include <cmath>
 
@@ -284,7 +288,27 @@ static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
     return true;
 }
 
+static bool initialized=0;
+
 static PyObject *poll(pyStatChannel *s, PyObject *o) {
+#ifdef TOOL_NML //{
+    if (!initialized) {
+      //fprintf(stderr,"%8d tool_nml_register\n",getpid());
+      tool_nml_register( (CANON_TOOL_TABLE*)&s->status.io.tool.toolTable);
+      initialized=1;
+    }
+#else //}{
+    static bool mmap_available = 1;
+    if (!mmap_available) return NULL;
+    if (!initialized) {
+        initialized=1;
+        if (tool_mmap_user()) {
+          mmap_available = 0;
+          fprintf(stderr,"mmap tool data not available, continuing %s\n",
+                  __FILE__);
+        }
+    }
+#endif //}
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
@@ -659,21 +683,34 @@ static PyStructSequence_Desc tool_result_desc = {
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(CANON_POCKETS_MAX);
-    int j=0;
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
+    PyObject *res;
+    int j = 0;
+
+    if (!initialized) {
+        // invalid until initialized (by poll())
+        res = PyTuple_New(0);
+        return res;
+    }
+
+    int idxmax = tooldata_last_index_get() + 1;
+    res = PyTuple_New(idxmax);
+    for(int idx=0; idx < idxmax; idx++) {
+        struct CANON_TOOL_TABLE tdata;
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        }
+        struct CANON_TOOL_TABLE &t = tdata;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.offset.tran.y));
-        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.offset.tran.z));
-        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.offset.a));
-        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.offset.b));
-        PyStructSequence_SET_ITEM(tool, 6, PyFloat_FromDouble(t.offset.c));
-        PyStructSequence_SET_ITEM(tool, 7, PyFloat_FromDouble(t.offset.u));
-        PyStructSequence_SET_ITEM(tool, 8, PyFloat_FromDouble(t.offset.v));
-        PyStructSequence_SET_ITEM(tool, 9, PyFloat_FromDouble(t.offset.w));
+        PyStructSequence_SET_ITEM(tool,  0, PyInt_FromLong(t.toolno));
+        PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
+        PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
+        PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
+        PyStructSequence_SET_ITEM(tool,  4, PyFloat_FromDouble(t.offset.a));
+        PyStructSequence_SET_ITEM(tool,  5, PyFloat_FromDouble(t.offset.b));
+        PyStructSequence_SET_ITEM(tool,  6, PyFloat_FromDouble(t.offset.c));
+        PyStructSequence_SET_ITEM(tool,  7, PyFloat_FromDouble(t.offset.u));
+        PyStructSequence_SET_ITEM(tool,  8, PyFloat_FromDouble(t.offset.v));
+        PyStructSequence_SET_ITEM(tool,  9, PyFloat_FromDouble(t.offset.w));
         PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
         PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));

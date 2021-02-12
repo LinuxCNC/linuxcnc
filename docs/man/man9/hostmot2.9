@@ -326,7 +326,7 @@ Encoders have names like
 instance number.  There are "num_encoders" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position of the second
-encoder of the first 5i20 board is: hm2_5i20.0.encoder.01.position (this
+encoder of the first 5i25 board is: hm2_5i25.0.encoder.01.position (this
 assumes that the firmware in that board is configured so that this HAL
 object is available)
 
@@ -350,6 +350,10 @@ Number of encoder counts since the previous reset.
 Encoder position in position units (count / scale).
 
 .TP
+(float out) position-latched
+Encoder latched position in position units (count / scale).
+
+.TP
 (float out) velocity
 Estimated encoder velocity in position units
 per second.
@@ -361,7 +365,7 @@ per minute.
 
 .TP
 (bit in) reset
-When this pin is TRUE, the count and position pins are
+When this pin is True, the count and position pins are
 set to 0.  (The value of the velocity pin is not affected by this.)
 The driver does not reset this pin to FALSE after resetting the count
 to 0, that is the user's job.
@@ -374,6 +378,19 @@ When this pin is set to True, the count
 indicate that the pulse has occurred.
 
 .TP
+(bit in/out) probe\-enable
+When this pin is set to True, the encoder count
+(and therefore also position) are latched on the the next probe 
+active edge.  At the same time, probe\-enable is reset to zero to
+indicate that latch event has occurred. 
+
+.TP
+(bit r/w) probe\-invert
+If set to True, the rising edge of the probe
+input pin triggers the latch event (if probe\-enable is True).  If set
+to False, the falling edge triggers.
+
+.TP
 (s32 out) rawcounts
 Total number of encoder counts since the start,
 not adjusted for index or reset.
@@ -384,13 +401,13 @@ Real time filtered values of A,B,Index encoder signals
 
 .TP
 (bit in) quad-error-enable
-When this pin is true quadrature error reporting is enabled.
-when false, existing quadrature errors are cleared and error reporting is disabled
+When this pin is True quadrature error reporting is enabled.
+when False, existing quadrature errors are cleared and error reporting is disabled
 
 .TP
 (bit out) quad-error
 This bit indicates that a quadrature sequence error has been detected.
-It can only be set if the corresponding quad-error-enable bit is true
+It can only be set if the corresponding quad-error-enable bit is True
 
 .TP
 (u32 in) hm2_XXXX.N.encoder.sample-frequency
@@ -411,10 +428,10 @@ for cable delays (suggested value is 3* cable length in feet +20)
 
 .TP
 (bit in) hm2_XXXX.N.encoder.hires-timestamp
-When this pin is true the encoder timestamp counter frequency is ~10 MHz
-when false the timestamp counter frequency is ~2 MHz. This should be set true
+When this pin is True the encoder timestamp counter frequency is ~10 MHz
+when False the timestamp counter frequency is ~2 MHz. This should be set True
 for frequency counting applications to improve the resolution. It should be 
-set false when servo thread periods longer than 1 ms are used.
+set False when servo thread periods longer than 1 ms are used.
 
 Parameters:
 
@@ -474,7 +491,8 @@ hostmot2 read according to the dpll's timer\-us setting.
 
 Typically, timer\-us should be a negative number with a magnitude larger than
 the largest latency (e.g., \-100 for a system with mediocre latency, \-50 for a
-system with good latency).
+system with good latency).  A negative number specifies latching the specified
+time before the nominal hostmot2 read time.
 
 If no DPLL module is present in the FPGA firmware, or if the encoder module
 does not support DPLL, then this pin is not created.
@@ -487,7 +505,7 @@ reduces following errors.
 
 One pin is created for each SSI instance regardless of data format:
 (bit, in) hm2_XXXX.NN.ssi.MM.data\-incomplete
-This pin will be set "true" if the module was still transferring data when the 
+This pin will be set "True" if the module was still transferring data when the 
 value was read. When this problem exists there will also be a limited number of 
 error messages printed to the UI. This pin should be used to monitor whether 
 the problem has been addressed by config changes. 
@@ -518,9 +536,9 @@ p: (Pad). Does not create any pins, used to ignore sections of the bit stream th
 .TP
 b: (Boolean). 
   (bit, out) hm2_XXXX.N.ssi.MM.<name>. If any bits in the designated field width 
-are non-zero then the HAL pin will be "true".
+are non-zero then the HAL pin will be "True".
   (bit, out) hm2_XXXX.N.ssi.MM.<name>\-not. An inverted version of the above, the 
-HAL pin will be "true" if all bits in the field are zero. 
+HAL pin will be "True" if all bits in the field are zero. 
 .TP
 u: (Unsigned)
   (float, out) hm2_XXXX.N.ssi.MM.<name>. The value of the bits interpreted as an
@@ -548,13 +566,13 @@ pins.
 the total encoder counts. The pin is not affected by reset and index. 
  (float, out) hm2_XXXX.N.ssi.MM.<name>.position. The encoder position
 in machine units. This is calculated from the full 64-bit buffers so will show
-a true value even after the counts pins have wrapped. It is zeroed by reset and
+a True value even after the counts pins have wrapped. It is zeroed by reset and
 index enable. 
  (bit, IO) hm2_XXXX.N.ssi.MM.<name>.index\-enable. When this pin is set
-"true" the module will wait until the raw encoder counts next passes through an 
+"True" the module will wait until the raw encoder counts next passes through an 
 integer multiple of the number of counts specified by counts\-per\-rev parameter
 and then it will zero the counts and position pins, and set the index\-enable
-pin back to "false" as a signal to the system that "index" has been passed. 
+pin back to "False" as a signal to the system that "index" has been passed. 
 this pin is used for spindle-synchronised motion and index-homing. 
  (bit, in) (bit, out) hm2_XXXX.N.ssi.MM.<name>.reset. When this pin is set high 
 the counts and position pins are zeroed. 
@@ -618,7 +636,7 @@ counts per machine unit.
  (u32, r/w) hm2_XXXX.N.ssi.MM.<name>.counts\-per\-rev (u32, r/w) Used to emulate
 the index behaviour of an incemental+index encoder. This would normally be set
 to the actual counts per rev of the encoder, but can be any whole number of
-revs. Integer divisors or multimpilers of the true PPR might be useful for 
+revs. Integer divisors or multipliers of the true PPR might be useful for 
 index-homing. Non-integer factors might be appropriate where there is a 
 synchronous drive ratio between the encoder and the spindle or ballscrew. 
 
@@ -630,7 +648,7 @@ supported by LinuxCNC (encoder to PC).
 One pin is created for each BiSS instance regardless of data format:
 
 (bit, in) hm2_XXXX.NN.biss.MM.data\-incomplete
-This pin will be set "true" if the module was still transferring data when the 
+This pin will be set "True" if the module was still transferring data when the 
 value was read. When this problem exists there will also be a limited number of 
 error messages printed to the UI. This pin should be used to monitor whether 
 the problem has been addressed by config changes. 
@@ -659,7 +677,7 @@ a Fanuc Aa64 encoder. The pins created are:
  hm2_XXXX.N.fanuc.MM.encoder.index\-enable Simulated index. Set by counts\-per\-rev parameter
  hm2_XXXX.N.fanuc.MM.encoder.position    Counts scaled by the ...scale parameter
  hm2_XXXX.N.fanuc.MM.encoder.rawcounts   Raw counts, unaffected by reset or index
- hm2_XXXX.N.fanuc.MM.encoder.reset       If high/true then counts and position = 0
+ hm2_XXXX.N.fanuc.MM.encoder.reset       If high/True then counts and position = 0
  hm2_XXXX.N.fanuc.MM.valid               Indicates that the absolute position is valid
  hm2_XXXX.N.fanuc.MM.valid\-not           Inverted version
 
@@ -716,7 +734,7 @@ Resets the position and counts pins to zero immediately.
 The Mesa resolver driver has the capability of emulating an absolute
 encoder using a position file (see the INI-config section of the manual)
 and the single-turn absolute operation of resolvers.
-At startup, and only if the \fBuse-position-file\fR parameter is set to "true"
+At startup, and only if the \fBuse-position-file\fR parameter is set to "True"
 the resolver driver will wait for a value to be written by the system to
 the axis.N.joint-pos-fb pin (which must be netted to this resolver pin)
 and will calculate the number of full turns that best matches the
@@ -736,7 +754,7 @@ index has been seen, and that the counters have been reset.
 .TP
 (bit, out) error
 Indicates an error in the particular channel. If this value is
-"true" then the reported position and velocity are invalid. 
+"True" then the reported position and velocity are invalid. 
 
 Parameters:
 .TP
@@ -804,9 +822,9 @@ Pins:
 
 .TP
 (bit input) enable
-If true, the pwmgen will set its Not\-Enable pin
-false and output its pulses.  If 'enable' is false, pwmgen will set its
-Not\-Enable pin true and not output any signals.
+If True, the pwmgen will set its Not\-Enable pin
+False and output its pulses.  If 'enable' is False, pwmgen will set its
+Not\-Enable pin True and not output any signals.
 
 .TP
 (float input) value
@@ -832,7 +850,7 @@ and 4 (Direction on Out0 and PWM on Out1, "for locked antiphase").
 
 .TP
 (bit input) offset\-mode
-When true, offset\-mode modifies the PWM behavior so that a PWM value 
+When True, offset\-mode modifies the PWM behavior so that a PWM value 
 of 0 results in a 50% duty cycle PWM output, a -1 value results in a 0%  
 duty cycle and +1 results in a 100% duty cycle (with default scaling)
 This mode is used by some PWM motor drives and PWM to analog converters.
@@ -997,7 +1015,7 @@ feedback from the first stepgen of the second 5i22 board is:
 hm2_5i22.1.stepgen.00.position\-fb (this assumes that the firmware in
 that board is configured so that this HAL object is available)
 
-Each stepgen uses between 2 and 6 IO pins.  The signals on these pins depends on
+Each stepgen uses between 2 and 8 IO pins.  The signals on these pins depends on
 the step_type parameter (described below).
 
 The stepgen representation is modeled on the stepgen software component.
@@ -1023,9 +1041,16 @@ Feedback position in counts (number of steps).
 
 .TP
 (float output) position\-fb
-Feedback position in arbitrary position
-units.  This is similar to "counts/position_scale", but has finer than
+Feedback position in scaled position units.  
+This is similar to "counts/position_scale", but has finer than
 step resolution.
+
+.TP
+(float output) position-latched
+latched-position in scaled position units.  
+This is similar to "counts/position_scale", but has finer than
+step resolution.
+
 
 .TP
 (float output) velocity\-fb
@@ -1037,12 +1062,12 @@ units per second.
 This pin enables the step generator instance.
 When True, the stepgen instance works as expected.  When False, no steps
 are generated and velocity\-fb goes immediately to 0.  If the stepgen is
-moving when enable goes false it stops immediately, without obeying the
+moving when enable goes False it stops immediately, without obeying the
 maxaccel limit.
 
 .TP
 (bit input) position\-reset
-Resets position to 0 when true.
+Resets position to 0 when True.
 Useful for step/dir controlled spindles when switching between
 spindle and joint modes.
 
@@ -1050,6 +1075,32 @@ spindle and joint modes.
 (bit input) control\-type
 Switches between position control mode (0)
 and velocity control mode (1).  Defaults to position control (0).
+
+.TP
+(bit in/out) index\-enable
+When this pin is set to True, the step count
+(and therefore also position) are reset to zero on the next stepgen 
+index pulse.  At the same time, index\-enable is reset to zero to
+indicate that the pulse has occurred.
+
+.TP
+(bit r/w) index\-invert
+If set to True, the rising edge of the index
+input pin triggers the position clear event (if index\-enable is True).  
+If set to False, the falling edge triggers.
+
+.TP
+(bit in/out) probe\-enable
+When this pin is set to True, the step count
+(and therefore also position) are latched on the the next stepgen 
+probe active edge.  At the same time, probe\-enable is reset to zero to
+indicate that a latch event has occurred.
+
+.TP
+(bit r/w) probe\-invert
+If set to True, the rising edge of the probe
+input pin triggers the latch event (if probe\-enable is True).  If set
+to False, the falling edge triggers.
 
 Parameters:
 
@@ -1096,7 +1147,7 @@ step ends, in nanoseconds.
 .TP
 (u32 r/w) step_type
 Output format, like the step_type modparam to the
-software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ =
+software stepgen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ =
 table-lookup mode. In this mode the step_type parameter determines how long the
 step sequence is. Additionally the stepgen_width parameter in the loadrt
 config string must be set to suit the number of pins per stepgen required. Any
@@ -1108,9 +1159,15 @@ pins between the stepgen instances in the dmesg/log hardware pin list then
 the option may be available.
 
 In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
-cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes. In table mode
-up to 6 IO pins are individually controlled in an arbitrary sequence up to 16
+cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes, so the scale
+must be divided by 4 relative to standard step/dir. In table mode up to 
+6 IO pins are individually controlled in an arbitrary sequence up to 16
 phases long. 
+
+.TP
+(bit input) swap_step_dir
+This swaps the step and direction outputs on the selected stepgen. This parameter
+is only available if the firmware supports this option.
 
 .TP
 (u32 r/w) table\-data\-N
@@ -1124,13 +1181,14 @@ stage of the step sequence.
 .TP
 (s32 r/w) hm2_XXXX.N.stepgen.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch stepgen counts.  A setting
-of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
-as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
-hostmot2 write according to the dpll's timer\-us setting.
+of \-1 does not latch stepgen counts.  A setting of 0 latches at the same time
+as the main hostmot2 read.  A setting of 1..4 uses a time offset from the main
+hostmot2 read according to the dpll's timer\-us setting.
 
 Typically, timer\-us should be a negative number with a magnitude larger than
 the largest latency (e.g., \-100 for a system with mediocre latency, \-50 for a
-system with good latency).
+system with good latency). A negative number specifies latching the specified
+time before the nominal hostmot2 read time.
 
 If no DPLL module is present in the FPGA firmware, or if the stepgen module
 does not support DPLL, then this pin is not created.
@@ -1233,11 +1291,11 @@ on the "is_opendrain" parameter.  Only full GPIO pins have this parameter.
 .TP
 (bit r/w) is_opendrain
 This parameter only has an effect if the
-"is_output" parameter is true.  If this parameter is false, the GPIO
+"is_output" parameter is True.  If this parameter is False, the GPIO
 behaves as a normal output pin: the IO pin on the connector is driven
 to the value specified by the "out" HAL pin (possibly inverted), and the
 value of the "in" and "in_not" HAL pins is undefined.  If this parameter
-is true, the GPIO behaves as an open-drain pin.  Writing 0 to the "out"
+is True, the GPIO behaves as an open-drain pin.  Writing 0 to the "out"
 HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the
 IO pin in a high-impedance state.  In this high-impedance state the IO
 pin floats (weakly pulled high), and other devices can drive the value;
@@ -1248,7 +1306,7 @@ instances have this parameter.
 .TP
 (bit r/w) invert_output
 This parameter only has an effect if the
-"is_output" parameter is true.  If this parameter is true, the output
+"is_output" parameter is True.  If this parameter is True, the output
 value of the GPIO will be the inverse of the value on the "out" HAL pin.
 Only full GPIO pins and IO pins used as outputs by active module instances
 have this parameter.
@@ -1295,16 +1353,16 @@ Pins:
 
 .TP
 (bit out) input and input-not
-true and inverted filtered input states.
+True and inverted filtered input states.
 
 .TP 
 (bit out) raw-input and raw-input-not
-true and inverted unfiltered input states.
+True and inverted unfiltered input states.
 
 .TP 
 (bit in) input-slow
-If true, selects the long time constant filter for the corresponding input bit, 
-if false the short time constant is used.
+If True, selects the long time constant filter for the corresponding input bit, 
+if False the short time constant is used.
 
 .TP 
 (s32 out) enc0-count,enc1-count,enc2-count,enc3-count
@@ -1322,19 +1380,19 @@ This sets the input scan rate in Hz. Default scan rate is 20 KHz
 .TP
 (u32 in) fast_scans
 This sets the fast time constant for all input pins. This is the time constant 
-used when the input-slow pin for the corresponding input is false. The range is 0 to 
+used when the input-slow pin for the corresponding input is False. The range is 0 to 
 63 scan periods and the default value is 5 = 250 uS at the default 20 Khz scan_rate.
 
 .TP
 (u32 in) slow_scans
 This sets the slow time constant for all input pins. This is the time constant 
-used when the input-slow pin for the corresponding input is true. The range is 0 to 1023
+used when the input-slow pin for the corresponding input is True. The range is 0 to 1023
 scan periods and the default value is 500 = 25 mS at the default 20 Khz scan_rate.
 
 .TP
 (bit in) enc0_4xmode, enc1_4xmode, enc2_4xmode, and enc3_4xmode
-These set the MPG encoder operating modes to 4X when true and 1X
-when false. 
+These set the MPG encoder operating modes to 4X when True and 1X
+when False. 
 
 .TP
 (u32 out) scan_width
@@ -1350,7 +1408,7 @@ Pins:
 .TP
 (bit in) CR<NN>
 The pins are numbered from CR01 upwards with the name
-corresponding to the PCB silkscreen. Setting the bit to "true" or 1 lights
+corresponding to the PCB silkscreen. Setting the bit to "True" or 1 lights
 the LED.
 
 .SH Solid State Relay
@@ -1413,13 +1471,13 @@ X and Y acceleration commands in units of fullscale_position/second^2
 
 .TP 
 (float in) posx_scale, posy_scale
-This sets the full scale range of the postion command and feedback
+This sets the full scale range of the position command and feedback
 default is +- 1.0
 
 .TP 
 (bit in) enable
-when false, output data is 0, all interpolator values are set to 0
-and overflow flags are cleared. Must be true for normal operation.
+when False, output data is 0, all interpolator values are set to 0
+and overflow flags are cleared. Must be True for normal operation.
 
 .TP 
 (u32 in) controlx, controly
@@ -1437,15 +1495,15 @@ When set, these enable the command mode where 16 bit command data is sent to the
 
 .TP 
 (bit in) 18bitmodex, 18bitmodey
-When true, these enable the 18 bit data mode for the respective channel
+When True, these enable the 18 bit data mode for the respective channel
 
 .TP 
 (bit out) posx-overflow, posy-overflow
-When true, these indicate an attempted postion move beyond the full scale value
+When true, these indicate an attempted position move beyond the full scale value
 
 .TP 
 (bit out) velx-overflow, vely-overflow
-When true, these indicate an attempted velocity update move beyond the full scale value
+When True, these indicate an attempted velocity update move beyond the full scale value
 
 .TP 
 (u32 out) status

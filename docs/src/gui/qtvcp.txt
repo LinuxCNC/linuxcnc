@@ -83,7 +83,18 @@ DISPLAY = qtvcp <options> <screen_name>
 ----
 Qtvcp assumes the UI file and the handler file use this same base name. +
 Qtvcp will search the LinuxCNC configuration file that was launched first for the files,  +
-then in the system skin folder. the skin folders holds standard screens. +
+then in the system skin folder. (The skin folders holds standard screens.) +
+
+----
+[DISPLAY]
+CYCLE_TIME = 100
+GRAPHICS_CYCLE_TIME = 100
+HALPIN_CYCLE = 100
+----
+
+Adjust the response rate of the GUI updates in milli seconds. Defaults to 100, useable range 50 - 200 +
+The widgets, graphics and HAL pin update can be set separately. +
+If the update time is not set right the screen can become unresponsive or very jerky. +
 
 === QTDesigner UI File
 

@@ -48,11 +48,13 @@ class Configurator(QMainWindow, object):
         self.layout = QHBoxLayout()  
         wid.setLayout(self.layout)
         self.setWindowTitle('QtPlasmaC Setup')
-        self.setFixedWidth(290)
         self.setFixedHeight(120)
         self.new = QPushButton('New')
+        self.new.setFixedWidth(90)
         self.rec = QPushButton('Reconfigure')
+        self.rec.setFixedWidth(90)
         self.can = QPushButton('Exit')
+        self.can.setFixedWidth(90)
         self.layout.addWidget(self.new, 0)
         self.layout.addWidget(self.rec, 1)
         self.layout.addWidget(self.can, 2)
@@ -60,6 +62,14 @@ class Configurator(QMainWindow, object):
         self.new.pressed.connect(lambda:self.on_selection('new'))
         self.rec.pressed.connect(lambda:self.on_selection('reconfigure'))
         self.can.pressed.connect(lambda:self.on_selection('cancel'))
+        self.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
+                          QLabel { min-height: 20 } \
+                          QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 } \
+                          QPushButton:pressed { color: #16160e; background: #ffee06 } \
+                          QLineEdit { border: 1px solid #ffee06; border-radius: 4; min-height: 20 } \
+                          QRadioButton::indicator { border: 1px solid #ffee06; border-radius: 4; min-height: 20; min-width: 20} \
+                          QRadioButton::indicator:checked { background: #ffee06 }' \
+                         )
 
     def on_selection(self, selection):
         width = self.frameGeometry().width()
@@ -122,6 +132,9 @@ class Configurator(QMainWindow, object):
         buttonN.setIcon(QIcon())
         buttonN.setText(name2)
         msgBox.setDefaultButton(QMessageBox.No)
+        msgBox.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
+                             QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 }' \
+                         )
         ret = msgBox.exec_()
         return ret
 
@@ -135,6 +148,9 @@ class Configurator(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
+        msgBox.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
+                             QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 }' \
+                         )
         ret = msgBox.exec_()
         return ret
 

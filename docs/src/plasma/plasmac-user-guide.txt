@@ -1287,12 +1287,12 @@ The maximum percentage allowed is 100%, values above this will be set to 100%.
 
 If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-Code program so the machine starts and ends in a known state.
 
-TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]* with a multiplier.
+TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]>* with a multiplier.
 
 For example:
 
 ----
-F[#<_hal[plasmac.cut-feed-rate] * 0.6]
+F[#<_hal[plasmac.cut-feed-rate]> * 0.6]
 ----
 
 IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
@@ -1893,9 +1893,104 @@ Once the torch position is satisfactory, press Resume Cut or the GUI’s Resume 
 
 Pressing Cancel (or the X in the title bar) will cause the torch to move back to where it was positioned when the motion became paused and the dialog box will close.
 
+[[scribe]]
+
+=== Scribe
+
+A scribe may be operated by PlasmaC in addition to the plasma torch. This ability is disabled by default so as not to adversely affect existing configurations. To enable scribing, see the <<multi-tool, Multiple Tools>> section for guidance in editing the <machine_name>_connections.hal file.
+
+Using a scribe requires the use of the LinuxCNC tool table. Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the scribe. The scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table. This is done by editing the tool table via the main GUI, or by editing the *tool.tbl* file in the *<machine_name>* configuration directory. This will be done after the scribe can move to the work piece to help determine the appropriate offset.
+
+The plasma torch offsets for X and Y will always be zero. The tools are selected by the *Tn M6* command followed by a *G43 H0* command which is required to apply the offsets. The tool is then started with a *M3 $n S1* command. For *n*, use 0 for torch cutting or 1 for scribing.
+
+If the user has not yet assigned the HAL pins for the scribe in the Configurator then they will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
+
+There are two HAL output pins used to operate the scribe, the first pin is used to arm the scribe which moves the scribe to the surface of the material. After the <<scribe-config, Arm Delay>> has elapsed, the second pin is used to start the scribe. After the <<scribe-config, On Delay>> has elapsed, motion will begin.
+
+Using PlasmaC after enabling the scribe requires the selection of either the torch or the scribe in each G-Code file as a LinuxCNC tool.
+
+The next step is to open the tool table editor in the GUI or edit *tool.tbl* in the *<machine_name>* configuration directory and enter the X and Y axes offsets. These are the distances in X and Y the scribe is away from the torch as measured from the center of the torch nozzle. In most cases, if the user is standing at the front of the machine and the scribe is to the right of the torch, a positive X offset would be required. Similarly, if the scribe is to the rear of the torch, a positive Y offset would be required. The offsets for the torch should always be zero.
+
+The final step is to set the <<scribe-config, scribe delays>> required:
+
+. *Arm Delay* - allows time for the scribe to descend to the surface of the material.
+. *On Delay* - allows time for the scribe to start before motion begins.
+
+Save the parameters in the Config tab.
+
+After the above directions are completed, the scribe may be tested manually by issuing a *M3 $1 S1* command in the MDI input. The user may find it helpful to use this method to scribe a small divot and then try to pulse the torch in the same location to align the offsets between the scribe and the torch.
+
+To use the scribe from G-Code:
+
+----
+...
+M52 P1 (paused motion on)
+F#<_hal[plasmac.cut-feed-rate]>
+T1 M6 (select scribe)
+G43 H0 (apply offsets for current tool)
+M3 $1 S1 (start the scribe)
+.
+M5 $1 (stop the scribe)
+.
+T0 M6 (select torch)
+G43 H0 (apply offsets for current tool)
+G0 X0 Y0 (parking position)
+M5 $-1 (end all)
+----
+
+It is a good idea to switch back to the torch at the end of the program before the final rapid parking move so the machine is always in the same state at idle.
+
+The user can switch between the torch and the scribe any number of times during a program by using the appropriate G-Codes.
+
+Issuing *M3 S1* (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $n) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-Code files.
+
+WARNING: If there is an existing manual tool change parameter set in the <machine_name>.hal file then PlasmaC will convert it to an automatic tool change.
+
+[[spotting]]
+
+=== Spotting
+
+To achieve spotting to mark the material prior to drilling etc., PlasmaC can pulse the torch for a short duration to mark the spot to drill.
+
+Spotting can be configured by following these steps:
+
+. Set the arc voltage threshold in the Spotting section of the <<config-panel, Config Panel>>. Setting the voltage threshold to zero will cause the delay timer to begin immediately upon starting the torch. Setting the voltage threshold above zero will cause the delay timer to begin when the arc voltage reaches the threshold voltage.
+. Set the *Time On* in the Spotting section of the <<config-panel, Config Panel>>. When the *Time On* timer has elapsed, the torch will turn off. Times are adjustable from 0 to 9999 milliseconds.
+
+The torch is then turned on in G-Code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
+
+To enable spotting, see <<multi-tool, multiple tools>>.
+
+LinuxCNC (PlasmaC) requires some motion between any *M3* and *M5* commands. For this reason, a minimal movement at a high speed is required to be programmed.
+
+An example G-Code is:
+
+----
+G21 (metric)
+F99999 (high feed rate)
+.
+.
+G0 X10 Y10
+M3 $2 S1 (spotting on)
+G91 (relative distance mode)
+G1 X0.000001
+G90 (absolute distance mode)
+M5 $2 (spotting off)
+.
+.
+G0 X0 Y0
+G90
+M2
+----
+
+NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machine's highest feed rate.
+
+IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
+IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
+
 [[shape-library]]
 
-=== Conversational Shape Library
+== Conversational Shape Library
 
 image::images/plasmac_conversational.png[width=40%]
 
@@ -2052,152 +2147,7 @@ The cut order of an array is from the left column to the right column, starting 
 
 The current job displayed in the Preview Panel may be saved at any time by using the bottom *Save* button. If the G-Code has been sent to LinuxCNC (PlasmaC) and the Conversational dialog box has closed, the user may still save the G-Code file from the GUI. Alternatively, the user could click the Conversational button in the Extras tab which will reload the job, at which time they can press the *Save* button.
 
-[[scribe]]
-
-=== Scribe
-
-A scribe may be operated by PlasmaC in addition to the plasma torch. This ability is disabled by default so as not to adversely affect existing configurations. To enable scribing, see the <<multi-tool, Multiple Tools>> section for guidance in editing the <machine_name>_connections.hal file.
-
-Using a scribe requires the use of the LinuxCNC tool table. Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the scribe. The scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table. This is done by editing the tool table via the main GUI, or by editing the *tool.tbl* file in the *<machine_name>* configuration directory. This will be done after the scribe can move to the work piece to help determine the appropriate offset.
-
-The plasma torch offsets for X and Y will always be zero. The tools are selected by the *Tn M6* command followed by a *G43 H0* command which is required to apply the offsets. The tool is then started with a *M3 $n S1* command. For *n*, use 0 for torch cutting or 1 for scribing.
-
-If the user has not yet assigned the HAL pins for the scribe in the Configurator then they will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
-
-There are two HAL output pins used to operate the scribe, the first pin is used to arm the scribe which moves the scribe to the surface of the material. After the <<scribe-config, Arm Delay>> has elapsed, the second pin is used to start the scribe. After the <<scribe-config, On Delay>> has elapsed, motion will begin.
-
-Using PlasmaC after enabling the scribe requires the selection of either the torch or the scribe in each G-Code file as a LinuxCNC tool.
-
-The next step is to open the tool table editor in the GUI or edit *tool.tbl* in the *<machine_name>* configuration directory and enter the X and Y axes offsets. These are the distances in X and Y the scribe is away from the torch as measured from the center of the torch nozzle. In most cases, if the user is standing at the front of the machine and the scribe is to the right of the torch, a positive X offset would be required. Similarly, if the scribe is to the rear of the torch, a positive Y offset would be required. The offsets for the torch should always be zero.
-
-The final step is to set the <<scribe-config, scribe delays>> required:
-
-. *Arm Delay* - allows time for the scribe to descend to the surface of the material.
-. *On Delay* - allows time for the scribe to start before motion begins.
-
-Save the parameters in the Config tab.
-
-After the above directions are completed, the scribe may be tested manually by issuing a *M3 $1 S1* command in the MDI input. The user may find it helpful to use this method to scribe a small divot and then try to pulse the torch in the same location to align the offsets between the scribe and the torch.
-
-To use the scribe from G-Code:
-
-----
-...
-M52 P1 (paused motion on)
-F#<_hal[plasmac.cut-feed-rate]>
-T1 M6 (select scribe)
-G43 H0 (apply offsets for current tool)
-M3 $1 S1 (start the scribe)
-.
-M5 $1 (stop the scribe)
-.
-T0 M6 (select torch)
-G43 H0 (apply offsets for current tool)
-G0 X0 Y0 (parking position)
-M5 $-1 (end all)
-----
-
-It is a good idea to switch back to the torch at the end of the program before the final rapid parking move so the machine is always in the same state at idle.
-
-The user can switch between the torch and the scribe any number of times during a program by using the appropriate G-Codes.
-
-Issuing *M3 S1* (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $n) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-Code files.
-
-WARNING: If there is an existing manual tool change parameter set in the <machine_name>.hal file then PlasmaC will convert it to an automatic tool change.
-
-[[spotting]]
-
-=== Spotting
-
-To achieve spotting to mark the material prior to drilling etc., PlasmaC can pulse the torch for a short duration to mark the spot to drill.
-
-Spotting can be configured by following these steps:
-
-. Set the arc voltage threshold in the Spotting section of the <<config-panel, Config Panel>>. Setting the voltage threshold to zero will cause the delay timer to begin immediately upon starting the torch. Setting the voltage threshold above zero will cause the delay timer to begin when the arc voltage reaches the threshold voltage.
-. Set the *Time On* in the Spotting section of the <<config-panel, Config Panel>>. When the *Time On* timer has elapsed, the torch will turn off. Times are adjustable from 0 to 9999 milliseconds.
-
-The torch is then turned on in G-Code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
-
-To enable spotting, see <<multi-tool, multiple tools>>.
-
-LinuxCNC (PlasmaC) requires some motion between any *M3* and *M5* commands. For this reason, a minimal movement at a high speed is required to be programmed.
-
-An example G-Code is:
-
-----
-G21 (metric)
-F99999 (high feed rate)
-.
-.
-G0 X10 Y10
-M3 $2 S1 (spotting on)
-G91 (relative distance mode)
-G1 X0.000001
-G90 (absolute distance mode)
-M5 $2 (spotting off)
-.
-.
-G0 X0 Y0
-G90
-M2
-----
-
-NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machine's highest feed rate.
-
-IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
-IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
-
-[[pm_comms]]
-
-=== Hypertherm PowerMax Communications
-
-Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
-
-If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
-
-Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
-
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
-
-This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the <machine_name>.ini file. If the PM_PORT variable is not set in the <machine_name>.ini file then the widgets associated with this feature will not be visible.
-
-Example showing enabling the Hypertherm PowerMax Communications on USB0:
-
-----
-[PLASMAC]
-PM_PORT = /dev/ttyusb0
-----
-
-If the user is unsure of the name of the port, there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the PlasmaC GUI.
-
-To use the test script enter the following command into a terminal window:
-
-----
-python ~/<user_name>/linuxcnc/configs/<the_user_config>/pmx_test.py
-----
-
-The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
-
-The PowerMax machine will go into remote mode after communications have been established and may only be controlled remotely (via the PlasmaC GUI) at this point. The connection can be validated by observing the PowerMax display.
-
-To switch the PowerMax back to local mode the user can either:
-
-. Disable PowerMax Comms from the Run panel
-. Close LinuxCNC which will put the PowerMax into local mode during shutdown.
-. Turn the PowerMax off for 30 seconds and then power it back on.
-
-TIP: If PowerMax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
-
-NOTE: To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
-If pyserial is not installed an error message will be displayed.
-
-To install pyserial, enter the following command into a terminal window:
-
-----
-sudo apt install python-serial
-----
-
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
+== Error Messages
 
 === Critical Errors
 
@@ -2250,6 +2200,14 @@ THC has caused the top limit to be reached while cutting:
 
 * *top limit reached while THC moving up program is paused*
 
+The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via float switch:
+
+* *pierce height would exceed Z axis maximum limit while float switch probing*
+
+The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via ohmic sensing:
+
+* *pierce height would exceed Z axis maximum limit while ohmic probing*
+
 === Warning errors
 
 Warning errors will not pause a running program and are informational only.
@@ -2277,6 +2235,8 @@ This indicates that the value for the Arc Voltage was invalid (NAN or INF) when 
 * *invalid arc-voltage-in*
 
 [[update-plasmac]]
+
+== Updating PlasmaC
 
 === Standard Update
 
@@ -2598,6 +2558,58 @@ The different states PlasmaC could encounter are as follows:
 |===
 
 The DEBUG state is for testing purposes only and will not normally be encountered.
+
+[[pm_comms]]
+
+=== Hypertherm PowerMax Communications
+
+Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
+
+If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
+
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
+
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
+
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the <machine_name>.ini file. If the PM_PORT variable is not set in the <machine_name>.ini file then the widgets associated with this feature will not be visible.
+
+Example showing enabling the Hypertherm PowerMax Communications on USB0:
+
+----
+[PLASMAC]
+PM_PORT = /dev/ttyusb0
+----
+
+If the user is unsure of the name of the port, there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the PlasmaC GUI.
+
+To use the test script enter the following command into a terminal window:
+
+----
+python ~/<user_name>/linuxcnc/configs/<the_user_config>/pmx_test.py
+----
+
+The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
+
+The PowerMax machine will go into remote mode after communications have been established and may only be controlled remotely (via the PlasmaC GUI) at this point. The connection can be validated by observing the PowerMax display.
+
+To switch the PowerMax back to local mode the user can either:
+
+. Disable PowerMax Comms from the Run panel
+. Close LinuxCNC which will put the PowerMax into local mode during shutdown.
+. Turn the PowerMax off for 30 seconds and then power it back on.
+
+TIP: If PowerMax communications is active then selecting <<mesh-mode, Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
+
+NOTE: To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
+If pyserial is not installed an error message will be displayed.
+
+To install pyserial, enter the following command into a terminal window:
+
+----
+sudo apt install python-serial
+----
+
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document as well as confirmed working interfaces.
 
 == Appendix
 
@@ -3034,6 +3046,22 @@ This assembly will now act as a relay that will switch on when current is flowin
 This will require that PlasmaC be operated in Mode 1 rather than Mode 0. See the <<ini-mode, INI File>> and <<plasmac-mode, PlasmaC Modes>> sections for more information.
 
 image::images/plasmac_reed_arc_ok.png[]
+
+== Known Issues
+
+=== Z Axis Retract Velocity Interruption
+
+There is a known issue caused by the interaction between the PlasmaC component's use of eoffsets and core LinuxCNC's M2 or M30 program end. This issue is believed to be caused by LinuxCNC processing the M2 or M30 command while the Z eoffsets are still "unwinding" and retracting the Z axis to the starting position. This extremely short interruption (approximately 1mS) causes the commanded velocity to drop from its current rate to zero and return to the current rate in a time period that will very often violate the MAX_ACCEL settings for the Z axis. This often results in a "joint following error" that is not caused by the usual joint following issues. While this issue affects all plasma tables using a GUI that utilizes the PlasmaC Component (AXIS, GMOCCAPY, and QtPlasmaC), a user with slower Z axis velocities may have been less likely to have the issue cause a joint following error.
+
+Through extensive testing it was found that inserting a small pause (via the parameter plasmac.dwell-time) before processing the M5 command alleviated the issue and is a suitable work around. The dwell time is defaulted to 160mS (.16S) and will work in conjunction with pause-at-end (with torch on) such that if pause-at-end is less than dwell-time, the dwell-time delay (with torch off) will be dwell-time minus pause-at-end. If pause-at-end (with torch on) is greater than or equal to dwell-time, the dwell-time delay (with torch off) will be zero.
+
+If the user's table experiences this issue even at the default value of 160mS (.16S), they can change the dwell-time delay by adding the following line to the <machine_name>_connections.hal file:
+
+----
+setp plasmac.dwell-time 0.16
+----
+
+Where 0.16 is the delay in Seconds.
 
 == Support
 

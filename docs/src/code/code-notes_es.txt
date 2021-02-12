@@ -1339,7 +1339,7 @@ información de la herramienta y enviarla a Tarea, que la pasa
 a IO. IO actualiza el ranura especificado en su interno
 copia de la tabla de herramientas (+ emcioStatus.tool.toolTable +), y
 si la herramienta especificada está cargada actualmente (se compara con
-+ emcioStatus.tool.toolInSpindle +) luego la información de la nueva herramienta
++emcioStatus.tool.toolInSpindle+ ) luego la información de la nueva herramienta
 se copia en el ranura 0 (el eje) también. (FIXME: eso es un
 buglet, solo debe copiarse en máquinas no aleatorias). Finalmente IO
 guarda la nueva tabla de herramientas.
@@ -1348,14 +1348,14 @@ guarda la nueva tabla de herramientas.
 husillo, y si la máquina es un cambiador de herramientas no aleatorio, entonces
 la nueva información de la herramienta se copia del ranura de inicio de la herramienta
 al ranura 0 (el huso) en la copia de interp de la tabla de herramientas,
-+ configuración-> tool_table +. (Esta copia no es necesaria en una herramienta aleatoria
++configuración-> tool_table+. (Esta copia no es necesaria en una herramienta aleatoria
 máquinas de cambio porque allí, las herramientas no tienen un ranura en casa y
 en su lugar, acabamos de actualizar la herramienta en el ranura 0 directamente).
 
 . Los parámetros numerados relevantes
 (<< sub: parámetros numerados, # 5400- # 5413 >>) se actualizan desde la herramienta
 información en el huso (copiando la información de interp's
-+ configuración-> tool_table + a + configuración-> parámetros +). (FIXME: esto es
++configuración-> tool_table+ a +configuración-> parámetros+). (FIXME: esto es
 un buglet, los params solo deberían actualizarse si era el actual
 herramienta que fue modificada).
 
@@ -1412,7 +1412,7 @@ fuera LinuxCNC.
 
 ==== IO
 
-+ emcioStatus + es de tipo + EMC_IO_STAT +
++emcioStatus+ es de tipo +EMC_IO_STAT+
 
 emcioStatus.tool.pocketPrepped ::
 
@@ -1434,13 +1434,13 @@ Cargado desde el archivo de la tabla de herramientas al inicio y mantenido allí
 después El índice 0 es el huso, los índices 1- (CANON_POCKETS_MAX-1)
 son los ranuras en el cambiador de herramientas. Esta es una copia completa
 de la información de la herramienta, mantenida por separado de la de Interp
-+ settings.tool_table +.
++settings.tool_table+.
 
 
 ==== interp
 
-+ settings + es de tipo + settings +, que es + struct setup_struct +.
-Definido en + src / emc / rs274ngc / interp_internal.hh +.
++settings+ es de tipo +settings+, que es +struct setup_struct+.
+Definido en +src / emc / rs274ngc / interp_internal.hh+.
 
 settings.selected_pocket ::
 
@@ -1467,7 +1467,7 @@ settings.toolchange_flag ::
 Interp establece esto en verdadero cuando llama a Canon CHANGE_TOOL ()
 función. Está marcado en + Interp :: convert_tool_length_offset () +
 para decidir qué ranura usar para G43 (sin palabra H):
-+ configuración-> current_pocket + si el cambio de herramienta aún está en progreso,
++configuración-> current_pocket+ si el cambio de herramienta aún está en progreso,
 ranura 0 (el husillo) si se completa el cambio de herramienta.
 
 settings.random_toolchanger ::
@@ -1485,9 +1485,9 @@ Esta es una variable + EmcPose +.
 
 * Se utiliza para calcular la posición en varios lugares.
 
-* Enviado a Motion a través del mensaje + EMCMOT_SET_OFFSET +.
+* Enviado a Motion a través del mensaje +EMCMOT_SET_OFFSET+.
 Todo el movimiento que se hace con los desplazamientos es exportarlos a los pines HAL
-+ motion.0.tooloffset. [xyzabcuvw] +. FIXME: exportarlos desde
++motion.0.tooloffset. [xyzabcuvw]+. FIXME: exportarlos desde
 algún lugar más cercano a la mesa de herramientas (io o interp, probablemente)
 y elimine el mensaje EMCMOT_SET_OFFSET.
 
@@ -1499,20 +1499,20 @@ actualmente no es útil y probablemente debería eliminarse.
 
 settings.tool_table ::
 
-Esta es una matriz de + CANON_TOOL_TABLE + estructuras (definidas en
-+ src / emc / nml_intf / emctool.h +), con + CANON_POCKETS_MAX + entradas.
+Esta es una matriz de +CANON_TOOL_TABLE+ estructuras (definidas en
++src / emc / nml_intf / emctool.h+), con +CANON_POCKETS_MAX+ entradas.
 Indizado por "número de ranura", también conocido como "número de ranura". El índice 0 es el
 husillo, los índices 1- (CANON_POCKETS_MAX-1) son los ranuras de la herramienta
 cambiador En un cambiador de herramientas al azar, los números de ranura son significativos.
 En un cambiador de herramientas no aleatorio, los ranuras no tienen sentido; el ranura
 los números en el archivo de la tabla de herramientas se ignoran y las herramientas se asignan
-para + tool_table + ranuras secuencialmente.
+para +tool_table+ ranuras secuencialmente.
 
 settings.tool_change_at_g30 ::
 settings.tool_change_quill_up ::
 settings.tool_change_with_spindle_on ::
 
-Estos se establecen a partir de variables ini en la sección + [EMCIO] +, y
+Estos se establecen a partir de variables ini en la sección +[EMCIO]+, y
 controlar cómo se realizan los cambios de herramienta.
 
 

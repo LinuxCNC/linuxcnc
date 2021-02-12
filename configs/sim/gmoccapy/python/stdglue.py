@@ -1,3 +1,8 @@
+#NOTE:
+#     The legacy names *selected_pocket* and *current_pocket* actually reference
+#     a sequential tooldata index for tool items loaded from a tool
+#     table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+
 #   This is a component of LinuxCNC
 #   Copyright 2014 Norbert Schechner <nieson@web.de>
 #

@@ -199,10 +199,10 @@ void userinit(int argc, char **argv)
 			case 1:
 				parity = toupper(optarg[0]);
 
-				if(parity != 'Y' && parity != 'N')
+				if(parity != 'E' && parity != 'O' && parity != 'N')
 				{
 					fprintf(stderr, 
-						"Invalid argument: parity must be 'y' or 'n'. Given '%s'\n", 
+						"Invalid argument: parity must be 'e', 'o' or 'n'. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}

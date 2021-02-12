@@ -1169,8 +1169,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     #dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firmraw")
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
-                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA1","TXDATA2","TXDATA3",
-                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
+                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA0", "TXDATA1","TXDATA2","TXDATA3",
+                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7"):
                         sserialchannels +=1
                 #dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firmraw")
                 if not tempcon in tempconlist:
@@ -1186,8 +1186,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         for k in range(0,placeholders):
                             #print "%d fill here with %d parts"% (k,placeholders)
                             temppinlist.append((_PD.NUSED,0))
-            if not sserialchannels == 0:
-                sserialchannels +=1
             # 7i96 doesn't number the connectors with P numbers so we fake it
             # TODO
             # probably should move the connector numbers to board data rather then firmware
@@ -2889,7 +2887,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                                 self.d[p] = _PD.I7I64_T
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
-                                                self.d[p] = _PD.I7I73_M0_T
+                                                self.d[p] = _PD.I7I73_M1_T
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
