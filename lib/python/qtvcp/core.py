@@ -134,7 +134,8 @@ class QComponent:
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
             t = inspect.getframeinfo(inspect.currentframe().f_back)
-            log.error(f"QComponent: Error making new HAL pin: {e}\n    {t[0]}\n    Line {t[1]}\n    Function: {t[2]}")
+            log.error("QComponent: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+                format(e, t[0], t[1], t[2]))
             p = DummyPin(*a, ERROR=e)
         return p
 
