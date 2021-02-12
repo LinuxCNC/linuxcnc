@@ -530,7 +530,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	    if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;
 	    if (hc_param->debug)
-		printf ("Register %i succesfully set to %i\n",
+		printf ("Register %i successfully set to %i\n",
 		hc_param->extra_reg[i], hc_param->extra_val[i]);
 	}
 
