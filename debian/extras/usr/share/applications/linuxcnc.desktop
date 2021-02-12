@@ -8,5 +8,5 @@ Terminal=false
 Name=LinuxCNC
 Comment=Linuxcnc Machine Controller
 StartupNotify=false
-Categories=Utility;Engineering;X-CNC_DOC;
+Categories=Utility;Engineering;X-CNC;
 Keywords=cnc;linuxcnc;cncprog;

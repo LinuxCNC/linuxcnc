@@ -5077,7 +5077,7 @@ ON</string>
                  </size>
                 </property>
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="jog_page">
                  <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5267,220 +5267,8 @@ ON</string>
                         <property name="spacing">
                          <number>4</number>
                         </property>
-                        <item row="3" column="0">
-                         <widget class="ActionButton" name="jog_a_minus">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Jog the A axis counter clockwise</string>
-                          </property>
-                          <property name="iconSize">
-                           <size>
-                            <width>32</width>
-                            <height>32</height>
-                           </size>
-                          </property>
-                          <property name="jog_joint_neg_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_neg_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="joint_number" stdset="0">
-                           <number>3</number>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>A</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="1" column="1">
-                         <widget class="ActionButton" name="jog_y_plus">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Jog the Y axis back</string>
-                          </property>
-                          <property name="iconSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="jog_joint_pos_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="joint_number" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>Y</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="1" column="0">
-                         <widget class="ActionButton" name="jog_a_plus">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Jog the A axis clockwise</string>
-                          </property>
-                          <property name="iconSize">
-                           <size>
-                            <width>32</width>
-                            <height>32</height>
-                           </size>
-                          </property>
-                          <property name="jog_joint_pos_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="joint_number" stdset="0">
-                           <number>3</number>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>A</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="3" column="3">
-                         <widget class="ActionButton" name="jog_z_minus">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Jog the Z axis down</string>
-                          </property>
-                          <property name="iconSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="jog_joint_neg_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_neg_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="joint_number" stdset="0">
-                           <number>2</number>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>Z</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="2" column="2">
-                         <widget class="ActionButton" name="jog_x_plus">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="maximumSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Jog the X axis right</string>
-                          </property>
-                          <property name="iconSize">
-                           <size>
-                            <width>40</width>
-                            <height>40</height>
-                           </size>
-                          </property>
-                          <property name="jog_joint_pos_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>X</string>
-                          </property>
-                         </widget>
-                        </item>
                         <item row="2" column="0">
-                         <widget class="ActionButton" name="jog_x_minus">
+                         <widget class="QPushButton" name="jog_x_minus">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -5508,19 +5296,134 @@ ON</string>
                             <height>40</height>
                            </size>
                           </property>
-                          <property name="jog_joint_neg_action" stdset="0">
-                           <bool>true</bool>
+                         </widget>
+                        </item>
+                        <item row="2" column="2">
+                         <widget class="QPushButton" name="jog_x_plus">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
                           </property>
-                          <property name="jog_selected_neg_action" stdset="0">
-                           <bool>false</bool>
+                          <property name="minimumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
                           </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>X</string>
+                          <property name="maximumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="statusTip">
+                           <string>Jog the X axis right</string>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QPushButton" name="jog_a_plus">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="statusTip">
+                           <string>Jog the A axis clockwise</string>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>32</width>
+                            <height>32</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="3" column="0">
+                         <widget class="QPushButton" name="jog_a_minus">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="statusTip">
+                           <string>Jog the A axis counter clockwise</string>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>32</width>
+                            <height>32</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="1">
+                         <widget class="QPushButton" name="jog_y_plus">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="statusTip">
+                           <string>Jog the Y axis back</string>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
                           </property>
                          </widget>
                         </item>
                         <item row="3" column="1">
-                         <widget class="ActionButton" name="jog_y_minus">
+                         <widget class="QPushButton" name="jog_y_minus">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -5548,22 +5451,10 @@ ON</string>
                             <height>40</height>
                            </size>
                           </property>
-                          <property name="jog_joint_neg_action" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                          <property name="jog_selected_neg_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="joint_number" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>Y</string>
-                          </property>
                          </widget>
                         </item>
                         <item row="1" column="3">
-                         <widget class="ActionButton" name="jog_z_plus">
+                         <widget class="QPushButton" name="jog_z_plus">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -5591,17 +5482,36 @@ ON</string>
                             <height>40</height>
                            </size>
                           </property>
-                          <property name="jog_joint_pos_action" stdset="0">
-                           <bool>true</bool>
+                         </widget>
+                        </item>
+                        <item row="3" column="3">
+                         <widget class="QPushButton" name="jog_z_minus">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
                           </property>
-                          <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
+                          <property name="minimumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
                           </property>
-                          <property name="joint_number" stdset="0">
-                           <number>2</number>
+                          <property name="maximumSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
                           </property>
-                          <property name="axis_letter" stdset="0">
-                           <string>Z</string>
+                          <property name="statusTip">
+                           <string>Jog the Z axis down</string>
+                          </property>
+                          <property name="iconSize">
+                           <size>
+                            <width>40</width>
+                            <height>40</height>
+                           </size>
                           </property>
                          </widget>
                         </item>

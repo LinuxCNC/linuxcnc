@@ -896,9 +896,6 @@ extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
-// Returns number of slots in carousel
-extern int GET_EXTERNAL_POCKETS_MAX();
-
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
 // tool in the spindle.

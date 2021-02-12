@@ -1287,12 +1287,12 @@ The maximum percentage allowed is 100%, values above this will be set to 100%.
 
 If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-Code program so the machine starts and ends in a known state.
 
-TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]* with a multiplier.
+TIP: Another way of achieving the same result is to use *F#<_hal[plasmac.cut-feed-rate]>* with a multiplier.
 
 For example:
 
 ----
-F[#<_hal[plasmac.cut-feed-rate] * 0.6]
+F[#<_hal[plasmac.cut-feed-rate]> * 0.6]
 ----
 
 IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.

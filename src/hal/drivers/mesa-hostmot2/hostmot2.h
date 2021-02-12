@@ -342,6 +342,7 @@ typedef struct {
 
 typedef struct {
     int num_instances;
+    int firmware_supports_probe;
 
     hm2_encoder_instance_t *instance;
 
@@ -591,11 +592,11 @@ typedef struct {
 } hm2_rcpwmgen_instance_t;
 
 
-// this hal param affects all rcpwmgen instances
+// this hal pin affects all rcpwmgen instances
 typedef struct {
     struct {
-        hal_float_t rate;
-    } param;
+        hal_float_t *rate;
+    } pin;
 } hm2_rcpwmgen_module_global_t;
 
 
@@ -1024,6 +1025,14 @@ typedef struct {
 // 
 // stepgen
 // 
+#define HM2_STEPGEN_SWAP_STEP_DIR       (1<<2)
+#define HM2_STEPGEN_LATCH_ON_INDEX      (1<<4)
+#define HM2_STEPGEN_INDEX_POLARITY      (1<<5)
+#define HM2_STEPGEN_LATCH_ON_PROBE      (1<<6)
+#define HM2_STEPGEN_PROBE_POLARITY      (1<<7)
+
+#define HM2_STEPGEN_LATCH_MASK  (0xffffff00)
+#define HM2_STEPGEN_MODE_MASK   (0x000000ff)
 
 typedef struct {
     struct {
@@ -1033,10 +1042,15 @@ typedef struct {
             hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
+            hal_float_t *position_latch;
             hal_float_t *velocity_fb;
             hal_bit_t *enable;
             hal_bit_t *control_type;   // 0="position control", 1="velocity control"
             hal_bit_t *position_reset; // reset position when true
+            hal_bit_t *index_enable;	
+            hal_bit_t *index_polarity;
+            hal_bit_t *latch_enable;
+            hal_bit_t *latch_polarity;
 
             // debug pins
             hal_float_t *dbg_ff_vel;
@@ -1058,6 +1072,7 @@ typedef struct {
             hal_u32_t dirhold;
 
             hal_u32_t step_type;
+            hal_bit_t swap_step_dir;
             hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
         } param;
 
@@ -1072,12 +1087,19 @@ typedef struct {
     // this is a 48.16 signed fixed-point representation of the current
     // stepgen position (16 bits of sub-step resolution)
     rtapi_s64 subcounts;
+    rtapi_s32 zero_offset;
 
     rtapi_u32 written_steplen;
     rtapi_u32 written_stepspace;
     rtapi_u32 written_dirsetup;
     rtapi_u32 written_dirhold;
     rtapi_u32 written_step_type;
+    rtapi_u32 written_swap_step_dir;
+    rtapi_u32 written_index_enable; 
+    rtapi_u32 written_probe_enable;
+    rtapi_u32 written_index_polarity; 
+    rtapi_u32 written_probe_polarity;
+
     rtapi_u32 table_width;
     
 } hm2_stepgen_instance_t;
@@ -1096,6 +1118,8 @@ typedef struct {
 
     rtapi_u32 clock_frequency;
     rtapi_u8 version;
+    int firmware_supports_swap;
+    int firmware_supports_index;
 
     // module-global HAL objects...
     hm2_stepgen_module_global_t *hal;
@@ -1124,7 +1148,6 @@ typedef struct {
     rtapi_u32 pulse_idle_width_addr;
     rtapi_u32 *pulse_idle_width_reg;
 
-    // FIXME: these two are not supported yet
     rtapi_u32 table_sequence_data_setup_addr;
     rtapi_u32 table_sequence_length_addr;
 

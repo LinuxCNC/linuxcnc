@@ -42,6 +42,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._actual_RPM = 0
         self._diameter = 1
         self._index = 0
+        self._tool_dia = 0
+        self._tool_offset = 0
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
 
         self.feed_override = True
@@ -120,6 +122,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('m-code-changed', lambda w, data: _f(data))
         elif self.tool_diameter:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data, 'diameter'))
+            STATUS.connect('metric-mode-changed', lambda w, data: self._switch_tool_diam_units(data))
         elif self.tool_comment:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
@@ -144,6 +147,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('periodic', self._set_timestamp)
         elif self.tool_offset:
             STATUS.connect('current-tool-offset', self._set_tool_offset_text)
+            STATUS.connect('metric-mode-changed', lambda w, data: self._switch_tool_offsets_units(data))
         elif self.gcode_selected:
             STATUS.connect('gcode-line-selected', lambda w, line: _f(int(line)+1))
         else:
@@ -203,6 +207,22 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.display_units_mm = data
         self._set_jograte(STATUS.get_jograte())
 
+    def _switch_tool_diam_units(self, units):
+        self.display_units_mm = units
+        data = self.conversion(self._tool_dia)
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
+
+    def _switch_tool_offsets_units(self, units):
+        self.display_units_mm = units
+        data = self.conversion(self._tool_offset)
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
+
     def _switch_max_velocity_units(self, widget, data):
         self.display_units_mm = data
         self._set_max_velocity(STATUS.get_max_velocity())
@@ -210,7 +230,12 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _tool_info(self, data, field):
         if data.id is not -1:
             if field == 'diameter':
-                self._set_text(data.diameter)
+                data = self.conversion(data.diameter)
+                self._tool_dia = data
+                if self.display_units_mm:
+                    self._set_alt_text(data)
+                else:
+                    self._set_text(data)
                 return
         self._set_text(0)
 
@@ -241,7 +266,12 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             self._set_text('')
 
     def _set_tool_offset_text(self, w, offsets):
-        self._set_text(offsets[self._index])
+        data = self.conversion(offsets[self._index])
+        self._tool_offset = offsets[self._index]
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
 
     def _ss_tool_diam(self, data):
         if data.id is not -1:

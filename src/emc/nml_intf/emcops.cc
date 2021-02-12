@@ -17,6 +17,7 @@
 
 #include "emc.hh"
 #include "emc_nml.hh"
+#include "tooldata.hh"
 
 EMC_AXIS_STAT::EMC_AXIS_STAT():
 EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
@@ -155,20 +156,16 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
 EMC_TOOL_STAT::EMC_TOOL_STAT():
 EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 {
-    int t;
-
-    pocketPrepped = 0;
-    toolInSpindle = 0;
-
-    for (t = 0; t < CANON_POCKETS_MAX; t++) {
-	toolTable[t].toolno = 0;
-    toolTable[t].pocketno = 0;
-        ZERO_EMC_POSE(toolTable[t].offset);
-	toolTable[t].diameter = 0.0;
-	toolTable[t].orientation = 0;
-	toolTable[t].frontangle = 0.0;
-	toolTable[t].backangle = 0.0;
+    pocketPrepped = 0; // idx
+    toolInSpindle = 0; // toolno
+#ifdef TOOL_NML //{
+    int idx;
+    for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        toolTable[idx] = tooldata_entry_init();
     }
+#else //}{
+    toolTableCurrent = tooldata_entry_init();
+#endif //}
 }
 
 EMC_AUX_STAT::EMC_AUX_STAT():
@@ -208,20 +205,27 @@ EMC_LUBE_STAT_MSG(EMC_LUBE_STAT_TYPE, sizeof(EMC_LUBE_STAT))
 // overload = , since class has array elements
 EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 {
-    int t;
+    pocketPrepped = s.pocketPrepped; // idx
+    toolInSpindle = s.toolInSpindle; // toolno
 
-    pocketPrepped = s.pocketPrepped;
-    toolInSpindle = s.toolInSpindle;
-
-    for (t = 0; t < CANON_POCKETS_MAX; t++) {
-	toolTable[t].toolno = s.toolTable[t].toolno;
-    toolTable[t].pocketno = s.toolTable[t].pocketno;
-	toolTable[t].offset = s.toolTable[t].offset;
-	toolTable[t].diameter = s.toolTable[t].diameter;
-	toolTable[t].frontangle = s.toolTable[t].frontangle;
-	toolTable[t].backangle = s.toolTable[t].backangle;
-	toolTable[t].orientation = s.toolTable[t].orientation;
+#ifdef TOOL_NML //{
+    int idx;
+    for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
+        toolTable[idx].toolno = s.toolTable[idx].toolno;
+        toolTable[idx].pocketno = s.toolTable[idx].pocketno;
+        toolTable[idx].offset = s.toolTable[idx].offset;
+        toolTable[idx].diameter = s.toolTable[idx].diameter;
+        toolTable[idx].frontangle = s.toolTable[idx].frontangle;
+        toolTable[idx].backangle = s.toolTable[idx].backangle;
+        toolTable[idx].orientation = s.toolTable[idx].orientation;
     }
+#else //}{
+    struct CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,0) != IDX_OK) {
+        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+    }
+    toolTableCurrent = tdata;
+#endif //}
 
     return s;
 }

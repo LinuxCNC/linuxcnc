@@ -1,0 +1,19 @@
+db_ran.ini       random_toolchanger
+db_nonran.ini nonrandom_toolchanger
+
+Each config starts with:
+  tool    numbers 10--19
+  pockets numbers 11--20
+
+tool 10 in pocket 11
+tool 11 in pocket 12
+...
+
+
+To get more information (stdout):
+
+1) export DB_SHOW=
+   show 'g' (get) command
+
+2) export DB_DEBUG=
+   show more database info

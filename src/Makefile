@@ -99,6 +99,12 @@ ifeq ($(RTPREFIX),)
 $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
+ifeq ($(TOOL_NML),yes)
+  TOOL_NML_FLAG := -DTOOL_NML
+  $(info TOOL_NML_FLAG =$(TOOL_NML_FLAG))
+else
+endif
+
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; fi ;)
 cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
@@ -147,6 +153,7 @@ SUBDIRS := \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     emc/motion-logger \
+    emc/tooldata \
     \
     module_helper \
     \
@@ -218,6 +225,9 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-i
 CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
 CXXFLAGS += $(call cxx-option, -Wno-psabi)
 CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
+
+CFLAGS   += $(TOOL_NML_FLAG)
+CXXFLAGS += $(TOOL_NML_FLAG)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS) $(LDFLAGS)
@@ -301,7 +311,6 @@ HEADERS := \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
     emc/ini/inijoint.hh \
-    emc/ini/initool.hh \
     emc/ini/initraj.hh \
     emc/ini/inihal.hh \
     emc/kinematics/cubic.h \
@@ -688,7 +697,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../share/linuxcnc/pncconf/*.glade $(DESTDIR)$(prefix)/share/linuxcnc/pncconf
 	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
-	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../configs/common/linuxcnc.nml     $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../configs/common/linuxcnc_big.nml $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 
@@ -706,6 +716,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.5
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.7
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.9
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.11
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/writer
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib/writer/ext
@@ -729,6 +740,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.5/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.5
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.7/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.7
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.9/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.9
+	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.11/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.11
 	$(FILE) ../lib/python/qtvcp/widgets/*.py $(DESTDIR)$(SITEPY)/qtvcp/widgets
 	$(FILE) ../lib/python/qtvcp/widgets/widget_icons/*.png ../lib/python/qtvcp/widgets/widget_icons/*.gif $(DESTDIR)$(SITEPY)/qtvcp/widgets/widget_icons
 	$(FILE) ../lib/python/qtvcp/plugins/*.py $(DESTDIR)$(SITEPY)/qtvcp/plugins
@@ -763,6 +775,7 @@ install-python: install-dirs
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtplasmac-setup $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-materials $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
@@ -1283,4 +1296,3 @@ cscope:
 cscopeclean:
 	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
 # vim:ts=8:sts=8:sw=8:noet:
-

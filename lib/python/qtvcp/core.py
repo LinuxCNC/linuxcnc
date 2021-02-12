@@ -92,7 +92,7 @@ class QPin(hal.Pin, QObject):
         QPin.UPDATE = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_all)
-        self.timer.start(INI.GRAPHICS_CYCLE_TIME)
+        self.timer.start(INI.HALPIN_CYCLE_TIME)
 
     @classmethod
     def update_stop(self):

@@ -141,6 +141,8 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 6: return "Table5Pin";
                 case 7: return "Table6Pin";
                 case 8: return "Table7Pin";
+                case 9: return "Index";
+                case 10: return "Probe";
             }
             break;
 
@@ -508,6 +510,8 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 6: return "table5";
                 case 7: return "table6";
                 case 8: return "table7";
+                case 9: return "index";
+                case 10: return "probe";
             }
             break;
 
@@ -836,6 +840,7 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->num_pins; i ++) {
         hm2_pin_t *pin = &(hm2->pin[i]);
+
         char connector_pin_name[100];
 
         if (hm2->llio->io_connector_pin_names == NULL) {
@@ -848,7 +853,7 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
         }
 
         if (pin->gtag == pin->sec_tag) {
-            if(pin->sec_unit & 0x80)
+            if(pin->sec_unit & 0x80)				// global pins have a 0x80 secondary unit #
                 HM2_PRINT(
                     "    IO Pin %03d (%s): %s (all), pin %s (%s)\n",
                     i,

@@ -83,11 +83,11 @@ setup_menu_accel .menu.file end [_ "_Properties..."]
 
 .menu.file add command \
     -command edit_tooltable
-setup_menu_accel .menu.file end [_ "Edit _tool table..."]
+setup_menu_accel .menu.file end [_ "Edit _tool data..."]
 
 .menu.file add command \
 	-command reload_tool_table
-setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
+setup_menu_accel .menu.file end [_ "Reload tool _data"]
 
 .menu.file add separator
 
@@ -1789,9 +1789,9 @@ proc update_state {args} {
         {.menu.machine "Skip lines with '_/'"} .toolbar.program_blockdelete
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
         .toolbar.program_run {.menu.machine "_Run program"} \
-        {.menu.file "Reload tool ta_ble"}
+        {.menu.file "Reload tool _data"}
     state  {$interp_state == $INTERP_IDLE} \
-        {.menu.file "Edit _tool table..."}
+        {.menu.file "Edit _tool data..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
         {.menu.machine "Homin_g" "_Unhoming" "_Zero coordinate system"}

@@ -738,7 +738,7 @@ and cause task to actually do anything. That will go into the
 Iocontrol provides two HAL interaction sequences we might or might not
 use:
 
-- when the NML message queued by a SELECT_POCKET() canon command is
+- when the NML message queued by a SELECT_TOOL() canon command is
 executed, this triggers the "raise tool-prepare and wait for
 tool-prepared to become high" HAL sequence in iocontrol, besides
 setting the XXXX pins
@@ -820,8 +820,14 @@ So we need a prolog, and an epilog. Lets assume our ini file incantation of the 
 So the prolog covering steps 1 and 2 would look like so - we decide to
 pass a few variables to the remap procedure which can be inspected and
 changed there, or used in a message. Those are: `tool_in_spindle`,
-`selected_tool` (tool numbers) and their respective pockets
+`selected_tool` (tool numbers) and their respective tooldata indices
 `current_pocket` and `selected_pocket`:
+
+[NOTE]
+The legacy names *selected_pocket* and *current_pocket* actually reference
+a sequential tooldata index for tool items loaded from a tool
+table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+ 
 
 [source,python]
 ---------------------------------------------------------------------
@@ -1053,7 +1059,7 @@ def prepare_epilog(self, **words):
         if self.return_value > 0:
             self.selected_tool = int(self.params["tool"])
             self.selected_pocket = int(self.params["pocket"])
-            emccanon.SELECT_POCKET(self.selected_pocket, self.selected_tool)
+            emccanon.SELECT_TOOL(self.selected_tool)
             return INTERP_OK
         else:
             return "T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value)
@@ -1792,7 +1798,7 @@ tool table is ignored. This is currently a restriction.
   from the subroutine's parameter space. This means that the NGC
   procedure could change these values, and the epilog takes the
   changed values in account.
-- then, the Canon command `SELECT_POCKET(#<pocket>,#<tool>)` is executed.
+- then, the Canon command `SELECT_TOOL(#<tool>)` is executed.
 
 === M6: +change_prolog+ and +change_epilog+ 
 
@@ -1818,7 +1824,7 @@ Then, the following parameters are exported to the NGC procedure:
 
 - `#<tool_in_spindle>` : the tool number of the currently loaded tool
 - `#<selected_tool>` : the tool number selected 
-- `#<selected_pocket>` : the selected tool's pocket number
+- `#<selected_pocket>` : the selected tool's tooldata index
 
 .Actions of +change_epilog+
 
@@ -2521,13 +2527,14 @@ results.
 .Interpreter action on a Tx command
 
 All the interpreter does is evaluate the toolnumber parameter, looks up
-its corresponding pocket, remembers it in the `selected_pocket`
+its corresponding tooldata index, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
-(SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
+(SELECT_TOOL). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
-.Task action on SELECT_POCKET
 
-When task gets around to handle a SELECT_POCKET, it sends a
+.Task action on SELECT_TOOL
+
+When task gets around to handle a SELECT_TOOL, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
 tool-related actions in LinuxCNC.
 

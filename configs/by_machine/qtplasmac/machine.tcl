@@ -99,3 +99,4 @@ if {[info exists ::QTPLASMAC(ESTOP_TYPE)]} {
         net sim:estop-1-raw iocontrol.0.user-enable-out => estop_not_1.in
         net sim:estop-1-in estop_not_1.out => estop_or.in1
     }
+}

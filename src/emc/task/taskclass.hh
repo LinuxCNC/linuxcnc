@@ -19,8 +19,6 @@
 #define TASKCLASS_HH
 
 #include "emc.hh"
-#include "initool.hh"
-#include "tool_parse.h"
 #include "inifile.hh"
 
 class Task {

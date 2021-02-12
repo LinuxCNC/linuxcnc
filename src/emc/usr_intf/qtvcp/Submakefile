@@ -1,4 +1,5 @@
 PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-setup
+PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-materials
 
 ../bin/qtvcp: emc/usr_intf/qtvcp/qtvcp.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
@@ -7,6 +8,12 @@ PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-setup
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 ../bin/qtplasmac-setup: emc/usr_intf/qtvcp/qtplasmac-setup.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../bin/qtplasmac-materials: emc/usr_intf/qtvcp/qtplasmac-materials.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)

@@ -655,13 +655,13 @@ can be added easily without changes to the source code.
     Return number of the current tool in spindle. Same as #5400.
 
 * '#<_current_pocket>' -
-    Return pocket number of the current tool.
+    Return the tooldata index for the current tool.
 
 * '#<_selected_tool>' -
     Return number of the selected tool post a T code. Default -1.
 
 * '#<_selected_pocket>' -
-    Return number of the selected pocket post a T code. Default -1
+    Return the tooldata index of the selected pocket post a T code. Default -1
     (no pocket selected).
 
 * '#<_value>' -

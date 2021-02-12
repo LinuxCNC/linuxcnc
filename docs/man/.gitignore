@@ -1,6 +1,6 @@
 index.db
 *.png
-!hal_descriptions/*.png
+
 CACHEDIR.TAG
 cat1/
 cat3/

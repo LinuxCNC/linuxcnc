@@ -75,6 +75,61 @@ Only one widget of a group can be true at a time. +
 
 It is based on pyQT's QRadioButton
 
+=== Round Gauge
+
+.Round Gauge
+image::images/qtvcp_round_gauge.png["QTvcp round gauge",scale="25%"]
+
+Round Gauge can be used in a linuxcnc GUI to display an input parameter on the dial face.
+There are several properties that are user settable in order to customize the appearance of the gauge.
+
+There are 2 inputs that are not customizable. They can be set via HAL pins, programmatically or via signals from other widgets.
+The non customizable parameters are:
+
+* 'Value' -
+This is the input value that will be displayed with the gauge needle and in the digital readout.
+It must be set to a value between 0 and the maximum value.
+
+* 'Setpoint' -
+This is a value that determines the location of a small marker on the gauge face. 
+It must be set to a value between 0 and the maximum value.
+
+
+The following parameters can be set either programmatically or via the designer property editor. +
+The custom parameters are:
+
+* 'halpin_option' -
+Setting this True will create 2 HAL pins. One is for setting the value input and the other is for setting the setpoint.
+If this option is not set, then value and setpoint must be connected programmatically, ie., in the handler file.
+
+* 'max_reading' -
+This value determines the highest number that will be displayed on the gauge face.
+
+* 'max_value' -
+This is the maximum expected value of the value input signal. In other words, it is the full scale input.
+
+* 'num_ticks' -
+This is the number of ticks, or gauge readings that will be displayed on the gauge face.
+It should be set to a number that ensures the text readings around the gauge face are readable.
+The minumum allowed value is 2.
+
+* 'zone1_color' -
+Zone1 extends from the maximum reading to the threshold point. It can be set to any RGB color.
+
+* 'zone2_color' -
+Zone2 extends from the threshold point to the minimum reading, which is 0. It can be set to any RGB color.
+
+* 'bezel_color' -
+This is the color of the outer ring of the gauge.
+
+* 'threshold' -
+The threshold is the transition point between the zones. It should be set to a value between 0 and the maximum value.
+The maximum allowed value is set to the gauge maximum value and minimum value is 0.
+
+* 'gauge_label' -
+This is the text that appears below the value readout, near the bottom of the gauge.
+The function of the gauge is then easily visible.
+
 === Push Button Widget
 
 This widget allows a user to set a HAL pin true or false. +

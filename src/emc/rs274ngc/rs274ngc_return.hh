@@ -121,7 +121,7 @@
 #define NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED _("Negative or zero q value used")
 #define NCE_NEGATIVE_P_WORD_USED _("Negative p word used")
 #define NCE_NEGATIVE_SPINDLE_SPEED_USED _("Negative spindle speed used")
-#define NCE_NEGATIVE_TOOL_ID_USED _("Negative tool id used")
+#define NCE_NEGATIVE_TOOL_ID_USED _("Negative tool id (tool not found)")
 #define NCE_NESTED_COMMENT_FOUND _("Nested comment found")
 #define NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE _("No characters found in reading real value")
 #define NCE_NON_INTEGER_VALUE_FOR_INTEGER _("Non integer value for integer")

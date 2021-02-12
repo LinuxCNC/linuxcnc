@@ -12,7 +12,8 @@ $(call TOOBJSDEPS, $(TOGLMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
-$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
+              ../lib/liblinuxcncini.so ../lib/libtooldata.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
 

@@ -1,3 +1,8 @@
+/*misnomer: _setup.current_pocket,selected_pocket
+**          These are indexes to sequential tooldata entries
+**          but the names are not changed due to frequent
+**          legacy usage in py files used for remapping
+*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *

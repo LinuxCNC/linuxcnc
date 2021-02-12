@@ -803,7 +803,7 @@ class LivePlotter:
         limits = soft_limits()
 
         if (   self.stat.tool_offset   != o.last_tool_offset
-            or self.stat.tool_table[0] != o.last_tool):
+            or self.stat.tool_in_spindle != o.last_tool):
             o.redraw_dro()
         if (self.logger.npts != self.lastpts
                 or limits != o.last_limits
@@ -816,7 +816,7 @@ class LivePlotter:
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_offset != o.last_tool_offset
-                or self.stat.tool_table[0] != o.last_tool
+                or self.stat.tool_in_spindle != o.last_tool
                 or self.stat.motion_mode != self.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
@@ -829,7 +829,7 @@ class LivePlotter:
             o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
             self.last_motion_mode = self.stat.motion_mode
-            o.last_tool = self.stat.tool_table[0]
+            o.last_tool = self.stat.tool_in_spindle
             o.last_tool_offset = self.stat.tool_offset
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
@@ -1874,7 +1874,7 @@ def ja_from_rbutton():
     ja = vars.ja_rbutton.get()
     if not all_homed() and lathe and not lathe_historical_config():
         axes = "xzabcuvw"
-    else:       
+    else:
         axes = "xyzabcuvw"
 
     try: # ja may be a joint number or an axis coordinate letter
@@ -2281,6 +2281,9 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def edit_tooltable(*event):
+        if db_program is not None and tooleditor is not None:
+            root_window.tk.call("exec",tooleditor)
+            return
         if tooltable is None:
             pass
         else:
@@ -2529,7 +2532,7 @@ class TclCommands(nf.TclCommands):
         else:
             ensure_mode(linuxcnc.MODE_MANUAL)
             set_motion_teleop(0)
-   
+
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
@@ -3440,8 +3443,18 @@ lathe_backtool = bool(inifile.find("DISPLAY", "BACK_TOOL_LATHE"))
 foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
-tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
-tooltable = inifile.find("EMCIO", "TOOL_TABLE")
+
+tooltable  = inifile.find("EMCIO", "TOOL_TABLE")
+db_program = inifile.find("EMCIO", "DB_PROGRAM")
+if (db_program is not None and tooltable is not None):
+    print("%s:DB_PROGRAM specified: TOOL_TABLE=%s is not used"%
+         (sys.argv[0],tooltable))
+
+default_tooleditor = "tooledit"
+if db_program is not None: default_tooleditor = None
+
+tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
+
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
     raise SystemExit("Missing ini file setting for [RS274NGC]PARAMETER_FILE")
 try:

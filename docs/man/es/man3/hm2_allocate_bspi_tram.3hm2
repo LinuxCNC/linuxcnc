@@ -34,5 +34,5 @@ Devuelve 0 en caso de éxito y \-1 en caso de error.
 \fBhm2_bspi_write_chan(3hm2)\fR,
 \fBhm2_tram_add_bspi_frame(3hm2)\fR,
 Consulte src/hal/drivers mesa_7i65.comp para ver un ejemplo de uso.
-\ # Autor Andy Pugh
-\ # Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
