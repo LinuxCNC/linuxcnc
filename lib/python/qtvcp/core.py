@@ -67,11 +67,11 @@ class QPin(hal.Pin, QObject):
         return False
 
     @classmethod
-    def update_all(self):
-        if not self.UPDATE:
+    def update_all(cls):
+        if not cls.UPDATE:
             return
         kill = []
-        for p in self.REGISTRY:
+        for p in cls.REGISTRY:
             try:
                 p.update()
             except Exception as e:
@@ -79,20 +79,20 @@ class QPin(hal.Pin, QObject):
                 log.error("Error updating pin {}; Removing".format(p))
                 log.exception(e)
         for p in kill:
-            self.REGISTRY.remove(p)
-        return self.UPDATE
+            cls.REGISTRY.remove(p)
+        return cls.UPDATE
 
     @classmethod
-    def update_start(self):
+    def update_start(cls):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_all)
-        self.timer.start(INI.HALPIN_CYCLE_TIME)
+        cls.timer = QTimer()
+        cls.timer.timeout.connect(cls.update_all)
+        cls.timer.start(INI.HALPIN_CYCLE_TIME)
 
     @classmethod
-    def update_stop(self):
+    def update_stop(cls):
         QPin.UPDATE = False
 
 
@@ -199,6 +199,7 @@ class Action(_ActionParent):
             cls._instance = _ActionParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
+
 ################################################################
 # TStat class
 ################################################################
@@ -213,6 +214,7 @@ class Tool(_TStatParent):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
 
 ################################################################
 # PStat class
