@@ -765,7 +765,7 @@ static gboolean key_press(GtkWidget *clist, GdkEventKey *event, gpointer user_da
         while (data_good != 0) {
             key = (gdk_keyval_name (event->keyval));
             data_good = gtk_clist_get_text(GTK_CLIST(clist), row, 0, &name );
-            printf("check: %s %c\n",key,name[0]);
+            // printf("check: %s %c\n",key,name[0]);
 
             /* is keypress same as first letter of name? */
             if (*key == name[0]) {
