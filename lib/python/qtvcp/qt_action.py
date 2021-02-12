@@ -204,6 +204,12 @@ class _Lcnc_Action(object):
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
+        if fname.count('.') > 1:
+            e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+            log.debug(e)
+            return
+
         if flt:
             log.debug('get {} filtered program {}'.format(flt, fname))
             self.open_filter_program(str(fname), flt)
@@ -219,13 +225,20 @@ class _Lcnc_Action(object):
 
     def SAVE_PROGRAM(self, source, fname):
         # no gcode - ignore
-        if source == '': return
+        if source == '':
+            return
 
+        npath = None
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
             if '.' not in path:
                 path += '.ngc'
+            if path.count('.') > 1:
+                e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                log.debug(e)
+                return
             name, ext = path.rsplit('.')
             npath = name + '.' + ext.lower()
         except Exception as e:
@@ -235,6 +248,7 @@ class _Lcnc_Action(object):
         log.debug('SAVE_PROGRAM write to: {}'.format(npath))
 
         # ok write the file
+        outfile = None
         try:
             outfile = open(npath, 'w')
             outfile.write(source)
