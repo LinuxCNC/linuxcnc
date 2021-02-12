@@ -374,7 +374,7 @@ class Private_Data:
             S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E, 
             S.I7I76_M0_T, S.I7I76_M0_R, S.I7I76_M0_E, S.I7I76_M2_T, S.I7I76_M2_R, S.I7I76_M2_E,
             S.I7I77_M0_T, S.I7I77_M0_R, S.I7I77_M0_E, S.I7I77_M3_T, S.I7I77_M3_R, S.I7I77_M3_E,
-            S.I7I73_M0_T, S.I7I73_M0_R, S.I7I73_M0_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
+            S.I7I73_M1_T, S.I7I73_M1_R, S.I7I73_M1_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
             S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3_E,
         ) = self.hal_sserial_names = [
             "unused-sserial","8i20-t","8i20-r","8i20-e",

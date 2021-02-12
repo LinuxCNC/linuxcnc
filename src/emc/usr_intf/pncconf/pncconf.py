@@ -2884,7 +2884,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                                 self.d[p] = _PD.I7I64_T
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
-                                                self.d[p] = _PD.I7I73_M0_T
+                                                self.d[p] = _PD.I7I73_M1_T
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
