@@ -207,7 +207,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def listClicked(self, index):
         # the signal passes the index of the clicked item
-        dir_path = self.model.filePath(index)
+        dir_path = os.path.normpath(self.model.filePath(index))
         if self.model.fileInfo(index).isFile():
             self.currentPath = dir_path
             self.textLine.setText(self.currentPath)
@@ -225,9 +225,9 @@ class FileManager(QWidget, _HalWidgetBase):
     # jump directly to a saved path shown on the button
     def onJumpClicked(self):
         data = self.button2.text()
-        if data == 'Media':
+        if data.upper() == 'MEDIA':
             self.showMediaDir()
-        elif data == 'User':
+        elif data.upper() == 'USER':
             self.showUserDir()
         else:
             temp = self._jumpList.get(data)
@@ -239,11 +239,11 @@ class FileManager(QWidget, _HalWidgetBase):
 
     # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
-        if data == 'Media':
+        if data.upper() == 'MEDIA':
             self.button2.setText('{}'.format(data))
             self.button2.setToolTip('Jump to Media directory.\nLong press for Options.')
             self.showMediaDir()
-        elif data == 'User':
+        elif data.upper() == 'USER':
             self.button2.setText('{}'.format(data))
             self.button2.setToolTip('Jump to User directory.\nLong press for Options.')
             self.showUserDir()
