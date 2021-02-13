@@ -1,4 +1,4 @@
-VERSION = '0.9.35'
+VERSION = '0.9.36'
 
 import os, sys
 from shutil import copy as COPY
@@ -1147,7 +1147,7 @@ class HandlerClass:
             self.set_jog_button_state()
 
     def consumable_change_changed(self, value):
-        if not value:
+        if not value and self.ccButton:
             if STATUS.is_interp_paused():
                 self.w[self.ccButton].setEnabled(True)
             else:
