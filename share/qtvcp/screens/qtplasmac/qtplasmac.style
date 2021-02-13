@@ -482,7 +482,7 @@ QComboBox QListView {
 
 /****** MATERIAL SELECTOR COMBO BOX ************/
 #material_selector {
-    color: background;
+    color: backgnd;
     background: frames;
     border: none;
     border-top-left-radius: 2px;
@@ -500,7 +500,7 @@ QComboBox QListView {
 #material_selector:!editable:on,
 #material_selector::drop-down:editable:on {
     color: frames;
-    background: background }
+    background: backgnd }
 
 #material_selector QListView {
     border-color: frames }

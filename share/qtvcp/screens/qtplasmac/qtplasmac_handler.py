@@ -1,4 +1,4 @@
-VERSION = '0.9.32'
+VERSION = '0.9.33'
 
 import os, sys
 from shutil import copy as COPY
@@ -55,13 +55,17 @@ class VLine(QFrame):
         super(VLine, self).__init__()
         self.setFrameShape(self.VLine|self.Plain)
 
-class overlayMaterial(QLabel):    
-    def __init__(self, parent=None):        
-        super(overlayMaterial, self).__init__(parent)
+class OverlayMaterial(QLabel):
+    def __init__(self, parent=None):
+        super(OverlayMaterial, self).__init__(parent)
         self.setStyleSheet('font: 12pt "Courier";\
                             color: #cccccc;\
                             background: rgba(1,0,0,255)')
         self.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+
+class ColorError(Exception):
+    # dummy class to raise an exception for style issues
+    pass
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -75,6 +79,7 @@ class HandlerClass:
         #         print('{} = {}'.format(item, getattr(self.PATHS, item)))
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
+        self.foreColor = '#ffee06'
 # if older development version, exit and warn the user. This can be removed down the track
         if './common' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH') or \
            './plasmac' in self.iniFile.find('RS274NGC', 'SUBROUTINE_PATH'):
@@ -170,13 +175,13 @@ class HandlerClass:
         self.rflActive = False
         self.jogInhibit = ''
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
+        self.thButton, self.ctButton, self.tpButton, self.ptButton, self.ccButton = '', '', '', '', ''
 
     def initialized__(self):
         self.make_hal_pins()
         self.init_preferences()
         self.init_widgets()
         self.link_hal_pins()
-        self.set_color_styles()
         self.set_signal_connections()
         self.set_axes_and_joints()
         self.set_spinbox_parameters()
@@ -217,6 +222,7 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
+        self.set_color_styles()
         self.startupTimer.start(250)
 
     def startup_timeout(self):
@@ -512,7 +518,7 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
-        self.overlay = overlayMaterial(self.w.gcodegraphics)
+        self.overlay = OverlayMaterial(self.w.gcodegraphics)
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
@@ -583,15 +589,6 @@ class HandlerClass:
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
 #        self.w.PREFS_.putpref('Preview grid size', int(self.w.grid_size.value() * 100) / 100, float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Foreground',  self.w.color_foregrnd.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Highlight', self.w.color_foregalt.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('LED', self.w.color_led.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Background', self.w.color_backgrnd.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Background Alt', self.w.color_backgalt.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Frames', self.w.color_frams.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Estop', self.w.color_estop.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Disabled', self.w.color_disabled.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.w.PREFS_.putpref('Preview', self.w.color_preview.styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
         self.w.PREFS_.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
@@ -859,12 +856,12 @@ class HandlerClass:
         else:
             self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
-            if QColor(self.w.height_ovr_label.palette().color(QPalette.Foreground)).name() == self.foreColor:
-                self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.backColor))
+            if self.w.height_ovr_label.text() == '':
+                self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
             else:
-                self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
+                self.w.height_ovr_label.setText('')
         else:
-            self.w.height_ovr_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.foreColor))
+            self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         if self.startLine > 0:
             if self.w.run.text() == (''):
                 self.w.run.setText(self.runText)
@@ -3411,13 +3408,55 @@ class HandlerClass:
         if color.isValid():
             widget.setStyleSheet('background-color: {}'.format(color.name()))
             self.set_color_styles()
+            buttons = ['foregrnd', 'foregalt', 'led', 'backgrnd', 'backgalt', 'frams', 'estop', 'disabled', 'preview']
+            labels = ['Foreground', 'Highlight', 'LED', 'Background', 'Background Alt', 'Frames', 'Estop', 'Disabled', 'Preview']
+            button = widget.objectName()
+            label = labels[buttons.index(button.split('_')[1])]
+            self.w.PREFS_.putpref(label,  self.w[button].styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
 
     def set_color_styles(self):
-# create stylesheet .qss file from template
+        self.styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')
+        ssFile = self.iniFile.find('QTPLASMAC', 'CUSTOM_STYLE') or ''
+        # if custom stylesheet try to use it
+        if ssFile:
+            COPY(ssFile, self.styleSheetFile)
+            self.custom_stylesheet()
+        # otherwise use the standard stylesheet
+        else:
+            self.standard_stylesheet()
+        # apply the new stylesheet
+        self.w.setStyleSheet('')
+        with open(self.styleSheetFile, 'r') as set_style:
+           self.w.setStyleSheet(set_style.read())
+        # style some buttons
+        buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
+                   'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
+                   'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se',
+                   'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
+                   'conv_line', 'conv_circle', 'conv_triangle', 'conv_rectangle',
+                   'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star',
+                   'conv_gusset', 'conv_sector', 'conv_rotate', 'conv_array']
+        for button in buttons:
+            self.color_button_image(button, self.foreColor)
+            self.w[button].setStyleSheet(\
+                    'QPushButton {{ background: {0} }} \
+                     QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
+        # some gcode display/editor colors cannot use .qss file
+        # gcode display current gcode line
+        self.w.gcode_display.setMarkerBackgroundColor(QColor(self.back1Color))
+        # gcode display active line
+        self.w.gcode_display.setCaretLineBackgroundColor(QColor(self.back1Color))
+        # gcode editor current gcode line
+        self.w.gcode_editor.editor.setMarkerBackgroundColor(QColor(self.back1Color))
+        self.w.gcode_editor.editor.setCaretForegroundColor(QColor(self.fore1Color))
+        # gcode editor active line
+        self.w.gcode_editor.editor.setCaretLineBackgroundColor(QColor(self.backColor))
+
+    def standard_stylesheet(self):
+        # create stylesheet .qss file from template
         styleTemplateFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
-        styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')
         with open(styleTemplateFile, 'r') as inFile:
-            with open(styleSheetFile, 'w') as outFile:
+            with open(self.styleSheetFile, 'w') as outFile:
                 for line in inFile:
                     if 'foregnd' in line:
                         outFile.write(line.replace('foregnd', self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
@@ -3441,44 +3480,68 @@ class HandlerClass:
                         outFile.write(line.replace('prevu', self.w.color_preview.styleSheet().split(':')[1].strip()))
                     else:
                         outFile.write(line)
+        # append custom style if found
+        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')):
+            with open(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss'), 'r') as inFile:
+                with open(self.styleSheetFile, 'a') as outFile:
+                    outFile.write(inFile.read())
+        # set basic colors from prefs file
+        self.foreColor = self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
+        self.fore1Color = self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')
+        self.backColor = self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')
+        self.back1Color = self.w.PREFS_.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')
+        self.disabledColor = self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')
 
-# apply the new stylesheet
-        self.w.setStyleSheet('')
-        with open(styleSheetFile, 'r') as set_style:
-           self.w.setStyleSheet(set_style.read())
-
-# set colors
-        self.foreColor = QColor(self.w.color_foregrnd.palette().color(QPalette.Background)).name()
-        self.fore1Color = QColor(self.w.color_foregalt.palette().color(QPalette.Background)).name()
-        self.backColor = QColor(self.w.color_backgrnd.palette().color(QPalette.Background)).name()
-        self.back1Color = QColor(self.w.color_backgalt.palette().color(QPalette.Background)).name()
-        self.disabledColor = QColor(self.w.color_disabled.palette().color(QPalette.Background)).name()
-        fColor = QColor(self.foreColor)
-        f1Color = QColor(self.fore1Color)
-        bColor = QColor(self.backColor)
-        b1Color = QColor(self.back1Color)
-        buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
-                   'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
-                   'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se', 
-                   'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
-                   'conv_line', 'conv_circle', 'conv_triangle', 'conv_rectangle',
-                   'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star',
-                   'conv_gusset', 'conv_sector', 'conv_rotate', 'conv_array']
-        for button in buttons:
-            if self.w[button].isChecked():
-                self.color_button_image(button, self.backColor)
-            else:
-                self.color_button_image(button, self.foreColor)
-# some gcode display/editor colors cannot use .qss file
-# display current gcode line
-        self.w.gcode_display.setMarkerBackgroundColor(b1Color)
-# display active line
-        self.w.gcode_display.setCaretLineBackgroundColor(b1Color)
-# editor current gcode line
-        self.w.gcode_editor.editor.setMarkerBackgroundColor(bColor)
-        self.w.gcode_editor.editor.setCaretForegroundColor(f1Color)
-# editor active line
-        self.w.gcode_editor.editor.setCaretLineBackgroundColor(bColor)
+    def custom_stylesheet(self):
+        try:
+            # set basic colors from stylesheet header
+            colors = [0,0,0,0,0]
+            with open(self.styleSheetFile, 'r') as inFile:
+                for line in inFile:
+                    if line.startswith('color1'):
+                        colors[0] += 1
+                        self.foreColor = QColor(line.split('=')[1].strip()).name()
+                        self.colorFgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
+                    elif line.startswith('color2'):
+                        colors[1] += 1
+                        self.backColor = QColor(line.split('=')[1].strip()).name()
+                        self.colorBgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
+                    elif line.startswith('color3'):
+                        colors[2] += 1
+                        self.fore1Color = QColor(line.split('=')[1].strip()).name()
+                    elif line.startswith('color4'):
+                        colors[3] += 1
+                        self.back1Color = QColor(line.split('=')[1].strip()).name()
+                    elif line.startswith('color5'):
+                        colors[4] += 1
+                        self.disabledColor = QColor(line.split('=')[1].strip()).name()
+                    if line.startswith('*'):
+                        break
+                if colors != [1,1,1,1,1]:
+                    raise ColorError()
+                # hide color buttons
+                for button in ['color_foregrnd', 'color_foregrnd_lbl', 'color_foregalt', \
+                               'color_foregalt_lbl', 'color_backgrnd', 'color_backgrnd_lbl', \
+                               'color_backgalt', 'color_backgalt_lbl', 'color_frams', \
+                               'color_frams_lbl', 'color_estop', 'color_estop_lbl', \
+                               'color_disabled', 'color_disabled_lbl', 'color_preview', \
+                               'color_preview_lbl', 'color_led', 'color_led_lbl']:
+                    self.w[button].hide()
+                for button in ['camera', 'laser', self.thButton, self.ctButton, \
+                                self.tpButton, self.ptButton, self.ccButton]:
+                    if button:
+                        self.button_normal(button)
+        except ColorError:
+            msg  = 'Invalid number of colors defined\n'
+            msg += 'in custom stylesheet header\n'
+            msg += '\nReverting to standard stylesheet\n'
+            self.dialog_error(QMessageBox.Warning, 'STYLESHEET', msg)
+            self.standard_stylesheet()
+        except:
+            msg  = 'Cannot open custom stylesheet\n'
+            msg += '\nReverting to standard stylesheet\n'
+            self.dialog_error(QMessageBox.Warning, 'STYLESHEET', msg)
+            self.standard_stylesheet()
 
     def color_button_image(self, button, color):
         image_path = '{}{}.png'.format(self.IMAGES, button)
