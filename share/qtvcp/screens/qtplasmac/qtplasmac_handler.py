@@ -1,4 +1,4 @@
-VERSION = '0.9.33'
+VERSION = '0.9.34'
 
 import os, sys
 from shutil import copy as COPY
@@ -128,7 +128,7 @@ class HandlerClass:
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
-        self.idleHomedPlusPausedList = []
+        self.pausedList = []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
@@ -347,16 +347,17 @@ class HandlerClass:
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
-        self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
+        self.plasmacStatePin = self.h.newpin('plasmac-state', hal.HAL_S32, hal.HAL_IN)
         self.zOffsetPin = self.h.newpin('z_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
+        self.consChangePin = self.h.newpin('consumable-changing', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
-        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
+        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac-state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
-        CALL(['halcmd', 'net', 'plasmac:z-offset-current', 'qtplasmac.z_offset'])
+        CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable-changing'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -367,66 +368,67 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:arc-ok-high', 'qtplasmac.arc_ok_high-f', 'plasmac.arc-ok-high'])
         CALL(['halcmd', 'net', 'plasmac:arc-ok-low', 'qtplasmac.arc_ok_low-f', 'plasmac.arc-ok-low'])
         #thc parameters
-        CALL(['halcmd', 'net','plasmac:thc-delay','qtplasmac.thc_delay-f','plasmac.thc-delay'])
-        CALL(['halcmd', 'net','plasmac:thc-threshold','qtplasmac.thc_threshold-f','plasmac.thc-threshold'])
-        CALL(['halcmd', 'net','plasmac:pid-p-gain','qtplasmac.pid_p_gain-f','plasmac.pid-p-gain'])
-        CALL(['halcmd', 'net','plasmac:cornerlock-threshold','qtplasmac.cornerlock_threshold-f','plasmac.cornerlock-threshold'])
-        CALL(['halcmd', 'net','plasmac:kerfcross-override','qtplasmac.kerfcross_override-f','plasmac.kerfcross-override'])
-        CALL(['halcmd', 'net','plasmac:pid-i-gain','qtplasmac.pid_i_gain-f','plasmac.pid-i-gain'])
-        CALL(['halcmd', 'net','plasmac:pid-d-gain','qtplasmac.pid_d_gain-f','plasmac.pid-d-gain'])
+        CALL(['halcmd', 'net', 'plasmac:thc-delay', 'qtplasmac.thc_delay-f', 'plasmac.thc-delay'])
+        CALL(['halcmd', 'net', 'plasmac:thc-threshold', 'qtplasmac.thc_threshold-f', 'plasmac.thc-threshold'])
+        CALL(['halcmd', 'net', 'plasmac:pid-p-gain', 'qtplasmac.pid_p_gain-f', 'plasmac.pid-p-gain'])
+        CALL(['halcmd', 'net', 'plasmac:cornerlock-threshold', 'qtplasmac.cornerlock_threshold-f', 'plasmac.cornerlock-threshold'])
+        CALL(['halcmd', 'net', 'plasmac:kerfcross-override', 'qtplasmac.kerfcross_override-f', 'plasmac.kerfcross-override'])
+        CALL(['halcmd', 'net', 'plasmac:pid-i-gain', 'qtplasmac.pid_i_gain-f', 'plasmac.pid-i-gain'])
+        CALL(['halcmd', 'net', 'plasmac:pid-d-gain', 'qtplasmac.pid_d_gain-f', 'plasmac.pid-d-gain'])
         #probe parameters
-        CALL(['halcmd', 'net','plasmac:float-switch-travel','qtplasmac.float_switch_travel-f','plasmac.float-switch-travel'])
-        CALL(['halcmd', 'net','plasmac:probe-feed-rate','qtplasmac.probe_feed_rate-f','plasmac.probe-feed-rate'])
-        CALL(['halcmd', 'net','plasmac:probe-start-height','qtplasmac.probe_start_height-f','plasmac.probe-start-height'])
-        CALL(['halcmd', 'net','plasmac:ohmic-probe-offset','qtplasmac.ohmic_probe_offset-f','plasmac.ohmic-probe-offset'])
-        CALL(['halcmd', 'net','plasmac:ohmic-max-attempts','qtplasmac.ohmic_max_attempts-s','plasmac.ohmic-max-attempts'])
-        CALL(['halcmd', 'net','plasmac:skip-ihs-distance','qtplasmac.skip_ihs_distance-f','plasmac.skip-ihs-distance'])
+        CALL(['halcmd', 'net', 'plasmac:float-switch-travel', 'qtplasmac.float_switch_travel-f', 'plasmac.float-switch-travel'])
+        CALL(['halcmd', 'net', 'plasmac:probe-feed-rate', 'qtplasmac.probe_feed_rate-f', 'plasmac.probe-feed-rate'])
+        CALL(['halcmd', 'net', 'plasmac:probe-start-height', 'qtplasmac.probe_start_height-f', 'plasmac.probe-start-height'])
+        CALL(['halcmd', 'net', 'plasmac:ohmic-probe-offset', 'qtplasmac.ohmic_probe_offset-f', 'plasmac.ohmic-probe-offset'])
+        CALL(['halcmd', 'net', 'plasmac:ohmic-max-attempts', 'qtplasmac.ohmic_max_attempts-s', 'plasmac.ohmic-max-attempts'])
+        CALL(['halcmd', 'net', 'plasmac:skip-ihs-distance', 'qtplasmac.skip_ihs_distance-f', 'plasmac.skip-ihs-distance'])
         #safety parameters
-        CALL(['halcmd', 'net','plasmac:safe-height','qtplasmac.safe_height-f','plasmac.safe-height'])
+        CALL(['halcmd', 'net', 'plasmac:safe-height', 'qtplasmac.safe_height-f', 'plasmac.safe-height'])
         #scribe parameters
-        CALL(['halcmd', 'net','plasmac:scribe-arm-delay','qtplasmac.scribe_arm_delay-f','plasmac.scribe-arm-delay'])
-        CALL(['halcmd', 'net','plasmac:scribe-on-delay','qtplasmac.scribe_on_delay-f','plasmac.scribe-on-delay'])
+        CALL(['halcmd', 'net', 'plasmac:scribe-arm-delay', 'qtplasmac.scribe_arm_delay-f', 'plasmac.scribe-arm-delay'])
+        CALL(['halcmd', 'net', 'plasmac:scribe-on-delay', 'qtplasmac.scribe_on_delay-f', 'plasmac.scribe-on-delay'])
         #spotting parameters
-        CALL(['halcmd', 'net','plasmac:spotting-threshold','qtplasmac.spotting_threshold-f','plasmac.spotting-threshold'])
-        CALL(['halcmd', 'net','plasmac:spotting-time','qtplasmac.spotting_time-f','plasmac.spotting-time'])
+        CALL(['halcmd', 'net', 'plasmac:spotting-threshold', 'qtplasmac.spotting_threshold-f', 'plasmac.spotting-threshold'])
+        CALL(['halcmd', 'net', 'plasmac:spotting-time', 'qtplasmac.spotting_time-f', 'plasmac.spotting-time'])
         #motion parameters
-        CALL(['halcmd', 'net','plasmac:setup-feed-rate','qtplasmac.setup_feed_rate-f','plasmac.setup-feed-rate'])
+        CALL(['halcmd', 'net', 'plasmac:setup-feed-rate', 'qtplasmac.setup_feed_rate-f', 'plasmac.setup-feed-rate'])
         #material parameters
-        CALL(['halcmd', 'net','plasmac:cut-feed-rate','qtplasmac.cut_feed_rate-f','plasmac.cut-feed-rate'])
-        CALL(['halcmd', 'net','plasmac:cut-height','qtplasmac.cut_height-f','plasmac.cut-height'])
-        CALL(['halcmd', 'net','plasmac:cut-volts','qtplasmac.cut_volts-f','plasmac.cut-volts'])
-        CALL(['halcmd', 'net','plasmac:pause-at-end','qtplasmac.pause_at_end-f','plasmac.pause-at-end'])
-        CALL(['halcmd', 'net','plasmac:pierce-delay','qtplasmac.pierce_delay-f','plasmac.pierce-delay'])
-        CALL(['halcmd', 'net','plasmac:pierce-height','qtplasmac.pierce_height-f','plasmac.pierce-height'])
-        CALL(['halcmd', 'net','plasmac:puddle-jump-delay','qtplasmac.puddle_jump_delay-f','plasmac.puddle-jump-delay'])
-        CALL(['halcmd', 'net','plasmac:puddle-jump-height','qtplasmac.puddle_jump_height-f','plasmac.puddle-jump-height'])
+        CALL(['halcmd', 'net', 'plasmac:cut-feed-rate', 'qtplasmac.cut_feed_rate-f', 'plasmac.cut-feed-rate'])
+        CALL(['halcmd', 'net', 'plasmac:cut-height', 'qtplasmac.cut_height-f', 'plasmac.cut-height'])
+        CALL(['halcmd', 'net', 'plasmac:cut-volts', 'qtplasmac.cut_volts-f', 'plasmac.cut-volts'])
+        CALL(['halcmd', 'net', 'plasmac:pause-at-end', 'qtplasmac.pause_at_end-f', 'plasmac.pause-at-end'])
+        CALL(['halcmd', 'net', 'plasmac:pierce-delay', 'qtplasmac.pierce_delay-f', 'plasmac.pierce-delay'])
+        CALL(['halcmd', 'net', 'plasmac:pierce-height', 'qtplasmac.pierce_height-f', 'plasmac.pierce-height'])
+        CALL(['halcmd', 'net', 'plasmac:puddle-jump-delay', 'qtplasmac.puddle_jump_delay-f', 'plasmac.puddle-jump-delay'])
+        CALL(['halcmd', 'net', 'plasmac:puddle-jump-height', 'qtplasmac.puddle_jump_height-f', 'plasmac.puddle-jump-height'])
         #monitor
-        CALL(['halcmd', 'net','plasmac:arc_ok_out','plasmac.arc-ok-out','qtplasmac.led_arc_ok'])
-        CALL(['halcmd', 'net','plasmac:arc_voltage_out','plasmac.arc-voltage-out','qtplasmac.arc_voltage'])
-        CALL(['halcmd', 'net','plasmac:breakaway-switch-out','qtplasmac.led_breakaway_switch'])
-        CALL(['halcmd', 'net','plasmac:cornerlock-is-locked','plasmac.cornerlock-is-locked','qtplasmac.led_corner_lock'])
-        CALL(['halcmd', 'net','plasmac:float-switch-out','qtplasmac.led_float_switch'])
-        CALL(['halcmd', 'net','plasmac:kerfcross-is-locked','plasmac.kerfcross-is-locked','qtplasmac.led_kerf_lock'])
-        CALL(['halcmd', 'net','plasmac:move-up','plasmac.led-up','qtplasmac.led_thc_up'])
-        CALL(['halcmd', 'net','plasmac:move-down','plasmac.led-down','qtplasmac.led_thc_down'])
-        CALL(['halcmd', 'net','plasmac:ohmic-probe-out','qtplasmac.led_ohmic_probe'])
-        CALL(['halcmd', 'net','plasmac:thc-active','plasmac.thc-active','qtplasmac.led_thc_active'])
-        CALL(['halcmd', 'net','plasmac:thc-enabled','plasmac.thc-enabled','qtplasmac.led_thc_enabled'])
-        CALL(['halcmd', 'net','plasmac:torch-on','qtplasmac.led_torch_on'])
+        CALL(['halcmd', 'net', 'plasmac:arc_ok_out', 'plasmac.arc-ok-out', 'qtplasmac.led_arc_ok'])
+        CALL(['halcmd', 'net', 'plasmac:arc_voltage_out', 'plasmac.arc-voltage-out', 'qtplasmac.arc_voltage'])
+        CALL(['halcmd', 'net', 'plasmac:breakaway-switch-out', 'qtplasmac.led_breakaway_switch'])
+        CALL(['halcmd', 'net', 'plasmac:cornerlock-is-locked', 'plasmac.cornerlock-is-locked', 'qtplasmac.led_corner_lock'])
+        CALL(['halcmd', 'net', 'plasmac:float-switch-out', 'qtplasmac.led_float_switch'])
+        CALL(['halcmd', 'net', 'plasmac:kerfcross-is-locked', 'plasmac.kerfcross-is-locked', 'qtplasmac.led_kerf_lock'])
+        CALL(['halcmd', 'net', 'plasmac:move-up', 'plasmac.led-up', 'qtplasmac.led_thc_up'])
+        CALL(['halcmd', 'net', 'plasmac:move-down', 'plasmac.led-down', 'qtplasmac.led_thc_down'])
+        CALL(['halcmd', 'net', 'plasmac:ohmic-probe-out', 'qtplasmac.led_ohmic_probe'])
+        CALL(['halcmd', 'net', 'plasmac:thc-active', 'plasmac.thc-active', 'qtplasmac.led_thc_active'])
+        CALL(['halcmd', 'net', 'plasmac:thc-enabled', 'plasmac.thc-enabled', 'qtplasmac.led_thc_enabled'])
+        CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.led_torch_on'])
         #control
-        CALL(['halcmd', 'net','plasmac:cornerlock-enable','qtplasmac.cornerlock_enable','plasmac.cornerlock-enable'])
-        CALL(['halcmd', 'net','plasmac:kerfcross-enable','qtplasmac.kerfcross_enable','plasmac.kerfcross-enable'])
-        CALL(['halcmd', 'net','plasmac:mesh-enable','qtplasmac.mesh_enable','plasmac.mesh-enable'])
-        CALL(['halcmd', 'net','plasmac:ignore-arc-ok-1','qtplasmac.ignore_arc_ok','plasmac.ignore-arc-ok-1'])
-        CALL(['halcmd', 'net','plasmac:ohmic-probe-enable','qtplasmac.ohmic_probe_enable','plasmac.ohmic-probe-enable'])
-        CALL(['halcmd', 'net','plasmac:thc-enable','qtplasmac.thc_enable','plasmac.thc-enable'])
-        CALL(['halcmd', 'net','plasmac:use-auto-volts','qtplasmac.use_auto_volts','plasmac.use-auto-volts'])
-        CALL(['halcmd', 'net','plasmac:torch-enable','qtplasmac.torch_enable','plasmac.torch-enable'])
+        CALL(['halcmd', 'net', 'plasmac:cornerlock-enable', 'qtplasmac.cornerlock_enable', 'plasmac.cornerlock-enable'])
+        CALL(['halcmd', 'net', 'plasmac:kerfcross-enable', 'qtplasmac.kerfcross_enable', 'plasmac.kerfcross-enable'])
+        CALL(['halcmd', 'net', 'plasmac:mesh-enable', 'qtplasmac.mesh_enable', 'plasmac.mesh-enable'])
+        CALL(['halcmd', 'net', 'plasmac:ignore-arc-ok-1', 'qtplasmac.ignore_arc_ok', 'plasmac.ignore-arc-ok-1'])
+        CALL(['halcmd', 'net', 'plasmac:ohmic-probe-enable', 'qtplasmac.ohmic_probe_enable', 'plasmac.ohmic-probe-enable'])
+        CALL(['halcmd', 'net', 'plasmac:thc-enable', 'qtplasmac.thc_enable', 'plasmac.thc-enable'])
+        CALL(['halcmd', 'net', 'plasmac:use-auto-volts', 'qtplasmac.use_auto_volts', 'plasmac.use-auto-volts'])
+        CALL(['halcmd', 'net', 'plasmac:torch-enable', 'qtplasmac.torch_enable', 'plasmac.torch-enable'])
         #offsets
-        CALL(['halcmd', 'net','plasmac:x-offset-current','qtplasmac.x_offset'])
-        CALL(['halcmd', 'net','plasmac:y-offset-current','qtplasmac.y_offset'])
+        CALL(['halcmd', 'net', 'plasmac:x-offset-current', 'qtplasmac.x_offset'])
+        CALL(['halcmd', 'net', 'plasmac:y-offset-current', 'qtplasmac.y_offset'])
+        CALL(['halcmd', 'net', 'plasmac:z-offset-current', 'qtplasmac.z_offset'])
         #override
-        CALL(['halcmd', 'net','plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
+        CALL(['halcmd', 'net', 'plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
         #ini
         CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
@@ -703,12 +705,8 @@ class HandlerClass:
             if STATUS.is_all_homed():
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(True)
-                for widget in self.idleHomedPlusPausedList:
-                    self.w[widget].setEnabled(True)
             else :
                 for widget in self.idleHomedList:
-                    self.w[widget].setEnabled(False)
-                for widget in self.idleHomedPlusPausedList:
                     self.w[widget].setEnabled(False)
         else:
             for widget in self.idleOnList:
@@ -719,6 +717,7 @@ class HandlerClass:
         self.set_jog_button_state()
 
     def interp_idle(self, obj):
+        hal.set_p('plasmac.consumable-change', '0')
         if self.single_cut_request:
             self.single_cut_request = False
             if self.oldFile:
@@ -740,12 +739,8 @@ class HandlerClass:
             if STATUS.is_all_homed():
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(True)
-                for widget in self.idleHomedPlusPausedList:
-                    self.w[widget].setEnabled(True)
             else :
                 for widget in self.idleHomedList:
-                    self.w[widget].setEnabled(False)
-                for widget in self.idleHomedPlusPausedList:
                     self.w[widget].setEnabled(False)
         else:
             for widget in self.idleOnList:
@@ -757,6 +752,8 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(ACTION.prefilter_path)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
+        if self.ccButton:
+            self.button_normal(self.ccButton)
         self.w.main_tab_widget.setTabEnabled(1, True)
         self.set_run_button_state()
         self.set_jog_button_state()
@@ -764,14 +761,29 @@ class HandlerClass:
 
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and \
-           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001 and \
-           self.w.gcode_display.lines() > 1 and self.statePin.get() == 0:
-            self.runButtonTimer.start(100)
+            self.xOffsetPin.get() > -0.001 and self.xOffsetPin.get() < 0.001 and \
+            self.yOffsetPin.get() > -0.001 and self.yOffsetPin.get() < 0.001 and \
+            self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001 and \
+            self.w.gcode_display.lines() > 1 and self.plasmacStatePin.get() == 0:
+            self.runButtonTimer.start(75)
+            self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
 
     def run_button_timeout(self):
         self.w.run.setEnabled(True)
+
+    def set_pause_button_state(self):
+        if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_paused() and \
+           self.xOffsetPin.get() > -0.001 and self.xOffsetPin.get() < 0.001 and \
+           self.yOffsetPin.get() > -0.001 and self.yOffsetPin.get() < 0.001 and \
+           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001:
+            self.w.pause.setEnabled(True)
+            if self.ccButton:
+                self.button_normal(self.ccButton)
+            hal.set_p('plasmac.consumable-change', '0')
+        else:
+            self.w.pause.setEnabled(False)
 
     def set_jog_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_interp_idle() and \
@@ -801,8 +813,6 @@ class HandlerClass:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedList:
             self.w[widget].setEnabled(False)
-        for widget in self.idleHomedPlusPausedList:
-            self.w[widget].setEnabled(False)
         self.w.abort.setEnabled(True)
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
@@ -821,7 +831,7 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
-            for widget in self.idleHomedPlusPausedList:
+            for widget in self.pausedList:
                 self.w[widget].setEnabled(True)
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
@@ -829,7 +839,7 @@ class HandlerClass:
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
-            for widget in self.idleHomedPlusPausedList:
+            for widget in self.pausedList:
                 self.w[widget].setEnabled(False)
             if self.tpButton:
                 self.w[self.tpButton].setEnabled(False)
@@ -917,7 +927,6 @@ class HandlerClass:
         self.w.file_edit.setEnabled(True)
         if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
             self.rflActive = False
-            self.set_run_button_state()
             self.startLine = 0
             self.preRflFile = ''
         self.w.mdihistory.reload()
@@ -1134,7 +1143,15 @@ class HandlerClass:
             self.set_run_button_state()
             self.set_jog_button_state()
 
-    def state_changed(self, value):
+    def consumable_change_changed(self, value):
+        if not value:
+            if STATUS.is_interp_paused():
+                self.w[self.ccButton].setEnabled(True)
+            else:
+                self.w[self.ccButton].setEnabled(False)
+            self.button_normal(self.ccButton)
+
+    def plasmac_state_changed(self, value):
         if (value > 3 and not STATUS.is_interp_idle()) or value == 19:
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
@@ -1372,6 +1389,7 @@ class HandlerClass:
         self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
         self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
         self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
+        self.consChangePin.value_changed.connect(lambda v:self.consumable_change_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
         self.w.cam_zoom_plus.pressed.connect(self.cam_zoom_plus_pressed)
@@ -1407,7 +1425,7 @@ class HandlerClass:
         self.w.laser.pressed.connect(self.laser_pressed)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
-        self.statePin.value_changed.connect(lambda v:self.state_changed(v))
+        self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
@@ -1904,7 +1922,7 @@ class HandlerClass:
             elif 'change-consumables' in code:
                 self.ccParm = self.iniFile.find('QTPLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 self.ccButton = 'button_{}'.format(str(button))
-                self.idleHomedPlusPausedList.append(self.ccButton)
+                self.pausedList.append(self.ccButton)
                 self.w[self.ccButton].setEnabled(False)
             elif 'ohmic-test' in code:
                 self.otButton = 'button_{}'.format(str(button))
@@ -1946,13 +1964,14 @@ class HandlerClass:
         commands = self.iniButtonCode[bNum]
         if not commands: return
         if 'change-consumables' in commands.lower():
-            self.consumable_change_setup()
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
                 hal.set_p('plasmac.consumable-change', '0')
                 hal.set_p('plasmac.x-offset', '0')
                 hal.set_p('plasmac.y-offset', '0')
                 self.button_normal(self.ccButton)
+                self.w[self.ccButton].setEnabled(False)
             else:
+                self.consumable_change_setup()
                 if self.ccFeed == 'None' or self.ccFeed < 1:
                     msg  = 'Invalid feed rate for consumable change\n'
                     msg += 'Check .ini file settings\n'
@@ -1961,6 +1980,8 @@ class HandlerClass:
                     return
                 else:
                     hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
+                self.w.run.setEnabled(False)
+                self.w.pause.setEnabled(False)
                 if self.ccXpos == 'None':
                     self.ccXpos = STATUS.get_position()[0][0]
                 if self.ccXpos < round(float(self.iniFile.find('AXIS_X', 'MIN_LIMIT')), 6) + (10 * self.unitsPerMm):
@@ -3158,6 +3179,7 @@ class HandlerClass:
             self.cancelWait = False
             self.cutrec_motion_enable(True)
             self.cutrec_buttons_enable(True)
+        self.set_pause_button_state()
 
     def cutrec_cancel_pressed(self):
         self.cancelWait = True
