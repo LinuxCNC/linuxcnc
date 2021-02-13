@@ -230,7 +230,12 @@ class FileManager(QWidget, _HalWidgetBase):
         elif data == 'User':
             self.showUserDir()
         else:
-            self.updateDirectoryView(self._jumpList.get(data))
+            temp = self._jumpList.get(data)
+            if temp is not None:
+                self.updateDirectoryView(temp)
+            else:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'file jumopath: {} not valid'.format(data))
+                log.debug('file jumopath: {} not valid'.format(data))
 
     # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
