@@ -1,4 +1,4 @@
-VERSION = '0.9.34'
+VERSION = '0.9.35'
 
 import os, sys
 from shutil import copy as COPY
@@ -610,6 +610,9 @@ class HandlerClass:
             receiver2 = receiver
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
+                    flag = True
+                    break
+                if isinstance(receiver2, QtWidgets.QListView):
                     flag = True
                     break
                 if isinstance(receiver2, MDI_LINE):
