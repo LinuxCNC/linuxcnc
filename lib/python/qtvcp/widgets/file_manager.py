@@ -187,6 +187,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.cb.addItem(i[0],i[1])
 
     def folderChanged(self, data):
+        data = os.path.normpath(data)
         self.currentFolder = data
         self.textLine.setText(data)
 
