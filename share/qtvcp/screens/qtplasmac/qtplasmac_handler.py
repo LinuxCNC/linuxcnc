@@ -1,4 +1,4 @@
-VERSION = '0.9.31'
+VERSION = '0.9.32'
 
 import os, sys
 from shutil import copy as COPY
@@ -122,9 +122,10 @@ class HandlerClass:
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['run', 'touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
+        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
         self.idleHomedPlusPausedList = []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
+        self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
@@ -213,6 +214,12 @@ class HandlerClass:
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
         self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
+        self.startupTimer = QTimer()
+        self.startupTimer.timeout.connect(self.startup_timeout)
+        self.startupTimer.setSingleShot(True)
+        self.startupTimer.start(250)
+
+    def startup_timeout(self):
         if STATUS.stat.estop:
             self.w.power.setEnabled(False)
         self.w.run.setEnabled(False)
@@ -335,7 +342,7 @@ class HandlerClass:
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.statePin = self.h.newpin('state', hal.HAL_S32, hal.HAL_IN)
-        self.zOffsetCountPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetPin = self.h.newpin('z_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -343,7 +350,7 @@ class HandlerClass:
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
-        CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
+        CALL(['halcmd', 'net', 'plasmac:z-offset-current', 'qtplasmac.z_offset'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -498,7 +505,7 @@ class HandlerClass:
 # part 1 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
         self.jogKeys = {Qt.Key_Left:0, Qt.Key_Right:0, Qt.Key_Up:0, Qt.Key_Down:0,
                        Qt.Key_PageUp:0, Qt.Key_PageDown:0, Qt.Key_BracketLeft:0, Qt.Key_BracketRight:0}
-        self.keyTimer=QTimer()
+        self.keyTimer = QTimer()
         self.keyTimer.setSingleShot(True)
         self.keyTimer.timeout.connect(self.key_timer_timeout)
 # end workaround
@@ -509,6 +516,9 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
+        self.runButtonTimer = QTimer()
+        self.runButtonTimer.setSingleShot(True)
+        self.runButtonTimer.timeout.connect(self.run_button_timeout)
 
     def get_overlay_text(self):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
@@ -691,8 +701,6 @@ class HandlerClass:
         if state:
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
-            for widget in self.jogButtonList:
-                self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if STATUS.is_all_homed():
@@ -710,8 +718,8 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
-            for widget in self.jogButtonList:
-                self.w[widget].setEnabled(False)
+        self.set_run_button_state()
+        self.set_jog_button_state()
 
     def interp_idle(self, obj):
         if self.single_cut_request:
@@ -730,8 +738,6 @@ class HandlerClass:
         if STATUS.machine_is_on():
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(True)
-            for widget in self.jogButtonList:
-                self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
             if STATUS.is_all_homed():
@@ -739,8 +745,6 @@ class HandlerClass:
                     self.w[widget].setEnabled(True)
                 for widget in self.idleHomedPlusPausedList:
                     self.w[widget].setEnabled(True)
-                if self.zOffsetCountPin.get():
-                    self.w.run.setEnabled(False)
             else :
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(False)
@@ -757,20 +761,49 @@ class HandlerClass:
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
         self.w.main_tab_widget.setTabEnabled(1, True)
+        self.set_run_button_state()
+        self.set_jog_button_state()
         ACTION.SET_MANUAL_MODE()
+
+    def set_run_button_state(self):
+        if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and \
+           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001 and \
+           self.w.gcode_display.lines() > 1 and self.statePin.get() == 0:
+            self.runButtonTimer.start(100)
+        else:
+            self.w.run.setEnabled(False)
+
+    def run_button_timeout(self):
+        self.w.run.setEnabled(True)
+
+    def set_jog_button_state(self):
+        if STATUS.machine_is_on() and STATUS.is_interp_idle() and \
+           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001:
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(True)
+            if STATUS.is_all_homed():
+                for widget in self.jogSyncList:
+                    self.w[widget].setEnabled(True)
+            else:
+                for widget in self.jogSyncList:
+                    self.w[widget].setEnabled(False)
+        else:
+            for widget in self.jogButtonList:
+                self.w[widget].setEnabled(False)
+            for widget in self.jogSyncList:
+                self.w[widget].setEnabled(False)
 
     def interp_paused(self, obj):
         pass
 
     def interp_running(self, obj):
+        self.w.run.setEnabled(False)
         for widget in self.idleList:
             self.w[widget].setEnabled(False)
         for widget in self.idleOnList:
             self.w[widget].setEnabled(False)
         for widget in self.idleHomedList:
             self.w[widget].setEnabled(False)
-            for widget in self.jogButtonList:
-                self.w[widget].setEnabled(False)
         for widget in self.idleHomedPlusPausedList:
             self.w[widget].setEnabled(False)
         self.w.abort.setEnabled(True)
@@ -781,6 +814,7 @@ class HandlerClass:
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
         self.w.main_tab_widget.setTabEnabled(1, False)
+        self.set_jog_button_state()
 
     def interp_reading(self, obj):
         pass
@@ -800,7 +834,8 @@ class HandlerClass:
             self.w.jog_stack.setCurrentIndex(0)
             for widget in self.idleHomedPlusPausedList:
                 self.w[widget].setEnabled(False)
-            self.w[self.tpButton].setEnabled(False)
+            if self.tpButton:
+                self.w[self.tpButton].setEnabled(False)
 
     def jog_rate_changed(self, object, value):
         self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
@@ -885,10 +920,11 @@ class HandlerClass:
         self.w.file_edit.setEnabled(True)
         if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
             self.rflActive = False
-            self.w.run.setEnabled(True)
+            self.set_run_button_state()
             self.startLine = 0
             self.preRflFile = ''
         self.w.mdihistory.reload()
+        self.set_run_button_state()
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
@@ -1094,25 +1130,25 @@ class HandlerClass:
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value)
 
-    def z_offset_changed(self, value):
-        if value > -0.000001 and value < 0.000001 and STATUS.is_interp_idle() and \
-           STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
-            self.w.run.setEnabled(True)
+    def z_offset_changed(self, offset):
+        if offset > -0.001 and offset < 0.001:
+            # set z dro to normal made
+            self.w.dro_z.setProperty('Qreference_type', 1)
+            self.set_run_button_state()
+            self.set_jog_button_state()
 
     def state_changed(self, value):
         if (value > 3 and not STATUS.is_interp_idle()) or value == 19:
+            # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
-
-    def z_offset_count_changed(self, counts):
-        if not counts:
-            self.w.dro_z.setProperty('Qreference_type', 1)
-            if STATUS.is_interp_idle() and STATUS.is_all_homed() and self.lastLoadedProgram != 'None':
-                self.w.run.setEnabled(True)
+        if value == 0:
+            self.set_run_button_state()
+            self.set_jog_button_state()
 
     def file_reload_clicked(self):
         if self.rflActive:
             self.rflActive = False
-            self.w.run.setEnabled(True)
+            self.set_run_button_state()
             self.startLine = 0
             self.preRflFile = ''
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
@@ -1338,7 +1374,7 @@ class HandlerClass:
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
         self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
         self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
-        self.zOffsetCountPin.value_changed.connect(lambda v:self.z_offset_count_changed(v))
+        self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
         self.w.cam_zoom_plus.pressed.connect(self.cam_zoom_plus_pressed)
@@ -1408,9 +1444,9 @@ class HandlerClass:
                 self.w.home_all.hide()
             # check if not joggable before homing
             if self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE').startswith('-'):
-                if 'jog_{}_plus'.format(self.coordinates[joint]) not in self.idleHomedList:
-                    self.idleHomedList.append('jog_{}_plus'.format(self.coordinates[joint]))
-                    self.idleHomedList.append('jog_{}_minus'.format(self.coordinates[joint]))
+                if 'jog_{}_plus'.format(self.coordinates[joint]) not in self.jogSyncList:
+                    self.jogSyncList.append('jog_{}_plus'.format(self.coordinates[joint]))
+                    self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
 
@@ -1478,7 +1514,8 @@ class HandlerClass:
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
-        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
+           self.zOffsetPin.get() < -0.001 or self.zOffsetPin.get() > 0.001:
             return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot Jog\n{} tripped\n'.format(self.jogInhibit))
@@ -1658,7 +1695,7 @@ class HandlerClass:
                 msg += 'inside a subroutine\n'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCode Error\n{}'.format(msg))
             self.rflActive = False
-            self.w.run.setEnabled(True)
+            self.set_run_button_state()
             self.startLine = 0
             return
         rFl = QDialog(self.w)
@@ -1709,7 +1746,7 @@ class HandlerClass:
         result = rFl.exec_()
         if not result:
             self.rflActive = False
-            self.w.run.setEnabled(True)
+            self.set_run_button_state()
             self.startLine = 0
             return
         for param in params:
@@ -1792,7 +1829,7 @@ class HandlerClass:
             self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
         ACTION.OPEN_PROGRAM(rflFile)
         ACTION.prefilter_path = self.preRflFile
-        self.w.run.setEnabled(True)
+        self.set_run_button_state()
         self.runText = 'RUN FROM {}'.format(self.startLine + 1)
         self.w.gcodegraphics.highlight_graphics(None)
 
