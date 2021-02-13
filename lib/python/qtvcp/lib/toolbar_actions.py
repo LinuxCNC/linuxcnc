@@ -432,7 +432,8 @@ class ToolBarActions():
         retval = msg.exec_()
 
     def actOnRunFromLine(self, widget, state=False):
-        ACTION.RUN(self.selected_line)
+        STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE', 'LINE':self.selected_line})
+        #ACTION.RUN(self.selected_line)
 
     def actOnToolOffsetDialog(self, wudget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'TOOLOFFSET'})

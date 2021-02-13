@@ -116,3 +116,29 @@ qproperty-styleFont2: "Times,12,-1,5,90,0,0,1,1,0";
 qproperty-styleFont3: "Times,12,-1,5,90,0,0,1,1,0";
 qproperty-styleFont4: "Times,12,-1,5,90,0,0,1,1,0";
 }
+
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
+}

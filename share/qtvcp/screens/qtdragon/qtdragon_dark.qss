@@ -334,12 +334,14 @@ ToolDialog QPushButton {
     height: 40px;
 }
 
+RunFromLineDialog QPushButton,
 CalculatorDialog QPushButton,
 EntryDialog QPushButton,
 CloseDialog QPushButton {
     width: 80px;
     height: 40px;
 }
+
 
 QMenu {
     background-color: #ABABAB; /* sets background of the menu */
@@ -360,4 +362,30 @@ QHeaderView::section {
     background-color:  foregnd;
     color: white;
     border: 1px solid #6c6c6c;
+}
+
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
 }
