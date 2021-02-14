@@ -2071,7 +2071,7 @@ After saving the user may press *Quit* or they may click on any shape to start t
 
 === Conversational Lines And Arcs
 
-image::images/plasmac_conversational_line.png[width=100,align="left"]
+image::images/qtplasmac_conv_line.png[width=100,align="left"]
 //FIXME UPDATE IMAGE
 Lines and arcs have an additional option in that they may be strung together to create a complex shape.
 
@@ -2102,7 +2102,7 @@ NOTE: At this stage there is no automatic option for a lead-in/lead-out creation
 
 The following shapes are available for creation:
 
-image::images/plasmac_conversational_shapes.png[width=400,align="center"]
+image::images/qtplasmac_conv_shapes.png[width=400,align="center"]
 //FIXME UPDATE IMAGE
 To create a shape:
 
@@ -2134,7 +2134,7 @@ To create a group of shapes:
 
 === Conversational Rotate
 
-image::images/plasmac_conversational_rotate.png[width=100,align="left"]
+image::images/qtplasmac_conv_rotate.png[width=100,align="left"]
 //FIXME UPDATE IMAGE
 The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
 
@@ -2151,7 +2151,7 @@ Rotation will not work on G-Code that is mathematically calculated, the values n
 
 === Conversational Array
 
-image::images/plasmac_conversational_array.png[width=100,align="left"]
+image::images/qtplasmac_conv_array.png[width=100,align="left"]
 //FIXME UPDATE IMAGE
 An array can be created from a shape, a group or an imported G-Code file.
 
@@ -2279,6 +2279,96 @@ sudo apt dist-upgrade
 === Continuous Update
 
 Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If the user wishes to update whenever a new QtPlasmaC version has been pushed, they could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
+
+== Customizing QtPlasmaC GUI
+
+Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It can not change the layout of the GUI.
+
+Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here]
+
+There are two methods available to apply custom styles:
+
+. Add A Custom Style: use this for minor style changes.
+
+. Create A New Style use this for a complete style change.
+
+=== Add A Custom Style
+
+Adding style changes to the default stylesheet is achieved by creating a file in the machine config folder. This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
+
+For example the user may want the arc voltge dispay in red, a green Torch On LED of a larger size and a larger Torch Enable button. This would be done with the following code in qtplasmac_custom.qss:
+
+----
+#arc_voltage {
+    color: #ff0000 }
+
+#led_torch_on {
+    qproperty-diameter: 30;
+    qproperty-color: green }
+
+#torch_enable::indicator {
+    width: 30;
+    height: 30}
+----
+
+=== Create A New Style
+
+Custom stylesheets are enable by a setting in the [QTPLASMAC] section of the INI file with the filename of the stylesheet.
+
+----
+CUSTOM_STYLE = my_cool_style.qss
+----
+
+The filename may be any valid filename. The standard extension name is .qss but this is not mandatory.
+
+There are some constraints on the custom stylesheet for QtPlasmaC, e.g. the jog buttons, cut-recovery buttons, and the conversational shape buttons are image files and are not able to be custom styled.
+
+The custom style file requires a header in the following format:
+
+----
+/*****************************
+Custom Stylesheet Header
+
+color1 = #000000
+#QtPlasmaC default = #ffee06
+
+color2 = #e0e0e0
+#QtPlasmaC default = #16160e
+
+color3 = #c0c0c0
+#QtPlasmaC default = #ffee06
+
+color4 = #e0e0e0
+#QtPlasmaC default = #26261e
+
+color5 = #808080
+#QtPlasmaC default = #b0b0b0
+
+*****************************/
+----
+
+The colors may be expressed in any valid stylesheet format.
+
+The above colors are used for the following widgets. So any custom styling will need to take these into account. The colors shown below are the defaults used in QtPlasmaC along with the color name from the PARAMETER tab.
+
+[width="100%",cols="1,1,2"]
+|===
+|*Color*|*Parameter*|*Affects*
+|color1 (#ffee06)|Foreground|foreground of jog buttons +
+                  foreground of latching user buttons +
+                  foreground of camera/laser buttons +
+                  foreground of conversational shape buttons +
+                  background of active conversational shape buttons
+|color2 (#16160e)|Background|background of latchinguser buttons +
+                  background of camera/laser buttons +
+                  background of gcode editor active line +
+                  background of conversational shape buttons
+|color3 (#ffee06)|Highlight|background of active latching user buttons +
+                  background of active camera/laser buttons +
+                  foreground of gcode editor cursor
+|color4 (#36362e)|Alt Background|background of gcode display active line
+|color5 (#b0b0b0)|foreground of disabled buttons
+|===
 
 == QtPlasmaC Advanced Topics
 
