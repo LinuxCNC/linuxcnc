@@ -147,6 +147,9 @@ RTAPI_BEGIN_DECLS
 #define HAL_LOCK_PARAMS   4     /* locking of parameter set commands */
 #define HAL_LOCK_RUN      8     /* locking of start/stop of HAL threads */
 
+/* locks required for the 'tune' command */
+#define HAL_LOCK_TUNE (HAL_LOCK_LOAD | HAL_LOCK_CONFIG)
+
 #define HAL_LOCK_ALL      255   /* locks every action */
 
 /***********************************************************************
