@@ -204,7 +204,7 @@ class _Lcnc_Action(object):
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
-        if fname.strip('..').count('.') > 1:
+        if os.path.basename(fname).count('.') > 1:
             e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
             log.debug(e)
