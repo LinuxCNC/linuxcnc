@@ -436,6 +436,9 @@ class HandlerClass:
         self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
 
     def file_loaded(self, obj, filename):
+        if filename.strip('..').count('.') > 1:
+            self.last_loaded_program = ""
+            return
         if filename is not None:
             self.add_status("Loaded file {}".format(filename))
             self.w.progressBar.setValue(0)
