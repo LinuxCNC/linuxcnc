@@ -591,12 +591,13 @@ with open(inCode, 'r') as fRead:
                     line = line[:1] + line[2:]
                 else:
                     break
-        # if hole sensing code
+        # if z motion is to be kept
         if line.startswith('#<keep-z-motion>'):
             if line.split('=')[1][0] == '1':
                 zBypass = True
             else:
                 zBypass = False
+            print(line)
             continue
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):

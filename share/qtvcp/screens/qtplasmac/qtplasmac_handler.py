@@ -1,4 +1,4 @@
-VERSION = '0.9.36'
+VERSION = '0.9.37'
 
 import os, sys
 from shutil import copy as COPY
@@ -712,6 +712,7 @@ class HandlerClass:
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(False)
         else:
+            self.runButtonTimer.stop()
             for widget in self.idleOnList:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
@@ -1536,7 +1537,8 @@ class HandlerClass:
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
-           self.zOffsetPin.get() < -0.001 or self.zOffsetPin.get() > 0.001:
+           self.zOffsetPin.get() < -0.001 or self.zOffsetPin.get() > 0.001 or \
+           self.runButtonTimer.isActive():
             return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot Jog\n{} tripped\n'.format(self.jogInhibit))

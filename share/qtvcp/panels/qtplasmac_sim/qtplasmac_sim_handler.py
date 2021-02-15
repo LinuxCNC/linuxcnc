@@ -49,7 +49,6 @@ class HandlerClass:
         try:
             with open(self.prefsFile, 'r') as inFile:
                 for line in inFile:
-                    print line
                     if line.startswith('Foreground'):
                         self.foreColor = line.split('=')[1].strip()
                     elif line.startswith('Background Alt'):
