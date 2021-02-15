@@ -1,4 +1,4 @@
-VERSION = '0.9.37'
+VERSION = '0.9.38'
 
 import os, sys
 from shutil import copy as COPY
@@ -912,9 +912,9 @@ class HandlerClass:
         self.w.wcs_button.setText('WCS\n{}'.format(sys))
 
     def file_loaded(self, obj, filename):
-        if filename.strip('..').count('.') > 1:
-            self.lastLoadedProgram = ""
-            return
+#        if filename.strip('..').count('.') > 1:
+#            self.lastLoadedProgram = ""
+#            return
         if filename is not None:
             self.w.gcode_progress.setValue(0)
             self.lastLoadedProgram = filename
@@ -1174,8 +1174,11 @@ class HandlerClass:
             self.preRflFile = ''
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
-            self.w.gcode_progress.setValue(0)
-            ACTION.OPEN_PROGRAM(file)
+            if os.path.exists(file):
+                self.w.gcode_progress.setValue(0)
+                ACTION.OPEN_PROGRAM(file)
+            else:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '\n{} does not exist\n'.format(file))
 
     def jog_inhibit_changed(self, state, switch):
         if state and not self.jogInhibit:
