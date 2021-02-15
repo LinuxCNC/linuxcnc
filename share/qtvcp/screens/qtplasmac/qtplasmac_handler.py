@@ -911,6 +911,9 @@ class HandlerClass:
         self.w.wcs_button.setText('WCS\n{}'.format(sys))
 
     def file_loaded(self, obj, filename):
+        if filename.strip('..').count('.') > 1:
+            self.lastLoadedProgram = ""
+            return
         if filename is not None:
             self.w.gcode_progress.setValue(0)
             self.lastLoadedProgram = filename
