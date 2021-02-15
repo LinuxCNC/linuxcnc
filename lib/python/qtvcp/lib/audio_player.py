@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp library audio player
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -56,7 +56,7 @@ try:
     ESPEAK = True
 except:
     ESPEAK = False
-    log.warning('audio alerts - Is python-espeak installed?')
+    log.warning('audio alerts - Is espeak installed? (sudo apt install espeak)')
     log.warning('Text to speech output not available. ')
 
 
