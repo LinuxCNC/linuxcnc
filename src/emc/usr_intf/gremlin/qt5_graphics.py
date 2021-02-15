@@ -7,6 +7,8 @@ import math
 
 import warnings
 
+from gettext import gettext as _
+
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
@@ -379,17 +381,19 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.percentLoaded.emit(percent)
 
     def calculate_gcode_properties(self, canon):
-        def dist(xxx_todo_changeme, xxx_todo_changeme1):
-            (x,y,z) = xxx_todo_changeme
-            (p,q,r) = xxx_todo_changeme1
+        def dist(point1, point2):
+            (x, y, z) = point1
+            (p, q, r) = point2
             return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
+
         def from_internal_units(pos, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
             lu = (unit or 1) * 25.4
 
             lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
-            return [a*b for a, b in zip(pos, lus)]
+            return [aa*bb for aa, bb in zip(pos, lus)]
+
         def from_internal_linear_unit(v, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
@@ -542,9 +546,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.updateGL()
 
     # This overrides glcannon.py method so we can change the DRO 
-    def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-            if not self.enable_dro:
-                return limit, homed, [''], ['']
+    def dro_format(self, s, spd, dtg, limit, homed, positions, axisdtg, g5x_offset, g92_offset, tlo_offset):
+        if not self.enable_dro:
+            return limit, homed, [''], ['']
 
             if self.metric_units:
                 format = "% 6s:" + self.dro_mm
@@ -567,29 +571,23 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 rotformat = "% 5s %1s:" + self.dro_deg
             diaformat = " " + format
 
-            posstrs = []
-            droposstrs = []
-            for i in range(9):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    posstrs.append(format % (a, positions[i]))
-                    if self.show_dtg:
-                        droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
-                    else:
-                        droposstrs.append(droformat % (a, positions[i]))
-            droposstrs.append("")
+        for i in range(9):
+            index = s.g5x_index
+            if index < 7:
+                label = "G5%d" % (index+3)
+            else:
+                label = "G59.%d" % (index-6)
 
-            for i in range(9):
-                index = s.g5x_index
-                if index<7:
-                    label = "G5%d" % (index+3)
-                else:
-                    label = "G59.%d" % (index-6)
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1 << i):
+                droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
+        droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
-            droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+        droposstrs.append("")
+        for i in range(9):
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1 << i):
+                droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
             droposstrs.append("")
             for i in range(9):
@@ -601,20 +599,14 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if self.is_lathe():
                 posstrs[0] = ""
                 if self.show_lathe_radius:
-                    posstrs.insert(1, format % ("Rad", positions[0]))
+                    droposstrs.insert(1, droformat % ("Rad", positions[0], "R", axisdtg[0]))
                 else:
-                    posstrs.insert(1, format % ("Dia", positions[0]*2.0))
-                droposstrs[0] = ""
-                if self.show_dtg:
-                    if self.show_lathe_radius:
-                        droposstrs.insert(1, droformat % ("Rad", positions[0], "R", axisdtg[0]))
-                    else:
-                        droposstrs.insert(1, droformat % ("Dia", positions[0]*2.0, "D", axisdtg[0]*2.0))
+                    droposstrs.insert(1, droformat % ("Dia", positions[0]*2.0, "D", axisdtg[0]*2.0))
+            else:
+                if self.show_lathe_radius:
+                    droposstrs.insert(1, droformat % ("Rad", positions[0]))
                 else:
-                    if self.show_lathe_radius:
-                        droposstrs.insert(1, droformat % ("Rad", positions[0]))
-                    else:
-                        droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
+                    droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
                 posstrs.append(self.dro_vel % ( spd))
@@ -625,9 +617,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                     pos +=1
                 droposstrs.insert(pos, " " + self.dro_vel % (spd))
 
-            if self.show_dtg:
-                posstrs.append(format % ("DTG", dtg))
-            return limit, homed, posstrs, droposstrs
+        if self.show_dtg:
+            posstrs.append(d_format % ("DTG", dtg))
+        return limit, homed, posstrs, droposstrs
 
 
     def minimumSizeHint(self):
@@ -698,7 +690,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             #self.draw_small_origin(genList)
             #GL.glCallList(genList)
             # display something - probably in QtDesigner
-            GL.glCallList(self.object)
+            # GL.glCallList(self.object)
 
     # replaces glcanoon function
     def redraw_perspective(self):
@@ -1047,7 +1039,7 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         inifilename = sys.argv[1]
     else:
-        usage()
+        os.open('usage()')
     window = Window(inifilename)
     window.show()
     sys.exit(app.exec_())

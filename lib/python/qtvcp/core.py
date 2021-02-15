@@ -7,8 +7,11 @@ import inspect
 import sys
 if sys.version_info.major > 2:
     from gi.repository import GObject
+    from gi.repository import GLib
+    gobj_run_first = GObject.SignalFlags.RUN_FIRST
 else:
     import gobject as GObject
+    gobj_run_first = GObject.SIGNAL_RUN_FIRST
 
 import _hal
 import hal
@@ -156,7 +159,7 @@ class Status(GStat):
     _instance = None
     _instanceNum = 0
     __gsignals__ = {
-        'toolfile-stale': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'toolfile-stale': (gobj_run_first, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
 
     # only make one instance of the class - pass it to all other
@@ -177,9 +180,13 @@ class Status(GStat):
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
 
     # we override this function from hal_glib
-    # TODO why do we need to do this with qt5 and not qt4?
-    # seg fault without it
     def set_timer(self):
+        if sys.version_info.major > 2:
+            GLib.timeout_add(100, self.update)
+            return
+        # TODO Python 2 needs the threads_init. Python3 this is deprecated and not needed
+        # View new functionality here: https://pygobject.readthedocs.io/en/latest/guide/threading.html
+        # If we want to keep the time out it is now GLib.timeout_add(100, self.update)
         GObject.threads_init()
         GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
 
