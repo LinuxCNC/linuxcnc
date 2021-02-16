@@ -463,7 +463,6 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
     if (retval==slavedata->read_reg_count) {
         retval = 0;
         hal_data_block->retval = retval;
-        if (retval==0) {
         *(hal_data_block->stat1) = receive_data[0];
         *(hal_data_block->stat2) = receive_data[1];
         *(hal_data_block->freq_cmd) = receive_data[2] * 0.1;
@@ -481,8 +480,6 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
         *(hal_data_block->power_factor) = receive_data[10];
         *(hal_data_block->load_pct) = receive_data[11] * 0.1;
         *(hal_data_block->FW_Rev) = receive_data[12];
-        retval = 0;
-        }
     } else {
         hal_data_block->retval = retval;
         hal_data_block->errorcount++;
