@@ -5062,10 +5062,10 @@ TO FILE</string>
                  <bool>true</bool>
                 </property>
                 <property name="image_path" stdset="0">
-                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/estopred.png</pixmap>
+                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/Estop.png</pixmap>
                 </property>
                 <property name="false_image_path" stdset="0">
-                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/E-Stop.gif</pixmap>
+                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/Estop_reset.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -12380,7 +12380,7 @@ INCREMENT</string>
                        </property>
                        <property name="icon">
                         <iconset resource="qtdragon_hd.qrc">
-                         <normaloff>:/buttons/images/spindle_ccw.gif</normaloff>:/buttons/images/spindle_ccw.gif</iconset>
+                         <normaloff>:/buttons/images/spindle_rev.png</normaloff>:/buttons/images/spindle_rev.png</iconset>
                        </property>
                        <property name="indicator_option" stdset="0">
                         <bool>false</bool>
@@ -12433,7 +12433,8 @@ INCREMENT</string>
                         </size>
                        </property>
                        <property name="icon">
-                        <iconset theme="stop"/>
+                        <iconset resource="qtdragon_hd.qrc">
+                         <normaloff>:/buttons/images/spindle_stop.png</normaloff>:/buttons/images/spindle_stop.png</iconset>
                        </property>
                        <property name="indicator_option" stdset="0">
                         <bool>false</bool>
@@ -12493,7 +12494,7 @@ INCREMENT</string>
                        </property>
                        <property name="icon">
                         <iconset resource="qtdragon_hd.qrc">
-                         <normaloff>:/buttons/images/spindle_cw.gif</normaloff>:/buttons/images/spindle_cw.gif</iconset>
+                         <normaloff>:/buttons/images/spindle_fwd.png</normaloff>:/buttons/images/spindle_fwd.png</iconset>
                        </property>
                        <property name="indicator_option" stdset="0">
                         <bool>false</bool>
@@ -12822,7 +12823,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>09:44:00 PM</string>
+               <string>10:08:32 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13772,7 +13773,7 @@ INCREMENT</string>
   <slot>chk_use_touchplate_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
