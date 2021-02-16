@@ -159,7 +159,8 @@ def mode_changed(P, W):
     auto_preview(P, W)
 
 def auto_preview(P, W):
-    if W.sEntry.text() and W.dEntry.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.sEntry.text() and W.dEntry.text():
         preview(P, W) 
 
 def entry_changed(P, W, widget):

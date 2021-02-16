@@ -151,7 +151,8 @@ def preview(P, W):
     W.undo.setEnabled(True)
 
 def auto_preview(P, W):
-    if W.rEntry.text() and W.sEntry.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.rEntry.text() and W.sEntry.text():
         preview(P, W) 
 
 def entry_changed(P, W, widget):

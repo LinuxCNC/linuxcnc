@@ -164,7 +164,8 @@ def preview(P, W):
         P.dialog_error(QMessageBox.Warning, 'STAR', msg)
 
 def auto_preview(P, W):
-    if W.pEntry.text() and W.odEntry.text() and W.idEntry.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.pEntry.text() and W.odEntry.text() and W.idEntry.text():
         preview(P, W) 
 
 def entry_changed(P, W, widget):

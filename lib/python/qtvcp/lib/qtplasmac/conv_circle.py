@@ -227,7 +227,8 @@ def entry_changed(P, W, widget):
             W.ocEntry.setEnabled(True)
 
 def auto_preview(P, W):
-    if W.dEntry.text() and float(W.dEntry.text()) > 0:
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.dEntry.text() and float(W.dEntry.text()) > 0:
         preview(P, W) 
 
 def add_shape_to_file(P, W):

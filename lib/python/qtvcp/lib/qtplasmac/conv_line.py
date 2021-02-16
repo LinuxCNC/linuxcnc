@@ -656,7 +656,8 @@ def line_type_changed(P, W):
         set_arc_by_angle_radius(P, W)
 
 def auto_preview(P, W):
-    if W.entry1.text() and W.entry2.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.entry1.text() and W.entry2.text():
         if (P.conv_add_segment == 0):
             if P.landscape:
                 if (W.lType.currentText() == 'LINE POINT ~ POINT' and W.entry4.text() and W.entry5.text()) or \

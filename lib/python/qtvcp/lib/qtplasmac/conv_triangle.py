@@ -206,7 +206,8 @@ def entry_changed(P, W, widget):
         W.kOffset.setEnabled(True)
 
 def auto_preview(P, W):
-    if (W.AEntry.text() and W.BEntry.text() and W.CEntry.text() and \
+    if W.main_tab_widget.currentIndex() == 1 and \
+       (W.AEntry.text() and W.BEntry.text() and W.CEntry.text() and \
        (W.aEntry.text() or W.bEntry.text() or W.cEntry.text())) or \
        (W.AEntry.text() and W.bEntry.text() and W.cEntry.text()) or \
        (W.aEntry.text() and W.BEntry.text() and W.cEntry.text()) or \

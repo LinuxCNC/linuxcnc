@@ -399,7 +399,8 @@ def entry_changed(P, W, widget):
     P.conv_entry_changed(widget)
 
 def auto_preview(P, W):
-    if W.xlEntry.text() and W.ylEntry.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.xlEntry.text() and W.ylEntry.text():
         preview(P, W) 
 
 def add_shape_to_file(P, W):

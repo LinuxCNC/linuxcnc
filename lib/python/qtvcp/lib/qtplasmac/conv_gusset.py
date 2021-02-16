@@ -204,7 +204,8 @@ def rad_button_pressed(P, W, widget):
     auto_preview(P, W)
 
 def auto_preview(P, W):
-    if W.wEntry.text() and W.hEntry.text():
+    if W.main_tab_widget.currentIndex() == 1 and \
+       W.wEntry.text() and W.hEntry.text():
         preview(P, W) 
 
 def entry_changed(P, W, widget):
