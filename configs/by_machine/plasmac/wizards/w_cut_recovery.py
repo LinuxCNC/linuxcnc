@@ -128,7 +128,7 @@ class recovery:
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale - \
            hal.get_value('plasmac_run.kerf-width-f') < self.xMin:
-            msg = 'X axis motion would trip X mimimum limit'
+            msg = 'X axis motion would trip X minimum limit'
             self.dialog_error(msg)
             return
         move1 = int(hal.get_value('plasmac_run.kerf-width-f') / self.oScale * -1)
@@ -177,7 +177,7 @@ class recovery:
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale - \
            hal.get_value('plasmac_run.kerf-width-f') < self.xMin:
-            msg = 'X axis motion would trip X mimimum limit'
+            msg = 'X axis motion would trip X minimum limit'
             self.dialog_error(msg)
             return
         move = int(hal.get_value('plasmac_run.kerf-width-f') / self.oScale * -1)
@@ -199,7 +199,7 @@ class recovery:
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale - \
            hal.get_value('plasmac_run.kerf-width-f') < self.xMin:
-            msg = 'X axis motion would trip X mimimum limit'
+            msg = 'X axis motion would trip X minimum limit'
             self.dialog_error(msg)
             return
         move1 = int(hal.get_value('plasmac_run.kerf-width-f') / self.oScale * -1)

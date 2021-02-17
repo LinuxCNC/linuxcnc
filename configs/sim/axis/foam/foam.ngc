@@ -1,4 +1,4 @@
-(test this with axis_9axis sim mashine )
+(test this with axis_9axis sim machine )
 G17 G21 G90 G61 G54
 (AXIS,XY_Z_POS,5)
 (AXIS,UV_Z_POS,30)

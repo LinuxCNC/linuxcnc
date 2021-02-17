@@ -473,7 +473,7 @@ class HandlerClass:
         if halpin.get():
             material = int(self.builder.get_object('material').get_active_text().split(': ', 1)[0])
 #           FIX_ME do we need to stop the program if a timeout occurs???
-            print('\nMaterial change timeout occured for material #{}'.format(material))
+            print('\nMaterial change timeout occurred for material #{}'.format(material))
             hal.set_p('plasmac_run.material-change-number', '{}'.format(material))
             hal.set_p('plasmac_run.material-change-timeout', '0')
             hal.set_p('motion.digital-in-03','0')

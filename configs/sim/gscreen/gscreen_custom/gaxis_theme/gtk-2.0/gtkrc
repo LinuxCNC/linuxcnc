@@ -497,7 +497,7 @@ style "default"
   fg[PRELIGHT]      = "#000000" #Highlighted button text
   fg[INSENSITIVE]   = "#d7d7d7" #Not selectable button text
 
-  bg[NORMAL]        = "#d7d7d7" #Backround
+  bg[NORMAL]        = "#d7d7d7" #Background
   bg[SELECTED]      = "#ff0000" #not used
   bg[ACTIVE]        = "#ff0000" #not used
   bg[PRELIGHT]      = "#000000" #Themes, warning audio,alert audio |(pipe) highlight
@@ -512,7 +512,7 @@ style "default"
   text[NORMAL]      = "#000000" #This is for MDI-command, tooledit, offset edit, grid size, starting rpm and themes normal text color
   text[SELECTED]    = "#000000" #This is for MDI-command, tooledit and offset edit it will change the selected text color
   text[ACTIVE]      = "#000000" #This is for MDI-command, tooledit and offset edit it will highlight the last line text that was selected
-  text[PRELIGHT]    = "#000000" #This is for initail theme text hightlight before selecting 
+  text[PRELIGHT]    = "#000000" #This is for initial theme text highlight before selecting 
   text[INSENSITIVE] = "#ff0000" #not used
 
   engine "pixmap" 

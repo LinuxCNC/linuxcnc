@@ -208,7 +208,7 @@ class pmx(gtk.Window):
                                 try:
                                     self.faultName.set_text('{}'.format(faultCode[code]))
                                 except:
-                                    self.faultName.set_text('Unkown fault code')
+                                    self.faultName.set_text('Unknown fault code')
                             return code
                         elif reg == rCurrentMin:
                             data = float(int(result[7:11], 16) / 64.0)

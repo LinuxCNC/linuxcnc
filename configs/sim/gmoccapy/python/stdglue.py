@@ -99,7 +99,7 @@ def change_epilog(self, **words):
             elif self.return_value == -2:
                 message = "Probevel <= 0, not permitted!, Please correct INI Settings."
             elif self.return_value == -3:
-                message = "Probe contact failiure !!"
+                message = "Probe contact failure !!"
             else:
                 message = "M6 aborted (return code %.1f)" % (self.return_value)
             self.set_errormsg(message)
@@ -185,7 +185,7 @@ def cycle_prolog(self,**words):
         raise
         return "cycle_prolog failed: %s" % (e)
 
-# make sure the next line has the same motion code, unless overriden by a
+# make sure the next line has the same motion code, unless overridden by a
 # new G code
 def cycle_epilog(self,**words):
     try:

@@ -95,7 +95,7 @@ class HandlerClass:
         t.add_events(gtk.gdk.STRUCTURE_MASK)
         self.cmd = linuxcnc.command()
 
-        # This conects the expose event to re-draw and scale the SVG frames
+        # This connects the expose event to re-draw and scale the SVG frames
         t = self.builder.get_object('tabs1')
         t.connect_after("expose_event", self.on_expose)
         t.connect("destroy", gtk.main_quit)

@@ -7,7 +7,7 @@
 # This corexy method allows home switches to operate
 # along the Cartesian X and Y coordinate motion.
 # By contrast, when using corexykins kinematics, home
-# switches operate according to motor postions for
+# switches operate according to motor positions for
 # joints 0 and 1.
 
 # show original signals for joints 0,1
