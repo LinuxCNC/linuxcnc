@@ -329,8 +329,8 @@ o102 else
 o102 endif
 ----
 
-Several conditons may be tested for by 'elseif' statements until the
-'else' path is finally executed if all preceding conditons are false:
+Several conditions may be tested for by 'elseif' statements until the
+'else' path is finally executed if all preceding conditions are false:
 
 .If Elseif Else Endif Example
 ----
@@ -447,7 +447,7 @@ before the next subroutine call.
 The following statements  cause an error message and  abort the
 interpreter:
 
- - a `return` or `endsub` not within a sub defintion
+ - a `return` or `endsub` not within a sub definition
  - a label on `repeat` which is defined elsewhere
  - a label on `while` which is defińed elsewhere and not referring to a `do`
  - a label on `if` defined elsewhere

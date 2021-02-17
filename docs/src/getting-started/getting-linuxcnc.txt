@@ -154,14 +154,14 @@ diskutil list
 -----
 . Insert the USB and note the name of the new disk that appears, eg
   /dev/disk5
-. unmount the USB. The number found above should be substitued in place
+. unmount the USB. The number found above should be substituted in place
   of the N
 +
 -----
 diskutil unmountDisk /dev/diskN
 -----
 . Transfer the data with dd, as for Linux above. Note that the disk name
-  has an added "r" at the begining
+  has an added "r" at the beginning
 +
 -----
 sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
@@ -203,7 +203,7 @@ shut down the computer then turn the computer back on. This will boot
 the computer from the Live/Install Image and choose the Live boot option.
 
 NOTE: If the system does not boot from the DVD or USB stick it might be
-necesary to change the boot order in the PC BIOS.
+necessary to change the boot order in the PC BIOS.
 
 Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
@@ -309,7 +309,7 @@ project developers.
 
 === Installing on Debian Buster (with Preempt-RT kernel)
 
-. Install Debian Buster (Debian 10), amd64 verison.
+. Install Debian Buster (Debian 10), amd64 version.
 You can download the installer here:
   https://www.debian.org/releases/buster/
 
@@ -457,7 +457,7 @@ sudo apt-get install linuxcnc-uspace
   work (regular Ubuntu, Xubuntu, Lubuntu, etc). 64-bit (AMD64)
   is currently not supported. You can download the installer here:
   http://releases.ubuntu.com/precise/
-  Note the warnings that this release is out of support. But is is a way
+  Note the warnings that this release is out of support. But it is a way
   to install LinuxCNC with a well-tested RTAI kernel.
 
 . Run the following to  bring the machine up to date with the latest packages

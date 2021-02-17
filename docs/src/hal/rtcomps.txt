@@ -36,7 +36,7 @@ number causes a
 single step pulse generator to be loaded, the value of the number
  determines the stepping type. '<ctrl_array>' is a comma separated
 series of 'p' or 'v' characters, to specify position or velocity
-mode. 'ctrl_type' is optional, if ommitted, all of the step generators
+mode. 'ctrl_type' is optional, if omitted, all of the step generators
 will be position
 mode. 
 
@@ -107,10 +107,10 @@ on the step type and control type selected.
 * '(float) stepgen.<chan>.dirsetup' - Minimum time from a direction
    change to the beginning of the next
    step pulse (step type 0 only), in nanoseconds.
-* '(float) stepgen.<chan>.dirhold' - Minmum time from the end of a
+* '(float) stepgen.<chan>.dirhold' - Minimum time from the end of a
    step pulse to a direction change
    (step type 0 only), in nanoseconds.
-* '(float) stepgen.<chan>.dirdelay' - Minmum time any step to a step
+* '(float) stepgen.<chan>.dirdelay' - Minimum time any step to a step
    in the opposite direction (step
    types 1-14 only), in nano-seconds.
 * '(s32) stepgen.<chan>.rawcounts' - The raw feedback count, updated
@@ -398,7 +398,7 @@ halcmd: unloadrt encoder
 * 'encoder.<chan>.index-enable' (bit, I/O) - When True, 'counts' and
    'position are' reset to zero on next rising edge of Phase Z. At the
    same time, 'index-enable' is reset to zero to indicate that the rising
-   edge has occoured. The 'index-enable' pin is bi-directional. If
+   edge has occurred. The 'index-enable' pin is bi-directional. If
    'index-enable' is False, the Phase Z channel of the encoder will be
    ignored, and the
     counter will count normally. The encoder driver will never set

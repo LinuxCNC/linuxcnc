@@ -120,7 +120,7 @@ class HandlerClass:
         self.builder.get_object('e_state_label').set_label("E State: %s" % (text))
 
     def update_interp_label(self,text):
-        self.builder.get_object('interp_state_label').set_label("Interpeter State: %s" % (text))
+        self.builder.get_object('interp_state_label').set_label("Interpreter State: %s" % (text))
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
@@ -161,7 +161,7 @@ class HandlerClass:
         self.w.e_state_label.setText("E State: %s" % (text))
 
     def update_interp_label(self,text):
-        self.winterp_state_label.setText("Interpeter State: %s" % (text))
+        self.winterp_state_label.setText("Interpreter State: %s" % (text))
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,widgets,paths)]
@@ -348,7 +348,7 @@ Sent when G96 status changes +
 
 *rpm-mode* :: '(returns bool)' -
 Sent when G97 status changes +
-(constatnt RPM mode)
+(constant RPM mode)
 
 *radius-mode* :: '(returns bool)' -
 Sent when G8 status changes +

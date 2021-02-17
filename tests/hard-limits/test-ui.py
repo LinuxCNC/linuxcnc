@@ -181,7 +181,7 @@ s.poll()
 print_status(s)
 print("command.serial: {}".format(c.serial))
 # this fails in 2.6.12 due to the stat RCS message having a status of
-# RCS_EXEC...  as if though the override_limits command didnt set status
+# RCS_EXEC...  as if though the override_limits command didn't set status
 # back to RCS_DONE when it finished.
 # assert_wait_complete(c)
 

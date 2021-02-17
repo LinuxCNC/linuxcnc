@@ -158,7 +158,7 @@ def jog_joint(joint_number, target):
                 success = False
         else:
             if joint[j] != h[pin_name]:
-                log("joint %d moved from %.3f to %.3f but shouldnt have!" % (j, joint[j], h[pin_name]))
+                log("joint %d moved from %.3f to %.3f but should not have!" % (j, joint[j], h[pin_name]))
                 success = False
 
     wait_for_joint_to_stop(joint_number)

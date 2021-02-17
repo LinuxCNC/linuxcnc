@@ -140,7 +140,7 @@ offsets are zero.
 When motion is stopped with no deacceleration phase, system
 *acceleration limits may be violated* and lead to: 1) a following
 error (and/or a thump) for a servo motor system, 2) a loss of
-steps for a stepper motor system.  In general, it is recommeneded
+steps for a stepper motor system.  In general, it is recommended
 that external offsets are applied in a manner to avoid
 approaching soft limits.
 

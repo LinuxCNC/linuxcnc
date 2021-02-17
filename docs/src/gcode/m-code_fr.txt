@@ -561,7 +561,7 @@ o<showstate> call
 
 M70 (save caller state in at global level)
 O<imperialsub> call
-M72 (explicitely restore state)
+M72 (explicitly restore state)
 
 (debug, back in main, state now:)
 o<showstate> call

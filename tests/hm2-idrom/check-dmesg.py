@@ -56,7 +56,7 @@ while 1:
 
 
 if (result == 0): print(sought_error)
-else: print("test pattern %s didnt produce error '%s'" % (os.getenv("TEST_PATTERN"), sought_error))
+else: print("test pattern %s did not produce error '%s'" % (os.getenv("TEST_PATTERN"), sought_error))
 
 sys.exit(result)
 

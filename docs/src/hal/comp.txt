@@ -503,7 +503,7 @@ loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
 If a loadrt line specifies more instances than personalities, the
 instances with unspecified personalities are assigned a
 personality of 0.  If the requested number of instances
-excedes the number of allowed personalities, personalities are
+exceeds the number of allowed personalities, personalities are
 assigned by indexing modulo the number of allowed personalities.
 A message is printed denoting such assignments.
 

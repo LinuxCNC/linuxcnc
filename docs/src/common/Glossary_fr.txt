@@ -242,7 +242,7 @@ Offsets::
     often written around some convenient point, such as X0, Y0. 
     Fixture offsets can be used to shift the actual execution point 
     of that gcode program to properly fit the true location 
-    of the vise and jaws. 
+    of the vice and jaws. 
     Tool offsets can be used to shift the "uncorrected" length 
     of a tool to equal that tool's actual length. 
 

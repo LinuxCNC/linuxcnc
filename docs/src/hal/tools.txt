@@ -128,7 +128,7 @@ Example:
    sig+estop-loop
 
 When loading a watchfile with the 'File/Load Watch List' menu item, the
-token-name pairs may appear as single or mulitple lines.  Blank lines and
+token-name pairs may appear as single or multiple lines.  Blank lines and
 lines beginning with a # character are ignored.
 
 
@@ -175,13 +175,13 @@ writable pins, parameters or signals.  Usage:
 
          Hal item types bit,s32,u32,float are supported
 
-         When a bit item is specifed, a pushbutton is created
+         When a bit item is specified, a pushbutton is created
          to manage the item in one of three manners specified
          by radio buttons:
              toggle: Toggle value when button pressed
              pulse:  Pulse item to 1 once when button pressed
              hold:   Set to 1 while button pressed
-         The bit pushbutton mode can be specifed on the command
+         The bit pushbutton mode can be specified on the command
          line by formatting the item name:
              namei/mode=[toggle | pulse | hold]
          If the mode begins with an uppercase letter, the radio
@@ -336,4 +336,4 @@ halreport generates a connections report for a running hal
 application to aid in designing and verifying connections.  Pin
 types and current values are not shown.  For this information use
 applications like halshow, halmeter, halscope or the 'show'
-command available with comand-line halcmd program.
+command available with command-line halcmd program.
