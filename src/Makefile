@@ -737,6 +737,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
 	$(FILE) ../lib/python/qtvcp/*.py ../lib/python/qtvcp/*.ui ../lib/python/qtvcp/*.txt $(DESTDIR)$(SITEPY)/qtvcp
 	$(FILE) ../lib/python/qtvcp/designer/*.txt $(DESTDIR)$(SITEPY)/qtvcp/designer
+	$(FILE) ../lib/python/qtvcp/designer/install_script $(DESTDIR)$(SITEPY)/qtvcp/designer
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.5/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.5
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.7/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.7
 	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.9/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.9
