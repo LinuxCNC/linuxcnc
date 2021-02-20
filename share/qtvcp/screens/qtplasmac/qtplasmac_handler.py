@@ -1,4 +1,4 @@
-VERSION = '0.9.40'
+VERSION = '0.9.41'
 
 import os, sys
 from shutil import copy as COPY
@@ -378,9 +378,9 @@ class HandlerClass:
         self.pmx485StatusPin = self.h.newpin('pmx485_status', hal.HAL_BIT, hal.HAL_IN)
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
+        self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
-        self.zOffsetPin = self.h.newpin('z_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -463,7 +463,7 @@ class HandlerClass:
         #offsets
         CALL(['halcmd', 'net', 'plasmac:x-offset-current', 'qtplasmac.x_offset'])
         CALL(['halcmd', 'net', 'plasmac:y-offset-current', 'qtplasmac.y_offset'])
-        CALL(['halcmd', 'net', 'plasmac:z-offset-current', 'qtplasmac.z_offset'])
+        CALL(['halcmd', 'net', 'plasmac:offsets-active', 'qtplasmac.offsets_active'])
         #override
         CALL(['halcmd', 'net', 'plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
         #ini
@@ -808,11 +808,9 @@ class HandlerClass:
         ACTION.SET_MANUAL_MODE()
 
     def set_run_button_state(self):
-        if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and \
-            self.xOffsetPin.get() > -0.001 and self.xOffsetPin.get() < 0.001 and \
-            self.yOffsetPin.get() > -0.001 and self.yOffsetPin.get() < 0.001 and \
-            self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001 and \
-            self.w.gcode_display.lines() > 1 and self.plasmacStatePin.get() == 0:
+        if STATUS.machine_is_on() and STATUS.is_all_homed() and \
+           STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
+           self.w.gcode_display.lines() > 1 and self.plasmacStatePin.get() == 0:
             self.runButtonTimer.start(75)
             self.w.abort.setEnabled(False)
         else:
@@ -822,10 +820,8 @@ class HandlerClass:
         self.w.run.setEnabled(True)
 
     def set_pause_button_state(self):
-        if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_paused() and \
-           self.xOffsetPin.get() > -0.001 and self.xOffsetPin.get() < 0.001 and \
-           self.yOffsetPin.get() > -0.001 and self.yOffsetPin.get() < 0.001 and \
-           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001:
+        if STATUS.machine_is_on() and STATUS.is_all_homed() and \
+           STATUS.is_interp_paused() and not self.offsetsActivePin.get():
             self.w.pause.setEnabled(True)
             if self.ccButton:
                 self.button_normal(self.ccButton)
@@ -834,8 +830,7 @@ class HandlerClass:
             self.w.pause.setEnabled(False)
 
     def set_jog_button_state(self):
-        if STATUS.machine_is_on() and STATUS.is_interp_idle() and \
-           self.zOffsetPin.get() > -0.001 and self.zOffsetPin.get() < 0.001:
+        if STATUS.machine_is_on() and STATUS.is_interp_idle() and not self.offsetsActivePin.get():
             for widget in self.jogButtonList:
                 self.w[widget].setEnabled(True)
             if STATUS.is_all_homed():
@@ -1189,20 +1184,27 @@ class HandlerClass:
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value)
 
-    def z_offset_changed(self, offset):
-        if offset > -0.001 and offset < 0.001:
+    def offsets_active_changed(self, value):
+        if not value:
             # set z dro to normal made
             self.w.dro_z.setProperty('Qreference_type', 1)
             self.set_run_button_state()
             self.set_jog_button_state()
 
     def consumable_change_changed(self, value):
-        if not value and self.ccButton:
-            if STATUS.is_interp_paused():
-                self.w[self.ccButton].setEnabled(True)
-            else:
-                self.w[self.ccButton].setEnabled(False)
-            self.button_normal(self.ccButton)
+        if value:
+            self.cutrec_buttons_enable(False)
+            self.cutrec_motion_enable(False)
+        else:
+            self.cutrec_buttons_enable(True)
+            self.cutrec_motion_enable(True)
+            self.w.pause.setEnabled(True)
+            if self.ccButton:
+                if STATUS.is_interp_paused():
+                    self.w[self.ccButton].setEnabled(True)
+                else:
+                    self.w[self.ccButton].setEnabled(False)
+                self.button_normal(self.ccButton)
 
     def plasmac_state_changed(self, state):
         if (state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST:
@@ -1443,9 +1445,9 @@ class HandlerClass:
         self.w.cut_rec_sw.pressed.connect(lambda:self.cutrec_move(-1, -1))
         self.w.cut_rec_w.pressed.connect(lambda:self.cutrec_move(-1, 0))
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
-        self.xOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.xOffsetPin.get()))
-        self.yOffsetPin.value_changed.connect(lambda:self.cutrec_offset_changed(self.yOffsetPin.get()))
-        self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
+        self.xOffsetPin.value_changed.connect(self.cutrec_offset_changed)
+        self.yOffsetPin.value_changed.connect(self.cutrec_offset_changed)
+        self.offsetsActivePin.value_changed.connect(lambda v:self.offsets_active_changed(v))
         self.consChangePin.value_changed.connect(lambda v:self.consumable_change_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
         self.w.cam_goto.pressed.connect(self.cam_goto_pressed)
@@ -1600,8 +1602,7 @@ class HandlerClass:
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
-           self.zOffsetPin.get() < -0.001 or self.zOffsetPin.get() > 0.001 or \
-           self.runButtonTimer.isActive():
+           self.offsetsActivePin.get() or self.runButtonTimer.isActive():
             return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot Jog\n{} tripped\n'.format(self.jogInhibit))
@@ -2073,8 +2074,7 @@ class HandlerClass:
             hal.set_p('plasmac.ohmic-test','1')
         elif 'probe-test' in commands.lower():
             if not self.probeTime and \
-               self.probeTimer.remainingTime() <= 0 and \
-               not hal.get_value('plasmac.z-offset-counts'):
+               self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
                 self.probeTime = 30
                 if commands.lower().replace('probe-test','').strip():
                     self.probeTime = int(commands.lower().replace('probe-test','').strip())
@@ -3453,16 +3453,23 @@ class HandlerClass:
         hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('axis.y.eoffset-counts') + moveY)))
         hal.set_p('plasmac.cut-recovery', '1')
 
-    def cutrec_offset_changed(self, offset):
-        if offset > 0.05 * self.unitsPerMm or offset < -0.05 * self.unitsPerMm:
+    def cutrec_offset_changed(self):
+        if hal.get_value('plasmac.consumable-changing'):
+            return
+        if self.xOffsetPin.get() > 0.001 * self.unitsPerMm or self.xOffsetPin.get() < -0.001 * self.unitsPerMm or \
+           self.yOffsetPin.get() > 0.001 * self.unitsPerMm or self.yOffsetPin.get() < -0.001 * self.unitsPerMm:
             self.cutrec_motion_enable(False)
             if self.cancelWait:
                 self.cutrec_buttons_enable(False)
+            if self.ccButton:
+                self.w[self.ccButton].setEnabled(False)
         else:
             self.cancelWait = False
             self.cutrec_motion_enable(True)
             self.cutrec_buttons_enable(True)
-        self.set_pause_button_state()
+            hal.set_p('plasmac.cut-recovery', '0')
+            if self.ccButton:
+                self.w[self.ccButton].setEnabled(True)
 
     def cutrec_cancel_pressed(self):
         self.cancelWait = True
@@ -3471,6 +3478,7 @@ class HandlerClass:
     def clear_offsets(self):
         hal.set_p('plasmac.x-offset', '0')
         hal.set_p('plasmac.y-offset', '0')
+        hal.set_p('plasmac.cut-recovery', '0')
 
     def cutrec_motion_enable(self, state):
         for widget in ['fwd', 'rev', 'speed']:
@@ -3479,8 +3487,6 @@ class HandlerClass:
     def cutrec_buttons_enable(self, state):
         for widget in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'cancel']:
             self.w['cut_rec_{}'.format(widget)].setEnabled(state)
-        for widget in ['run', 'abort', 'pause', 'power']:
-            self.w['{}'.format(widget)].setEnabled(state)
 
 
 #########################################################################################################################
