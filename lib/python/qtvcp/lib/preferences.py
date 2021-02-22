@@ -72,7 +72,7 @@ class Access(cp):
                 store[key] = value
             return store
         except configparser.NoSectionError:
-            print('error with {}'.format(section))
+            self.add_section(section)
             return store
 
     def putpref(self, option, value, type=bool, section="DEFAULT"):
