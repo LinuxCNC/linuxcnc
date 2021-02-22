@@ -159,8 +159,12 @@ class FileManager(QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.PREFS_:
             last_path = self.PREFS_.getpref('last_loaded_directory', self.user_path, str, 'BOOK_KEEPING')
-            self.updateDirectoryView(last_path)
             LOG.debug("lAST FILE PATH: {}".format(last_path))
+            if not last_path == '':
+                self.updateDirectoryView(last_path)
+            else:
+                self.updateDirectoryView(self.user_path)
+
 
             # get all the saved jumplist paths
             temp = self.PREFS_.getall('FILEMANAGER_JUMPLIST')
