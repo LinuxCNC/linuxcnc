@@ -51,6 +51,8 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 2: return "Muxed B";
                 case 3: return "Muxed Index";
                 case 4: return "Muxed IndexMask";
+                case 5: return "Muxed Probe";
+                case 6: return "Muxed Shared Index";
             }
             break;
 
@@ -412,6 +414,8 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 2: return "phase-B";
                 case 3: return "phase-Z";
                 case 4: return "phase-Z-mask";
+                case 5: return "probe";
+                case 6: return "shared-Z";
             }
             break;
 
