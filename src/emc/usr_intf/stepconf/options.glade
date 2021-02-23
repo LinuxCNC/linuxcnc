@@ -38,23 +38,36 @@
     <property name="value">10</property>
     <property name="step_increment">1</property>
   </object>
+  <object class="GtkListStore" id="liststore_screens">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Axis</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Gmoccapy</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Qtdragon</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkBox" id="options">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox" id="hbox1">
+      <object class="GtkBox" id="box1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkRadioButton" id="select_axis">
-            <property name="label" translatable="yes">Use AXIS Screen</property>
+          <object class="GtkLabel" id="label3">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="xalign">0.5</property>
-            <property name="active">True</property>
-            <property name="draw_indicator">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Screen:  </property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -63,18 +76,28 @@
           </packing>
         </child>
         <child>
-          <object class="GtkRadioButton" id="select_gmoccapy">
-            <property name="label" translatable="yes">Use Gmoccapy Screen</property>
+          <object class="GtkAlignment" id="alignment5">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="xalign">0.5</property>
-            <property name="active">True</property>
-            <property name="draw_indicator">True</property>
-            <property name="group">select_axis</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">2.2351741291171123e-10</property>
+            <property name="xscale">0.5</property>
+            <child>
+              <object class="GtkComboBox" id="combobox_screens">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">liststore_screens</property>
+                <property name="active">0</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
@@ -85,6 +108,9 @@
         <property name="fill">True</property>
         <property name="position">0</property>
       </packing>
+    </child>
+    <child>
+      <placeholder/>
     </child>
     <child>
       <object class="GtkCheckButton" id="manualtoolchange">
@@ -99,7 +125,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">1</property>
+        <property name="position">2</property>
       </packing>
     </child>
     <child>
@@ -117,7 +143,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">2</property>
+        <property name="position">3</property>
       </packing>
     </child>
     <child>
@@ -134,7 +160,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">3</property>
+        <property name="position">4</property>
       </packing>
     </child>
     <child>
@@ -339,7 +365,7 @@ panel</property>
         <property name="expand">False</property>
         <property name="fill">True</property>
         <property name="padding">3</property>
-        <property name="position">4</property>
+        <property name="position">5</property>
       </packing>
     </child>
     <child>
@@ -356,7 +382,7 @@ panel</property>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">5</property>
+        <property name="position">6</property>
       </packing>
     </child>
     <child>
@@ -481,12 +507,12 @@ panel</property>
                                           <object class="GtkLabel" id="label_digin">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0.039999999105930328</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes">Number of digital in pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">digitsin</property>
                                             <property name="angle">2.2351741811588166e-10</property>
+                                            <property name="xalign">0.039999999105930328</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -497,11 +523,11 @@ panel</property>
                                           <object class="GtkLabel" id="label_digout">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0.049999997019767761</property>
                                             <property name="ypad">3</property>
                                             <property name="label" translatable="yes">Number of digital  out pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">digitsout</property>
+                                            <property name="xalign">0.049999997019767761</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -512,12 +538,12 @@ panel</property>
                                           <object class="GtkLabel" id="label_s32in">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="ypad">6</property>
                                             <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="wrap_mode">word-char</property>
                                             <property name="mnemonic_widget">s32in</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -528,11 +554,11 @@ panel</property>
                                           <object class="GtkLabel" id="label_s32out">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">s32out</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -543,11 +569,11 @@ panel</property>
                                           <object class="GtkLabel" id="label_floatin">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">s32out</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -558,11 +584,11 @@ panel</property>
                                           <object class="GtkLabel" id="label_floatout">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
                                             <property name="use_underline">True</property>
                                             <property name="mnemonic_widget">s32out</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">0</property>
@@ -641,9 +667,9 @@ panel</property>
                                       <object class="GtkLabel" id="newladder">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Blank ladder program</property>
                                         <property name="use_underline">True</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                     </child>
                                   </object>
@@ -808,7 +834,7 @@ program</property>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">6</property>
+        <property name="position">7</property>
       </packing>
     </child>
   </object>

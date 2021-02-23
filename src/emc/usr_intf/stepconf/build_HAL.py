@@ -300,11 +300,22 @@ class HAL:
 
         print(file=file)
         if self.d.manualtoolchange:
-            print("loadusr -W hal_manualtoolchange", file=file)
-            print("net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change", file=file)
-            print("net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed", file=file)
-            print("net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number", file=file)
-
+            if not self.d.select_qtdragon:
+                print("loadusr -W hal_manualtoolchange", file=file)
+                print("net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change", file=file)
+                print("net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed", file=file)
+                print("net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number", file=file)
+            else:
+                print("net tool-change  <= iocontrol.0.tool-change", file=file)
+                print("net tool-changed  => iocontrol.0.tool-changed", file=file)
+                print("net tool-number <= iocontrol.0.tool-prep-number", file=file)
+                qt = os.path.join(base, "qtvcp_postgui.hal")
+                if not os.path.exists(qt):
+                    f1 = open(qt, "w")
+                    print("net tool-change => hal_manualtoolchange.change", file=f1)
+                    print("net tool-changed <= hal_manualtoolchange.changed", file=f1)
+                    print("net tool-number  => hal_manualtoolchange.number", file=f1)
+                    f1.close()
         else:
             print("net tool-number <= iocontrol.0.tool-prep-number", file=file)
             print("net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed", file=file)
@@ -345,6 +356,8 @@ class HAL:
         print(file=f1)
         if (self.d.pyvcp):
             print("source pyvcp_options.hal", file=f1)
+        if self.d.manualtoolchange and self.d.select_qtdragon:
+            print("source qtvcp_postgui.hal", file=f1)
         print("source custom_postgui.hal", file=f1)
         f1.close()
 

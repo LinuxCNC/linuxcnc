@@ -71,6 +71,8 @@ class INI:
             print("DISPLAY = axis", file=file)
         elif self.d.select_gmoccapy:
             print("DISPLAY = gmoccapy", file=file)
+        elif self.d.select_qtdragon:
+            print("DISPLAY = qtvcp qtdragon", file=file)
         print("EDITOR = gedit", file=file)
         print("POSITION_OFFSET = RELATIVE", file=file)
         print("POSITION_FEEDBACK = ACTUAL", file=file)

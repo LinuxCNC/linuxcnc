@@ -315,6 +315,7 @@ class Data:
 
         self.select_axis = True
         self.select_gmoccapy = False
+        self.select_qtdragon = False
 
         self.pin1inv = 0
         self.pin2inv = 0

@@ -358,8 +358,10 @@ class Pages:
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                 self.w.radiobutton8.set_active(True)
-        self.w.select_axis.set_active(self.d.select_axis)
-        self.w.select_gmoccapy.set_active(self.d.select_gmoccapy)
+        if self.d.select_axis: temp = 0
+        elif self.d.select_gmoccapy: temp = 1
+        else: temp = 2
+        self.w.combobox_screens.set_active(temp)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
         self.w.digitsin.set_value(self.d.digitsin)
@@ -380,8 +382,14 @@ class Pages:
 
     def options_finish(self):
         SIG = self._p
-        self.d.select_axis = self.w.select_axis.get_active()
-        self.d.select_gmoccapy = self.w.select_gmoccapy.get_active()
+        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = False
+        choice = self.w.combobox_screens.get_active()
+        if choice == 0:
+            self.d.select_axis = True
+        elif choice == 1:
+            self.d.select_gmoccapy = True
+        else:
+            self.d.select_qtdragon = True
         self.d.pyvcp = self.w.pyvcp.get_active()
         self.d.classicladder = self.w.classicladder.get_active()
         self.d.modbus = self.w.modbus.get_active()
