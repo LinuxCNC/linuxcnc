@@ -34,7 +34,7 @@ try:
     else:
         CYCLE_TIME = int(ct)
 except:
-    pass
+    CYCLE_TIME = 100
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
