@@ -41,6 +41,7 @@ class INI:
             print("DISPLAY = touchy", file=file)
         elif self.d.frontend == _PD._QTDRAGON:
             print("DISPLAY = qtvcp qtdragon", file=file)
+            print("PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref", file=file)
         if self.d.gladevcp:
             theme = self.d.gladevcptheme
             if theme == "Follow System Theme":theme = ""
@@ -116,7 +117,10 @@ class INI:
         print(file=file)
         print("[TASK]", file=file)
         print("TASK = milltask", file=file)
-        print("CYCLE_TIME = 0.010", file=file)
+        if self.d.frontend == _PD._AXIS:
+            print("CYCLE_TIME = 0.100", file=file)
+        else:
+            print("CYCLE_TIME = 100", file=file)
 
         print(file=file)
         print("[RS274NGC]", file=file)
