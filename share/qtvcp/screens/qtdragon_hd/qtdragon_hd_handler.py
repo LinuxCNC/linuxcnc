@@ -101,7 +101,7 @@ class HandlerClass:
         self.init_utils()
         self.w.stackedWidget_log.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
-        if self.probe:
+        if self.probe is not None:
             self.probe.hide()
         self.w.btn_pause_spindle.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
@@ -218,7 +218,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use virtual keyboard', self.w.chk_use_virtual.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
-        if self.probe:
+        if self.probe is not None:
             self.probe.closing_cleanup__()
 
     def init_widgets(self):
@@ -525,7 +525,7 @@ class HandlerClass:
         if btn == self.w.btn_probe:
             self.probe.show()
             self.w.divider_line.show()
-        elif self.probe:
+        elif self.probe is not None:
             self.probe.hide()
             self.w.divider_line.hide()
         self.w.main_tab_widget.setCurrentIndex(index)
@@ -897,7 +897,8 @@ class HandlerClass:
         if state is True:
             self.w.btn_main.setChecked(True)
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.probe.hide()
+            if self.probe is not None:
+                self.probe.hide()
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
