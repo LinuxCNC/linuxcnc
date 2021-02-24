@@ -64,6 +64,7 @@ class Private_Data:
         self._TKLINUXCNC = 2
         self._GMOCCAPY = 3
         self._TOUCHY = 4
+        self._QTDRAGON = 5
 
         self._SSCOMBOLEN = 60
         self._IMPERIAL = 0

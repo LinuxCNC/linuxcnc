@@ -517,6 +517,10 @@ class Pages:
             self.w.gmcpy_info.show()
             self.w.axis_info.hide()
             self.w.touchy_info.hide()
+        elif w.get_active()+1 == self._p._QTDRAGON:
+            self.w.gmcpy_info.hide()
+            self.w.axis_info.hide()
+            self.w.touchy_info.hide()
 
     def on_halui_toggled(self, *args):
         i= self.w.halui.get_active()
