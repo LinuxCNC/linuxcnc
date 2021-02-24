@@ -3485,8 +3485,12 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
-
+ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or .020)
+if ct < 1:
+    update_ms = int(ct * 1000)
+else:
+    update_ms = int(ct)
+print (update_ms)
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 s = linuxcnc.stat();
