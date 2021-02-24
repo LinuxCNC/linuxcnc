@@ -206,7 +206,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        string_to_send = 'PID${' + str(os.getpid()) + '}\n'
+        string_to_send = 'PID${}\n'.format( str(os.getpid()))
         if sys.version_info.major > 2:
             self.proc.start('python3 {}'.format(SUBPROGRAM))
             # send our PID so subprogram can check to see if it is still running
