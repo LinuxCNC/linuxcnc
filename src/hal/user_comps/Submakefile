@@ -79,6 +79,13 @@ $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
 TARGETS += ../bin/xhc-hb04
 endif # HAVE_LIBUSB10
 
+SENDKEYS_SRC = hal/user_comps/sendkeys.c
+USERSRCS += $(SENDKEYS_SRC)
+../bin/sendkeys: $(call TOOBJS, $(SENDKEYS_SRC)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/sendkeys
+
 $(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.h)): ../include/%.h: ./hal/user_comps/%.h
 	cp $^ $@
 $(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): ../include/%.hh: ./hal/user_comps/%.hh
