@@ -3490,7 +3490,6 @@ if ct < 1:
     update_ms = int(ct * 1000)
 else:
     update_ms = int(ct)
-print (update_ms)
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 s = linuxcnc.stat();
