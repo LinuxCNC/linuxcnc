@@ -1,4 +1,4 @@
-VERSION = '0.9.41'
+VERSION = '0.9.42'
 
 import os, sys
 from shutil import copy as COPY
@@ -1042,6 +1042,9 @@ class HandlerClass:
         else:
             ACTION.RUN(0)
 
+    def abort_pressed(self):
+        hal.set_p('plasmac.cut-recovery', '0')
+
     def escape_pressed(self):
         self.torch_timeout()
 
@@ -1192,22 +1195,23 @@ class HandlerClass:
             self.set_jog_button_state()
 
     def consumable_change_changed(self, value):
-        if value:
-            self.cutrec_buttons_enable(False)
-            self.cutrec_motion_enable(False)
-        else:
-            self.cutrec_buttons_enable(True)
-            self.cutrec_motion_enable(True)
-            self.w.pause.setEnabled(True)
-            if self.ccButton:
+        if self.ccButton:
+            if value:
+                self.cutrec_buttons_enable(False)
+                self.cutrec_motion_enable(False)
+            else:
+                self.cutrec_buttons_enable(True)
+                self.cutrec_motion_enable(True)
                 if STATUS.is_interp_paused():
+                    self.w.pause.setEnabled(True)
                     self.w[self.ccButton].setEnabled(True)
                 else:
-                    self.w[self.ccButton].setEnabled(False)
+                    if self.ccButton:
+                        self.w[self.ccButton].setEnabled(False)
                 self.button_normal(self.ccButton)
 
     def plasmac_state_changed(self, state):
-        if (state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST:
+        if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
@@ -1360,6 +1364,7 @@ class HandlerClass:
 
     def set_signal_connections(self):
         self.w.run.pressed.connect(self.run_pressed)
+        self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
@@ -2135,7 +2140,6 @@ class HandlerClass:
                 if command.strip()[0] == '%':
                     command = command.strip().strip('%') + '&'
                     msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
-#                    print(msg.communicate()[0])
                 else:
                     if '{' in command:
                         newCommand = subCommand = ''
@@ -2939,20 +2943,24 @@ class HandlerClass:
         if self.plasmacStatePin.get() >= self.TORCH_ON:
             self.PIERCE_COUNT += 1
             self.pierce_count += 1
-            self.w.pierce_count_t.setText('{:d}'.format(self.PIERCE_COUNT))
+            if self.w.torch_enable.isChecked():
+                self.w.pierce_count_t.setText('{:d}'.format(self.PIERCE_COUNT))
             self.w.pierce_count.setText('{:d}'.format(self.pierce_count))
 
     def cut_length_changed(self, value):
         if value:
             self.thisCutLength = value
             if self.unitsPerMm == 1:
-                self.w.cut_length_t.setText('{:.2f}'.format((self.CUT_LENGTH + self.thisCutLength) * 0.001))
+                if self.w.torch_enable.isChecked():
+                    self.w.cut_length_t.setText('{:.2f}'.format((self.CUT_LENGTH + self.thisCutLength) * 0.001))
                 self.w.cut_length.setText('{:.2f}'.format((self.cut_length + self.thisCutLength) * 0.001))
             else:
-                self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH + self.thisCutLength))
+                if self.w.torch_enable.isChecked():
+                    self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH + self.thisCutLength))
                 self.w.cut_length.setText('{:.2f}'.format(self.cut_length + self.thisCutLength))
         else:
-            self.CUT_LENGTH += self.thisCutLength
+            if self.w.torch_enable.isChecked():
+                self.CUT_LENGTH += self.thisCutLength
             self.cut_length += self.thisCutLength
             if self.unitsPerMm == 1:
                 self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH * 0.001))
@@ -2963,10 +2971,12 @@ class HandlerClass:
     def cut_time_changed(self, value):
         if value:
             self.thisCutTime = value
-            self.display_time('cut_time_t', self.CUT_TIME + self.thisCutTime)
+            if self.w.torch_enable.isChecked():
+                self.display_time('cut_time_t', self.CUT_TIME + self.thisCutTime)
             self.display_time('cut_time', self.cut_time + self.thisCutTime)
         else:
-            self.CUT_TIME += self.thisCutTime
+            if self.w.torch_enable.isChecked():
+                self.CUT_TIME += self.thisCutTime
             self.cut_time += self.thisCutTime
             self.display_time('cut_time_t', self.CUT_TIME)
             thisCutTime = 0
@@ -2988,7 +2998,8 @@ class HandlerClass:
 
     def stats_idle(self):
         if self.progRun:
-            self.RUN_TIME += (time.time() - self.runStart)
+            if self.w.torch_enable.isChecked():
+                self.RUN_TIME += (time.time() - self.runStart)
             self.display_time('run_time_t', self.RUN_TIME)
             self.progRun = False
             self.stats_save()
@@ -2998,7 +3009,8 @@ class HandlerClass:
             self.rapidStart = time.time()
             self.rapidOn = True
         elif value != 1 and self.oldMotionType == 1:
-            self.RAPID_TIME += (time.time() - self.rapidStart)
+            if self.w.torch_enable.isChecked():
+                self.RAPID_TIME += (time.time() - self.rapidStart)
             self.rapid_time += (time.time() - self.rapidStart)
             self.display_time('rapid_time_t', self.RAPID_TIME)
             self.rapidOn = False
@@ -3009,7 +3021,8 @@ class HandlerClass:
             self.probeStart = time.time()
             self.probeOn = True
         elif (state > self.ZERO_HEIGHT or state == self.IDLE) and self.probeOn:
-            self.PROBE_TIME += (time.time() - self.probeStart)
+            if self.w.torch_enable.isChecked():
+                self.PROBE_TIME += (time.time() - self.probeStart)
             self.probe_time += (time.time() - self.probeStart)
             self.display_time('probe_time_t', self.PROBE_TIME)
             self.probeOn = False
@@ -3090,13 +3103,16 @@ class HandlerClass:
             self.display_time('torch_time_t', self.TORCH_TIME + (time.time() - self.torchStart))
             self.display_time('torch_time', self.torch_time + (time.time() - self.torchStart))
         if self.progRun:
-            self.display_time('run_time_t', self.RUN_TIME + (time.time() - self.runStart))
+            if self.w.torch_enable.isChecked():
+                self.display_time('run_time_t', self.RUN_TIME + (time.time() - self.runStart))
             self.display_time('run_time', time.time() - self.runStart)
         if self.rapidOn:
-            self.display_time('rapid_time_t', self.RAPID_TIME + (time.time() - self.rapidStart))
+            if self.w.torch_enable.isChecked():
+                self.display_time('rapid_time_t', self.RAPID_TIME + (time.time() - self.rapidStart))
             self.display_time('rapid_time', self.rapid_time + (time.time() - self.rapidStart))
         if self.probeOn:
-            self.display_time('probe_time_t', self.PROBE_TIME + (time.time() - self.probeStart))
+            if self.w.torch_enable.isChecked():
+                self.display_time('probe_time_t', self.PROBE_TIME + (time.time() - self.probeStart))
             self.display_time('probe_time', self.probe_time + (time.time() - self.probeStart))
 
     def stats_save(self):
@@ -3409,7 +3425,7 @@ class HandlerClass:
         self.w.jog_stack.setCurrentIndex(1)
         self.cancelWait = False
         self.cutrec_speed_changed(self.w.cut_rec_speed.value())
-        self.clear_offsets()
+        hal.set_p('plasmac.cut-recovery', '0')
         self.xOrig = hal.get_value('axis.x.eoffset-counts')
         self.yOrig = hal.get_value('axis.y.eoffset-counts')
         self.zOrig = hal.get_value('axis.z.eoffset-counts')
@@ -3473,11 +3489,6 @@ class HandlerClass:
 
     def cutrec_cancel_pressed(self):
         self.cancelWait = True
-        self.clear_offsets()
-
-    def clear_offsets(self):
-        hal.set_p('plasmac.x-offset', '0')
-        hal.set_p('plasmac.y-offset', '0')
         hal.set_p('plasmac.cut-recovery', '0')
 
     def cutrec_motion_enable(self, state):
@@ -3485,7 +3496,7 @@ class HandlerClass:
             self.w['cut_rec_{}'.format(widget)].setEnabled(state)
 
     def cutrec_buttons_enable(self, state):
-        for widget in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'cancel']:
+        for widget in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'cancel', 'feed', 'move_label']:
             self.w['cut_rec_{}'.format(widget)].setEnabled(state)
 
 
