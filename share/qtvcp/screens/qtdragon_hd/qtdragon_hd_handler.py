@@ -88,6 +88,8 @@ class HandlerClass:
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
+        STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
+        STATUS.connect('requested-spindle-speed-changed',self.update_spindle_requested)
 
     def class_patch__(self):
         self.old_fman = FM.load
@@ -369,6 +371,12 @@ class HandlerClass:
     #########################
     # CALLBACKS FROM STATUS #
     #########################
+
+    def update_spindle(self,w,data):
+        self.w.gauge_spindle.update_value(abs(data))
+
+    def update_spindle_requested(self,w,data):
+        self.w.gauge_spindle.set_setpoint(abs(data))
 
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
