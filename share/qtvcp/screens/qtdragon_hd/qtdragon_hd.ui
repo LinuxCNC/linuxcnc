@@ -12312,6 +12312,9 @@ INCREMENT</string>
                   </property>
                   <item>
                    <widget class="Gauge" name="gauge_spindle">
+                    <property name="halpin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
                     <property name="threshold" stdset="0">
                      <number>20</number>
                     </property>
@@ -12823,7 +12826,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>10:08:32 PM</string>
+               <string>10:57:24 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13773,7 +13776,7 @@ INCREMENT</string>
   <slot>chk_use_touchplate_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
