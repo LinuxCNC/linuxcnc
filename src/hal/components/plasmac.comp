@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.197 - 2021 Feb 20
+0.198 - 2021 Feb 25
 
 .I SUMMARY:
 .br
@@ -323,24 +323,6 @@ tool_t tool = EMPTY;
 
 FUNCTION(_) {
 
-    /* do these first run only or if resolution changes*/
-    if((!initialized && units_per_mm) || resolution != old_resolution){
-        if(resolution > 1000){
-            res = 1000;
-        }else if(resolution < 1){
-            res = 1;
-        }else{
-            res = resolution;
-        }
-        offset_scale = units_per_mm * fperiod / res;
-        velocity_scale = res / units_per_mm / 60;
-        adaptive_feed = 1;
-        probe_force_val = 5 * res;
-        recovery_velocity = 3 * res;
-        initialized = TRUE;
-        old_resolution = resolution;
-    }
-
     /* wait until arc_voltage_in is valid */
     if(isinf(arc_voltage_in) || isnan(arc_voltage_in)){
         arc_valid_timer += fperiod;
@@ -350,6 +332,20 @@ FUNCTION(_) {
         } 
         return;
     }
+
+    /* set scaling */
+    if(resolution > 1000){
+        res = 1000;
+    }else if(resolution < 1){
+        res = 1;
+    }else{
+        res = resolution;
+    }
+    offset_scale = units_per_mm * fperiod / res;
+    velocity_scale = res / units_per_mm / 60;
+    adaptive_feed = 1;
+    probe_force_val = 5 * res;
+    recovery_velocity = 3 * res;
 
     /* set the active tool */
     if(cutting_start){ //  this allows M3 for cutting as well as M3 $0
