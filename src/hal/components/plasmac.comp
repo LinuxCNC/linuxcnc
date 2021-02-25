@@ -324,7 +324,7 @@ tool_t tool = EMPTY;
 FUNCTION(_) {
 
     /* do these first run only or if resolution changes*/
-    if((!initialized && units_per_mm) or resolution != old_resolution){
+    if((!initialized && units_per_mm) || resolution != old_resolution){
         if(resolution > 1000){
             res = 1000;
         }else if(resolution < 1){
