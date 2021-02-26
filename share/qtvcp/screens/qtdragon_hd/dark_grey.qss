@@ -165,7 +165,7 @@ DROLabel {
     color: #9ad58d;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 

@@ -84,7 +84,6 @@ class HandlerClass:
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
         STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('file-loaded', self.file_loaded)
-        STATUS.connect('homed', self.homed)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
@@ -501,16 +500,6 @@ class HandlerClass:
     def not_all_homed(self, obj, list):
         self.home_all = False
         self.w.btn_home_all.setText("HOME ALL")
-        for i in INFO.AVAILABLE_JOINTS:
-            if str(i) in list:
-                axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-                try:
-                    widget = self.w["dro_axis_{}".format(axis)]
-                    widget.setProperty('homed', False)
-                    widget.style().unpolish(widget)
-                    widget.style().polish(widget)
-                except:
-                    pass
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.add_status("Hard limits tripped")

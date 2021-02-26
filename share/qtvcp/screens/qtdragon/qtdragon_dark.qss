@@ -75,7 +75,7 @@ QLabel#label_axis_a {
     color: #00FF00;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 
