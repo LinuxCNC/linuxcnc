@@ -635,7 +635,7 @@ void do_homing(void)
                     &&  H[joint_num].homed
                    ) {
                    H[joint_num].home_state = HOME_IDLE;
-                   break; //no rehome allowed if absolute_enoder
+                   break; //no rehome allowed if absolute_encoder
                 } else {
                     H[joint_num].homing = 1;
                     H[joint_num].homed = 0;
