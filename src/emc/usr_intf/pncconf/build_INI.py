@@ -117,10 +117,7 @@ class INI:
         print(file=file)
         print("[TASK]", file=file)
         print("TASK = milltask", file=file)
-        if self.d.frontend == _PD._AXIS:
-            print("CYCLE_TIME = 0.100", file=file)
-        else:
-            print("CYCLE_TIME = 100", file=file)
+        print("CYCLE_TIME = 100", file=file)
 
         print(file=file)
         print("[RS274NGC]", file=file)

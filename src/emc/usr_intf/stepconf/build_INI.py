@@ -189,10 +189,7 @@ class INI:
         print(file=file)
         print("[EMCIO]", file=file)
         print("EMCIO = io", file=file)
-        if self.d.select_axis:
-            print("CYCLE_TIME = 0.100", file=file)
-        else:
-            print("CYCLE_TIME = 100", file=file)
+        print("CYCLE_TIME = 100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
 
         if self.d.axes == 2: # XZ
