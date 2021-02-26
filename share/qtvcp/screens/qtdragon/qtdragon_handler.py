@@ -524,12 +524,15 @@ class HandlerClass:
 
     # main button bar
     def main_tab_changed(self, btn):
-        if STATUS.is_auto_mode():
-            self.add_status("Cannot switch pages while in AUTO mode")
-            self.w.btn_main.setChecked(True)
-            return
         index = btn.property("index")
         if index is None: return
+        # if in automode still allow settings to show so override linits can be used
+        if STATUS.is_auto_mode() and index != 9:
+            self.add_status("Cannot switch pages while in AUTO mode")
+            # make sure main page is showing
+            self.w.main_tab_widget.setCurrentIndex(0)
+            self.w.btn_main.setChecked(True)
+            return
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
         if index == TAB_SETUP:
@@ -774,8 +777,9 @@ class HandlerClass:
     def chk_override_limits_checked(self, state):
         if state:
             self.add_status("Override limits set")
-            ACTION.SET_LIMITS_OVERRIDE()
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
         else:
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
             self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
