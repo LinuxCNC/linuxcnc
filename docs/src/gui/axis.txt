@@ -28,10 +28,11 @@ For more information on ini file settings that can change how AXIS
 works see the <<sec:display-section,Display Section>> of the INI 
 Configuration Chapter.
 
-Adjust the response rate of the GUI in seconds. Typical .1, useable range .05 - .2
+Adjust the response rate of the GUI in milli seconds. Typical 100, useable range 50 - 200 +
+(will accept time in seconds (.05 -.2) for legacy reasons - milli seconds preferred to match other screens)
 ----
 [DISPLAY]
-CYCLE_TIME = .1
+CYCLE_TIME = 100
 ----
 
 === A Typical Session
