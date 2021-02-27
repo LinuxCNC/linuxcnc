@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.199 - 2021 Feb 27 - (QtPlasmaC V0.9.44)
+0.200 - 2021 Feb 28 - (QtPlasmaC V0.9.44)
 
 .I SUMMARY:
 .br
@@ -185,7 +185,6 @@ variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
 variable bool   cut_started;                /* cut has started */
 variable int    cut_target;                 /* cut height target offset */
-variable float  dwell_timer;                /* dwell timer for end of cut*/
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
@@ -251,8 +250,6 @@ variable int    zero_target;                /* zero height target offset */
 variable int    z_pierce;                   /* pierce height for testing against max height*/
 variable int    z_max;                      /* max height for testing against pierce height*/
 
-/* PARAMETERS */
-param rw float  dwell_time = 0.16           "dwell time at end of cut";
 
 function _;
 
@@ -453,7 +450,6 @@ FUNCTION(_) {
                 if(pause_at_end_timer){
                     state = PAUSE_AT_END;
                 }else{
-                    dwell_timer = dwell_time;
                     state = MAX_HEIGHT;
                 }
             }
@@ -463,12 +459,6 @@ FUNCTION(_) {
                 stop_type = PAUSE;
                 probe_required = TRUE;
                 pause_at_end_timer = pause_at_end;
-                if(pause_at_end >= dwell_time){
-                    dwell_timer = 0;
-                }else{
-                    dwell_timer = dwell_time - pause_at_end;
-                }
-                dwell_timer = dwell_time;
                 state = MAX_HEIGHT;
             }else if(tool == EMPTY){
                 if(!pause_at_end){
@@ -492,7 +482,6 @@ FUNCTION(_) {
                 rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch activated\n"
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
-                dwell_timer = dwell_time;
                 state = MAX_HEIGHT;
             }else if(state > ARC_OK && float_switch){
                 torch_on = FALSE;
@@ -502,7 +491,6 @@ FUNCTION(_) {
                 rtapi_print_msg(RTAPI_MSG_ERR,"float switch activated\n"
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
-                dwell_timer = dwell_time;
                 state = MAX_HEIGHT;
             }else if(state > ARC_OK && ohmic_detected){
                 torch_on = FALSE;
@@ -512,7 +500,6 @@ FUNCTION(_) {
                 rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe activated\n"
                                               "program is paused.\n");
                 probe_inhibit = TRUE;
-                dwell_timer = dwell_time;
                 state = MAX_HEIGHT;
             }else if(state > ARC_OK && !arc_ok_out && torch_enable && !torch_off && !(mesh_enable || ignore_arc_ok_0 || ignore_arc_ok_1)){ ;
                 torch_on = FALSE;
@@ -521,7 +508,6 @@ FUNCTION(_) {
                 probe_required = TRUE;
                 rtapi_print_msg(RTAPI_MSG_ERR,"valid arc lost\n"
                                               "program is paused.\n");
-                dwell_timer = dwell_time;
                 state = MAX_HEIGHT;
             }
         }
@@ -535,7 +521,6 @@ FUNCTION(_) {
             probe_required = TRUE;
             axis_x_finish = 0;
             axis_y_finish = 0;
-            dwell_timer = dwell_time;
             state = MAX_HEIGHT;
         }
     }
@@ -627,7 +612,6 @@ FUNCTION(_) {
                         state = PAUSED_MOTION;
                     /* if we get a consumable change start request and we are paused */
                     }else if(consumable_change && (stop_type == PAUSE || stop_type == WAIT) && !consumable_changing){
-                        dwell_timer = dwell_time;
                         state = MAX_HEIGHT;
                         /* if we get a consumable change stop request and we are changing consumables */
                     }else if(!consumable_change && (stop_type == PAUSE || stop_type == WAIT) && consumable_changing){
@@ -765,7 +749,6 @@ FUNCTION(_) {
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
                                                           "while ohmic probing\n");
                         }
-                        dwell_timer = dwell_time;
                         state = MAX_HEIGHT;
                         break;
                     }
@@ -818,7 +801,6 @@ FUNCTION(_) {
                                                           "while float switch probing\n");
                             stop_type = PAUSE;
                             program_pause = TRUE;
-                            dwell_timer = dwell_time;
                             state = MAX_HEIGHT;
                             break;
                         }
@@ -840,7 +822,6 @@ FUNCTION(_) {
                                                       "while ohmic probing\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
-                        dwell_timer = dwell_time;
                         state = MAX_HEIGHT;
                         break;
                     }
@@ -857,7 +838,6 @@ FUNCTION(_) {
                                                               "program is paused.\n");
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
-                                dwell_timer = dwell_time;
                                 state = MAX_HEIGHT;
                             }else{
                                 rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probe testing.\n");
@@ -925,7 +905,6 @@ FUNCTION(_) {
                                                        "program is paused.\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
-                        dwell_timer = dwell_time;
                         state = MAX_HEIGHT;
                     }else if(safe_preferred >= offset_max){
                         if(!safe_height_is_limited){
@@ -1001,7 +980,6 @@ FUNCTION(_) {
                 }else if(!probe_testing){
                     stop_type = PAUSE;
                     program_pause = TRUE;
-                    dwell_timer = dwell_time;
                     state = MAX_HEIGHT;
                     rtapi_print_msg(RTAPI_MSG_ERR,"invalid pierce height.\n"
                                                   "or invalid cut height.\n"
@@ -1018,7 +996,6 @@ FUNCTION(_) {
                     restart_timer = 0;
                     if(program_is_idle){
                         cutting_stop = 1;
-                        dwell_timer = dwell_time;
                         state = MAX_HEIGHT;
                         if (!error_message){
                             rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nmanual cut is stopped.\n", arc_max_starts);
@@ -1064,7 +1041,6 @@ FUNCTION(_) {
                             spotting_timer = 0;
                             torch_on = FALSE;
                             stop_type = WAIT;
-                            dwell_timer = dwell_time;
                             state = SAFE_HEIGHT;
                         }
                     }
@@ -1271,7 +1247,6 @@ FUNCTION(_) {
                                                                           "program is paused.\n");
                                         }
                                         pid_output = 0;
-                                        dwell_timer = dwell_time;
                                         state = MAX_HEIGHT;
 
                                     }
@@ -1307,7 +1282,6 @@ FUNCTION(_) {
                                     program_pause = TRUE;
                                     rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while THC moving down.\n"
                                                                   "program is paused.\n");
-                                    dwell_timer = dwell_time;
                                     state = MAX_HEIGHT;
                                 }else{ /* move down at requested velocity */
                                     z_offset_counts -= thc_velocity;
@@ -1320,7 +1294,6 @@ FUNCTION(_) {
                                     program_pause = TRUE;
                                     rtapi_print_msg(RTAPI_MSG_ERR,"top limit reached while THC moving up.\n"
                                                                   "program is paused.\n");
-                                    dwell_timer = dwell_time;
                                     state = MAX_HEIGHT;
                                 }else{ /* move up at requested velocity */
                                     z_offset_counts += thc_velocity;
@@ -1355,11 +1328,6 @@ FUNCTION(_) {
                 if(pause_at_end_timer <= 0){
                     pause_at_end_timer = 0;
                     torch_on = FALSE;
-                    if(pause_at_end < dwell_time){
-                        dwell_timer = dwell_time - pause_at_end;
-                    }else{
-                        dwell_timer = 0;
-                    }
                     if(program_is_idle){
                         state = MAX_HEIGHT;
                     }else{
@@ -1372,11 +1340,6 @@ FUNCTION(_) {
                 /* move to safe height */
                 feed_hold = TRUE;
                 torch_on = FALSE;
-                if(dwell_timer > 0){
-                    dwell_timer -= fperiod;
-                    break;
-                }
-                dwell_timer = 0;
                 if(!torch_off_timer || !torch_on){
                     cornerlock_is_locked = FALSE;
                     if(!probe_test || probe_test_error){
@@ -1388,7 +1351,6 @@ FUNCTION(_) {
                                 first_cut_finished = TRUE;
                                 /* do height override here for for remainder of job */
                                 height_ovr_old = 0;
-                                dwell_timer = dwell_time;
                                 state = FINISH;
                             }
                         }else if(z_offset_counts - setup_velocity > safe_target){
@@ -1406,11 +1368,6 @@ FUNCTION(_) {
                 /* move to maximum height */
                 feed_hold = TRUE;
                 torch_on = FALSE;
-                if(dwell_timer > 0){
-                    dwell_timer -= fperiod;
-                    break;
-                }
-                dwell_timer = 0;
                 cornerlock_is_locked = FALSE;
                 if(!probe_test || probe_test_error){
                     if(z_offset_counts == 0){
@@ -1425,7 +1382,6 @@ FUNCTION(_) {
                             }else if(cut_recovery && stop_type != STOP){
                                 state = CUT_RECOVERY_ON;
                             }else{
-                                dwell_timer = dwell_time;
                                 state = FINISH;
                             }
                         }
@@ -1458,36 +1414,31 @@ FUNCTION(_) {
                     adaptive_feed = 1;
                     if(program_is_idle){
                         z_offset_enable = TRUE;
-                        if(dwell_timer > 0){
-                            dwell_timer -= fperiod;
-                        }else{
-                            dwell_timer = 0;
-                            if (z_offset_counts == 0){
-                                if(!offsets_active){
-                                    first_cut_finished = FALSE;
-                                    stop_type = NONE;
-                                    safe_height_is_limited = FALSE;
-                                    cut_started = FALSE;
-                                    /* do height override here for one cut only */
-                                    /* height_ovr_old = 0; */
-                                    if(consumable_changing){
-                                        state = CONSUMABLE_CHANGE_OFF;
-                                    }
-                                    if(cut_recovering){
-                                        angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
-                                        x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
-                                        y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
-                                        state = CUT_RECOVERY_OFF;
-                                        cut_recovering = FALSE;
-                                    }
+                        if (z_offset_counts == 0){
+                            if(!offsets_active){
+                                first_cut_finished = FALSE;
+                                stop_type = NONE;
+                                safe_height_is_limited = FALSE;
+                                cut_started = FALSE;
+                                /* do height override here for one cut only */
+                                /* height_ovr_old = 0; */
+                                if(consumable_changing){
+                                    state = CONSUMABLE_CHANGE_OFF;
                                 }
-                            }else if(z_offset_counts - setup_velocity > 0){
-                                z_offset_counts -= setup_velocity;
-                            }else if(z_offset_counts + setup_velocity < 0){
-                                z_offset_counts += setup_velocity;
-                            }else{
-                                z_offset_counts = 0;
+                                if(cut_recovering){
+                                    angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
+                                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
+                                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                                    state = CUT_RECOVERY_OFF;
+                                    cut_recovering = FALSE;
+                                }
                             }
+                        }else if(z_offset_counts - setup_velocity > 0){
+                            z_offset_counts -= setup_velocity;
+                        }else if(z_offset_counts + setup_velocity < 0){
+                            z_offset_counts += setup_velocity;
+                        }else{
+                            z_offset_counts = 0;
                         }
                     }
                 }else{
@@ -1568,7 +1519,6 @@ FUNCTION(_) {
                     }else{
                         z_offset_counts = 0;
                         probe_inhibit = FALSE;
-                        dwell_timer = dwell_time;
                         state = FINISH;
                     }
                 }

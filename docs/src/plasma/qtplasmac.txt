@@ -3138,20 +3138,6 @@ This condition is known and is worked around in 3 stages to provide the best/mos
 
 This issue does not affect any jogging using the GUI jog buttons.
 
-=== Z Axis Retract Velocity Interruption
-
-There is a known issue caused by the interaction between the PlasmaC component's use of eoffsets and core LinuxCNC's M2 or M30 program end. This issue is believed to be caused by LinuxCNC processing the M2 or M30 command while the Z eoffsets are still "unwinding" and retracting the Z axis to the starting position. This extremely short interruption (approximately 1mS) causes the commanded velocity to drop from its current rate to zero and return to the current rate in a time period that will very often violate the MAX_ACCEL settings for the Z axis. This often results in a "joint following error" that is not caused by the usual joint following issues. While this issue affects all plasma tables using a GUI that utilizes the PlasmaC Component (AXIS, GMOCCAPY, and QtPlasmaC), a user with slower Z axis velocities may have been less likely to have the issue cause a joint following error.
-
-Through extensive testing it was found that inserting a small pause (via the parameter plasmac.dwell-time) before processing the M5 command alleviated the issue and is a suitable work around. The dwell time is defaulted to 160mS (.16S) and will work in conjunction with pause-at-end (with torch on) such that if pause-at-end is less than dwell-time, the dwell-time delay (with torch off) will be dwell-time minus pause-at-end. If pause-at-end (with torch on) is greater than or equal to dwell-time, the dwell-time delay (with torch off) will be zero.
-
-If the user's table experiences this issue even at the default value of 160mS (.16S), they can change the dwell-time delay by adding the following line to the <machine_name>_connections.hal file:
-
-----
-setp plasmac.dwell-time 0.16
-----
-
-Where 0.16 is the delay in Seconds.
-
 == Support
 
 Online help and support is available from the https://forum.linuxcnc.org/plasmac[PlasmaC section] of the https://forum.linuxcnc.org/[LinuxCNC Forum].
