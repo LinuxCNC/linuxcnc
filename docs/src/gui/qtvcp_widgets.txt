@@ -205,6 +205,37 @@ Spindle Fwd
 Spindle Reverse
 On Limits
 ----
+
+The some indicator_status_options holds a property that can be used with a stylesheet +
+to change the color of the button based on the state of the property in linuxcnc. +
+Currently these status options can be used to auto style buttons: +
+is_estopped_status indicated buttons change the property 'isEstopped' +
+is_on_status indicated buttons change the properry 'isStateOn' +
+manual,mdi,auto _status indicated buttons change the properties 'isManual, isMDI, isAuto'
+
+Here is a sample stylesheet entry. +
+It sets the background of mode button widgets when linuxcnc is in that mode. +
+
+----
+ActionButton[isManual=true] {
+    background: red;
+}
+ActionButton[isMdi=true] {
+    background: red;
+}
+ActionButton[isAuto=true] {
+    background: red;
+}
+----
+
+Here is how you specify a particular widget - by it's objectName in designer. +
+
+----
+ActionButton #estop button [isEstopped=false] {
+    color: yellow;
+}
+----
+
 ==== Text changes on state
 
 Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
