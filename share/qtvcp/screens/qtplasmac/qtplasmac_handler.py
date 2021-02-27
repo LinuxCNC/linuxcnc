@@ -128,7 +128,6 @@ class HandlerClass:
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
-        self.pausedList = []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
@@ -158,7 +157,6 @@ class HandlerClass:
         self.pmx485Connected = False
         self.pmx485CommsError = False
         self.pmx485FaultCode = 0.0
-        self.cutRecovering = False
         self.camCurrentX = self.camCurrentY = 0
         self.degreeSymbol = u"\u00b0"
         self.cameraOn = False
@@ -875,16 +873,16 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
-            for widget in self.pausedList:
-                self.w[widget].setEnabled(True)
+            if self.ccButton and not hal.get_value('plasmac.cut-recovering'):
+                self.w[self.ccButton].setEnabled(True)
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
             self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
-            for widget in self.pausedList:
-                self.w[widget].setEnabled(False)
+            if self.ccButton:
+                self.w[self.ccButton].setEnabled(False)
             if self.tpButton:
                 self.w[self.tpButton].setEnabled(False)
 
@@ -1999,7 +1997,6 @@ class HandlerClass:
             elif 'change-consumables' in code:
                 self.ccParm = self.iniFile.find('QTPLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
                 self.ccButton = 'button_{}'.format(str(button))
-                self.pausedList.append(self.ccButton)
                 self.w[self.ccButton].setEnabled(False)
             elif 'ohmic-test' in code:
                 self.otButton = 'button_{}'.format(str(button))
@@ -3421,7 +3418,10 @@ class HandlerClass:
 # CUT RECOVERY FUNCTIONS #
 ###########################################################################################################################
     def set_cut_recovery(self):
-        self.cutRecovering = True
+        if hal.get_value('plasmac.cut-recovering'):
+            self.w.jog_stack.setCurrentIndex(1)
+            self.w.dro_z.setProperty('Qreference_type', 1)
+            return
         self.w.jog_stack.setCurrentIndex(1)
         self.cancelWait = False
         self.cutrec_speed_changed(self.w.cut_rec_speed.value())
@@ -3484,12 +3484,13 @@ class HandlerClass:
             self.cutrec_motion_enable(True)
             self.cutrec_buttons_enable(True)
             hal.set_p('plasmac.cut-recovery', '0')
-            if self.ccButton:
+            if self.ccButton and STATUS.is_interp_paused():
                 self.w[self.ccButton].setEnabled(True)
 
     def cutrec_cancel_pressed(self):
-        self.cancelWait = True
-        hal.set_p('plasmac.cut-recovery', '0')
+        if hal.get_value('plasmac.cut-recovery'):
+            self.cancelWait = True
+            hal.set_p('plasmac.cut-recovery', '0')
 
     def cutrec_motion_enable(self, state):
         for widget in ['fwd', 'rev', 'speed']:

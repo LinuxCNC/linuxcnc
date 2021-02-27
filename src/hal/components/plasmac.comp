@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.198 - 2021 Feb 25
+0.199 - 2021 Feb 27 - (QtPlasmaC V0.9.44)
 
 .I SUMMARY:
 .br
@@ -52,6 +52,7 @@ pin in  float   cut_height                  "cut height (machine units)";
 pin in  bit     cut_recovery                "recover from cut error";
 pin in  float   cut_volts                   "cut voltage (volts)";
 pin in  bit     cutting_start               "start a new cut, connect to spindle.0.on";
+pin in  bit     debug_print                 "if true will print state changes as a debug aid";
 pin in  bit     external_estop              "external estop input";
 pin in  float   feed_reduction              "reduce adaptive feed to this percentage (connect to motion.analog-out-03)";
 pin in  float   feed_override               "feed override value from gui (connect to halui.feed-override.value)";
@@ -251,7 +252,6 @@ variable int    z_pierce;                   /* pierce height for testing against
 variable int    z_max;                      /* max height for testing against pierce height*/
 
 /* PARAMETERS */
-param rw bit    debug_print = FALSE         "print debug messages";
 param rw float  dwell_time = 0.16           "dwell time at end of cut";
 
 function _;
@@ -574,7 +574,7 @@ FUNCTION(_) {
     }
 
     /* output current z height */
-    z_height = (z_offset_counts - zero_target) * offset_scale / res;
+    z_height = (z_offset_counts - zero_target) * offset_scale;
 
     /* reset program states */
     if(program_is_idle){
@@ -1772,8 +1772,13 @@ FUNCTION(_) {
             case CUT_RECOVERY_OFF:
                 xy_offset_enable = TRUE;
                 angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
-                x_velocity = fabs(recovery_velocity * cos(angle_x_y));
-                y_velocity = fabs(recovery_velocity * sin(angle_x_y));
+                if(program_is_running){
+                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
+                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                }else{
+                    x_velocity = fabs(recovery_velocity * cos(angle_x_y));
+                    y_velocity = fabs(recovery_velocity * sin(angle_x_y));
+                }
                 if(x_offset_counts == 0 && y_offset_counts == 0){
                     if((int)(x_offset_current * 10 * res) == 0 && (int)(y_offset_current * 10 * res) == 0){
                         cut_recovering = FALSE;
