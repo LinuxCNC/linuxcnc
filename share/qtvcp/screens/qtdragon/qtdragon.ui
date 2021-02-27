@@ -2537,7 +2537,7 @@ OFF</string>
                  <bool>false</bool>
                 </property>
                 <property name="indicator_status_option" stdset="0">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="checked_state_text_option" stdset="0">
                  <bool>true</bool>
@@ -13131,7 +13131,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>11:32:07 PM</string>
+            <string>04:23:28 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

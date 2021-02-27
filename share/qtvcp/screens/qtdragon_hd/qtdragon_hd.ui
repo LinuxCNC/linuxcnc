@@ -5124,7 +5124,7 @@ OFF</string>
                  <bool>false</bool>
                 </property>
                 <property name="indicator_status_option" stdset="0">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="checked_state_text_option" stdset="0">
                  <bool>true</bool>
@@ -12826,7 +12826,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>10:57:24 PM</string>
+               <string>04:25:22 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13776,7 +13776,7 @@ INCREMENT</string>
   <slot>chk_use_touchplate_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
