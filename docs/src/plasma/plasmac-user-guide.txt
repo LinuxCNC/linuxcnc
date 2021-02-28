@@ -2478,7 +2478,7 @@ If the user wishes to use this in a sim configuration then the user will need to
 
 Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
 
-The pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
+The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
 
 ----
 setp plasmac.kerf-error-max 3
@@ -2494,7 +2494,7 @@ The following code would set a delay of 0.1 seconds:
 setp plasmac.arc-lost-delay 0.1
 ----
 
-It is recommended that the user set this parameter in the <machine_name>_connections.hal file.
+It is recommended that the user set this pin in the <machine_name>_connections.hal file.
 
 This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
 

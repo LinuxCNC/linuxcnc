@@ -855,6 +855,24 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 *Set To Last* - sets the axis to the previously set coordinate.
 |===
 
+[[qt_conversational-tab]]
+
+=== CONVERSATIONAL Tab
+
+Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
+
+image::images/qtplasmac_conversational.png[width=900,align="center"]
+
+The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+
+See <<qt_shape-library, Conversational Shape Library>> for detailed information on the Conversational feature.
+
+It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+
+----
+setp qtplasmac.conv_disable 1
+----
+
 [[qt_parameters-tab]]
 
 === PARAMETERS Tab
@@ -1049,35 +1067,17 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Cone Size|This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the <<qt_main-tab, MAIN Tab>>.
 |===
 
-[[qt_conversational-tab]]
+=== STATISTICS Tab
 
-=== CONVERSATIONAL Tab
+The statistics tab provides statistics to allow for the tracking of consumable wear and job run times.
 
-Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
+These statistics are shown for the current job as well as the running total.
 
-image::images/qtplasmac_conversational.png[width=900,align="center"]
+Previous job statistics are reset once the next program is run.
 
-The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+The total values may be reset either individually by clicking the corresponding "RESET" button, or they may all be reset together by clicking "RESET ALL".
 
-See <<qt_shape-library, Conversational Shape Library>> for detailed information on the Conversational feature.
-
-It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
-
-----
-setp qtplasmac.conv_disable 1
-----
-
-//FIXME=== STATISTICS Tab
-
-//FIXMEThe Statistics Panel provides statistics to allow for the tracking of consumable wear and job run times.
-
-//FIXMEThese statistics are shown for the current job as well as the running total.
-
-//FIXMEPrevious job statistics are reset once the next program is run.
-
-//FIXMEThe total values may be reset either individually by clicking the corresponding "Reset" button, or they may all be reset together by clicking "Reset All".
-
-//FIXMEimage::images/plasmac_stats.png[width=60%]
+image::images/qtplasmac_stats.png[width=900,align="center"]
 
 == Using QtPlasmaC
 
@@ -2241,6 +2241,13 @@ These errors indicate the corresponding sensor was activated before a probe test
 * *float switch detected before probing probe test aborted*
 * *breakaway switch detected before probing probe test aborted*
 
+This indicates that the corresponding sensor was activated during a consumable change:
+
+* *breakaway float or ohmic activated during consumable, change motion is paused*
+*WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
+
+WARNING: CONSUMABLE CHANGE MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THE CORRESPONDING SENSOR ACTIVATION.
+
 This indicates that probe contact was lost before probing up to find the zero point:
 
 * *probe trip error while probing*
@@ -2349,7 +2356,7 @@ color5 = #808080
 
 The colors may be expressed in any valid stylesheet format.
 
-The above colors are used for the following widgets. So any custom styling will need to take these into account. The colors shown below are the defaults used in QtPlasmaC along with the color name from the PARAMETER tab.
+The above colors are used for the following widgets. So any custom styling will need to take these into account. The colors shown below are the defaults used in QtPlasmaC along with the color name from the PARAMETERS tab.
 
 [width="100%",cols="1,1,2"]
 |===
@@ -2556,7 +2563,7 @@ BUTTON_n_CODE = single-cut
 
 Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
 
-The parameter for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the parameter and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
+The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
 
 ----
 setp plasmac.kerf-error-max 3
@@ -2572,7 +2579,7 @@ The following code would set a delay of 0.1 seconds:
 setp plasmac.arc-lost-delay 0.1
 ----
 
-It is recommended that the user set this parameter in the <machine_name>_connections.hal file.
+It is recommended that the user set this pin in the <machine_name>_connections.hal file.
 
 This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
 
@@ -2636,6 +2643,10 @@ The different states PlasmaC could encounter are as follows:
 |===
 
 The DEBUG state is for testing purposes only and will not normally be encountered.
+
+=== QtPlasmaC Debug Print
+
+The PlasmaC component has a HAL pin named *plasmac.debug-print* which if set to 1 (true) will print to terminal every state change as a debug aid.
 
 [[qt_pm_comms]]
 
@@ -3135,6 +3146,8 @@ image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
 There is a known issue with the isAutoRepeat() function in Qt which causes unexpected key pressed/key released behaviors. These random key releases while a jog key is still being held down causes jerky/erratic jogging behavior. There are several bug reports citing this issue at the Qt project level.
 
 This condition is known and is worked around in 3 stages to provide the best/most consistent behavior possible. However, at times the user may notice unexpected jogging behavior. If odd behavior is noticed while a key is pressed then releasing the key will stop the active jog. If a jog continues after a key is released then pressing and releasing the key again will stop the active jog.
+
+Due to the issue with isAutoRepeat(), unexpected behavior with jogging has been observed and is believed to be caused as a result of multiple windows being open, and the QtPlasmaC window losing keyboard focus during the jog. For this reason, it is highly recommended that the user not run any other programs while using QtPlasmaC.
 
 This issue does not affect any jogging using the GUI jog buttons.
 
