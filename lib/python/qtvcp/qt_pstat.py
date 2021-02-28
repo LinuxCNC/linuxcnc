@@ -25,7 +25,7 @@ LOG = logger.getLogger(__name__)
 
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # BASE is the absolute path to linuxcnc base
 # LIBDIR is the path to qtvcp python files
@@ -38,9 +38,20 @@ class _PStat(object):
             return
         self.__class__._instanceNum += 1
 
+        self.WORKINGDIR = os.getcwd()
+        # Linuxcnc project base directory
+        self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+        self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
+        self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
+        self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
+        self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
+        # python library directory
+        self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
+        sys.path.insert(0, self.LIBDIR)
+
+
     def set_paths(self, filename='dummy', isscreen=False):
         self.PREFS_FILENAME = None
-        self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen
         self.QRC_IS_LOCAL = None
         self.QRCPY_IS_LOCAL = None
@@ -56,19 +67,11 @@ class _PStat(object):
 
         # record the original argument passed to us
         self.ARGUMENT = filename
-        # Linuxcnc project base directory
-        self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         # PyQt's .ui file's basename 
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
         # base path (includes any extra path commands
         self.BASEPATH = os.path.splitext(filename)[0]
         LOG.debug('BASEPATH {}'.format(self.BASEPATH))
-        # python library directory
-        self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
-        sys.path.insert(0, self.LIBDIR)
-        self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
-        self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
-        self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASEPATH)
@@ -121,23 +124,15 @@ class _PStat(object):
                 # error
                 self.XML = None
                 LOG.critical("No UI file found - Did you add the .ui name/path?")
-                print('\n')
-                if self.IS_SCREEN:
-                    dirs = next(os.walk(self.SCREENDIR))[1]
-                    LOG.error('Available built-in Machine Control Screens:')
-                    for i in dirs:
-                        print(('{}'.format(i)))
-                else:
-                    dirs = next(os.walk(self.PANELDIR))[1]
-                    LOG.error('Available built-in VCP Panels:')
-                    for i in dirs:
-                        print(('{}'.format(i)))
-                    dirs = next(os.walk(self.SCREENDIR))[1]
-                    LOG.error('Available built-in Machine Control Screens:')
-                    for i in dirs:
-                        print(('{}'.format(i)))
-                print('\n')
-                sys.exit(0)
+                LOG.info('Available built-in Machine Control Screens:')
+                for i in self.find_screen_dirs():
+                   print(('{}'.format(i)))
+                print('')
+                LOG.info('Available built-in VCP Panels:')
+                for i in self.find_panel_dirs():
+                    print(('{}'.format(i)))
+                print('')
+                return True # error
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASEPATH)
@@ -248,3 +243,12 @@ class _PStat(object):
             else:
                 self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
                 self.DOMAIN = "linuxcnc"
+
+    def find_screen_dirs(self):
+        dirs = next(os.walk(self.SCREENDIR))[1]
+        return dirs
+
+    def find_panel_dirs(self):
+        dirs = next(os.walk(self.PANELDIR))[1]
+        return dirs
+
