@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.200 - 2021 Feb 28 - (QtPlasmaC V0.9.44)
+0.201 - 2021 Feb 28 - (QtPlasmaC V0.9.45)
 
 .I SUMMARY:
 .br
@@ -1567,9 +1567,9 @@ FUNCTION(_) {
                 if(breakaway || float_switch || ohmic_detected){
                     if(!error_message){
                         error_message = TRUE;
-                        rtapi_print_msg(RTAPI_MSG_ERR,"breakaway float or ohmic activated\n"
-                                                      "during consumable change\n"
-                                                      "motion paused.\n");
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;
                 }
@@ -1633,9 +1633,9 @@ FUNCTION(_) {
                 if(breakaway || float_switch || ohmic_detected){
                     if(!error_message){
                         error_message = TRUE;
-                        rtapi_print_msg(RTAPI_MSG_ERR,"breakaway float or ohmic activated\n"
-                                                      "during consumable change\n"
-                                                      "motion paused.\n");
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;
                 }

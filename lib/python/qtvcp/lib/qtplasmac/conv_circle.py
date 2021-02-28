@@ -98,8 +98,6 @@ def preview(P, W):
         outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
         outTmp.write('M66 P3 L3 Q1\n')
         outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-        if sHole:
-            outTmp.write('M67 E3 Q{} (reduce feed rate to 60%)\n'.format(P.holeSpeed))
         if leadInOffset > 0:
             if sHole and not W.cExt.isChecked():
                 xlStart = xS + leadInOffset * math.cos(angle)
@@ -111,6 +109,8 @@ def preview(P, W):
                 ylStart = ylcenter + (leadInOffset * math.sin(angle + dir[1]))
             outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
             outTmp.write('m3 $0 s1\n')
+            if sHole:
+                outTmp.write('M67 E3 Q{} (reduce feed rate to 60%)\n'.format(P.holeSpeed))
             if sHole and not W.cExt.isChecked():
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
             else:
@@ -118,6 +118,8 @@ def preview(P, W):
         else:
             outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
             outTmp.write('m3 $0 s1\n')
+            if sHole:
+                outTmp.write('M67 E3 Q{} (reduce feed rate to 60%)\n'.format(P.holeSpeed))
         if W.cExt.isChecked():
             outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset + ijDiff))
         else:

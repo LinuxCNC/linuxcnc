@@ -33,9 +33,11 @@ def preview(P, W):
         hRadius = float(W.hdEntry.text()) / 2
     else:
         hRadius = 0
-    holes = 0
-    if cRadius > 0 and hRadius > 0 and int(W.hEntry.text()) > 0:
+    if W.hEntry.text():
         holes = int(W.hEntry.text())
+    else:
+        holes = 0
+    if cRadius > 0 and hRadius > 0 and holes > 0:
         if W.caEntry.text():
             cAngle = float(W.caEntry.text())
         else:
@@ -101,12 +103,12 @@ def preview(P, W):
             xS = xhC - hRadius + ijDiff
             yS = yhC
             if sHole:
-                outTmp.write('m67 E3 Q{}\n'.format(P.holeSpeed))
                 xlStart = xS + leadIn
                 ylStart = yhC
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
                 outTmp.write('m3 $0 s1\n')
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+                outTmp.write('m67 E3 Q{}\n'.format(P.holeSpeed))
             else:
                 xlCentre = xS + (leadInOffset * math.cos(angle + right))
                 ylCentre = yS + (leadInOffset * math.sin(angle + right))
