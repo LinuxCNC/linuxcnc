@@ -116,10 +116,12 @@ class QTVCP:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            PATH.set_paths()
-
+            print(parser.print_help())
+            sys.exit(0)
         # set paths using basename
-        PATH.set_paths(basepath, bool(INIPATH))
+        error = PATH.set_paths(basepath, bool(INIPATH))
+        if error:
+            sys.exit(0)
 
         # keep track of python version during this transition
         if sys.version_info.major > 2:
