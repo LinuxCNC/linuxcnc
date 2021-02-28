@@ -151,7 +151,10 @@ You can put these files in a arbitrary named folder - qtvcp will search all fold
 === Modifying Stock Screens
 
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
-
+There is a QtVCP panel to help with this. +
+Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and +
+destination folder. This will copy all the file - delete the ones you don't wish to modify so +
+that the original files will be used. +
 
 == VCP Panels
 Qtvcp can be used to create control panels that interface with HAL. +
