@@ -176,10 +176,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
         # install jump paths into toolbutton menu
         for i in self._jumpList:
-            axisButton = QAction(QIcon.fromTheme('user-home'), i, self)
-            # weird lambda i=i to work around 'function closure'
-            axisButton.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
-            self.settingMenu.addAction(axisButton)
+            self.addAction(i)
 
     #########################
     # callbacks
@@ -304,6 +301,12 @@ class FileManager(QWidget, _HalWidgetBase):
     # helper functions
     ########################
 
+    def addAction(self, i):
+        axisButton = QAction(QIcon.fromTheme('user-home'), i, self)
+        # weird lambda i=i to work around 'function closure'
+        axisButton.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
+        self.settingMenu.addAction(axisButton)
+
     def showList(self, state=True):
         if state:
             self.table.hide()
@@ -397,7 +400,7 @@ class FileManager(QWidget, _HalWidgetBase):
         else:
             selectionModel = self.table.selectionModel()
         index = selectionModel.currentIndex()
-        dir_path = self.model.filePath(index)
+        dir_path = os.path.normpath(self.model.filePath(index))
         if self.model.fileInfo(index).isFile():
             return (dir_path, True)
         else:
