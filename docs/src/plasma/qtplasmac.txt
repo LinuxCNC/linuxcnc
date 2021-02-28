@@ -150,7 +150,7 @@ QtPlasmaC requires the selection of one of following three operating modes:
    Use external up/down signals for Torch Height Control.
 |===
 
-IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0.
+IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
 
 === Available I/Os
 
@@ -805,9 +805,6 @@ NOTE: During Paused Motion, this section will become <<qt_cut-recovery, CUT RECO
 |Z+|This button moves the Z axis in the positive direction.
 |Z-|This button moves the Z axis in the negative direction.
 |===
-
-[[qt_paused-motion-speed]]
-//FIXME-NO LINK TO HERE, NEEDED?
 
 [underline]*CUT RECOVERY*
 
@@ -1676,7 +1673,7 @@ QtPlasmaC can utilize G-Code commands usually set by a CAM Post Processor (PP) t
 
 There are three methods available for improving the quality of small holes:
 
-. *Velocity Reduction* - Reducing the velocity to approximately 60% of the *CutFeedRate*.
+. *Velocity Reduction* - <<qt_hole-cutting-velocity-reduction, Reducing the velocity>> to approximately 60% of the *CutFeedRate*.
 . *Arc Dwell (<<qt_pause-at-end, Pause At End>>)* - Keeping the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
 . *Overcut* - Turning the torch off at the end of the hole then continue along the path.
 
@@ -1690,7 +1687,6 @@ IMPORTANT: *OVERCUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT;
 G-Code commands can be set up by either by a CAM Post Processor (PP) or by hand coding.
 
 [[qt_hole-cutting-velocity-reduction]]
-//FIXME - NO LINKS TO THIS, DELETE?
 
 [underline]*Hole Cutting Velocity Reduction*
 
@@ -2072,7 +2068,7 @@ After saving the user may press *Quit* or they may click on any shape to start t
 === Conversational Lines And Arcs
 
 image::images/qtplasmac_conv_line.png[width=100,align="left"]
-//FIXME UPDATE IMAGE
+
 Lines and arcs have an additional option in that they may be strung together to create a complex shape.
 
 There are two line types and three arc types available:
@@ -2103,7 +2099,7 @@ NOTE: At this stage there is no automatic option for a lead-in/lead-out creation
 The following shapes are available for creation:
 
 image::images/qtplasmac_conv_shapes.png[width=400,align="center"]
-//FIXME UPDATE IMAGE
+
 To create a shape:
 
 . Select the shape to create. The available parameters will be displayed.
@@ -2135,7 +2131,7 @@ To create a group of shapes:
 === Conversational Rotate
 
 image::images/qtplasmac_conv_rotate.png[width=100,align="left"]
-//FIXME UPDATE IMAGE
+
 The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
 
 Arrays created via Conversational may be rotated, however arrays that have been imported cannot be rotated.
@@ -2152,7 +2148,7 @@ Rotation will not work on G-Code that is mathematically calculated, the values n
 === Conversational Array
 
 image::images/qtplasmac_conv_array.png[width=100,align="left"]
-//FIXME UPDATE IMAGE
+
 An array can be created from a shape, a group or an imported G-Code file.
 
 Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
@@ -2231,7 +2227,7 @@ The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined
 
 * *pierce height would exceed Z axis maximum limit while ohmic probing*
 
-=== Warning errors
+=== Warning Errors
 
 Warning errors will not pause a running program and are informational only.
 
@@ -2243,7 +2239,7 @@ These errors indicate the corresponding sensor was activated before a probe test
 
 This indicates that the corresponding sensor was activated during a consumable change:
 
-* *breakaway float or ohmic activated during consumable, change motion is paused*
+* *breakaway float or ohmic activated during consumable, change motion is paused* +
 *WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
 
 WARNING: CONSUMABLE CHANGE MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THE CORRESPONDING SENSOR ACTIVATION.
@@ -3127,7 +3123,6 @@ Serial card example (Sunnix SER5037A PCI Card shown with Breakout Board):
 image::images/plasmac_rs485_sunnix.png[width=400,align="center"]
 
 [[qt_reed-arc-ok]]
-//FIXME - Nothing links to here
 
 === Arc OK With A Reed Relay
 
