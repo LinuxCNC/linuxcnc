@@ -243,7 +243,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -11518,6 +11518,19 @@ HOME ALL</string>
                   <number>0</number>
                  </property>
                  <item>
+                  <spacer name="horizontalSpacer_18">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
                   <widget class="PushButton" name="save_plasma">
                    <property name="minimumSize">
                     <size>
@@ -11580,25 +11593,6 @@ HOME ALL</string>
                     </size>
                    </property>
                   </spacer>
-                 </item>
-                 <item>
-                  <widget class="PushButton" name="backup_config">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>BACKUP</string>
-                   </property>
-                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -14160,6 +14154,32 @@ HOME ALL</string>
                    </property>
                   </spacer>
                  </item>
+                 <item>
+                  <widget class="QPushButton" name="backup">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>90</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>90</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>BACKUP
+CONFIG</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -14824,7 +14844,6 @@ HOME ALL</string>
   <tabstop>setup_feed_rate</tabstop>
   <tabstop>save_plasma</tabstop>
   <tabstop>reload_plasma</tabstop>
-  <tabstop>backup_config</tabstop>
   <tabstop>materials_box</tabstop>
   <tabstop>kerf_width</tabstop>
   <tabstop>pierce_height</tabstop>

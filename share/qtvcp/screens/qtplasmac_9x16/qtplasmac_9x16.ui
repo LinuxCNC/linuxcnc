@@ -231,7 +231,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -8847,7 +8847,7 @@ HOME ALL</string>
           <attribute name="title">
            <string>PARAMETERS</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_23">
+          <layout class="QVBoxLayout" name="verticalLayout_23" stretch="0,0,0,2">
            <property name="spacing">
             <number>4</number>
            </property>
@@ -11646,38 +11646,6 @@ HOME ALL</string>
                      </widget>
                     </item>
                     <item>
-                     <spacer name="horizontalSpacer_35">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <widget class="PushButton" name="backup_config">
-                      <property name="minimumSize">
-                       <size>
-                        <width>80</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>80</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>BACKUP</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
                      <spacer name="horizontalSpacer_14">
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
@@ -12827,6 +12795,12 @@ HOME ALL</string>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
@@ -12857,7 +12831,7 @@ HOME ALL</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>400</height>
               </size>
              </property>
              <property name="frameShape">
@@ -14152,6 +14126,26 @@ HOME ALL</string>
                        </size>
                       </property>
                      </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="backup">
+                      <property name="minimumSize">
+                       <size>
+                        <width>90</width>
+                        <height>50</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>90</width>
+                        <height>50</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>BACKUP
+CONFIG</string>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </widget>

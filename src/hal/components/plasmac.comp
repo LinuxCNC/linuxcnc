@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.201 - 2021 Feb 28 - (QtPlasmaC V0.9.45)
+0.202 - 2021 Mar 01 - (QtPlasmaC V0.9.46)
 
 .I SUMMARY:
 .br
@@ -340,7 +340,6 @@ FUNCTION(_) {
     }
     offset_scale = units_per_mm * fperiod / res;
     velocity_scale = res / units_per_mm / 60;
-    adaptive_feed = 1;
     probe_force_val = 5 * res;
     recovery_velocity = 3 * res;
 

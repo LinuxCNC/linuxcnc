@@ -1,4 +1,4 @@
-VERSION = '0.9.45'
+VERSION = '0.9.46'
 
 import os, sys
 from shutil import copy as COPY
@@ -6,6 +6,7 @@ from shutil import copy as COPY
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 import time
+import tarfile
 import math
 import linuxcnc
 import hal, hal_glib
@@ -1077,8 +1078,23 @@ class HandlerClass:
     def reload_plasma_clicked(self):
         self.load_plasma_parameters()
 
-    def backup_config_clicked(self):
-        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Configuration backup not implemented yet\n')
+    def backup_clicked(self):
+        bDate = '{}-{:02d}-{:02d}'.format(time.localtime(time.time())[0], \
+                                          time.localtime(time.time())[1], \
+                                          time.localtime(time.time())[2],)
+        bTime = '{:02d}-{:02d}-{:02d}'.format(time.localtime(time.time())[3], \
+                                              time.localtime(time.time())[4], \
+                                              time.localtime(time.time())[4],)
+        outPath = '{}'.format(os.path.expanduser('~'))
+        outName = '{}_V{}_{}_{}.tar.gz'.format(self.iniFile.find('EMC', 'MACHINE'), VERSION, bDate, bTime)
+        with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
+            archive.add('{}'.format(self.PATHS.CONFIGPATH))
+        msg  = 'A compressed backup of the machine configuration\n'
+        msg += 'has been saved in your home directory.\n\n'
+        msg += 'The file name is: {}\n\n'.format(outName)
+        msg += 'This file may be attached to a post on the\n'
+        msg += 'LinuxCNC forum to aid in problem solving.\n\n'
+        self.dialog_show(QMessageBox.Information, 'BACKUP COMPLETE', msg)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -1387,7 +1403,7 @@ class HandlerClass:
         self.w.color_preview.clicked.connect(lambda:self.openColorDialog(self.w.color_preview))
         self.w.save_plasma.clicked.connect(self.save_plasma_clicked)
         self.w.reload_plasma.clicked.connect(self.reload_plasma_clicked)
-        self.w.backup_config.clicked.connect(self.backup_config_clicked)
+        self.w.backup.clicked.connect(self.backup_clicked)
         self.w.save_material.clicked.connect(self.save_materials_clicked)
         self.w.reload_material.clicked.connect(self.reload_materials_clicked)
         self.w.new_material.clicked.connect(lambda:self.new_material_clicked(0, 0))
@@ -1650,7 +1666,7 @@ class HandlerClass:
         else:
             self.overlay.hide()
 
-    def dialog_error(self, icon, title, error):
+    def dialog_show(self, icon, title, error):
         msg = QMessageBox(self.w)
         msg.setIcon(icon)
         msg.setWindowTitle(title)
@@ -3569,7 +3585,7 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error(QMessageBox.Warning, 'SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
+                    self.dialog_show(QMessageBox.Warning, 'SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
                     return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -3605,7 +3621,7 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error(QMessageBox.Warning, 'ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
+                    self.dialog_show(QMessageBox.Warning, 'ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
                     return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
 
@@ -3613,10 +3629,10 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_error(QMessageBox.Warning, 'ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    self.dialog_show(QMessageBox.Warning, 'ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
                     return
                 elif '#<ucs_' in line:
-                    self.dialog_error(QMessageBox.Warning, 'ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    self.dialog_show(QMessageBox.Warning, 'ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
                     return
                 elif '(conversational' in line:
                     self.arrayMode = 'conversational'
@@ -3679,7 +3695,7 @@ class HandlerClass:
             try:
                 a = float(widget.text())
             except:
-                self.dialog_error(QMessageBox.Warning, 'NUMERIC ENTRY', 'An invalid entry has been detected')
+                self.dialog_show(QMessageBox.Warning, 'NUMERIC ENTRY', 'An invalid entry has been detected')
                 widget.setText('0')
         if name == 'gsEntry':
             # grid size is in inches
@@ -3858,12 +3874,12 @@ class HandlerClass:
             msg  = 'Invalid number of colors defined\n'
             msg += 'in custom stylesheet header\n'
             msg += '\nReverting to standard stylesheet\n'
-            self.dialog_error(QMessageBox.Warning, 'STYLESHEET', msg)
+            self.dialog_show(QMessageBox.Warning, 'STYLESHEET', msg)
             self.standard_stylesheet()
         except:
             msg  = 'Cannot open custom stylesheet\n'
             msg += '\nReverting to standard stylesheet\n'
-            self.dialog_error(QMessageBox.Warning, 'STYLESHEET', msg)
+            self.dialog_show(QMessageBox.Warning, 'STYLESHEET', msg)
             self.standard_stylesheet()
 
     def color_button_image(self, button, color):
