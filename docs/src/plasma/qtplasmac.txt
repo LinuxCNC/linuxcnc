@@ -150,7 +150,7 @@ QtPlasmaC requires the selection of one of following three operating modes:
    Use external up/down signals for Torch Height Control.
 |===
 
-IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
+IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also be possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
 
 === Available I/Os
 
@@ -417,6 +417,28 @@ When all entries are correct, click *Reconfigure* and the user's QtPlasmaC confi
 Entry descriptions can be found <<qtplasmac-setup-table, here>>.
 
 NOTE: Machine Name and <machine_name>.hal File can not be modified.
+
+== Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
+
+The preferred method to move to QtPlasmaC from PlasmaC loaded on top of either Axis or Gmoccapy is to use the <<qtplasmac-setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
+
+The user can then run a conversion program to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+
+Prior to running this program, it is mandatory that the user have both an existing PlasmaC configuration and an existing QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
+
+The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
+
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the plasma_material.cfg file to the existing QtPlasmaC configuration.
+
+To use the conversion tool, enter the following in a terminal:
+
+----
+python ~/linuxcnc/configs/<qtplasmac_config>/qtplasmac/qtplasmac-cfg2prefs.py
+----
+
+image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
+
+Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press 'CONVERT'.
 
 == Other QtPlasmaC Setup Considerations
 
@@ -982,15 +1004,11 @@ NOTE: Setup Speed has no effect on THC speed which is capable of the velocity di
 
 NOTE: PID loop tuning is a complicated process and is outside the scope of this User Guide. There are many sources of information available to assist with understanding and tuning PID loops. If the THC is not making corrections fast enough, it is recommended to increase the P gain in small increments until the system operates favorably. Large P gain adjustments can result in over correction and oscillations.
 
-[underline]*Save, Reload, & Backup Buttons*
+[underline]*Save & Reload Buttons*
 
 The **SAVE** button will save the currently displayed parameters to the qtplasmac.prefs file.
 
 The **RELOAD** button will reload all the parameters from the qtplasmac.prefs file.
-
-[[qtplasmac-backup]]
-
-The **BACKUP** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the qtplasmac-setup program, and <version_info> is the current QtPlasmaC version the user is on.
 
 [[qt_material]]
 
@@ -1063,6 +1081,12 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Grid Size|This allows a user to change the size of the grid in the Preview Window on the <<qt_main-tab, MAIN Tab>>. Grid size of 0.0 will disable the grid.
 |Cone Size|This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the <<qt_main-tab, MAIN Tab>>.
 |===
+
+[underline]*UTILITIES*
+
+[[qtplasmac-backup]]
+
+The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the qtplasmac-setup program, and <version_info> is the current QtPlasmaC version the user is on.
 
 === STATISTICS Tab
 
