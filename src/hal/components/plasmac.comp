@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.202 - 2021 Mar 01 - (QtPlasmaC V0.9.46)
+0.203 - 2021 Mar 02 - (QtPlasmaC V0.9.47)
 
 .I SUMMARY:
 .br
@@ -99,7 +99,7 @@ pin in  bit     program_is_running          "program is running, connect to halu
 pin in  float   puddle_jump_delay           "delay move from pierce height to cut height (seconds), leave disconnected if not required";
 pin in  float   puddle_jump_height          "puddle jump height (percentage of pierce height), leave disconnected if not required";
 pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
-pin in  s32     resolution = 1              "resolution of the offset counts";
+pin in  s32     resolution = 100            "multiplier for resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
 pin in  float   scribe_arm_delay            "delay from scribe arm to scribe on";
@@ -1639,46 +1639,41 @@ FUNCTION(_) {
                     break;
                 }
                 error_message = FALSE;
-                if((int)(x_offset_current * 10 * res) == (int)(x_offset_counts * offset_scale * 10 * res) &&
-                  (int)(y_offset_current * 10 * res) == (int)(y_offset_counts * offset_scale * 10 * res)){
-                    cons_change_clear = TRUE;
-                }else{
-                }
-                if(cons_change_clear){
+                if(x_offset_counts == 0 && y_offset_counts == 0){
                     if((int)(x_offset_current * 10 * res) == 0 && (int)(y_offset_current * 10 * res) == 0){
                         consumable_changing = FALSE;
                         cons_change_clear = FALSE;
                         feed_hold = FALSE;
                         state = IDLE;
-                    }else{
-                        if(x_velocity && x_offset_counts != 0){
-                            if(x_offset_counts > 0){
-                                if(x_offset_counts - x_velocity > 0){
-                                    x_offset_counts -= x_velocity;
-                                }else{
-                                    x_offset_counts = 0;
-                                }
+                    }
+                }else{
+                    if(x_velocity && x_offset_counts != 0){
+                        if(x_offset_counts > 0){
+                            if(x_offset_counts - x_velocity > 0){
+                                x_offset_counts -= x_velocity;
                             }else{
-                                if(x_offset_counts + x_velocity < 0){
-                                    x_offset_counts += x_velocity;
-                                }else{
-                                    x_offset_counts = 0;
-                                }
+                                x_offset_counts = 0;
+                            }
+                        }else{
+                            if(x_offset_counts + x_velocity < 0){
+                                x_offset_counts += x_velocity;
+                            }else{
+                                x_offset_counts = 0;
                             }
                         }
-                        if(y_velocity && y_offset_counts != 0){
-                            if(y_offset_counts > 0){
-                                if(y_offset_counts - y_velocity > 0){
-                                    y_offset_counts -= y_velocity;
-                                }else{
-                                    y_offset_counts = 0;
-                                }
+                    }
+                    if(y_velocity && y_offset_counts != 0){
+                        if(y_offset_counts > 0){
+                            if(y_offset_counts - y_velocity > 0){
+                                y_offset_counts -= y_velocity;
                             }else{
-                                if(y_offset_counts + y_velocity < 0){
-                                    y_offset_counts += y_velocity;
-                                }else{
-                                    y_offset_counts = 0;
-                                }
+                                y_offset_counts = 0;
+                            }
+                        }else{
+                            if(y_offset_counts + y_velocity < 0){
+                                y_offset_counts += y_velocity;
+                            }else{
+                                y_offset_counts = 0;
                             }
                         }
                     }
