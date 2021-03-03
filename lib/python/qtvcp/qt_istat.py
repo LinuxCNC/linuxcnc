@@ -88,6 +88,7 @@ class _IStat(object):
         if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
             log.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
         self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
+        self.STARTUP_CODES = (self.INI.find('RS274NGC', 'RS274NGC_STARTUP_CODE') ) or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
                 self.SUB_PATH_LIST.append(mpath)
