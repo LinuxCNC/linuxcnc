@@ -70,8 +70,7 @@ elif [ $pyver -eq 3 ]; then
 fi
 
 # get tools version
-#qttools=$(dpkg-query -W -f='${Version}\n' qttools5-dev)
-qttools=5.11.3.4
+qttools=$(dpkg-query -W -f='${Version}\n' qttools5-dev)
 case $qttools in
 	*5.5*	) 	qtver=5.5; qtfile=libpyqt5_py2.tar.gz;;
 	*5.7*  	) 	qtver=5.7; qtfile=libpyqt5_py2.tar.gz;;
