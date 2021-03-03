@@ -460,7 +460,7 @@ included with LinuxCNC.
 
 An example of a custom G code converter located in the linuxcnc directory.
 
-* 'PROGRAM_EXTENSION = .gcode 3D Printer
+* 'PROGRAM_EXTENSION = .gcode 3D Printer'
 ** 'gcode = /home/mill/linuxcnc/convert.py'
 
 NOTE: The program file assoiated with an extension must have either the full
