@@ -319,6 +319,18 @@ QSlider::handle:vertical:disabled{
     border-radius: 4px;
 }
 
+/* warning colors for overrides if out of normal range*/
+
+    #slider_spindle_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='under'] {
+        background: yellow;
+    }
+
 QDialog,
 LcncDialog,
 ToolDialog,
