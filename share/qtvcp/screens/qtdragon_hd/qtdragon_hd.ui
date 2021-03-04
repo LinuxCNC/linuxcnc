@@ -929,7 +929,7 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>8</number>
                 </property>
                 <widget class="QWidget" name="main_tab_widgetPage1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -3083,6 +3083,22 @@ TO FILE</string>
                       </widget>
                      </item>
                      <item>
+                      <widget class="QCheckBox" name="chk_inhibit_selection">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="toolTip">
+                        <string>Make complicated 3D files more visible</string>
+                       </property>
+                       <property name="text">
+                        <string>INHIBIT MOUSE SELECTION</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <widget class="QCheckBox" name="chk_eoffsets">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -3160,6 +3176,9 @@ TO FILE</string>
                        <property name="text">
                         <string>USE RUN FROM LINE</string>
                        </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -3192,6 +3211,9 @@ TO FILE</string>
                        <property name="text">
                         <string>USE TOOL SENSOR</string>
                        </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -3201,6 +3223,9 @@ TO FILE</string>
                        </property>
                        <property name="text">
                         <string>USE TOOL TOUCHPLATE</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3214,6 +3239,9 @@ TO FILE</string>
                        </property>
                        <property name="text">
                         <string>USE CAMVIEW</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3251,6 +3279,7 @@ TO FILE</string>
                     <zorder>label_15</zorder>
                     <zorder>chk_use_touchplate</zorder>
                     <zorder>label_27</zorder>
+                    <zorder>chk_inhibit_selection</zorder>
                    </widget>
                   </item>
                   <item>
@@ -12826,7 +12855,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>04:25:22 PM</string>
+               <string>09:56:35 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13038,8 +13067,8 @@ INCREMENT</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>990</x>
+     <y>107</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -13054,8 +13083,8 @@ INCREMENT</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>990</x>
+     <y>590</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13070,8 +13099,8 @@ INCREMENT</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>990</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13086,8 +13115,8 @@ INCREMENT</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>116</y>
+     <x>990</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13102,8 +13131,8 @@ INCREMENT</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1768</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -13118,8 +13147,8 @@ INCREMENT</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>106</y>
+     <x>1768</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -13134,8 +13163,8 @@ INCREMENT</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>601</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -13166,8 +13195,8 @@ INCREMENT</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -13182,8 +13211,8 @@ INCREMENT</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -13198,7 +13227,7 @@ INCREMENT</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1770</x>
+     <x>1768</x>
      <y>218</y>
     </hint>
     <hint type="destinationlabel">
@@ -13214,8 +13243,8 @@ INCREMENT</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -13230,8 +13259,8 @@ INCREMENT</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>523</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -13246,8 +13275,8 @@ INCREMENT</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>575</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -13262,8 +13291,8 @@ INCREMENT</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1768</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -13278,8 +13307,8 @@ INCREMENT</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1768</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -13294,8 +13323,8 @@ INCREMENT</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>544</x>
-     <y>176</y>
+     <x>1768</x>
+     <y>583</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -13326,8 +13355,8 @@ INCREMENT</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>610</x>
-     <y>86</y>
+     <x>1772</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>1524</x>
@@ -13342,8 +13371,8 @@ INCREMENT</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>471</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -13358,8 +13387,8 @@ INCREMENT</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>692</y>
+     <x>749</x>
+     <y>705</y>
     </hint>
     <hint type="destinationlabel">
      <x>993</x>
@@ -13374,8 +13403,8 @@ INCREMENT</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1120</x>
-     <y>764</y>
+     <x>754</x>
+     <y>706</y>
     </hint>
     <hint type="destinationlabel">
      <x>1023</x>
@@ -13390,8 +13419,8 @@ INCREMENT</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1053</x>
-     <y>817</y>
+     <x>754</x>
+     <y>707</y>
     </hint>
     <hint type="destinationlabel">
      <x>1051</x>
@@ -13406,8 +13435,8 @@ INCREMENT</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1073</x>
-     <y>874</y>
+     <x>754</x>
+     <y>707</y>
     </hint>
     <hint type="destinationlabel">
      <x>1073</x>
@@ -13486,8 +13515,8 @@ INCREMENT</string>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>86</y>
+     <x>764</x>
+     <y>549</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -13518,8 +13547,8 @@ INCREMENT</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1220</x>
-     <y>740</y>
+     <x>820</x>
+     <y>685</y>
     </hint>
     <hint type="destinationlabel">
      <x>1204</x>
@@ -13534,8 +13563,8 @@ INCREMENT</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1259</x>
-     <y>685</y>
+     <x>820</x>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
      <x>1246</x>
@@ -13646,8 +13675,8 @@ INCREMENT</string>
    <slot>btn_maxv_50_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1159</x>
-     <y>687</y>
+     <x>751</x>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
      <x>1160</x>
@@ -13662,8 +13691,8 @@ INCREMENT</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1313</x>
-     <y>683</y>
+     <x>768</x>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
      <x>1306</x>
@@ -13700,6 +13729,22 @@ INCREMENT</string>
     <hint type="destinationlabel">
      <x>520</x>
      <y>-54</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_inhibit_selection</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_inhibit_selection_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>643</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>959</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -13774,6 +13819,7 @@ INCREMENT</string>
   <slot>percent_loaded_changed()</slot>
   <slot>chk_lock_wph_changed()</slot>
   <slot>chk_use_touchplate_changed()</slot>
+  <slot>chk_inhibit_selection_changed()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="page_buttonGroup"/>
