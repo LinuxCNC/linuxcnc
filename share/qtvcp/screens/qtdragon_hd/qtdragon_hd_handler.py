@@ -778,7 +778,6 @@ class HandlerClass:
             print("Override limits not set")
 
     def chk_run_from_line_changed(self, state):
-        self.w.gcodegraphics.set_inhibit_selection(not state)
         if not state:
             self.w.btn_cycle_start.setText('CYCLE START')
 
