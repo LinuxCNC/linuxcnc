@@ -18,6 +18,9 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._max_value = 100
         self._max_reading = 100
         self._gauge_label = "GAUGE"
+        self._dial_font_size = 10
+        self._value_font_size = 10
+        self._label_font_size = 10
         self._zone1_color = QColor("green")
         self._zone2_color = QColor("red")
         self._bezel_color = QColor("gray")
@@ -112,7 +115,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect = QRect()
         rect.setSize(QSize(40,18))
         qp.setPen(QPen(Qt.white, self.tick_width))
-        qp.setFont(QFont('Lato Heavy', 10))
+        qp.setFont(QFont('Lato Heavy', self._dial_font_size))
         rad = w/2
         inc = 270 / (self._num_ticks - 1)
         for i in range(self._num_ticks):
@@ -164,11 +167,11 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect.moveCenter(QPoint(center.x(), center.y() + w/4))
         text = "{}".format(self.value)
         qp.setPen(QPen(Qt.white, 4))
-        qp.setFont(QFont('Lato Heavy', 12))
+        qp.setFont(QFont('Lato Heavy', self._value_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
         rect.moveCenter(QPoint(center.x(), center.y() + w/3))
         text = self._gauge_label
-        qp.setFont(QFont('Lato Heavy', 10))
+        qp.setFont(QFont('Lato Heavy', self._label_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
 
     @pyqtSlot(float)
@@ -324,6 +327,9 @@ if __name__ == "__main__":
     gauge.set_setpoint(14000)
     gauge.set_num_ticks(13)
     gauge.set_label("RPM")
+    gauge._value_font_size = 10
+    gauge._label_font_size = 10
+    gauge._dial_font_size = 10
     slider = QSlider(Qt.Horizontal)
     slider.setMinimum(0)
     slider.setMaximum(24000)
