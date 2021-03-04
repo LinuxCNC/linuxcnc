@@ -104,6 +104,7 @@ class INI:
         print("MIN_ANGULAR_VELOCITY = %f"% self.d.min_angular_velocity, file=file)
         print("EDITOR = %s"% self.d.editor, file=file)
         print("GEOMETRY = %s"% self.d.geometry, file=file) 
+        print("CYCLE_TIME = 100", file=file)
 
         print(file=file)
         print("[FILTER]", file=file)
@@ -117,7 +118,7 @@ class INI:
         print(file=file)
         print("[TASK]", file=file)
         print("TASK = milltask", file=file)
-        print("CYCLE_TIME = 100", file=file)
+        print("CYCLE_TIME = 0.010", file=file)
 
         print(file=file)
         print("[RS274NGC]", file=file)

@@ -91,6 +91,7 @@ class INI:
             print("MIN_ANGULAR_VELOCITY = 0", file=file)
             print("MAX_ANGULAR_VELOCITY = %.2f" % self.d.amaxvel, file=file)
 
+        print("CYCLE_TIME = 0.100", file=file)
         print("INTRO_GRAPHIC = linuxcnc.gif", file=file)
         print("INTRO_TIME = 5", file=file)
         print("PROGRAM_PREFIX = %s" % os.path.expanduser("~/linuxcnc/nc_files"), file=file)
@@ -189,7 +190,7 @@ class INI:
         print(file=file)
         print("[EMCIO]", file=file)
         print("EMCIO = io", file=file)
-        print("CYCLE_TIME = 100", file=file)
+        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
 
         if self.d.axes == 2: # XZ
