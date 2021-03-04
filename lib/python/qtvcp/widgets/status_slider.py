@@ -46,6 +46,11 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         self.jograte_angular = False
         self.max_velocity = False
 
+        # for syslesheet dybamic property
+        self._alertState = ''
+        self._alertOver = 100
+        self._alertUnder = 50
+
     def _hal_init(self):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
@@ -72,8 +77,11 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
+        # If the widget uses dynamic properties in stylesheet...
+        self._style_polish(state= self.get_alert_cmd(self.value()))
 
     def _action(self, value):
+        self._style_polish(state= self.get_alert_cmd(value))
         if self.rapid:
             ACTION.SET_RAPID_RATE(value)
         elif self.feed:
@@ -88,6 +96,23 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             ACTION.SET_MAX_VELOCITY_RATE(value)
         else:
             LOG.error('{} : no action recognised'.format(self.HAL_NAME_))
+
+    # convert numeric value to string command
+    def get_alert_cmd(self, value):
+        if value > self._alertOver:
+            return 'over'
+        elif value < self._alertUnder:
+            return 'under'
+        else:
+            return'normal'
+
+    # polish widget so stylesheet sees the property change
+    # some stylessheets color the widget based on the abritrary hi/lo range
+    def _style_polish(self, prop = 'alertState',state = 'normal'):
+        if self._alertState != state:
+            self.setProperty(prop, state)
+            self.style().unpolish(self)
+            self.style().polish(self)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -165,6 +190,13 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
     jograte_angular_rate = pyqtProperty(bool, getjograte_angular, setjograte_angular, resetjograte_angular)
     max_velocity_rate = pyqtProperty(bool, getmax_velocity, setmax_velocity, resetmax_velocity)
+
+    def setAlertState(self, data):
+        self._alertState = data
+    def getAlertState(self):
+        return self._alertState
+    alertState = pyqtProperty(str, getAlertState, setAlertState)
+
     ##############################
     # required class boiler code #
     ##############################
