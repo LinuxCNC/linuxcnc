@@ -2891,7 +2891,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>10</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -5023,6 +5023,9 @@ TO FILE</string>
                           <property name="text">
                            <string>USE TOOL SENSOR</string>
                           </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
                          </widget>
                         </item>
                         <item>
@@ -5038,6 +5041,9 @@ TO FILE</string>
                           </property>
                           <property name="text">
                            <string>USE CAMERA</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
                           </property>
                          </widget>
                         </item>
@@ -13131,7 +13137,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>04:23:28 PM</string>
+            <string>06:51:27 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13451,8 +13457,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>499</y>
+     <x>508</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -13467,8 +13473,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>275</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13483,8 +13489,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>341</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -13595,8 +13601,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>137</x>
-     <y>82</y>
+     <x>85</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -13611,8 +13617,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>82</y>
+     <x>85</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -13659,8 +13665,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>167</x>
-     <y>85</y>
+     <x>85</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -13708,7 +13714,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>322</y>
+     <y>96</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -13718,7 +13724,7 @@ ZERO</string>
   </connection>
   <connection>
    <sender>chk_run_from_line</sender>
-   <signal>stateChanged(int)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
@@ -13734,7 +13740,7 @@ ZERO</string>
   </connection>
   <connection>
    <sender>chk_override_limits</sender>
-   <signal>stateChanged(int)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_override_limits_checked()</slot>
    <hints>
@@ -13782,9 +13788,9 @@ ZERO</string>
   </connection>
   <connection>
    <sender>chk_alpha_mode</sender>
-   <signal>clicked()</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>chk_alpha_mode_clicked()</slot>
+   <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>678</x>
@@ -13830,7 +13836,7 @@ ZERO</string>
   </connection>
   <connection>
    <sender>chk_use_camera</sender>
-   <signal>stateChanged(int)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_use_camera_changed()</slot>
    <hints>
@@ -13867,8 +13873,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>174</y>
+     <x>458</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -13883,8 +13889,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>181</y>
+     <x>458</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -13899,8 +13905,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>168</y>
+     <x>458</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -13931,8 +13937,8 @@ ZERO</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>-5</x>
+     <y>-115</y>
     </hint>
     <hint type="destinationlabel">
      <x>832</x>
@@ -13969,6 +13975,22 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>761</x>
      <y>-32</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_inhibit_selection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_inhibit_selection_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>557</x>
+     <y>251</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -14032,8 +14054,8 @@ ZERO</string>
   <slot>kb_test_clicked()</slot>
   <slot>chk_use_virtual_changed()</slot>
   <slot>btn_maxv_50_clicked()</slot>
-  <slot>chk_alpha_mode_clicked()</slot>
-  <slot>chk_inhibit_selection_clicked()</slot>
+  <slot>chk_alpha_mode_changed()</slot>
+  <slot>chk_inhibit_selection_changed()</slot>
   <slot>chk_use_sensor_changed()</slot>
   <slot>chk_use_camera_changed()</slot>
   <slot>btn_ref_camera_clicked()</slot>
@@ -14046,7 +14068,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

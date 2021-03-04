@@ -119,12 +119,9 @@ class HandlerClass:
         self.w.stackedWidget_dro.setCurrentIndex(0)
         self.w.btn_spindle_pause.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
-        self.w.btn_touch_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
-        self.chk_run_from_line_checked(self.w.chk_run_from_line.isChecked())
-        self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
-        self.chk_alpha_mode_clicked(self.w.chk_alpha_mode.isChecked())
+
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
             for i in self.axis_a_list:
@@ -772,11 +769,13 @@ class HandlerClass:
             self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
-        self.w.gcodegraphics.set_inhibit_selection(not state)
         self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("START")
 
-    def chk_alpha_mode_clicked(self, state):
+    def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_selection_changed(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
 
     def chk_use_camera_changed(self, state):
         self.w.btn_ref_camera.setEnabled(state)
