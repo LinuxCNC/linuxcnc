@@ -1,4 +1,4 @@
-VERSION = '0.9.47'
+VERSION = '0.9.48'
 
 import os, sys
 from shutil import copy as COPY
@@ -19,7 +19,7 @@ from qtvcp import logger
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
-#from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
+from qtvcp.widgets.file_manager import FileManager as FILE_MAN
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
 #from qtvcp.widgets.gcode_editor import GcodeLexer as LEXER
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
@@ -118,12 +118,38 @@ class HandlerClass:
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
-        KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
-        # KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
-        # KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
+        KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
+        KEYBIND.add_call('Key_Minus', 'on_keycall_MINUS')
+        KEYBIND.add_call('Key_H', 'on_keycall_HOME')
+        KEYBIND.add_call('Key_R', 'on_keycall_RUN')
+        KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
+        KEYBIND.add_call('Key_o', 'on_keycall_OPEN')
+        KEYBIND.add_call('Key_l', 'on_keycall_LOAD')
+        KEYBIND.add_call('Key_1', 'on_keycall_NUMBER', 1)
+        KEYBIND.add_call('Key_Exclam', 'on_keycall_NUMBER', 1)
+        KEYBIND.add_call('Key_2', 'on_keycall_NUMBER', 2)
+        KEYBIND.add_call('Key_At', 'on_keycall_NUMBER', 2)
+        KEYBIND.add_call('Key_3', 'on_keycall_NUMBER', 3)
+        KEYBIND.add_call('Key_NumberSign', 'on_keycall_NUMBER', 3)
+        KEYBIND.add_call('Key_4', 'on_keycall_NUMBER', 4)
+        KEYBIND.add_call('Key_Dollar', 'on_keycall_NUMBER', 4)
+        KEYBIND.add_call('Key_5', 'on_keycall_NUMBER', 5)
+        KEYBIND.add_call('Key_Percent', 'on_keycall_NUMBER', 5)
+        KEYBIND.add_call('Key_6', 'on_keycall_NUMBER', 6)
+        KEYBIND.add_call('Key_AsciiCircum', 'on_keycall_NUMBER', 6)
+        KEYBIND.add_call('Key_7', 'on_keycall_NUMBER', 7)
+        KEYBIND.add_call('Key_Ampersand', 'on_keycall_NUMBER', 7)
+        KEYBIND.add_call('Key_8', 'on_keycall_NUMBER', 8)
+        KEYBIND.add_call('Key_Asterisk', 'on_keycall_NUMBER', 8)
+        KEYBIND.add_call('Key_9', 'on_keycall_NUMBER', 9)
+        KEYBIND.add_call('Key_ParenLeft', 'on_keycall_NUMBER', 9)
+        KEYBIND.add_call('Key_0', 'on_keycall_NUMBER', 0)
+        KEYBIND.add_call('Key_ParenRight', 'on_keycall_NUMBER', 0)
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
+        self.jogFast = False
+        self.jogSlow = False
         self.lastLoadedProgram = 'None'
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
@@ -657,6 +683,9 @@ class HandlerClass:
                 if isinstance(receiver2, QtWidgets.QListView):
                     flag = True
                     break
+                if isinstance(receiver2, FILE_MAN):
+                    flag = True
+                    break
                 if isinstance(receiver2, MDI_LINE):
                     flag = True
                     break
@@ -705,9 +734,7 @@ class HandlerClass:
                 self.keyTimer.start(5)
                 return True
 # end workaround
-        if code == Qt.Key_Escape and event.type() == QEvent.KeyPress:
-            self.escape_pressed()
-        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
+        return KEYBIND.manage_function_calls(self, event, is_pressed, key, shift, cntrl)
 
 # part 3 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
     def key_timer_timeout(self):
@@ -1044,9 +1071,6 @@ class HandlerClass:
     def abort_pressed(self):
         hal.set_p('plasmac.cut-recovery', '0')
 
-    def escape_pressed(self):
-        self.torch_timeout()
-
     def user_button_pressed(self, button):
         self.user_button_down(button)
 
@@ -1154,6 +1178,8 @@ class HandlerClass:
         if self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
             self.w.gcode_stack.setCurrentIndex(0)
+        self.w.filemanager.table.selectRow(0)
+        self.w.filemanager.table.setFocus()
 
     def file_edit_clicked(self):
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
@@ -1633,8 +1659,10 @@ class HandlerClass:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
         if state:
-            if shift:
+            if shift or self.jogFast:
                 rate = INFO.MAX_LINEAR_JOG_VEL
+            elif self.jogSlow and not self.w.jog_slow.text() == 'SLOW':
+                rate = STATUS.get_jograte()/60/self.slowJogFactor
             ACTION.JOG(joint, direction, rate, distance)
             self.isJogging[joint] = True
             self.w.grabKeyboard()
@@ -3898,80 +3926,134 @@ class HandlerClass:
 #########################################################################################################################
 # KEY BINDING CALLS #
 #########################################################################################################################
-    def on_keycall_ESTOP(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and state:
+    def on_keycall_ESTOP(self, event, state, shift, cntrl):
+        if not event.isAutoRepeat() and state and self.keyboard_shortcuts():
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
 
-    def on_keycall_POWER(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and state:
+    def on_keycall_POWER(self, event, state, shift, cntrl):
+        if not event.isAutoRepeat() and state and self.keyboard_shortcuts():
             ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
 
-    def on_keycall_ABORT(self,event,state,shift,cntrl):
-        if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE:
+    def on_keycall_ABORT(self, event, state, shift, cntrl):
+        if state:
+            self.torch_timeout()
+        if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE and self.keyboard_shortcuts():
             ACTION.ABORT()
 
-    def on_keycall_HOME(self,event,state,shift,cntrl):
-        if state and self.keyboard_shortcuts():
+    def on_keycall_HOME(self, event, state, shift, cntrl):
+        if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts():
             if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
-    def on_keycall_PAUSE(self,event,state,shift,cntrl):
-        if state and STATUS.is_auto_mode() and self.keyboard_shortcuts():
+    def on_keycall_RUN(self, event, state, shift, cntrl):
+        if state and not shift and not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            if self.w.run.isEnabled():
+                self.run_pressed()
+            elif self.w.pause.isEnabled():
+                ACTION.PAUSE()
+
+    def on_keycall_PAUSE(self, event, state, shift, cntrl):
+        if state and not self.w.main_tab_widget.currentIndex() and self.w.pause.isEnabled() and \
+           not STATUS.stat.interp_state == linuxcnc.INTERP_PAUSED and self.keyboard_shortcuts():
             ACTION.PAUSE()
 
-    def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 0, 1, shift)
+    def on_keycall_OPEN(self, event, state, shift, cntrl):
+        if state and not self.w.main_tab_widget.currentIndex() and self.w.file_open.isEnabled() and self.keyboard_shortcuts():
+            self.file_open_clicked()
 
-    def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 0, -1, shift)
+    def on_keycall_LOAD(self, event, state, shift, cntrl):
+        if state and not self.w.main_tab_widget.currentIndex() and self.w.file_reload.isEnabled() and self.keyboard_shortcuts():
+            self.file_reload_clicked()
 
-    def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 1, 1, shift)
-
-    def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 1, -1, shift)
-
-
-    def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 2, 1, shift)
-
-    def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 2, -1, shift)
-
-    def on_keycall_APOS(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, 1, shift)
-    
-    def on_keycall_ANEG(self,event,state,shift,cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, -1, shift)
-
-    # def on_keycall_plus(self,event,state,shift,cntrl):
-    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 3, 1, shift, False)
-    # 
-    # def on_keycall_minus(self,event,state,shift,cntrl):
-    #     if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-    #         self.kb_jog(state, 3, -1, shift, False)
-
-    def on_keycall_F12(self,event,state,shift,cntrl):
+    def on_keycall_F12(self, event, state, shift, cntrl):
+        print(state, shift, cntrl)
         if not event.isAutoRepeat() and state:
             self.STYLEEDITOR.load_dialog()
 
-    def on_keycall_F9(self,event,state,shift,cntrl):
-        if state and not event.isAutoRepeat() and self.keyboard_shortcuts():
+    def on_keycall_F9(self, event, state, shift, cntrl):
+        print(state, shift, cntrl)
+        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and self.keyboard_shortcuts():
             if STATUS.is_spindle_on():
                 ACTION.SET_SPINDLE_STOP(0)
             else:
                 ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
+
+    def on_keycall_XPOS(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 0, 1, shift)
+
+    def on_keycall_XNEG(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 0, -1, shift)
+
+    def on_keycall_YPOS(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 1, 1, shift)
+
+    def on_keycall_YNEG(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 1, -1, shift)
+
+    def on_keycall_ZPOS(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 2, 1, shift)
+
+    def on_keycall_ZNEG(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 2, -1, shift)
+
+    def on_keycall_APOS(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, 1, shift)
+    
+    def on_keycall_ANEG(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 3, -1, shift)
+
+    def on_keycall_PLUS(self, event, state, shift, cntrl):
+        if self.jogSlow:
+            return
+        if state:
+            self.jogFast = True
+        else:
+            self.jogFast = False
+
+    def on_keycall_MINUS(self, event, state, shift, cntrl):
+        if self.jogFast:
+            return
+        if state:
+            self.jogSlow = True
+        else:
+            self.jogSlow = False
+
+    def on_keycall_NUMBER(self, event, state, shift, cntrl, number):
+        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and self.keyboard_shortcuts():
+            if shift and cntrl:
+                pass
+            elif shift and not cntrl:
+                if number:
+                    self.w.rapid_slider.setValue(10 * number)
+                else:
+                    self.w.rapid_slider.setValue(100)
+            elif cntrl and not shift:
+                if number:
+                    self.w.feed_slider.setValue(10 * number)
+                else:
+                    self.w.feed_slider.setValue(100)
+            else:
+                if number:
+                    if self.w.jog_slow.text() == 'SLOW':
+                        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number / self.slowJogFactor)
+                    else:
+                        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number)
+                else:
+                    if self.w.jog_slow.text() == 'SLOW':
+                        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
+                    else:
+                        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
+
 
 ##################################################################################################################################
 # required class boiler code #
