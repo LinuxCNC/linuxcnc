@@ -1,13 +1,13 @@
 import os
-import hal, hal_glib
+import hal
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
-from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.core import Status, Action, Info, Path
@@ -21,6 +21,7 @@ INFO = Info()
 ACTION = Action()
 PATH = Path()
 STYLEEDITOR = SSE()
+WRITER = writer.Main()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -50,6 +51,7 @@ class HandlerClass:
         self.factor = 1.0
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
+        self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
         self.start_line = 0
         self.run_time = 0
         self.time_tenths = 0
@@ -90,6 +92,20 @@ class HandlerClass:
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
         STATUS.connect('requested-spindle-speed-changed',self.update_spindle_requested)
 
+        self.html = """<html>
+<head>
+<title>Test page for the download:// scheme</title>
+</head>
+<body>
+<h1>Setup Tab</h1>
+<p>If you select a file with .html as a file ending, it will be shown here..</p>
+<img src="file://%s" alt="lcnc_swoop" />
+<hr />
+</body>
+</html>
+""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+
+
     def class_patch__(self):
         self.old_fman = FM.load
         FM.load = self.load_code
@@ -118,11 +134,6 @@ class HandlerClass:
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
-    # check for default setup html file
-        try:
-            self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(self.default_setup))
-        except Exception as e:
-            print("No default setup file found - {}".format(e))
     # set unit labels according to machine mode
         unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         for i in self.unit_label_list:
@@ -138,21 +149,21 @@ class HandlerClass:
     def init_pins(self):
         # spindle control pins
         pin = self.h.newpin("spindle_amps", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self.spindle_pwr_changed)
+        pin.value_changed.connect(self.spindle_pwr_changed)
         pin = self.h.newpin("spindle_volts", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self.spindle_pwr_changed)
+        pin.value_changed.connect(self.spindle_pwr_changed)
         pin = self.h.newpin("spindle_fault", hal.HAL_U32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self.spindle_fault_changed)
+        pin.value_changed.connect(self.spindle_fault_changed)
 #        self.h.newpin("spindle_at_speed", hal.HAL_BIT, hal.HAL_IN)
         pin = self.h.newpin("modbus-errors", hal.HAL_U32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self.mb_errors_changed)
+        pin.value_changed.connect(self.mb_errors_changed)
         self.h.newpin("spindle_inhibit", hal.HAL_BIT, hal.HAL_OUT)
         # external offset control pins
         self.h.newpin("eoffset_enable", hal.HAL_BIT, hal.HAL_OUT)
         self.h.newpin("eoffset_clear", hal.HAL_BIT, hal.HAL_OUT)
         self.h.newpin("eoffset_count", hal.HAL_S32, hal.HAL_OUT)
         pin = self.h.newpin("eoffset_value", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self.eoffset_changed)
+        pin.value_changed.connect(self.eoffset_changed)
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -249,12 +260,38 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(self.w.lbl_clock)
         #set up gcode list
         self.gcodes.setup_list()
-        # set up web page viewer
-        self.web_view = QWebView()
-        self.web_page = QWebPage()
-        self.web_page.setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.web_view.setPage(self.web_page)
-        self.w.layout_setup.addWidget(self.web_view)
+
+        # check for default setup html file
+        try:
+            # web view widget for SETUP page
+            if self.w.web_view:
+                self.toolBar = QtWidgets.QToolBar(self.w)
+                self.w.layout_setup.addWidget(self.toolBar)
+
+                self.backBtn = QtWidgets.QPushButton(self.w)
+                self.backBtn.setEnabled(True)
+                self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
+                self.backBtn.clicked.connect(self.back)
+                self.toolBar.addWidget(self.backBtn)
+
+                self.forBtn = QtWidgets.QPushButton(self.w)
+                self.forBtn.setEnabled(True)
+                self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
+                self.forBtn.clicked.connect(self.forward)
+                self.toolBar.addWidget(self.forBtn)
+
+                self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
+                self.writeBtn.setEnabled(True)
+                self.writeBtn.clicked.connect(self.writer)
+                self.toolBar.addWidget(self.writeBtn)
+
+                self.w.layout_setup.addWidget(self.w.web_view)
+                if os.path.exists(self.default_setup):
+                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                else:
+                    self.w.web_view.setHtml(self.html)
+        except Exception as e:
+            print("No default setup file found - {}".format(e))
         # set up spindle gauge
         self.w.gauge_spindle.set_max_value(self.max_spindle_rpm)
         self.w.gauge_spindle.set_max_reading(self.max_spindle_rpm / 1000)
@@ -332,9 +369,9 @@ class HandlerClass:
 
             if flag:
                 if isinstance(receiver2, GCODE):
-                    # if in manual do our keybindings - otherwise
+                    # if in manual or in readonly mode do our keybindings - otherwise
                     # send events to gcode widget
-                    if STATUS.is_man_mode() == False:
+                    if STATUS.is_man_mode() == False or not receiver2.isReadOnly():
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
@@ -347,21 +384,12 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            event.accept()
-            return True
-        except NameError as e:
-            if is_pressed:
-                LOG.debug('Exception in KEYBINDING: {}'.format (e))
-                self.add_status('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            if is_pressed:
-                LOG.debug('Exception in KEYBINDING:', exc_info=e)
-                print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-        event.accept()
-        return True
+        if event.isAutoRepeat():return True
+
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     #########################
     # CALLBACKS FROM STATUS #
@@ -815,22 +843,36 @@ class HandlerClass:
     #####################
     def load_code(self, fname):
         if fname is None: return
-        if fname.endswith(".ngc") or fname.endswith(".py"):
+        filename, file_extension = os.path.splitext(fname)
+        if not fname.endswith(".html"):
+            if not (INFO.program_extension_valid(fname)):
+                self.add_status("Unknown or invalid filename extension {}".format(file_extension))
+                return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-        elif fname.endswith(".html"):
+            self.w.filemanager.recordBookKeeping()
+            # adjust ending to check for related setup files
+            fname = filename+'.html'
+            if os.path.exists(fname):
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.add_status("Loaded HTML file : {}".format(fname))
+            else:
+                self.w.web_view.setHtml(self.html)
+            return
+        else:
             try:
-                self.web_page.mainFrame().load(QtCore.QUrl.fromLocalFile(fname))
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
                 self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget.setCurrentIndex(0)
                 self.w.btn_setup.setChecked(True)
+                self.w.jogging_frame.hide()
             except Exception as e:
                 print("Error loading HTML file : {}".format(e))
-        else:
-            self.add_status("Unknown or invalid filename")
+
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
@@ -955,6 +997,20 @@ class HandlerClass:
         if self.timer_on:
             self.timer_on = False
             self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
+
+    def back(self):
+        if os.path.exists(self.default_setup):
+            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+        else:
+            self.w.web_view.setHtml(self.html)
+        #self.w.web_view.page().triggerAction(QWebEnginePage.Back)
+
+    def forward(self):
+        self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+        #self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+
+    def writer(self):
+        WRITER.show()
 
     #####################
     # KEY BINDING CALLS #

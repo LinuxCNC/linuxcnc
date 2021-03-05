@@ -2911,7 +2911,7 @@ TO FILE</string>
                    <number>0</number>
                   </property>
                   <item>
-                   <layout class="QHBoxLayout" name="layout_setup">
+                   <layout class="QVBoxLayout" name="layout_setup">
                     <property name="spacing">
                      <number>4</number>
                     </property>
