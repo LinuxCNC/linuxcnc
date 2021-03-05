@@ -41,7 +41,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             self.hal_pin.value_changed.connect(lambda value: self.set_setpoint(value))
 
     def create_unit_array(self):
-        self.qpa = range(self._num_ticks)
+        self.qpa = list(range(self._num_ticks))
         inc = 270.0 / (self._num_ticks - 1)
         for i in range(self._num_ticks):
             angle = (inc * i) - 225
