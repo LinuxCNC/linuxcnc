@@ -537,7 +537,9 @@ class HandlerClass:
         self.kb_jog(state, j, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+        j = 1
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
         self.kb_jog(state, j, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
