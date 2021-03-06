@@ -1347,6 +1347,9 @@ class GlCanonDraw:
                         cone_scale = 1
                     if self.is_lathe():
                         glRotatef(90, 0, 1, 0)
+                        # if Rotation = 180 - back tool
+                        if self.stat.rotation_xy == 180:
+                            glRotatef(180, 1, 0, 0)
                     cone = self.dlist("cone", gen=self.make_cone)
                     glScalef(cone_scale, cone_scale, cone_scale)
                     glColor3f(*self.colors['cone'])
