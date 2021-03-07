@@ -622,6 +622,20 @@ class _Lcnc_Action(object):
     def BEEP_START(self):
         self.PLAY_SOUND('BEEP_START')
 
+    def SET_LATHE_MIRROR_X(self):
+        if not INFO.MACHINE_IS_LATHE:
+            log.warning('Can not set mirror mode; Machine is not a lathe')
+            return
+        self.CALL_MDI("G10 L2 P0 R180")
+        self.RELOAD_DISPLAY()
+
+    def UNSET_LATHE_MIRROR_X(self):
+        if not INFO.MACHINE_IS_LATHE:
+            log.warning('Can not unset mirror mode; Machine is not a lathe')
+            return
+        self.CALL_MDI("G10 L2 P0 R0")
+        self.RELOAD_DISPLAY()
+
     ######################################
     # Action Helper functions
     ######################################
