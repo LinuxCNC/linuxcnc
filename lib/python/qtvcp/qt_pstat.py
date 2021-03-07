@@ -77,11 +77,7 @@ class _PStat(object):
         handler_fn = "{}_handler.py".format(self.BASEPATH)
         if self.IS_SCREEN:
             default_handler_path = os.path.join(self.SCREENDIR, self.BASEPATH, handler_fn)
-            local_handler_path = 'None Found'
-            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
-                if handler_fn in (files):
-                    local_handler_path = os.path.join(root, handler_fn)
-                    break
+            local_handler_path = os.path.join(self.CONFIGPATH,self.BASEPATH, handler_fn)
         else:
             local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
             default_handler_path = os.path.join(self.PANELDIR, self.BASEPATH, handler_fn)
@@ -103,11 +99,8 @@ class _PStat(object):
         ui_fn = "{}.ui".format(self.BASEPATH)
         if self.IS_SCREEN:
             defaultui = os.path.join(self.SCREENDIR, self.BASEPATH, ui_fn)
-            localui = 'None Found'
-            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
-                if ui_fn in (files):
-                    localui = os.path.join(root, ui_fn)
-                    break
+            localui = os.path.join(self.CONFIGPATH,self.BASEPATH, ui_fn)
+
         else:
             localui = os.path.join(self.WORKINGDIR, ui_fn)
             defaultui = os.path.join(self.PANELDIR, self.BASEPATH, ui_fn)
@@ -138,11 +131,7 @@ class _PStat(object):
         qss_fn = "{}.qss".format(self.BASEPATH)
         if self.IS_SCREEN:
             defaultqss = os.path.join(self.SCREENDIR, self.BASEPATH, qss_fn)
-            localqss = 'None Found'
-            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
-                if qss_fn in (files):
-                    localqss = os.path.join(root, qss_fn)
-                    break
+            localqss = os.path.join(self.CONFIGPATH, self.BASEPATH, qss_fn)
         else:
             localqss = os.path.join(self.WORKINGDIR, qss_fn)
             defaultqss = os.path.join(self.PANELDIR, self.BASEPATH, qss_fn)
@@ -164,11 +153,7 @@ class _PStat(object):
         qrc_fn = "{}.qrc".format(self.BASEPATH)
         if self.IS_SCREEN:
             defaultqrc = os.path.join(self.SCREENDIR, self.BASEPATH, qrc_fn)
-            localqrc = 'None Found'
-            for (root, dirs, files) in os.walk(self.CONFIGPATH, topdown=True):
-                if qrc_fn in (files):
-                    localqrc = os.path.join(root, qrc_fn)
-                    break
+            localqrc = os.path.join(self.CONFIGPATH, self.BASEPATH, qrc_fn)
         else:
             localqrc = os.path.join(self.WORKINGDIR, qrc_fn)
             defaultqrc = os.path.join(self.PANELDIR, self.BASEPATH, qrc_fn)
@@ -193,11 +178,7 @@ class _PStat(object):
         self.QRCPY_IS_LOCAL = None
         if self.IS_SCREEN:
             defaultqrcpy = os.path.join(self.SCREENDIR, self.BASEPATH, qrcpy_fn)
-            localqrcpy = os.path.join(self.CONFIGPATH, qrcpy_fn)
-            # for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-            # if qrcpy_fn in(files):
-            # localqrcpy = os.path.join(root, qrcpy_fn)
-            # break
+            localqrcpy = os.path.join(self.CONFIGPATH, self.BASEPATH,qrcpy_fn)
         else:
             localqrcpy = os.path.join(self.WORKINGDIR, qrcpy_fn)
             defaultqrcpy = os.path.join(self.PANELDIR, self.BASEPATH, qrcpy_fn)
