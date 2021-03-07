@@ -1056,7 +1056,7 @@ msgstr "Tastgeschwind."
 
 #: gmoccapy.glade.h:115
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr "Wieder-\nherstellen"
 
 #: gmoccapy.glade.h:116
 msgid "Relative Color"
@@ -1320,7 +1320,7 @@ msgstr "Geschw. Faktor"
 
 #: gmoccapy.glade.h:177
 msgid "Undo"
-msgstr "Rückgängig"
+msgstr "Rück-\ngängig"
 
 #: gmoccapy.glade.h:178
 msgid "Unhome all axis"
