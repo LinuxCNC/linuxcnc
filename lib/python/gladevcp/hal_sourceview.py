@@ -28,6 +28,10 @@ import gtksourceview2 as gtksourceview
 
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
+    __gsignals__ = {
+        'changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+    }
+
     __gproperties__ = {
         'idle_line_reset' : ( gobject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT)
@@ -202,6 +206,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
+        self.emit("changed")
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
