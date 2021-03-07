@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.2.3"
+_RELEASE = " 3.1.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -208,6 +208,8 @@ class gmoccapy(object):
         self.height = 750     # The height of the main Window
 
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
+
+        self.file_changed = False
 
         self.lathe_mode = None # we need this to check if we have a lathe config
         self.backtool_lathe = False
@@ -3972,6 +3974,11 @@ class gmoccapy(object):
     # All use the same callback offset
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
+            if self.file_changed:
+                message = "Do you want to exit without saving the changes?"
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+                if not result: # user says no, he want to save
+                    return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
             if self.widgets.tbtn_fullsize_preview0.get_active():
                 self.widgets.vbx_jog.set_visible(False)
@@ -4662,6 +4669,11 @@ class gmoccapy(object):
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
+        self.file_changed = False
+
+    def on_gcode_view_changed(self, state):
+        print("gcode view changed")
+        self.file_changed = True
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode

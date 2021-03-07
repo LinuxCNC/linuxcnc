@@ -1,3 +1,9 @@
+ver 3.1.3
+- added a dialog asking the user to save changes
+- when in min screen resolution the editing page was wrong formated
+  while using German language, because of too long strings
+  Thanks to Hans470 for reporting this bugs
+
 ver 3.1.2.3
 - when going back from file loading menu without selecting a file
   brought you into fullscreen view.
