@@ -1,3 +1,8 @@
+ver 3.1.2.2
+- bug while running a program it was possible to click the reload file
+  button, resulting in an immediate reloading and stopping the running
+  code. Button is no insensitive while running a file
+
 ver 3.1.2.1
 - still a bug in handling ignore limits solved
   issue #1000 reported by Hans470

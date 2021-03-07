@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.2.1"
+_RELEASE = " 3.1.2.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2418,7 +2418,7 @@ class gmoccapy(object):
 
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
-                      "btn_load", "btn_edit", "tbtn_optional_blocks"
+                      "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append("tbtn_setup")
@@ -2464,7 +2464,7 @@ class gmoccapy(object):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "btn_reload"
         ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
