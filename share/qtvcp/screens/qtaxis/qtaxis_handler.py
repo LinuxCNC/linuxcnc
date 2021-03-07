@@ -115,9 +115,10 @@ class HandlerClass:
             TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
         else:
             self.w.actionFrontView.setVisible(False)
-            self.w.actionTopView.setVisible(False)
+            self.w.actionSideView.setVisible(False)
+            self.w.actionPerspectiveView.setVisible(False)
             TOOLBAR.configure_action(self.w.actionSideView, 'view_y')
-            TOOLBAR.configure_action(self.w.actionRotatedView, 'view_y2')
+            TOOLBAR.configure_action(self.w.actionTopView, 'view_y2')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionShowOffsets, 'show_offsets')
@@ -525,21 +526,27 @@ class HandlerClass:
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        self.kb_jog(state, 0, 1, shift)
+        j = 0
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+        self.kb_jog(state, j, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        self.kb_jog(state, 0, -1, shift)
+        j = 0
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+        self.kb_jog(state, j, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
         j = 1
         if INFO.MACHINE_IS_LATHE:
-            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
         self.kb_jog(state, j, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
         j = 1
         if INFO.MACHINE_IS_LATHE:
-            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
         self.kb_jog(state, j, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
