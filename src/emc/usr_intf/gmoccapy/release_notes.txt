@@ -1,3 +1,9 @@
+ver 3.1.2.3
+- when going back from file loading menu without selecting a file
+  brought you into fullscreen view.
+  Reported by: Hans (Hans470)
+  Thanks for reporting
+  
 ver 3.1.2.2
 - bug while running a program it was possible to click the reload file
   button, resulting in an immediate reloading and stopping the running
