@@ -570,6 +570,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             posstrs = []
             droposstrs = []
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
@@ -580,6 +581,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             droposstrs.append("")
 
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
@@ -593,6 +595,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             droposstrs.append("")
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     droposstrs.append(toolformat % ("TLO", a, tlo_offset[i]))
