@@ -1071,7 +1071,8 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Disabled|This button allows the user to change the color of the GUI's Disabled features.
 |Preview|This button allows the user to change the color of the GUI Preview Window Background.
 |Soft Keyboard|This button allows the user to enable or disable the soft touchscreen keyboard.
-|KB Shortcuts|This button allows the user to enable or disable Keyboard Shortcuts within the GUI (such as keyboard jogging).
+|KB Shortcuts|This button allows the user to enable or disable Keyboard Shortcuts within the GUI (such as keyboard jogging). +
+                In addition to the standard jog keys, a list of the additional shortcuts is available in the <<keyboard-shortcuts, keyboard shortcuts>> section.
 |View Material|This button allows the user to enable or disable a visual reference of key material cut settings to the <<qt_main-tab, MAIN Tab>> Preview Window. +
                 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Optional Stop|This button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
@@ -2029,6 +2030,58 @@ NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machi
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
 
+[[keyboard-shortcuts]]
+
+=== Keyboard Shortcuts
+
+Below is a list of all available keyboard shortcuts in QtPlasmaC that are in addition to the standard jogging keys. In order for the user to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
+
+[width="100%",cols="4,16"]
+|===
+|*Keyboard Shortcut*|*Action*
+|ESC|Stops current automated motion (For example: a running program).
+|F1|Toggles the E-STOP button (if the GUI E-STOP button is enabled).
+|F2|Toggles the GUI power button.
+|1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|4|Changes jog speed to 40% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|5|Changes jog speed to 50% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|6|Changes jog speed to 60% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|7|Changes jog speed to 70% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|8|Changes jog speed to 80% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|9|Changes jog speed to 90% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|0|Changes jog speed to 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|SHIFT+1|Changes rapid speed to 10%.
+|SHIFT+2|Changes rapid speed to 20%.
+|SHIFT+3|Changes rapid speed to 30%.
+|SHIFT+4|Changes rapid speed to 40%.
+|SHIFT+5|Changes rapid speed to 50%.
+|SHIFT+6|Changes rapid speed to 60%.
+|SHIFT+7|Changes rapid speed to 70%.
+|SHIFT+8|Changes rapid speed to 80%.
+|SHIFT+9|Changes rapid speed to 90%.
+|SHIFT+0|Changes rapid speed to 100%.
+|CTRL+1|Changes feed rate to 10%.
+|CTRL+2|Changes feed rate to 20%.
+|CTRL+3|Changes feed rate to 30%.
+|CTRL+4|Changes feed rate to 40%.
+|CTRL+5|Changes feed rate to 50%.
+|CTRL+6|Changes feed rate to 60%.
+|CTRL+7|Changes feed rate to 70%.
+|CTRL+8|Changes feed rate to 80%.
+|CTRL+9|Changes feed rate to 90%.
+|CTRL+0|Changes feed rate to 100%.
+|CTRL+h|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
+|CTRL+r|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
+|SPACE BAR|Pause motion.
+|o|Open a new program.
+|l|Load the previously opened program if no program is loaded. Reload the current program if there is a program loaded.
+|+|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
+|-|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
+    If SLOW jogging is already active, the axis will jog at the displayed jog speed.
+|===
+
 [[qt_shape-library]]
 
 == Conversational Shape Library
@@ -2437,6 +2490,7 @@ Buttons can run the following:
 . <<qt_button-load, Load a G-Code program>>
 . <<qt_button-torch, Pulse the torch on>>
 . <<qt_button-single, Single unidirectional cut>>
+. <<qt_button-framing, Framing a job>>
 
 [[qt_button-cmds]]
 
@@ -2577,7 +2631,32 @@ Run a single unidirectional cut. This utilises the automatic <<qt_single-cut, Si
 BUTTON_n_CODE = single-cut
 ----
 
-[underline]*Single Cut*
+[[qt_button-framing]]
+
+[underline]*Framing*
+
+Framing is the ability to move the torch around the perimeter of a rectangle that encompasses the bounds of the current job.
+
+The laser enable HAL pin (qtplasmac.laser_on) will be enabled during the framing moves and any X/Y offsets for the laser pointer in the <machine_name>.ini file will also be applied to the X/Y motion.
+
+It is important to note that before Framing X/Y motion begins, the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm.
+
+Framing can be started two different ways:
+
+1 - via a user button by adding the following to an available user button in the <machine_name>.ini file.
+----
+BUTTON_n_CODE = framing
+----
+
+For this method *only* it is possible for the user to omit the initial Z movement and run the framing sequence at the current Z height by adding "usecurrentZheight" after "framing".
+
+----
+BUTTON_n_CODE = framing usecurrentZheight
+----
+
+2 - Framing may also be achieved with the use of the HAL pin qtplasmac.framing_start. Setting this pin to 1 (True) will begin a framing move if QtPlasmaC is in a valid state. It is incumbent on the user to ensure this pin returns to 0 (False) otherwise subsequent framing moves will not be possible. It is not possible to run framing without the initial Z movement via this method.
+
+There is no requirement that a user button be setup to use the HAL pin variant although it is possible to use both methods in the same config.
 
 === Tuning Void Sensing
 
