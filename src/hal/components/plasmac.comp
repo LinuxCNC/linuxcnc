@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.203 - 2021 Mar 02 - (QtPlasmaC V0.9.47)
+0.204 - 2021 Mar 08 - (QtPlasmaC V0.9.49)
 
 .I SUMMARY:
 .br
@@ -419,15 +419,25 @@ FUNCTION(_) {
     /* check for an abort */
     /* or for a pause or wait while active */
     if(auto_cut){
-        if(state == IDLE && breakaway && !program_is_idle){
+        if(state == IDLE && (breakaway || float_switch || ohmic_detected) && !program_is_idle){
             torch_on = FALSE;
+            if(!program_is_paused && !program_pause){
+                if(breakaway){
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch activated\n"
+                                                  "program is paused.\n");
+                }else if(float_switch){
+                    rtapi_print_msg(RTAPI_MSG_ERR,"float switch activated\n"
+                                                  "program is paused.\n");
+                }else if(ohmic_detected){
+                    rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe activated\n"
+                                                  "program is paused.\n");
+                }
+            }
             program_pause = TRUE;
             if(stop_type != WAIT){
                 stop_type = PAUSE;
             }
             probe_required = TRUE;
-            rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch activated\n"
-                                          "program is paused.\n");
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
         }else if(!probe_test && (external_estop || program_is_idle) && cut_started && !program_run){
@@ -1441,13 +1451,7 @@ FUNCTION(_) {
                         }
                     }
                 }else{
-                    if(breakaway){
-                        if(!program_is_paused){
-                            program_pause = TRUE;
-                        }
-                    }else{
-                        state = IDLE;
-                    }
+                    state = IDLE;
                 }
                 break;
             case TORCHPULSE:

@@ -1,4 +1,4 @@
-VERSION = '0.9.48'
+VERSION = '0.9.49'
 
 import os, sys
 from shutil import copy as COPY
@@ -595,6 +595,7 @@ class HandlerClass:
         self.runButtonTimer = QTimer()
         self.runButtonTimer.setSingleShot(True)
         self.runButtonTimer.timeout.connect(self.run_button_timeout)
+        self.manualCut = False
 
     def get_overlay_text(self):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
@@ -901,12 +902,13 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
-            if self.ccButton and not hal.get_value('plasmac.cut-recovering'):
+            if self.ccButton and not hal.get_value('plasmac.cut-recovering') and hal.get_value('plasmac.stop-type-out'):
                 self.w[self.ccButton].setEnabled(True)
             if self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
-            self.w.set_cut_recovery()
+            if hal.get_value('plasmac.stop-type-out'):
+                self.w.set_cut_recovery()
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
@@ -1647,7 +1649,7 @@ class HandlerClass:
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
-           self.offsetsActivePin.get() or self.runButtonTimer.isActive():
+           (self.offsetsActivePin.get() and not self.manualCut) or self.runButtonTimer.isActive():
             return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Cannot Jog\n{} tripped\n'.format(self.jogInhibit))
@@ -3939,6 +3941,8 @@ class HandlerClass:
             self.torch_timeout()
         if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE and self.keyboard_shortcuts():
             ACTION.ABORT()
+        if STATUS.is_spindle_on():
+            ACTION.SET_SPINDLE_STOP(0)
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
         if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts():
@@ -3968,17 +3972,17 @@ class HandlerClass:
             self.file_reload_clicked()
 
     def on_keycall_F12(self, event, state, shift, cntrl):
-        print(state, shift, cntrl)
         if not event.isAutoRepeat() and state:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        print(state, shift, cntrl)
         if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and self.keyboard_shortcuts():
             if STATUS.is_spindle_on():
                 ACTION.SET_SPINDLE_STOP(0)
-            else:
+                self.manualCut = False
+            elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
                 ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
+                self.manualCut = True
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
