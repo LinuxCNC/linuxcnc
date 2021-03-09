@@ -1,4 +1,4 @@
-VERSION = '0.9.49'
+VERSION = '0.9.50'
 
 import os, sys
 from shutil import copy as COPY
@@ -159,9 +159,15 @@ class HandlerClass:
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
 #                          'widget_jog_angular', 'widget_increments_angular']
+        self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
+        self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
+        self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
+        self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
+        self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
+        self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
-        self.maxHeight = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT')) - float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
+        self.maxHeight = self.zMax - self.zMin
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
         if self.units == 'inch':
@@ -200,11 +206,14 @@ class HandlerClass:
         self.rflActive = False
         self.jogInhibit = ''
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
-        self.thButton, self.ctButton, self.tpButton, self.ptButton, self.ccButton = '', '', '', '', ''
+        self.thButton, self.ctButton, self.tpButton, self.ptButton = '', '', '', ''
+        self.scButton, self.ccButton, self.frButton = '', '', ''
         self.torchOn = False
         self.progRun = False
         self.rapidOn = False
         self.probeOn = False
+        self.gcodeProps = ''
+        self.framing = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -272,6 +281,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
+        STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
@@ -386,7 +396,7 @@ class HandlerClass:
         self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
         self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.laserOnPin = self.h.newpin('laser_on', hal.HAL_S32, hal.HAL_OUT)
+        self.laserOnPin = self.h.newpin('laser_on', hal.HAL_BIT, hal.HAL_OUT)
         self.materialChangePin = self.h.newpin('material_change', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeTimeoutPin = self.h.newpin('material_change_timeout', hal.HAL_BIT, hal.HAL_IN)
@@ -415,6 +425,7 @@ class HandlerClass:
         self.pierceCountPin = self.h.newpin('pierce_count', hal.HAL_S32, hal.HAL_IN)
         self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.torchOnPin = self.h.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
+        self.framingPin = self.h.newpin('framing_start', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -842,9 +853,13 @@ class HandlerClass:
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
 
     def run_button_timeout(self):
         self.w.run.setEnabled(True)
+        if self.frButton:
+            self.w[self.frButton].setEnabled(True)
 
     def set_pause_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
@@ -963,6 +978,10 @@ class HandlerClass:
                 self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
             else:
                 self.w.pmx485_label.setText('')
+        if self.framing and STATUS.is_interp_idle():
+            self.framing = False
+            ACTION.SET_MANUAL_MODE()
+            self.laserOnPin.set(0)
         self.stats_update()
 
     def percent_loaded(self, object, percent):
@@ -1058,6 +1077,9 @@ class HandlerClass:
         elif not self.rflActive:
             self.startLine = 0
 
+    def update_gcode_properties(self, props):
+        self.gcodeProps = props
+
 
 ###########################################################################################################################
 # CALLBACKS FROM FORM #
@@ -1069,6 +1091,8 @@ class HandlerClass:
             self.do_run_from_line()
         else:
             ACTION.RUN(0)
+        if self.frButton:
+            self.w[self.frButton].setEnabled(False)
 
     def abort_pressed(self):
         hal.set_p('plasmac.cut-recovery', '0')
@@ -1461,6 +1485,10 @@ class HandlerClass:
         self.w.button_5.released.connect(lambda:self.user_button_released(5))
         self.w.button_6.pressed.connect(lambda:self.user_button_pressed(6))
         self.w.button_6.released.connect(lambda:self.user_button_released(6))
+        self.w.button_7.pressed.connect(lambda:self.user_button_pressed(7))
+        self.w.button_7.released.connect(lambda:self.user_button_released(7))
+        self.w.button_8.pressed.connect(lambda:self.user_button_pressed(8))
+        self.w.button_8.released.connect(lambda:self.user_button_released(8))
         self.w.cut_rec_speed.valueChanged.connect(lambda w:self.cutrec_speed_changed(w))
         self.w.kerf_width.valueChanged.connect(lambda w:self.cutrec_move_changed(w))
         self.w.jog_x_plus.pressed.connect(lambda:self.gui_button_jog(1, 'x', 1))
@@ -1553,6 +1581,7 @@ class HandlerClass:
         self.w.rapid_time_reset.pressed.connect(self.rapid_time_reset)
         self.w.probe_time_reset.pressed.connect(self.probe_time_reset)
         self.w.all_reset.pressed.connect(self.all_reset)
+        self.framingPin.value_changed.connect(lambda v:self.do_framing(v, 'None'))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -2016,12 +2045,9 @@ class HandlerClass:
         self.probeTime = 0
         self.probeTimer = QTimer()
         self.probeTimer.timeout.connect(self.probe_timeout)
-        self.ptButton = ''
         self.torchTimer = QTimer()
         self.torchTimer.timeout.connect(self.torch_timeout)
-        self.tpButton = ''
         self.cutType = 0
-        self.scButton = ''
         self.single_cut_request = False
         self.oldFile = None
         for button in range(1,9):
@@ -2072,6 +2098,9 @@ class HandlerClass:
                 self.scButton = 'button_{}'.format(str(button))
                 self.idleHomedList.append(self.scButton)
                 self.w[self.scButton].setEnabled(False)
+            elif 'framing' in code:
+                self.frButton = 'button_{}'.format(str(button))
+                self.w[self.frButton].setEnabled(False)
             else:
                 for command in code.split('\\'):
                     if command.strip()[0] != '%':
@@ -2104,16 +2133,16 @@ class HandlerClass:
                 self.w.pause.setEnabled(False)
                 if self.ccXpos == 'None':
                     self.ccXpos = STATUS.get_position()[0][0]
-                if self.ccXpos < round(float(self.iniFile.find('AXIS_X', 'MIN_LIMIT')), 6) + (10 * self.unitsPerMm):
-                    self.ccXpos = round(float(self.iniFile.find('AXIS_X', 'MIN_LIMIT')), 6) + (10 * self.unitsPerMm)
-                elif self.ccXpos > round(float(self.iniFile.find('AXIS_X', 'MAX_LIMIT')), 6) - (10 * self.unitsPerMm):
-                    self.ccXpos = round(float(self.iniFile.find('AXIS_X', 'MAX_LIMIT')), 6) - (10 * self.unitsPerMm)
+                if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
+                    self.ccXpos = round(self.xMin, 6) + (10 * self.unitsPerMm)
+                elif self.ccXpos > round(self.xMax, 6) - (10 * self.unitsPerMm):
+                    self.ccXpos = round(self.xMax, 6) - (10 * self.unitsPerMm)
                 if self.ccYpos == 'None':
                     self.ccYpos = STATUS.get_position()[0][1]
-                if self.ccYpos < round(float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT')), 6) + (10 * self.unitsPerMm):
-                    self.ccYpos = round(float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT')), 6) + (10 * self.unitsPerMm)
-                elif self.ccYpos > round(float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT')), 6) - (10 * self.unitsPerMm):
-                    self.ccYpos = round(float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT')), 6) - (10 * self.unitsPerMm)
+                if self.ccYpos < round(self.yMin, 6) + (10 * self.unitsPerMm):
+                    self.ccYpos = round(self.yMin, 6) + (10 * self.unitsPerMm)
+                elif self.ccYpos > round(self.yMax, 6) - (10 * self.unitsPerMm):
+                    self.ccYpos = round(self.yMax, 6) - (10 * self.unitsPerMm)
                 hal.set_p('plasmac.x-offset', '{:.0f}'.format((self.ccXpos - STATUS.get_position()[0][0]) / hal.get_value('plasmac.offset-scale')))
                 hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
                 hal.set_p('plasmac.consumable-change', '1')
@@ -2178,6 +2207,8 @@ class HandlerClass:
                 self.button_active(self.thButton)
         elif 'single-cut' in commands.lower():
             self.do_single_cut()
+        elif 'framing' in commands.lower():
+            self.do_framing(True, commands)
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
@@ -2321,6 +2352,66 @@ class HandlerClass:
             f.write('M2\n')
         self.single_cut_request = True
         ACTION.OPEN_PROGRAM(newFile)
+
+    def do_framing(self, state, commands):
+        if self.gcodeProps and state:
+            error = False
+            self.framing = True
+            msg = ''
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
+            self.w.run.setEnabled(False)
+            lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
+            if lCode == '0':
+                xOffset, yOffset = 0, 0
+            else:
+                try:
+                    parms = lCode.lower().split()
+                    if len(parms) == 2:
+                        xOffset = float(parms[0].replace('x', ''))
+                        yOffset = float(parms[1].replace('y', ''))
+                except:
+                    xOffset, yOffset = 0, 0
+                    msg  = 'Invalid entry for laser offset\n'
+                    msg += 'Offsets set to zero\n'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI File Error\n{}'.format(msg))
+            xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
+            if xMin < self.xMin:
+                msg += 'X move will exceed X minimum limit\n'
+                error = True
+            xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
+            if xMax > self.xMax:
+                msg += 'X move will exceed X maximum limit\n'
+                error = True
+            yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
+            if yMin < self.yMin:
+                msg += 'Y move will exceed Y minimum limit\n'
+                error = True
+            yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
+            if yMax > self.yMax:
+                msg += 'Y move will exceed Y maximum limit\n'
+                error = True
+            if error:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, msg)
+                self.framing = False
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(True)
+                self.w.run.setEnabled(True)
+                error = False
+                return
+            feed = float(self.w.cut_feed_rate.text())
+            zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
+            if STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                self.laserOnPin.set(1)
+                ACTION.CALL_MDI('G64 P{:0.3}'.format(0.25 * self.unitsPerMm))
+                if not 'usecurrentzheight' in commands.lower():
+                    print 'z movement', zHeight
+                    ACTION.CALL_MDI('G53 G0 Z{}'.format(zHeight))
+                ACTION.CALL_MDI('G53 G0 X{} Y{} F{}'.format(xMin, yMin, feed))
+                ACTION.CALL_MDI('G53 G1 Y{} F{}'.format(yMax, feed))
+                ACTION.CALL_MDI('G53 G1 X{} F{}'.format(xMax, feed))
+                ACTION.CALL_MDI('G53 G1 Y{} F{}'.format(yMin, feed))
+                ACTION.CALL_MDI('G53 G1 X{} F{}'.format(xMin, feed))
 
     def button_active(self, button):
         self.w[button].setStyleSheet( \
@@ -3479,12 +3570,6 @@ class HandlerClass:
         self.yOrig = hal.get_value('axis.y.eoffset-counts')
         self.zOrig = hal.get_value('axis.z.eoffset-counts')
         self.oScale = hal.get_value('plasmac.offset-scale')
-        self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
-        self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
-        self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
-        self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
-        self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
-        self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
 
     def cutrec_speed_changed(self, speed):
         if STATUS.is_metric_mode():
