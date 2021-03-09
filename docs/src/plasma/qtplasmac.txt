@@ -13,6 +13,8 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
 
+[[qtformats]]
+
 * 16:9 with a minimum resolution of 1366 x 768
 * 9:16 with a minimum resolution of 768 x 1366
 * 4:3 with a minimum resolution of 1024 x 768
@@ -49,9 +51,9 @@ Installation instructions are available at: http://linuxcnc.org/docs/devel/html/
 
 Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC on Debian Buster.
 
-=== Package Installation If The User Has Linux with LinuxCNC v2.8
+=== Package Installation (Buildbot) If The User Has Linux with LinuxCNC v2.8
 
-A package installation uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
+A package installation (Buildbot) uses prebuilt packages from the LinuxCNC Buildbot, instructions for upgrading from 2.8 to 2.9 are available at: http://buildbot.linuxcnc.org
 
 Following these instructions by using the below stanzas will upgrade the machine to the last LinuxCNC Buildbot build master branch (v2.9) of LinuxCNC. This may not always be the latest version of master branch (v2.9) as from time to time the LinuxCNC Buildbot may stop due to errors.
 
@@ -219,7 +221,7 @@ NOTE: If the user is using a *Mesa Electronics THCAD* card for arc voltage measu
 
 Installing a plasma configuration to a base machine and changing to the QtPlasmaC GUI is done via the qtplasmac-setup program.
 
-For a package installation enter the following command in a terminal window:
+For a package installation (Buildbot) enter the following command in a terminal window:
 
 ----
 qtplasmac-setup
@@ -230,6 +232,20 @@ For a run in place installation enter the following two commands in a terminal w
 ----
 source ~/linuxcnc-dev/scripts/rip-environment
 qtplasmac-setup
+----
+
+If any Qt dependency errors are encountered at any point in this process, the user may need to run the QtVCP installation script to resolve these issues.
+
+For a package installation (Buildbot) enter the following command in a terminal window:
+
+----
+/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
+----
+
+For a run in place installation enter the following command in a terminal window:
+
+----
+~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
 ----
 
 === Setup
@@ -257,7 +273,7 @@ HAL connection examples in the following table show examples for both a parallel
               "<machine_name>" describes the name entered into this field.|plasma_table.ini.
 |INI File|This is the .ini file that was created as a result of making a working and tested base machine configuration.|base.ini
 |HAL File|This is the .hal file that was created as a result of making a working and tested base machine configuration.|base.hal
-|Monitor Aspect Ratio|Select the aspect ratio of the monitor to load the correct GUI.|16:9
+|Monitor Aspect Ratio|This is the <<qtformats, aspect ratio format>> for the GUI.|16:9
 |Mode|Selects the required mode based on the following criteria: +
       0 - If using an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK. +
       1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
@@ -330,7 +346,7 @@ Fill in the required entries to suit the machine wiring/breakout board configura
 
 The newly created QtPlasmaC configuration can be run by entering the following command into a terminal window (*change "<machine_name>" to the machine name entered into the qtplasmac-setup program*):
 
-For a package installation:
+For a package installation (Buildbot):
 
 ----
 linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
@@ -420,9 +436,70 @@ NOTE: Machine Name and <machine_name>.hal File can not be modified.
 
 == Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
 
-The preferred method to move to QtPlasmaC from PlasmaC loaded on top of either Axis or Gmoccapy is to use the <<qtplasmac-setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
+There are several methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration.  These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
 
-The user can then run a conversion program to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+=== Primary Method
+
+The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
+
+To run the plasmac2qt conversion program, use the following instructions:
+
+For a package installation (Buildbot):
+
+----
+/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/plasmac2qt.py
+----
+
+For a run in place installation:
+
+----
+~/linuxcnc-dev/configs/by_machine/qtplasmac/qtplasmac/plasmac2qt.py
+----
+
+The following screen will be displayed:
+
+image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
+
+*Mandatory Settings*
+
+[width="100%",cols="4,10,6"]
+|===
+|*Field*|*Description*|*Examples*
+|INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file that was created by the configurator.|<machine_name>.ini
+|NAME OF NEW QTPLASMAC CONFIG|This is the name for the new QtPlasmaC machine|My_QtPlasmaC_Machine
+|MONITOR ASPECT RATIO|This is the <<qtformats, aspect ratio format>> for the GUI.|16:9
+|ESTOP|Selects the required Estop type based on the following criteria: +
+      0 - Estop is an indicator only. +
+      1 - Estop indicator is hidden. +
+      2 - Estop is a button.|ESTOP:1
+|===
+
+*Optional Settings*
+
+Leave these blank if they are not used/required.
+
+[width="100%",cols="4,10,6"]
+|===
+|*Field*|*Description*|*Examples*
+|LASER ALIGNMENT X OFFSET|Required if using a laser crosshair for sheet alignment. +
+          Refers to the X axis offset from the torch center.|*Metric Example:*  54.7 +
+                                                             *Imperial Example:*  2.15
+|LASER ALIGNMENT Y OFFSET|Required if using a laser crosshair for sheet alignment. +
+          Refers to the Y axis offset from the torch center.|*Metric Example:*  26.3 +
+                                                             *Imperial Example:*  1.03
+|CAMERA ALIGNMENT X OFFSET:|Required if using a camera for sheet alignment. +
+           Refers to the X axis offset from the torch center.|*Metric Example:*  -54.7 +
+                                                             *Imperial Example:*  -2.15
+|CAMERA ALIGNMENT Y OFFSET:|Required if using a camera for sheet alignment. +
+           Refers to the Y axis offset from the torch center.|*Metric Example:*  -54.7 +
+                                                             *Imperial Example:*  -2.15
+|===
+
+=== Alternate Method
+
+An alternate method to move to QtPlasmaC from PlasmaC loaded on top of either Axis or Gmoccapy is to use the <<qtplasmac-setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
+
+After using the setup program, the user can then run a conversion program to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
 
 Prior to running this program, it is mandatory that the user have both an existing PlasmaC configuration and an existing QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
 
@@ -1444,7 +1521,7 @@ If the user has a format from a different CAM software they would like converted
 
 Material Converter may be run from a terminal using one of the two following methods.
 
-For a package installation enter the following command in a terminal window:
+For a package installation (Buildbot) enter the following command in a terminal window:
 
 ----
 qtplasmac-materials
@@ -2639,7 +2716,13 @@ Framing is the ability to move the torch around the perimeter of a rectangle tha
 
 The laser enable HAL pin (qtplasmac.laser_on) will be enabled during the framing moves and any X/Y offsets for the laser pointer in the <machine_name>.ini file will also be applied to the X/Y motion.
 
-It is important to note that before Framing X/Y motion begins, the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm.
+Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm before X/Y motion begins.
+
+The following GUI buttons and Keyboard Shortcuts (if enabled) are valid during Framing motion:
+
+. Pressing CYCLE STOP or the ESC Key - Stops Framing motion.
+. Pressing CYCLE PAUSE or the SPACE BAR - Pauses Framing motion.
+. Pressing CYCLE RESUME or CTRL+r - Resumes paused Framing motion.
 
 Framing can be started two different ways:
 
@@ -2820,11 +2903,11 @@ Before changing the type of installation, the existing QtPlasmaC installation ne
 
 It is recommended that a <<qtplasmac-backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
-If the user has changed the type of LinuxCNC installation from a Package installation to a Run In Place or vice versa the user will need to run the qtplasmac-setup program from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
+If the user has changed the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
 
 Enter the following command into a terminal window do one of the following:
 
-Reset to a new Package installation:
+Reset to a new Package installation (Buildbot):
 
 ----
 qtplasmac-setup
