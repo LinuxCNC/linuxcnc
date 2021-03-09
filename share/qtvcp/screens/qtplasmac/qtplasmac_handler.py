@@ -2,7 +2,7 @@ VERSION = '0.9.49'
 
 import os, sys
 from shutil import copy as COPY
-#from shutil import rmtree as RMDIR
+from shutil import move as MOVE
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 import time
@@ -171,7 +171,7 @@ class HandlerClass:
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.materialFile = self.iniFile.find('EMC', 'MACHINE').lower() + '_material.cfg'
+        self.materialFile = '{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE'))
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
         self.materialFileDict = {}
@@ -2802,6 +2802,9 @@ class HandlerClass:
     def check_material_file(self):
         # create a new material file if it doesn't exist
         if not os.path.exists(self.materialFile):
+            if os.path.exists('{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE').lower())):
+                MOVE('{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE').lower()), self.materialFile)
+                return
             with open(self.materialFile, 'w') as f_out:
                 f_out.write(\
                     '# plasmac material file\n'\

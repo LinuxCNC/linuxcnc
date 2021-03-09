@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
 inCode = sys.argv[1]
-materialFile = ini.find('EMC', 'MACHINE').lower() + '_material.cfg'
+materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 #tmpMaterialFile = ini.find('EMC', 'MACHINE').lower() + '_material.tmp'
 tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE').lower())
 prefsFile = 'qtplasmac.prefs'
@@ -785,7 +785,7 @@ with open(inCode, 'r') as fRead:
                     lineNum += 1
                     print('m68 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
-                # if torch off, allow torch on 
+                # if torch off, allow torch on
                 if not torchEnable:
                     lineNum += 1
                     print('m65 p3 (enable torch)')
@@ -800,7 +800,7 @@ with open(inCode, 'r') as fRead:
                 lineNum += 1
                 print('m68 e3 q0 (arc complete, velocity 100%)')
                 holeActive = False
-            # if torch off, allow torch on 
+            # if torch off, allow torch on
             if not torchEnable:
                 lineNum += 1
                 print('m65 p3 (enable torch)')
