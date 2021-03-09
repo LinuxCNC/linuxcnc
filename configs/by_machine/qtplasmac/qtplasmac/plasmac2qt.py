@@ -41,6 +41,10 @@ class Converter(QMainWindow, object):
         self.setFixedWidth(600)
         self.setFixedHeight(660)
         wid = QWidget(self)
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
@@ -156,29 +160,29 @@ class Converter(QMainWindow, object):
         layout.addLayout(vBox)
         self.setStyleSheet( \
             'QWidget {color: #ffee06; background: #16160e} \
-             QLabel {min-height: 20} \
+             QLabel {height: 20} \
              QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 24; width: 80; max-width: 90} \
              QFileDialog QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; margin: 6} \
              QPushButton:pressed {color: #16160e; background: #ffee06} \
              QLineEdit {border: 1 solid #ffee06; border-radius: 4; height: 24; padding-left: 8} \
              QFileDialog QLineEdit {border: 1 solid #ffee06; border-radius: 4; height: 30} \
              QTableView::item:selected:active {color: #16160e; background-color: #ffee06} \
-             QTableView::item:selected:!active {color: #16160e; background-color: #ffee06 } \
+             QTableView::item:selected:!active {color: #16160e; background-color: #ffee06} \
              QHeaderView::section {color: #ffee06; background-color: #36362e; border: 1 solid #ffee06; border-radius: 4; margin: 2} \
              QComboBox {color: #ffee06; background-color: #16160e; border: 1 solid #ffee06; border-radius: 4; height: 30} \
              QComboBox::drop-down {width: 0} \
              QComboBox QListView {border: 4p solid #ffee06; border-radius: 0} \
              QComboBox QAbstractItemView {border: 2px solid #ffee06; border-radius: 4} \
-             QScrollBar:horizontal {background: #36362e; border: 0; border-radius: 4; margin: 0; height: 20 } \
-             QScrollBar::handle:horizontal {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-width: 40} \
+             QScrollBar:horizontal {background: #36362e; border: 0; border-radius: 4; margin: 0; height: 20} \
+             QScrollBar::handle:horizontal {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; width: 40} \
              QScrollBar::add-line:horizontal {width: 0} \
              QScrollBar::sub-line:horizontal {width: 0} \
-             QScrollBar:vertical { background: #36362e; border: 0; border-radius: 4; margin: 0; width: 20} \
-             QScrollBar::handle:vertical { background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-height: 40} \
+             QScrollBar:vertical {background: #36362e; border: 0; border-radius: 4; margin: 0; width: 20} \
+             QScrollBar::handle:vertical {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; height: 40} \
              QScrollBar::add-line:vertical {height: 0} \
              QScrollBar::sub-line:vertical {height: 0} \
-             QRadioButton::indicator { border: 1px solid #ffee06; border-radius: 4; min-height: 20; min-width: 20} \
-             QRadioButton::indicator:checked { background: #ffee06 } \
+             QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
+             QRadioButton::indicator:checked {background: #ffee06} \
             ')
         convert.pressed.connect(self.convert_pressed)
         cancel.pressed.connect(self.cancel_pressed)
@@ -202,13 +206,13 @@ class Converter(QMainWindow, object):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setWindowTitle('{}'.format(title))
-        msgBox.setInformativeText('{}'.format(text))
+        msgBox.setText('{}'.format(text))
         msgBox.setStandardButtons(QMessageBox.Ok)
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
         msgBox.setStyleSheet('QWidget {color: #ffee06; background: #16160e; font: 12pt Lato} \
-                              QPushButton {border: 1px solid #ffee06; border-radius: 4; min-height: 20} \
+                              QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20} \
                              ')
         msgBox.setBaseSize(QSize(800, 800))
         ret = msgBox.exec_()

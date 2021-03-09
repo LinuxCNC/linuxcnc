@@ -1,4 +1,4 @@
-VERSION = '0.9.50'
+VERSION = '0.9.51'
 
 import os, sys
 from shutil import copy as COPY
@@ -982,6 +982,7 @@ class HandlerClass:
             self.framing = False
             ACTION.SET_MANUAL_MODE()
             self.laserOnPin.set(0)
+            self.w.gcodegraphics.logger.clear()
         self.stats_update()
 
     def percent_loaded(self, object, percent):

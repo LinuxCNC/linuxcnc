@@ -48,13 +48,14 @@ class Configurator(QMainWindow, object):
         self.layout = QHBoxLayout()  
         wid.setLayout(self.layout)
         self.setWindowTitle('QtPlasmaC Setup')
+        self.setFixedWidth(440)
         self.setFixedHeight(120)
-        self.new = QPushButton('New')
-        self.new.setFixedWidth(90)
-        self.rec = QPushButton('Reconfigure')
-        self.rec.setFixedWidth(90)
-        self.can = QPushButton('Exit')
-        self.can.setFixedWidth(90)
+        self.new = QPushButton('NEW')
+        self.new.setFixedWidth(130)
+        self.rec = QPushButton('RECONFIGURE')
+        self.rec.setFixedWidth(130)
+        self.can = QPushButton('EXIT')
+        self.can.setFixedWidth(130)
         self.layout.addWidget(self.new, 0)
         self.layout.addWidget(self.rec, 1)
         self.layout.addWidget(self.can, 2)
@@ -62,13 +63,14 @@ class Configurator(QMainWindow, object):
         self.new.pressed.connect(lambda:self.on_selection('new'))
         self.rec.pressed.connect(lambda:self.on_selection('reconfigure'))
         self.can.pressed.connect(lambda:self.on_selection('cancel'))
-        self.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
-                          QLabel { min-height: 20 } \
-                          QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 } \
-                          QPushButton:pressed { color: #16160e; background: #ffee06 } \
-                          QLineEdit { border: 1px solid #ffee06; border-radius: 4; min-height: 20 } \
-                          QRadioButton::indicator { border: 1px solid #ffee06; border-radius: 4; min-height: 20; min-width: 20} \
-                          QRadioButton::indicator:checked { background: #ffee06 }' \
+        self.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+                          QLabel {height: 20} \
+                          QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20} \
+                          QPushButton:pressed {color: #16160e; background: #ffee06} \
+                          #new, rec, can {width: 120} \
+                          QLineEdit {border: 1px solid #ffee06; border-radius: 4; height: 20} \
+                          QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
+                          QRadioButton::indicator:checked {background: #ffee06}' \
                          )
 
     def on_selection(self, selection):
@@ -76,20 +78,20 @@ class Configurator(QMainWindow, object):
         height = self.frameGeometry().height()
         self.configureType = selection
         if self.configureType == 'new':
-            msg  = '\nBefore using this configurator you should already have a\n'
+            msg  = '\nBefore using this configurator you should already have a '
             msg += 'working configuration for your base machine.\n\n'
             msg += 'The base machine should be fully operational.\n\n'
-            msg += 'If you don\'t have a working configuration then you need\n'
+            msg += 'If you don\'t have a working configuration then you need '
             msg += 'to exit the configurator and create one.\n\n'
-            result = self.dialog_ok_cancel('New Config Prerequisites', msg, 'Continue','Cancel')
+            result = self.dialog_ok_cancel('New Config Prerequisites', msg, 'CONTINUE','CANCEL')
             if result != QMessageBox.Yes:
                 return
         elif self.configureType == 'reconfigure':
-            msg  = '\nThis configurator will enable the modifying\n'
+            msg  = '\nThis configurator will enable the modifying '
             msg += 'of an existing configuration.\n\n'
-            msg += 'If you do not have an existing configuration then\n'
+            msg += 'If you do not have an existing configuration then '
             msg += 'you need to exit the configurator and create one.\n\n'
-            result = self.dialog_ok_cancel( 'Reconfigure Prerequisites', msg, 'Continue','Cancel')
+            result = self.dialog_ok_cancel( 'Reconfigure Prerequisites', msg, 'CONTINUE','CANCEL')
             if result != QMessageBox.Yes:
                 return
         else:
@@ -123,7 +125,8 @@ class Configurator(QMainWindow, object):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Warning)
         msgBox.setWindowTitle('{}'.format(title))
-        msgBox.setInformativeText('{}'.format(text))
+#        msgBox.setText('{}'.format(text))
+        msgBox.setText(text)
         msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         buttonY = msgBox.button(QMessageBox.Yes)
         buttonY.setIcon(QIcon())
@@ -132,8 +135,8 @@ class Configurator(QMainWindow, object):
         buttonN.setIcon(QIcon())
         buttonN.setText(name2)
         msgBox.setDefaultButton(QMessageBox.No)
-        msgBox.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
-                             QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 }' \
+        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+                             QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 30}' \
                          )
         ret = msgBox.exec_()
         return ret
@@ -148,8 +151,8 @@ class Configurator(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
-                             QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 }' \
+        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+                             QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 30}' \
                          )
         ret = msgBox.exec_()
         return ret
@@ -263,7 +266,7 @@ class Configurator(QMainWindow, object):
         self.layout.addWidget(self.rec, 1)
         self.layout.addWidget(self.can, 2)
         self.setWindowTitle('QtPlasmaC Setup')
-        self.setFixedWidth(290)
+        self.setFixedWidth(440)
         self.setFixedHeight(120)
 #        print('HEIGHT', self.frameGeometry().height())
         screen = QDesktopWidget().screenGeometry()
@@ -1377,11 +1380,15 @@ class Configurator(QMainWindow, object):
     def create_widgets(self):
         self.setFixedWidth(836)
         self.setFixedHeight(674)
-        screen = QDesktopWidget().screenGeometry()
-        widget = self.geometry()
-        x = screen.width()/2 - widget.width()/2
-        y = screen.height()/2 - widget.height()/2
-        self.move(x, y)
+        # screen = QDesktopWidget().screenGeometry()
+        # widget = self.geometry()
+        # x = screen.width()/2 - widget.width()/2
+        # y = screen.height()/2 - widget.height()/2
+        # self.move(x, y)
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
         self.vBL = QVBoxLayout()
         self.vBR = QVBoxLayout()
         headerBoxL = QVBoxLayout()
@@ -1416,7 +1423,8 @@ class Configurator(QMainWindow, object):
         else:
             iniLabel = QLabel('INI file of configuration to modify:')
         self.iniFileHBox = QHBoxLayout()
-        self.iniFileButton = QPushButton('Select')
+        self.iniFileButton = QPushButton('SELECT')
+        self.iniFileButton.setFixedWidth(80)
         self.iniFile = QLineEdit()
         self.iniVBox.addWidget(iniLabel)
         self.iniFileHBox.addWidget(self.iniFileButton)
@@ -1427,7 +1435,8 @@ class Configurator(QMainWindow, object):
         if self.configureType == 'new':
             self.halVBox = QVBoxLayout()
             self.halFileHBox = QHBoxLayout()
-            self.halFileButton = QPushButton('Select')
+            self.halFileButton = QPushButton('SELECT')
+            self.halFileButton.setFixedWidth(80)
             self.halFile = QLineEdit()
             self.halVBox.addWidget(halLabel)
             self.halFileHBox.addWidget(self.halFileButton)
@@ -1600,10 +1609,10 @@ class Configurator(QMainWindow, object):
         self.vBR.addWidget(blank)
         BB = QHBoxLayout()
         if self.configureType == 'new':
-            self.create = QPushButton('Create')
+            self.create = QPushButton('CREATE')
         else:
-            self.create = QPushButton('Reconfigure')
-        self.cancel = QPushButton('Cancel')
+            self.create = QPushButton('RECONFIGURE')
+        self.cancel = QPushButton('CANCEL')
         BB.addWidget(self.create)
         BB.addWidget(self.cancel)
         vSpaceL = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)

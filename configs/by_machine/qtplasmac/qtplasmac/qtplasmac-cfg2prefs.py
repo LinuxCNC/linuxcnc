@@ -39,6 +39,10 @@ class Cfg2Prefs(QMainWindow, object):
         self.setFixedWidth(600)
         self.setFixedHeight(340)
         wid = QWidget(self)
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
@@ -83,25 +87,25 @@ class Cfg2Prefs(QMainWindow, object):
         layout.addLayout(vBox)
         self.setStyleSheet( \
             'QWidget {color: #ffee06; background: #16160e} \
-            QLabel {min-height: 20} \
-            QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 40; width: 80; max-width: 90} \
+            QLabel {height: 20} \
+            QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 40; width: 80} \
             QFileDialog QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; margin: 6} \
             QPushButton:pressed {color: #16160e; background: #ffee06} \
             QLineEdit {border: 1 solid #ffee06; border-radius: 4; height: 40} \
             QFileDialog QLineEdit {border: 1 solid #ffee06; border-radius: 4; height: 30} \
             QTableView::item:selected:active {color: #16160e; background-color: #ffee06} \
-            QTableView::item:selected:!active {color: #16160e; background-color: #ffee06 } \
+            QTableView::item:selected:!active {color: #16160e; background-color: #ffee06} \
             QHeaderView::section {color: #ffee06; background-color: #36362e; border: 1 solid #ffee06; border-radius: 4; margin: 2} \
             QComboBox {color: #ffee06; background-color: #16160e; border: 1 solid #ffee06; border-radius: 4; height: 30} \
             QComboBox::drop-down {width: 0} \
             QComboBox QListView {border: 4p solid #ffee06; border-radius: 0} \
             QComboBox QAbstractItemView {border: 2px solid #ffee06; border-radius: 4} \
-            QScrollBar:horizontal {background: #36362e; border: 0; border-radius: 4; margin: 0; height: 20 } \
+            QScrollBar:horizontal {background: #36362e; border: 0; border-radius: 4; margin: 0; height: 20} \
             QScrollBar::handle:horizontal {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-width: 40} \
             QScrollBar::add-line:horizontal {width: 0} \
             QScrollBar::sub-line:horizontal {width: 0} \
-            QScrollBar:vertical { background: #36362e; border: 0; border-radius: 4; margin: 0; width: 20} \
-            QScrollBar::handle:vertical { background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-height: 40} \
+            QScrollBar:vertical {background: #36362e; border: 0; border-radius: 4; margin: 0; width: 20} \
+            QScrollBar::handle:vertical {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-height: 40} \
             QScrollBar::add-line:vertical {height: 0} \
             QScrollBar::sub-line:vertical {height: 0} \
             ')
@@ -125,13 +129,13 @@ class Cfg2Prefs(QMainWindow, object):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setWindowTitle('{}'.format(title))
-        msgBox.setInformativeText('{}'.format(text))
+        msgBox.setText('{}'.format(text))
         msgBox.setStandardButtons(QMessageBox.Ok)
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
-                             QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20 }' \
+        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+                             QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20}' \
                          )
         ret = msgBox.exec_()
         return ret

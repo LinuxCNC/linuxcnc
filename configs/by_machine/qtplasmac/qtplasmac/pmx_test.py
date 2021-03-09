@@ -61,6 +61,10 @@ class App(QWidget):
             response.exec_()
             raise SystemExit
         self.setWindowTitle('Powermax Communicator')
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
         self.createGridLayout()
         self.setLayout(self.grid)
         self.show()
@@ -77,6 +81,21 @@ class App(QWidget):
         self.currentSet.valueChanged.connect(lambda:self.on_value_changed(self.currentSet, rCurrent, 64))
         self.pressureSet.valueChanged.connect(lambda:self.on_value_changed(self.pressureSet, rPressure, 128))
         self.timer.timeout.connect(self.periodic)
+        self.setStyleSheet( \
+            'QWidget {color: #ffee06; background: #16160e} \
+            QLabel {height: 20} \
+            QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; width: 80} \
+            QPushButton:pressed {color: #16160e; background: #ffee06} \
+            QComboBox {color: #ffee06; background-color: #16160e; border: 1 solid #ffee06; border-radius: 4; height: 30} \
+            QComboBox::drop-down {width: 0} \
+            QComboBox QListView {border: 4p solid #ffee06; border-radius: 0} \
+            QComboBox QAbstractItemView {border: 2px solid #ffee06; border-radius: 4} \
+            QDoubleSpinBox {border: 1 solid #ffee06; border-radius: 4; height: 30; width: 80} \
+            QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
+            QRadioButton::indicator:checked {background: #ffee06} \
+            QDoubleSpinBox::up-button {subcontrol-origin:padding; subcontrol-position:right; width: 28px; height: 24px} \
+            QDoubleSpinBox::down-button {subcontrol-origin:padding; subcontrol-position:left; width: 28px; height: 24px} \
+            ')
 
     def periodic(self):
         if self.connected:
