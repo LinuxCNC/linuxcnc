@@ -71,6 +71,6 @@ if [info exists ::TRAJ(SPINDLES)] {
 
 # powermax serial communications
 # for qtplasmac
-if [info exists ::QTPLASMAC(PM_PORT)] {loadusr -Wn pmx485 qtplasmac/pmx485.py [lindex $::QTPLASMAC(PM_PORT) 0]}
+if [info exists ::QTPLASMAC(PM_PORT)] {loadusr -Wn pmx485 pmx485 [lindex $::QTPLASMAC(PM_PORT) 0]}
 # for plasmac
 if [info exists ::PLASMAC(PM_PORT)] {loadusr -Wn pmx485 plasmac/pmx485.py [lindex $::PLASMAC(PM_PORT) 0]}

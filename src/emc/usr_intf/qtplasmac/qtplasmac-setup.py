@@ -41,7 +41,6 @@ class Configurator(QMainWindow, object):
         if 'usr' in self.appPath:
             self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
         else:
-            pass
             self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac/') 
         wid = QWidget(self)
         self.setCentralWidget(wid)

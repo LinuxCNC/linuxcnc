@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''
-plasmac2qt.py
+qtplasmac-plasmac2qt.py
 
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
@@ -36,8 +36,13 @@ class Converter(QMainWindow, object):
 # INITIALISATION
     def __init__(self, parent=None):
         super(Converter, self).__init__(parent)
-        self.commonPath = os.path.realpath(os.path.dirname(sys.argv[0]))
-        self.simPath = self.commonPath.replace('/qtplasmac/qtplasmac', '/qtplasmac')
+        self.appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        if 'usr' in self.appPath:
+            self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac'
+            self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
+        else:
+            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac') 
+            self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac') 
         self.setFixedWidth(600)
         self.setFixedHeight(660)
         wid = QWidget(self)

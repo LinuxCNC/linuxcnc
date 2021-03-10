@@ -149,7 +149,7 @@ SUBDIRS := \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
-    emc/usr_intf/gmoccapy \
+    emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac\
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     emc/motion-logger \
@@ -777,6 +777,9 @@ install-python: install-dirs
 	$(EXE) ../lib/python/qtvcp/designer/install_script $(DESTDIR)$(SITEPY)/qtvcp/designer
 	$(EXE) ../bin/qtplasmac-setup $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtplasmac-materials $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-plasmac2qt $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-cfg2prefs $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pmx485-test $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
