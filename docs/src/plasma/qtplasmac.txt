@@ -13,7 +13,7 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
 
-[[qtformats]]
+[[qt_formats]]
 
 * 16:9 with a minimum resolution of 1366 x 768
 * 9:16 with a minimum resolution of 768 x 1366
@@ -37,7 +37,7 @@ The PlasmaC component will run on any hardware that is supported by LinuxCNC pro
 
 If the user is new to CNC plasma cutting, it is recommended that they read the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
 
-NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qtplasmac-update, Update QtPlasmaC>> for information on updating QtPlasmaC.
+NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.
 
 == Installing LinuxCNC
 
@@ -74,11 +74,11 @@ It is recommended that the user choose the AXIS GUI to make the Base Machine Con
 
 NOTE: "Base machine configuration" means a complete working system without any of the plasma connections shown in the <<qt_io_requirements, I/O Requirements>> section. All axes should be working and tuned for best performance and all home and limit switches for X, Y, and Z axes (if installed) should be operating correctly.
 
-IMPORTANT: DO *NOT* ADD ANY OF THE PLASMA CONNECTIONS SHOWN IN THE <<qt_io_requirements, I/O REQUIREMENTS>> SECTION AT THIS TIME, THESE I/O'S WILL BE ADDED LATER DURING THE QTPLASMAC SETUP USING THE <<qtplasmac-setup, qtplasmac-setup>> PROGRAM.
+IMPORTANT: DO *NOT* ADD ANY OF THE PLASMA CONNECTIONS SHOWN IN THE <<qt_io_requirements, I/O REQUIREMENTS>> SECTION AT THIS TIME, THESE I/O'S WILL BE ADDED LATER DURING THE QTPLASMAC SETUP USING THE <<qt_setup, qtplasmac-setup>> PROGRAM.
 
 Some recommended settings:
 
-[[qt_z_settings]]
+[[qt_z-settings]]
 
 * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2")) below the lowest slat.
 * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
@@ -136,7 +136,7 @@ CAUTION: DO *NOT* CONTINUE UNTIL THE BASE MACHINE IS CONFIGURED AND WORKING.
 
 Prior to using the qtplasmac-setup program, it is important that the user has a firm understanding of the operating modes available, as well as the I/O's that are required for successful plasma operation.
 
-[[qtplasmac-mode]]
+[[qt_mode]]
 
 === Modes
 
@@ -217,7 +217,7 @@ CAUTION: DO *NOT* PROCEED UNTIL THE BASE MACHINE IS COMPLETE.
 
 NOTE: If the user is using a *Mesa Electronics THCAD* card for arc voltage measurement, see <<qt_mesa-thcad, Mesa THCAD>> before proceeding.
 
-[[qtplasmac-setup]]
+[[qt_setup]]
 
 Installing a plasma configuration to a base machine and changing to the QtPlasmaC GUI is done via the qtplasmac-setup program.
 
@@ -233,6 +233,10 @@ For a run in place installation enter the following two commands in a terminal w
 source ~/linuxcnc-dev/scripts/rip-environment
 qtplasmac-setup
 ----
+
+[[qt-dependency]]
+
+=== Qt Dependency Errors
 
 If any Qt dependency errors are encountered at any point in this process, the user may need to run the QtVCP installation script to resolve these issues.
 
@@ -260,7 +264,7 @@ NOTE: There will be different fields visible depending on the mode selected.
 
 image::images/qtplasmac_setup_new.png[width=500,align="center"]
 
-[[qtplasmac-setup-table]]
+[[qt_setup-table]]
 
 *Mandatory Settings*
 
@@ -273,7 +277,7 @@ HAL connection examples in the following table show examples for both a parallel
               "<machine_name>" describes the name entered into this field.|plasma_table.ini.
 |INI File|This is the .ini file that was created as a result of making a working and tested base machine configuration.|base.ini
 |HAL File|This is the .hal file that was created as a result of making a working and tested base machine configuration.|base.hal
-|Monitor Aspect Ratio|This is the <<qtformats, aspect ratio format>> for the GUI.|16:9
+|Monitor Aspect Ratio|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |Mode|Selects the required mode based on the following criteria: +
       0 - If using an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK. +
       1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
@@ -370,7 +374,7 @@ Click on the Parameters tab to view the *PLASMAC CONFIGURATION* section which sh
 
 See <<qt_parameters-tab, Parameters Tab>>
 
-. The user should be familiar with the recommended <<qt_z_settings, Z Axis Settings>>.
+. The user should be familiar with the recommended <<qt_z-settings, Z Axis Settings>>.
 
 . Home the Z axis.
 
@@ -416,9 +420,9 @@ The qtplasmac-setup program cannot modify the following:
 * The machine HAL file.
 * The machine INI file.
 
-Reconfiguring a QtPlasmaC configuration is done from the <<qtplasmac-setup, qtplasmac-setup>> program.
+Reconfiguring a QtPlasmaC configuration is done from the <<qt_setup, qtplasmac-setup>> program.
 
-It is highly recommended that a <<qtplasmac-backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
+It is highly recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
 After starting qtplasmac-setup the selection window is visible, select *Reconfigure* which shows an information dialog, select *Continue* and the Reconfigure window will display:
 
@@ -430,7 +434,7 @@ If the user changes modes, the entry boxes will change depending on the currentl
 
 When all entries are correct, click *Reconfigure* and the user's QtPlasmaC configuration will be reconfigured.
 
-Entry descriptions can be found <<qtplasmac-setup-table, here>>.
+Entry descriptions can be found <<qt_setup-table, here>>.
 
 NOTE: Machine Name and <machine_name>.hal File can not be modified.
 
@@ -438,22 +442,25 @@ NOTE: Machine Name and <machine_name>.hal File can not be modified.
 
 There are several methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration.  These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
 
+If there are Qt dependency errors, the user should run the <<qt-dependency, QtVCP install script>>.
+
 === Primary Method
 
 The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
 
 To run the plasmac2qt conversion program, use the following instructions:
 
-For a package installation (Buildbot):
+For a package installation (Buildbot) enter the following line in a terminal window:
 
 ----
-/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/plasmac2qt.py
+qtplasmac-plasmac2qt
 ----
 
-For a run in place installation:
+For a run in place installation enter the following lines in terminal window:
 
 ----
-~/linuxcnc-dev/configs/by_machine/qtplasmac/qtplasmac/plasmac2qt.py
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-plasmac2qt
 ----
 
 The following screen will be displayed:
@@ -467,7 +474,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 |*Field*|*Description*|*Examples*
 |INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file that was created by the configurator.|<machine_name>.ini
 |NAME OF NEW QTPLASMAC CONFIG|This is the name for the new QtPlasmaC machine|My_QtPlasmaC_Machine
-|MONITOR ASPECT RATIO|This is the <<qtformats, aspect ratio format>> for the GUI.|16:9
+|MONITOR ASPECT RATIO|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP|Selects the required Estop type based on the following criteria: +
       0 - Estop is an indicator only. +
       1 - Estop indicator is hidden. +
@@ -495,11 +502,13 @@ Leave these blank if they are not used/required.
                                                              *Imperial Example:*  -2.15
 |===
 
+After filling in the appropriate entries, press 'CONVERT'.
+
 === Alternate Method
 
-An alternate method to move to QtPlasmaC from PlasmaC loaded on top of either Axis or Gmoccapy is to use the <<qtplasmac-setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
+An alternate method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the <<qt_setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
 
-After using the setup program, the user can then run a conversion program to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+After using the setup program, the user can then run a conversion program (cfg2prefs) to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
 
 Prior to running this program, it is mandatory that the user have both an existing PlasmaC configuration and an existing QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
 
@@ -507,10 +516,19 @@ The program will create a time stamped backup of the original preferences file a
 
 It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the plasma_material.cfg file to the existing QtPlasmaC configuration.
 
-To use the conversion tool, enter the following in a terminal:
+To run the cfg2prefs conversion program, use the following instructions:
+
+For a package installation (Buildbot) enter the following line in a terminal window:
 
 ----
-python ~/linuxcnc/configs/<qtplasmac_config>/qtplasmac/qtplasmac-cfg2prefs.py
+qtplasmac-cfg2prefs
+----
+
+For a run in place installation enter the following lines in terminal window:
+
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-cfg2prefs
 ----
 
 image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
@@ -823,7 +841,7 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 |*Name*|*Modes*|*Description*
 |Arc Voltage|0, 1|Displays the actual arc voltage.
 |OK|0, 1, 2|Indicates the status of the Arc OK signal.
-|+|0, 1|Each press of this button will lower the target voltage by the THC Threshold voltage (The distance changed will be Height Per Volt * THC Threshold voltage).
+|+|0, 1|Each press of this button will raise the target voltage by the THC Threshold voltage (The distance changed will be Height Per Volt * THC Threshold voltage).
 |-|0, 1|Each press of this button will lower the target voltage by the THC Threshold voltage (The distance changed will be Height Per Volt * THC Threshold voltage).
 |OVERRIDE|0, 1|Clicking this label will return any voltage override to 0.00.
 |===
@@ -1147,22 +1165,22 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Estop|This button allows the user to change the color of the GUI Estop.
 |Disabled|This button allows the user to change the color of the GUI's Disabled features.
 |Preview|This button allows the user to change the color of the GUI Preview Window Background.
-|Soft Keyboard|This button allows the user to enable or disable the soft touchscreen keyboard.
-|KB Shortcuts|This button allows the user to enable or disable Keyboard Shortcuts within the GUI (such as keyboard jogging). +
-                In addition to the standard jog keys, a list of the additional shortcuts is available in the <<keyboard-shortcuts, keyboard shortcuts>> section.
-|View Material|This button allows the user to enable or disable a visual reference of key material cut settings to the <<qt_main-tab, MAIN Tab>> Preview Window. +
+|Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard.
+|KB Shortcuts|This radio button allows the user to enable or disable <<qt_keyboard-shortcuts, Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
+                In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
+|View Material|This radio button allows the user to enable or disable a visual reference of key material cut settings to the <<qt_main-tab, MAIN Tab>> Preview Window. +
                 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
-|Optional Stop|This button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
-|Run From Line|This button allows the user to enable or disable whether or not the user can click on a line of G-Code and have the program start from that line.
-|Override Limits|This button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button will also allow jogging while jogging is inhibited due to a float or breakaway switch activation. This button can only be clicked when a limit switch is tripped or a jog is inhibited.
-|Optional Block|This button allows the user to enable or disable whether or not lines starting with "/" will be skipped if present in a running program.
+|Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
+|Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
+|Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button will also allow jogging while jogging is inhibited due to a float or breakaway switch activation. This button can only be clicked when a limit switch is tripped or a jog is inhibited.
+|Optional Block|This radio button allows the user to enable or disable whether or not lines starting with "/" will be skipped if present in a running program.
 |Grid Size|This allows a user to change the size of the grid in the Preview Window on the <<qt_main-tab, MAIN Tab>>. Grid size of 0.0 will disable the grid.
 |Cone Size|This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the <<qt_main-tab, MAIN Tab>>.
 |===
 
 [underline]*UTILITIES*
 
-[[qtplasmac-backup]]
+[[qt_backup]]
 
 The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the qtplasmac-setup program, and <version_info> is the current QtPlasmaC version the user is on.
 
@@ -1196,7 +1214,7 @@ If the user is using QtPlasmaC without <<qt_multi-tool, multiple tools>> enabled
 
 === Coordinates
 
-See <<qt_z_settings, recommended Z axis>> settings.
+See <<qt_z-settings, recommended Z axis>> settings.
 
 Each time LinuxCNC (QtPlasmaC) is started Joint homing is required. This allows LinuxCNC (QtPlasmaC) to establish the known coordinates of each axis and set the soft limits to the values specified in the <machine_name>.ini file in order to prevent the machine from crashing into a hard stop during normal use.
 
@@ -1945,7 +1963,7 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 
 [underline]*Manual Single Cut*
 
-Manual single cut requires that keyboard shortcuts are enable in Parameters.
+Manual single cut requires that <<qt_keyboard-shortcuts, keyboard shortcuts>> are enable in the GUI SETTINGS section of the PARAMETERS Tab.
 
 . Jog to the required X/Y start position. +
 . Set the required feed rate with the Jog Speed slider. +
@@ -2011,6 +2029,38 @@ The moment the torch has been moved off the cut path, the paused motion controls
 Once the torch position is satisfactory, press Resume Cut or the GUI’s Resume button (Pause symbol) and the cut will resume from the new position and travel the shortest distance to the original paused motion location. The dialog box will close when the torch returns to the original paused motion location.
 
 Pressing Cancel (or the X in the title bar) will cause the torch to move back to where it was positioned when the motion became paused and the dialog box will close.
+
+[[qt_run-from-line]]
+
+=== Run From Line
+
+If the user has enabled Run From Line in the GUI SETTINGS section of the PARAMETERS Tab they will have the ability to start the program from anywhere in the program via the following methods:
+
+. Clicking any line in the Preview Window
+. Clicking any line in the G-Code Preview Window
+
+Once the user has selected the starting place, the CYCLE START button will blink "RUN FROM nn" where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
+
+image::images/qtplasmac_run_from_line.png[width=350,align="center"]
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|USE LEADIN|This radio button will allow the user to start the selected line with a leadin.
+|LEADIN LENGTH|If USE LEADIN is selected, this will set the length of the lead in the machine units.
+|USE LEADIN|If USE LEADIN is selected, this will set the angle of approach for the leadin. +
+            The angle is measured such that positive increases in value move the leadin counter-clockwise: +
+            0 Degrees = 3 o'clock position +
+            90 Degrees = 12 o'clock position +
+            180 Degrees = 9 o'clock position +
+            270 Degrees = 6 o'clock position
+|===
+
+*Run From Line selections may be canceled in the following ways:*
+
+. If a G Code line was clicked on and the user does not wish to Run From Line, click on the background of the preview window.
+. If a cut line was selected in the preview window and the user does not wish to Run From Line, click on the background of the preview window.
+. If a line was selected, and LOAD was clicked from the Run From Line dialog box, "rfl.ngc" will show as the loaded file name in the G Code preview window header. If the user no longer wishes to Run From Line, click RELOAD to cancel the Run From Line and reload the original file.
 
 [[qt_scribe]]
 
@@ -2107,7 +2157,7 @@ NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machi
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
 
-[[keyboard-shortcuts]]
+[[qt_keyboard-shortcuts]]
 
 === Keyboard Shortcuts
 
@@ -2414,7 +2464,7 @@ This indicates that the value for the Arc Voltage was invalid (NAN or INF) when 
 
 * *invalid arc-voltage-in*
 
-[[qtplasmac-update]]
+[[qt_update]]
 
 == Updating QtPlasmaC
 
@@ -2718,15 +2768,20 @@ The laser enable HAL pin (qtplasmac.laser_on) will be enabled during the framing
 
 Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm before X/Y motion begins.
 
-The following GUI buttons and Keyboard Shortcuts (if enabled) are valid during Framing motion:
+Framing motion will occur at the feed rate for the currently selected material.
 
-. Pressing CYCLE STOP or the ESC Key - Stops Framing motion.
-. Pressing CYCLE PAUSE or the SPACE BAR - Pauses Framing motion.
-. Pressing CYCLE RESUME or CTRL+r - Resumes paused Framing motion.
+The following GUI buttons and <<qt_keyboard-shortcuts, Keyboard Shortcuts>> (if enabled) are valid during Framing motion:
+
+. Pressing CYCLE STOP or the ESC <<qt_keyboard-shortcuts, keyboard shortcut>> - Stops Framing motion.
+. Pressing CYCLE PAUSE or the SPACE BAR <<qt_keyboard-shortcuts, keyboard shortcut>>- Pauses Framing motion.
+. Pressing CYCLE RESUME or the CTRL+r <<qt_keyboard-shortcuts, keyboard shortcut>>- Resumes paused Framing motion.
+. Changing the FEED SLIDER or any of the CTRL+0-9 <<qt_keyboard-shortcuts, keyboard shortcuts>> - Slows the feed rate.
+
+NOTE: IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
 
 Framing can be started two different ways:
 
-1 - via a user button by adding the following to an available user button in the <machine_name>.ini file.
+1 - Via a user button by adding the following to an available user button in the <machine_name>.ini file.
 ----
 BUTTON_n_CODE = framing
 ----
@@ -2737,7 +2792,7 @@ For this method *only* it is possible for the user to omit the initial Z movemen
 BUTTON_n_CODE = framing usecurrentZheight
 ----
 
-2 - Framing may also be achieved with the use of the HAL pin qtplasmac.framing_start. Setting this pin to 1 (True) will begin a framing move if QtPlasmaC is in a valid state. It is incumbent on the user to ensure this pin returns to 0 (False) otherwise subsequent framing moves will not be possible. It is not possible to run framing without the initial Z movement via this method.
+2 - Framing may also be achieved with the use of the HAL pin qtplasmac.framing_start. Setting this pin to 1 (True) will begin a framing move if QtPlasmaC is in a valid state. *It is incumbent on the user to ensure this pin returns to 0 (False) otherwise subsequent framing moves will not be possible.* It is not possible to run framing without the initial Z movement via this method.
 
 There is no requirement that a user button be setup to use the HAL pin variant although it is possible to use both methods in the same config.
 
@@ -2853,10 +2908,19 @@ PM_PORT = /dev/ttyusb0
 
 If the user is unsure of the name of the port, there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the QtPlasmaC GUI.
 
-To use the test script enter the following command into a terminal window:
+To use the test script follow these instructions:
+
+For a package installation (Buildbot) enter the following command in a terminal window:
 
 ----
-python ~/<user_name>/linuxcnc/configs/<the_user_config>/pmx_test.py
+pmx485-test
+----
+
+For a run in place installation enter the following two commands in a terminal window:
+
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+pmx485-test
 ----
 
 The gas pressure units display (psi or bar) is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure setting in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
@@ -2901,7 +2965,7 @@ There are some sample G-Code files in nc_files/plasmac.
 
 Before changing the type of installation, the existing QtPlasmaC installation needs to be updated to the latest version. If QtPlasmaC is not at the latest version then changing the installation type may corrupt the existing QtPlasmaC configuration.
 
-It is recommended that a <<qtplasmac-backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
+It is recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
 If the user has changed the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
 
@@ -3316,7 +3380,7 @@ An effective and very reliable method of obtaining an Arc OK signal from a plasm
 
 This assembly will now act as a relay that will switch on when current is flowing through the work lead which only occurs when a cutting arc has been established.
 
-This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qtplasmac-mode, QtPlasmaC Modes>> sections for more information.
+This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
 image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
 
@@ -3336,4 +3400,4 @@ This issue does not affect any jogging using the GUI jog buttons.
 
 Online help and support is available from the https://forum.linuxcnc.org/plasmac[PlasmaC section] of the https://forum.linuxcnc.org/[LinuxCNC Forum].
 
-The user can create a compressed file containing the complete machine configuration to aid in fault diagnosis by pressing following the directions in the <<qtplasmac-backup, backup>> section. The resulting file is suitable for attaching to a post on the LinuxCNC Forum to help the community diagnose specific issues.
+The user can create a compressed file containing the complete machine configuration to aid in fault diagnosis by pressing following the directions in the <<qt_backup, backup>> section. The resulting file is suitable for attaching to a post on the LinuxCNC Forum to help the community diagnose specific issues.

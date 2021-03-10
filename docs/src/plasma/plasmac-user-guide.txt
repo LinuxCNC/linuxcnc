@@ -9,13 +9,17 @@
 
 PlasmaC and all of its related software are released under GPLv2.
 
+== Notice
+
+Development has ceased on PlasmaC.  No new features will be added.
+
+All PlasmaC development is now done on QtPlasmaC which is a full configuration including a custom GUI.
+
 == Introduction
 
 PlasmaC is a plasma cutting configuration that is loaded on top of LinuxCNC v2.8 or later. It includes a HAL component plus GUI configurations for both <<cha:axis-gui, Axis>> and <<cha:gmoccapy,Gmoccapy>>. There is also an option to have the Axis GUI display in portrait mode, see <<axis-ini, Axis <machine_name>.ini file>>.
 
 The desired LinuxCNC GUI (Axis or Gmoccapy) with PlasmaC component loaded should be chosen prior to starting the LinuxCNC installation process as switching between Axis and Gmoccapy requires a fresh configuration to be created.
-
-New development has stopped on PlasmaC and all new plasmac development is now done on link:qtplasmac.html[QtPlasmac] which is a full configuration including a custom GUI.
 
 Screenshot examples of PlasmaC loaded on top of both the Axis and Gmoccapy GUIs are below:
 
