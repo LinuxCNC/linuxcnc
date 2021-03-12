@@ -217,7 +217,27 @@ CAUTION: DO *NOT* PROCEED UNTIL THE BASE MACHINE IS COMPLETE.
 
 NOTE: If the user is using a *Mesa Electronics THCAD* card for arc voltage measurement, see <<qt_mesa-thcad, Mesa THCAD>> before proceeding.
 
+[[qt-dependency]]
+
+=== Qt Dependency Errors
+
+If any Qt dependency errors are encountered at any point in the following process, the user may need to run the QtVCP installation script to resolve these issues.
+
+For a package installation (Buildbot) enter the following command in a terminal window:
+
+----
+/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
+----
+
+For a run in place installation enter the following command in a terminal window:
+
+----
+~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
+----
+
 [[qt_setup]]
+
+=== Setup
 
 Installing a plasma configuration to a base machine and changing to the QtPlasmaC GUI is done via the qtplasmac-setup program.
 
@@ -233,26 +253,6 @@ For a run in place installation enter the following two commands in a terminal w
 source ~/linuxcnc-dev/scripts/rip-environment
 qtplasmac-setup
 ----
-
-[[qt-dependency]]
-
-=== Qt Dependency Errors
-
-If any Qt dependency errors are encountered at any point in this process, the user may need to run the QtVCP installation script to resolve these issues.
-
-For a package installation (Buildbot) enter the following command in a terminal window:
-
-----
-/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
-----
-
-For a run in place installation enter the following command in a terminal window:
-
-----
-~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
-----
-
-=== Setup
 
 The selection window is now visible:
 
@@ -436,7 +436,7 @@ When all entries are correct, click *Reconfigure* and the user's QtPlasmaC confi
 
 Entry descriptions can be found <<qt_setup-table, here>>.
 
-NOTE: Machine Name and <machine_name>.hal File can not be modified.
+NOTE: Machine Name and <machine_name>.hal File cannot be modified.
 
 == Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
 
@@ -1941,13 +1941,15 @@ A single cut will commence from the machine's current X/Y position.
 
 [underline]*Automatic Single Cut*
 
-This is the preferred method. The parameters for this method are entered in the dialog that is displayed by a <<qt_button-single, user button>> which has been coded to run single cut.
+This is the preferred method. The parameters for this method are entered in the following dialog box that is displayed after pressing a <<qt_button-single, user button>> which has been coded to run single cut:
+
+image::images/qtplasmac_single_cut.png[width=300,align="center"]
 
 . Jog to the required X/Y start position. +
 . Set required appropriate material, or edit the Feed Rate for the default material in the PARAMATERS tab. +
 . Press the assigned single cut user button. +
 . Enter the length of the cut along the X and/or Y axes. +
-. Press the *Start Cut* button and the cut will commence.
+. Press the *START CUT* button and the cut will commence.
 
 [underline]*Pendant Single Cut*
 
@@ -2034,12 +2036,14 @@ Pressing Cancel (or the X in the title bar) will cause the torch to move back to
 
 === Run From Line
 
-If the user has enabled Run From Line in the GUI SETTINGS section of the PARAMETERS Tab they will have the ability to start the program from anywhere in the program via the following methods:
+If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>> they will have the ability to start from any line in a G Code program via the following methods:
 
 . Clicking any line in the Preview Window
-. Clicking any line in the G-Code Preview Window
+. Clicking any line in the G-Code Window
 
-Once the user has selected the starting place, the CYCLE START button will blink "RUN FROM nn" where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
+It is important to note that G Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
+
+Once the user has selected the starting place, the CYCLE START button will blink "SELECTED nn" where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
 
 image::images/qtplasmac_run_from_line.png[width=350,align="center"]
 
@@ -2054,13 +2058,19 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
             90 Degrees = 12 o'clock position +
             180 Degrees = 9 o'clock position +
             270 Degrees = 6 o'clock position
+|CANCEL|This button will cancel the Run From Line dialog box and any selections.
+|LOAD|This button will load a temporary "rfl.ngc" program with any selected leadin parameters applied. +
+        If the leadin cannot be calculated for the selected line, the following error message will be displayed: +
+        "Unable to calculate a leadin for this cut +
+        Program will run from selected line with no leadin applied"
 |===
+
+After pressing LOAD, the blinking "SELECTED nn" button will change to a blinking "RUN FROM nn" button. Click this button to start the program from the previously selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 
-. If a G Code line was clicked on and the user does not wish to Run From Line, click on the background of the preview window.
-. If a cut line was selected in the preview window and the user does not wish to Run From Line, click on the background of the preview window.
-. If a line was selected, and LOAD was clicked from the Run From Line dialog box, "rfl.ngc" will show as the loaded file name in the G Code preview window header. If the user no longer wishes to Run From Line, click RELOAD to cancel the Run From Line and reload the original file.
+. Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G Code line in the G Code window.
+. Clicking RELOAD - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G Code window header. This will return the user to the originally loaded file.
 
 [[qt_scribe]]
 
@@ -2489,7 +2499,7 @@ Enhancements and bug fixes will not be available on a standard installation unti
 
 == Customizing QtPlasmaC GUI
 
-Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It can not change the layout of the GUI.
+Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It cannot change the layout of the GUI.
 
 Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here]
 
@@ -2583,7 +2593,12 @@ The above colors are used for the following widgets. So any custom styling will 
 
 === Custom User Buttons
 
-There are eight buttons available in the QtPlasmaC GUI that are programmable by adding commands in the <machine_name>.ini file.
+The QtPlasmaC GUI offers user buttons that can be customized by adding commands in the <machine_name>.ini file.
+
+The number of user buttons varies by display type and resolution as follows:
+
+* 16:9 and 4:3 - Minimum 8, Maximum 20
+* 9:16 - Minimum 15, Maximum 20
 
 All <machine_name>.ini file settings for the buttons are found in the [QTPLASMAC] section.
 
@@ -2770,7 +2785,7 @@ Upon starting a Framing cycle, it is important to note that by default the Z axi
 
 Framing motion will occur at the feed rate for the currently selected material.
 
-The following GUI buttons and <<qt_keyboard-shortcuts, Keyboard Shortcuts>> (if enabled) are valid during Framing motion:
+The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_parameters-tab, PARAMETERS Tab>>) are valid during Framing motion:
 
 . Pressing CYCLE STOP or the ESC <<qt_keyboard-shortcuts, keyboard shortcut>> - Stops Framing motion.
 . Pressing CYCLE PAUSE or the SPACE BAR <<qt_keyboard-shortcuts, keyboard shortcut>>- Pauses Framing motion.
@@ -2895,7 +2910,7 @@ If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate 
 
 Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
 
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure cannot be changed from zero until communications have been established.
 
 This feature is enabled by setting the correct port name for the PM_PORT variable in the [QTPLASMAC] section of the <machine_name>.ini file. If the PM_PORT variable is not set in the <machine_name>.ini file then the widgets associated with this feature will not be visible.
 
