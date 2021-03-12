@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>1348</width>
-    <height>702</height>
+    <height>871</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options">
+     <widget class="ScreenOptions" name="screen_options" native="true">
       <property name="styleSheet">
        <string notr="true"/>
       </property>
@@ -243,7 +243,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -301,7 +301,7 @@
               <item>
                <widget class="QStackedWidget" name="preview_stack">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>3</number>
                 </property>
                 <widget class="QWidget" name="preview_page">
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
@@ -468,7 +468,7 @@
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="GCodeGraphics" name="gcodegraphics">
+                         <widget class="GCodeGraphics" name="gcodegraphics" native="true">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                             <horstretch>0</horstretch>
@@ -893,7 +893,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager">
+                      <widget class="FileManager" name="filemanager" native="true">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                          <horstretch>0</horstretch>
@@ -1137,7 +1137,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="GcodeEditor" name="gcode_editor">
+                      <widget class="GcodeEditor" name="gcode_editor" native="true">
                        <property name="auto_show_mdi_status" stdset="0">
                         <bool>false</bool>
                        </property>
@@ -1477,7 +1477,7 @@ EDGE</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="CamView" name="camview"/>
+                         <widget class="CamView" name="camview" native="true"/>
                         </item>
                        </layout>
                       </widget>
@@ -1512,7 +1512,7 @@ EDGE</string>
              <property name="frameShadow">
               <enum>QFrame::Plain</enum>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,1">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0">
               <property name="spacing">
                <number>2</number>
               </property>
@@ -1530,10 +1530,16 @@ EDGE</string>
               </property>
               <item>
                <widget class="QFrame" name="machine_frame">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>404</height>
+                 </size>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>16777215</height>
+                  <height>404</height>
                  </size>
                 </property>
                 <property name="frameShape">
@@ -2390,7 +2396,13 @@ ON</string>
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
-                           <height>172</height>
+                           <height>152</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>152</height>
                           </size>
                          </property>
                          <property name="statusTip">
@@ -2616,269 +2628,486 @@ ON</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QFrame" name="buttons_grid">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                  <layout class="QGridLayout" name="button_grid">
+                   <property name="leftMargin">
+                    <number>4</number>
                    </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                   <property name="rightMargin">
+                    <number>4</number>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_6" columnstretch="1,0">
-                    <property name="leftMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="spacing">
-                     <number>4</number>
-                    </property>
-                    <item row="1" column="0">
-                     <widget class="QPushButton" name="button_1">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QPushButton" name="button_2">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>2</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QPushButton" name="button_3">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>3</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QPushButton" name="button_4">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>4</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QPushButton" name="button_5">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>5</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QPushButton" name="button_6">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>6</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="PushButton" name="mdi_show">
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>MDI</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0">
-                     <widget class="PushButton" name="file_edit">
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>EDIT</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="0">
-                     <widget class="QPushButton" name="button_7">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>7</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="1">
-                     <widget class="QPushButton" name="button_8">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>8</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="spacing">
+                    <number>4</number>
+                   </property>
+                   <item row="5" column="1">
+                    <widget class="QPushButton" name="button_10">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>10</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="1">
+                    <widget class="QPushButton" name="button_18">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>18</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QPushButton" name="button_8">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>8</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QPushButton" name="button_7">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>7</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QPushButton" name="button_9">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>9</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QPushButton" name="button_12">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>12</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QPushButton" name="button_14">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>14</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QPushButton" name="button_13">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>13</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="0">
+                    <widget class="QPushButton" name="button_17">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>17</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QPushButton" name="button_4">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>4</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QPushButton" name="button_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>5</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="PushButton" name="file_edit">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>EDIT</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="1">
+                    <widget class="QPushButton" name="button_16">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>16</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QPushButton" name="button_11">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>11</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="button_2">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>2</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QPushButton" name="button_1">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>1</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QPushButton" name="button_15">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>15</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QPushButton" name="button_6">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>6</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="PushButton" name="mdi_show">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>MDI</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QPushButton" name="button_3">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>3</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="10" column="0">
+                    <widget class="QPushButton" name="button_19">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>19</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="10" column="1">
+                    <widget class="QPushButton" name="button_20">
+                     <property name="minimumSize">
+                      <size>
+                       <width>60</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>20</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
                   <spacer name="verticalSpacer">
@@ -3192,7 +3421,7 @@ ON</string>
                            </widget>
                           </item>
                           <item>
-                           <widget class="LED" name="led_arc_ok">
+                           <widget class="LED" name="led_arc_ok" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -3208,7 +3437,7 @@ ON</string>
                             <property name="statusTip">
                              <string>Arc OK signal</string>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -3649,7 +3878,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_torch_on">
+                        <widget class="LED" name="led_torch_on" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -3665,7 +3894,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Torch on status</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -3951,7 +4180,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_kerf_lock">
+                        <widget class="LED" name="led_kerf_lock" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -3967,7 +4196,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Void anti dive is active</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4200,7 +4429,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_corner_lock">
+                        <widget class="LED" name="led_corner_lock" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4216,7 +4445,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Velocity anti dive is active</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4465,7 +4694,7 @@ ON</string>
                         <number>4</number>
                        </property>
                        <item row="0" column="0">
-                        <widget class="LED" name="led_float_switch">
+                        <widget class="LED" name="led_float_switch" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4481,7 +4710,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Float switch status</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4516,7 +4745,7 @@ ON</string>
                         </widget>
                        </item>
                        <item row="1" column="0">
-                        <widget class="LED" name="led_ohmic_probe">
+                        <widget class="LED" name="led_ohmic_probe" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4532,7 +4761,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Ohmic probe status</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4567,7 +4796,7 @@ ON</string>
                         </widget>
                        </item>
                        <item row="2" column="0">
-                        <widget class="LED" name="led_breakaway_switch">
+                        <widget class="LED" name="led_breakaway_switch" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4583,7 +4812,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Breakaway switch status</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4790,7 +5019,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_up">
+                        <widget class="LED" name="led_thc_up" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4806,7 +5035,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is moving the Z axis up</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4879,7 +5108,7 @@ ON</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_enabled">
+                        <widget class="LED" name="led_thc_enabled" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4895,7 +5124,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is enabled</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4939,7 +5168,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_down">
+                        <widget class="LED" name="led_thc_down" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4955,7 +5184,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is moving the Z axis down</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -5028,7 +5257,7 @@ ON</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_active">
+                        <widget class="LED" name="led_thc_active" native="true">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -5044,7 +5273,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is currently active</string>
                          </property>
-                         <property name="color">
+                         <property name="color" stdset="0">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -6662,7 +6891,7 @@ ON</string>
                             <number>0</number>
                            </property>
                            <item>
-                            <widget class="MDIHistory" name="mdihistory">
+                            <widget class="MDIHistory" name="mdihistory" native="true">
                              <property name="soft_keyboard_option" stdset="0">
                               <bool>false</bool>
                              </property>
@@ -8785,7 +9014,7 @@ HOME ALL</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="GCodeGraphics" name="conv_preview"/>
+                        <widget class="GCodeGraphics" name="conv_preview" native="true"/>
                        </item>
                       </layout>
                      </widget>
@@ -14919,7 +15148,6 @@ CONFIG</string>
   <tabstop>home_all</tabstop>
   <tabstop>wcs_button</tabstop>
   <tabstop>camera</tabstop>
-  <tabstop>main_tab_widget</tabstop>
   <tabstop>material_selector</tabstop>
   <tabstop>view_p</tabstop>
   <tabstop>view_z</tabstop>
@@ -14944,20 +15172,10 @@ CONFIG</string>
   <tabstop>feed_slider</tabstop>
   <tabstop>rapid_slider</tabstop>
   <tabstop>jog_slider</tabstop>
-  <tabstop>button_1</tabstop>
-  <tabstop>button_6</tabstop>
   <tabstop>height_lower</tabstop>
   <tabstop>height_raise</tabstop>
   <tabstop>ignore_arc_ok</tabstop>
-  <tabstop>button_8</tabstop>
-  <tabstop>button_5</tabstop>
-  <tabstop>mdi_show</tabstop>
-  <tabstop>file_edit</tabstop>
   <tabstop>ohmic_probe_enable</tabstop>
-  <tabstop>button_7</tabstop>
-  <tabstop>button_4</tabstop>
-  <tabstop>button_2</tabstop>
-  <tabstop>button_3</tabstop>
   <tabstop>torch_enable</tabstop>
   <tabstop>mesh_enable</tabstop>
   <tabstop>use_auto_volts</tabstop>
