@@ -476,14 +476,14 @@ int Interp::call_level(void) { return _setup.call_level; }
 
 std::string toString(GCodes g)
 {
-    char buf[10]={};
+    char buf[15]={};
     int dec_value = g%10;
     if (dec_value)
     {
         // Has a decimal
-        snprintf(buf, 10, "G%d.%d", g/10, dec_value);
+        snprintf(buf, sizeof(buf), "G%d.%d", g/10, dec_value);
     } else {
-        snprintf(buf, 10, "G%d", g/10);
+        snprintf(buf, sizeof(buf), "G%d", g/10);
     }
     return buf;
 }

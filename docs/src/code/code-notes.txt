@@ -176,7 +176,7 @@ image::hss.svg[align="center"]
 This section simply lists all of the commands that can be sent to the
 motion module, along with detailed explanations of what they do. The
 command names are defined in a large typedef enum in
-emc2/src/emc/motion/motion.h, called cmd_code_t. (Note that in the
+{linuxcnc}/src/emc/motion/motion.h, called cmd_code_t. (Note that in the
 code, each command name starts with 'EMCMOT_', which is omitted here.)
 
 The commands are implemented by a large switch statement in the
@@ -1163,8 +1163,8 @@ pocket number::
         pocket numbers used by LinuxCNC-with-nonrandom-toolchanger.
 
     * When LinuxCNC is configured for a random toolchanger, the pocket
-        numbers in the tool file must be between 0 and 55, inclusive.
-        Pockets 1-55 are in the toolchanger, pocket 0 is the spindle.
+        numbers in the tool file must be between 0 and 1000, inclusive.
+        Pockets 1-1000 are in the toolchanger, pocket 0 is the spindle.
 
 diameter::
 
@@ -1468,7 +1468,7 @@ settings.tool_offset::
 settings.pockets_max::
 
     Used interchangably with +CANON_POCKETS_MAX+ (a #defined constant,
-    set to 56 as of 2012 December 30).  FIXME: This settings variable
+    set to 1000 as of April 2020).  FIXME: This settings variable
     is not currently useful and should probably be removed.
 
 settings.tool_table::

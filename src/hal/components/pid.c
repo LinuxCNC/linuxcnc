@@ -53,12 +53,14 @@
     FF0		Zeroth order Feedforward gain
     FF1		First order Feedforward gain
     FF2		Second order Feedforward gain
+    FF3		Third order Feedforward gain
     deadband	Amount of error that will be ignored
     maxerror	Limit on error
     maxerrorI	Limit on error integrator
     maxerrorD	Limit on error differentiator
     maxcmdD	Limit on command differentiator
     maxcmdDD	Limit on command 2nd derivative
+    maxcmdDDD	Limit on command 3rd derivative
     maxoutput	Limit on output value
 
     All of the limits (max____) are implemented such that if the
@@ -73,6 +75,7 @@
     errorD	Derivative of error
     commandD	Derivative of the command
     commandDD	2nd derivative of the command
+    commandDDD	3rd derivative of the command
 
     The PID loop calculations are as follows (see the code for
     all the nitty gritty details):
@@ -88,9 +91,11 @@
     limit commandD to +/- maxcmdD
     commandDD = (commandD - previouscommandD) / period
     limit commandDD to +/- maxcmdDD
+    commandDDD = (commandDD - previouscommandDD) / period
+    limit commandDDD to +/- maxcmdDDD
     output = bias + error * Pgain + errorI * Igain +
              errorD * Dgain + command * FF0 + commandD * FF1 +
-             commandDD * FF2
+             commandDD * FF2 + commandDDD * FF3
     limit output to +/- maxoutput
 
     This component exports one function called 'pid.x.do-pid-calcs'
@@ -175,6 +180,7 @@ typedef struct {
     hal_float_t *maxerror_d;	/* pin: limit for differentiated error */
     hal_float_t *maxcmd_d;	/* pin: limit for differentiated cmd */
     hal_float_t *maxcmd_dd;	/* pin: limit for 2nd derivative of cmd */
+    hal_float_t *maxcmd_ddd;	/* pin: limit for 3rd derivative of cmd */
     hal_float_t *error_i;	/* opt. pin: integrated error */
     double prev_error;		/* previous error for differentiator */
     hal_float_t *error_d;	/* opt. pin: differentiated error */
@@ -183,6 +189,7 @@ typedef struct {
     double limit_state;		/* +1 or -1 if in limit, else 0.0 */
     hal_float_t *cmd_d;		/* opt. pin: differentiated command */
     hal_float_t *cmd_dd;	/* opt. pin: 2nd derivative of command */
+    hal_float_t *cmd_ddd;	/* opt. pin: 3rd derivative of command */
     hal_float_t *bias;		/* param: steady state offset */
     hal_float_t *pgain;		/* pin: proportional gain */
     hal_float_t *igain;		/* pin: integral gain */
@@ -190,6 +197,7 @@ typedef struct {
     hal_float_t *ff0gain;	/* pin: feedforward proportional */
     hal_float_t *ff1gain;	/* pin: feedforward derivative */
     hal_float_t *ff2gain;	/* pin: feedforward 2nd derivative */
+    hal_float_t *ff3gain;	/* pin: feedforward 3rd derivative */
     hal_float_t *maxoutput;	/* pin: limit for PID output */
     hal_float_t *output;	/* pin: the output value */
     hal_bit_t   *saturated;	/* pin: TRUE when the output is saturated */
@@ -298,7 +306,7 @@ void rtapi_app_exit(void)
 static void calc_pid(void *arg, long period)
 {
     hal_pid_t *pid;
-    double tmp1, tmp2, command, feedback;
+    double tmp1, tmp2, tmp3, command, feedback;
     int enable;
     double periodfp, periodrecip;
 
@@ -396,6 +404,9 @@ static void calc_pid(void *arg, long period)
 	    *(pid->cmd_d) = -*(pid->maxcmd_d);
 	}
     }
+
+    /* save old value for 3rd derivative calc later */
+    tmp3 = *(pid->cmd_dd);
     /* calculate 2nd derivative of command */
     *(pid->cmd_dd) = (*(pid->cmd_d) - tmp2) * periodrecip;
     /* apply 2nd derivative limits */
@@ -406,6 +417,17 @@ static void calc_pid(void *arg, long period)
 	    *(pid->cmd_dd) = -*(pid->maxcmd_dd);
 	}
     }
+
+    /* calculate 3rd derivative of command */
+    *(pid->cmd_ddd) = (*(pid->cmd_dd) - tmp3) * periodrecip;
+    /* apply 3rd derivative limits */
+    if (*(pid->maxcmd_ddd) != 0.0) {
+	if (*(pid->cmd_ddd) > *(pid->maxcmd_ddd)) {
+	    *(pid->cmd_ddd) = *(pid->maxcmd_ddd);
+	} else if (*(pid->cmd_ddd) < -*(pid->maxcmd_ddd)) {
+	    *(pid->cmd_ddd) = -*(pid->maxcmd_ddd);
+	}
+    }
     /* do output calcs only if enabled */
     if (enable != 0) {
 	/* calculate the output value */
@@ -413,7 +435,7 @@ static void calc_pid(void *arg, long period)
 	    *(pid->bias) + *(pid->pgain) * tmp1 + *(pid->igain) * *(pid->error_i) +
 	    *(pid->dgain) * *(pid->error_d);
 	tmp1 += command * *(pid->ff0gain) + *(pid->cmd_d) * *(pid->ff1gain) +
-	    *(pid->cmd_dd) * *(pid->ff2gain);
+	    *(pid->cmd_dd) * *(pid->ff2gain) + *(pid->cmd_ddd) * *(pid->ff3gain);
 	/* apply output limits */
 	if (*(pid->maxoutput) != 0.0) {
 	    if (tmp1 > *(pid->maxoutput)) {
@@ -549,6 +571,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_float_newf(HAL_IN, &(addr->ff3gain), comp_id,
+                "%s.FF3", prefix);
+    if (retval != 0) {
+    return retval;
+    }
     /* export pins (previously parameters) */
     retval = hal_pin_float_newf(HAL_IN, &(addr->deadband), comp_id,
 				"%s.deadband", prefix);
@@ -579,6 +606,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 				"%s.maxcmdDD", prefix);
     if (retval != 0) {
 	return retval;
+    }
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_ddd), comp_id,
+                "%s.maxcmdDDD", prefix);
+    if (retval != 0) {
+    return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->bias), comp_id,
 				"%s.bias", prefix);
@@ -622,17 +654,24 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 	if (retval != 0) {
 	    return retval;
 	}
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_ddd), comp_id,
+                    "%s.commandDDD", prefix);
+    if (retval != 0) {
+        return retval;
+    }
     } else {
 	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
 	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+	addr->cmd_ddd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
     }
 
     *(addr->error_i) = 0.0;
     *(addr->error_d) = 0.0;
     *(addr->cmd_d) = 0.0;
     *(addr->cmd_dd) = 0.0;
+    *(addr->cmd_ddd) = 0.0;
     /* init all structure members */
     *(addr->enable) = 0;
     *(addr->error_previous_target) = 1;
@@ -646,6 +685,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->maxerror_d) = 0.0;
     *(addr->maxcmd_d) = 0.0;
     *(addr->maxcmd_dd) = 0.0;
+    *(addr->maxcmd_ddd) = 0.0;
     addr->prev_error = 0.0;
     addr->prev_cmd = 0.0;
     addr->limit_state = 0.0;
@@ -656,6 +696,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->ff0gain) = 0.0;
     *(addr->ff1gain) = 0.0;
     *(addr->ff2gain) = 0.0;
+    *(addr->ff3gain) = 0.0;
     *(addr->maxoutput) = 0.0;
     /* export function for this loop */
     rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);

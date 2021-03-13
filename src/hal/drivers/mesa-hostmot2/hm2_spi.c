@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <endian.h>
 
 #include <rtapi.h>
 #include <rtapi_app.h>
@@ -71,6 +72,127 @@ static hm2_spi_t boards[MAX_BOARDS];
 static int nboards;
 static int comp_id;
 
+static char *hm2_7c80_pin_names[] = {
+	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
+	"TB07-04/TB07-05",
+	"TB08-02/TB08-03",
+	"TB08-04/TB08-05",
+	"TB09-02/TB09-03",
+	"TB09-04/TB09-05",
+	"TB10-02/TB10-03",
+	"TB10-04/TB10-05",
+	"TB11-02/TB11-03",
+	"TB11-04/TB11-05",
+	"TB12-02/TB12-03",
+	"TB12-04/TB12-05",
+	"TB03-03/TB04-04",	/* RS-422/RS-485 interface */
+	"TB03-05/TB04-06",
+	"TB03-05/TB03-06",
+	"TB04-01/TB04-02",	/* Encoder */
+	"TB04-04/TB04-05",
+	"TB04-07/TB04-08",
+	"TB05-02",		/* Spindle */
+	"TB05-02",
+	"TB05-05/TB05-06",
+	"TB05-07/TB05-08",
+	"Internal InMux0",	/* InMux */
+	"Internal InMux1",
+	"Internal InMux2",
+	"Internal InMux3",
+	"Internal InMux4",
+
+	"Internal InMuxData",
+	"TB13-01/TB13-02",	/* SSR */
+	"TB13-03/TB13-04",
+	"TB13-05/TB13-06",
+	"TB13-07/TB13-08",
+	"TB14-01/TB14-02",
+	"TB14-03/TB14-04",
+	"TB14-05/TB14-06",
+	"TB14-07/TB14-08",
+	"Internal SSR",
+	"P1-01",		/* P1 parallel expansion */
+	"P1-02",
+	"P1-03",
+	"P1-04",
+	"P1-05",
+	"P1-06",
+	"P1-07",
+	"P1-08",
+	"P1-09",
+	"P1-11",
+	"P1-13",
+	"P1-15",
+	"P1-17",
+	"P1-19",
+	"P1-21",
+	"P1-23",
+	"P1-25"
+};
+
+static char *hm2_7c81_pin_names[] = {
+	"P1-01",
+	"P1-02",
+	"P1-03",
+	"P1-04",
+	"P1-05",
+	"P1-06",
+	"P1-07",
+	"P1-08",
+	"P1-09",
+	"P1-11",
+	"P1-13",
+	"P1-15",
+	"P1-17",
+	"P1-19",
+	"P1-21",
+	"P1-23",
+	"P1-25",
+	"J5-TX0",
+	"J6-TX1",
+
+	"P2-01",
+	"P2-02",
+	"P2-03",
+	"P2-04",
+	"P2-05",
+	"P2-06",
+	"P2-07",
+	"P2-08",
+	"P2-09",
+	"P2-11",
+	"P2-13",
+	"P2-15",
+	"P2-17",
+	"P2-19",
+	"P2-21",
+	"P2-23",
+	"P2-25",
+	"J5-TXEN0",
+	"J6-TXEN1",
+
+	"P7-01",
+	"P7-02",
+	"P7-03",
+	"P7-04",
+	"P7-05",
+	"P7-06",
+	"P7-07",
+	"P7-08",
+	"P7-09",
+	"P7-11",
+	"P7-13",
+	"P7-15",
+	"P7-17",
+	"P7-19",
+	"P7-21",
+	"P7-23",
+	"P7-25",
+	"P5-RX0",
+	"P6-RX1"
+};
+
+ 
 static uint32_t read_command(uint16_t addr, unsigned nelem) {
     bool increment = true;
     return (addr << 16) | 0xA000 | (increment ? 0x800 : 0) | (nelem << 4);
@@ -89,12 +211,23 @@ static int do_pending(hm2_spi_t *this) {
     t.tx_buf = t.rx_buf = (uint64_t)(uintptr_t)this->trxbuf;
     t.len = 4 * this->nbuf;
 
+    if(this->settings.bits_per_word == 8) {
+	int i;
+	for(i=0; i<this->nbuf; i++)
+	   this->trxbuf[i] = htobe32(this->trxbuf[i]);
+    }
     int r = ioctl(this->fd, SPI_IOC_MESSAGE(1), &t);
     if(r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "hm2_spi: SPI_IOC_MESSAGE: %s\n", strerror(errno));
         this->nbuf = 0;
         return -errno;
+    }
+
+    if(this->settings.bits_per_word == 8) {
+	int i;
+	for(i=0; i<this->nbuf; i++)
+	   this->trxbuf[i] = be32toh(this->trxbuf[i]);
     }
 
     // because linux manages SPI chip select behind our backs, we can't know
@@ -124,7 +257,7 @@ static int do_pending(hm2_spi_t *this) {
 
 static int send_queued_writes(hm2_lowlevel_io_t *llio) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
@@ -150,7 +283,7 @@ static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buff
 
 static int send_queued_reads(hm2_lowlevel_io_t *llio) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
@@ -177,7 +310,7 @@ static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer,
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_write(llio, addr, buffer, size);
     if(r < 0) return r;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int do_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
@@ -203,6 +336,14 @@ static int spidev_set_bits_per_word(int fd, uint8_t bits) {
     return ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 }
 
+static int spidev_get_bits_per_word(int fd) {
+    uint8_t bits;
+    int r;
+    r = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+    if(r < 0) return -1;
+    return bits;
+}
+
 static int spidev_open_and_configure(char *dev, int rate) {
     int fd = open(dev, O_RDWR);
 
@@ -215,6 +356,7 @@ static int spidev_open_and_configure(char *dev, int rate) {
     if(r < 0) goto fail_errno;
 
     r = spidev_set_bits_per_word(fd, 32);
+    if(r < 0) r = spidev_set_bits_per_word(fd, 8);
     if(r < 0) goto fail_errno;
 
     r = spidev_set_max_speed_hz(fd, rate);
@@ -256,7 +398,7 @@ static int probe(char *dev, int rate) {
     if(board->fd < 0) return board->fd;
 
     board->settings.speed_hz = rate;
-    board->settings.bits_per_word = 32;
+    board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
 
     int r = check_cookie(board);
     if(r < 0) goto fail;
@@ -284,6 +426,25 @@ static int probe(char *dev, int rate) {
         board->llio.ioport_connector_name[2] = "P3";
         board->llio.num_leds = 2;
         board->llio.fpga_part_number = "xc6slx9tq144";
+    } else if(!memcmp(ident, "MESA7C80", 8)){
+            base = "hm2_7c80";
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 27;
+            board->llio.ioport_connector_name[0] = "Embedded I/O";
+            board->llio.ioport_connector_name[1] = "Embedded I/O + P1 expansion";
+            board->llio.io_connector_pin_names = hm2_7c80_pin_names;
+            board->llio.num_leds = 4;
+            board->llio.fpga_part_number = "xc6slx9tq144";
+    } else if(!memcmp(ident, "MESA7C81", 8)){
+            base = "hm2_7c81";
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 19;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P7";
+            board->llio.io_connector_pin_names = hm2_7c81_pin_names;
+            board->llio.num_leds = 4;
+            board->llio.fpga_part_number = "xc6slx9tq144";
     } else {
         // peter's been busy
         int i=0;

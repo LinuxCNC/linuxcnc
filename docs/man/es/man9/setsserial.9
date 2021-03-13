@@ -1,0 +1,87 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+.TH SETSERIAL "9" "2012-10-28" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+setsserial - una utilidad para configurar los parámetros de Smart Serial NVRAM.
+
+.B NOTA: esta utilidad bastante torpe ya no es necesaria, excepto para actualizar el nuevo firmware remoto smart-serial.
+Los parámetros remotos de smart-serial ahora se pueden configurar en el archivo HAL de la manera normal.
+
+.SH SINOPSIS
+.HP
+.B loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
+.SH FUNCIONES
+.TP
+Ninguna
+.SH PINES
+.TP
+Ninguna
+.SH USO
+
+loadrt setsserial cmd="{command} {parameter/device} {value/filename}"
+
+Los comandos disponibles son \fBset\fR y \fBflash\fR.
+
+Esta utilidad se debe usar en halcmd, sin LinuxCNC ejecutándose ni ejecutando hilos en tiempo real.
+
+Una secuencia de comando típica sería:
+
+ halrun
+ loadrt hostmot2 use_serial_numbers=1
+ loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
+ show param
+ loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
+ exit
+
+Este ejemplo usa la opción de tener los pines y parámetros hal etiquetados con el número de serie del remoto. Esto no es necesario, pero puede reducir el margen de confusión. (El número de serie normalmente está en una etiqueta en el dispositivo).
+
+La siguiente línea carga el controlador hm2_pci de la manera normal. El controlador hm2_7i43 debería funcionar igual de bien, al igual que cualquier otro controlador 7i80 futuro.
+Si la tarjeta ya se ha instalado y se ha cargado un firmware, entonces se puede omitir la cadena de configuración.
+
+"show param" es opcional, pero proporciona una lista práctica de todos los dispositivos y parámetros. También muestra los valores actuales de los parámetros que pueden ser útiles para determinar la escala. Los valores de pin u32 siempre se muestran en hexadecimal, pero los valores nuevos se pueden ingresar en decimal o hexadecimal. Use el formato Ox123ABC para ingresar un valor hexadecimal.
+
+La siguiente línea invoca setsserial. Esto se ejecuta de una manera un poco extraña para tener acceso a nivel de kernel a una configuración de Hostmot2 en vivo. Básicamente es un módulo HAL que siempre falla su carga. Esto puede provocar que se impriman mensajes de error en el indicador de halcmd. Estos a menudo pueden ser ignorados.
+Todos los comentarios reales son a través del comando dmesg. Se sugiere tener una segunda ventana de terminal abierta para ejecutar dmesg después de cada comando.
+
+Al salir, normalmente habrá otro mensaje de error relacionado con la falla del controlador al descargar setsserial. Esto puede ser ignorado.
+
+Los cambios de parámetros no se mostrarán hasta que se vuelvan a cargar los controladores.
+//TODO// Agregar un comando "get" para evitar este problema.
+
+.B Flasheo del Firmware
+Para actualizar el nuevo firmware a una tarjeta FPGA, como la 5i25 o 5i20, se debe utilizar la utilidad "mesaflash". setsserial solo es útil para cambiar/actualizar el firmare en un control remoto smart-serial como el 8i20.
+El firmware debe colocarse en algún lugar del árbol /lib/firmware/hm2, donde las macros de carga de firmware de Linux pueden encontrarlo.
+
+La rutina de flasheo opera en un hilo en tiempo real, y solo puede enviar mensajes al usuario a través del registro del núcleo (dmesg). Es más conveniente abrir dos ventanas de terminal, una para la entrada de comandos y otra para monitorear el progreso.
+
+En la primera terminal ingrese
+
+tail \-f /var/log/kern.log
+
+Este terminal ahora mostrará información de estado.
+
+La segunda ventana se usará para ingresar los comandos. Es importante que LinuxCNC y/o HAL no estén cargados cuando se inicia el proceso.
+Para actualizar el nuevo firmware es necesario mover un puente en la unidad remota smart-serial y cambiar la comunicación a una velocidad de transmisión más lenta.
+
+Una secuencia de comando típica es entonces:
+ halrun
+ loadrt hostmot2 sserial_baudrate=115200
+ loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
+ loadrt setsserial cmd="flash hm2_5i23.0.8i20.0.1 hm2/8i20/8i20T.BIN"
+ exit
+
+No es necesario (o útil) especificar una cadena de configuración en un sistema usando las tarjetas 5i25 o 6i25.
+
+Tenga en cuenta que es necesario salir de Halrun y descargar el entorno en tiempo real antes de flashear la próxima tarjeta (exit)
+
+El nombre de canal sserial correcto para usar se puede ver en la salida dmesg en el terminal de retroalimentación después del paso loadrt hm2_pci de la secuencia.
+
+.SH LICENCIA
+
+GPL

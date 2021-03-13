@@ -38,7 +38,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         super(StatusLabel, self).__init__(parent)
         self.display_units_mm = False
         self._textTemplate = '%s'
-        self._alt_textTemplate = 'None'
+        self._alt_textTemplate = '%s'
         self._actual_RPM = 0
         self._diameter = 1
         self._index = 0
@@ -51,7 +51,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.jograte = False
         self.jograte_angular = False
         self.jogincr = False
-        self.joginct_angle = False
+        self.jogincr_angular = False
         self.tool_number = False
         self.current_feedrate = False
         self.current_feedunit = False
@@ -68,6 +68,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.machine_state = False
         self.time_stamp = False
         self.tool_offset = False
+        self.gcode_selected = False
 
     def _hal_init(self):
         super(StatusLabel, self)._hal_init()
@@ -79,16 +80,18 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.rapid_override:
             STATUS.connect('rapid-override-changed', lambda w, data: _f(data))
         elif self.max_velocity_override:
-            STATUS.connect('max-velocity-override-changed', lambda w, data: _f(data))
+            STATUS.connect('max-velocity-override-changed', lambda w, data: self._set_max_velocity(data))
+            STATUS.connect('metric-mode-changed', self._switch_max_velocity_units)
         elif self.spindle_override:
             STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
-            STATUS.connect('jograte-changed', lambda w, data: _f(data))
+            STATUS.connect('jograte-changed', lambda w, data: self._set_jograte(data))
+            STATUS.connect('metric-mode-changed', self._switch_jog_units)
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: _f(data))
         elif self.jogincr:
             STATUS.connect('jogincrement-changed', lambda w, data, text: _f(text))
-        elif self.joginct_angle:
+        elif self.jogincr_angular:
             STATUS.connect('jogincrement-angular-changed', lambda w, data, text: _f(text))
         elif self.tool_number:
             STATUS.connect('tool-in-spindle-changed', lambda w, data: _f(data))
@@ -135,7 +138,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('periodic', self._set_timestamp)
         elif self.tool_offset:
             STATUS.connect('current-tool-offset', self._set_tool_offset_text)
-
+        elif self.gcode_selected:
+            STATUS.connect('gcode-line-selected', lambda w, line: _f(int(line)+1))
         else:
             LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -149,14 +153,20 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _set_feedrate_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
-        self._set_text(data)
+        if self.display_units_mm:
+            self._set_alt_text(data)
+        else:
+            self._set_text(data)
 
     def _set_feedunit_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
         try:
             data = (data/self._actual_RPM)
-            self._set_text(data)
+            if self.display_units_mm:
+                self._set_alt_text(data)
+            else:
+                self._set_text(data)
         except:
             self.setText('')
             return
@@ -174,6 +184,14 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
+
+    def _switch_jog_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_jograte(STATUS.get_jograte())
+
+    def _switch_max_velocity_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_max_velocity(STATUS.get_max_velocity())
 
     def _tool_info(self, data, field):
         if data.id is not -1:
@@ -250,6 +268,20 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _set_timestamp(self, w):
         self.setText(time.strftime(self._textTemplate))
 
+    def _set_jograte(self, data):
+        rate = self.conversion(data)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
+
+    def _set_max_velocity(self, data):
+        rate = self.conversion(data)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -260,12 +292,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     def _toggle_properties(self, picked):
         data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
-                'jograte_angular', 'jogincr', 'joginct_angle', 'tool_number',
+                'jograte_angular', 'jogincr', 'jogincr_angular', 'tool_number',
                 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
-                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset')
+                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset',
+                'gcode_selected')
 
         for i in data:
             if not i == picked:
@@ -384,15 +417,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_jogincr(self):
         self.jogincr = False
 
-    # joginct_angle status
-    def set_joginct_angle(self, data):
-        self.joginct_angle = data
+    # jogincr_angular status
+    def set_jogincr_angular(self, data):
+        self.jogincr_angular = data
         if data:
-            self._toggle_properties('joginct_angle')
-    def get_joginct_angle(self):
-        return self.joginct_angle
-    def reset_joginct_angle(self):
-        self.joginct_angle = False
+            self._toggle_properties('jogincr_angular')
+    def get_jogincr_angular(self):
+        return self.jogincr_angular
+    def reset_jogincr_angular(self):
+        self.jogincr_angular = False
 
     # tool number status
     def set_tool_number(self, data):
@@ -561,6 +594,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_state_label_l(self):
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
 
+    # gcode line selected
+    def set_gcode_selected(self, data):
+        self.gcode_selected = data
+        if data:
+            self._toggle_properties('gcode_selected')
+    def get_gcode_selected(self):
+        return self.gcode_selected
+    def reset_gcode_selected(self):
+        self.gcode_selected = False
 
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
@@ -574,7 +616,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)
     jograte_angular_status = QtCore.pyqtProperty(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
-    joginct_angle_status = QtCore.pyqtProperty(bool, get_joginct_angle, set_joginct_angle, reset_joginct_angle)
+    jogincr_angular_status = QtCore.pyqtProperty(bool, get_jogincr_angular, set_jogincr_angular, reset_jogincr_angular)
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
                                                   reset_current_feedrate)
     current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
@@ -589,7 +631,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
     tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
     tool_offset_status = QtCore.pyqtProperty(bool, get_tool_offset, set_tool_offset, reset_tool_offset)
-
+    gcode_selected_status = QtCore.pyqtProperty(bool, get_gcode_selected, set_gcode_selected, reset_gcode_selected)
     actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
     filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,

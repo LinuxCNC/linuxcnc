@@ -1,0 +1,87 @@
+.\" Copyright (c) 2014 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.	
+.TH HM2_SPI "9" "2008-05-13" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NOMBRE
+
+hm2_spi\- Controlador HAL LinuxCNC para las tarjetas Mesa Electronics SPI Anything IO, con firmware HostMot2.
+.SH SINOPSIS
+
+.HP
+.B loadrt hm2_spi [config = \fI "str [, str ...]" \fB] [spidev_path = ruta [, ruta ...] \fB] [spidev_rate = \fIrate [, rate ...] \fB ]
+.RS 4
+.TP
+\fBconfig\fR [predeterminado: ""]
+Cadenas de configuración de HostMot2, descritas en la página de manual de hostmot2 (9).
+.TP
+\fBspidev_path\fR [predeterminado: "/dev/spidev1.0"]
+La ruta al nodo del dispositivo spi, un dispositivo especial de caracteres en / dev
+.TP
+\fBspidev_rate\fR [predeterminado: 24000]
+La velocidad deseada del reloj SPI en kHz. Si el reloj exacto especificado no es
+disponible, se usa un reloj inferior. Debido a las deficiencias en la API spidev, es
+Hal no puede informar el reloj real utilizado.
+.SH DESCRIPCIÓN
+
+hm2_spi es un controlador de dispositivo que interactúa con el SPI de Mesa
+Basó cualquier tarjeta de E / S (con el firmware HostMot2) en LinuxCNC
+HAL
+
+Las tarjetas compatibles son: 7I90HD.
+
+La tarjeta debe tener un firmware compatible cargado en la tarjeta por el
+programa mesaflash (1).
+
+hm2_spi solo está disponible cuando linuxcnc está configurado con "uspace" en tiempo real.
+
+.SH CONFIGURACIÓN DE INTERFAZ
+
+Es posible que un bus SPI conecte varios dispositivos; en esto
+configuración, un dispositivo maestro tiene varias líneas de selección de chip. Con el fin de satisfacer
+fechas límite en tiempo real, hm2_spi debe usarse en una interfaz SPI dedicada, no
+compartido con otros esclavos.
+
+.SH RENDIMIENTO EN TIEMPO REAL DE LOS CONDUCTORES LINUX SPIDEV
+
+A partir del kernel 3.8, la mayoría o todos los controladores SPI del kernel no alcanzan el alto
+tasa de respuesta en tiempo real requerida para una configuración típica de linuxcnc. los
+el controlador se probó con una versión modificada del controlador spi\-s3c64xx SPI en el
+Plataforma Odroid U3. El núcleo parcheado reside
+.UR https://github.com/jepler/odroid\-linux/tree/odroid\-3.8.13\-rt
+en github
+.UE .
+
+.SH TARIFAS DE RELOJ SPI
+El reloj SPI máximo del 7i90 está documentado como 50MHz. Otros elementos de
+La ruta de datos entre HAL y el 7i90 puede imponer otras limitaciones.
+
+.SH VER TAMBIÉN
+
+hostmot2 (9)
+.SH LICENCIA
+
+GPL

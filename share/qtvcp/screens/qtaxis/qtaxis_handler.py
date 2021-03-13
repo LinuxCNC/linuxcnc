@@ -6,9 +6,12 @@ import os
 import linuxcnc
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
+from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -29,6 +32,8 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+TOOLBAR = ToolBarActions()
+STYLEEDITOR  = SSE()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -44,26 +49,54 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
-        self.STYLEEDITOR = SSE(widgets,paths)
-        global TOOLBAR
-        TOOLBAR = ToolBarActions(widgets)
+
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
+        STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
 
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
+
+    def class_patch__(self):
+        GCODE.exitCall = self.editor_exit
 
     # at this point:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        KEYBIND.add_call('Key_QuoteLeft','on_keycall_feedoverride',0)
+        KEYBIND.add_call('Key_1','on_keycall_feedoverride',10)
+        KEYBIND.add_call('Key_2','on_keycall_feedoverride',20)
+        KEYBIND.add_call('Key_3','on_keycall_feedoverride',30)
+        KEYBIND.add_call('Key_4','on_keycall_feedoverride',40)
+        KEYBIND.add_call('Key_5','on_keycall_feedoverride',50)
+        KEYBIND.add_call('Key_6','on_keycall_feedoverride',60)
+        KEYBIND.add_call('Key_7','on_keycall_feedoverride',70)
+        KEYBIND.add_call('Key_8','on_keycall_feedoverride',80)
+        KEYBIND.add_call('Key_9','on_keycall_feedoverride',90)
+        KEYBIND.add_call('Key_0','on_keycall_feedoverride',100)
+
+        #KEYBIND.add_call('Key_AsciiTilde','on_keycall_spindleoverride',0)
+        #KEYBIND.add_call('Key_Exclam','on_keycall_spindleoverride',10)
+        #KEYBIND.add_call('Key_At','on_keycall_spindleoverride',20)
+        #KEYBIND.add_call('Key_NumberSign','on_keycall_spindleoverride',30)
+        #KEYBIND.add_call('Key_DollarSign','on_keycall_spindleoverride',40)
+        #KEYBIND.add_call('Key_Percent','on_keycall_spindleoverride',50)
+        KEYBIND.add_call('Key_AsciiCircum','on_keycall_spindleoverride',60)
+        KEYBIND.add_call('Key_Ampersand','on_keycall_spindleoverride',70)
+        KEYBIND.add_call('Key_Asterisk','on_keycall_spindleoverride',80)
+        KEYBIND.add_call('Key_Parenleft','on_keycall_spindleoverride',90)
+        KEYBIND.add_call('Key_ParenRight','on_keycall_spindleoverride',100)
+        KEYBIND.add_call('Key_Underscore','on_keycall_spindleoverride',110)
+
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
         TOOLBAR.configure_submenu(self.w.menuZeroCoordinateSystem, 'zero_systems_submenu')
+        TOOLBAR.configure_submenu(self.w.menuGridSize, 'grid_size_submenu')
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
         TOOLBAR.configure_action(self.w.actionMachineOn, 'power')
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
@@ -81,6 +114,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
+        TOOLBAR.configure_action(self.w.actionShowOffsets, 'show_offsets')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
         TOOLBAR.configure_action(self.w.actionShutdown, 'system_shutdown')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
@@ -96,8 +130,19 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
+        TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
+        TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
+        TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
+        TOOLBAR.configure_action(self.w.actionShow_G53_in_DRO,'', self.g53_in_dro_changed)
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
+        TOOLBAR.configure_action(self.w.actionVersaProbe,'', self.launch_versa_probe)
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
+        if not INFO.HOME_ALL_FLAG:
+            self.w.actionButton_home.setText("Home Selected")
+            self.w.actionButton_home.set_home_select(True)
+        self.make_corner_widgets()
+        self.make_progressbar()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -118,15 +163,14 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, GCODE):
-                    flag = False
+                    flag = True
                     break
                 receiver2 = receiver2.parent()
-
             if flag:
                 if isinstance(receiver2, GCODE):
-                    # if in manual do our keybindings - otherwise
-                    # send events to gcode widget
-                    if STATUS.is_man_mode() == False:
+                    # send events to gcode widget if in edit mode
+                    # else do our keybindings
+                    if self.w.actionEdit.isChecked() == True:
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
@@ -139,15 +183,12 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            LOG.debug('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        if event.isAutoRepeat():return True
+
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     def closing_cleanup__(self):
         TOOLBAR.saveRecentPaths()
@@ -158,15 +199,15 @@ class HandlerClass:
 
     # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
-        num = message['RETURN']
-        code = bool(message['ID'] == 'FORM__')
-        name = bool(message['NAME'] == 'ENTRY')
+        num = message.get('RETURN')
+        code = bool(message.get('ID') == 'FORM__')
+        name = bool(message.get('NAME') == 'ENTRY')
         if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
             fixture = message['FIXTURE']
             ACTION.SET_TOOL_OFFSET(axis,num,fixture)
-            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+            ACTION.UPDATE_MACHINE_LOG('Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
 
     def motion_mode(self, w, mode):
         #print STATUS.stat.joints
@@ -174,29 +215,44 @@ class HandlerClass:
         #print INFO.AVAILABLE_AXES
         #print INFO.GET_NAME_FROM_JOINT
         if mode == linuxcnc.TRAJ_MODE_COORD:
-            print 'Mode Coordinate'
+            pass
         # Joint mode
         elif mode == linuxcnc.TRAJ_MODE_FREE:
             if STATUS.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                 self.show_axes()
             else:
-                print 'Mode Free'
                 self.show_joints()
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
-            print 'Mode Teleop'
             self.show_axes()
+
+    def update_spindle(self,w,data):
+        self.w.rpm_bar.setInvertedAppearance(bool(data<0))
+        self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
+        self.w.rpm_bar.setValue(abs(data))
 
     #######################
     # callbacks from form #
     #######################
 
-    def tool_offset_clicked(self):
-        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        axis = conversion[STATUS.get_selected_joint()]
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':axis,
-            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Axis {} Tool Offset'.format(axis)}
-        STATUS.emit('dialog-request', mess)
-        LOG.debug('message sent:{}'.format (mess))
+    def leftTabChanged(self, num):
+        if num == 0:
+            ACTION.SET_MANUAL_MODE()
+
+    def percentLoaded(self, fraction):
+        if fraction <0:
+            self.w.progressbar.setValue(0)
+            self.w.progressbar.setFormat('Progress')
+        else:
+            self.w.progressbar.setValue(fraction)
+            self.w.progressbar.setFormat('Loading: {}%'.format(fraction))
+
+    def percentCompleted(self, fraction):
+        self.w.progressbar.setValue(fraction)
+        if fraction <0:
+            self.w.progressbar.setValue(0)
+            self.w.progressbar.setFormat('Progress')
+        else:
+            self.w.progressbar.setFormat('Completed: {}%'.format(fraction))
 
     #####################
     # general functions #
@@ -238,15 +294,29 @@ class HandlerClass:
             self.w['dro_label_g5x_%s'%i].imperial_template = unit + i.upper() + '%9.4f'
             self.w['dro_label_g5x_%s'%i].metric_template = unit + i.upper() + '%10.3f'
             self.w['dro_label_g5x_%s'%i].update_units()
+            self.w['dro_label_g53_%s'%i].imperial_template = i.upper() + '%9.4f'
+            self.w['dro_label_g53_%s'%i].metric_template = i.upper() + '%10.3f'
+            self.w['dro_label_g53_%s'%i].update_units()
         self.w.dro_label_g5x_r.angular_template = unit + 'R      %3.2f'
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
+    def editor_exit(self):
+        self.w.gcode_editor.exit()
+        self.w.actionEdit.setChecked(False)
+        self.edit(None,False)
+
     def edit(self, widget, state):
         if state:
             self.w.gcode_editor.editMode()
+            self.w.gcode_editor.setMaximumHeight(1000)
+            self.w.frame.hide()
+            self.w.rightTab.hide()
         else:
             self.w.gcode_editor.readOnlyMode()
+            self.w.gcode_editor.setMaximumHeight(500)
+            self.w.frame.show()
+            self.w.rightTab.show()
 
     def quick_reference(self):
         help1 = [
@@ -351,7 +421,7 @@ class HandlerClass:
         retval = msg.exec_()
 
     def launch_log_dialog(self):
-        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
+        ACTION.CALL_DIALOG({'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
@@ -370,6 +440,55 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             ACTION.JOG(joint, 0, 0, 0)
+
+    # add spindle speed bar and at-speed led to tab corner
+    # add a tool number to tab corner
+    def make_corner_widgets(self):
+        # make a spindle-at-speed green LED
+        self.w.led = LED()
+        self.w.led.setProperty('is_spindle_at_speed_status',True)
+        self.w.led.setProperty('color',QColor(0,255,0,255))
+        self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')
+
+        # make a spindle speed bar
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+
+        # containers
+        w = QtWidgets.QWidget()
+        w.setContentsMargins(0,0,0,6)
+        w.setMinimumHeight(40)
+
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self.w.rpm_bar)
+        hbox.addWidget(self.w.led)
+        w.setLayout(hbox)
+
+        # add those to the corner of the right tab widget
+        self.w.rightTab.setCornerWidget(w)
+
+        # add tool number status to left tab corner
+        self.w.tool_stat = TOOLSTAT()
+        self.w.tool_stat.setProperty('tool_number_status', True)
+        self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
+        self.w.tool_stat.hal_init()
+        self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.w.tool_stat.setFixedWidth(60)
+        self.w.leftTab.setCornerWidget(self.w.tool_stat)
+
+    def make_progressbar(self):
+        self.w.progressbar = QtWidgets.QProgressBar()
+        self.w.progressbar.setRange(0,100)
+        self.w.statusbar.addWidget(self.w.progressbar)
+
+    def g53_in_dro_changed(self, w, data):
+        if data:
+            self.w.widget_dro_g53.show()
+        else:
+            self.w.widget_dro_g53.hide()
+
+    def launch_versa_probe(self, w):
+        STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
 
     #####################
     # KEY BINDING CALLS #
@@ -393,7 +512,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
@@ -424,7 +543,15 @@ class HandlerClass:
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR .load_dialog()
+
+    def on_keycall_feedoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_FEED_RATE(value)
+
+    def on_keycall_spindleoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_SPINDLE_RATE(value)
 
     ###########################
     # **** closing event **** #

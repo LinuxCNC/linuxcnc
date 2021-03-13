@@ -85,7 +85,8 @@ These pins, parameters, and functions are created by the realtime
      (float, in) When adaptive feed is enabled with 'M52 P1' , the
     commanded velocity is multiplied by this value. This effect is
      multiplicative with the NML-level feed override value and
-    'motion.feed-hold'.
+    'motion.feed-hold'. As of version 2.8 of LinuxCNC it is possible to
+    use a negative adaptive feed value to run the G-code path in reverse.
 
 * 'motion.analog-in-00' - 
      (float, in) These pins (00, 01, 02, 03 or more if configured) are

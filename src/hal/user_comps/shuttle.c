@@ -75,6 +75,13 @@ contour_dev_t contour_dev[] = {
         .product_id = 0x0240,
         .num_buttons = 13,
         .button_mask = { 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x1000 }
+    },
+    {
+        .name = "shuttleproV2",
+        .vendor_id = 0x0b33,
+        .product_id = 0x0030,
+        .num_buttons = 13,
+        .button_mask = { 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200, 0x0400, 0x0800, 0x1000 }
     }
 };
 
@@ -243,22 +250,22 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
     }
 
     for (int i = 0; i < s->contour_type->num_buttons; i ++) {
-        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button[i]), hal_comp_id, "%s.%d.button-%d", s->contour_type->name, num_devices, i);
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button[i]), hal_comp_id, "%s.%d.button-%d", modname, num_devices, i);
         if (r != 0) goto fail1;
         *s->hal->button[i] = 0;
 
-        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_not[i]), hal_comp_id, "%s.%d.button-%d-not", s->contour_type->name, num_devices, i);
+        r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_not[i]), hal_comp_id, "%s.%d.button-%d-not", modname, num_devices, i);
         if (r != 0) goto fail1;
         *s->hal->button_not[i] = 1;
     }
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", s->contour_type->name, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", s->contour_type->name, num_devices);
+    r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", s->contour_type->name, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", modname, num_devices);
     if (r != 0) goto fail1;
 
     *s->hal->counts = 0;

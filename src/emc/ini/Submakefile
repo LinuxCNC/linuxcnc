@@ -4,3 +4,11 @@ $(patsubst ./emc/ini/%,../include/%,$(wildcard ./emc/ini/*.h)): ../include/%.h: 
 	cp $^ $@
 $(patsubst ./emc/ini/%,../include/%,$(wildcard ./emc/ini/*.hh)): ../include/%.hh: ./emc/ini/%.hh
 	cp $^ $@
+
+../bin/update_ini: emc/ini/update_ini.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYTARGETS += ../bin/update_ini

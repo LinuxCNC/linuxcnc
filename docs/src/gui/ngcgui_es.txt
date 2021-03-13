@@ -1,0 +1,757 @@
+﻿[[cha:ngcgui]]
+
+= NGCGUI
+
+.NGCGUI incrustado en Axis
+image::images/ngcgui.png[align="center"]
+
+== Descripción general
+
+* 'NGCGUI' es una aplicación Tcl para trabajar con subrutinas. Permite
+  tener una interfaz conversacional con LinuxCNC. Puede organizar las
+  subrutinas en el orden en que las necesite para ejecutarlas y concatenarlas
+  en un archivo para completar un programa.
+* 'NGCGUI' puede ejecutarse como una aplicación independiente o puede integrarse en
+   múltiples páginas de pestañas en la GUI Axis
+* 'PYNGCGUI' es una implementación Python alternativa de ngcgui.
+* 'PYNGCGUI' puede ejecutarse como una aplicación independiente o puede integrarse     como una página de pestañas (con su propio conjunto de múltiples pestañas de subrutinas) en cualquier GUI que admita incrustación de aplicaciones; gladevcp axis, touchy, gscreen y gmoccapy.
+
+Usando NGCGUI o PYNGCGUI:
+
+* Se proporcionan pestañas para cada subrutina especificada en el archivo INI
+* Se pueden agregar nuevas pestañas de subrutinas sobre la marcha usando
+  <<ngcgui-ini,pestañas personalizadas>>
+* Cada pestaña de subrutina proporciona cuadros de entrada para todos los parámetros de la subrutina
+* Los cuadros de entrada pueden tener un valor predeterminado y una etiqueta que
+  se identifican por comentarios especiales en el archivo de subrutina
+* Las invocaciones de subrutina se pueden concatenar juntas para formar un  programa de múltiples pasos
+* Se puede usar cualquier subrutina de código G de un solo archivo que se ajuste a las convenciones ngcgui
+* Se pueden usar cualquier programa gcmc (G code-meta-compiler) que se ajuste a las convenciones ngcgui para etiquetar variables (el ejecutable gcmc debe estar instalado por separado, ver: http://www.vagrearg.org/content/gcmc)
+
+[NOTE]
+NGCGUI y PYNGCGUI implementan las mismas funciones y ambas procesan archivos .ngc y .gcmc que se ajusten a algunas convenciones específicas de ngcgui. En este documento, el término 'NGCGUI' generalmente se refiere a cualquier aplicación.
+
+== Configuraciones de demostración
+
+Varias configuraciones de demostración se encuentran en el directorio sim
+de configuraciones de muestra que ofrece el selector de configuración LinuxCNC. El selector de configuración está en el menú principal del sistema:
+
+ CNC> LinuxCNC
+
+Se incluyen ejemplos para Axis, touchy, gscreen y gmoccapy.
+Estos ejemplos muestran configuraciones cartesianas de 3 ejes (XYZ) (como fresadoras) y configuraciones de torno (XZ). Algunos ejemplos muestran el uso de un
+teclado emergente para sistemas de pantalla táctil y otros ejemplos muestran el uso de archivos creados por la aplicación gcmc.
+Los ejemplos de touchy también muestran la incorporación de un visor de backplot gladevcp (gremlin_view).
+
+La aplicación más simple se encuentra como:
+ 
+ Configuraciones de muestra/sim/axis/ngcgui/ngcgui_simple
+
+Un ejemplo completo que muestra la compatibilidad con gcmc está en:
+
+ Configuraciones de muestra/sim/axis/ngcgui/ngcgui_gcmc
+
+Un ejemplo completo integrado como una aplicación gladevcp y usando gcmc está en:
+
+ Configuraciones de muestra/sim/gscreen/ngcgui/pyngcgui_gcmc
+
+
+Las configuraciones sim de ejemplo utilizan archivos de biblioteca que proporcionan
+ejemplo de archivos de subrutina de código G (.ngc) y archivos de metacompilador de código G (.gcmc):
+
+* 'nc_files/ngcgui_lib'
+** 'arc1.ngc' - arco básico con compensación del radio del cortador
+** 'arc2.ngc' - arco dado por centro, offset, ancho, ángulo (llama a arc1)
+** 'backlash.ngc' - rutina para medir el backlash de eje con un indicador
+** 'db25.ngc': crea un recorte de conector DB25
+** 'gosper.ngc' - una demostración de recursión (Flownake)
+** 'helix.ngc' -  corte de hélice o con agujero en D
+** 'helix_rtheta.ngc' - hélice o agujero en D colocado por radio y ángulo
+** 'hole_circle.ngc' - agujeros igualmente espaciados en un círculo
+** 'ihex.ngc' - hexágono interno
+** 'iquad.ngc' - cuadrilátero interno
+** 'ohex.ngc' - fuera del hexágono
+** 'oquad.ngc' - cuadrilátero exterior
+** 'qpex_mm.ngc' - demostración de qpockets (basado en mm)
+** 'qpex.ngc' - demostración de qpockets (basado en pulgadas)
+** 'qpocket.ngc' - bolsillo cuadrilátero
+** 'rectangle_probe.ngc' - sondea un área rectangular
+** 'simp.ngc' - un ejemplo de subrutina simple que crea dos círculos
+** 'slot.ngc' - ranura desde la conexión de dos puntos finales
+** 'xyz.ngc' - ejercitador de máquina limitado a una forma de caja
+
+* 'nc_files/ngcgui_lib/lathe'
+** 'g76base.ngc' - interfaz gráfica de usuario para g76 threading
+** 'g76diam.ngc' - subprocesos especificados por diámetros mayores y menores
+** 'id.ngc' - perfora el diámetro interior
+** 'od.ngc' - gira el diámetro exterior
+** 'taper-od.ngc' - gira un cono en el diámetro exterior
+
+* 'nc_files/gcmc_lib'
+** 'drill.gcmc': perfora agujeros en el patrón rectangular
+** 'square.gcmc': demostración simple de etiquetas variables para archivos gcmc
+** 'star.gcmc': demostración de gcmc que ilustra funciones y matrices
+** 'wheels.gcmc': demostración de gcmc de patrones complejos
+
+Para probar una demostración, seleccione una configuración sim y comience linuxCNC.
+
+Si utiliza la interfaz gráfica de usuario Axis, presione 'E-Stop'
+image:images/tool_estop.png[] luego 'Encender Máquina'
+image:images/tool_power.png[] luego 'Home Todo'. Elija una pestaña ngcgui, complete
+cualquier espacio en blanco vacío con valores razonables y presione
+'Crear función' y luego 'Finalizar'. Finalmente presione 'Ejecutar'
+image:images/tool_run.png[] para ver cómo se ejecuta. Experimentar
+creando múltiples características y características de diferentes páginas de pestañas.
+
+Para crear varias subrutinas concatenadas en un solo archivo, vaya a cada pestaña
+complete los espacios en blanco, presione 'Crear función' y luego, con las teclas de flecha, mueva las pestañas necesarias para ponerlas en orden. Ahora presione 'Finalizar' y responda el mensaje para crear.
+
+Otras guis tendrán una funcionalidad similar pero los botones y nombres pueden ser diferentes.
+
+.Notas
+[NOTE]
+===============================
+Las configuraciones de demostración crean páginas con pestañas solo para algunos ejemplos. Cualquier interfaz gráfica de usuario con una <<ngcgui-ini,pestaña personalizada>> puede abrir cualquiera de las subrutinas de bibliotecas de ejemplo o cualquier archivo de usuario si está en el path de la subrutina linuxCNC.
+
+Para ver las combinaciones de teclas especiales, haga clic dentro de una página de pestaña ngcgui para obtener foco y luego presione Control-k.
+
+Las subrutinas de demostración deben ejecutarse en configuraciones de máquina simuladas incluidas en la distribución. El usuario siempre debe comprender el comportamiento y el propósito de un programa antes de correrlos en una máquina real.
+===============================
+
+== Ubicaciones de la biblioteca
+
+En las instalaciones de linuxCNC desde paquetes deb, las configuraciones de simulación ngcgui usan enlaces simbólicos a bibliotecas LinuxCNC que no se pueden escribir por el usuario para:
+
+* 'nc_files/ngcgui_lib' subfiles compatibles con ngcgui
+* 'nc_files/ngcgui_lib/lathe' subfiles de torno compatibles con ngcgui
+* 'nc_files/gcmc_lib' programas compatibles con ngcgui-gcmc
+* 'nc_files/ngcgui_lib/utilitysubs' Subrutinas de ayuda
+* 'nc_files/ngcgui_lib/mfiles' Archivos M de usuario
+
+Estas bibliotecas están ubicadas por elementos de archivo ini que especifican las rutas de búsqueda utilizadas por linuxCNC (y ngcgui):
+
+----
+[RS274NGC]
+SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles
+----
+
+[NOTE]
+Estas son líneas largas (no continúan en varias líneas) que especifican los directorios utilizados en un path de búsqueda. Los nombres de directorio están separados por dos puntos (:). No hay espacio entre los nombres de directorio.
+
+Un usuario puede crear nuevos directorios para sus propias subrutinas y
+M-files y agréguelos a la(s) ruta(s) de búsqueda.
+
+Por ejemplo, un usuario podría crear directorios desde la terminal con los comandos:
+----
+mkdir /home/myusername/mysubs
+mkdir /home/myusername/mymfiles
+----
+
+Y luego crear o copiar los archivos proporcionados por el sistema a estos directorios que el usuario puede escribir. Por ejemplo, un usuario puede crear un subfile compatible con ngcgui llamado:
+
+----
+/home/myusername/mysubs/example.ngc
+----
+
+Para usar archivos en nuevos directorios, el archivo ini debe editarse para incluir los nuevos subarchivos y para aumentar la(s) ruta(s) de búsqueda. Para este ejemplo:
+
+----
+[RS274NGC]
+...
+SUBROUTINE_PATH = /home/myusername/mysubs:../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs
+USER_M_PATH = /home/myusername/mymfiles:../../nc_files/ngcgui_lib/mfiles
+
+[DISPLAY]
+...
+NGCGUI_SUBFILE = example.ngc
+...
+----
+
+LinuxCNC (y ngcgui) usan el primer archivo encontrado al buscar en directorios en la ruta de búsqueda. Con este comportamiento, puede reemplazar un subfile ngcgui_lib colocando un subfile con un nombre idéntico en un directorio que se encuentre anteriormente en la ruta de busqueda. Se puede encontrar más información en el capítulo INI del Manual de integradores.
+
+
+== Uso independiente
+=== NGCGUI independiente
+Para su uso, escriba un terminal:
+----
+ngcgui --help
+Uso:
+  ngcgui --help | -?
+  ngcgui [Opciones] -D nc_files_directory_name
+  ngcgui [Opciones] -i LinuxCNC_inifile_name
+  ngcgui [Opciones]
+
+  Opciones:
+       [-S subrutina_archivo]
+       [-p preámbulo]
+       [-P archivo_epílogo]
+       [-o archivo_salida]
+       [-a autosend_file]            (autosend al eje predeterminado: auto.ngc)
+       [--noauto]                    (sin autosend al eje)
+       [-N | --nom2]                 (sin terminador m2 (use%))
+       [--font [big|small|fontspec]] (predeterminado: "Helvetica -10 normal")
+       [--horiz | --vert]            (predeterminado: --horiz)
+       [--cwidth comment_width]      (ancho del campo de comentario)
+       [--vwidth varname_width]      (ancho del campo varname)
+       [--quiet]                     (menos comentarios en outfile)
+       [--noiframe]                  (predeterminado: el cuadro muestra la imagen)
+----
+[NOTE]
+Como aplicación independiente, ngcgui maneja un único archivo de subrutina que
+se puede invocar varias veces. Se puede iniciar múltiples aplicaciones ngcgui independientes.
+
+=== PYNGCGUI independiente
+Para su uso, escriba en un terminal:
+----
+pyngcgui --help
+Uso:
+pyngcgui [Opciones] [sub_archivo]
+Opciones que requieren valores:
+    [-d | --demo] [0|1|2] (0: demo de nivel superior independiente)
+                          (1: DEMO incrustar nuevo cuaderno)
+                          (2: DEMO incrustado en el cuaderno existente)
+    [-S | --subfile sub_filename]
+    [-p | - preamble preamble_filename]
+    [-P | --postamble postamble_filename]
+    [-i | --ini nombre_infiltro]
+    [-a | --autofile auto_filename]
+    [-t | --test testno]
+    [-K | --keyboardfile glade_file] (use el archivo glade popupkeyboard personalizado)
+Opciones solas:
+    [-v | --verbose]
+    [-D | --debug]
+    [-N | --nom2] (sin terminador m2 (use%))
+    [-n | --noauto] (guardar pero no enviar resultados automáticamente)
+    [-k | --keyboard] (use popupkeybaord predeterminado)
+    [-s | --sendtoaxis] (envía el archivo ngc generado a la gui axis)
+Notas:
+      Un conjunto de archivos se compone de un preámbulo, subarchivo y epílogo.
+      El preámbulo y el epílogo son opcionales.
+      Se puede especificar un conjunto de archivos desde cmdline.
+      Se pueden especificar múltiples conjuntos de archivos desde un inifile.
+      Si --ini NO se especifica:
+         busque un linuxCNC en ejecución y use su inifile
+----
+    
+[NOTE]
+Como aplicación independiente, pyngcgui puede leer un archivo ini (o una aplicación linuxCNC ejecutandose) para crear páginas con pestañas para múltiples subarchivos.
+
+== Incrustar NGCGUI
+=== Incrustar NGCGUI en Axis
+Los siguientes elementos del archivo INI van en la sección [DISPLAY]. (Ver a continuación secciones adicionales para items adicionales necesarios)
+
+* 'TKPKG = Ngcgui 1.0' - el paquete NGCGUI
+* 'TKPKG = Ngcguittt 1.0': el paquete True Type Tracer para generar texto
+   para grabar (opcional, debe seguir TKPKG = Ngcgui).
+* 'TTT = truetype-tracer': nombre del programa truetype tracer (debe estar en la RUTA del usuario)
+* 'TTT_PREAMBLE = in_std.ngc' - Opcional, especifica el nombre del archivo para el preámbulo utilizado para subfiles ttt creados. (alternativo: mm_std.ngc)
+
+[NOTE]
+Los elementos opcionales del trazador truetype se utilizan para especificar una página de pestaña compatible con ngcgui que usa la aplicación truetype-tracer. La aplicación truetype-tracer debe ser instalada de forma independiente y ubicada en la RUTA del usuario.
+ 
+=== Incrustar PYNGCGUI como una pestaña gladevcp en una GUI
+Los siguientes elementos del archivo INI van en la sección [DISPLAY] para usar con Axis, gscreen o touchy. (Consulte las secciones adicionales a continuación para obtener información adicional)
+
+.Items EMBED_
+....
+EMBED_TAB_NAME = Pyngcgui - nombre que aparecerá en la pestaña incrustada
+EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui - invoca gladevcp
+EMBED_TAB_LOCATION = nombre_de_ubicación - donde se encuentra la página incrustada
+....
+
+[NOTE]
+El especificador EMBED_TAB_LOCATION no se usa para la GUI Axis. Mientras
+Pyngcgui se puede incrustar en Axis, la integración es más completa cuando se usa
+ngcgui (usando TKPKG = Ngcgui 1.0). Para especificar EMBED_TAB_LOCATION para otras guis, vea <<sec:display-section,Sección DISPLAY>> del Capítulo de configuración INI
+.
+
+[NOTE]
+  La gui front-end truetype tracer no está disponible actualmente para aplicaciones gladevcp.
+
+[[ngcgui-ini]]
+=== Items adicionales del archivo INI necesarios para ngcgui o pyngcgui
+Los siguientes elementos del archivo INI van en la sección [DISPLAY] para cualquier gui  que incorpore ngcgui o pyngcgui.
+
+* 'NGCGUI_FONT = Helvetica -12 normal' - especifica el nombre de la fuente, tamaño, normal|negrita
+* 'NGCGUI_PREAMBLE = in_std.ngc': el archivo de preámbulo que se agregará delante del subrutinas. Al concatenar varias invocaciones de subrutinas comunes, este preámbulo solo se agrega una vez. Para máquinas basadas en mm, use mm_std.ngc
+* 'NGCGUI_SUBFILE = filename1.ngc' - crea una pestaña a partir de la subrutina filename1
+* 'NGCGUI_SUBFILE = filename2.ngc' - crea una pestaña a partir de la subrutina filename2
+* '... etc.'
+* 'NGCGUI_SUBFILE = gcmcname1.gcmc' - crea una pestaña desde el archivo gcmcname1
+* 'NGCGUI_SUBFILE = gcmcname2.gcmc' - crea una pestaña desde el archivo gcmcname2
+* '... etc.'
+* 'NGCGUI_SUBFILE = ""' - crea una pestaña personalizada que puede abrir cualquier subrutina en la ruta de búsqueda
+* 'NGCGUI_OPTIONS = opt1 opt2 ...' - Opciones de NGCGUI
+** 'nonew' - no permitir hacer una nueva pestaña personalizada
+** 'noremove' - no permitir eliminar ninguna pestaña
+** 'noauto' - sin envío automático (use makeFile, luego guarde o envíe manualmente)
+** 'noiframe' - sin imagen interna, muestra imágenes en un widget de nivel superior separado
+** 'nom2' - Esta opción elimina todos los efectos secundarios de la terminación m2
+* 'GCMC_INCLUDE_PATH = dirname1:dirname2' - busca directorios para archivos include de gcmc
+Este es un ejemplo de NGCGUI incrustado en Axis. Las subrutinas deben estar en un directorio especificado por [RS274NGC]SUBROUTINE_PATH. En algun ejemplo las subrutinas usan otras subrutinas, así que asegúrese de tener las dependencias, si las hay, en un directorio SUBROUTINE_PATH. Algunas subrutinas pueden usar archivos M personalizados que deben estar en un directorio especificado por [RS274NGC]USER_M_PATH.
+
+Gcode-meta-compiler (gcmc) puede incluir declaraciones como:
+  include ("filename.inc.gcmc");
+Por defecto, gcmc incluye el directorio actual que, para linuxCNC, será
+el directorio que contiene el archivo ini linuxCNC. Directorios adicionales pueden ser antepuestos al orden de búsqueda de gcmc con el elemento GCMC_INCLUDE_PATH.
+
+.Muestra de INI basado en GUI Axis.
+----
+[RS274NGC]
+...
+SUBROUTINE_PATH   = ../../nc_files/ngcgui_lib:../../ngcgui_lib/utilitysubs
+USER_M_PATH       = ../../nc_files/ngcgui_lib/mfiles
+
+[DISPLAY]
+TKPKG             = Ngcgui    1.0
+TKPKG             = Ngcguittt 1.0
+# Ngcgui debe preceder a Ngcguittt
+NGCGUI_FONT       = Helvetica -12 normal
+# especificar solo nombres de archivo, los archivos deben estar en [RS274NGC]SUBROUTINE_PATH
+NGCGUI_PREAMBLE   = in_std.ngc
+NGCGUI_SUBFILE    = simp.ngc
+NGCGUI_SUBFILE    = xyz.ngc
+NGCGUI_SUBFILE    = iquad.ngc
+NGCGUI_SUBFILE    = db25.ngc
+NGCGUI_SUBFILE    = ihex.ngc
+NGCGUI_SUBFILE    = gosper.ngc
+# especificar "" para una pestaña personalizada
+NGCGUI_SUBFILE    = ""
+#NGCGUI_SUBFILE   = "" se usa cuando se especifica el marco de imagen si
+# se requiere abrir otros archivos
+# las imágenes se colocarán en una ventana de nivel superior
+NGCGUI_OPTIONS    =
+
+#NGCGUI_OPTIONS = opt1 opt2 …
+# opt items:
+#   nonew      -- no permitir hacer una nueva pestaña personalizada
+#   noremove   -- no permite eliminar ninguna pestaña
+#   noauto     -- sin envío automático (makeFile, luego enviar manualmente)
+#   noiframe   -- sin imagen interna, imagen en el nivel superior separado
+GCMC_INCLUDE_PATH = /home/myname/gcmc_includes
+
+TTT               = truetype-tracer
+TTT_PREAMBLE      = in_std.ngc
+
+PROGRAM_PREFIX    = ../../nc_files
+
+----
+
+[NOTE]
+Lo anterior no es un INI Axis completo - los elementos que se muestran son aquellos
+utilizado por ngcgui. LinuxCNC requiere muchos elementos adicionales para tener un archivo INI completo.
+
+
+=== Truetype Tracer
+
+Ngcgui_ttt proporciona soporte para truetype-tracer (v4). Crea una pestaña Axis que permite al usuario crear una nueva página de pestaña ngcgui después de ingresar texto y seleccionar una fuente y otros parámetros. (Truetype-tracer debe estar instalado independientemente).
+
+Para incrustar ngcgui_ttt en Axis, especifique los siguientes elementos además de los elementos ngcgui:
+
+....
+Item:    [DISPLAY]TKPKG = Ngcgui_ttt version_number
+Example: [DISPLAY]TKPKG = Ngcgui_ttt 1.0
+Note:    Obligatorio, especifica la carga de ngcgui_ttt en una página de pestaña de eje llamada ttt.
+         Debe seguir el elemento TKPKG = Ngcgui.
+Item:    [DISPLAY]TTT = path_to_truetype-tracer
+Example: [DISPLAY]TTT = truetype-tracer
+Note:    Opcional, si no se especifica, intente usar /usr/local/bin/ truetype-tracer.
+         Especifique con ruta absoluta o como un nombre ejecutable simple en cuyo caso el entorno PATH del usuario se usará para encontrar el programa.
+Item:    [DISPLAY]TTT_PREAMBLE = preamble_filename
+Example: [DISPLAY]TTT_PREAMBLE = in_std.ngc
+Note:    Opcional, especifica el nombre de archivo para el preámbulo utilizado para los archivos subttt creados.
+....
+=== Especificaciones de ruta en archivo INI
+
+Ngcgui usa la ruta de búsqueda de linuxCNC.
+
+La ruta de búsqueda comienza con el directorio estándar especificado por:
+
+  [DISPLAY]PROGRAM_PREFIX=nombre_directorio
+
+seguido de múltiples directorios especificados por:
+  [RS274NGC]SUBROUTINE_PATH=directorio1_nombre:directorio1_nombre:directorio3_nombre ...
+
+Los directorios pueden especificarse como rutas absolutas o relativas.
+....
+Ejemplo: [DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files
+Ejemplo: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files
+Ejemplo: [DISPLAY]PROGRAM_PREFIX = ../../nc_files
+....
+
+Una ruta absoluta que comienza con "/" especifica una ubicación completa en el sistema de archivos. Una ruta que comienza con u "\~/" especifica una ruta que comienza
+desde el directorio de usuario. Una ruta que comienza con "~nombre de usuario/"
+especifica una ruta que comienza en el directorio de nombre de usuario.
+
+Caminos relativos
+Las rutas relativas se basan en el directorio de inicio, que es el directorio
+que contiene el archivo INI. El uso de rutas relativas puede facilitar la reubicación de configuraciones, pero requiere una buena comprensión de los especificadores de ruta de Linux.
+
+....
+   ./d0 es lo mismo que d0, esto es, un directorio llamado d0 en el directorio de inicio
+   ../d1 se refiere a un directorio d1 en el directorio padre
+   ../../d2 se refiere a un directorio d2 en el padre del directorio padre
+   ../../../d3 etc.
+....
+
+Se pueden especificar varios directorios con [RS274NGC]SUBROUTINE_PATH
+separándolos con dos puntos. El siguiente ejemplo ilustra el formato
+para múltiples directorios y muestra el uso de rutas relativas y absolutas.
+
+.Ejemplo de directorios múltiples:
+----
+[RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`
+----
+
+Esta es una línea larga, no continúa en varias líneas. Cuando linuxCNC y/o
+ngcgui busca archivos, se utiliza el primer archivo encontrado en la búsqueda.
+
+LinuxCNC (y ngcgui) debe poder encontrar todas las subrutinas, incluidas las rutinas auxiliares que se llaman desde subfiles ngcgui. Es conveniente colocar
+las utilidades subs en un directorio separado como se indica en el ejemplo anterior.
+
+La distribución incluye el directorio ngcgui_lib y los archivos de demostración para preámbulos, subarchivos, epíñogos y archivos auxiliares. Para modificar el comportamiento de los archivos, puede copiar cualquier archivo y colocarlo en una parte anterior de la ruta de búsqueda El primer directorio buscado es [DISPLAY]PROGRAM_PREFIX. Puede usar este directorio pero es mejor crear uno dedicado y colócarlo al comienzo de [RS274NGC]SUBROUTINE_PATH.
+
+En el siguiente ejemplo, los archivos en /home/myname/linuxcnc/mysubs se encontrarán antes que archivos en ../../nc_files/ngcgui_lib.
+
+.Ejemplo de adición de directorio de usuarios:
+----
+[RS274NGC]SUBROUTINE_PATH=/home/myname/linuxcnc/mysubs:../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs`
+----
+
+Los nuevos usuarios pueden intentar inadvertidamente usar archivos que no están estructurados para ser compatibles con los requisitos de ngcgui. Ngcgui probablemente informará numerosos errores si los archivos no están codificados con las convenciones. Las buenas prácticas sugieren que los subarchivos compatibles con ngcgui deben colocarse en un directorio dedicado a ese propósito y que los archivos de preámbulo, epilogo y auxiliar deben estar en directorio(s separados) para desalentar los intentos de usarlos como subarchivos. Archivos no destinados
+para usar como subarchivos puede incluir un comentario especial: "(not_a_subfile)" para que ngcgui los rechace automáticamente con un mensaje relevante.
+
+=== Resumen de los detalles de elementos del archivo INI para usar NGCGUI
+....
+Elemento: [RS274NGC]SUBROUTINE_PATH = dirname1:dirname2:dirname3 ...
+Ejemplo:  [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs
+Nota:     opcional, pero muy útil para organizar subarchivos y archivos de utilidad
+
+Elemento: [RS274NGC]USER_M_PATH = dirname1:dirname2:dirname3 ...
+Ejemplo:  [RS274NGC]USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles
+Nota:     Opcional, necesario para localizar archivos de usuario personalizados
+
+
+Elemento: [DISPLAY]EMBED_TAB_NAME = nombre para mostrar en la página de pestaña incrustada
+Ejemplo:  [DISPLAY]EMBED_TAB_NAME = Pyngcgui
+Nota:     Las entradas: EMBED_TAB_NAME, EMBED_TAB_COMMAND, EMBED_TAB_LOCATION
+          definen una aplicación integrada para varias guis linuxCNC
+
+Elemento: [DISPLAY]EMBED_TAB_COMMAND = nombre del programa seguido de argumentos
+Ejemplo:  [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
+Nota:     Para aplicaciones gladevcp, vea el <<cha:glade-vcp,Capítulo GladeVCP>>
+
+Elemento: [DISPLAY]EMBED_TAB_LOCATION = nombre_de_ubicación
+Ejemplo:  [DISPLAY]EMBED_TAB_LOCATION = notebook_main
+Nota:     Vea archivos INI de ejemplo para posibles ubicaciones.
+          No requerido para Axis
+
+
+Elemento: [DISPLAY]PROGRAM_PREFIX = dirname
+Ejemplo:  [DISPLAY]PROGRAM_PREFIX = ../../nc_files
+Nota:     Obligatorio y necesario para numerosas funciones de linuxCNC
+          Es el primer directorio utilizado en la búsqueda de archivos.
+
+
+elemento: [DISPLAY]TKPKG = Ngcgui número_versión
+Ejemplo:  [DISPLAY]TKPKG = Ngcgui 1.0
+Nota:     Solo se requiere para la incrustación en Axis, especifica la carga de 
+          las pestañas de Axis
+
+
+Elemento: [DISPLAY]NGCGUI_FONT = font_descriptor
+Ejemplo:  [DISPLAY]NGCGUI_FONT = Helvetica -12 normal
+Nota:     Opcional, font_descriptor es un especificador de fuente compatible 
+          con tcl con elementos para fonttype -fontsize fontweight
+          El valor predeterminado es: Helvetica -10 normal
+          Los tamaños de fuente más pequeños pueden ser útiles para pantallas
+          pequeñas. Los tamaños de fuente más grandes pueden ser útiles para
+          aplicaciones de pantalla táctil
+
+Elemento: [DISPLAY]NGCGUI_SUBFILE = subfile_filename
+Ejemplo:  [DISPLAY]NGCGUI_SUBFILE = simp.ngc
+Ejemplo:  [DISPLAY]NGCGUI_SUBFILE = square.gcmc
+Ejemplo:  [DISPLAY]NGCGUI_SUBFILE = ""
+Nota:     Use uno o más elementos para especificar compatible con ngcgui
+          subarchivos o programas gcmc que requieren una página de pestañas 
+          al inicio.
+          Se creará una pestaña "Personalizada" cuando el nombre de archivo sea "".
+          Un usuario puede usar una pestaña "Personalizada" para explorar el
+          sistema de archivos e identificar archivos de preámbulo, subarchivo y
+          epílogo.
+
+Elemento: [DISPLAY]NGCGUI_PREAMBLE = preamble_filename
+Ejemplo:  [DISPLAY]NGCGUI_PREAMBLE = in_std.ngc
+Nota:     Opcional, cuando se especifica, el archivo se antepone a un subarchivo.
+          Los archivos creados con pestañas "Personalizadas" usan el preámbulo 
+          especificado con la pagina
+
+Elemento: [DISPLAY]NGCGUI_POSTAMBLE = postamble_filename
+Ejemplo:  [DISPLAY]NGCGUI_POSTAMBLE = bye.ngc
+Nota:     Opcional, cuando se especifica, el archivo se agrega a un subarchivo.
+          Los archivos creados con pestañas "Personalizadas" usan el postámbulo
+          especificado con la pagina
+
+Elemento: [DISPLAY]NGCGUI_OPTIONS = opt1 opt2 ...
+Ejemplo:  [DISPLAY]NGCGUI_OPTIONS = nonew noremove
+Nota:     las opciones múltiples están separadas por espacios en blanco.
+          Por defecto, ngcgui configura páginas de pestañas para que:
+            1) un usuario puede hacer nuevas pestañas
+            2) un usuario puede eliminar pestañas (excepto la última restante)
+            3) los archivos finalizados se envían automáticamente a linuxCNC
+            4) un marco de imagen (iframe) está disponible para mostrar
+               una imagen para el subarchivo (si se proporciona una imagen)
+            5) el archivo de resultados ngcgui enviado a linuxCNC finaliza con
+               un m2 (e incurre en efectos secundarios de m2)
+
+         Las opciones nonew, noremove, noauto, noiframe, nom2 respectivamente
+         deshabilitan estos comportamientos predeterminados.
+
+         Por defecto, si un archivo de imagen (.png, .gif, jpg, pgm)
+         se encuentra en el mismo directorio que el subarchivo, La imagen 
+         se muestra en el iframe. Especificando la opción noiframe pone a
+         disposición botones adicionales para seleccionar un preámbulo, subarchivo  
+         y epílogo y casillas de verificación adicionales. Selecciones de las
+         casillas de verificación siempre están disponibles con teclas especiales:
+           Ctrl-R Toggle "Retener valores en la lectura de subarchivo"
+           Ctrl-E Alternar "Expandir subrutina"
+           Ctrl-a Alternar "Envío automático"
+           (Ctrl-k enumera todas las teclas y funciones)
+
+         Si se especifica noiframe y se encuentra un archivo de imagen,
+         la imagen se muestra en una ventana separada y todas las funciones están
+         disponibles en la página de pestañas.
+
+         Las NGCGUI_OPTIONS se aplican a todas las pestañas ngcgui, excepto que las
+         opciones nonew, noremove y noiframe no son aplicables para pestañas
+         "Personalizadas". No use pestañas "Personalizadas" si quiere limitar la
+         capacidad del usuario para seleccionar subarchivos o crear pestañas
+         adicionales.
+
+Elemento: [DISPLAY]GCMC_INCLUDE_PATH = dirname1: dirname2: ...
+Ejemplo:  [DISPLAY]GCMC_INCLUDE_PATH =/home/myname/gcmc_includes:/home/myname/gcmc_includes2
+Nota:     Opcional, cada directorio se incluirá cuando se invoque gcmc
+          usando la opción: --incluir dirname
+
+....
+
+== Requisitos de archivo para compatibilidad NGCGUI
+=== Requisitos de subrutina de Gcode de un solo archivo (.ngc)
+
+Un subfile compatible con NGCGUI contiene una única definición de subrutina. El nombre de la subrutina debe ser el mismo que el nombre del archivo (sin incluir el sufijo .ngc). LinuxCNC admite subrutinas con nombre o numeradas, pero solo las subrutinas con nombre son compatibles con NGCGUI. Para más información ver el
+Capítulo <<cha:o-codes,códigos O>>.
+
+La primera línea sin comentarios debe ser una declaración sub.
+La última línea sin comentarios debe ser una declaración endsub.
+
+.examp.ngc:
+----
+(información: info_text_to_appear_at_top_of_tab_page)
+; línea de comentario que comienza con punto y coma
+( línea de comentario usando paréntesis)
+o<examp> sub
+  BODY_OF_SUBROUTINE
+o<examp> endsub
+; línea de comentario que comienza con punto y coma
+( línea de comentario usando paréntesis)
+----
+
+El cuerpo de la subrutina debe comenzar con un conjunto de declaraciones que definen parámetros nombrados locales para cada parámetro posicional esperado para la llamada de subrutina Estas definiciones deben ser consecutivas comenzando con #1 y terminando con el último número de parámetro utilizado. Se deben proporcionar definiciones para cada uno de estos parámetros (sin omisiones).
+
+Numeración de parámetros
+----
+#<xparm> = #1
+#<yparm> = #2
+#<zparm> = #3
+----
+
+LinuxCNC considera que todos los parámetros numerados en el rango #1 al #30 son parámetros de llamada por lo que ngcgui proporciona cuadros de entrada para cualquier ocurrencia de parámetros en este rango. Es una buena práctica evitar el uso de parámetros numerados #1 a #30 en cualquier otro lugar de la subrutina. El uso de parámetros locales con nombre esta recomendado para todas las variables internas.
+
+Cada declaración de definición puede incluir opcionalmente un comentario especial y un valor predeterminado para el parámetro.
+
+Prototipo de declaración
+----
+#<vname> = #n (=default_value)
+o
+#<vname> = #n (comentario_texto)
+o
+#<vname> = #n (=default_value comment_text)
+----
+
+.Ejemplos de parámetros
+----
+#<xparm> = #1 (=0.0)
+#<yparm> = #2 (Ystart)
+#<zparm> = #3 (=configuración de inicio de Z 0.0)
+----
+
+Si se proporciona un valor predeterminado, se ingresará en el cuadro de entrada
+para el parámetro al inicio.
+
+Si se incluye comment_text, se usará para identificar la entrada en lugar del nombre del parámetro.
+
+.Parámetros con nombre global
+Notas sobre parámetros globales con nombre y ngcgui:
+
+(los parámetros globales con nombre tienen un guión bajo en el nombre, como
+#<_someglobalname>)
+
+Como en muchos lenguajes de programación, el uso de globales es poderoso pero a menudo puede conducir a consecuencias inesperadas. En LinuxCNC, los parámetros globales con nombre existentes serán válidos en la ejecución de subrutinas y las subrutinas pueden modificar o crear parámetros cun nombre globales.
+
+
+Se desaconseja pasar información a subrutinas utilizando parámetros con nombre globales dado que dicho uso requiere el establecimiento y mantenimiento de un bien definido contexto global que es difícil de mantener. Usando los parámetros numerados de  #1 a #30 como entradas de subrutina debería ser suficiente para satisfacer una amplia gama de requerimientos de diseño.
+
+Si bien no se recomiendan los parámetros con nombre global de entrada, las subrutinas linuxCNC deben usar parámetros globales con nombre para devolver resultados. Los subarchivos ngcgui-compatible están destinados al uso de GUI; los valores de retorno no son un requisito común. Sin embargo, ngcgui es útil como herramienta de prueba para subrutinas que devuelven parámetros con nombre global y es común que los subfiles compatibles con ngcgui llamen archivos de subrutina de utilidad que devuelven resultados con parámetros globales con nombre.
+
+Para admitir estos usos, ngcgui ignora los parámetros globales con nombre que incluyen dos puntos (:) en su nombre. El uso de los dos puntos (:) en el nombre evita que ngcgui haga cuadros de entrada para estos parámetros.
+
+.Parámetros con nombre global
+----
+o<examp> sub
+...
+# <_ examp: result> = # 5410 (devuelve el diámetro actual de la herramienta)
+...
+o<helper> call [#<x1>] [#<x2>] (llamar a una subrutina)
+#<xresult> = #<_helper:answer> (localice inmediatamente el resultado global del helper)
+#<_helper:answer> = 0.0 (anula el parámetro global con nombre utilizado por la subrutina)
+...
+o<examp> endsub
+----
+
+En el ejemplo anterior, la subrutina de la utilidad se encontrará en un archivo separado llamado helper.ngc. La rutina auxiliar devuelve un resultado en un 
+parámetro global con nombre llamado #<_helper:answer>.
+
+Para una buena práctica, el subarchivo de llamada localiza inmediatamente el resultado para su uso en otro lugar del subarchivo y el parámetro global con nombre utilizado para devolver resultado se anula en un intento de mitigar su uso involuntario en otros lugares del contexto global. (Un valor de anulación de 0.0 puede no siempre ser buena elección).
+
+Ngcgui admite la creación y concatenación de múltiples funciones para un subfile y para múltiples subfiles. A veces es útil para subarchivos determinar su orden en tiempo de ejecución para que ngcgui inserte un parámetro global especial que se puede testear dentro de las subrutinas. El parámetro se llama # <_feature:>.
+Su valor comienza con un valor 0 y se incrementa para cada característica agregada.
+
+.Características adicionales
+Se puede incluir un comentario especial de 'información' en cualquier lugar de un subarchivo ngcgui-compatible. El formato es:
+
+----
+(info: info_text)
+----
+
+Info_text se muestra cerca de la parte superior de la página de la pestaña ngcgui en Axis.
+
+Los archivos que no están destinados a usarse como subarchivos pueden incluir un comentario especial para que ngcgui los rechace automáticamente con un mensaje relevante.
+
+----
+(not_a_subfile)
+----
+
+Un archivo de imagen opcional (.png, .gif, .jpg, .pgm) puede acompañar a un subarchivo. Los archivos de imagen puede ayudar a aclarar los parámetros utilizados por el subarchivo. El archivo de imagen debe estar en el mismo directorio que el subarchivo y tener el mismo nombre con un sufijo de imagen apropiado, p.ej. el subfile example.ngc podría ir acompañado de un archivo de imagen example.png. Ngcgui intenta cambiar el tamaño de las imágenes grandes submuestreando
+a un tamaño con un ancho máximo de 320 x 240 píxeles.
+
+Ninguna de las convenciones requeridas para hacer un subfile compatible con ngcgui
+excluye su uso como archivo de subrutina de propósito general para LinuxCNC.
+
+La distribución LinuxCNC incluye una biblioteca (directorio ngcgui_lib) que
+incluye archivos de utilidad y subfiles compatibles con ngcgui de ejemplo
+para ilustrar las características de las subrutinas LinuxCNC y el uso de ngcgui.
+Otra biblioteca (gcmc_lib) proporciona ejemplos de archivos de subrutina para
+el metacompilador Gcode (gcmc)
+
+Se pueden encontrar subrutinas adicionales para usuarios en el Foro, en la sección de subrutinas.
+
+=== Requisitos del archivo Gcode-meta-compiler (.gcmc)
+Ngcgui lee los archivos de Gcode-meta-compiler (gcmc) y crea cuadros de entrada para variables etiquetadas en el archivo. Cuando una característica del archivo
+finaliza, ngcgui pasa el archivo como entrada al compilador gcmc y, si la compilación es exitosa, el archivo gcode resultante se envía a linuxCNC para su ejecución. El archivo resultante está formateado como subrutina de un solo archivo; Los archivos .gcmc y los archivos .ngc se pueden mezclar en ngcgui.
+
+Las variables identificadas para su inclusión en ngcgui están etiquetadas con líneas que parecerán comentarios al compilador gcmc.
+
+Ejemplos de formatos de etiquetas variables.
+----
+//ngcgui: varname1 =
+//ngcgui: varname2 = value2
+//ngcgui: varname3 = value3, label3;
+----
+
+Ejemplos:
+----
+//ngcgui: zsafe =
+//ngcgui: feedrate = 10
+//ngcgui: xl = 0, x limit
+----
+
+Para estos ejemplos, el cuadro de entrada para varname1 no tendrá un valor predeterminado, el cuadro de entrada para varname2 tendrá un valor predeterminado de value2, y el el cuadro de entrada para varname 3 tendrá un valor predeterminado de 3 y una etiqueta label3 (en lugar de varname3). Los valores predeterminados deben ser números.
+
+Para facilitar la modificación de líneas válidas en un archivo gcmc, alterne
+formatos de línea de etiqueta aceptados. Los formatos alternativos ignoran los punto y coma finales (;) y marcadores de comentarios finales (//). Con esta disposición, a menudo permite agregar la etiqueta //ngcgui: a líneas existentes en un archivo .gcmc.
+
+.Formatos de etiquetas variables alternativas
+----
+//ngcgui: varname2 = value2;
+//ngcgui: varname3 = value3; //, etiqueta3;
+----
+Ejemplos:
+----
+//ngcgui: feedrate = 10;
+//ngcgui: xl = 0; //, límite x
+----
+
+Una línea de información que aparecerá en la parte superior de una pestaña puede ser opcional incluido con una línea etiquetada como:
+
+.Etiqueta de información
+----
+//ngcgui: info: text_to_appear_at_top_of_tab_page
+----
+
+Cuando sea necesario, las opciones se pueden pasar al compilador gcmc con una línea etiquetada:
+
+Formato de etiqueta de línea de opción
+----
+//ngcgui: -option_name [ [=] option_value]
+----
+Ejemplos:
+----
+//ngcgui: -I
+//ngcgui: --imperial
+//ngcgui: --precisión 5
+//ngcgui: --precision = 6
+----
+
+Las opciones para gcmc están disponibles con el comando de terminal:
+----
+gcmc --help
+----
+
+Un programa gcmc por defecto usa el modo métrico. El modo puede establecerse en pulgadas con la opción:
+
+----
+//ngcgui: --imperial
+----
+
+Un archivo de preámbulo, si se usa, puede establecer un modo (g20 o g21) que
+entra en conflicto con el modo utilizado por un archivo gcmc. Para asegurar que
+el modo de programa gcmc está en vigor, incluya la siguiente declaración en el archivo .gcmc:
+
+----
+include ("sure_mode.gcmc")
+----
+
+y proporcione una ruta adecuada para gcmc include_files en el archivo ini,
+por ejemplo:
+
+----
+[DISPLAY]
+GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib
+----
+
+== DB25 Ejemplo
+
+A continuación se muestra la subrutina DB25. En la primera imagen se muestra donde
+completar los espacios en blanco para cada variable.
+
+image::images/ngcgui-db25-1.png[align="center"]
+
+Esta imagen muestra el plot de la subrutina DB25.
+
+image::images/ngcgui-db25-2.png[align="center"]
+
+Esta imagen muestra el uso del nuevo botón y la pestaña personalizada para crear
+tres recortes DB25 en un programa.
+
+image::images/ngcgui-db25-3.png[align="center"]

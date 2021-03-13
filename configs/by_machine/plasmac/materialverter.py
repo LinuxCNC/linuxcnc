@@ -3,7 +3,7 @@
 '''
 materialverter.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019 2020 Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ class materialConverter:
         self.fNUM = '1'
         self.fNAM = '0'
         self.fKW = '0'
-        self.fTHC = False
+        self.fTHC = True
         self.fPH = '0'
         self.fPD = '0'
         self.fPJH = '0'
@@ -63,6 +63,9 @@ class materialConverter:
         self.fCS = '0'
         self.fCA = '0'
         self.fCV = '0'
+        self.fPE = '0'
+        self.fGP = '0'
+        self.fCM = '1'
 
     def create_widgets(self):
         self.T = gtk.Table(9, 7)
@@ -72,7 +75,7 @@ class materialConverter:
         self.T.attach(self.inManual, 0, 2, 0, 1)
         self.inSheetcam = gtk.RadioButton(self.inManual, 'SheetCam')
         self.T.attach(self.inSheetcam, 0, 2, 1, 2)
-        self.inFusion = gtk.RadioButton(self.inManual, 'Fusion 360')
+        self.inFusion = gtk.RadioButton(self.inManual, 'Fusion360')
         self.T.attach(self.inFusion, 0, 2, 2, 3)
         self.outUnits = gtk.Label('Output Units')
         self.outUnits.set_alignment(0, 0.5)
@@ -107,6 +110,16 @@ class materialConverter:
         self.outLabel.set_text('')
         dlg = gtk.FileChooserDialog("Open..", None, gtk.FILE_CHOOSER_ACTION_OPEN,
           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        if self.inSheetcam.get_active():
+            filter = gtk.FileFilter()
+            filter.set_name("SheetCam Tool File (*.tools)")
+            filter.add_pattern("*.[Tt][Oo][Oo][Ll][Ss]")
+            dlg.add_filter(filter)
+        elif self.inFusion.get_active():
+            filter = gtk.FileFilter()
+            filter.set_name("Fusion360 Tool File (*.json)")
+            filter.add_pattern("*.[Jj][Ss][Oo][Nn]")
+            dlg.add_filter(filter)
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             self.inFile.set_text(dlg.get_filename())
@@ -172,27 +185,28 @@ class materialConverter:
                 self.outLabel.set_text('missing output filename')
                 return
             self.outLabel.set_text('converting...')
-            version = '[VERSION 1.1]'
 #            try:
             with open(self.outFileName, 'w') as f_out:
-                f_out.write(\
-                    '#plasmac material file\n'\
-                    '#the next line is required for version checking\n'\
-                     + version + '\n\n'\
-                    '#example only, may be deleted\n'\
-                    '#[MATERIAL_NUMBER_1]\n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#THC                = (0 = off, 1 = on)\n'\
-                    '#PIERCE_HEIGHT      = \n'\
-                    '#PIERCE_DELAY       = \n'\
-                    '#PUDDLE_JUMP_HEIGHT = (optional, set to 0 or delete if not required)\n'\
-                    '#PUDDLE_JUMP_DELAY  = (optional, set to 0 or delete if not required)\n'\
-                    '#CUT_HEIGHT         = \n'\
-                    '#CUT_SPEED          = \n'\
-                    '#CUT_AMPS           = (optional, only used for operator information)\n'\
-                    '#CUT_VOLTS          = (modes 0 & 1 only, if not using auto voltage sampling)\n'\
-                    '\n')
+                f_out.write('#plasmac material file\n'\
+                            '# example only, may be deleted\n'\
+                            '# items marked * are mandatory\n'\
+                            '# other items are optional and will default to 0\n'\
+                            '#[MATERIAL_NUMBER_1]  \n'\
+                            '#NAME               = \n'\
+                            '#KERF_WIDTH         = \n'\
+                            '#THC                = \n'\
+                            '#PIERCE_HEIGHT      = *\n'\
+                            '#PIERCE_DELAY       = *\n'\
+                            '#PUDDLE_JUMP_HEIGHT = \n'\
+                            '#PUDDLE_JUMP_DELAY  = \n'\
+                            '#CUT_HEIGHT         = *\n'\
+                            '#CUT_SPEED          = *\n'\
+                            '#CUT_AMPS           = \n'\
+                            '#CUT_VOLTS          = \n'\
+                            '#PAUSE_AT_END       = \n'
+                            '#GAS_PRESSURE       = \n'\
+                            '#CUT_MODE           = \n'\
+                            '\n')
 #            except:
 #                self.outLabel.set_text('WRITE ERROR!!!')
         else:
@@ -218,6 +232,9 @@ class materialConverter:
                                  i=0, val=float(self.fCS) / self.divisor)
             self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
             self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
+            self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
+            self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
+            self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
             self.output()
             self.convert.set_label('Add')
         elif self.inSheetcam.get_active():
@@ -233,7 +250,7 @@ class materialConverter:
                         self.materialNum = ''
                         self.materialName = 'NAME               = '
                         self.materialKerf = 'KERF_WIDTH         = '
-                        self.materialTHC = 'THC                = 0'
+                        self.materialTHC = 'THC                = 1'
                         self.materialPierceH = 'PIERCE_HEIGHT      = '
                         self.materialPierceD = 'PIERCE_DELAY       = '
                         self.materialPuddleH = 'PUDDLE_JUMP_HEIGHT = 0'
@@ -242,19 +259,22 @@ class materialConverter:
                         self.materialCutS = 'CUT_SPEED          = '
                         self.materialCutA = 'CUT_AMPS           = 0'
                         self.materialCutV = 'CUT_VOLTS          = 0'
+                        self.materialPauseE = 'PAUSE_AT_END       = 0'
+                        self.materialGasP = 'GAS_PRESSURE       = 0'
+                        self.materialCutM = 'CUT_MODE           = 1'
                     elif 'PlasmaTool' in line:
                         valid = True
                     elif line.startswith('Tool\ number'):
                         a,b = line.split('=')
                         self.materialNum = '[MATERIAL_NUMBER_{}]'.format(b.strip().replace(']',''))
-                    elif line.startswith('Name'):
+                    elif line.startswith('Name='):
                         a,b = line.split('=',1)
                         self.materialName = 'NAME               = {}'.format(b.strip())
                     elif line.startswith('Kerf\ width'):
                         a,b = line.split('=',1)
                         self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
                                              i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('NO\ DTHC'):
+                    elif line.startswith('THC\ enable') or line.startswith('NO\ DTHC'):
                         a,b = line.split('=',1)
                         self.materialTHC = 'THC                = {}'.format(b.strip())
                     elif line.startswith('Pierce\ height'):
@@ -272,12 +292,21 @@ class materialConverter:
                         a,b = line.split('=',1)
                         self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
                                              i=0, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Tip\ Size\ -Amps'):
+                    elif line.startswith('Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
                         self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
-                    elif line.startswith('Preset\ volts'):
+                    elif line.startswith('Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
                         self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
+                    elif line.startswith('Pause\ at\ end\ of\ cut'):
+                        a,b = line.split('=',1)
+                        self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
+                    elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                        a,b = line.split('=',1)
+                        self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
+                    elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                        a,b = line.split('=',1)
+                        self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
                     count += 1
                 if valid:
                     self.output()
@@ -285,44 +314,59 @@ class materialConverter:
 #                self.outLabel.set_text('READ ERROR!!!')
             self.outLabel.set_text('FINISHED')
         elif self.inFusion.get_active():
-#            try:
+            import json
+            #            try:
             with open(self.inFileName, 'r') as f_in:
-                for line in f_in:
-                    line = line.lower().strip().split('\t')
-                    if line[0].lower() == 'type':
-                        lNum = line.index('number')
-                        lNam = line.index('description')
-                        lCS = line.index('cutting-feedrate')
-                        lKW = line.index('kerf-width')
-                    else:
-                        self.fNUM = line[lNum]
-                        self.fNAM = line[lNam]
-                        getParams = self.fusion_dialog()
-                        if getParams == gtk.RESPONSE_REJECT:
-                            return
-                        self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
-                        self.materialName = 'NAME               = {}'.format(self.fNAM)
-                        self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
-                                             i=self.precision, val=float(line[lKW]) / self.divisor)
-                        self.materialTHC = 'THC                = {}'.format(self.fTHC)
-                        self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
-                                                i=self.precision, val=float(self.fPH) / self.divisor)
-                        self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
-                        self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
-                                                i=self.precision, val=float(self.fPJH) / self.divisor)
-                        self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
-                        self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
-                                             i=self.precision, val=float(self.fCH) / self.divisor)
-                        self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
-                                             i=0, val=float(line[lCS]) / self.divisor)
-                        self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
-                        self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
-                        self.output()
+                jdata = json.load(f_in)
+                f_in.close()
+            for t in jdata['data']:
+                self.fNUM = str(t['post-process']['number'])
+                self.fNAM = t['description']
+                lCS = self.find_key(t, 'v_f')
+                lKW = t['geometry']['CW']
+                getParams = self.fusion_dialog()
+                if getParams == gtk.RESPONSE_REJECT:
+                    return
+                self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
+                self.materialName = 'NAME               = {}'.format(self.fNAM)
+                self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
+                                     i=self.precision, val=float(lKW) / self.divisor)
+                self.materialTHC = 'THC                = {}'.format(self.fTHC)
+                self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
+                                        i=self.precision, val=float(self.fPH) / self.divisor)
+                self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
+                self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
+                                        i=self.precision, val=float(self.fPJH) / self.divisor)
+                self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
+                self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
+                                     i=self.precision, val=float(self.fCH) / self.divisor)
+                self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
+                                     i=0, val=float(lCS) / self.divisor)
+                self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
+                self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
+                self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
+                self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
+                self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
+                self.output()
 #            except:
 #                self.outLabel.set_text('READ ERROR!!!')
             self.outLabel.set_text('FINISHED')
         else:
             self.outLabel.set_text('Invalid Conversion')
+
+    def find_key(self, obj, key):
+        if key in obj: return obj[key]
+        for k, v in obj.items():
+            if isinstance(v,dict):
+                item = self.find_key(v, key)
+                if item is not None:
+                    return item
+            elif isinstance(v,list):
+                for list_item in v:
+                    item = self.find_key(list_item, key)
+                    if item is not None:
+                        return item
+
     def on_cancel_clicked(self,button):
         gtk.main_quit()
 
@@ -340,7 +384,11 @@ class materialConverter:
                         self.materialCutH + '\n' + \
                         self.materialCutS + '\n' + \
                         self.materialCutA + '\n' + \
-                        self.materialCutV + '\n\n')
+                        self.materialCutV + '\n' + \
+                        self.materialPauseE + '\n' +\
+                        self.materialGasP + '\n' + \
+                        self.materialCutM + '\n' + \
+                        '\n')
 #        except:
 #            self.outLabel.set_text('WRITE ERROR!!!')
 
@@ -350,8 +398,9 @@ class materialConverter:
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                             gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+        topL = gtk.Label('Items with a *** are mandatory')
         infL = gtk.Label('For Material # {}\n{}'.format(self.fNUM,self.fNAM))
-        dNUl = gtk.Label('Material Number')
+        dNUl = gtk.Label('Material Number ***')
         dNUl.set_alignment(0, 1)
         dNU = gtk.Entry()
         dNU.set_text(self.fNUM)
@@ -368,12 +417,12 @@ class materialConverter:
         dKW.set_alignment(0.95)
         dTHC = gtk.CheckButton('THC Enabled')
         dTHC.set_active(self.fTHC)
-        dPHl = gtk.Label('Pierce Height')
+        dPHl = gtk.Label('Pierce Height ***')
         dPHl.set_alignment(0, 1)
         dPH = gtk.Entry()
         dPH.set_text(self.fPH)
         dPH.set_alignment(0.95)
-        dPDl = gtk.Label('Pierce Delay')
+        dPDl = gtk.Label('Pierce Delay ***')
         dPDl.set_alignment(0, 1)
         dPD = gtk.Entry()
         dPD.set_text(self.fPD)
@@ -388,12 +437,12 @@ class materialConverter:
         dPJD = gtk.Entry()
         dPJD.set_text(self.fPJD)
         dPJD.set_alignment(0.95)
-        dCHl = gtk.Label('Cut Height')
+        dCHl = gtk.Label('Cut Height ***')
         dCHl.set_alignment(0, 1)
         dCH = gtk.Entry()
         dCH.set_text(self.fCH)
         dCH.set_alignment(0.95)
-        dCSl = gtk.Label('Cut Speed')
+        dCSl = gtk.Label('Cut Speed ***')
         dCSl.set_alignment(0, 1)
         dCS = gtk.Entry()
         dCS.set_text(self.fCS)
@@ -408,6 +457,22 @@ class materialConverter:
         dCV = gtk.Entry()
         dCV.set_text(self.fCV)
         dCV.set_alignment(0.95)
+        dPEl = gtk.Label('Pause At End Of Cut')
+        dPEl.set_alignment(0, 1)
+        dPE = gtk.Entry()
+        dPE.set_text(self.fPE)
+        dPE.set_alignment(0.95)
+        dGPl = gtk.Label('Gas Pressure')
+        dGPl.set_alignment(0, 1)
+        dGP = gtk.Entry()
+        dGP.set_text(self.fGP)
+        dGP.set_alignment(0.95)
+        dCMl = gtk.Label('Cut Mode')
+        dCMl.set_alignment(0, 1)
+        dCM = gtk.Entry()
+        dCM.set_text(self.fCM)
+        dCM.set_alignment(0.95)
+        dialog.vbox.add(topL)
         if self.inManual.get_active():
             dialog.vbox.add(dNUl)
             dialog.vbox.add(dNU)
@@ -435,6 +500,12 @@ class materialConverter:
         dialog.vbox.add(dCA)
         dialog.vbox.add(dCVl)
         dialog.vbox.add(dCV)
+        dialog.vbox.add(dPEl)
+        dialog.vbox.add(dPE)
+        dialog.vbox.add(dGPl)
+        dialog.vbox.add(dGP)
+        dialog.vbox.add(dCMl)
+        dialog.vbox.add(dCM)
         dialog.show_all()
         response = dialog.run()
         if self.inManual.get_active():
@@ -454,6 +525,9 @@ class materialConverter:
             self.fCS = dCS.get_text()
         self.fCA = dCA.get_text()
         self.fCV = dCV.get_text()
+        self.fPE = dPE.get_text()
+        self.fGP = dGP.get_text()
+        self.fCM = dCM.get_text()
         dialog.destroy()
         return response
 

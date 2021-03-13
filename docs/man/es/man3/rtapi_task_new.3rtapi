@@ -1,0 +1,39 @@
+.TH rtapi_task_new "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_task_new \- crea una tarea en tiempo real
+
+.SH SINTAXIS 
+.HP
+int rtapi_task_new(void (*\fItaskcode\fR)(void*), void *\fIarg\fR,
+	int \fIprio\fR, unsigned long \fIstacksize\fR, int \fIuses_fp\fR)
+.HP
+int rtapi_task_delete(int \fItask_id\fR)
+.HP
+.SH ARGUMENTOS 
+.IP \fItaskcode\fR
+Un puntero a la función que se llamará cuando se inicie la tarea
+.IP \fIarg\fR
+Un argumento para pasar a la función \fItaskcode\fR cuando la tarea esta
+empezado
+.IP \fIprio\fR
+Un valor de prioridad de tarea devuelto por \fBrtapi_prio_xxxx\fR
+.IP \fIuses_fp\fR
+Una bandera que le dice al sistema operativo si la tarea usa punto flotante o no.
+.IP \fItask_id\fR
+Una ID de tarea devuelta por una llamada previa a \fBrtapi_task_new\fR
+.SH DESCRIPCIÓN
+\fBrtapi_task_new\fR crea pero no inicia una tarea en tiempo real. La tarea es
+creada en el estado "en pausa". Para iniciarla, llame a \fBrtapi_task_start\fR
+para tareas periódicas, o \fBrtapi_task_resume\fR para tareas de ejecución libre.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de inicio/limpieza, no desde tareas en tiempo real.
+
+.SH VALOR DEVUELTO
+En caso de éxito, devuelve una ID de tarea entero positivo. Esta identificación se utiliza
+para todas las llamadas posteriores que necesitan actuar en la tarea. En caso de fracaso,
+devuelve un código de estado RTAPI.
+
+.SH VER TAMBIÉN
+\fBrtapi_prio(3rtapi)\fR, \fBrtapi_task_start(3rtapi)\fR, \fBrtapi_task_wait(3rtapi)\fR, \fBrtapi_task_resume(3rtapi)

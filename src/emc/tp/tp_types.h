@@ -68,6 +68,7 @@ typedef enum {
     TP_ERR_STOPPED,
     TP_ERR_WAITING,
     TP_ERR_ZERO_LENGTH,
+    TP_ERR_REVERSE_EMPTY,
     TP_ERR_LAST
 } tp_err_t;
 
@@ -120,6 +121,7 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int reverse_run;      /* Indicates that TP is running in reverse */
     int motionType;
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during

@@ -206,15 +206,10 @@ proc make_ddts {number_of_joints} {
   # make vel,accel ddts and signals for all joints
   # if xyz, make hypotenuse xy,xyz vels
 
-  set ddt_limit 16 ;# limited by ddt component
   set ddt_names ""
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
     incr ddt_ct 2
-    if {$ddt_ct > $ddt_limit} {
-      puts stderr "make_ddts: number of ddts limited to $ddt_limit"
-      continue
-    }
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
   }
   set ddt_names [string trimleft $ddt_names ,]
@@ -227,7 +222,6 @@ proc make_ddts {number_of_joints} {
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
     incr ddt_ct 2
-    if {$ddt_ct > $ddt_limit} { continue }
     net J${jno}:pos-fb   => J${jno}_vel.in ;# net presumed to exist
     net J${jno}:vel      <= J${jno}_vel.out
     net J${jno}:vel      => J${jno}_accel.in
@@ -337,6 +331,9 @@ proc sim_spindle {} {
   loadrt limit2  names=limit_speed
   loadrt lowpass names=spindle_mass
   loadrt near    names=near_speed
+  loadrt scale names=rpm_rps
+
+  setp rpm_rps.gain .0167
 
   # this limit doesnt make any sense to me:
   do_setp limit_speed.maxv 5000.0 ;# rpm/second
@@ -364,7 +361,8 @@ proc sim_spindle {} {
 
   # for spindle velocity estimate
   net spindle-rpm-filtered <= spindle_mass.out
-  net spindle-rpm-filtered => spindle.0.speed-in
+  net spindle-rpm-filtered     rpm_rps.in
+  net spindle-rps-filtered     rpm_rps.out    spindle.0.speed-in 
   net spindle-rpm-filtered => near_speed.in2
 
   # at-speed detection
@@ -376,6 +374,7 @@ proc sim_spindle {} {
 
   addf limit_speed  servo-thread
   addf spindle_mass servo-thread
+  addf rpm_rps servo-thread
   addf near_speed   servo-thread
   addf sim_spindle  servo-thread
 } ;# sim_spindle

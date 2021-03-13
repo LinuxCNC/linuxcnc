@@ -1,0 +1,32 @@
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+.TH hm2_uart_send "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_uart_send \- escribe datos en una UART Hostmot2 
+
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_uart_send(char* name,  unsigned char data[], int count)
+
+.SH DESCRIPCIÓN
+\fBhm2_uart_send\fR escribe 'count' bytes de datos en UART "name" desde el búfer 'data'.
+
+La FIFO UART tiene 64 bytes de profundidad, los intentos de transmitir más de 64 bytes pueden tener efectos inesperados
+
+"name" es una cadena única dada a cada UART durante la configuración de hostmot2. Los nombres de los canales disponibles se imprimen en la salida estándar
+durante la carga del controlador y toman la forma:
+hm2_<nombre de la tarjeta>.<índice de la tarjeta>.uart.<índice> 
+Por ejemplo, hm2_5i23.0.uart.0
+
+Esta función realiza escrituras de datos en la UART especificada. Debe usarse
+dentro de una función en componente HAL de tiempo real o de espacio de usuario.
+
+.SH VALOR DEVUELTO
+Devuelve el número de bytes enviados en caso de éxito y \-1 en caso de error.
+
+.SH VER TAMBIÉN
+man hm2_uart_setup, man hm2_uart_read
+Vea src/hal/drivers mesa_uart.comp para un ejemplo de uso.

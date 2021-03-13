@@ -59,6 +59,7 @@
 #include <libintl.h>
 #include <locale.h>
 #include "usrmotintf.h"
+#include <rtapi_string.h>
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -937,6 +938,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
@@ -1024,7 +1027,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
@@ -1051,6 +1054,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1133,6 +1138,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1220,6 +1227,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_ABORT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1288,6 +1297,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1382,6 +1393,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
@@ -2045,7 +2058,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
-	retval = emcToolPrepare(tool_prepare_msg->pocket,tool_prepare_msg->tool);
+	retval = emcToolPrepare(tool_prepare_msg->tool);
 	break;
 
     case EMC_TOOL_START_CHANGE_TYPE:
@@ -2173,7 +2186,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (-1 == retval) {
 	    emcOperatorError(0, _("can't open %s"), open_msg->file);
 	} else {
-	    strcpy(emcStatus->task.file, open_msg->file);
+	    rtapi_strxcpy(emcStatus->task.file, open_msg->file);
 	    retval = 0;
 	}
 	break;
@@ -2202,7 +2215,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		command = NULL;
 	    } else {
 		// record initial MDI command
-		strcpy(emcStatus->task.command, execute_msg->command);
+		rtapi_strxcpy(emcStatus->task.command, execute_msg->command);
 	    }
 
 	    int level = emcTaskPlanLevel();
@@ -2305,6 +2318,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
 	    emcStatus->task.task_paused = 1;
 	}
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_REVERSE_TYPE:
+	emcTrajReverse();
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_FORWARD_TYPE:
+	emcTrajForward();
 	retval = 0;
 	break;
 
@@ -2543,6 +2566,7 @@ static int emcTaskExecute(void)
 	{
 	    int was_open = taskplanopen;
 	    emcTaskPlanClose();
+            emcTaskPlanReset();  // Flush any unflushed segments
 	    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 			  __LINE__);
@@ -3166,7 +3190,7 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -3184,13 +3208,13 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
 	// copy to global
-	strcpy(rs274ngc_startup_code, inistring);
+	rtapi_strxcpy(rs274ngc_startup_code, inistring);
     } else {
 	//FIXME-AJ: this is the old (unpreferred) location. just for compatibility purposes
 	//it will be dropped in v2.4
 	if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {
 	    // copy to global
-	    strcpy(rs274ngc_startup_code, inistring);
+	    rtapi_strxcpy(rs274ngc_startup_code, inistring);
 	} else {
 	// not found, use default
 	}
@@ -3477,6 +3501,7 @@ int main(int argc, char *argv[])
 	    {
 		int was_open = taskplanopen;
 		emcTaskPlanClose();
+                emcTaskPlanReset();  // Flush any unflushed segments
 		if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 		    rcs_print("emcTaskPlanClose() called at %s:%d\n",
 			      __FILE__, __LINE__);

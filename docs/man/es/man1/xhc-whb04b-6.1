@@ -1,0 +1,929 @@
+'\" t
+.\"     Title: xhc-whb04b-6
+.\"    Author: [see the "AUTHORS" section]
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 08/11/2020
+.\"    Manual: LinuxCNC Documentation
+.\"    Source: LinuxCNC
+.\"  Language: English
+.\"
+.TH "XHC\-WHB04B\-6" "1" "08/11/2020" "LinuxCNC" "LinuxCNC Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+xhc-whb04b-6 \- Userspace jog dial HAL component for the wireless XHC WHB04B\-6 USB device\&.
+.SH "SYNOPSIS"
+.sp
+xhc\-whb04b\-6 [\-h] | [\-H] [OPTIONS]
+.SH "DESCRIPTION"
+.sp
+The xhc\-whb04b\-6 HAL component supports the XHC WHB04B\-6, a 6\-axis wireless USB pendant\&. It provides a number of push\-buttons, a jogwheel, two rotary buttons for axis and speed / step selection and an ordinary LCD display\&.
+.sp
+The LCD display, having a very simple firmware interface, indicates the following listed information only\&. No other information, such as custom data, can be printed\&.
+.sp
+Activated axis (X, Y, Z, A, B or C)\&. Current axis position of X, Y, Z and separately of A, B, C\&. Whether machine (X, Y, Z, A, B or C) or relative (X1, Y1, Z1, A1, B1 or C1) coordinates are displayed\&. Step size or velocity depending on the operating mode (MPG or Step or Continuous)\&. Feedrate override Spindle Feedrate override Machine state such as reset\&. Battery level Wireless signal strength
+.sp
+The pendant display, its rotary selector switch, and the component pin names use designators x,y,z,a,b and c\&. While this arrangement presumes a machine configured as X, Y, Z, A, B an C, the pins can be assigned independently as required in a HAL configuration\&.
+.SH "OPTIONS"
+.sp
+\fB\-h, \-\-help\fR Prints the synopsis and the most commonly used commands\&.
+.sp
+\fB\-H\fR Run xhc\-whb04b\-6 in HAL\-mode instead of interactive mode\&. When in HAL mode commands from device will be exposed to HAL\(cqs shred memory\&. Interactive mode is useful for testing device connectivity and debugging\&.
+.sp
+\fB\-s\fR Lead + jogwheel changes the spindle override speed\&. Each tick will increase/decrease the spindle override\&.
+.sp
+\fB\-f\fR MPG + jogwheel changes the feed override\&. Each tick will increment/decrement the feed override\&.
+.sp
+\fB\-B\fR Add 5mm and 10mm to Step feedrate output
+.sp
+\fB\-t\fR Wait with timeout for USB device then proceed, exit otherwise\&. Without \-t the timeout is implicitly infinite\&.
+.sp
+\fB\-u, \-U\fR Show received data from device\&. With \-U received and transmitted data will be printed\&. Output is prefixed with "usb"\&.
+.sp
+\fB\-p\fR Show HAL pins and HAL related messages\&. Output is prefixed with "hal"\&.
+.sp
+\fB\-e\fR Show captured events such as button pressed/released, jog dial, axis rotary button, and feed rotary button event\&. Output is prefixed with "event"\&.
+.sp
+\fB\-a\fR Enable all logging facilities without explicitly specifying each\&.
+.sp
+\fB\-c\fR Enable checksum output which is necessary for debugging the checksum generator function\&. Do not rely on this feature since it will be removed once the generator is implemented\&.
+.sp
+\fB\-n\fR Force being silent and not printing any output except of errors\&. This will also inhibit messages prefixed with "init"\&.
+.SH "UDEV"
+.sp
+The xhc\-whb04b\-6 executable needs permission for reading the pendant\(cqs USB device\&. There may be the need for additional udev rules\&. If so, this file /etc/udev/rules\&.d/99\-xhc\-whb04b\-6\&.rules should be created with the single line ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"\&.
+.SH "STANDALONE USAGE"
+.sp
+The xhc\-whb04b\-6 program can be run from the command line without LinuxCNC to test a pendant\&. This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data\&.
+.SS "EXAMPLES"
+.PP
+\fBxhc\-whb04b\-6 \-ue\fR
+.RS 4
+Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events\&.
+.RE
+.PP
+\fBxhc\-whb04b\-6 \-p\fR
+.RS 4
+Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory\&.
+.RE
+.PP
+\fBxhc\-whb04b\-6 \-H\fR
+.RS 4
+Start in HAL mode (Normal mode for real machine use)\&.
+.RE
+.PP
+\fBxhc\-whb04b\-6 \-HsfB\fR
+.RS 4
+Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10mm)\&.
+.RE
+.SH "HAL USAGE"
+.sp
+Use the \-H option to specify HAL mode and other options as required: \fBloadusr \-W xhc\-whb04b\-6 \-HsfB\fR
+.SS "Input/Output Signals"
+.sp
+\fBNote:\fR For each button an output pin is provided even if no functionality is realized with that signal\&. For example, to stop a running program the Stop button pin may be directly connected to halui\&.program\&.stop\&. However, to start/pause/resume a program, the corresponding button toggles besides whb\&.button\&.start\-pause also the whb\&.halui\&.program\&.{run,pause,resume} signals accordingly\&. \fBNote:\fR The Spindle+/Spindle\- buttons do manipulate the spindle override\&. The spindle speed is set with the respective combos Fn + Spindle\- and FN + Spindle+\&.
+.sp
+The following tables list all in\-/output pins and state which signals they are meant to be connected to\&.
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBAxis and Stepgen\fR
+.RS 4
+.sp
+Signals utilized for moving axis\&.
+.sp
+\fB<N>\fR \&... denotes the axis number, which is of {x, y, z, a, b, c}
+.PP
+\fBwhb\&.halui\&.home\-all\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.home\-all\fR, driven by M\-Home Pin for requesting all axis to home\&. See also
+\fBwhb\&.button\&.m\-home\fR\&.
+.RE
+.PP
+\fBwhb\&.halui\&.axis\&.<N>\&.select\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.axis\&.<N>\&.select\fR
+Pin to select axis\&.
+.RE
+.PP
+\fBwhb\&.axis\&.<N>\&.jog\-counts\fR (s32,out)
+.RS 4
+connect to
+\fBaxis\&.<N>\&.jog\-counts\fR
+The count pin of the jogwheel\&.
+.RE
+.PP
+\fBwhb\&.axis\&.<N>\&.jog\-enable\fR (bit,out)
+.RS 4
+connect to
+\fBaxis\&.<N>\&.jog\-enable\fR
+If true (and in manual mode), any change to "jog\-counts" will result in motion\&. If false, "jog\-counts" is ignored\&.
+.RE
+.PP
+\fBwhb\&.axis\&.<N>\&.jog\-scale\fR (float,out)
+.RS 4
+connect to
+\fBaxis\&.<N>\&.jog\-scale\fR
+The distance to move for each count on "jog\-counts", in machine units\&.
+.RE
+.PP
+\fBwhb\&.axis\&.<N>\&.jog\-vel\-mode\fR (bit,out)
+.RS 4
+connect to
+\fBaxis\&.<N>\&.jog\-jog\-vel\-mode\fR
+If false the jogwheel operates in position mode\&. The axis will move exactly jog\-scale units for each count, regardless of how long that might take\&. If true, the jogwheel operates in velocity mode \- motion stops when the wheel stops, even if that means the commanded motion is not completed\&.
+.RE
+.PP
+\fBwhb\&.halui\&.max\-velocity\&.value\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.max\-velocity\&.value\fR
+The maximum allowable velocity, in units per second (<N> is two digit
+\fI0\fR\-padded)\&.
+.RE
+.PP
+\fBwhb\&.halui\&.feed\-override\&.scale\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.feed\-override\&.scale\fR
+The scaling for feed override value\&.
+.RE
+.PP
+\fBwhb\&.halui\&.axis\&.<N>\&.pos\-feedback\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.axis\&.<N>\&.pos\-feedback\fR
+Feedback axis position in machine coordinates to be displayed\&.
+.RE
+.PP
+\fBwhb\&.halui\&.axis\&.<N>\&.pos\-relative\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.axis\&.<N>\&.pos\-relative\fR
+Commanded axis position in relative coordinates to be displayed\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBMachine\fR
+.RS 4
+.sp
+Signals utilized for toggling machine status\&.
+.PP
+\fBwhb\&.halui\&.machine\&.on\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.machine\&.on\fR
+Pin for requesting machine on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.machine\&.is\-on\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.machine\&.is\-on\fR
+Pin that indicates machine is on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.machine\&.off\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.machine\&.off\fR
+Pin for requesting machine off\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBSpindle\fR
+.RS 4
+.sp
+Signals utilized for operating a spindle\&.
+.PP
+\fBwhb\&.halui\&.spindle\&.start\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.start\fR
+Pin to start the spindle\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.is\-on\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.on\fR
+Pin to indicate spindle is on (either direction)\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.stop\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.stop\fR
+Pin to stop the spindle\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.forward\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.forward\fR
+Pin to make the spindle go forward\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.reverse\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.reverse\fR
+Pin to make the spindle go reverse\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.decrease\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.decrease\fR
+Pin to decrease the spindle speed\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\&.increase\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.increase\fR
+Pin to increase the spindle speed\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\-override\&.increase\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.override\&.increase\fR
+Pin for increasing the spindle override by the amount of scale\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\-override\&.decrease\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.override\&.decrease\fR
+Pin for decreasing the spindle override by the amount of scale\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\-override\&.value\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.override\&.value\fR
+The current spindle override value\&.
+.RE
+.PP
+\fBwhb\&.halui\&.spindle\-override\&.scale\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.spindle\&.0\&.override\&.scale\fR
+The current spindle scaling override value\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBFeed\fR
+.RS 4
+.sp
+Signals utilized for operating spindle and feed override\&. The feed rotary button can serve in Continuous move x% from max velocity Step move x mm Mpg override feed/spindle the special position Lead\&. \fBContinuous:\fR In this mode jogging is performed at the selected feed rate\&. As long the jogwheel turns, the selected axis moves\&. \fBStep:\fR In this mode the machine moves steps * wheel_counts at the currently selected step size and the current set feed rate in machine units\&. If the commanded position is not reached the machine keeps moving even the jogwheel is not turning\&. \fBLead:\fR Manipulates the spindle override\&.+ \fBMpg:\fR Manipulates the feedrate override\&.+
+.sp
+\fBNote:\fR As a consequence of 3 modes from manufacturer, switching the feed rotary button back from Lead revert to Mpg mode, Mpg mode is default mode at startup\&. Depending on the mode before turning the rotary button, the feed override results in different values\&. In MPG/CON the feed rate will change to 100%, 60%, \&... and so forth\&. In Step mode the feed rate is mm\&.
+.PP
+\fBwhb\&.halui\&.feed\-override\&.value\fR (float,in)
+.RS 4
+connect to
+\fBhalui\&.feed\-override\&.value\fR
+The current feed override value\&.
+.RE
+.PP
+\fBwhb\&.halui\&.feed\-override\&.decrease\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.feed\-override\&.decrease\fR
+Pin for decreasing the feed override by amount of scale\&.
+.RE
+.PP
+\fBwhb\&.halui\&.feed\-override\&.increase\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.feed\-override\&.increase\fR
+Pin for increasing the feed override by amount of scale\&.
+.RE
+.PP
+\fBwhb\&.halui\&.feed\-override\&.scale\fR (float,out)
+.RS 4
+connect to
+\fBhalui\&.feed\-override\&.scale\fR
+Pin for setting the scale on changing the feed override\&.
+.RE
+.PP
+\fBwhb\&.halui\&.max\-velocity\&.value\fR (float,out)
+.RS 4
+connect to
+\fBhalui\&.max\-velocity\&.value\fR
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBProgram\fR
+.RS 4
+.sp
+Signals for operating program and MDI mode\&.
+.PP
+\fBwhb\&.halui\&.program\&.run\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.program\&.run\fR
+in for running a program\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.is\-running\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.program\&.is\-running\fR
+in indicating a program is running\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.pause\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.program\&.pause\fR
+Pin for pausing a program\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.is\-paused\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.program\&.is\-paused\fR
+Pin indicating a program is pausing\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.resume\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.program\&.resume\fR
+Pin for resuming a program\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.stop\fR (bit,out)
+.RS 4
+connect to
+\fBprogram\&.stop\fR
+Pin for stoping a program\&.
+.RE
+.PP
+\fBwhb\&.halui\&.program\&.is\-idle\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.program\&.is\-idle\fR
+Pin indicating no program is running\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.auto\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mode\&.auto\fR
+Pin for requesting auto mode\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.is\-auto\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.mode\&.is\-auto\fR
+Pin for indicating auto mode is on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.joint\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mode\&.joint\fR
+Pin for requesting joint by joint mode\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.is\-joint\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.mode\&.is\-joint\fR
+Pin indicating joint by joint mode is on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.manual\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mode\&.manual\fR
+Pin for requesting manual mode\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.is\-manual\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.mode\&.is\-manual\fR
+Pin indicating manual mode is on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.mdi\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mode\&.mdi\fR
+Pin for requesting MDI mode\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.is\-mdi\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.mode\&.is\-mdi\fR
+Pin indicating MDI mode is on\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.teleop\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mode\&.teleop\fR
++ Pin for requesting axis by axis mode\&.
+.RE
+.PP
+\fBwhb\&.halui\&.mode\&.is\-teleop\fR (bit,in)
+.RS 4
+connect to
+\fBhalui\&.mode\&.is\-teleop\fR
+Pin indicating axis by axis mode is on\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBButtons\fR
+.RS 4
+.sp
+For flexibility reasons each button provides an output pin even if no functionality is realized directly with that signal\&. The Fn button can be combined with each other push\-button\&. This includes also RESET, Stop, Start/Pause, Macro\-10, and Step|Continuous\&. By default the more frequent used orange buttons are executed, whereas blue ones (whb\&.button\&.macro\-<M>) by combining them with Fn (press Fn first then button)\&.
+.sp
+Button macro needs to be added to your ini and needs to be edited for your own use :
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[HALUI]
+MDI_COMMAND=(debug,macro0)  # this one is for numbering but not used by pendant (need 1 to 16)
+MDI_COMMAND=(debug,macro1)
+MDI_COMMAND=(debug,macro2)
+MDI_COMMAND=(debug,macro3)
+MDI_COMMAND=(debug,macro4)
+MDI_COMMAND=(debug,macro5)
+MDI_COMMAND=(debug,macro6)
+MDI_COMMAND=(debug,macro7)
+MDI_COMMAND=(debug,macro8)
+MDI_COMMAND=(debug,macro9)
+MDI_COMMAND=(debug,macro10)
+MDI_COMMAND=(debug,macro11)
+MDI_COMMAND=(debug,macro12)
+MDI_COMMAND=(debug,macro13)
+MDI_COMMAND=(debug,macro14)
+MDI_COMMAND=(debug,macro15)
+MDI_COMMAND=(debug,macro16)
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+\fB<M>\fR \&... denotes an arbitrary macro number which is of {1, 2, \&..., 16}
+.PP
+\fBwhb\&.button\&.reset\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.estop\&.{activate, reset}\fR
+True one Reset button down, false otherwise\&. For toggling E\-stop use whb\&.halui\&.estop \&.active and \&.reset\&.
+.RE
+.PP
+\fBwhb\&.button\&.stop\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.program\&.stop\fR
+True on Stop button down, false otherwise\&. For stopping a program use whb\&.halui\&.program\&.stop\&.
+.RE
+.PP
+\fBwhb\&.button\&.start\-pause\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.program\&.{run, pause, resume}\fR
+True on Start\-Pause button down, false otherwise\&.For toggling start\-pause use whb\&.halui\&.program \&.run, \&.pause, and \&.resume\&.
+.RE
+.PP
+\fBwhb\&.button\&.feed\-plus\fR (bit,out)
+.RS 4
+True on Feed+ button down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.feed\-minus\fR (bit,out)
+.RS 4
+True on Feed\- button down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.spindle\-plus\fR (bit,out)
+.RS 4
+see
+\fBhalui\&.spindle\&.0\&.override\&.increase\fR
+True on Spindle+ button down, false otherwise\&. This button is meant to manipulate the spindle override\&. For increasing the spindle override use
+\fBhalui\&.spindle\&.0\&.override\&.increase\fR
+.RE
+.PP
+\fBwhb\&.button\&.spindle\-minus\fR (bit,out)
+.RS 4
+see
+\fBhalui\&.spindle\&.0\&.override\&.decrease\fR
+True on Spindle\- button down, false otherwise\&. This button is meant to manipulate the spindle override\&.For decreasing the spindle override use
+\fBhalui\&.spindle\&.0\&.override\&.decrease\fR
+.RE
+.PP
+\fBwhb\&.button\&.m\-home\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.home\-all\fR
+True on M\-Home button down, false otherwise\&. Requests MDI mode before button pin is set\&. See also
+\fBwhb\&.halui\&.mode\&.mdi\fR\&.
+.RE
+.PP
+\fBwhb\&.button\&.safe\-z\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Safe\-Z button down, false otherwise\&. Requests MDI mode before button pin is set\&. See also
+\fBwhb\&.halui\&.mode\&.mdi\fR\&.
+.RE
+.PP
+\fBwhb\&.button\&.w\-home\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on W\-Home button down, false otherwise\&. Requests MDI mode before button pin is set\&. See also
+\fBwhb\&.halui\&.mode\&.mdi\fR\&.
+.RE
+.PP
+\fBwhb\&.button\&.s\-on\-off\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.spindle\&.{start, stop}\fR
+True on S\-ON/OFF button down, false otherwise\&.For toggling spindle on\-off use halui\&.spindle\&.0\&.start\&. For toggling spindle on\-off use halui\&.spindle\&.0\&.stop\&.
+.RE
+.PP
+\fBwhb\&.button\&.fn\fR (bit,out)
+.RS 4
+True on Fn button down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.probe\-z\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Probe\-Z button down, false otherwise\&.Requests MDI mode before button pin is set\&. See also
+\fBwhb\&.halui\&.mode\&.mdi\fR\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-1\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-1 button (Fn + Feed+) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-2\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-2 button (Fn + Feed\-) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-3\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.spindle\&.increase\fR
+True on Macro\-3 button (Fn + Spindle+) down, false otherwise\&. This button is meant to manipulate the spindle speed\&. For decreasing the spindle speed use whb\&.halui\&.spindle\&.increase\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-4\fR (bit,out)
+.RS 4
+see
+\fBwhb\&.halui\&.spindle\&.decrease\fR
+True on Macro\-4 button down (Fn + Spindle\-), false otherwise This button is meant to manipulate the spindle speed\&. For decreasing the spindle speed use
+\fBwhb\&.halui\&.spindle\&.decrease\fR
+.RE
+.PP
+\fBwhb\&.button\&.macro\-5\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-5 button down (Fn + M\-HOME), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-6\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-6 button down (Fn + Safe\-Z), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-7\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-7 button down (Fn + W\-HOME), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-8\fR (bit,out)
+.RS 4
+reserved for Spindle Direction True on Macro\-8 button down (Fn + S\-ON/OFF), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-9\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-9 button down (Fn + Probe\-Z), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-10\fR (bit,out)
+.RS 4
+reserved for toggle DRO Abs/rel\&. True on Macro\-10 button down, false otherwise\&. Switches the display coordinates to relative coordinates\&.On display the axis are denoted then as X1, Y1, Z1, A1, B1 and C1\&. See also
+\fBwhb\&.halui\&.axis\&.<N>\&.pos\-relative\fR\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-11\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-11 button down (Fn + RESET), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-12\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-12 button (Fn + Stop) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-13\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> rue on Macro\-13 button (Fn
+
+Start/Pause) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-14\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-14 button (Fn + Macro\-10) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-15\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-15 button down (Fn + MPG), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.macro\-16\fR (bit,out)
+.RS 4
+connect to
+\fBhalui\&.mdi\-command\-\fR<M> True on Macro\-16 button (Fn + Step) down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.mode\-continuous\fR (bit,out)
+.RS 4
+True on Continuous mode button down, false otherwise\&.
+.RE
+.PP
+\fBwhb\&.button\&.mode\-step\fR (bit,out)
+.RS 4
+True on Step mode button down, false otherwise\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBPendant\fR
+.RS 4
+.PP
+\fBwhb\&.pendant\&.is\-sleeping\fR (bit,out)
+.RS 4
+True as long pendant is in sleep mode (usually a few seconds after turned off), false otherwise\&.
+.RE
+.PP
+\fBwhb\&.pendant\&.is\-connected\fR (bit,out)
+.RS 4
+True as long pendant is not in sleep mode (turned on), false otherwise\&.
+.RE
+.RE
+.SH "HAL CONFIGURATION EXAMPLE"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+#
+### Hal File xhc_whb04b_6\&.hal Example
+#
+# ######################################################################
+# load pendant components
+# ######################################################################
+
+loadusr \-W xhc\-whb04b\-6 \-HsfB
+
+# ######################################################################
+# pendant signal configuration
+# ######################################################################
+
+# On/Off signals
+net machine\&.is\-on                         halui\&.machine\&.is\-on                   whb\&.halui\&.machine\&.is\-on
+net pdnt\&.machine\&.on                       whb\&.halui\&.machine\&.on                  halui\&.machine\&.on
+net pdnt\&.machine\&.off                      whb\&.halui\&.machine\&.off                 halui\&.machine\&.off
+
+# program related signals
+net pdnt\&.program\&.is\-idle                  whb\&.halui\&.program\&.is\-idle             halui\&.program\&.is\-idle
+net pdnt\&.program\&.is\-paused                whb\&.halui\&.program\&.is\-paused           halui\&.program\&.is\-paused
+net pdnt\&.program\-is\-running               whb\&.halui\&.program\&.is\-running          halui\&.program\&.is\-running
+net pdnt\&.program\&.resume                   whb\&.halui\&.program\&.resume              halui\&.program\&.resume
+net pdnt\&.program\&.pause                    whb\&.halui\&.program\&.pause               halui\&.program\&.pause
+net pdnt\&.program\&.run                      whb\&.halui\&.program\&.run                 halui\&.program\&.run
+net pdnt\&.program\&.stop                     whb\&.halui\&.program\&.stop                halui\&.program\&.stop
+
+# machine mode related signals
+net pdnt\&.mode\&.auto                        whb\&.halui\&.mode\&.auto                   halui\&.mode\&.auto
+net pdnt\&.mode\&.manual                      whb\&.halui\&.mode\&.manual                 halui\&.mode\&.manual
+net pdnt\&.mode\&.mdi                         whb\&.halui\&.mode\&.mdi                    halui\&.mode\&.mdi
+net pdnt\&.mode\&.joint                       whb\&.halui\&.mode\&.joint                  halui\&.mode\&.joint
+net pdnt\&.mode\&.teleop                      whb\&.halui\&.mode\&.teleop                 halui\&.mode\&.teleop
+net pdnt\&.mode\&.is\-auto                     halui\&.mode\&.is\-auto                    whb\&.halui\&.mode\&.is\-auto
+net pdnt\&.mode\&.is\-manual                   halui\&.mode\&.is\-manual                  whb\&.halui\&.mode\&.is\-manual
+net pdnt\&.mode\&.is\-mdi                      halui\&.mode\&.is\-mdi                     whb\&.halui\&.mode\&.is\-mdi
+net pdnt\&.mode\&.is\-joint                    halui\&.mode\&.is\-joint                   whb\&.halui\&.mode\&.is\-joint
+net pdnt\&.mode\&.is\-teleop                   halui\&.mode\&.is\-teleop                  whb\&.halui\&.mode\&.is\-teleop
+
+
+# "selected axis" signals
+net pdnt\&.axis\&.X\&.select                    whb\&.halui\&.axis\&.x\&.select               halui\&.axis\&.x\&.select
+net pdnt\&.axis\&.y\&.select                    whb\&.halui\&.axis\&.y\&.select               halui\&.axis\&.y\&.select
+net pdnt\&.axis\&.Z\&.select                    whb\&.halui\&.axis\&.z\&.select               halui\&.axis\&.z\&.select
+
+net pdnt\&.axis\&.x\&.jog\-scale                 whb\&.axis\&.x\&.jog\-scale                  axis\&.x\&.jog\-scale
+net pdnt\&.axis\&.y\&.jog\-scale                 whb\&.axis\&.y\&.jog\-scale                  axis\&.y\&.jog\-scale
+net pdnt\&.axis\&.z\&.jog\-scale                 whb\&.axis\&.z\&.jog\-scale                  axis\&.z\&.jog\-scale
+
+net pdnt\&.axis\&.x\&.jog\-counts                whb\&.axis\&.x\&.jog\-counts                 axis\&.x\&.jog\-counts
+net pdnt\&.axis\&.y\&.jog\-counts                whb\&.axis\&.y\&.jog\-counts                 axis\&.y\&.jog\-counts
+net pdnt\&.axis\&.z\&.jog\-counts                whb\&.axis\&.z\&.jog\-counts                 axis\&.z\&.jog\-counts
+
+net pdnt\&.axis\&.x\&.jog\-enable                whb\&.axis\&.x\&.jog\-enable                 axis\&.x\&.jog\-enable
+net pdnt\&.axis\&.y\&.jog\-enable                whb\&.axis\&.y\&.jog\-enable                 axis\&.y\&.jog\-enable
+net pdnt\&.axis\&.z\&.jog\-enable                whb\&.axis\&.z\&.jog\-enable                 axis\&.z\&.jog\-enable
+
+net pdnt\&.axis\&.x\&.jog\-vel\-mode              whb\&.axis\&.x\&.jog\-vel\-mode               axis\&.x\&.jog\-vel\-mode
+net pdnt\&.axis\&.y\&.jog\-vel\-mode              whb\&.axis\&.y\&.jog\-vel\-mode               axis\&.y\&.jog\-vel\-mode
+net pdnt\&.axis\&.z\&.jog\-vel\-mode              whb\&.axis\&.z\&.jog\-vel\-mode               axis\&.z\&.jog\-vel\-mode
+
+
+# macro buttons to MDI commands
+net pdnt\&.macro\-1                          whb\&.button\&.macro\-1                    halui\&.mdi\-command\-01             # use MDI command from main\&.ini
+net pdnt\&.macro\-2                          whb\&.button\&.macro\-2                    halui\&.mdi\-command\-02             # use MDI command from main\&.ini or used for Hardcoded lube on/off
+net pdnt\&.reserved\&.for\&.spindle+            whb\&.button\&.macro\-3                                                     # Harcoded for spindle+ whb\&.halui\&.spindle\&.increase
+net pdnt\&.reserved\&.for\&.spindle\-            whb\&.button\&.macro\-4                                                     # Harcoded for spindle\- whb\&.halui\&.spindle\&.decrease
+net pdnt\&.macro\-5                          whb\&.button\&.macro\-5                    halui\&.mdi\-command\-05             # use MDI command from main\&.ini
+net pdnt\&.macro\-6                          whb\&.button\&.macro\-6                    halui\&.mdi\-command\-06             # use MDI command from main\&.ini
+net pdnt\&.macro\-7                          whb\&.button\&.macro\-7                    halui\&.mdi\-command\-07             # use MDI command from main\&.ini
+net pdnt\&.reserved\&.for\&.spindle\&.dir         whb\&.button\&.macro\-8                                                     # Harcoded for spindle direction inside pendant
+net pdnt\&.macro\-9                          whb\&.button\&.macro\-9                    halui\&.mdi\-command\-09             # use MDI command from main\&.ini
+net pdnt\&.reserved\&.for\&.ABS\-REL             whb\&.button\&.macro\-10                                                    # Hardcoded for swap Dro  Relative/Absolue
+net pdnt\&.macro\-14                         whb\&.button\&.macro\-14                   halui\&.mdi\-command\-14             # use MDI command from main\&.ini
+net pdnt\&.reserved\&.for\&.flood               whb\&.button\&.macro\-15                                                    # Harcoded for halui\&.flood on/off
+net pdnt\&.reserved\&.for\&.mist                whb\&.button\&.macro\-16                                                    # Harcoded for halui\&.mist on/off
+
+net pdnt\&.macro\&.11                         whb\&.button\&.macro\-11                   halui\&.mdi\-command\-11             # use MDI command from main\&.ini
+net pdnt\&.macro\&.12                         whb\&.button\&.macro\-12                   halui\&.mdi\-command\-12             # use MDI command from main\&.ini
+net pdnt\&.macro\&.13                         whb\&.button\&.macro\-13                   halui\&.mdi\-command\-13             # use MDI command from main\&.ini
+
+
+# flood and mist toggle signals
+net  pdnt\&.flood\&.is\-on                     whb\&.halui\&.flood\&.is\-on                 halui\&.flood\&.is\-on                #return signal is on or off
+net  pdnt\&.flood\&.off                       whb\&.halui\&.flood\&.off                   halui\&.flood\&.off                  #reserved whb\&.button\&.macro\-15
+net  pdnt\&.flood\&.on                        whb\&.halui\&.flood\&.on                    halui\&.flood\&.on                   #reserved whb\&.button\&.macro\-15
+
+net  pdnt\&.mist\&.is\-on                      whb\&.halui\&.mist\&.is\-on                  halui\&.mist\&.is\-on                 #return signal is on or off
+net  pdnt\&.mist\&.off                        whb\&.halui\&.mist\&.off                    halui\&.mist\&.off                   #reserved whb\&.button\&.macro\-16
+net  pdnt\&.mist\&.on                         whb\&.halui\&.mist\&.on                     halui\&.mist\&.on                    #reserved whb\&.button\&.macro\-16
+
+#net  pdnt\&.lube\&.is\-on                      whb\&.halui\&.lube\&.is\-on                  halui\&.lube\&.is\-on                 #return signal is on or off
+#net  pdnt\&.lube\&.off                        whb\&.halui\&.lube\&.off                    halui\&.lube\&.off                   #reserved whb\&.button\&.macro\-2
+#net  pdnt\&.lube\&.on                         whb\&.halui\&.lube\&.on                     halui\&.lube\&.on                    #reserved whb\&.button\&.macro\-2
+
+
+# default function button signals
+net pdnt\&.button\&.m\-home                    whb\&.button\&.m\-home                     halui\&.home\-all                   # Homeing use built\-in halui home all
+net pdnt\&.button\&.safe\-z                    whb\&.button\&.safe\-z                     halui\&.mdi\-command\-03             # Safe\-z  use MDI command from main\&.ini
+net pdnt\&.button\&.w\-home                    whb\&.button\&.w\-home                     halui\&.mdi\-command\-04             # Unpark  use MDI command from main\&.ini
+net pdnt\&.button\&.probe\-z                   whb\&.button\&.probe\-z                    halui\&.mdi\-command\-08             # Probe\-Z use MDI command from main\&.ini
+
+
+# unused, just exposes pendant internal status or as basic button
+#net pdnt\&.mode\-lead                        whb\&.halui\&.feed\&.selected\-lead
+#net pdnt\&.mode\-mpg\-feed                    whb\&.halui\&.feed\&.selected\-mpg\-feed
+#net pdnt\&.mode\-continuous                  whb\&.halui\&.feed\&.selected\-continuous
+#net pdnt\&.mode\-step                        whb\&.halui\&.feed\&.selected\-step
+
+#net pdnt\&.button\&.mode\-mpg                  whb\&.button\&.mode\-continuous
+#net pdnt\&.button\&.mode\-step                 whb\&.button\&.mode\-step
+#net pdnt\&.button\&.fn                        whb\&.button\&.fn
+#net pdnt\&.button\&.reset                     whb\&.button\&.reset
+#net pdnt\&.button\&.stop                      whb\&.button\&.stop
+#net pdnt\&.button\&.start\-pause               whb\&.button\&.start\-pause
+#net pdnt\&.button\&.s\-on\-off                  whb\&.button\&.s\-on\-off
+#net pdnt\&.button\&.spindle\-plus              whb\&.button\&.spindle\-plus
+#net pdnt\&.button\&.spindle\-minus             whb\&.button\&.spindle\-minus
+#net pdnt\&.button\&.feed\-plus                 whb\&.button\&.feed\-plus
+#net pdnt\&.button\&.feed\-minus                whb\&.button\&.feed\-minus
+
+
+# spindle related signals
+net pdnt\&.spindle\&.is\-on                    whb\&.halui\&.spindle\&.is\-on               spindle\&.0\&.on
+net pdnt\&.spindle\&.start                    whb\&.halui\&.spindle\&.start               halui\&.spindle\&.0\&.start
+net pdnt\&.spindle\&.stop                     whb\&.halui\&.spindle\&.stop                halui\&.spindle\&.0\&.stop
+net pdnt\&.spindle\&.forward                  whb\&.halui\&.spindle\&.forward             halui\&.spindle\&.0\&.forward
+net pdnt\&.spindle\&.reverse                  whb\&.halui\&.spindle\&.reverse             halui\&.spindle\&.0\&.reverse
+net pdnt\&.spindle\&.increase                 whb\&.halui\&.spindle\&.increase            halui\&.spindle\&.0\&.increase         # reserved whb\&.button\&.macro\-3
+net pdnt\&.spindle\&.decrease                 whb\&.halui\&.spindle\&.decrease            halui\&.spindle\&.0\&.decrease         # reserved whb\&.button\&.macro\-4
+net pdnt\&.spindle\-speed\-abs                whb\&.halui\&.spindle\-speed\-cmd           spindle\&.0\&.speed\-out\-abs          # speed cmd from motion in rpm absolue
+
+
+# spindle speed override signals
+net pdnt\&.spindle\-override\&.scale           whb\&.halui\&.spindle\-override\&.scale      halui\&.spindle\&.0\&.override\&.scale   # needed for both spindle+/\- and spindleoverride+/\- button
+net pdnt\&.spindle\&.override\&.value           halui\&.spindle\&.0\&.override\&.value        whb\&.halui\&.spindle\-override\&.value # GUI feed rate related signals
+net pdnt\&.spindle\&.override\&.increase        whb\&.halui\&.spindle\-override\&.increase   halui\&.spindle\&.0\&.override\&.increase
+net pdnt\&.spindle\&.override\&.decrease        whb\&.halui\&.spindle\-override\&.decrease   halui\&.spindle\&.0\&.override\&.decrease
+
+
+# GUI feed rate related signals can be used when program is running moving GUI slider
+net pdnt\&.feed\-override\&.scale              whb\&.halui\&.feed\-override\&.scale         halui\&.feed\-override\&.scale        # needed for both FeedOverride+/\- and rotary knob button
+net pdnt\&.max\-velocity\&.value               whb\&.halui\&.max\-velocity\&.value          halui\&.max\-velocity\&.value         # needed for Mpg mode : button feed position% * max\-velocity = Mpg feedrate
+
+
+# take feed override min/max values from/to the GUI
+net pdnt\&.feed\-override\&.value              halui\&.feed\-override\&.value             whb\&.halui\&.feed\-override\&.value    # GUI feed rate related signals
+net pdnt\&.feed\-override\&.increase           whb\&.halui\&.feed\-override\&.increase      halui\&.feed\-override\&.increase
+net pdnt\&.feed\-override\&.decrease           whb\&.halui\&.feed\-override\&.decrease      halui\&.feed\-override\&.decrease
+
+
+# axis position related signals feedback
+net pdnt\&.axis\&.x\&.pos\-feedback              halui\&.axis\&.x\&.pos\-feedback             whb\&.halui\&.axis\&.x\&.pos\-feedback
+net pdnt\&.axis\&.y\&.pos\-feedback              halui\&.axis\&.y\&.pos\-feedback             whb\&.halui\&.axis\&.y\&.pos\-feedback
+net pdnt\&.axis\&.z\&.pos\-feedback              halui\&.axis\&.z\&.pos\-feedback             whb\&.halui\&.axis\&.z\&.pos\-feedback
+
+
+# axis position related signals relative
+net pdnt\&.axis\&.x\&.pos\-relative              halui\&.axis\&.x\&.pos\-relative             whb\&.halui\&.axis\&.x\&.pos\-relative
+net pdnt\&.axis\&.y\&.pos\-relative              halui\&.axis\&.y\&.pos\-relative             whb\&.halui\&.axis\&.y\&.pos\-relative
+net pdnt\&.axis\&.z\&.pos\-relative              halui\&.axis\&.z\&.pos\-relative             whb\&.halui\&.axis\&.z\&.pos\-relative
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+xhc\-whb04b\-6 developer documentation on GitHub
+.SH "NOTES"
+.sp
+The CRC code function is not disclosed by the manufacturer\&. Thus the CRC value transmitted with each package is not checked yet\&. Feel free to help us enhance the component\&.
+.SH "AUTHORS"
+.sp
+This component was started by Raoul Rubien based on predecessor device component xhc\-hb04\&.cc\&. https://github\&.com/machinekit/machinekit/graphs/contributors gives you a more complete list of contributors\&.
+.SH "HISTORY"
+.sp
+The component was developed accidentally as leisure project\&. The development started with the xhc\-whb04 (4\-axis wireless pendant) implementation as reference\&. 73 & many thanks to the developers who delivered provided an excellent preparatory work!
+.SH "COPYRIGHT"
+.sp
+Copyright \(co 2018 Raoul Rubien (github\&.com/rubienr) Updated for Linuxcnc 2020 by alkabal_free\&.fr\&. This is free software; see the source for copying conditions\&. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&.

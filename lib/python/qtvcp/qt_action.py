@@ -1,3 +1,8 @@
+import os
+
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt
+
 import linuxcnc
 import hal
 
@@ -22,6 +27,7 @@ class _Lcnc_Action(object):
         self.cmd = linuxcnc.command()
         self.tmp = None
         self.prefilter_path = None
+        self.home_all_warning_flag = False
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -36,10 +42,55 @@ class _Lcnc_Action(object):
             self.cmd.state(linuxcnc.STATE_OFF)
 
     def SET_MACHINE_HOMING(self, joint):
-        log.info('Homing Joint: {}'.format(joint))
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        self.cmd.home(joint)
+        if not INFO.HOME_ALL_FLAG and joint == -1:
+            if not self.home_all_warning_flag == True:
+                self.home_all_warning_flag = True
+                STATUS.emit('error',linuxcnc.NML_ERROR,
+                    ''''Home-all not available according to INI Joint Home sequence
+         Set the joint sequence in the INI or
+         modify the screen for individual home buttons
+         to avoid this warning
+         Press again to home Z axis Joint''')
+            else:
+                if STATUS.is_all_homed():
+                    self.home_all_warning_flag = False
+                    return
+                # so linuxcnc is misonfigured or the Screen is built wrong (needs individual home buttons)
+                # now we will fake individual home buttons by homing joints one at a time
+                # but always start will Z - on a mill it's safer
+                zj = INFO.GET_JOG_FROM_NAME['Z']
+                if not STATUS.stat.homed[zj]:
+                    log.info('Homing Joint: {}'.format(zj))
+                    self.cmd.home(zj)
+                    STATUS.emit('error',linuxcnc.NML_ERROR,
+                        ''''Home-all not available according to INI Joint Home sequence
+             Press again to home next Joint''')
+                    return
+                length = len(INFO.JOINT_SEQUENCE_LIST)
+                for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
+                    print j, num, len(INFO.JOINT_SEQUENCE_LIST)
+                    # at the end so all homed
+                    if num == length -1:
+                        self.home_all_warning_flag = False
+                    # one from end but end is already homed
+                    if num == length -2 and STATUS.stat.homed[zj]:
+                        self.home_all_warning_flag = False
+                    # Z joint is homed first outside this for loop
+                    if j == zj : continue
+                    # ok home it then stop and wait for next button push
+                    if not STATUS.stat.homed[j]:
+                        log.info('Homing Joint: {}'.format(j))
+                        self.cmd.home(j)
+                        if self.home_all_warning_flag:
+                            STATUS.emit('error',linuxcnc.NML_ERROR,
+                                ''''Home-all not available according to INI Joint Home sequence
+                     Press again to home next Joint''')
+                        break
+        else:
+            log.info('Homing Joint: {}'.format(joint))
+            self.cmd.home(joint)
 
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
@@ -59,7 +110,8 @@ class _Lcnc_Action(object):
             STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error',linuxcnc.OPERATOR_TEXT,'Hard Limits Are Reset To Active!')
+            # make it temparary
+            STATUS.emit('error',255,'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -163,20 +215,39 @@ class _Lcnc_Action(object):
                 STATUS.emit('file-loaded',fname)
 
     def SAVE_PROGRAM(self, source, fname):
+        # no gcode - ignore
         if source == '': return
-        if '.' not in fname:
-            fname += '.ngc'
-        name, ext = fname.rsplit('.')
+
+        # normalize to absolute path
         try:
-            outfile = open(name + '.' + ext.lower(),'w')
+            path = os.path.abspath(fname)
+            if '.' not in path:
+                path += '.ngc'
+            name, ext = path.rsplit('.')
+            npath = name + '.' + ext.lower()
+        except Exception as e:
+            log.debug('save error: {}'.format(e))
+            log.debug('Original save path: {}'.format(fname))
+
+        log.debug('SAVE_PROGRAM write to: {}'.format(npath))
+
+        # ok write the file
+        try:
+            outfile = open(npath,'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
         except Exception as e:
             print e
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,e)
         finally:
-            outfile.close()
+            try:
+                outfile.close()
+            except:
+                pass
 
     def SET_AXIS_ORIGIN(self,axis,value):
+        if axis == '' or axis.upper() not in ("XYZABCUVW"):
+            log.warning("Couldn't set orgin -axis >{}< not recognized:".format(axis))
         m = "G10 L20 P0 %s%f"%(axis,value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
@@ -184,9 +255,21 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self,axis,value,fixture = False):
         lnum = 10+int(fixture)
         m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
+    # Set actual tool offset in tool table to the given value
+    def SET_DIRECT_TOOL_OFFSET(self,axis,value):
+        m = "G10 L1 P%d %s%f"%( STATUS.get_current_tool(), axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
@@ -231,21 +314,63 @@ class _Lcnc_Action(object):
         self.cmd.feedrate(rate/100.0)
     def SET_SPINDLE_RATE(self, rate, number = 0):
         self.cmd.spindleoverride(rate/100.0, number)
+
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
+        # stop runaway jogging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
+        # stop runaway joging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur + (INFO.SPINDLE_INCREMENT * dir)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MAX_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur + (INFO.SPINDLE_INCREMENT * dir)), i)
+
     def SET_SPINDLE_SLOWER(self, number = 0):
-        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur - (INFO.SPINDLE_INCREMENT * dir)) <= INFO['MIN_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MIN_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
     def SET_SPINDLE_STOP(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 
@@ -329,6 +454,11 @@ class _Lcnc_Action(object):
             else:
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
+    def STOP_JOG(self, jointnum):
+        if STATUS.machine_is_on() and STATUS.is_man_mode():
+            jjogmode,j_or_a = self.get_jog_info(jointnum)
+            self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
+
     def TOGGLE_FLOOD(self):
         self.cmd.flood(not(STATUS.stat.flood))
     def SET_FLOOD_ON(self):
@@ -367,8 +497,21 @@ class _Lcnc_Action(object):
         if view.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
                     'zoom-in','zoom-out','pan-up','pan-down',
                     'pan-left','pan-right','rotate-up',
-                'rotate-down', 'rotate-cw','rotate-ccw'):
-            STATUS.emit('view-changed',view)
+                'rotate-down', 'rotate-cw','rotate-ccw',
+                'overlay_dro_on','overlay_dro_off',
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off', 'dimensions-on','dimensions-off'):
+            STATUS.emit('graphics-view-changed',view,None)
+
+    def SET_GRAPHICS_GRID_SIZE(self, size):
+            STATUS.emit('graphics-view-changed','GRID-SIZE',{'SIZE':size})
+
+    def ADJUST_GRAPHICS_PAN(self, x, y):
+        STATUS.emit('graphics-view-changed','pan-view',{'X':x,'Y':y})
+
+    def ADJUST_GRAPHICS_ROTATE(self, x, y):
+        STATUS.emit('graphics-view-changed','rotate-view',{'X':x,'Y':y})
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
@@ -389,6 +532,52 @@ class _Lcnc_Action(object):
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
         subprocess.call('shutdown now')
+
+    def UPDATE_MACHINE_LOG(self, text, option=None):
+        if option not in('TIME', 'DATE','DELETE',None):
+            log.warning("Machine_log option not recognized: {}".format(option))
+        STATUS.emit('update-machine-log', text, option)
+
+    def CALL_DIALOG(self, command):
+        try:
+            a = command['NAME']
+        except:
+            log.warning("Call Dialog command Dict not recogzied: {}".format(option))
+        STATUS.emit('dialog-request',command)
+
+    def HIDE_POINTER(self, state):
+        if state:
+            QApplication.setOverrideCursor(Qt.BlankCursor)
+        else:
+            QApplication.restoreOverrideCursor()
+
+    def PLAY_SOUND(self, path):
+        try:
+            STATUS.emit('play-sound', path)
+        except AttributeError:
+            log.warning("Sound request {} not recogzied".format(path))
+    def PLAY_ERROR(self):
+        self.PLAY_SOUND('ERROR')
+    def PLAY_DONE(self):
+        self.PLAY_SOUND('DONE')
+    def PLAY_READY(self):
+        self.PLAY_SOUND('READY')
+    def PLAY_ATTENTION(self):
+        self.PLAY_SOUND('ATTENTION')
+    def PLAY_LOGIN(self):
+        self.PLAY_SOUND('LOGIN')
+    def PLAY_LOGOUT(self):
+        self.PLAY_SOUND('LOGOUT')
+
+    def SPEAK(self, speech):
+        STATUS.emit('play-sound','SPEAK {}'.format(speech))
+
+    def BEEP(self):
+        self.PLAY_SOUND('BEEP')
+    def BEEP_RING(self):
+        self.PLAY_SOUND('BEEP_RING')
+    def BEEP_START(self):
+        self.PLAY_SOUND('BEEP_START')
 
     ######################################
     # Action Helper functions
@@ -447,6 +636,12 @@ class _Lcnc_Action(object):
             return
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
+
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 #############################
 ###########################################
@@ -524,4 +719,19 @@ class FilterProgram:
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
 
+# For testing purposes
+
+if __name__ == "__main__":
+
+    from qtvcp.core import Action
+    testcase = Action()
+
+    # print status caught errors
+    def mess(error,text):
+        print 'STATUS caught:',text
+
+    STATUS.connect("error", lambda w, n, d: mess(n,d))
+
+    # test case
+    testcase.SAVE_PROGRAM('hi','/../../home')
 

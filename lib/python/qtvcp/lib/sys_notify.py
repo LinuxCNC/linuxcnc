@@ -21,13 +21,13 @@ from collections import OrderedDict
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 
 DBusQtMainLoop = None
 try:
     from dbus.mainloop.pyqt5 import DBusQtMainLoop
 except ImportError:
-    log.warning("Could not import DBusQtMainLoop, is package 'python-dbus.mainloop.pyqt5' installed?")
+    LOG.warning("Could not import DBusQtMainLoop, is package 'python-dbus.mainloop.pyqt5' installed?")
 
 APP_NAME = ''
 DBUS_IFACE = None
@@ -51,17 +51,20 @@ def init(app_name):
     interface = "org.freedesktop.Notifications"
 
     mainloop = None
-    if DBusQtMainLoop is not None:
-        mainloop = DBusQtMainLoop(set_as_default=True)
+    try:
+        if DBusQtMainLoop is not None:
+            mainloop = DBusQtMainLoop(set_as_default=True)
 
-    bus = dbus.SessionBus(mainloop)
-    proxy = bus.get_object(name, path)
-    DBUS_IFACE = dbus.Interface(proxy, interface)
+        bus = dbus.SessionBus(mainloop)
+        proxy = bus.get_object(name, path)
+        DBUS_IFACE = dbus.Interface(proxy, interface)
 
-    if mainloop is not None:
-        # We have a mainloop, so connect callbacks
-        DBUS_IFACE.connect_to_signal('ActionInvoked', _onActionInvoked)
-        DBUS_IFACE.connect_to_signal('NotificationClosed', _onNotificationClosed)
+        if mainloop is not None:
+            # We have a mainloop, so connect callbacks
+            DBUS_IFACE.connect_to_signal('ActionInvoked', _onActionInvoked)
+            DBUS_IFACE.connect_to_signal('NotificationClosed', _onNotificationClosed)
+    except Exception as e:
+        LOG.warning('Descktop Notify not availale:: {}'.format(e))
 
 def _onActionInvoked(nid, action):
     """Called when a notification action is clicked"""
@@ -111,29 +114,35 @@ class Notification(object):
         self.data = {}                  # arbitrary user data
 
     def show(self):
-        if DBUS_IFACE is None:
-            raise UninitializedError("You must call 'notify.init()' before 'notify.show()'")
+        try:
+            if DBUS_IFACE is None:
+                raise UninitializedError("You must call 'notify.init()' before 'notify.show()'")
 
-        """Asks the notification server to show the notification"""
-        nid = DBUS_IFACE.Notify(APP_NAME,
-                           self.id,
-                           self.icon,
-                           self.title,
-                           self.body,
-                           self._makeActionsList(),
-                           self.hints,
-                           self.timeout,
-                        )
+            """Asks the notification server to show the notification"""
+            nid = DBUS_IFACE.Notify(APP_NAME,
+                               self.id,
+                               self.icon,
+                               self.title,
+                               self.body,
+                               self._makeActionsList(),
+                               self.hints,
+                               self.timeout,
+                            )
 
-        self.id = int(nid)
+            self.id = int(nid)
 
-        NOTIFICATIONS[self.id] = self
-        return True
+            NOTIFICATIONS[self.id] = self
+            return True
+        except Exception as e:
+            LOG.debug('Descktop Notify: {}'.format(e))
 
     def close(self):
         """Ask the notification server to close the notification"""
-        if self.id != 0:
-            DBUS_IFACE.CloseNotification(self.id)
+        try:
+            if self.id != 0:
+                DBUS_IFACE.CloseNotification(self.id)
+        except:
+            pass
 
     def onClose(self, callback):
         """Set the callback called when the notification is closed"""

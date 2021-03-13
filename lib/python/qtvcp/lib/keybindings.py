@@ -14,11 +14,12 @@
 # it returns this name so Qtscreen can call the function to actually do something.
 # you can add or change these
 
+import traceback
 from PyQt5.QtCore import Qt
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -103,6 +104,7 @@ def key_pressed( event):
                 Qt.Key_Exclam: "Key_Exclam",
                 Qt.Key_QuoteDbl: "Key_QuoteDdl",
                 Qt.Key_NumberSign: "Key_NumberSign",
+                Qt.Key_Dollar:"Key_DollarSign",
                 Qt.Key_Percent: "Key_Percent",
                 Qt.Key_Ampersand: "Key_Ampersand",
                 Qt.Key_Apostrophe: "Key_Apostrophe",
@@ -170,7 +172,7 @@ def key_pressed( event):
 
                 }
 
-        char = keys.get(keynum, '<unknown>')
+        char = keys.get(keynum, '<unknown - {}>'.format(keynum))
  
         mods = []
         if event.modifiers() & Qt.AltModifier:
@@ -187,22 +189,24 @@ def key_pressed( event):
         txt = "+".join(mods) + (mods and "+" or "") + char
         return txt
 
+# list of keyname, function name, optional value
+# value can be used when calling one function with multiple keys
 class _Keycalls:
     def __init__(self):
-        self.Key_F1 = 'on_keycall_ESTOP'
-        self.Key_F2 = 'on_keycall_POWER'
-        self.Key_Home = 'on_keycall_HOME'
-        self.Key_Escape = 'on_keycall_ABORT'
-        self.Key_Left = 'on_keycall_XNEG'
-        self.Key_Right = 'on_keycall_XPOS'
-        self.Key_Up = 'on_keycall_YPOS'
-        self.Key_Down = 'on_keycall_YNEG'
-        self.Key_PageUp = 'on_keycall_ZPOS'
-        self.Key_PageDown = 'on_keycall_ZNEG'
-        self.Key_BracketLeft ='on_keycall_APOS'
-        self.Key_BracketRight ='on_keycall_ANEG'
-        self.Key_BraceLeft ='on_keycall_APOS'
-        self.Key_BraceRight ='on_keycall_ANEG'
+        self.Key_F1 = ['on_keycall_ESTOP', None]
+        self.Key_F2 = ['on_keycall_POWER', None]
+        self.Key_Home = ['on_keycall_HOME', None]
+        self.Key_Escape = ['on_keycall_ABORT', None]
+        self.Key_Left = ['on_keycall_XNEG', None]
+        self.Key_Right = ['on_keycall_XPOS', None]
+        self.Key_Up = ['on_keycall_YPOS', None]
+        self.Key_Down = ['on_keycall_YNEG', None]
+        self.Key_PageUp = ['on_keycall_ZPOS', None]
+        self.Key_PageDown = ['on_keycall_ZNEG', None]
+        self.Key_BracketLeft =['on_keycall_APOS', None]
+        self.Key_BracketRight =['on_keycall_ANEG', None]
+        self.Key_BraceLeft =['on_keycall_APOS', None]
+        self.Key_BraceRight =['on_keycall_ANEG', None]
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -219,35 +223,53 @@ class Keylookup:
     # This looks up the function named based from the keynumber and then calls
     # the function in the handler file
     def call(self,handler_instance,event,state,shift,cntrl):
-        function_name = self.convert(event)
-        if function_name is None:
-            raise NameError('No KeyCall binding defined for %s'% key_pressed(event))
-            #return False
-        handler_instance[function_name](event,state,shift,cntrl)
+        try:
+            function_name, value = self.convert(event)
+        except TypeError:
+            raise NameError('No KeyCall binding defiimport tracebackned for %s'% key_pressed(event))
+        if value is None:
+            handler_instance[function_name](event,state,shift,cntrl)
+        else:
+            # has option value so function signature is different
+            handler_instance[function_name](event,state,shift,cntrl,value)
         return True
 
     # convert a Qt event to a function name
     def convert(self,event):
         try:
             b = key_pressed(event)
-            return self.keycall[b]
+            f,v = self.keycall[b]
+            return f,v
         except:
-            log.info("no function name conversion for QT Event: '{}'".format(b))
-            return None
+            raise NameError("no function name conversion for QT Event: '{}'".format(b))
 
     # get a function name from a keyname
     def get_call(self,binding):
         try:
-            return self.keycall[binding]
+            a,v = self.keycall[binding]
+            return a,v
         except:
-            print "No key function call"
-            return None
+            raise NameError("No key function call")
 
     # add a keyname and function name
-    def add_call(self,binding,function):
+    def add_call(self,binding,function,value=None):
         try:
-            self.keycall[binding] = function
+            self.keycall[binding] = [function,value]
         except:
-            print "Binding %s could not be added"% binding
+            raise NameError("Binding %s could not be added"% binding)
 
-
+    def manage_function_calls(self,handler,event, is_pressed, key, shift, cntrl):
+        try:
+            b = self.call(handler,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            if is_pressed:
+                LOG.debug('Exception in KEYBINDING: {}'.format (e))
+        except Exception as e:
+            if is_pressed:
+                formatted_lines = traceback.format_exc().splitlines()
+                #LOG.debug('Exception in KEYBINDING:', exc_info=e)
+                print """Key Binding Error for key '%s' calling function: %s in handler file:"""%(key,self.convert(event))
+                for i in range(5, len(formatted_lines)):
+                    print formatted_lines[i]
+        event.accept()
+        return True

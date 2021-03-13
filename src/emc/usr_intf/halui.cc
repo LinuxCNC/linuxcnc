@@ -34,6 +34,7 @@
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
+#include <rtapi_string.h>
 
 /* Using halui: see the man page */
 
@@ -1034,7 +1035,7 @@ static int sendMdiCommand(int n)
 	    return -1;
 	}
     }
-    strcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
+    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
     if (emcCommandSend(emc_task_plan_execute_msg)) {
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
@@ -1411,7 +1412,7 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }

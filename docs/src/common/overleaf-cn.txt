@@ -1,0 +1,25 @@
+该手册正在编写中。如果您能够在编写，
+编辑或者图片准备上为我们提供帮助，
+请联系文档编写团队任何成员，或加入我们团队。
+发送电子邮件至
+
+emc-users@lists.sourceforge.net
+
+版权所有©2000-2020 LinuxCNC.org
+
+授予复制，分发和/或修改本文档的权限
+根据GNU Free Documentation License Version 1.1的条款
+或自由软件基金会发布的任何更高版本；
+没有不变的部分，没有前封面文字，也没有后封面文字。
+许可证的副本包含在标题为“GNU Free Documentation License”中。
+
+LINUX®是Linus Torvalds在美国和其他国家/地区的注册商标。
+注册商标Linux®是根据来自Linux商标协会（LMI）分许可证使用，
+LMI是Linus Torvalds的独家许可持有人，全球范围内商标的所有者。
+
+LinuxCNC项目不属于Debian®。
+_Debian_ 是公益软件公司（Software in the Public Interest，Inc.）拥有的注册商标，
+
+LinuxCNC项目不属于UBUNTU®。
+_UBUNTU_ 是科能软件有限公司（Canonical Limited）拥有的注册商标。
+

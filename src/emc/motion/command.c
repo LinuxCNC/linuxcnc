@@ -405,10 +405,10 @@ STATIC int is_feed_type(int motion_type)
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
   */
-void emcmotCommandHandler(void *arg, long period)
+void emcmotCommandHandler(void *arg, long servo_period)
 {
     int joint_num, axis_num, spindle_num;
-    int n;
+    int n,s0,s1; 
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     double tmp1;
@@ -819,10 +819,6 @@ void emcmotCommandHandler(void *arg, long period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (emcmotStatus->net_feed_scale < 0.0001) {
-		/* don't jog if feedhold is on or if feed override is zero */
-		break;
-	    }
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jjog_active) {
 		    /* can't do two kinds of jog at once */
@@ -866,16 +862,14 @@ void emcmotCommandHandler(void *arg, long period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP  JOG_CONT
+                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
                 axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
                 if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
                     /* here: set pos_cmd to a big number so that with combined
                     *        teleop jog plus external offsets the soft limits
                     *        can always be reached
-                    *  a fixed epsilon is used here for convenience
-                    *  it is not the same as the epsilon used as a stopping 
-                    *  criterion in control.c
                     */
                     if (emcmotCommand->vel > 0.0) {
                         axis->teleop_tp.pos_cmd =  1e12; // 1T halscope limit
@@ -913,10 +907,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (emcmotStatus->homing_active) {
 		reportError(_("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-	    if (emcmotStatus->net_feed_scale < 0.0001 ) {
-		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
             if (!GET_MOTION_TELEOP_FLAG()) {
@@ -970,6 +960,7 @@ void emcmotCommandHandler(void *arg, long period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP JOG_INCR
+                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
 	        if (emcmotCommand->vel > 0.0) {
 		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
@@ -981,7 +972,7 @@ void emcmotCommandHandler(void *arg, long period)
                 // it is not the same as the epsilon used as a stopping 
                 // criterion in control.c
                 if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
                     // external_offsets: soft limit enforcement is in control.c
                 } else {
                     if (tmp1 > axis->max_pos_limit) { break; }
@@ -1021,10 +1012,6 @@ void emcmotCommandHandler(void *arg, long period)
                 // FREE JOG_ABS
                 if (joint->wheel_jjog_active) {
                     /* can't do two kinds of jog at once */
-                    break;
-                }
-                if (emcmotStatus->net_feed_scale < 0.0001 ) {
-                    /* don't jog if feedhold is on or if feed override is zero */
                     break;
                 }
                 /* don't jog further onto limits */
@@ -1265,6 +1252,20 @@ void emcmotCommandHandler(void *arg, long period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
 	    tpPause(&emcmotDebug->coord_tp);
 	    emcmotStatus->paused = 1;
+	    break;
+
+	case EMCMOT_REVERSE:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "REVERSE");
+	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE);
+	    break;
+
+	case EMCMOT_FORWARD:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FORWARD");
+	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD);
 	    break;
 
 	case EMCMOT_RESUME:
@@ -1699,35 +1700,45 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient))
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON\n");
-	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_locked))
-		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON\n");
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
-	    emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
 
-	    /* if (emcmotStatus->spindle.orient) { */
-	    /* 	reportError(_("cant turn on spindle during orient in progress")); */
-	    /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-	    /* 	tpAbort(&emcmotDebug->tp); */
-	    /* 	SET_MOTION_ERROR_FLAG(1); */
-	    /* } else {...} */
-	    emcmotStatus->spindle_status[spindle_num].speed = emcmotCommand->vel;
-	    emcmotStatus->spindle_status[spindle_num].css_factor = emcmotCommand->ini_maxvel;
-	    emcmotStatus->spindle_status[spindle_num].xoffset = emcmotCommand->acc;
-	    if (emcmotCommand->vel >= 0) {
-		emcmotStatus->spindle_status[spindle_num].direction = 1;
-	    } else {
-		emcmotStatus->spindle_status[spindle_num].direction = -1;
-	    }
-	    emcmotStatus->spindle_status[spindle_num].brake = 0; //disengage brake
-            emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
+	        if (*(emcmot_hal_data->spindle[n].spindle_orient))
+	    	rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON\n");
+	        if (*(emcmot_hal_data->spindle[n].spindle_locked))
+		    rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON\n");
+	        *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
+	        *(emcmot_hal_data->spindle[n].spindle_orient) = 0;
+	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
 
-           // check wether it's passed correctly
-           if (!emcmotStatus->atspeed_next_feed)
-               rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
-	    break;
+	        /* if (emcmotStatus->spindle.orient) { */
+	        /* 	reportError(_("cant turn on spindle during orient in progress")); */
+	        /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
+	        /* 	tpAbort(&emcmotDebug->tp); */
+	        /* 	SET_MOTION_ERROR_FLAG(1); */
+	        /* } else {...} */
+	        emcmotStatus->spindle_status[n].speed = emcmotCommand->vel;
+	        emcmotStatus->spindle_status[n].css_factor = emcmotCommand->ini_maxvel;
+	        emcmotStatus->spindle_status[n].xoffset = emcmotCommand->acc;
+	        if (emcmotCommand->vel >= 0) {
+		    emcmotStatus->spindle_status[n].direction = 1;
+	        } else {
+		    emcmotStatus->spindle_status[n].direction = -1;
+	        }
+	        emcmotStatus->spindle_status[n].brake = 0; //disengage brake
+        }
+        emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
+
+       // check wether it's passed correctly
+       if (!emcmotStatus->atspeed_next_feed){
+           rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
+       }
+	   break;
 
 	case EMCMOT_SPINDLE_OFF:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_OFF");
@@ -1737,16 +1748,26 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    emcmotStatus->spindle_status[spindle_num].speed = 0;
-	    emcmotStatus->spindle_status[spindle_num].direction = 0;
-	    emcmotStatus->spindle_status[spindle_num].brake = 1; // engage brake
-	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient))
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_OFF");
-	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_locked))
-		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_OFF");
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
-	    emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+
+	        emcmotStatus->spindle_status[n].speed = 0;
+	        emcmotStatus->spindle_status[n].direction = 0;
+	        emcmotStatus->spindle_status[n].brake = 1; // engage brake
+	        if (*(emcmot_hal_data->spindle[n].spindle_orient))
+		    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_OFF");
+	        if (*(emcmot_hal_data->spindle[n].spindle_locked)){
+		    rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_OFF");
+	            *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
+            }
+	        *(emcmot_hal_data->spindle[n].spindle_orient) = 0;
+	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
+        }
 	    break;
 
 	case EMCMOT_SPINDLE_ORIENT:
@@ -1757,33 +1778,42 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    if (spindle_num > emcmotConfig->numSpindles){
-            rtapi_print_msg(RTAPI_MSG_ERR, "spindle number <%d> too high in M19",spindle_num);
-            break;
-	    }
-	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient)) {
-		rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
 
-		// mah:FIXME unsure wether this is ok or an error
-		/* reportError(_("orient already in progress")); */
-		/* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-		/* tpAbort(&emcmotDebug->tp); */
-		/* SET_MOTION_ERROR_FLAG(1); */
-	    }
-	    emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_IN_PROGRESS;
-	    emcmotStatus->spindle_status[spindle_num].speed = 0;
-	    emcmotStatus->spindle_status[spindle_num].direction = 0;
-	    // so far like spindle stop, except opening brake
-	    emcmotStatus->spindle_status[spindle_num].brake = 0; // open brake
+	        if (n > emcmotConfig->numSpindles){
+                rtapi_print_msg(RTAPI_MSG_ERR, "spindle number <%d> too high in M19",n);
+                break;
+	        }
+	        if (*(emcmot_hal_data->spindle[n].spindle_orient)) {
+		    rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
 
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient_angle) = emcmotCommand->orientation;
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient_mode) = emcmotCommand->mode;
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
-	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 1;
+		    // mah:FIXME unsure wether this is ok or an error
+		    /* reportError(_("orient already in progress")); */
+		    /* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
+		    /* tpAbort(&emcmotDebug->tp); */
+		    /* SET_MOTION_ERROR_FLAG(1); */
+	        }
+	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_IN_PROGRESS;
+	        emcmotStatus->spindle_status[n].speed = 0;
+	        emcmotStatus->spindle_status[n].direction = 0;
+	        // so far like spindle stop, except opening brake
+	        emcmotStatus->spindle_status[n].brake = 0; // open brake
 
-	    // mirror in spindle status
-	    emcmotStatus->spindle_status[spindle_num].orient_fault = 0; // this pin read during spindle-orient == 1
-	    emcmotStatus->spindle_status[spindle_num].locked = 0;
+	        *(emcmot_hal_data->spindle[n].spindle_orient_angle) = emcmotCommand->orientation;
+	        *(emcmot_hal_data->spindle[n].spindle_orient_mode) = emcmotCommand->mode;
+	        *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
+	        *(emcmot_hal_data->spindle[n].spindle_orient) = 1;
+
+	        // mirror in spindle status
+	        emcmotStatus->spindle_status[n].orient_fault = 0; // this pin read during spindle-orient == 1
+	        emcmotStatus->spindle_status[n].locked = 0;
+        }
 	    break;
 
 	case EMCMOT_SPINDLE_INCREASE:
@@ -1794,11 +1824,19 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    if (emcmotStatus->spindle_status[spindle_num].speed > 0) {
-		emcmotStatus->spindle_status[spindle_num].speed += 100; //FIXME - make the step a HAL parameter
-	    } else if (emcmotStatus->spindle_status[spindle_num].speed < 0) {
-		emcmotStatus->spindle_status[spindle_num].speed -= 100;
-	    }
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+	        if (emcmotStatus->spindle_status[n].speed > 0) {
+	    	emcmotStatus->spindle_status[n].speed += 100; //FIXME - make the step a HAL parameter
+	        } else if (emcmotStatus->spindle_status[n].speed < 0) {
+		    emcmotStatus->spindle_status[n].speed -= 100;
+	        }
+        }
 	    break;
 
 	case EMCMOT_SPINDLE_DECREASE:
@@ -1824,9 +1862,18 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    emcmotStatus->spindle_status[spindle_num].speed = 0;
-	    emcmotStatus->spindle_status[spindle_num].direction = 0;
-	    emcmotStatus->spindle_status[spindle_num].brake = 1;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+
+	        emcmotStatus->spindle_status[n].speed = 0;
+	        emcmotStatus->spindle_status[n].direction = 0;
+	        emcmotStatus->spindle_status[n].brake = 1;
+        }
 	    break;
 
 	case EMCMOT_SPINDLE_BRAKE_RELEASE:
@@ -1837,7 +1884,16 @@ void emcmotCommandHandler(void *arg, long period)
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    emcmotStatus->spindle_status[spindle_num].brake = 0;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+
+	        emcmotStatus->spindle_status[n].brake = 0;
+        }
 	    break;
 
 	case EMCMOT_SET_JOINT_COMP:

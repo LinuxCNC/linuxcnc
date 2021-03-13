@@ -52,7 +52,7 @@ and is called 'tool.tbl'. The tools might be in a tool changer or just
 changed manually. The file can be edited with a text editor or be
 updated using G10 L1. See the <<sec:lathe-tool-table,Lathe Tool Table>>
 Section for an example of the lathe tool table format.
-The maximum number of entries in the tool table is 56.
+The maximum number of entries in the tool table is 1000.
 The maximum tool and pocket number is 99999.
 
 The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the
@@ -86,11 +86,11 @@ In general, the new tool table line format is:
  - ; - beginning of comment or remark - text
 
 The file consists of one opening semicolon on the first line,
-followed by up to a maximum of 56 tool entries.
+followed by up to a maximum of 1000 tool entries.
 
 [NOTE]
 Although tool numbers up to 99999 are allowed, the number of entries in the
-tool table, at the moment, is still limited to a maximum of 56 tools for
+tool table, at the moment, is still limited to a maximum of 1000 tools for
 technical reasons. The LinuxCNC developers plan to remove that limitation
 eventually. If you have a very large tool changer, please be patient.
 

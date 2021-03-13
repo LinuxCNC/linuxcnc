@@ -15,7 +15,7 @@ log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal([int], [float], [bool] )
+    value_changed = pyqtSignal('PyQt_PyObject')
 
     REGISTRY = []
     UPDATE = False
@@ -33,6 +33,9 @@ class QPin(hal.Pin, QObject):
         if tmp != self._prev:
             self.value_changed.emit(tmp)
         self._prev = tmp
+
+    def text(self):
+        return self.get_name()
 
     @classmethod
     def update_all(self):
@@ -69,7 +72,9 @@ class QComponent:
             comp = comp.comp
         self.comp = comp
 
-    def newpin(self, *a, **kw): return QPin(_hal.component.newpin(self.comp, *a, **kw))
+    def newpin(self, *a, **kw):
+        return QPin(_hal.component.newpin(self.comp, *a, **kw))
+
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
@@ -151,4 +156,17 @@ class Tool(_TStatParent):
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+
+################################################################
+# PStat class
+################################################################
+from qtvcp.qt_pstat import _PStat as _PStatParent
+
+class Path(_PStatParent):
+    _instance = None
+    _instanceNum = 0
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
         return cls._instance

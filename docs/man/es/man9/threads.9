@@ -1,0 +1,36 @@
+.TH THREADS "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+threads \- crea hilos HAL en tiempo real
+.SH SINOPSIS
+\fBloadrt threads name1=\fIname\fB period1=\fIperiod\fR [\fBfp1=\fR<\fB0\fR|\fB1\fR>] [<thread-2-info>] [<thread-3-info>]
+
+.SH DESCRIPCIÓN
+\fBthreads\fR se utiliza para crear hilos en tiempo real que pueden ejecutar funciones HAL a intervalos específicos. No es un verdadero componente HAL, ya que no exporta ninguna función, pin o parámetro propio.
+Una vez que ha creado uno o más hilos, estos son independientes y el componente \fBthreads\fR se puede descargar sin afectarlos. De hecho, se puede descargar y luego volver a cargar para crear hilos adicionales, tantas veces como sea necesario.
+
+.P
+\fBthreads\fR puede crear hasta tres hilos en tiempo real. Los hilos deben crearse en orden, del más rápido al más lento. Cada hilo está especificado por tres argumentos. \fBname1\fR se utiliza para especificar el nombre del primer hilo (thread-1). \fBperiod1\fR se utiliza para especificar el período del hilo 1 en nanosegundos. Se requieren \fIname\fR y \fIperiod\fR. El tercer argumento, \fBfp1\fR, es opcional, y se usa para especificar si el hilo 1 se usará para ejecutar código de punto flotante. Si no se especifica, el valor predeterminado es \fB1\fR, lo que significa que el hilo admitirá punto flotante. Especifique \fB0\fR para deshabilitar el soporte de punto flotante, lo que ahorra una pequeña cantidad de tiempo de ejecución al no guardar el contexto de la FPU. Para hilos adicionales, \fBname2\fR, \fBperiod2\fR, \fBfp2\fR, \fBname3\fR, \fBperiod3\fR y \fBfp3\fR funcionan exactamente igual. Si se necesitan más de tres hilos, descargue threads y luego vuelva a cargarlo para crear más hilos.
+
+.SH FUNCIONES
+.P
+Ninguna
+
+.SH PINES
+.P
+Ninguna
+
+.SH PARÁMETROS
+.P
+Ninguna
+
+.SH ERRORES
+.P
+La existencia de \fBthreads\fR podría considerarse un error. Idealmente, la creación y eliminación de hilos se realizaría directamente con los comandos \fBhalcmd\fR, como "\fBnewthread\fIname period\fR", "\fBdelthread\fIname\fR", o similar.
+Sin embargo, las limitaciones en la implementación actual de HAL requieren la creación de hilos en el espacio del kernel, y cargar un componente es la forma más sencilla de hacerlo.
+

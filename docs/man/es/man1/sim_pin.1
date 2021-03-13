@@ -1,0 +1,96 @@
+.\" Copyright (c) 2014 Dewey Garrett
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH sim_pin "1" "2014-12-18" "Documentación LinuxCNC" "LinuxCNC"
+.SH NOMBRE
+\fBsim_pin\fR \- GUI para mostrar y configurar una o más entradas Hal
+
+.SH SINOPSIS
+.B \fBsim_pin\fR \fI[Options]\fR \fIname1\fR [\fIname2\fR [\fIname3\fR ...]]
+
+\fIOptions\fR:
+  \fB\-\- help\fR  (muestra el texto de ayuda)
+  \fB\-\- title title_string\fR 
+
+Para elementos de bit, el nombre puede incluir un especificador /mode= :
+    \fInamei\fR\fB/mode=\fR[\fBpulse\fR | \fBtoggle\fR | \fBhold\fR]
+    (el valor predeterminado es alternar)
+.P
+
+.SH DESCRIPCIÓN
+Se admiten elementos Hal booleanos (bit) y elementos numéricos (u32, s32, float).
+
+Si la entrada con nombre es de tipo numérico, la interfaz gráfica de usuario muestra:
+.P
+   \fBEntry\fR  Widget de entrada para valor o una expresión Tcl válida.
+.br
+   \fBSet\fR    Pulsador para establecer un nuevo valor desde Entry (o usar <RETURN>)
+.br
+   \fBReset\fR  Pulsador para restablecer el valor presente al inicio
+   
+Si la entrada es de tipo \fBbit\fR , la interfaz gráfica de usuario muestra un solo botón
+que está controlado por selectores de botones radio:
+.P
+   mode = \fBpulse\fR   Entrada de pulso 1 por cada pulsación de botón
+.br
+   mode = \fBtoggle\fR  Alternar entrada para cada pulsación de botón
+.br
+   mode = \fBhold\fR    Establece la entrada en 1 mientras se presiona el botón
+
+Si el modo de elemento de bit comienza con una letra mayúscula,
+los botones de radio para seleccionar otros modos no se muestran
+
+
+
+.SH NOTA
+LinuxCNC o una aplicación Hal independiente debe estar ejecutándose
+.P
+Un elemento con nombre puede especificar un \fBpin\fR , \fBparametro\fR  o \fBseñal\fR .
+El elemento nombrado debe ser escribible:
+.P
+  \fBpin    IN o I/O\fR  (y no está conectado a una señal con un escritor)
+.br
+  \fBparam  RW\fR 
+.br
+  \fBsignal conectado a un pin escribible\fR 
+
+.SH USO
+\fBsim_pin\fR  se puede usar de forma interactiva desde una línea de comandos de shell o
+comenzar automáticamente desde un archivo ini de configuración.
+
+.SH EJEMPLO
+Ejemplo para el uso del archivo ini:
+
+   [APPLICATIONS]
+   DELAY = 5
+   APP = \fBsim_pin\fR \\\
+.br
+          halui.machine.off/mode=pulse \\
+.br
+          ini.traj_arc_blend_enable \\
+.br
+          motion\-command\-handler\-tmax
+
+
+

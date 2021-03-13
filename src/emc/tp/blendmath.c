@@ -121,6 +121,21 @@ double saturate(double x, double max) {
     }
 }
 
+/**
+ * Saturate a value x to be within max and min.
+ */
+double bisaturate(double x, double max, double min) {
+    if ( x > max ) {
+        return max;
+    }
+    else if ( x < min ) {
+        return min;
+    }
+    else {
+        return x;
+    }
+}
+
 
 /**
  * Apply bounds to a value x.
@@ -653,7 +668,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
             tcGetMaxTargetVel(tc, maxFeedScale));
 
     // Calculate the maximum planar velocity
-    double v_planar_max;
+    double v_planar_max = 0;
     //FIXME sloppy handling of return value
     res_dia |= calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);

@@ -1,0 +1,62 @@
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+.TH hm2_uart_setup "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_uart_setup \- configura una UART Hostmot2 
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
+
+.SH DESCRIPCIÓN
+\fBhm2_uart_setup\fR configura la tasa de bits para la UART "name".
+"name" es una cadena única dada a cada UART durante el setup de hostmot2. Los nombres de los UART disponibles se imprimen en la salida estándar durante
+el proceso de carga del controlador y toman la forma:
+hm2_<nombre de la tarjeta>.<índice de la tarjeta>.uart.<índice> .
+Por ejemplo hm2_5i23.0.uart.0
+La tasa de bits mínima es de aproximadamente 50 bps, y la máxima alrededor de la frecuencia de la FPGA, 48MHz para una 5i23.
+La función UART permite diferentes velocidades de bits RX y TX, pero eso no es actualmente compatible con este controlador
+
+tx_mode es la máscara de bits definida en el mapa de host Hostmot2:
+Bit 0..3 = TXEnable delay. TXEnable delay especifica tiempo de espera de
+           los datos de transmisión desde el estado válido de la señal TXenable. 
+           Esto se usa para operación RS-485 (half duplex), para retrasar la 
+           transmisión de datos hasta que el controlador está habilitado, lo que 
+           permite retrasos de activación del controlador, retrasos de barrera de 
+           aislamiento, etc. El retraso está en unidades de período ClockLow.
+Bit 4 =    FIFOError, indica que una inserción desde el host ha desbordado la FIFO
+           (Principalmente para depuración de controladores)
+Bit 5 =    DriveEnableAuto, cuando se establece, habilita el Drive cuando hay cualquier dato en FIFO o en
+           Registro de desplazamiento Xmit, y lo elimina cuando FIFO y el registro de desplazamiento Xmit
+           están vacios
+Bit 6 =    DriveEnableBit, si DriveEnableAuto es 0, controla el Drive (
+           para el control software de Xmit)
+
+tx_mode es la máscara de bits definida en el mapa de host Hostmot2:
+Bit 0 = FalseStart bit Status, 1 = bit de inicio falso detectado
+Bit 1 = Estado de desbordamiento, 1 = condición de desbordamiento detectada (sin bit de parada válido)
+Bit 2 = RXMaskEnable, 1 = habilitar RXMask para la operación half duplex,
+    0 = ignorar RXMask
+Bit 4 = FIFOError, indica que una lectura de host ha intentado leer más
+        datos que los disponibles. (principalmente para la depuración de controladores)
+Bit 5 = LostDataError, indica que se recibieron datos sin espacio en FIFO,
+        y por lo tanto perdidos
+Bit 6 = RXMask, estado de RO RXMASK
+Bit 7 = FIFO tiene datos
+
+Los registros rx_mode y tx_mode son actualmente de solo escritura. Posiblemente debería haber
+una función get-status.
+
+Para escribir solo en el bit tx_mode DriveEnable, llame a esta función con la tasa de bits
+sin cambios y \-1 para rx_mode
+Para cambiar la tasa de bits sin alterar la configuración del modo, envíe \-1 a ambos modos.
+
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito y \-1 en caso de error
+
+.SH VER TAMBIÉN
+man hm2_uart_send, man hm2_uart_read
+Vea src/hal/drivers mesa_uart.comp para un ejemplo de uso.
+

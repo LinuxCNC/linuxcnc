@@ -2,11 +2,11 @@
 Version=1.0
 Type=Application
 Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode.html
-Icon=linuxcncicon
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-en.svg
 X-GNOME-DocPath=
 Terminal=false
-Name=G-Code Quick Reference
+Name=G-Code Quick Reference - EN
 Comment=Quick reference for G, M, and O codes in LinuxCNC
 StartupNotify=false
-Categories=X-CNC;
+Categories=Science;X-CNC-REF;
 Keywords=cnc;linuxcnc;

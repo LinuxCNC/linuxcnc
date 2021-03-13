@@ -31,7 +31,7 @@ int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_m
 int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[]);
 int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
 
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho,
                         int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);

@@ -178,8 +178,10 @@ To transform from joint space into Cartesian space we will use some
 trigonometry rules (the right triangles determined by the points (0,0),
 (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
 
-We can easily see that image:images/kinematics-math-01.png[],
-likewise image:images/kinematics-math-02.png[]
+We can easily see that:
+image:images/kinematics-math-01.png[align="center"],
+likewise:
+image:images/kinematics-math-02.png[align="center"]
 
 If we subtract one from the other we will get:
 

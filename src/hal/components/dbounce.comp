@@ -1,0 +1,36 @@
+component dbounce """alternative debounce component\n
+This component is similar to the \\fBdebounce\\fR component\n
+(man \\fBdebounce\\fR) but uses settable delay pins for each instance\n
+and supports \\fBcount\\fR= or \\fBnames\\fR= parameters\n
+(groups are not used)""";
+
+pin in  bit in;
+pin out bit out;
+pin in  u32 delay = 5;
+
+variable int state;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_) {
+
+    if (in) {
+        /* input true, is state at threshold? */
+        if (state < delay) {
+            /* no, increment */
+            state++;
+        } else {
+            /* yes, set output */
+            out = 1;
+        }
+    } else {
+        /* input false, is state at zero? */
+        if (state > 0) {
+            /* no, decrement */
+            state--;
+        } else {
+            /* yes, clear output */
+            out = 0;
+        }
+    }
+}

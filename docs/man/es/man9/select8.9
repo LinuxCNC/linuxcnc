@@ -1,0 +1,30 @@
+.TH SELECT8 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+select8 \- 8-bit binary match detector
+.SH SYNOPSIS
+.HP
+.B loadrt select8 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBselect8.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B select8.\fIN\fB.enable\fR bit in \fR(default: \fITRUE\fR)
+Set enable to FALSE to cause all outputs to be set FALSE
+.TP
+.B select8.\fIN\fB.sel\fR s32 in \fR
+The number of the output to set TRUE.  All other outputs well be set FALSE
+.TP
+.B select8.\fIN\fB.out\fIM\fB\fR bit out  (M=0..7) \fR
+Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true
+.SH LICENSE
+
+GPL

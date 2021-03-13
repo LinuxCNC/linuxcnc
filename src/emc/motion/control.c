@@ -305,7 +305,7 @@ void emcmotController(void *arg, long period)
 static void process_inputs(void)
 {
     int joint_num, spindle_num;
-    double abs_ferror, tmp, scale;
+    double abs_ferror, scale;
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
@@ -337,14 +337,33 @@ static void process_inputs(void)
         }
     }
     if ( enables & AF_ENABLED ) {
-	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */
-	tmp = *emcmot_hal_data->adaptive_feed;
-	if ( tmp > 1.0 ) {
-	    tmp = 1.0;
-	} else if ( tmp < 0.0 ) {
-	    tmp = 0.0;
-	}
-	scale *= tmp;
+        /* read and clamp adaptive feed HAL pin */
+        double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
+        // Clip range to +/- 1.0
+        if ( adaptive_feed_in > 1.0 ) {
+            adaptive_feed_in = 1.0;
+        } else if (adaptive_feed_in < -1.0) {
+            adaptive_feed_in = -1.0;
+        }
+        // Handle case of negative adaptive feed
+        // Actual scale factor is always positive by default
+        double adaptive_feed_out = fabs(adaptive_feed_in);
+        // Case 1: positive to negative direction change
+        if ( adaptive_feed_in < 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_FORWARD) {
+            // User commands feed in reverse direction, but we're not running in reverse yet
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        } else if (adaptive_feed_in > 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_REVERSE ) {
+            // User commands feed in forward direction, but we're running in reverse
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        }
+        //Otherwise, if direction and sign match, we're ok
+        scale *= adaptive_feed_out;
     }
     if ( enables & FH_ENABLED ) {
 	/* read feed hold HAL pin */
@@ -818,7 +837,8 @@ static void set_operating_mode(void)
         dbg_show("enbl");dbg_enable_ct=dbg_ct;
 #endif
         if (*(emcmot_hal_data->eoffset_limited)) {
-            reportError("Starting beyond Soft Limits");
+            reportError("Note: Motion enabled after reaching a coordinate "
+                        "soft limit with active external offsets");
             *(emcmot_hal_data->eoffset_limited) = 0;
         }
         initialize_external_offsets();
@@ -1206,7 +1226,8 @@ static void get_pos_cmds(long period)
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
 	    /* compute joint velocity limit */
-            if ( joint->home_state == HOME_IDLE ) {
+            if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+                && joint->home_state == HOME_IDLE ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
@@ -1349,7 +1370,6 @@ static void get_pos_cmds(long period)
                        reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
                                   joint_num);
                        SET_MOTION_ERROR_FLAG(1);
-                       SET_MOTION_ENABLE_FLAG(0);
                        emcmotDebug->enabling = 0;
                        break;
 		    }
@@ -1366,7 +1386,6 @@ static void get_pos_cmds(long period)
 	    {
 	       reportError(_("kinematicsInverse failed"));
 	       SET_MOTION_ERROR_FLAG(1);
-	       SET_MOTION_ENABLE_FLAG(0);
 	       emcmotDebug->enabling = 0;
 	       break;
 	    }
@@ -1437,7 +1456,6 @@ static void get_pos_cmds(long period)
 		   reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
                                  joint_num);
 		   SET_MOTION_ERROR_FLAG(1);
-		   SET_MOTION_ENABLE_FLAG(0);
 		   emcmotDebug->enabling = 0;
 		   break;
 		}
@@ -1456,7 +1474,6 @@ static void get_pos_cmds(long period)
 	{
 	   reportError(_("kinematicsInverse failed"));
 	   SET_MOTION_ERROR_FLAG(1);
-	   SET_MOTION_ENABLE_FLAG(0);
 	   emcmotDebug->enabling = 0;
 	   break;
 	}
@@ -1513,14 +1530,29 @@ static void get_pos_cmds(long period)
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
-	    /* just hit the limit */
+        /* Unexpectedly hit a joint soft limit.
+        ** Possibile causes:
+        **  1) a joint positional limit was reduced by an ini halpin
+        **     (like ini.N.max_limit) -- undetected by trajectory planning
+        **     including simple_tp
+        **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
+        **  3) kins module misbehavior
+        **  4) poorly tuned servo motion (not detected by ferror settings)
+        **
+        ** Non-identity kins can often be switched to joint mode to recover
+        ** using the '$' shortcut provided by the gui.
+        ** Guis may not provide a means to recover for identity kins except
+        ** by unhoming/jogging/rehoming.  (For trivkins, using kinstype=both
+        ** can be used as a workaround).
+        ** 
+        */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0] == 1) {
                     joint = &joints[joint_num];
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1529,7 +1561,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1902,6 +1934,7 @@ static void output_to_hal(void)
     }
 
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
+    *(emcmot_hal_data->tp_reverse) = emcmotStatus->reverse_run;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
     if(GET_MOTION_COORD_FLAG()) {
@@ -2126,6 +2159,8 @@ static void update_status(void)
     emcmotStatus->depth = tpQueueDepth(&emcmotDebug->coord_tp);
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->coord_tp);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
+    //KLUDGE add an API call for this
+    emcmotStatus->reverse_run = emcmotDebug->coord_tp.reverse_run;
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 

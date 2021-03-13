@@ -30,6 +30,7 @@ namespace bp = boost::python;
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
+#include <rtapi_string.h>
 
 
 
@@ -223,7 +224,7 @@ int Interp::add_parameters(setup_pointer settings,
 	try {								\
 	    active_frame->pystuff.impl->kwargs[name] = value;		\
         }								\
-        catch (bp::error_already_set) {					\
+        catch (const bp::error_already_set&) {					\
 	    PyErr_Print();						\
 	    PyErr_Clear();						\
 	    ERS("add_parameters: cant add '%s' to args",name);		\
@@ -288,13 +289,13 @@ int Interp::add_parameters(setup_pointer settings,
 
     s = missing;
     if (*s) {
-	strcat(tail," missing: ");
+	rtapi_strxcat(tail," missing: ");
     }
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
 	strncat(tail,&c,1);
-	if (*(s+1)) strcat(tail,",");
+	if (*(s+1)) rtapi_strxcat(tail,",");
 	s++;
     }
     // special cases:
@@ -308,7 +309,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->feed_rate > 0.0) {
 	    STORE("f",settings->feed_rate);
 	} else {
-	    strcat(tail,"F>0,");
+	    rtapi_strxcat(tail,"F>0,");
 	    errored = true;
 	}
     }
@@ -318,7 +319,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->speed[0] > 0.0) {
 	    STORE("s",settings->speed[0]);
 	} else {
-	    strcat(tail,"S>0,");
+	    rtapi_strxcat(tail,"S>0,");
 	    errored = true;
 	}
     }
@@ -362,7 +363,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
     r.motion_code = INT_MIN;
-    strcpy(iniline, inistring);
+    rtapi_strxcpy(iniline, inistring);
     // strip trailing comments
     if ((s = strchr(iniline, '#')) != NULL) {
 	*s = '\0';

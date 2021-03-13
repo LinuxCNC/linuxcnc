@@ -1,0 +1,101 @@
+\# Author Boris Skegin
+\# Issued under the terms of the GPL v2 License or any later version
+.TH hm2_pktuart_setup "3hm2" "2016-02-29" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_pktuart_setup \- configura una instancia de Hostmot2 PktUART
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)
+
+.SH DESCRIPCIÓN
+\fBhm2_pktuart_setup\fR Configura la tasa de bits para un PktUART llamado "name".
+"name" es una cadena única dada a cada PktUART durante el setup de hostmot2. Los nombres de las UART disponibles 
+se imprimen en la salida estándar durante el proceso de carga del controlador y toman la forma:
+hm2_<nombre de la tarjeta>.<índice de la tarjeta>.pktuart.<índice> .
+Por ejemplo hm2_5i25.0.pktuart.0.
+
+Los UART de Hostmot2 son buenos hasta aproximadamente 10 Mb/seg, pero a velocidades de datos más altas 
+(con cualquier UART) son susceptibles al ruido por impulsos.
+
+
+La función PktUART permite diferentes velocidades de bits RX y TX, pero eso no es actualmente compatible con este controlador.
+
+
+tx_mode es la máscara de bits definida en el mapa de registros Hostmot2:
+.TP
+.B Bit 21		FrameBuffer tiene datos
+.TP
+.B Bits 20..16	        Frame para enviar
+.TP
+.B Bits 15..8	        Interframes delay en tiempos de bits
+.TP
+.B Bit 7		Send ocupado, Transmit Logic activa
+.TP
+.B Bit 6		Bit Drive Enable (habilita el controlador externo RS-422/485 cuando está configurado)
+.TP
+.B Bit 5		Drive enable Auto (Activación de unidad externa automática)
+.TP
+.B Bit 4		Error SCFIFO
+.TP
+.B Bits 3..0	        Drive enable delay (demora desde la habilitación de la unidad
+                        para iniciar la transmisión de datos. En períodos bajos de clock 
+
+
+
+
+.TP
+rx_mode es una máscara de bits definida en regmap de Hostmot2:
+.TP
+.B Bit 21		FrameBuffer tiene datos
+.TP
+.B Bits 20..16	        Frames recibidos
+.TP
+.B Bits 15..8	        InterFrame delay en tiempos de bits
+.TP
+.B Bit 7		Rx Lógica activa
+.TP
+.B Bit 6		RXMask
+.TP
+.B Bit 5		sin usar
+.TP
+.B Bit 4		Error RCFIFO
+.TP
+.B Bit 3		RXEnable (debe configurarse para recibir paquetes)
+.TP
+.B Bit 2		RXMask Enable (habilita el enmascaramiento de datos de entrada al transmitir)
+.TP
+.B Bit 1		Error de desbordamiento (sin bit de parada cuando se esperaba) (sticky)
+.TP
+.B Bit 0		Bit de error de falso inicio (sticky)
+
+.PP
+Los registros rx_mode y tx_mode son actualmente de solo escritura.
+Se puede obtener el número de instancia de una instancia de PktUART con la ayuda de la función 
+hm2_get_pktuart en orden a leer y escribir en registros Rx y Tx.
+
+.PP
+Para escribir solo en el bit tx_mode DriveEnable, llame a esta función con la tasa de bits sin cambios y -1 como rx_mode
+Para cambiar la tasa de bits sin alterar la configuración del modo, envíe -1 a ambos modos.
+.PP
+txclear==1 aborta cualquier envío en proceso, borra los datos FIFO y
+borra el conteo de envío FIFO.
+.PP
+rxclear==1 cancela cualquier recepción en proceso, borra los datos FIFO y
+borra el recuento de recepción FIFO.
+.PP
+txclear!=1 o rxclear!=1 deja los registros correspondientes sin cambios.
+
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito y -1 o -EINVAL en caso de error.
+
+.SH VER TAMBIÉN
+.B man hm2_pktuart_send, man hm2_pktuart_read
+.TP
+Consulte src/hal/drivers/mesa_pktgyro_test.comp para ver un ejemplo de uso.
+
+.SH DESARROLLO FUTURO
+Esta función está sujeta a cambios ya que se agregarán filtros digitales en Rx UART, y el registro de velocidad de bits 
+ganará un campo de 12 bits para la constante de filtro de entrada.

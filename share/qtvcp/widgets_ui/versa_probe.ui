@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>versaProbe</class>
+ <widget class="QWidget" name="versaProbe">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -68,75 +68,6 @@
        <property name="bottomMargin">
         <number>2</number>
        </property>
-       <item>
-        <widget class="QWidget" name="widget_history" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="leftMargin">
-           <number>2</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>2</number>
-          </property>
-          <property name="bottomMargin">
-           <number>2</number>
-          </property>
-          <item>
-           <widget class="PushButton" name="pbtn_use_tool_measurement">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>80</width>
-              <height>50</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>80</width>
-              <height>50</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>DejaVu Sans</family>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>MEASURE
-TOOL</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="indicator_option" stdset="0">
-             <bool>true</bool>
-            </property>
-            <property name="on_color" stdset="0">
-             <color>
-              <red>0</red>
-              <green>255</green>
-              <blue>0</blue>
-             </color>
-            </property>
-            <property name="indicator_size" stdset="0">
-             <double>0.200000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <widget class="QWidget" name="verticalWidget_2" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -207,7 +138,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_ball_diam">
               <property name="text">
-               <string>PD</string>
+               <string>DIAMETER</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -249,13 +180,13 @@ TOOL</string>
                <enum>Qt::LeftToRight</enum>
               </property>
               <property name="inputMask">
-               <string>999.999</string>
+               <string/>
               </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
-               <number>7</number>
+               <number>5</number>
               </property>
               <property name="frame">
                <bool>true</bool>
@@ -275,7 +206,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_max_travel">
               <property name="text">
-               <string>MT</string>
+               <string>TRAVEL</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -308,13 +239,10 @@ TOOL</string>
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="toolTip">
-               <string>Maximum travel</string>
-              </property>
-              <property name="inputMask">
-               <string>999.999</string>
+               <string>Maximum travel during search</string>
               </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -337,7 +265,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_latch_rtrn_dist">
               <property name="text">
-               <string>LR</string>
+               <string>LATCH RTN</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -372,11 +300,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Latch return distance</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -431,7 +356,7 @@ TOOL</string>
              <string>RATES</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -449,7 +374,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_search_vel">
               <property name="text">
-               <string>SV</string>
+               <string>SEARCH</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -484,11 +409,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Search velocity</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -511,7 +433,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_probe_vel">
               <property name="text">
-               <string>PV</string>
+               <string>PROBE</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -546,11 +468,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Probe velocity</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -573,7 +492,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_probe_rapid">
               <property name="text">
-               <string>PR</string>
+               <string>RAPID</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -584,7 +503,7 @@ TOOL</string>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="input_probe_rapid">
+             <widget class="QLineEdit" name="input_rapid_vel">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -608,11 +527,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Probe rapid velocity</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -667,7 +583,7 @@ TOOL</string>
              <string>SIDE EDGE</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -685,7 +601,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="lab_length">
               <property name="text">
-               <string>LN</string>
+               <string>LENGTH</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -720,11 +636,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Edge length</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -747,7 +660,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="label_tool_block_height">
               <property name="text">
-               <string>PH</string>
+               <string>PROBE HT</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -782,11 +695,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Tool probe height</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -809,7 +719,7 @@ TOOL</string>
             <item>
              <widget class="QLabel" name="label_tool_block_height_2">
               <property name="text">
-               <string>BH</string>
+               <string>BLOCK HT</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -844,11 +754,8 @@ TOOL</string>
               <property name="toolTip">
                <string>Tool block height</string>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -903,7 +810,7 @@ TOOL</string>
              <string>CLEARANCES</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -953,11 +860,11 @@ TOOL</string>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
+              <property name="toolTip">
+               <string>Distance to move before starting search</string>
               </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -966,7 +873,7 @@ TOOL</string>
                <bool>true</bool>
               </property>
               <property name="cursorPosition">
-               <number>7</number>
+               <number>0</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -1015,11 +922,11 @@ TOOL</string>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
+              <property name="toolTip">
+               <string>Distance to move Z up or down during search</string>
               </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -1040,41 +947,25 @@ TOOL</string>
              <number>4</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_panel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>23</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
+             <widget class="QLabel" name="label">
               <property name="text">
-               <string>PROBE PANEL</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::AutoText</enum>
-              </property>
-              <property name="scaledContents">
-               <bool>false</bool>
+               <string>Versa Probe</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
-              <property name="margin">
-               <number>0</number>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="indent">
-               <number>2</number>
+              <property name="text">
+               <string>Help</string>
               </property>
              </widget>
             </item>
@@ -1160,6 +1051,9 @@ TOOL</string>
               <height>50</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Enable auto zero of probed location</string>
+            </property>
             <property name="text">
              <string>AUTO
 ZERO</string>
@@ -1172,6 +1066,12 @@ ZERO</string>
             </property>
             <property name="indicator_option" stdset="0">
              <bool>true</bool>
+            </property>
+            <property name="indicator_HAL_pin_option" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_status_option" stdset="0">
+             <bool>false</bool>
             </property>
             <property name="on_color" stdset="0">
              <color>
@@ -1204,6 +1104,9 @@ ZERO</string>
               <width>80</width>
               <height>50</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Enable auto rotation to probed skew measurement</string>
             </property>
             <property name="text">
              <string>AUTO
@@ -1246,7 +1149,7 @@ SKEW</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_13">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>0</number>
@@ -1302,6 +1205,12 @@ SKEW</string>
             </property>
             <item>
              <widget class="QLabel" name="label_x">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>X</string>
               </property>
@@ -1323,7 +1232,7 @@ SKEW</string>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1338,11 +1247,8 @@ SKEW</string>
               <property name="autoFillBackground">
                <bool>false</bool>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -1351,7 +1257,7 @@ SKEW</string>
                <bool>true</bool>
               </property>
               <property name="cursorPosition">
-               <number>7</number>
+               <number>0</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -1367,6 +1273,12 @@ SKEW</string>
             </property>
             <item>
              <widget class="QLabel" name="label_y">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>Y</string>
               </property>
@@ -1388,7 +1300,7 @@ SKEW</string>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1400,11 +1312,8 @@ SKEW</string>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
-              </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
@@ -1426,6 +1335,12 @@ SKEW</string>
             </property>
             <item>
              <widget class="QLabel" name="label_z">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>Z</string>
               </property>
@@ -1447,7 +1362,7 @@ SKEW</string>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>70</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1459,14 +1374,82 @@ SKEW</string>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
-              <property name="inputMask">
-               <string>999.999</string>
+              <property name="toolTip">
+               <string>Set Z axis to offset value</string>
               </property>
               <property name="text">
-               <string>0.0</string>
+               <string/>
               </property>
               <property name="maxLength">
                <number>7</number>
+              </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_34">
+            <property name="leftMargin">
+             <number>4</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_adjust_angle">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>A</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="input_adj_angle">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>70</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="cursor">
+               <cursorShape>IBeamCursor</cursorShape>
+              </property>
+              <property name="toolTip">
+               <string>Set rotation to offset value</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="maxLength">
+               <number>5</number>
               </property>
               <property name="frame">
                <bool>true</bool>
@@ -1483,6 +1466,18 @@ SKEW</string>
        </item>
        <item>
         <widget class="QWidget" name="widget_buttons" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
@@ -1518,6 +1513,15 @@ SKEW</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set X axis to offset value</string>
+              </property>
               <property name="text">
                <string>SET
 X</string>
@@ -1540,6 +1544,15 @@ X</string>
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set Y axis to offset value</string>
               </property>
               <property name="text">
                <string>SET
@@ -1564,6 +1577,15 @@ Y</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set Z axis to offset value</string>
+              </property>
               <property name="text">
                <string>SET
 Z</string>
@@ -1587,89 +1609,27 @@ Z</string>
              <number>4</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_11">
-              <property name="spacing">
-               <number>4</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_adjust_angle">
-                <property name="text">
-                 <string>ADJ ANGLE</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="input_adj_angle">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>80</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="cursor">
-                 <cursorShape>IBeamCursor</cursorShape>
-                </property>
-                <property name="inputMask">
-                 <string>99.99</string>
-                </property>
-                <property name="text">
-                 <string>0.0</string>
-                </property>
-                <property name="maxLength">
-                 <number>5</number>
-                </property>
-                <property name="frame">
-                 <bool>true</bool>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
              <widget class="PushButton" name="pbtn_set_angle">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>70</width>
-                <height>50</height>
+                <width>0</width>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>70</width>
-                <height>50</height>
+                <width>16777215</width>
+                <height>16777215</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Set axis rotation angle</string>
               </property>
               <property name="text">
                <string>SET
@@ -1683,6 +1643,60 @@ ANGLE</string>
               </property>
               <property name="indicator_option" stdset="0">
                <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PushButton" name="pbtn_use_tool_measurement">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>DejaVu Sans</family>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>This button not implemented</string>
+              </property>
+              <property name="text">
+               <string>MEASURE
+TOOL</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="indicator_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="on_color" stdset="0">
+               <color>
+                <red>0</red>
+                <green>255</green>
+                <blue>0</blue>
+               </color>
+              </property>
+              <property name="indicator_size" stdset="0">
+               <double>0.200000000000000</double>
               </property>
              </widget>
             </item>
@@ -2075,6 +2089,9 @@ ANGLE</string>
               <pointsize>10</pointsize>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Measured X Length</string>
+            </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(240, 240, 240);</string>
             </property>
@@ -2394,6 +2411,9 @@ ANGLE</string>
               <family>DejaVu Sans</family>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Measured Y Length</string>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(240, 240, 240);</string>
@@ -2817,6 +2837,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_angle_xp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">skew_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="1">
@@ -2843,6 +2869,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_angle_ym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">skew_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
@@ -2869,6 +2901,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_angle_yp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">skew_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="1">
@@ -2895,10 +2933,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_angle_xm</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">skew_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_inside_length_x">
+            <property name="toolTip">
+             <string>Measure Inside Length of X, Finish in Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2921,10 +2968,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_length_x</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">length_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_outside_length_x">
+            <property name="toolTip">
+             <string>Measure Outside Length of X, Finish in Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2947,10 +3003,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_length_x</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">length_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="PushButton" name="pbtn_inside_length_y">
+            <property name="toolTip">
+             <string>Measure Inside Length of Y, Finish in Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2973,10 +3038,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_length_y</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">length_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="3" column="1">
            <widget class="PushButton" name="pbtn_outside_length_y">
+            <property name="toolTip">
+             <string>Measure Outside Length of Y, Finish in Center</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2999,10 +3073,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_length_y</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">length_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="4" column="0">
            <widget class="PushButton" name="pbtn_down">
+            <property name="toolTip">
+             <string>Probe Z down</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3025,10 +3108,22 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_down</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">length_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="4" column="1">
            <widget class="PushButton" name="pbtn_measure_diam">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>This button not implemented</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3050,6 +3145,9 @@ ANGLE</string>
             </property>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
+            </property>
+            <property name="probe" stdset="0">
+             <string>probe_help</string>
             </property>
            </widget>
           </item>
@@ -3143,6 +3241,9 @@ ANGLE</string>
           </property>
           <item row="0" column="0">
            <widget class="PushButton" name="pbtn_inside_xmyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3165,10 +3266,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_xmyp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="PushButton" name="pbtn_inside_yp">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3191,10 +3301,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_yp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="2">
            <widget class="PushButton" name="pbtn_inside_xpyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3217,10 +3336,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_xpyp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="PushButton" name="pbtn_inside_xm">
+            <property name="toolTip">
+             <string>Probe Inside X Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3243,6 +3371,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_xm</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="1">
@@ -3251,6 +3385,9 @@ ANGLE</string>
              <font>
               <pointsize>8</pointsize>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Probe All Inside Edges, Finish In Center</string>
             </property>
             <property name="text">
              <string/>
@@ -3274,10 +3411,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_xy_hole</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="2">
            <widget class="PushButton" name="pbtn_inside_xp">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3300,10 +3446,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_xp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_inside_xmym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3326,10 +3481,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_xmym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_inside_ym">
+            <property name="toolTip">
+             <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3352,10 +3516,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_ym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="2">
            <widget class="PushButton" name="pbtn_inside_xpym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3378,6 +3551,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_inside_xpym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">inside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -3470,6 +3649,9 @@ ANGLE</string>
           </property>
           <item row="0" column="0">
            <widget class="PushButton" name="pbtn_outside_xpym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3492,10 +3674,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_xpym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="PushButton" name="pbtn_outside_ym">
+            <property name="toolTip">
+             <string>Probe Outside Y Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3518,10 +3709,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_ym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="2">
            <widget class="PushButton" name="pbtn_outside_xmym">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3544,10 +3744,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_xmym</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="PushButton" name="pbtn_outside_xp">
+            <property name="toolTip">
+             <string>Probe Outside X Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3570,6 +3779,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_xp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="1">
@@ -3578,6 +3793,9 @@ ANGLE</string>
              <font>
               <pointsize>8</pointsize>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Probe All Outside Edges, Finish In Center</string>
             </property>
             <property name="text">
              <string/>
@@ -3601,10 +3819,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_xy_center</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="2">
            <widget class="PushButton" name="pbtn_outside_xm">
+            <property name="toolTip">
+             <string>Probe Outside X Edge, Negative Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3627,10 +3854,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_xm</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_outside_xpyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3653,10 +3889,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_xpyp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_outside_yp">
+            <property name="toolTip">
+             <string>Probe Outside Y Edge, Positive Direction, Finsh At Edge</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3679,10 +3924,19 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_yp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="2">
            <widget class="PushButton" name="pbtn_outside_xmyp">
+            <property name="toolTip">
+             <string>Probe Outside Edges, Finish At Corner</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3705,6 +3959,12 @@ ANGLE</string>
             <property name="indicator_option" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="probe" stdset="0">
+             <string>probe_outside_xmyp</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">outside_buttonGroup</string>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -3731,457 +3991,9 @@ ANGLE</string>
  <resources/>
  <connections>
   <connection>
-   <sender>pbtn_skew_xp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_skew_xp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>382</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>368</x>
-     <y>-11</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_skew_ym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_skew_ym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>442</x>
-     <y>45</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>437</x>
-     <y>-13</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_skew_yp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_skew_yp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>373</x>
-     <y>107</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>389</x>
-     <y>-3</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_skew_xm</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_skew_xm_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>436</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xmyp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xmyp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>184</x>
-     <y>37</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>175</x>
-     <y>-3</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xmym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xmym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>224</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>207</x>
-     <y>-10</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xpyp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xpyp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>296</x>
-     <y>46</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>289</x>
-     <y>-5</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xpym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xpym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>332</x>
-     <y>150</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>331</x>
-     <y>-4</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>312</x>
-     <y>89</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>311</x>
-     <y>-5</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xm</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xm_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>202</x>
-     <y>97</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>309</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_yp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_yp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>250</x>
-     <y>46</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>152</x>
-     <y>-4</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_xy_hole</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_xy_hole_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>153</x>
-     <y>-10</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_ym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_ym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>294</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-2</x>
-     <y>5</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xpym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xpym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>18</x>
-     <y>32</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-9</x>
-     <y>35</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_ym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_ym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>73</x>
-     <y>41</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-3</x>
-     <y>30</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xmym</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xmym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>125</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-2</x>
-     <y>60</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>33</x>
-     <y>85</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>88</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_center</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_center_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>84</x>
-     <y>110</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>116</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xm</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xm_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>137</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-2</x>
-     <y>141</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xpyp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xpym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>28</x>
-     <y>165</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>169</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_yp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_yp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>155</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>195</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_xmyp</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_xmyp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-3</x>
-     <y>222</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_length_x</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_length_x_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>380</x>
-     <y>164</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>619</x>
-     <y>3</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_length_x</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_length_x_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>434</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>619</x>
-     <y>32</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_inside_length_y</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_inside_length_y_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>398</x>
-     <y>193</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>621</x>
-     <y>64</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_outside_length_y</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_outside_length_y_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>430</x>
-     <y>226</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>620</x>
-     <y>92</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_down</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_down_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>391</x>
-     <y>274</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>620</x>
-     <y>119</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_measure_diam</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>pbtn_measure_diam_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>444</x>
-     <y>269</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>619</x>
-     <y>147</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pbtn_set_x</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_x_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4197,7 +4009,7 @@ ANGLE</string>
   <connection>
    <sender>pbtn_set_y</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_y_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4213,7 +4025,7 @@ ANGLE</string>
   <connection>
    <sender>pbtn_set_z</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_z_released()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4229,16 +4041,32 @@ ANGLE</string>
   <connection>
    <sender>pbtn_set_angle</sender>
    <signal>released()</signal>
-   <receiver>Form</receiver>
+   <receiver>versaProbe</receiver>
    <slot>pbtn_set_angle_released()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>294</x>
-     <y>255</y>
+     <x>272</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>620</x>
      <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>versaProbe</receiver>
+   <slot>help_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>408</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>629</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>
@@ -4304,5 +4132,28 @@ ANGLE</string>
   <slot>status_d_setText()</slot>
   <slot>status_ym_setText()</slot>
   <slot>status_xp_setText()</slot>
+  <slot>help_clicked()</slot>
  </slots>
+ <buttongroups>
+  <buttongroup name="length_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="inside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="outside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="skew_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+ </buttongroups>
 </ui>

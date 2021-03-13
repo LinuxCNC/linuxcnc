@@ -1,0 +1,36 @@
+.TH FLIPFLOP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+flipflop \- D type flip-flop
+.SH SYNOPSIS
+.HP
+.B loadrt flipflop [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBflipflop.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B flipflop.\fIN\fB.data\fR bit in \fR
+data input
+.TP
+.B flipflop.\fIN\fB.clk\fR bit in \fR
+clock, rising edge writes data to out
+.TP
+.B flipflop.\fIN\fB.set\fR bit in \fR
+when true, force out true
+.TP
+.B flipflop.\fIN\fB.reset\fR bit in \fR
+when true, force out false; overrides set
+.TP
+.B flipflop.\fIN\fB.out\fR bit io \fR
+output
+.SH LICENSE
+
+GPL

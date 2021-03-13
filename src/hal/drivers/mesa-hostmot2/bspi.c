@@ -86,7 +86,8 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     for (i = 0 ; i < hm2->bspi.num_instances ; i++){
         hm2_bspi_instance_t *chan = &hm2->bspi.instance[i];
         chan->clock_freq = md->clock_freq;
-        r = sprintf(chan->name, "%s.bspi.%01d", hm2->llio->name, i);
+        r = snprintf(chan->name, sizeof(chan->name), "%s.bspi.%01d", hm2->llio->name, i);
+        if (r >= sizeof(chan->name)) {r = -EINVAL ; goto fail0;}
         HM2_PRINT("created Buffered SPI function %s.\n", chan->name);
         chan->base_address = md->base_address + i * md->instance_stride;
         chan->register_stride = md->register_stride;
@@ -198,14 +199,14 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_setup_chan);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho,
                         int samplelate)
 {
     hostmot2_t *hm2;
     rtapi_u32 buff = 0;
     int i;
-    float board_mhz;
+    double board_mhz;
     i = hm2_get_bspi(&hm2, name);
     if (i < 0){
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
@@ -256,8 +257,8 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 
 void hm2_bspi_print_module(hostmot2_t *hm2){
     int i,j;
-    HM2_PRINT("Buffered SPI: %d\n", hm2->bspi.num_instances);
     if (hm2->bspi.num_instances <= 0) return;
+    HM2_PRINT("Buffered SPI: %d\n", hm2->bspi.num_instances);
     HM2_PRINT("    version: %d\n", hm2->bspi.version);
     HM2_PRINT("    channel configurations\n");
     for (i = 0; i < hm2->bspi.num_instances; i ++) {

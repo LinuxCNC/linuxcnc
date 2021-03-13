@@ -425,6 +425,7 @@ class GlCanonDraw:
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
         self.show_overlay = True
+        self.cone_basesize = .5
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -444,8 +445,18 @@ class GlCanonDraw:
                         print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
                     else:
                         self.dro_mm = temp
+                        self.dro_in = temp
+                size = (self.inifile.find("DISPLAY", "CONE_BASESIZE") or None)
+                if size is not None:
+                    self.set_cone_basesize(float(size))
         except:
+            # Probably started in an editor so no INI
             pass
+
+    def set_cone_basesize(self, size):
+        if size >2 or size < .025: size =.5
+        self.cone_basesize = size
+        self._redraw()
 
     def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinsmodule="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
@@ -1295,7 +1306,7 @@ class GlCanonDraw:
                         cone_scale = max(g.max_extents[x] - g.min_extents[x],
                                        g.max_extents[y] - g.min_extents[y],
                                        g.max_extents[z] - g.min_extents[z],
-                                       2 ) * .5
+                                       2 ) * self.cone_basesize
                     else:
                         cone_scale = 1
                     if self.is_lathe():

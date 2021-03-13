@@ -1,0 +1,35 @@
+.TH TIMEDELTA "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+timedelta \- LinuxCNC HAL component that measures thread scheduling timing behavior
+.SH SYNOPSIS
+.HP
+.B loadrt timedelta [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBtimedelta.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B timedelta.\fIN\fB.out\fR s32 out \fR
+.TQ
+.B timedelta.\fIN\fB.err\fR s32 out \fR(default: \fI0\fR)
+.TQ
+.B timedelta.\fIN\fB.min\fR s32 out \fR(default: \fI0\fR)
+.TQ
+.B timedelta.\fIN\fB.max\fR s32 out \fR(default: \fI0\fR)
+.TQ
+.B timedelta.\fIN\fB.jitter\fR s32 out \fR(default: \fI0\fR)
+.TQ
+.B timedelta.\fIN\fB.avg-err\fR float out \fR(default: \fI0\fR)
+.TQ
+.B timedelta.\fIN\fB.reset\fR bit in \fR
+.SH LICENSE
+
+GPL

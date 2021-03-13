@@ -1,0 +1,104 @@
+﻿:lang: es
+
+= Requerimientos del sistema
+
+[[cha:system-requirements]]
+
+== Requerimientos Mínimos
+
+Los requerimientos mínimos de hardware para ejecutar LinuxCNC en Debian (o Ubuntu) pueden variar dependiendo del uso 
+que se le dará al sistema. Los sistemas basados en motores a pasos requieren procesadores mas rápidos para generar 
+trenes de pulsos en comparación con los servomecanismos retroalimentados. Usando el Live-CD, usted puedes probar el 
+software antes de instalarlo en la computadora. Tenga en cuenta que los resultados del test de latencia son mas 
+importantes que la velocidad del procesador para la generación de pasos por software. Encontrara mas información sobre 
+el test de latencia <<sub:latency-test,aqui>>.
+Además, LinuxCNC debe ejecutarse en un sistema operativo que utiliza un
+kernel especialmente modificado. Ver <this section,Kernel y requisitos de Versión>
+
+Se puede encontrar información adicional en el sitio wiki de LinuxCNC:
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Requerimientos de Hardware]
+
+LinuxCNC y Linux Debian deberían de ejecutarse razonablemente bien en una computadora con las siguientes 
+especificaciones mínimas de hardware. Estas especificaciones no son las mínimas absolutas pero proporcionan un 
+funcionamiento razonable para la mayoría de los sistemas basados en motores a pasos.
+
+* procesador x86 700 Mhz (se recomienda un procesador x86 de 1.2GHz) o Raspberry
+  Pi 4 o superior.
+* Para ejecutar LinuxCNC 2.8 y Debian Buster desde el LiveCD, el sistema debe ser compatible con 64 bits.
+* 512 MB o más de RAM
+* 8 GB de espacio en disco duro
+* Tarjeta gráfica capaz de una resolución de al menos de 1024x768, que no este usando controladores propietarios 
+   Nvidia o ATI fglrx. Los chipsets de graficos integrados mas modernos parecen ser validos en general.
+* Una conexión de red o Internet (no es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones 
+   y contactar con la comunidad de LinuxCNC)
+
+Los requerimientos mínimos del sistema cambian conforme las distribuciones Linux evolucionan, por lo tanto revise el 
+sitio https://www.debian.org/releases/stable/amd64/ch02.es.html[Debian] para mas detalles sobre el LiveCD que esta usando.
+El hardware antiguo podría beneficiarse si se selecciona una versión mas antigua del LiveCD cuando se encuentre disponible.
+
+== Kernel y requisitos de Versión
+
+LinuxCNC requiere un kernel modificado para uso con tiempo real para controlar hardware real
+de máquinas. Sin embargo, puede ejecutarse en un núcleo estándar en modo de simulación
+para fines tales como verificar el código G, probar archivos de configuración y aprendizaje del sistema.
+Para trabajar con estas versiones de kernel hay dos versiones de LinuxCNC.
+ Los nombres de los paquetes son "linuxcnc" y "linuxcnc-uspace"
+
+Las opciones de kernel en tiempo real son preempt-rt, RTAI y Xenomai.
+
+Puede descubrir la versión del kernel de su sistema con el comando
+
+ uname -a
+
+Si ve (como arriba) `-rt-` en el nombre del kernel, entonces está ejecutando el
+preempt-rt kernel y debería instalar la versión "uspace" de linuxcnc.
+También debe instalar uspace para configuraciones "sim" en kernels que no son en tiempo real
+
+Si ve `-rtai-` en el nombre del kernel, entonces está ejecutando RTAI
+tiempo real. Consulte a continuación la versión de linuxcnc para instalar.
+
+=== Preempt-RT con linuxcnc-uspace
+
+Preempt-RT es el más nuevo de los sistemas en tiempo real, y también es la versión
+que está más cerca de un kernel estandar. Los kernels Preempt-RT están disponibles
+como paquetes precompilados de los repositorios principales. El término de búsqueda
+"PREEMPT_RT" los encontrará, y se pueden descargar e instalar como cualquier otro paquete
+Preempt-RT generalmente tendrá el mejor soporte de controladores y es la única
+opción para sistemas que usan tarjetas Mesa Ethernet. 
+En general, preempt-rt tiene la peor latencia de los sistemas disponibles, pero hay excepciones.
+
+=== RTAI con linuxcnc
+
+RTAI ha sido el pilar de las distribuciones LinuxCNC durante muchos años.
+Generalmente dará el mejor rendimiento en tiempo real, en términos de baja
+latencia, pero podría tener peor soporte periférico y menos resoluciones
+de pantallas. Un Kernel RTAI está disponible desde el repositorio de paquetes de LinuxCNC.
+Si instaló desde la imagen Live/Install, entonces proceda con 
+el kernel y LinuxCNC como se describe en [Installing-RTAI].
+
+=== Xenomai con linuxcnc-uspace
+
+Xenomai también es compatible, pero tendrá que buscar o construir el kernel
+y compilar LinuxCNC desde las fuentes para utilizarlo.
+
+=== RTAI con linuxcnc-uspace
+
+También es posible ejecutar LinuxCNC con RTAI en modo de espacio de usuario. Como
+con Xenomai, necesitará compilar desde las fuentes para hacer esto.
+
+== Hardware Problematico
+
+=== Computadores Portatiles
+
+Los computadores portátiles, en general, no son buenos para la generación de pasos por software en tiempo real. 
+De nuevo, el Test de Latencia ejecutado por un periodo de tiempo prolongado proveerá la información necesaria 
+para determinar si resulta apropiado su uso.
+
+=== Tarjetas de Video
+
+Si su instalación arranca con una resolución de 800 x 600, en la mayoría de los casos eso significa que Debian no
+reconoció apropiadamente su monitor o tarjeta de vídeo. Esto se puede solucionar a veces instalando controladores 
+o creando/editando archivos Xorg.conf.
+
+// vim: set syntax=asciidoc:
+

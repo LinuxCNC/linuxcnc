@@ -43,6 +43,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
+#include <rtapi_string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,6 +241,15 @@ int do_unlinkp_cmd(char *pin)
         halcmd_error("unlink failed\n");
     }
     return retval;
+}
+
+int do_set_debug_cmd(char* level){
+    int new_level = atoi(level);
+    if (new_level < 0 || new_level > 5){
+        halcmd_error("Debug level must be >=0 and <= 5\n");
+        return -EINVAL;
+    }
+    return rtapi_set_msg_level(atoi(level));
 }
 
 int do_source_cmd(char *hal_filename) {
@@ -1914,7 +1924,12 @@ static void print_thread_info(char **patterns)
             hal_sig_t *sig;
             void *dptr;
   
-            snprintf(name, sizeof(name), "%s.time",tptr->name);
+            size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+            if (ret >=  sizeof(name)){
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "unexpected: pin name too long for buffer %s",tptr->name);
+            } else {
+
             pin = halpr_find_pin_by_name(name);
             if (pin) {
                 if (pin->signal != 0) {
@@ -1935,6 +1950,7 @@ static void print_thread_info(char **patterns)
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      "unexpected: cannot find time pin for %s thread",tptr->name);
+            }
             }
 
 
@@ -2877,6 +2893,16 @@ int do_help_cmd(char *command)
 	printf("  'type' is 'lock', 'mem', or 'all'. \n");
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
+    } else if (strcmp(command, "debug")==0){
+    printf("debug [level]\n");
+    printf("   set the messaging level for the realtime API (calls rtapi_set_msg_level)\n");
+    printf("   levels are \n");
+    printf("   0 = None\n");
+	printf("   1 = Errors only (default)\n");
+	printf("   2 = Warnings and above\n");
+	printf("   3 = Info and above\n");
+	printf("   4 = Debug and above\n");
+	printf("   5 = All messages\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type] [filename]\n");
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
@@ -2955,6 +2981,7 @@ static void print_help_commands(void)
     printf("  list                Display names of HAL objects\n");
     printf("  source              Execute commands from another .hal file\n");
     printf("  status              Display status information\n");
+    printf("  debug               Set the rtapi message level\n");
     printf("  save                Print config as commands\n");
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");

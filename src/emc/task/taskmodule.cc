@@ -67,7 +67,7 @@ static int handle_exception(const char *name)
 	    try {						\
 		return f();					\
 	    }							\
-	    catch( bp::error_already_set ) {			\
+	    catch( const bp::error_already_set& ) {			\
 		return handle_exception(#method);		\
 	    }							\
 	}							\
@@ -82,7 +82,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name);						\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch( const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -96,7 +96,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name,name2);					\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch(const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -122,7 +122,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcLubeOff)
     EXPAND1(emcIoSetDebug,int,debug)
 
-    EXPAND2(emcToolPrepare,int, p, int, tool)
+    EXPAND1(emcToolPrepare, int, tool)
     EXPAND(emcToolLoad)
     EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)
@@ -135,7 +135,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 		std::string buffer(msg,len);
 		return f(len,buffer);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoPluginCall");
 	    }
 	} else
@@ -148,7 +148,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcToolSetOffset");
 	    }
 	else
@@ -160,7 +160,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(); /// bug in Boost.Python, fixed in 1.44 I guess: return_int("foo",f());
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoUpdate");
 	    }
 	else

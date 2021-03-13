@@ -1,0 +1,69 @@
+.TH hal_param_new "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_param_new \- Crea un parámetro HAL
+
+.SH SINTAXIS
+
+.HP
+ int hal_param_bit_new(const char *\fIname\fR, hal_param_dir_t \fIdir\fR, hal_bit_t * \fIdata_addr\fR, int \fIcomp_id\fR)
+
+.HP
+ int hal_param_float_new(const char *\fIname\fR, hal_param_dir_t \fIdir\fR, hal_float_t * \fIdata_addr\fR, int \fIcomp_id\fR)
+
+.HP
+ int hal_param_u32_new(const char *\fIname\fR, hal_param_dir_t \fIdir\fR, hal_u32_t * \fIdata_addr\fR, int \fIcomp_id\fR)
+
+.HP
+ int hal_param_s32_new(const char *\fIname\fR, hal_param_dir_t \fIdir\fR, hal_s32_t * \fIdata_addr\fR, int \fIcomp_id\fR)
+
+.HP
+ int hal_param_bit_newf(hal_param_dir_t \fIdir\fR, hal_bit_t * \fIdata_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int hal_param_float_newf(hal_param_dir_t \fIdir\fR, hal_float_t * \fIdata_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int hal_param_u32_newf(hal_param_dir_t \fIdir\fR, hal_u32_t * \fIdata_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int hal_param_s32_newf(hal_param_dir_t \fIdir\fR, hal_s32_t * \fIdata_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int hal_param_new(const char *\fIname\fR, hal_type_t \fItype\fR, hal_param_dir_t \fIdir\fR, void *\fIdata_addr\fR, int \fIcomp_id\fR) 
+
+.SH  ARGUMENTOS
+.TP
+\fIname\fR
+El nombre que se le dará al parámetro creado.
+.TP
+\fIdir\fR
+La dirección del parámetro, desde el punto de vista del componente. Puede ser
+\fBHAL_RO\fR, o \fBHAL_RW\fR . Un componente puede asignar un valor a cualquier
+parámetro, pero otros programas (como halcmd) solo pueden asignar un valor a un
+parámetro que sea \fBHAL_RW\fR.
+.TP
+\fIdata_addr\fR
+La dirección de los datos, que debe estar dentro de la memoria asignada por
+\fBhal_malloc\fR.
+.TP
+\fIcomp_id\fR
+Un identificador de componente HAL devuelto por una llamada anterior a \fBhal_init\fR.
+.TP
+\fIfmt,\ ...\fR
+Una cadena de formato de estilo printf y argumentos
+.TP
+\fItype\fR
+El tipo del parámetro, como se especifica en \fBhal_type_t(3hal)\fR.
+
+.SH DESCRIPCION
+La familia de funciones \fBhal_param_new\fR crea un nuevo objeto \fIparam\fR.
+
+Hay funciones para cada uno de los tipos de datos que admite HAL. Los pines pueden
+estar vinculados solo a señales del mismo tipo.
+
+.SH VALOR DEVUELTO
+Devuelve un código de estado HAL.
+.SH VER TAMBIÉN
+\fBhal_type_t(3hal)\fR
+

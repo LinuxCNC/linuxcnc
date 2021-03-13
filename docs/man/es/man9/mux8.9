@@ -1,0 +1,75 @@
+.TH MUX8 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+mux8 \- Select from one of eight input values
+.SH SYNOPSIS
+.HP
+.B loadrt mux8 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmux8.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B mux8.\fIN\fB.sel0\fR bit in \fR
+.TQ
+.B mux8.\fIN\fB.sel1\fR bit in \fR
+.TQ
+.B mux8.\fIN\fB.sel2\fR bit in \fR
+Together, these determine which \fBin\fIN\fR value is copied to \fBout\fR.
+
+.TP
+.B mux8.\fIN\fB.out\fR float out \fR
+Follows the value of one of the \fBin\fIN\fR values according to the three \fBsel\fR values
+.RS
+.TP
+\fBsel2=FALSE\fR, \fBsel1=FALSE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin0\fR
+.TP
+\fBsel2=FALSE\fR, \fBsel1=FALSE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin1\fR
+.TP
+\fBsel2=FALSE\fR, \fBsel1=TRUE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin2\fR
+.TP
+\fBsel2=FALSE\fR, \fBsel1=TRUE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin3\fR
+.TP
+\fBsel2=TRUE\fR, \fBsel1=FALSE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin4\fR
+.TP
+\fBsel2=TRUE\fR, \fBsel1=FALSE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin5\fR
+.TP
+\fBsel2=TRUE\fR, \fBsel1=TRUE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin6\fR
+.TP
+\fBsel2=TRUE\fR, \fBsel1=TRUE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin7\fR
+.RE
+
+.TP
+.B mux8.\fIN\fB.in0\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in1\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in2\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in3\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in4\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in5\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in6\fR float in \fR
+.TQ
+.B mux8.\fIN\fB.in7\fR float in \fR
+.SH LICENSE
+
+GPL

@@ -18,7 +18,7 @@ class MachineLogger():
         STATUS.connect('update-machine-log', self.log_it)
         self.mlp = os.path.expanduser(INFO.MACHINE_LOG_HISTORY_PATH)
 
-    def log_it(self, w, message, option):
+    def log_it(self, w, message, option=None):
         if option == 'TIME':
             self.log_message_time(message)
         elif option == 'DATE':

@@ -53,7 +53,10 @@ class mdi:
             self.axes = ['X','Y','Z']
 
         self.gcode = 'M2'
-
+        if INFO.MACHINE_IS_LATHE:
+            G10 = ['Setup', 'L', 'P', 'A','R', 'I','J', 'Q']
+        else:
+            G10 = ['Setup', 'L', 'P', 'A', 'R']
         self.codes = {
             'M3' : ['Spindle CW', 'S'],
             'M4' : ['Spindle CCW', 'S'],
@@ -72,7 +75,7 @@ class mdi:
             'G03' : ['Arc CCW', 'A', 'I', 'J', 'K', 'R', 'P', 'F'],
             'G4' : ['Dwell', 'P'],
             'G04' : ['Dwell', 'P'],
-            'G10' : ['Setup', 'L', 'P', 'A', 'Q', 'R'],
+            'G10': G10,
             'G33' : ['Spindle synchronized feed', 'A', 'K'],
             'G33.1' : ['Rigid tap', 'Z', 'K'],
             'G38.2' : ['Probe', 'A', 'F'],
@@ -113,8 +116,11 @@ class mdi:
     
     def get_words(self, gcode):
         self.gcode = gcode
-        if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
-            return ['P', 'Q']
+        try:
+            if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
+                return ['P', 'Q']
+        except IndexError:
+            return []
         if not self.codes.has_key(gcode):
             return []
         # strip description
@@ -174,6 +180,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         self.selected = 0
         self.plaintext = ['','','','','','','','','','','','']
         self.dColor = self.label_0.palette().button().color()
+        self.dialog_code = 'CALCULATOR'
 
     def _hal_init(self):
         def homed_on_test():
@@ -183,7 +190,12 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-
+        STATUS.connect('general',self.return_value)
+        macros = INFO.INI_MACROS
+        if len(macros) > 0:
+            self.mdi.add_macros(macros)
+        else:
+            self.pushButton_macro.setEnabled(0)
 
     def gxClicked(self):
         self.update("G")
@@ -245,11 +257,28 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         self.set_origin()
 
     def macroClicked(self):
-        pass
+        self.cycle_ocodes()
+
+    def calcClicked(self):
+            mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'MDI Calculator'}
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
 
     #######################################
     #
     #######################################
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
+            LOG.debug('message return:{}'.format (message))
+            t = self.get_text().rstrip("0123456789.-")
+            self.set_text('{}{}'.format(t, num))
+            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME')
 
     def run_command(self):
         self.fill_out()
@@ -300,6 +329,18 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
             w.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         else:
             w.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+    def cycle_ocodes(self):
+        # strip off richText bold encoding
+        doc = self.label_0.text().lstrip('<b>')
+        old_code = doc.rstrip('</b>')
+        ocodes = self.mdi.ocodes
+        if old_code in ocodes:
+            j = (ocodes.index(old_code) + 1) % len(ocodes)
+        else:
+            j = 0
+        self.update(ocodes[j])
+        self.nextClicked()            
 
     def set_tool(self, tool, g10l11):
         self.update()

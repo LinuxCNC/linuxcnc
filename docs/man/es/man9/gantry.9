@@ -1,0 +1,73 @@
+.TH GANTRY "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+gantry \- LinuxCNC HAL component for driving multiple joints from a single axis
+.SH SYNOPSIS
+.HP
+.B loadrt gantry [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+
+Drives multiple physical motors (joints) from a single axis input
+.LP
+The `personality' value is the number of joints to control.  Two is typical, but
+up to seven is supported (a three joint setup has been tested with hardware).
+.LP
+All controlled joints track the commanded position (with a per-joint offset)
+unless in the process of homing.  Homing is when the commanded position is
+moving towards the homing switches (as determined by the sign of search-vel)
+and the joint home switches are not all in the same state.  When the system is
+homing and a joint home switch activates, the command value sent to that joint
+is "frozen" and the joint offset value is updated instead.  Once all home
+switches are active, there are no more adjustments made to the offset values
+and all joints run in lock-step once more.
+.LP
+For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the same direction
+and as slow as practical.  When a joint home switch trips, the commanded
+velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
+acceleration.
+
+.SH FUNCTIONS
+.TP
+\fBgantry.\fIN\fB.read\fR (requires a floating-point thread)
+Update position-fb and home/limit outputs based on joint values
+.TP
+\fBgantry.\fIN\fB.write\fR (requires a floating-point thread)
+Update joint pos-cmd outputs based on position-cmd in
+.SH PINS
+.TP
+.B gantry.\fIN\fB.joint.\fIMM\fB.pos-cmd\fR float out  (MM=00..personality) \fR
+Per-joint commanded position
+.TP
+.B gantry.\fIN\fB.joint.\fIMM\fB.pos-fb\fR float in  (MM=00..personality) \fR
+Per-joint position feedback
+.TP
+.B gantry.\fIN\fB.joint.\fIMM\fB.home\fR bit in  (MM=00..personality) \fR
+Per-joint home switch
+.TP
+.B gantry.\fIN\fB.joint.\fIMM\fB.offset\fR float out  (MM=00..personality) \fR
+(debugging) Per-joint offset value, updated when homing
+.TP
+.B gantry.\fIN\fB.position-cmd\fR float in \fR
+Commanded position from motion
+.TP
+.B gantry.\fIN\fB.position-fb\fR float out \fR
+Position feedback to motion
+.TP
+.B gantry.\fIN\fB.home\fR bit out \fR
+Combined home signal, true if all joint home inputs are true
+.TP
+.B gantry.\fIN\fB.limit\fR bit out \fR
+Combined limit signal, true if any joint home input is true
+.TP
+.B gantry.\fIN\fB.search-vel\fR float in \fR
+HOME_SEARCH_VEL from ini file
+.SH LICENSE
+
+GPL

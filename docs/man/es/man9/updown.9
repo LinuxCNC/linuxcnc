@@ -1,0 +1,46 @@
+.TH UPDOWN "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+updown \- Counts up or down, with optional limits and wraparound behavior
+.SH SYNOPSIS
+.HP
+.B loadrt updown [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBupdown.\fIN\fB\fR
+Process inputs and update count if necessary
+.SH PINS
+.TP
+.B updown.\fIN\fB.countup\fR bit in \fR
+Increment count when this pin goes from 0 to 1
+.TP
+.B updown.\fIN\fB.countdown\fR bit in \fR
+Decrement count when this pin goes from 0 to 1
+.TP
+.B updown.\fIN\fB.reset\fR bit in \fR
+Reset count when this pin goes from 0 to 1
+.TP
+.B updown.\fIN\fB.count\fR s32 out \fR
+The current count
+.SH PARAMETERS
+.TP
+.B updown.\fIN\fB.clamp\fR bit rw \fR
+If TRUE, then clamp the output to the min and max parameters.
+.TP
+.B updown.\fIN\fB.wrap\fR bit rw \fR
+If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.
+.TP
+.B updown.\fIN\fB.max\fR s32 rw \fR(default: \fI0x7FFFFFFF\fR)
+If clamp or wrap is set, count will never exceed this number
+.TP
+.B updown.\fIN\fB.min\fR s32 rw \fR
+If clamp or wrap is set, count will never be less than this number
+.SH LICENSE
+
+GPL

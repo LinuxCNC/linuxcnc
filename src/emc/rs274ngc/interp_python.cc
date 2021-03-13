@@ -154,7 +154,7 @@ int Interp::pycall(setup_pointer settings,
 	try {
 	    retval = frame->pystuff.impl->generator_next();
 	}
-	catch (bp::error_already_set) {
+	catch (const bp::error_already_set&) {
 	    if (PyErr_Occurred()) {
 		// StopIteration is raised when the generator executes 'return'
 		// instead of another 'yield INTERP_EXECUTE_FINISH
@@ -272,7 +272,7 @@ int Interp::pycall(setup_pointer settings,
 	default: ;
 	}
     }
-    catch (bp::error_already_set) {
+    catch (const bp::error_already_set&) {
 	if (PyErr_Occurred()) {
 	    msg = handle_pyerror();
 	}

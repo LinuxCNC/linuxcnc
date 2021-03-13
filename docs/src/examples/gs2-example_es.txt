@@ -1,0 +1,59 @@
+[[cha:gs2-spindle]]
+
+= Husillo con GS2
+
+Este ejemplo muestra las conexiones necesarias para usar un VFD GS2
+de Automation Direct para manejar un husillo. La velocidad y dirección del husillo son
+controladas por LinuxCNC.
+
+El uso del componente GS2 tiene muy poco que configurar. Empezamos con una configuración
+generada por el asistente Stepconf. Asegúrese de que los pines con "Husillo
+CW" y "Husillo PWM" están configurados como no utilizados en la configuración del puerto paralelo.
+
+En el archivo custom.hal colocamos lo siguiente para conectar LinuxCNC al
+GS2 y que controle la unidad.
+
+.GS2 Ejemplo
+----
+# cargar el componente de espacio de usuario para VFD Automation Direct GS2
+loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd
+
+# conecte el pin de dirección del husillo al GS2
+net gs2-fwd spindle-vfd.spindle-fwd <= spindle.N.forward
+
+# conecte el pin de arranque del husillo al GS2
+net gs2-run spindle-vfd.spindle-on <= spindle.N.on
+
+# conecte el GS2 a velocidad al movimiento a velocidad
+net gs2-at-speed spindle.N.at-speed <= spindle-vfd.at-speed
+
+# conecte RPM de husillo al GS2
+net gs2-RPM spindle-vfd.speed-command <= spindle.N.speed-out
+----
+
+[NOTE]
+La velocidad de transmisión puede ser más rápida dependiendo del entorno exacto.
+Tanto la unidad como las opciones de línea de comando deben coincidir. Para verificar
+errores de transmisión, agregue la opción '-v' a la línea de comando y ejecute desde un
+terminal.
+
+Necesita configurar un par de cosas en el propio driver GS2 antes de que 
+las comunicaciones modbus funcionen. Puede que sea necesario configurar otros parámetros
+basado en sus requisitos físicos, pero estos están más allá del alcance de este
+manual. Consulte el manual de GS2 que vino con la unidad para obtener más información
+sobre los parámetros del variador.
+
+* Los interruptores de comunicación deben configurarse en RS-232C
+* Los parámetros del motor deben configurarse para que coincidan con el motor
+* P3.00 (Fuente del comando de operación) debe establecerse en Operación
+   determinada por la interfaz RS-485, 03 o 04
+* P4.00 (Fuente del comando de frecuencia) debe establecerse en Frecuencia
+   determinada por la interfaz de comunicación RS232C/RS485, 05
+* P9.01 (Velocidad de transmisión) debe establecerse en 9600 baudios, 01
+* P9.02 (Protocolo de comunicación) debe establecerse en "Modo Modbus RTU,
+   8 bits de datos, sin paridad, 2 bits de parada ", 03
+
+Un panel PyVCP basado en este ejemplo está <<gs2-rpm-meter,aqui>>.
+
+
+

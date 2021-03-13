@@ -34,6 +34,7 @@
 #include "rs274ngc_interp.hh"
 #include "python_plugin.hh"
 #include "interp_python.hh"
+#include <rtapi_string.h>
 
 namespace bp = boost::python;
 
@@ -452,8 +453,9 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 
 	    // file at this level was marked as closed, so dont reopen.
 	    if (previous_frame->position == -1) {
+		if (settings->file_pointer) fclose(settings->file_pointer);
 		settings->file_pointer = NULL;
-		strcpy(settings->filename, "");
+		rtapi_strxcpy(settings->filename, "");
 	    } else {
 		if(settings->file_pointer == NULL) {
 		    ERS(NCE_FILE_NOT_OPEN);
@@ -467,7 +469,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			    previous_frame->filename,
 			    strerror(errno));
 		    }
-		    strcpy(settings->filename, previous_frame->filename);
+		    rtapi_strxcpy(settings->filename, previous_frame->filename);
 		}
 		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
 		settings->sequence_number = previous_frame->sequence_number;

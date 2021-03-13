@@ -5,6 +5,14 @@
 :lversion: {sys: cat ../VERSION}
 Guide de démarrage V{lversion}, {localdate}
 ===========================================
+
+[NOTE]
+Cette documentation n'a pas été mise à jour depuis LinuxCNC version 2.5,
+publiée en 2012.
+C'est très dépassé. Veuillez utiliser la documentation en anglais.
+Si vous souhaitez mettre à jour cette traduction, veuillez contacter
+l'équipe LinuxCNC via le forum ou la liste de diffusion.
+
 :masterdir: {indir}
 :leveloffset: 1
 

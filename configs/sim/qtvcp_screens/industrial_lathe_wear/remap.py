@@ -1,6 +1,5 @@
 #   This is a component of LinuxCNC
-#   Copyright 2014 Andy Pugh <andy@bodgesoc.org>, Chris Radek
-#   <chris@timeguy.com>
+#   Copyright 2020 Chris Morley
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -16,18 +15,11 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+# see nc_files/remap_lib/stdglue.py
+#
+# use standard python remap functions:
+# index_lathe_tool_with_wear()
+# ignore_m6()
+
 from stdglue import *
 
-# Extract the T number into a parameter, but don't try anything else clever
-
-def get_T_number(self,**words):
-    try:
-        cblock = self.blocks[self.remap_level]
-        if not cblock.t_flag:
-            self.set_errormsg("T requires a tool number")
-            return INTERP_ERROR
-        self.params["tool"] = cblock.t_number
-        return INTERP_OK
-    except Exception, e:
-        self.set_errormsg("T%d/prepare_prolog: %s" % (int(words['t']), e))
-        return INTERP_ERROR

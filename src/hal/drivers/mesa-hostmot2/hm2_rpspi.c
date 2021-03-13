@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +41,8 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "spi_common_rpspi.h"
+
+#define HM2_LLIO_NAME "hm2_rpspi"
 
 /*
  * Debugging options
@@ -1438,6 +1441,33 @@ static int hm2_rpspi_setup(void)
 	return j > 0 ? 0 : -ENODEV;
 }
 
+static int shell(char *command) {
+    char *const argv[] = {"sh", "-c", command, NULL};
+    pid_t pid;
+    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(res < 0) perror("rtapi_spawn_as_root");
+    int status;
+    waitpid(pid, &status, 0);
+    if(WIFEXITED(status)) return WEXITSTATUS(status);
+    else if(WIFSTOPPED(status)) return WTERMSIG(status)+128;
+    else return status;
+}
+
+static int eshellf(char *fmt, ...) {
+    char commandbuf[1024];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
+    va_end(ap);
+
+    int res = shell(commandbuf);
+    if(res == EXIT_SUCCESS) return 0;
+
+    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
+    return -EINVAL;
+}
+
+
 /*************************************************/
 static void hm2_rpspi_cleanup(void)
 {
@@ -1445,12 +1475,15 @@ static void hm2_rpspi_cleanup(void)
 		peripheral_restore();
 		munmap(peripheralmem, peripheralsize);
 	}
+	eshellf("/sbin/modprobe spi-bcm2835");
 }
 
 /*************************************************/
 int rtapi_app_main()
 {
 	int ret;
+
+	eshellf("/sbin/rmmod spi_bcm2835");
 
 	if((comp_id = ret = hal_init("hm2_rpspi")) < 0)
 		goto fail;

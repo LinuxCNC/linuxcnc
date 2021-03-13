@@ -82,6 +82,9 @@ RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 
 /* other globals */
 static int comp_id;		/* component ID */
+static int thread1_id;
+static int thread2_id;
+static int thread3_id;
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -95,8 +98,6 @@ static int comp_id;		/* component ID */
 
 int rtapi_app_main(void)
 {
-    int retval;
-
     /* have good config info, connect to the HAL */
     comp_id = hal_init("threads");
     if (comp_id < 0) {
@@ -106,8 +107,8 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name1, period1, fp1);
-	if (retval < 0) {
+	thread1_id = hal_create_thread(name1, period1, fp1);
+	if (thread1_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name1);
 	    hal_exit(comp_id);
@@ -118,10 +119,11 @@ int rtapi_app_main(void)
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name2, period2, fp2);
-	if (retval < 0) {
+	thread2_id = hal_create_thread(name2, period2, fp2);
+	if (thread2_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name2);
+        hal_exit(thread1_id);
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
@@ -130,10 +132,12 @@ int rtapi_app_main(void)
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name3, period3, fp3);
-	if (retval < 0) {
+	thread3_id = hal_create_thread(name3, period3, fp3);
+	if (thread3_id < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name3);
+        hal_exit(thread1_id);
+        hal_exit(thread2_id);
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
@@ -146,6 +150,10 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: hal_exit %i %i %i", thread1_id, thread2_id, thread3_id);
+    if (thread1_id) hal_exit(thread1_id);
+    if (thread2_id) hal_exit(thread2_id);
+    if (thread3_id) hal_exit(thread3_id);
     hal_exit(comp_id);
 }
 

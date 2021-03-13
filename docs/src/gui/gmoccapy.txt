@@ -650,8 +650,8 @@ To connect encoders the following pin are exported:
 * gmoccapy.spindle.spindle-override.count-enable = HAL_BIT  Must be True, to enable counts
 * gmoccapy.spindle.reset-spindle-override        = HAL_BIT  reset the spindle override to 100 %
 
-* gmoccapy.rapid.rapid_override.counts       = HAL_S32  Maximal Velocity of the machine
-* gmoccapy.rapid.rapid_override.count-enable = HAL_BIT  Must be True, to enable counts
+* gmoccapy.rapid.rapid-override.counts       = HAL_S32  Maximal Velocity of the machine
+* gmoccapy.rapid.rapid-override.count-enable = HAL_BIT  Must be True, to enable counts
 
 To connect potentiometers, use the following hal pin:
 
@@ -664,8 +664,8 @@ To connect potentiometers, use the following hal pin:
 * gmoccapy.spindle.spindle-override.direct-value  = HAL_FLOAT To adjust the spindle override slider
 * gmoccapy.spindle.spindle-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
 
-* gmoccapy.rapid.rapid_override.direct-value  = HAL_FLOAT To adjust the max velocity slider
-* gmoccapy.rapid.rapid_override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
+* gmoccapy.rapid.rapid-override.direct-value  = HAL_FLOAT To adjust the max velocity slider
+* gmoccapy.rapid.rapid-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
 
 In addition gmoccapy 3 offers additional hal pin to control
 the new slider widgets with momentary switches. The values how fast the increase
@@ -861,7 +861,7 @@ net gmoccapy-pin gmoccapy.messages.pin
 ----
 
 For more information on HAL files and the net command see the
-<<cha:basic-hal-reference,Basic HAL Reference>>.
+<<cha:basic-hal-reference,HAL Basics>>.
 
 === Spindle Feedback Pins
 

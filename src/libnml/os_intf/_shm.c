@@ -88,9 +88,9 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     shm->size = size;
 #ifdef POSIX_SHMEM_NAME_PREFIX
     strncpy(shm->name, POSIX_SHMEM_NAME_PREFIX, 64);
-    sprintf(shm->name + strlen(shm->name), "/rcs_shm%d", key);
+    snprintf(shm, sizeof(shm)->name + strlen(shm->name), "/rcs_shm%d", key);
 #else
-    sprintf(shm->name, "/rcs_shm%d", key);
+    snprintf(shm, sizeof(shm)->name, "/rcs_shm%d", key);
 #endif
 
     shm->id = 0;

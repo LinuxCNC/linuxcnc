@@ -132,6 +132,8 @@ int clip_max(double * const x, double max);
 
 double saturate(double x, double max);
 
+double bisaturate(double x, double max, double min);
+
 int sat_inplace(double * const x, double max);
 
 int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end);

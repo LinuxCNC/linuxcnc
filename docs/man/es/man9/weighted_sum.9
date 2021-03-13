@@ -1,0 +1,32 @@
+.TH WEIGHTED_SUM "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.SH NOMBRE
+weighted_sum \- convierte un grupo de bits en un entero
+.SH SINOPSIS
+.B loadrt weighted_sum wsum_sizes=\fIsize[,size,...]\fR
+.P
+Crea grupos de suma ponderada cada uno con el número dado de bits de entrada
+(\fIsize\fR).
+.SH DESCRIPCIÓN
+Este componente es un "sumador ponderado": su salida es el offset más la suma del peso de cada bit de entrada TRUE. El valor predeterminado para cada peso es 2^n donde n es el número de bit. Esto da como resultado una conversión de binario a entero sin signo.
+
+Hay un límite de 8 sumadores ponderados y cada uno puede tener hasta 16 bits de entrada.
+.SH FUNCIONES
+.TP
+.B process_wsums (requiere hilo de punto flotante)
+Lee todos los valores de entrada y actualiza todos los valores de salida.
+.SH PINES
+.TP
+.B wsum.\fIN\fB.bit.\fIM\fB.in\fR bit in
+La entrada\fIm\fR\-esima de sumador ponderado\fIn\fR.
+.TP
+.B wsum.\fIN\fB.hold\fR bit in
+Cuando es TRUE, la salida \fIsum\fR no cambia. Cuando es FALSE, la salida \fIsum\fR rastrea las entradas \fIbit\fR de acuerdo con los pesos y el offset.
+.TP
+.B wsum.\fIN\fB.sum\fR s32 out
+La salida de la suma ponderada
+.TP
+.B wsum.\fIN\fB.bit.\fIM\fB.weight\fR s32 rw
+El peso de la entrada \fIm\fR\-esima de suma ponderada \fIn\fR. El valor predeterminado es 2^\fIm\fR.
+.TP
+.B wsum.\fIN\fB.offset\fR s32 rw
+El offset se agrega a los pesos correspondientes a todas las entradas TRUE para dar la suma final.

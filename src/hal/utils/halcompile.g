@@ -643,7 +643,8 @@ static int comp_id;
         if options.get("userinit"):
             print("static void userinit(int argc, char **argv);", file=f)
 
-        print("""
+        if not options.get("singleton"):
+            print("""
 int __comp_parse_count(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -663,7 +664,7 @@ int __comp_parse_count(int *argc, char **argv) {
     return 0;
 }
 """, file=f)
-        print("""
+            print("""
 int __comp_parse_names(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -691,13 +692,14 @@ int __comp_parse_names(int *argc, char **argv) {
         print("int argc=0; char **argv=0;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
-        print("    int found_count, found_names;", file=f)
-        print("    found_count = __comp_parse_count(&argc, argv);", file=f)
-        print("    found_names = __comp_parse_names(&argc, argv);", file=f)
-        print("    if (found_count && found_names) {", file=f)
-        print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
-        print("        return 1;", file=f)
-        print("    }", file=f)
+        if not options.get("singleton"):
+            print("    int found_count, found_names;", file=f)
+            print("    found_count = __comp_parse_count(&argc, argv);", file=f)
+            print("    found_names = __comp_parse_names(&argc, argv);", file=f)
+            print("    if (found_count && found_names) {", file=f)
+            print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
+            print("        return 1;", file=f)
+            print("    }", file=f)
         if options.get("userinit", 0):
             print("    userinit(argc, argv);", file=f)
         print("", file=f)
@@ -750,7 +752,11 @@ int __comp_parse_names(int *argc, char **argv) {
 
         if options.get("userspace"):
             print("#undef FOR_ALL_INSTS", file=f)
-            print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
+            if options.get("singleton"):
+                print("#define __comp_inst __comp_first_inst", file=f)
+                print("#define FOR_ALL_INSTS()", file=f)
+            else:
+                print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
     print("", file=f)
     print("", file=f)
 
@@ -783,7 +789,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", "")), file=f)
     print("include %s" % find_modinc(), file=f)
@@ -857,10 +863,11 @@ def to_hal_man(s):
     return s
 
 def document(filename, outfilename):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9"
 
     a, b = parse(filename)
+    if outfilename is None:
+        outfilename = os.path.splitext(filename)[0] + ".1" if options.get("userspace") else ".9"
+
     f = open(outfilename, "w")
 
     has_personality = False
@@ -871,8 +878,9 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print(".TH %s \"9\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
-        comp_name.upper(), time.strftime("%F")), file=f)
+    print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
+        comp_name.upper(), "1" if options.get("userspace") else "9",
+        time.strftime("%F")), file=f)
     print(".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n", file=f)
 
     print(".SH NAME\n", file=f)

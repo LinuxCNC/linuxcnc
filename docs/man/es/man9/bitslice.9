@@ -1,0 +1,35 @@
+.TH BITSLICE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+bitslice \- Converts an unsigned-32 input into individual bits
+.SH SYNOPSIS
+.HP
+.B loadrt bitslice [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+This component creates individual bit-outputs for each bit of an
+unsigned-32 input. The number of bits can be limited by the "personality"
+modparam.
+The inverse process can be performed by the weighted_sum HAL component.
+.SH FUNCTIONS
+.TP
+\fBbitslice.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B bitslice.\fIN\fB.in\fR u32 in \fR
+The input value
+.TP
+.B bitslice.\fIN\fB.out-\fIMM\fB\fR bit out  (MM=00..personality) \fR
+.SH AUTHOR
+
+Andy Pugh
+.SH LICENSE
+
+GPL2+

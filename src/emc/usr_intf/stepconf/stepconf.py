@@ -34,6 +34,7 @@ from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
 
+import signal
 import sys
 import os
 from optparse import Option, OptionParser
@@ -1032,7 +1033,6 @@ class StepconfApp:
             self.w[axis + "axistest"].set_sensitive(0)
 
     def axis_sanity_test(self, axis):
-        return
         # I hate the inner function
         def get(n):
             return float(self.w[axis + n].get_text())
@@ -1048,11 +1048,9 @@ class StepconfApp:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(90deg,yellow,red);}' + os.linesep
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(@bg_color,@bg_color); }' + os.linesep
 
         # Really I have not found a better way to change the background color
         # I hate the person who removed the get_background_color function in GTK3...
@@ -1557,6 +1555,8 @@ class StepconfApp:
 
 # starting with 'stepconf -d' gives debug messages
 if __name__ == "__main__":
+    def dummy():
+        pass
     usage = "usage: Stepconf -[options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
@@ -1565,5 +1565,6 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
+    signal.signal(signal.SIGINT, lambda *args: dummy())
     Gtk.main()
 

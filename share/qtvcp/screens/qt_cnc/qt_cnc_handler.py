@@ -10,7 +10,9 @@ from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.widgets.nurbs_editor import NurbsEditor
 from qtvcp.lib.keybindings import Keylookup
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 from qtvcp.core import Status, Action
 
@@ -28,6 +30,9 @@ LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
+STYLEEDITOR = SSE()
+NURBSEDITOR = NurbsEditor()
+TOOLBAR = ToolBarActions()
 
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
@@ -49,7 +54,6 @@ class HandlerClass:
         self.w = widgets
         self.PATH = paths
         self._big_view = -1
-        self.STYLEEDITOR = SSE(widgets,paths)
 
     ##########################################
     # Special Functions called from QTVCP
@@ -66,12 +70,20 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
+        STATUS.connect('jogincrement-changed', lambda w, d, t: self.record_jog_incr(d,t))
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
+        KEYBIND.add_call('Key_F8','on_keycall_F8')
+        KEYBIND.add_call('Key_F9','on_keycall_custom','f9 pressed tesst')
+        KEYBIND.add_call('Key_F10','on_keycall_custom','f10 pressed tesst')
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
+
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -79,7 +91,8 @@ class HandlerClass:
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F6,
+                    QtCore.Qt.Key_F7,QtCore.Qt.Key_F8,QtCore.Qt.Key_F12):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -114,15 +127,12 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            LOG.debug('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        if event.isAutoRepeat():return True
+
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     ########################
     # callbacks from STATUS #
@@ -133,6 +143,11 @@ class HandlerClass:
     #######################
     def widget_switch(self,data):
         self.w.widgetswitcher.show_next()
+        state = False
+        if self.w.widgetswitcher.get_current_number() == 1:
+            state = True
+        self.w.Graphics.setdro(state)
+        self.w.Graphics.setoverlay(state)
 
     def set_edit_mode(self, num):
         if num == 2:
@@ -168,6 +183,20 @@ class HandlerClass:
     def editor_exit(self):
         self.w.gcodeeditor.exit()
 
+    def record_jog_incr(self,d, t):
+        if d != 0:
+            self.L_incr = d
+            self.L_text = t
+            self.w.btn_toggle_continuous.safecheck(False)
+
+    def toggle_continuous_clicked(self, state):
+        if state:
+            # set continuous 
+            self.w.btn_toggle_continuous.incr_action()
+        else:
+            # reset previously recorded increment
+            ACTION.SET_JOG_INCR(self.L_incr, self.L_text)
+
     #####################
     # KEY BINDING CALLS #
     #####################
@@ -198,7 +227,7 @@ class HandlerClass:
             STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            STATUS.emit('dialog-request',{'NAME':'CAMVIEW'})
+            STATUS.emit('dialog-request',{'NAME':'CAMVIEW','NONBLOCKING':True})
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'MACROTAB'})
@@ -208,9 +237,19 @@ class HandlerClass:
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
+    def on_keycall_F8(self,event,state,shift,cntrl):
+        if state:
+            STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
+    # f9, f10  call this function with different values
+    def on_keycall_custom(self,event,state,shift,cntrl,value):
+        if state:
+            print 'custom keycall function value: ',value
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if state:
+            NURBSEDITOR.load_dialog()
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 
 
     # Linear Jogging
@@ -239,6 +278,7 @@ class HandlerClass:
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         pass
         #self.kb_jog(state, 3, -1, shift, linear=False)
+
 
     ###########################
     # **** closing event **** #

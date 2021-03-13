@@ -1,0 +1,75 @@
+.TH funct "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_atomic \- subconjunto de C11 <stdatomic.h>
+
+.SH Sintaxis
+.HP
+#include <rtapi_atomic.h>
+.HP
+enum memory_order {...};
+.HP
+#define atomic_store(obj, desired)...
+.HP
+#define atomic_store_explicit(obj, desired, order)...
+.HP
+#define atomic_load(obj)...
+.HP
+#define atomic_load_explicit(obj, order)...
+
+.SH ARGUMENTOS
+.IP "\fBvolatile A*\fR \fIobj\fR"
+Un puntero a un objeto volátil que es el destino del almacenamiento o la
+fuente de la carga. El puntero debe tener un tipo y una alineación apropiados,
+tal que la operación de almacenamiento o carga subyacente en sí sea atómica; como
+mínimo, se puede suponer que un "int" correctamente alineado es de ese tipo. Un tamaño
+o alineación incorrecto son errores no diagnosticados.
+.IP "\fBC\ fR\fIdesired\fR"
+El valor que se almacenará en el objeto. "*obj = desired" debe estar bien formado.
+.IP "\fBmemory_order\fR order"
+La semántica requerida de orden de memoria.
+
+.SH DESCRIPCIÓN
+Este encabezado proporciona al menos el subconjunto de <stdatomic.h> de C11 dado anteriormente.
+Cuando existe un requisito de orden para múltiples valores leídos o escritos en
+áreas de memoria compartida RTAPI por otros hilos, incluidos los valores de
+pines y parámetros HAL, estas funciones (o macros similares a funciones) son la única forma
+de garantizar que se cumpla el requisito de orden. De lo contrario, de acuerdo con
+las reglas específicas de la arquitectura, las cargas y almacenamientos se pueden reordenar desde su
+orden normal del código fuente.
+
+Por ejemplo, para dejar un mensaje en un área de memoria compartida desde un hilo y
+recuperarlo desde otro, el escritor debe usar un almacenamiento atómico para la variable "message
+is complete", y el lector debe usar una carga atómica cuando verifique esa variable:
+
+.RS
+.EX
+// productor
+*mensaje = 42;
+atomic_store_explicit(message_ready, 1, memory_order_release);
+
+// consumidor
+while(atomic_load_explicit(message_ready, memory_order_acquire) == 0) sched_yield();
+printf ("el mensaje era %d\\n", *message); //debe imprimir 42
+.EE
+.RE
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde cualquier código.
+.SH VALOR DEVUELTO
+.B atomic_load
+y
+.B atomic_load_explicit
+devuelve el valor señalado por el argumento
+.I obj.
+
+.B atomic_store
+y
+.B atomic_store_explicit
+No tienen valor de retorno.
+
+.SH VER TAMBIÉN
+.BR <stdatomic.h> " (C11), "<rtapi_bitops.h> "(para otras operaciones de memoria atómica compatibles con rtapi)"
+
+
+

@@ -6,7 +6,7 @@ executing
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... ON_RESET()
     7 N..... MESSAGE(" before introspect: call_level= 0.000000")
-    8 N..... SELECT_POCKET(3)
+    8 N..... SELECT_TOOL(3)
     9 N..... START_CHANGE()
    10 N..... STOP_SPINDLE_TURNING(0)
    11 N..... CHANGE_TOOL(3)

@@ -1348,6 +1348,23 @@ class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
     void update(CMS * cms);
 };
 
+class EMC_TASK_PLAN_REVERSE:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_REVERSE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_REVERSE_TYPE,
+					   sizeof(EMC_TASK_PLAN_REVERSE)) {
+    };
+
+};
+
+class EMC_TASK_PLAN_FORWARD:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_FORWARD():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_FORWARD_TYPE,
+					   sizeof(EMC_TASK_PLAN_FORWARD)) {
+    };
+
+};
+
+
 class EMC_TASK_PLAN_STEP:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_STEP():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_STEP_TYPE,
@@ -1546,7 +1563,6 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    int pocket;
     int tool;
 };
 

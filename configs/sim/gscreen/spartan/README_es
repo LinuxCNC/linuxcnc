@@ -1,0 +1,8 @@
+Esta es una pantalla de operador basada en gscreen para fresadoras.
+Fue diseñado por un usuario, Chris Brady para su proyecto y cedido al
+proyecto linuxcnc.
+
+Requiere algunos botones de hardware para funcionar, como un botón de inicio de ciclo.
+
+Este es un ejemplo de máquina simulada: será necesaria alguna adaptación de los archivos.
+

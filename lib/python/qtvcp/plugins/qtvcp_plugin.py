@@ -21,9 +21,11 @@
 # HAL only widgets
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin
+from qtvcp.plugins.hal_label_plugin import HALLabelPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
+from qtvcp.plugins.container_plugin import JointEnableWidgetPlugin
 from qtvcp.plugins.graphics_plugin import GCodeGraphicsPlugin
 from qtvcp.plugins.widgets_plugin import *
 from qtvcp.plugins.state_led_plugin import StateLEDPlugin
@@ -39,3 +41,6 @@ from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
 from qtvcp.plugins.camview_plugin import CamViewPlugin
 from qtvcp.plugins.toolbutton_plugin import SystemToolButtonPlugin
 from qtvcp.plugins.versa_probe_plugin import VersaProbePlugin
+from qtvcp.plugins.basic_probe_plugin import BasicProbePlugin
+from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin
+from qtvcp.plugins.virtualkeyboard_plugin import VirtualKeyboardPlugin

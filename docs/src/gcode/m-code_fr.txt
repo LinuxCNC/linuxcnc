@@ -286,7 +286,12 @@ utilisées avec les correcteurs de vitesse de l'interface utilisateur et
 les vitesses programmées pour obtenir la vitesse travail.
 Dans LinuxCNC, la HAL pin 'motion.adaptive-feed' est utilisée dans ce but.
 Les valeurs de 'motion.adaptive-feed' doivent être dans comprises
-entre 0 (vitesse nulle) et 1 (pleine vitesse).
+entre -1 (pleine vitesse arrière) et 1 (pleine vitesse). Une valeur du nulle
+correspond à l'arrêt du mouvement.
+[NOTE]
+L'utilisation de vitess adaptative négative (destinée notamment aux
+machines à plasma et à électroérosion) est une nouveauté et n'a pas
+encore été testée de manière approfondie sur des machines réelles.
 
 [[sec:M53-Controle-Coupure-Vitesse]]
 == M53 Contrôle de la coupure de vitesse

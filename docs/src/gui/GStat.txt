@@ -40,7 +40,7 @@ def FUNCTION_TO_CALL(return_codes):
 
 There are some basic patterns for using GStat, depending on what library +
 You are using them in. +
-If using GStat with Gladevcp or Qtvcp, the gobject library is not needed, +
+If using GStat with Gladevcp, Gscreen, or Qtvcp, the gobject library is not needed, +
 Those toolkits already set up Gobject. +
 
 === Sample HAL component code pattern
@@ -80,11 +80,16 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-=== Sample GladeVCP python extention code pattern
+This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
+or if you need to wait for the pins to be made before continuing: +
+'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
+The pins would be: 'metric_status.g20' and 'metric_status.g21' +
+
+=== GladeVCP python extension code pattern
 This file assumes there are three GTK labels named: +
-state_label +
-e_state_label +
-interp_state_label +
+'state_label' +
+'e_state_label' +
+'interp_state_label' +
 
 [source,python]
 ----
@@ -119,6 +124,47 @@ class HandlerClass:
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
+----
+
+=== QTVCP python extension code pattern
+Qtvcp extends GStat, so must be loaded differently but all the messages are available in Qtvcp. +
+This handler file assumes there are three QLabels named: +
+'state_label' +
+'e_state_label' +
+'interp_state_label' +
+[source,python]
+----
+#!/usr/bin/env python
+
+from qtvcp.core import Status
+GSTAT = Status()
+
+class HandlerClass:
+
+    def __init__(self, halcomp,widgets,paths):
+        self.w = widgets
+
+        GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
+        GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
+
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
+
+        GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
+        GSTAT.connect("interp-run",lambda w: self.update_interp_label('Run'))
+        GSTAT.connect("interp-idle",lambda w: self.update_interp_label('Idle'))
+
+    def update_state_label(self,text):
+        self.w.state_label.setText("State: %s" % (text))
+
+    def update_estate_label(self,text):
+        self.w.e_state_label.setText("E State: %s" % (text))
+
+    def update_interp_label(self,text):
+        self.winterp_state_label.setText("Interpeter State: %s" % (text))
+
+def get_handlers(halcomp,builder,useropts):
+    return [HandlerClass(halcomp,widgets,paths)]
 ----
 ==  Messages
 
@@ -161,6 +207,15 @@ Sent when linuxcnc switches to mdi mode.
 
 *mode-auto* :: '(returns nothing)' -
 Sent when linuxcnc switches to auto mode.
+
+*command-running* :: '(returns nothing)' -
+Sent when running a program or MDI
+
+*command-stopped* :: '(returns nothing)' -
+Sent when a program or MDI stopped
+
+*command-error* :: '(returns nothing)' -
+Sent when there is a command error
 
 *interp-run* :: '(returns nothing)' -
 Sent when linuxcnc's interpreter is running an MDI or program.
@@ -239,11 +294,16 @@ Sent when spindle direction or running status changes.
 Sent when the current feed rate changes.
 
 *current-x-rel-position* :: '(returns float)' -
-Sent when the X relative position changes.
+Sent every 100ms.
 
-*current-position* :: '(returns pyobject, pyobject, pyobject)' -
-Sent as the current positions changes. +
-returns tuples of position,relative position and distance-to-go.
+*current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
+Sent every 100ms. +
+returns tuples of position, relative position, distance-to-go and +
+the joint actual position. Before homing, on multi-joint axes, only joint +
+position is valid.
+
+*current-z-rotation* :: '(returns float)' -
+Sent as the current rotatated angle around the Z axis changes +
 
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
@@ -336,7 +396,7 @@ This depends on the widget/libraries used. +
 intended to be sent when gcode is loaded. +
 This depends on the widget/libraries used. +
 
-*graphics-view-changed* :: '(returns string)' -
+*graphics-view-changed* :: '(returns string, python Dict or None)' -
 intended to be sent when graphics view is changed. +
 This depends on the widget/libraries used. +
 

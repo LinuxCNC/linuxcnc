@@ -42,8 +42,8 @@ def detect_kernel_flavor(uname):
     try:
         f = open("/boot/config-%s" % uname)
     except IOError:
-        print "no kernel configuration found for %s" % uname
-        sys.exit(1)
+        print "no kernel configuration found for %s, assuming vanilla" % uname
+        return 'vanilla'
     l = f.read(-1)
     f.close()
 
@@ -67,7 +67,11 @@ if os == 'linux':
     cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip()
     distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip()
     release = subprocess.check_output(['lsb_release', '--release', '--short']).strip()
-    major, minor = re.split('\.', release)
+    try:
+        major, minor = re.split('\.', release)
+    except ValueError as e:
+        major = release
+        minor = "0"
     release_major = int(major)
     release_minor = int(minor)
 

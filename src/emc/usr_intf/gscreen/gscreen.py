@@ -601,6 +601,10 @@ class Gscreen:
             temp = []
         dbg("**** GSCREEN INFO: handler file path: %s"%temp)
         handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
+
+        # so widgets can call handler functions - give them refeence to the handler object
+        panel.set_handler(self.handler_instance)
+
         self.xml.connect_signals(handlers)
 
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
@@ -1719,8 +1723,15 @@ class Gscreen:
            if in manual mode, it will increase or decrease jog increments
            by calling set_jog_increments(index_dir = )
            It will ether increase or decrease the increments based on 'SHIFT'
+           Any jogging will be cancelled to avoid a runaway.
         """
+
         if state and self.data._MAN in self.check_mode(): # manual mode required
+            # stop any jogging if increments are changed
+            if self.data.machine_on:
+                for jnum in range(self.emcstat.joints):
+                    self.emc.stop_jog(jnum)
+
             if SHIFT:
                 self.set_jog_increments(index_dir = -1)
             else:

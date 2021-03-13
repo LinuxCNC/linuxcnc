@@ -1,0 +1,42 @@
+.TH CHARGE_PUMP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+charge_pump \- Create a square-wave for the 'charge pump' input of some controller boards
+.SH SYNOPSIS
+.HP
+.B loadrt charge_pump
+.SH DESCRIPTION
+
+
+The 'Charge Pump' should be added to the base thread function.
+When enabled the output is on for one period and off for one period. To calculate the
+frequency of the output 1/(period time in seconds x 2) = hz. For example if you
+have a base period of 100,000ns that is 0.0001 seconds and the formula would be
+1/(0.0001 x 2) = 5,000 hz or 5 Khz. Two additional outputs are provided that run
+a factor of 2 and 4 slower for hardware that requires a lower frequency.
+.SH FUNCTIONS
+.TP
+\fBcharge-pump\fR
+Toggle the output bit (if enabled)
+.SH PINS
+.TP
+.B charge-pump.out\fR bit out \fR
+Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE
+.TP
+.B charge-pump.out-2\fR bit out \fR
+Square wave at half the frequency of 'out'
+.TP
+.B charge-pump.out-4\fR bit out \fR
+Square wave at a quarter of the frequency of 'out'
+.TP
+.B charge-pump.enable\fR bit in \fR(default: \fITRUE\fR)
+If FALSE, forces all 'out' pins to be low
+.SH LICENSE
+
+GPL

@@ -1,0 +1,32 @@
+.TH CONV_U32_BIT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+conv_u32_bit \- Convert a value from u32 to bit
+.SH SYNOPSIS
+.HP
+.B loadrt conv_u32_bit [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconv-u32-bit.\fIN\fB\fR
+Update 'out' based on 'in'
+.SH PINS
+.TP
+.B conv-u32-bit.\fIN\fB.in\fR u32 in \fR
+.TQ
+.B conv-u32-bit.\fIN\fB.out\fR bit out \fR
+.TQ
+.B conv-u32-bit.\fIN\fB.out-of-range\fR bit out \fR
+TRUE when 'in' is not in the range of bit
+.SH PARAMETERS
+.TP
+.B conv-u32-bit.\fIN\fB.clamp\fR bit rw \fR
+If TRUE, then clamp to the range of bit.  If FALSE, then allow the value to "wrap around".
+.SH LICENSE
+
+GPL

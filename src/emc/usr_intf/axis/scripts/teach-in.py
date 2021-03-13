@@ -57,7 +57,7 @@ def log():
     else:
         p = get_joint()
     label1.configure(text='Learned:  %s' % p)
-    print linenumber, p, s.flood, s.mist, s.lube, s.spindle_enabled;
+    print linenumber, p, s.flood, s.mist, s.lube, s.spindle[0]['enabled'];
     linenumber += 1;
 
 def show():

@@ -1,0 +1,64 @@
+.TH THERMISTOR "1" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+thermistor \- compute temperature indicated by a thermistor
+.SH SYNOPSIS
+.B thermistor
+.SH DESCRIPTION
+
+This component computes the temperature indicated by a
+thermistor in a voltage-divider ladder.  It uses the Beta-parameter
+variant of the Steinhart-Hart equation, described here:
+
+    http://en.wikipedia.org/wiki/Thermistor
+.SH PINS
+.TP
+.B thermistor.\fIN\fB.t0-c\fR float in \fR
+Reference temperature of the thermistor, in degrees
+Celsius (typically 25 C).  This must be set before the component can
+compute the thermistor temperature.  The reference temperature information
+is supplied by the thermistor manufacturer.
+.TP
+.B thermistor.\fIN\fB.r0\fR float in \fR
+Resistance of the thermistor at the reference
+temperature.  This must be set before the component can compute the
+thermistor temperature.  The reference resistance information is supplied
+by the thermistor manufacturer.
+.TP
+.B thermistor.\fIN\fB.beta\fR float in \fR
+Beta parameter of the thermistor (sometimes
+just called B).  This must be set before the component can compute the
+thermistor temperature.  The Beta parameter is supplied by the thermistor
+manufacturer.
+.TP
+.B thermistor.\fIN\fB.r-other\fR float in \fR
+Resistance of the other resistor in the
+voltage-divider ladder.  This must be set before the component can
+compute the thermistor temperature.
+.TP
+.B thermistor.\fIN\fB.v-total\fR float in \fR
+Supply voltage of the voltage-divider ladder.
+.TP
+.B thermistor.\fIN\fB.v-thermistor\fR float in \fR
+Voltage drop across the termistor.
+.TP
+.B thermistor.\fIN\fB.temperature-c\fR float out \fR
+Temperature sensed by the thermistor, in degrees Celsius.
+.TP
+.B thermistor.\fIN\fB.temperature-k\fR float out \fR
+Temperature sensed by the thermistor, in Kelvins.
+.TP
+.B thermistor.\fIN\fB.temperature-f\fR float out \fR
+Temperature sensed by the thermistor, in degrees Fahrenheit.
+.TP
+.B thermistor.\fIN\fB.resistance\fR float out \fR
+Computed resistance of the thermistor.
+.SH LICENSE
+
+GPL

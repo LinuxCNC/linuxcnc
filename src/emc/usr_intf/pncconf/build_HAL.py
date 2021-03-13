@@ -112,7 +112,7 @@ class HAL:
             pump = True
         if self.a.findsignal("estop-ext"):
             estop = True
-        if self.a.findsignal("spindle-on"):
+        if self.a.findsignal("spindle-enable"):
             spindle_on = True
         if self.a.findsignal("spindle-cw"):
             spindle_cw = True
@@ -1093,7 +1093,14 @@ class HAL:
         print >>file, "setp   pid.%s.error-previous-target true" % let
         # steppers
         if stepflag:
-            print >>file, "setp   pid.%s.maxerror .0005" % let
+            if  self.d.units == _PD._IMPERIAL:
+                me = .0005
+            else:
+                me = .0127
+            print >>file, ('# This setting is to limit bogus stepgen')
+            print >>file, ('# velocity corrections caused by position')
+            print >>file, ('# feedback sample time jitter.')
+            print >>file, "setp   pid.%s.maxerror %f" % (let, me)
         print >>file
         if let == 's':
             name = "spindle"
@@ -1356,25 +1363,32 @@ class HAL:
             else:
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, jnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, jnum)
-            for i in stepinvertlist:
-                   print >>file, "setp    "+i+".invert_output true"
+
+            # invert step pins if requested
+            # step does not have alias pin names so we invert it's GPIO pin
+            for i in stepinvertlist[0]:
+                   print >>file, "setp   " + steppinname + ".step.invert_output   true"
+            # step direction has an alias pin
+            for i in stepinvertlist[1]:
+                   print >>file, "setp   " + steppinname + ".direction.invert_output   true"
             if let == "s":
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"
-            print >>file
-            print >>file, "# ---closedloop stepper signals---"
-            print >>file
-            print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
-            print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
-            print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
-            print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
-            print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
-            print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
-            print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
-            print >>file
+            else:
+                print >>file
+                print >>file, "# ---closedloop stepper signals---"
+                print >>file
+                print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
+                print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
+                print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
+                print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
+                print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
+                print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
+                print >>file
 
         if encoderpinname:             
             countmode = 0
@@ -1391,6 +1405,7 @@ class HAL:
             if let == 's':
                 print >>file, "net spindle-revs             <=   " + encoderpinname + ".position"
                 print >>file, "net spindle-vel-fb-rps       <=   " + encoderpinname + ".velocity"
+                print >>file, "net spindle-vel-fb-rpm       <=   " + encoderpinname + ".velocity-rpm"
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
@@ -1410,6 +1425,7 @@ class HAL:
             if let == 's':
                 print >>file, "net spindle-revs             <=   " + resolverpinname + ".position"
                 print >>file, "net spindle-vel-fb-rps       <=   " + resolverpinname + ".velocity"
+                print >>file, "net spindle-vel-fb-rpm       <=   " + resolverpinname + ".velocity-rpm"
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
@@ -1582,7 +1598,7 @@ class HAL:
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
-            if t in (_PD.GPIOO,_PD.GPIOD):
+            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print >>file, "\n# ---",p.upper(),"---"
@@ -1590,20 +1606,23 @@ class HAL:
                         if p == "force-pin-true":
                             print >>file, "setp %s true"% (pinname)
                         else:
-                            print >>file, "net %s %s"% (p,pinname)
+                            print >>file, "net %s  =>     %s"% (p,pinname)
                     else:
                         if "sserial" in pname:
                             temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
-                            print >>file, "setp %s true"% (pinname + ".is_output")
+                            if not t == _PD.SSR0: print >>file, "setp %s true"% (pinname + ".is_output")
                             if t == _PD.GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
-                            temp = pinname + ".out"
+                            if t == _PD.SSR0:
+                                temp = pinname
+                            else:
+                                temp = pinname + ".out"
                         # set pin true if force-pin-true otherwise connect to a signal
                         if p == "force-pin-true":
                             print >>file, "setp %s true"% (temp)
                         else:
-                            print >>file, "net %s %s"% (p,temp)
+                            print >>file, "net %s  =>     %s"% (p,temp)
                     if i: # invert pin
                         if "sserial" in pname: 
                             ending = "-invert"

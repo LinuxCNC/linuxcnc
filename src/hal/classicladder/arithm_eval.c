@@ -40,6 +40,7 @@
 #include "vars_names.h"
 #endif
 #include "arithm_eval.h"
+#include <rtapi_string.h>
 
 
 char * Expr;
@@ -413,16 +414,22 @@ arithmtype MulDivMod(void)
 		{
 			Expr++;
 			Val = Pow();
-			if ( ErrorDesc==NULL )
-				Res = Res / Val;
+			if (Val != 0) {
+				if (ErrorDesc == NULL) {
+					Res = Res / Val;
+				}
+			}
 		}
 		else
 		if (*Expr=='%')
 		{
 			Expr++;
 			Val = Pow();
-			if ( ErrorDesc==NULL )
-				Res = Res % Val;
+			if (Val != 0) {
+				if ( ErrorDesc==NULL ) {
+					Res = Res % Val;
+				}
+			}
 		}
 		else
 		{
@@ -546,7 +553,7 @@ int EvalCompare(char * CompareString)
 	if (*CompareString=='\0' || *CompareString=='#')
 		return BoolRes;
 
-	strcpy(StrCopy,CompareString);
+	rtapi_strxcpy(StrCopy,CompareString);
 
 	/* search for '>' or '<' or '=' or '>=' or '<=' */
 	CutFirst = FirstExpr = StrCopy;
@@ -611,7 +618,7 @@ void MakeCalc(char * CalcString,int VerifyMode)
 	if (*CalcString=='\0' || *CalcString=='#')
 		return;
 
-	strcpy(StrCopy,CalcString);
+	rtapi_strxcpy(StrCopy,CalcString);
 
 	Expr = StrCopy;
 	if (IdentifyFinalVar(Expr,&TargetVarType,&TargetVarOffset))

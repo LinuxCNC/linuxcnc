@@ -1,0 +1,134 @@
+:lang: es
+
+[[cha:touchy-gui]]
+
+= GUI táctil
+
+Touchy es una interfaz de usuario para LinuxCNC diseñada para su uso en paneles de control de máquinas,
+y por lo tanto no requiere teclado ni mouse.
+
+Está diseñado para usarse con una pantalla táctil y funciona en combinación
+con un volante/MPG y algunos botones e interruptores.
+
+La pestaña 'Volante' tiene botones radio para seleccionar entre las funciones de 'Porcentaje de alimentación',
+'Porcentaje de husillo', 'Velocidad máxima' y 'Jogging' para la entrada del volante/MPG.
+También están previstos botones radio para la selección de eje e incrementos para jog 
+
+.Touchy
+
+image::images/touchy.png[align="center", alt="GUI Touchy"]
+
+== Configuración del panel
+
+=== Conexiones HAL
+
+Touchy requiere que cree un archivo llamado 'touchy.hal' en su
+directorio de configuración (el directorio en el que se encuentra su archivo ini) para
+conectar sus controles. Touchy ejecuta los comandos HAL en este archivo
+después de que haya hecho disponibles sus propios pines para la conexión.
+
+Para obtener más información sobre los archivos HAL y el comando net, consulte el
+<<cha:basic-hal-reference,Referencia básica de HAL>>.
+
+Touchy tiene varios pines de salida que deben conectarse al
+controlador de movimiento para controlar el jogging de volante:
+
+ - 'touchy.jog.wheel.increment',
+que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
+
+ - 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable'
+para cada eje N.
+
+[NOTE] 'N' representa el número de eje 0-8.
+
+ - Además de estar conectado a 'touchy.wheel-count', la cuenta del volante
+también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
+HAL 'ilowpass' para suavizar el jog con el volante,
+asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
+
+.Controles requeridos.
+
+ - Botón de cancelación (contacto momentáneo) conectado al pin HAL 'touchy.abort'
+ - Botón de inicio de ciclo (contacto momentáneo) conectado a 'touchy.cycle-start'
+ - Rueda / MPG, conectada a 'touchy.wheel-count' y pines de movimiento como se describe anteriormente
+ - Bloque único (interruptor de palanca) conectado a 'touchy.single-block'
+
+.Controles opcionales.
+
+ - Para jog continuo, una palanca momentánea bidireccional centrada
+   (o dos botones momentáneos) para cada eje, enganchados a 'touchy.jog.continuous.x.negative',
+   'touchy.jog.continuous.x.positive', etc.
+ - Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad
+   , debe conectarse a 'touchy.quill-up'.
+
+.Lámparas de panel opcionales.
+
+ - 'touchy.jog.active' muestra cuando los controles de desplazamiento del panel están activos.
+ - 'touchy.status-indicator' está encendido cuando la máquina está ejecutando código G,
+    y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
+
+=== Recomendado para cualquier configuración
+
+ - Botón de parada Estop conectado en la cadena de parada
+
+== Configuración
+
+=== Habilitar Touchy
+
+Para usar Touchy, en la sección '[DISPLAY]' de su archivo ini cambie
+la línea del selector a 'DISPLAY = touchy'
+
+=== Preferencias
+
+Cuando inicie Touchy la primera vez, verifique la pestaña Preferencias.
+Si usa una pantalla táctil, para mejores resultados elija la opción de ocultar el puntero.
+
+La ventana de estado tiene una altura fija, establecida por el tamaño de una fuente fija.
+Esto puede verse afectado por el DPI de Gnome, configurado en Sistema/Preferencias/Apariencia/Fuentes/Detalles. 
+Si la parte inferior de la pantalla está cortada, reducir la configuración de DPI.
+
+Todos los demás tamaños de fuente se pueden cambiar en la pestaña Preferencias.
+
+=== Macros
+
+Touchy puede invocar macros O-word usando la interfaz MDI. Para configurar
+esto, en la sección '[TOUCHY]' del archivo ini, agregue una o más líneas 'MACRO'.
+Cada una debe tener el formato
+
+'MACRO = increment xinc yinc'
+
+En este ejemplo, increment es el nombre de la macro y acepta dos
+parámetros, llamados xinc e yinc.
+
+Ahora, coloque la macro en un archivo llamado 'increment.ngc', en el
+Directorio 'PROGRAM_PREFIX' o cualquier directorio en 'SUBROUTINE_PATH'.
+
+Debería verse así:
+
+----
+O<increment> sub
+G91 G0 X#1 Y#2
+G90
+O<increment> endsub
+----
+
+Observe que el nombre del sub coincide con el nombre del archivo y el nombre de la macro exactamente,
+incluyendo el caso.
+
+Cuando invoque la macro presionando el botón Macro en el MDI
+de Touchy, puede ingresar valores para xinc e yinc. Estos son
+pasados a la macro como '#1' y '#2' respectivamente. Los parámetros
+en blanco se pasan como valor 0.
+
+Si hay varias macros diferentes, presione el botón Macro
+repetidamente para recorrerlos.
+
+En este ejemplo simple, si ingresa -1 para xinc y presiona arranque de ciclo,
+se invocará un movimiento rápido 'G0', moviendo una unidad a
+la izquierda.
+
+Esta capacidad macro es útil para el sondeo de bordes/agujeros y otras tareas
+de configuracion, así como quizás fresado de agujeros u otras operaciones simples
+que se puede hacer desde el panel sin necesidad de escribir especialmente
+programas de gcode.
+

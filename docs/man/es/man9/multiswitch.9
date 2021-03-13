@@ -1,0 +1,47 @@
+.TH MULTISWITCH "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+multiswitch \- This component toggles between a specified number of output bits
+.SH SYNOPSIS
+.HP
+.B loadrt multiswitch personality=\fIP\fB [cfg=\fIN\fB]
+.RS 4
+.TP
+\fBcfg\fR
+cfg should be a comma-separated list of sizes
+for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
+ Ignore the "personality" parameter, that is auto-generated
+.RE
+.SH FUNCTIONS
+.TP
+\fBmultiswitch.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B multiswitch.\fIN\fB.up\fR bit in \fR(default: \fIfalse\fR)
+Receives signal to toggle up
+.TP
+.B multiswitch.\fIN\fB.down\fR bit in \fR(default: \fIfalse\fR)
+Receives signal to toggle down
+.TP
+.B multiswitch.\fIN\fB.bit-\fIMM\fB\fR bit out  (MM=00..personality) \fR(default: \fIfalse\fR)
+Output bits
+.SH PARAMETERS
+.TP
+.B multiswitch.\fIN\fB.top-position\fR u32 rw \fR
+Number of positions
+.TP
+.B multiswitch.\fIN\fB.position\fR s32 rw \fR
+Current state (may be set in the HAL)
+.SH AUTHOR
+
+ArcEye schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
+.SH LICENSE
+
+GPL

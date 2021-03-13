@@ -1,0 +1,31 @@
+.TH hal_malloc "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_malloc \- Asigna espacio en el área de memoria compartida HAL
+
+.SH SINTAXIS
+.HP
+ void *hal_malloc(long int \fIsize\fR)
+
+.SH  ARGUMENTOS
+.IP \fIsize\fR
+Da el tamaño, en bytes, del bloque
+
+.SH DESCRIPCION
+\fBhal_malloc\fR asigna un bloque de memoria del área principal de memoria compartida de HAL.
+Debe ser utilizado por todos los componentes para asignar memoria para pines y
+parámetros HAL. Asigna 'size' bytes y devuelve un puntero al espacio asignado,
+o NULL (0) en caso de error. El puntero devuelto se alineará correctamente para
+cualquier tipo de soporte HAL. Un componente debe asignar durante la inicialización toda
+la memoria que necesita.
+
+El asignador es muy simple y no hay "free". Todo el HAL compartiendo
+el área de memoria se libera cuando el último componente llama a \fBhal_exit\fR. Esto significa
+que si continuamente instala y elimina un componente mientras otros
+están presentes, eventualmente llenará la memoria compartida y
+la instalación fallará. Eliminar todos los componentes borra completamente la memoria y usted
+puede empezar de nuevo.
+
+.SH VALOR DEVUELTO
+Un puntero al espacio asignado, que está alineado correctamente para cualquier variable
+HAL. Devuelve NULL en caso de error.

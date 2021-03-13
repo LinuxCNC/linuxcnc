@@ -24,7 +24,7 @@ Used by PNCconf to allow testing of acceleration and velocity values for an axis
 pin in float target-pos "target position to plan for.";
 pin in float maxvel "Maximum velocity";
 pin in float maxaccel "Acceleration rate";
-pin in bit enable "If disabled, planner sets velocity to zero immedately.";
+pin in bit enable "If disabled, planner sets velocity to zero immediately.";
 
 pin out float current-pos "position commanded at this point in time.";
 pin out float current-vel "velocity commanded at this moment in time.";

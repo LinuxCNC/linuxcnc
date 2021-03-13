@@ -1,0 +1,179 @@
+.\" Man page for hal_manualtoolchange userspace component.
+.\" Written 12 APR 2017 by Joe Hildreth (joeh@threerivershospital.com)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH hal_parport 1 "12 ABR 2017" "Documentacion de LinuxCNC" "Componente HAL Realtime"
+.SH NOMBRE
+hal_parport \- Componente HAL en tiempo real para comunicarse con uno o mas puertos paralelos de PC.
+.SH SINOPSIS
+.B loadrt hal_parport cfg="\fIport_addr\fR[\fItype\fR] [[\fIport_addr \fR[\fItype \fR] ...]\fB"
+.SH DESCRIPCION
+El componente hal_parport es un componente en tiempo real que proporciona conexiones HAL a traves de halpins a los pines fisicos de uno o mas puertos paralelos. Proporciona una funcion de lectura y escritura para enviar y recibir datos a los puertos paralelos conectados.
+.PP
+El componente hal_parport admite hasta \fB8 \fRpuertos paralelos fisicos.
+.SH OPCIONES
+.TP
+.B cfg="port_addr [tipo] [[port_addr [tipo] ...]"
+
+La cadena cfg le dice a hal_parport la(s) direccion(es) del(de los) puerto(s) paralelo(s) y si el(los) puerto(s) se usa(n) como puerto(s) de entrada o salida. El componente admite hasta ocho puertos paralelos.
+
+El parametro \fBport_addr\fR de la cadena de configuracion puede ser la direccion base fisica de un puerto paralelo o se puede especificar como el puerto paralelo detectado a traves del controlador parport_pc de Linux. En ese caso, la \fBport_addr\fRde \fI0 \fRes el primer puerto paralelo detectado en el sistema, \fI1\fRes el siguiente, y asi sucesivamente.
+
+El parametro \fBtype\fR de la cadena de configuracion determina como se utilizan los bits de E/S del puerto. Hay cuatro opciones posibles y si no se especifica ninguna, por defecto sera de salida.
+
+\fIin\fR\- Establece los 8 bits del puerto de datos para entrada. En este modo, el puerto paralelo tiene un total de 13 pines de entrada y 4 pines de salida.
+
+\fIout\fR\- Establece los 8 bits del puerto de datos para salida. En este modo, el puerto paralelo tiene un total de 5 pines de entrada y 12 pines de salida.
+
+\fIepp\fR\: esta opcion es la misma que la configuracion para salida, pero puede hacer que la computadora cambie las caracteristicas electricas del puerto. (\fIVea USO mas abajo\fR.)
+
+\fIx\fR\- La opcion permite que los puertos con colectores abiertos en los pines del grupo de control se configuren como entradas, lo que da como resultado 8 pines de salida y 9 pines de entrada. (\fIVea USO mas abajo\fR.)
+.SH PINES
+.TP
+Los pines creados por el componente hal_parport dependen de como se configure la cadena \fBcfg = ""\fR pasada a el. (\fIVer OPCIONES\fR.)
+\fBparport.<p>.pin\-<n>\-out (bit) \fRConduce un pin de salida fisico.
+
+\fBparport.<p>.pin\-<n>\-in (bit) \fRRastrea un pin de entrada fisico.
+
+\fBparport.<p>.pin\-<n>\-in\-not (bit) \fRRastrea un pin de entrada fisico, pero invertido.
+
+Para cada pin creado, \fB<p>\fRes el numero de puerto, y \fB<n>\fRes el numero de pin fisico en el conector D\-shell de 25 pines.
+
+Para cada pin de salida fisica, el controlador crea un solo pin HAL, por ejemplo: \fBparport.0.pin\-14\-out\fR.
+
+Para cada pin de entrada fisica, el controlador crea dos pines HAL, por ejemplo: \fBparport.0.pin\-12\-in\fRy \fBparport.0.pin\-12\-in\-not\fR.
+
+El pin HAL \fB\-in \fRes VERDADERO si el pin fisico esta alto, y FALSO si el pin fisico esta bajo. El pin HAL \fB\-in\-not \fResta invertido y es FALSO si el pin fisico esta alto.
+
+A continuacion se enumeran los pines de entrada y salida segun la configuracion de tipo utilizada en la cadena cfg="".
+
+\fBin\fR: Los pines 2,3,4,5,6,7,8,9,10,11,12,13,15 son pins de entrada y los pines 1,14,16 y 17 son pines de salida.
+
+\fBout/epp\fR: Los pines 10,11,12,13 y 15 son pines de entrada y los pines 1,2,3,4,5,6,7,8,9,14,16 y 17 son pines de salida.
+
+\fBx\fR: Los pines 1,10,11,12,13,14,15,16 y 17 son pines de entrada y los pines 2,3,4,5,6,7,8,9 son pines de salida. (\fIVer USO\fR.)
+.SH PARAMETROS
+.TP
+\fBparport.<p>.pin\-<n>\-out\-invert (bit)
+\fRInvierte un pin de salida.
+.TP
+\fBparport.<p>.pin\-<n>\-out\-reset (bit)
+\fR (solo para los pines de salida) VERDADERO si este pin debe restablecerse cuando se ejecuta la funcion .reset.
+.TP
+\fBparport.<p>.reset\-time' (U32)
+\fREl tiempo (en nanosegundos) entre que un pin se establece mediante escritura y reinicio mediante la funcion reset, si esta habilitada.
+.SH FUNCIONES
+.TP
+\fBparport.<p>.read (funct)
+\fRLee los pines de entrada fisicos del puerto <portnum> y actualiza pines HAL \-in y \-in\-not.
+.TP
+\fBparport.read\-all (funct)
+Lee los pines de entrada fisica de todos los puertos y actualiza los pines HAL \-in y \-in\-not.
+.TP
+\fBparport.<p>.write (funct)
+Lee los pines HAL \-out del puerto <p> y actualiza los pines de salida fisicos de ese puerto.
+.TP
+\fBparport.write\-all (funct)
+Lee los pines HAL \-out de todos los puertos y actualiza todos los pines de salida fisicos.
+.TP
+\fBparport.<p>.reset (funct)
+Espera hasta que \fIreset\-time \fRha transcurrido desde la escritura asociada. Luego restablece los pines a los valores indicados por \fI\-out\-reset \fRy \fI\-out\-invert\fR. reset debe estar despues de write en el mismo hilo. Si \fI\-out\-reset\fRes VERDADERO, la funcion de reset establecera el pin en el valor de \fI\-out\-invert\fR. Esto se puede utilizar junto con doublefreq de stepgen para producir un paso por periodo. El espacio de paso stepgen para ese pin debe establecerse en 0 para habilitar doublefreq.
+.SH USO
+El componente hal_parport es un controlador para el puerto paralelo de PC tradicional. El puerto tiene un total de 25 pines fisicos de los cuales 17 se utilizan para se\[~n]ales. El puerto paralelo original dividio esos pines en tres grupos: datos, control y estado. El grupo de datos consta de 8 pines de salida, el grupo de control consta de 4 pines de salida y el grupo de estado consta de 5 pines de entrada.
+
+A principios de la decada de 1990, se introdujo el puerto paralelo bidireccional, que permite que el grupo de datos se use para salida o entrada. El controlador HAL es compatible con el puerto bidireccional y permite al usuario configurar el grupo de datos como entrada o salida. Si se configura como \fIout\fR, un puerto proporciona un total de 12 salidas y 5 entradas. Si se configura como \fIin\fR, proporciona 4 salidas y 13 entradas.
+
+En algunos puertos paralelos, los pines del grupo de control son colectores abiertos, que tambien pueden ser accionados por una puerta externa. En una placa con pines de control de colector abierto, si esta configurado como \fIx\fR, proporciona 8 salidas y 9 entradas.
+
+En algunos puertos paralelos, el grupo de control tiene controladores push-pull y no se puede utilizar como entrada.
+.TP
+\fBNote: HAL y colectores abiertos
+HAL no puede determinar automaticamente si los pines bidireccionales del modo x son en realidad de colectores abiertos (OC). Si no lo estan, no se pueden usar como entradas, e intentar llevarlos a BAJO desde una fuente externa puede da\[~n]ar el hardware.
+
+Para determinar si su puerto tiene pines de colector abiertos, cargue hal_parport en modo x. Sin dispositivo conectado, HAL deberia leer el pin como VERDADERO. A continuacion, inserte una resistencia de 470 ohmios desde uno de los pines de control a GND. Si el voltaje resultante en el pin de control esta cerca de 0 V, y HAL ahora lee el pin como FALSO, entonces tiene un puerto OC. Si el voltaje resultante esta lejos de 0 V, o HAL no lee el pin como FALSO, entonces su puerto no se puede usar en el modo \fIx\fR.
+
+El hardware externo que controla los pines de control tambien debe usar puertas de colector abierto (por ejemplo, 74LS05).
+
+En algunas computadoras, la configuracion del BIOS puede afectar si se puede usar el modo x. El modo SPP es mas probable que funcione.
+.PP
+No se admiten otras combinaciones, y no se puede cambiar un puerto de entrada a salida una vez que se instala el controlador.
+
+El controlador puede controlar hasta 8 puertos (definidos por MAX_PORTS en hal_parport.c). Los puertos estan numerados a partir de cero.
+.TP
+\fBCargando el componente hal_parport
+
+El controlador hal_parport es un componente en tiempo real, por lo que debe cargarse en un hilo en tiempo real con loadrt. La cadena de configuracion describe los puertos paralelos que se utilizaran y (opcionalmente) sus tipos. Es un error si la cadena de configuracion no describe al menos un puerto.
+
+\fBloadrt hal_parport cfg="puerto [tipo] [puerto [tipo] ...]"
+.TP
+\fBEspecificando el puerto
+
+Los numeros inferiores a 16 se refieren a puertos paralelos detectados por el sistema. Esta es la forma mas sencilla de configurar el controlador hal_parport y cooperar con el controlador parport_pc de Linux si esta cargado. Un puerto 0 es el primer puerto paralelo detectado en el sistema, 1 es el siguiente, y asi sucesivamente.
+.TP
+\fBConfiguracion basica
+
+Esto usara el primer puerto paralelo que detecta Linux:
+
+      \fBloadrt hal_parport cfg="0"
+.TP
+\fBUsando la direccion del puerto
+
+En su lugar, la direccion del puerto se puede especificar utilizando la notacion hexadecimal 0x mas la direccion.
+
+      \fBloadrt hal_parport cfg="0x378"
+.TP
+\fBEspecificar un tipo de puerto
+
+Para cada puerto paralelo manejado por el controlador hal_parport, se puede especificar un tipo opcionalmente. El tipo es uno de in, out, epp o x.
+
+Si el tipo no esta especificado, el valor predeterminado es out.
+
+Un tipo epp es el mismo que out, pero el controlador hal_parport solicita que el puerto entre en modo EPP. El controlador hal_parport no utiliza el protocolo de bus EPP, pero en algunos sistemas, el modo EPP cambia las caracteristicas electricas del puerto de una manera que puede hacer que algunos hardware funcionen mejor. Se sabe que la bomba de carga de la Gecko G540 requiere esto en algunos puertos paralelos.
+
+Consulte la nota anterior sobre el modo x.
+.TP
+\fBEjemplo con dos puertos paralelos
+
+Esto permitira dos puertos paralelos detectados por el sistema, el primero en modo salida y el segundo en modo entrada:
+
+      \fBloadrt hal_parport cfg = "0 out 1 in"
+.TP
+\fBFunciones unicas de puerto
+
+Tambien debe indicar a LinuxCNC que ejecute las funciones de lectura y escritura.
+
+      \fBaddf parport.read\-all base\-thread
+      \fBaddf parport.write\-all base\-thread
+.TP
+\fBFunciones multiples de puertos
+
+Puede indicar a LinuxCNC que pierda las funciones de lectura y escritura para todos los puertos conectados.
+
+      \fBaddf parport.0.read base\-thread
+      \fBaddf parport.0.write base\-thread
+
+\fRLas funciones individuales se proporcionan para situaciones en las que un puerto debe actualizarse en un hilo muy rapido, pero otros puertos pueden actualizarse en un hilo mas lento para ahorrar tiempo de CPU. Probablemente no sea una buena idea utilizar una funcion \-all y una funcion individual al mismo tiempo.
+.SH VER TAMBIEN
+Controlador de puerto paralelo (Seccion de controladores de hardware de LinuxCNC Docs) Ejemplo de puerto paralelo PCI (Seccion de ejemplos de hardware de LinuxCNC Docs)
+.SH AUTOR
+Esta pagina de manual escrita por Joe Hildreth como parte del proyecto LinuxCNC. La mayor parte de esta informacion se tomo de los documentos de puertos paralelos ubicados en la seccion Controladores de hardware de la documentacion. Que yo sepa, esa documentacion fue escrita por Sebastian Kuzminsky y Chris Radek.
+
+

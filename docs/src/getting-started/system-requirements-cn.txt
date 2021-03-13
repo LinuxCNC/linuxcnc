@@ -1,0 +1,90 @@
+[[cha:system-requirements]]
+
+= 系统要求
+
+== 最低要求
+
+运行LinuxCNC和Debian/Ubuntu的最低系统要求可能会有所不同，具体取决与实际用法。
+通常而言，步进系统需要比伺服系统更快的线程来生成步进脉冲。
+使用Live-CD可以让您在电脑里永久安装之前测试软件。
+请注意，延迟测试结果比处理器速度对于软件步进生成更为重要。
+有关延迟测试的更多信息请访问 http://linuxcnc.org/docs/2.8/html/install/latency-test.html[此处]。
+再者，LinuxCNC必须运行于使用经过特殊更改的内核的操作系统。
+请看 <<kernel_and_version_requirements,内核与版本要求>>
+
+其他补充信息在LinuxCNC Wiki网站：
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware_Requirements]
+
+LinuxCNC和Debian Linux在具有以下最低硬件规格的电脑上应能挺好地运行。
+这些数字不是绝对最小值，但是对于大多数步进系统，它们将提供合理的性能。
+
+* 700 MHz x86 处理器（建议使用1.2 GHz x86 处理器）或Raspberry Pi 4或更好。
+* 如果要从LiveCD运作LinuxCNC 2.8和Debian Buster，系统需要可达64-位元。
+* 至少512 MB RAM
+* 8 GB硬盘
+* 至少可以支持1024x768分辨率，并未使用Nvidia或ATI fglrx专属驱动程式的显卡。
+现代板载的图形芯片组基本上可用。
+* 网络或互联网链接（并非严格要求，但是对于更新和于LinuxCNC社区进行交流非常有用）
+
+最低硬件要求会随着Linux发行版的发展而变化，
+因此请查看 https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]网站以获取有关您所使用的LiveCD的详细信息。
+如果可用，选择较旧版本的LiveCD可能会使较旧的硬件受益。
+
+[[kernel_and_version_requirements]]
+== 内核与版本要求
+
+LinuxCNC需要经过更改，可实时操作的内核以控制现实中的机器硬件。
+如果只是为了检查G-code、测试配置文件、和学习使用系统，您可以使用基本的内核运行模拟模式。
+为了操作这些不同版本的内核，有两个版本的LinuxCNC被发布。
+它们的包装名称为“linuxcnc”和“linuxcnc-uspace”。
+
+实时内核选项有preempt-RT，RTAI，及Xenomai。
+
+您可以使用以下命令得知您的系统的内核版本
+
+ uname -a
+
+如果您在内核名称中看到（如上）`-rt-`，那么您正在运行
+preempt-rt内核，应安装linuxcnc的“ uspace”版本。
+您还应该在非实时内核上为“ sim”配置安装uspace
+
+如果您在内核名称中看到`-rtai-`，那么您正在运行RTAI
+即时的。 请参阅以下有关要安装的linuxcnc版本的信息。
+
+=== Preempt-RT与linuxcnc-uspace
+
+Preempt-RT是所有实时系统里最新的，更是其中最接近主线内核的版本。
+Preempt-RT内核可于主储存库内以预编译程式包形式获取。
+您可以搜索“PREEMPT_RT”找到它们，然后普通地下载并安装任何一个程式包。
+通常来说，Preempt-RT会有最好的驱动程序支援，并是使用Mesa以太网联通硬件驱动卡的系统的唯一选项。
+通常来说，Preempt-RT在所有系统中有最差的延迟，但是也有例外。
+
+=== RTAI与linuxcnc
+
+多年以来，RTAI一直支持不同的LinuxCNC发行版。
+通常来说，它较低的延迟代表它有最好的实时性能，但是可能会有较差的周边支援和较少的分辨率。
+LinuxCNC程式包储存库中有一个RTAI内核。
+如果你从Live/安装镜像安装，那更变内核和LinuxCNC发行版的过程可在[Installing-RTAI]中找到。
+
+=== Xenomai与linuxcnc-uspace
+
+Xenomai也受支援，但您需要自行寻找或编译此内核，以及从源码编译LinuxCNC才可使用。
+
+=== RTAI与linuxcnc-uspace
+
+LinuxCNC也可以利用RTAI以用户空间模式运行。和Xenomai一样，您需要从源码编译才可使用。
+
+== 不适合的硬件
+
+=== 手提电脑
+
+手提电脑通常不适合实时软件步骤生成。
+再次说明，进行长时间的延迟测试将会为您提供确定适合性所需的信息。
+
+=== 显卡
+如果您的安装以800x600分辨率执行，Debian则很有可能无法识别您的显卡或显示器。
+有时安装驱动程式或建立/编辑Xorg.conf文件可回避此问题。
+
+// vim: set syntax=asciidoc:
+
+

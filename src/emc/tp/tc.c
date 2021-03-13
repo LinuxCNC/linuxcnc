@@ -317,6 +317,27 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
     return 0;
 }
 
+
+
+/**
+ * Calculate the distance left in the trajectory segment in the indicated
+ * direction.
+ */
+double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction)
+{
+    double distance = tcGetTarget(tc, direction) - tc->progress;
+    if (direction == TC_DIR_REVERSE) {
+        distance *=-1.0;
+    }
+    return distance;
+}
+
+double tcGetTarget(TC_STRUCT const * const tc, int direction)
+{
+    return (direction == TC_DIR_REVERSE) ? 0.0 : tc->target;
+}
+
+
 /*! tcGetPos() function
  *
  * \brief This function calculates the machine position along the motion's path.
@@ -641,8 +662,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->maxvel = ini_maxvel;
 
     tc->reqvel = vel;
-    // Initial guess at target velocity is just the requested velocity
-    tc->target_vel = vel;
+    // To be computed by velocity optimization / spindle-sync calculations
+    tc->target_vel = 0;
     // To be filled in by tangent calculation, negative = invalid (KLUDGE)
     tcInitKinkProperties(tc);
 
@@ -824,7 +845,7 @@ int pmRigidTapInit(PmRigidTap * const tap,
     // Setup initial tap state
     tap->reversal_target = tap->xyz.tmag;
     tap->reversal_scale = reversal_scale;
-    tap->state = TAPPING;
+    tap->state = RIGIDTAP_START;
     return TP_ERR_OK;
 
 }

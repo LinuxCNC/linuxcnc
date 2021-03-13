@@ -382,7 +382,7 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     }
     
     hm2->stepgen.mode_reg[i] = 3;
-    buff = inst->hal.param.step_type;
+    buff = inst->hal.param.step_type -1;
     hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_length_addr
             + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
 }
@@ -572,7 +572,7 @@ void hm2_stepgen_allocate_pins(hostmot2_t *hm2) {
 
         hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
         if (hm2->pin[i].sec_pin & 0x80){
-            hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+            hm2_set_pin_direction_at_start(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
         }
     }
 }
@@ -1019,8 +1019,8 @@ fail0:
 
 void hm2_stepgen_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     if (hm2->stepgen.num_instances <= 0) return;
+    HM2_PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
     HM2_PRINT("    version: %d\n", hm2->stepgen.version);
     HM2_PRINT("    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);

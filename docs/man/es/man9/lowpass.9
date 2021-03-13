@@ -1,0 +1,66 @@
+.TH LOWPASS "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+lowpass \- Low-pass filter
+.SH SYNOPSIS
+.HP
+.B loadrt lowpass [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBlowpass.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B lowpass.\fIN\fB.in\fR float in \fR
+.TQ
+.B lowpass.\fIN\fB.out\fR float out \fR
+ out += (in - out) * gain 
+.TP
+.B lowpass.\fIN\fB.load\fR bit in \fR
+When TRUE, copy \fBin\fR to \fBout\fR instead of applying the filter equation.
+.SH PARAMETERS
+.TP
+.B lowpass.\fIN\fB.gain\fR float rw \fR
+.SH NOTES
+
+
+
+\fBgain\fR pin setting
+
+The digital filter implemented is equivalent to a unity-gain
+continuous-time single-pole low-pass filter that is preceded
+by a zero-order-hold and sampled at a fixed period.  For a pole
+at \fB-a\fR (radians/seconds) the corresponding continuous-time
+lowpass filter LaPlace transfer function is:
+
+\fBH(s) = a/(s + a)\fR
+
+For a sampling period \fBT\fR (seconds), the gain for this
+Hal lowpass component is:
+
+\fBgain = 1 - e^(-a * T)\fR
+
+e = 2.71828 https://en.wikipedia.org/wiki/E_(mathematical_constant)
+
+\fBExamples:\fR
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*100)    (\fB100Hz\fR bandwith single pole)
+  gain = \fB0.466\fR
+
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*10)     ( \fB10Hz\fR bandwith single pole)
+  gain = \fB0.0609\fR
+
+     T = 0.001 seconds (typical servo thread period)
+     a = (2*pi*1)      ( \fB1Hz\fR bandwith single pole)
+  gain = \fB0.0063\fR
+
+.SH LICENSE
+
+GPL

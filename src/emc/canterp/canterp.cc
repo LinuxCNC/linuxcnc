@@ -30,8 +30,8 @@
   12 N0090  USE_TOOL_LENGTH_OFFSET(1.0000)
   13 N0110  STRAIGHT_TRAVERSE(0.0000, 0.0000, 3.0000)
   14 N0140  SET_FEED_RATE(16.0000)
-  15 N0140  SET_SPINDLE_SPEED(3500.0000)
-  16 N0140  START_SPINDLE_CLOCKWISE()
+  15 N0140  SET_SPINDLE_SPEED(0, 3500.0000)
+  16 N0140  START_SPINDLE_CLOCKWISE(0)
   17 N0150  COMMENT("MILLING AN ENCLOSED POCKET")
   18 N0160  STRAIGHT_TRAVERSE(0.0000, 3.9150, 3.0000)
   19 N0170  STRAIGHT_TRAVERSE(0.0000, 3.9150, 2.1000)
@@ -248,7 +248,7 @@ int Canterp::read() {
 
 int Canterp::execute(const char *line) {
     int retval;
-    double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
+    double d1 = 0, d2 = 0, d3 = 0, d4 = 0, d5 = 0, d6 = 0, d7 = 0, d8 = 0, d9 = 0, d10 = 0, d11 = 0;
     int i1, i2, ln=-1;
     char s1[256];
 
@@ -406,11 +406,11 @@ int Canterp::execute(const char *line) {
     }
 #endif
 
-    if (!strcmp(the_command_name, "SELECT_POCKET")) {
+    if (!strcmp(the_command_name, "SELECT_TOOL")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
 	    return INTERP_ERROR;
 	}
-	SELECT_POCKET(i1, i1);
+	SELECT_TOOL(i1);
 	return 0;
     }
 

@@ -555,7 +555,7 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Mode | return value
-|G54| 554
+|G54| 540
 |G55| 550
 |G56| 560
 |G57| 570
@@ -687,10 +687,79 @@ can be added easily without changes to the source code.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
-[NOTE]
-Additional system parameters can be enabled by using 'FEATURES' in the
-[RS274NGC] section of the ini file. More information
-<<remap:ini-features, here>>.
+[[gcode:ini-hal-params]]
+
+== HAL pins and INI values
+If enabled in the <<gcode:ini-features, INI file>> G-code has access
+to the values of INI file entries and HAL pins.
+
+* '#<_ini[section]name>' Returns the value of the corresponding item in
+the INI file.
+For example, if the ini file looks like so:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[SETUP]
+XPOS = 3.145
+YPOS = 2.718
+---------------------------------------------------------------------
+
+you may refer to the named parameters `#<_ini[setup]xpos>` and
+`#<_ini[setup]ypos>` within G-code.
+
+`EXISTS` can be used to test for presence of a given ini file
+variable:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_ini[setup]xpos>]]
+  (debug, [setup]xpos exists: #<_ini[setup]xpos>)
+o100 else
+  (debug, [setup]xpos does not exist)
+o100 endif
+---------------------------------------------------------------------
+
+The value is read from the inifile once, and cached in the
+interpreter. These parameters are read-only - assigning a value will
+cause a runtime error. The names are not case sensitive - they are
+converted to uppercase before consulting the ini file.
+
+* '#<_hal[Hal item]>'
+Allows G-code programs to read the values of HAL pins Variable access is
+read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
+M67, M68 and custom M100-M199 codes.
+Note that the value read will not update in real-time, typically the
+value that was on the pin when the G-code program was started will be
+returned. It is possible to work round this by forcing a state synch.
+One way to do this is with a dummy M66 command: M66E0L0
+
+Example:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+(debug, #<_hal[motion-controller.time]>)
+---------------------------------------------------------------------
+
+Access of HAL items is read-only. Currently, only all-lowercase HAL
+names can be accessed this way.
+
+`EXISTS` can be used to test for the presence of a given HAL item:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_hal[motion-controller.time]>]]
+  (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
+o100 else
+  (debug, [motion-controller.time] does not exist)
+o100 endif
+---------------------------------------------------------------------
+
+This feature was motivated by the desire for stronger coupling between
+user interface components like `GladeVCP` and `PyVCP` to act as
+parameter source for driving NGC file behavior. The alternative -
+going through the M6x pins and wiring them - has a limited,
+non-mnemonic namespace and is unnecessarily cumbersome just as a
+UI/Interpreter communications mechanism.
 
 [[gcode:expressions]]
 
@@ -1272,4 +1341,5 @@ material removal rate.
   on the same line.
 * 'File ended with no percent sign or program end' - Every G code file must
   end in a M2 or M30 or be wrapped with the percent sign %.
+
 

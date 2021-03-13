@@ -40,6 +40,11 @@ typedef enum {
     TC_SYNC_POSITION
 } tc_spindle_sync_t;
 
+typedef enum {
+    TC_DIR_FORWARD = 0,
+    TC_DIR_REVERSE
+} tc_direction_t;
+
 #define TC_GET_PROGRESS 0
 #define TC_GET_STARTPOINT 1
 #define TC_GET_ENDPOINT 2
@@ -84,6 +89,7 @@ typedef struct {
 } Arc9;
 
 typedef enum {
+    RIGIDTAP_START,
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
 } RIGIDTAP_STATE;
 

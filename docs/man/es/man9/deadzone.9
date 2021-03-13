@@ -1,0 +1,32 @@
+.TH DEADZONE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+deadzone \- Return the center if within the threshold
+.SH SYNOPSIS
+.HP
+.B loadrt deadzone [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBdeadzone.\fIN\fB\fR (requires a floating-point thread)
+Update \fBout\fR based on \fBin\fR and the parameters.
+.SH PINS
+.TP
+.B deadzone.\fIN\fB.in\fR float in \fR
+.TQ
+.B deadzone.\fIN\fB.out\fR float out \fR
+.SH PARAMETERS
+.TP
+.B deadzone.\fIN\fB.center\fR float rw \fR(default: \fI0.0\fR)
+The center of the dead zone
+.TP
+.B deadzone.\fIN\fB.threshhold\fR float rw \fR(default: \fI1.0\fR)
+The dead zone is \fBcenter\fR \(+- (\fBthreshhold\fR/2)
+.SH LICENSE
+
+GPL

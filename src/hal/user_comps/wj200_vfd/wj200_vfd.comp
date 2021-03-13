@@ -11,7 +11,7 @@ pin out bit is_alarm              "1 when vfd alarm is set";
 pin out float motor_current       "Output current in amps";
 pin out float heatsink_temp       "Temperature of drive heatsink";
 pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
-option userspace;
+option userspace yes;
 option userinit yes;
 license "GPLv2 or greater";
 ;;
@@ -199,10 +199,10 @@ void userinit(int argc, char **argv)
 			case 1:
 				parity = toupper(optarg[0]);
 
-				if(parity != 'Y' && parity != 'N')
+				if(parity != 'E' && parity != 'O' && parity != 'N')
 				{
 					fprintf(stderr, 
-						"Invalid argument: parity must be 'y' or 'n'. Given '%s'\n", 
+						"Invalid argument: parity must be 'e', 'o' or 'n'. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}

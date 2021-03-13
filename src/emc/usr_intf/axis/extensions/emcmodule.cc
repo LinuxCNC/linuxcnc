@@ -32,6 +32,7 @@
 #include "timer.hh"
 #include "nml_oi.hh"
 #include "rcs_print.hh"
+#include <rtapi_string.h>
 
 #include <cmath>
 
@@ -67,6 +68,8 @@
 #define LOCAL_AUTO_PAUSE (1)
 #define LOCAL_AUTO_RESUME (2)
 #define LOCAL_AUTO_STEP (3)
+#define LOCAL_AUTO_REVERSE (4)
+#define LOCAL_AUTO_FORWARD (5)
 
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
@@ -285,7 +288,7 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
-        memcpy(&s->status, emcStatus, sizeof(EMC_STAT));
+        memcpy((char*)&s->status, emcStatus, sizeof(EMC_STAT));
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -938,7 +941,7 @@ static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "MDI commands limited to %zu characters", sizeof(m.command) - 1);
         return NULL;
     }
-    strcpy(m.command, cmd);
+    rtapi_strxcpy(m.command, cmd);
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1164,7 +1167,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "File name limited to %zu characters", sizeof(m.file) - 1);
         return NULL;
     }
-    strcpy(m.file, file);
+    rtapi_strxcpy(m.file, file);
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1174,6 +1177,8 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
     int fn;
     EMC_TASK_PLAN_RUN run;
     EMC_TASK_PLAN_PAUSE pause;
+    EMC_TASK_PLAN_REVERSE reverse;
+    EMC_TASK_PLAN_FORWARD forward;
     EMC_TASK_PLAN_RESUME resume;
     EMC_TASK_PLAN_STEP step;
 
@@ -1191,6 +1196,12 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
             break;
         case LOCAL_AUTO_STEP:
             emcSendCommand(s, step);
+            break;
+        case LOCAL_AUTO_REVERSE:
+            emcSendCommand(s, reverse);
+            break;
+        case LOCAL_AUTO_FORWARD:
+            emcSendCommand(s, forward);
             break;
         default:
             PyErr_Format(error, "Unexpected argument '%d' to command.auto", fn);
@@ -1478,7 +1489,7 @@ static PyObject* Error_poll(pyErrorChannel *s) {
     default:
         {
             char error_string[256];
-            sprintf(error_string, "unrecognized error %" PRId32, type);
+            snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
             PyTuple_SET_ITEM(r, 1, PyString_FromString(error_string));
             break;
         }
@@ -2268,6 +2279,8 @@ initlinuxcnc(void) {
     ENUMX(6, LOCAL_AUTO_PAUSE);
     ENUMX(6, LOCAL_AUTO_RESUME);
     ENUMX(6, LOCAL_AUTO_STEP);
+    ENUMX(6, LOCAL_AUTO_REVERSE);
+    ENUMX(6, LOCAL_AUTO_FORWARD);
 
     ENUMX(4, EMC_TRAJ_MODE_FREE);
     ENUMX(4, EMC_TRAJ_MODE_COORD);

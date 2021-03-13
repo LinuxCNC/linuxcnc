@@ -1,0 +1,28 @@
+.TH hal_init "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+
+hal_init \- Configura HAL y RTAPI
+
+.SH SINTAXIS
+.HP
+ int hal_init(const char *\fImodname\fR)
+
+.SH ARGUMENTOS
+.IP \fImodname\fR
+El nombre de este módulo hal
+
+.SH DESCRIPCION
+
+\fBhal_init\fR configura HAL y RTAPI. Debe ser llamado por cualquier
+módulo que pretende utilizar la API, antes que cualquier otra llamada RTAPI.
+
+\fImodname\fR debe apuntar a una cadena que identifica el módulo.
+La cadena no puede tener más de \fBHAL_NAME_LEN\fR caracteres.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de usuario o de inicio/limpieza, no desde las tareas de relatime.
+
+.SH VALOR DEVUELTO
+En caso de éxito, devuelve un ID de módulo entero positivo, que es
+usado para llamadas posteriores a las API hal y rtapi.
+En caso de fallo, devuelve un código de error HAL.

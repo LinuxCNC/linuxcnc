@@ -1,10 +1,10 @@
-#ifndef HALSC_USR_H
-#define HALSC_USR_H
+#ifndef SCOPE_USR_H
+#define SCOPE_USR_H
 /** This file, 'scope_usr.h', contains declarations used by
-    'halscope.c' and other source files to implement the user
+    'scope.c' and other source files to implement the user
     space portion of the HAL oscilloscope.  Other declarations
-    used by both user and realtime code are in 'halsc_shm.h', and
-    those used only by realtime code are in 'halsc_rt.h'.
+    used by both user and realtime code are in 'scope_shm.h', and
+    those used only by realtime code are in 'scope_rt.h'.
 */
 
 /** Copyright (C) 2003 John Kasunich

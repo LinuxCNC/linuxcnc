@@ -84,6 +84,8 @@ endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -120,6 +122,7 @@ SUBDIRS := \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
+	hal/user_comps/xhc-whb04b-6 \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
@@ -191,9 +194,11 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
+DEBUG := $(DEBUG) -g -Wall -Werror=implicit-function-declaration
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
@@ -250,8 +255,11 @@ INFILES = \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
-	 ../lib/python/nf.py \
-	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
+	../lib/python/nf.py \
+	../share/desktop-directories/linuxcnc-doc.directory \
+	../share/desktop-directories/linuxcnc-ref.directory \
+	../share/desktop-directories/linuxcnc-cnc.directory \
+	../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
@@ -278,6 +286,7 @@ HEADERS := \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
     emc/kinematics/genserkins.h \
+    emc/kinematics/pentakins.h \
     emc/kinematics/pumakins.h \
     emc/tp/tc.h \
     emc/tp/tc_types.h \
@@ -612,7 +621,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
@@ -691,6 +700,7 @@ install-python: install-dirs
 	$(EXE) ../bin/pyui $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mitsub_vfd $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pmx485 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -766,6 +776,7 @@ EXTRA_CFLAGS += -msse
 EXTRA_CFLAGS += -g
 endif
 endif
+EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -863,31 +874,48 @@ hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 
+#Don't attempt to build Pi / Beaglebone GPIO for RTAI
+ifeq ($(BUILD_SYS),uspace)
+obj-$(CONFIG_HAL_BB_GPIO) += hal_bb_gpio.o
+hal_bb_gpio-objs  :=			\
+    hal/drivers/hal_bb_gpio.o	\
+    $(MATHSTUB)
+obj-$(CONFIG_HAL_PI_GPIO) += hal_pi_gpio.o
+hal_pi_gpio-objs := 				\
+    hal/drivers/hal_pi_gpio.o 		\
+    hal/drivers/cpuinfo.o 		\
+    $(MATHSTUB)
+endif
+
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
 ifeq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o hal_bb_gpio.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
-    hal/drivers/mesa-hostmot2/ioport.o	  \
-    hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/abs_encoder.o\
-	hal/drivers/mesa-hostmot2/resolver.o  \
-    hal/drivers/mesa-hostmot2/pwmgen.o	  \
-    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
-	hal/drivers/mesa-hostmot2/sserial.o   \
-    hal/drivers/mesa-hostmot2/stepgen.o   \
-	hal/drivers/mesa-hostmot2/bspi.o	  \
-	hal/drivers/mesa-hostmot2/uart.o	  \
-    hal/drivers/mesa-hostmot2/pktuart.o   \
-    hal/drivers/mesa-hostmot2/watchdog.o  \
-    hal/drivers/mesa-hostmot2/pins.o	  \
-    hal/drivers/mesa-hostmot2/dpll.o  \
-    hal/drivers/mesa-hostmot2/led.o	  \
-    hal/drivers/mesa-hostmot2/ssr.o       \
-    hal/drivers/mesa-hostmot2/tram.o	  \
-    hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    hal/drivers/mesa-hostmot2/bspi.o	  \
+    hal/drivers/mesa-hostmot2/dpll.o	  \
+    hal/drivers/mesa-hostmot2/encoder.o   \
+    hal/drivers/mesa-hostmot2/inm.o	  \
+    hal/drivers/mesa-hostmot2/inmux.o	  \
+    hal/drivers/mesa-hostmot2/ioport.o	  \
+    hal/drivers/mesa-hostmot2/led.o	  \
+    hal/drivers/mesa-hostmot2/pins.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
+    hal/drivers/mesa-hostmot2/pwmgen.o	  \
+    hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/rcpwmgen.o  \
+    hal/drivers/mesa-hostmot2/resolver.o  \
+    hal/drivers/mesa-hostmot2/sserial.o   \
+    hal/drivers/mesa-hostmot2/ssr.o       \
+    hal/drivers/mesa-hostmot2/stepgen.o   \
+    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
+    hal/drivers/mesa-hostmot2/tram.o	  \
+    hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/watchdog.o  \
+    hal/drivers/mesa-hostmot2/xy2mod.o    \
     $(MATHSTUB)
 hm2_7i90-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i90.o  \
@@ -909,9 +937,6 @@ hm2_spi-objs  :=			  \
     $(MATHSTUB)
 hm2_rpspi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_rpspi.o   \
-    $(MATHSTUB)
-hal_bb_gpio-objs  :=			  \
-    hal/drivers/hal_bb_gpio.o		  \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -971,6 +996,11 @@ obj-m += genserkins.o
 genserkins-objs := emc/kinematics/genserkins.o
 genserkins-objs += libnml/posemath/gomath.o
 genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
+obj-m += pentakins.o
+pentakins-objs := emc/kinematics/pentakins.o
+pentakins-objs += libnml/posemath/_posemath.o
+pentakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
@@ -1110,6 +1140,7 @@ endif
 ../rtlib/lineardeltakins$(MODULE_EXT): $(addprefix objects/rt,$(lineardeltakins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
 ../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
+../rtlib/pentakins$(MODULE_EXT): $(addprefix objects/rt,$(pentakins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/rotarydeltakins$(MODULE_EXT): $(addprefix objects/rt,$(rotarydeltakins-objs))
@@ -1130,6 +1161,7 @@ endif
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
+../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

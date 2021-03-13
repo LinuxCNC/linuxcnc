@@ -1,0 +1,7 @@
+This configuration step is intended for Sherline stepper lathes.
+
+SherlineLathe_inch.in
+   inch units
+
+SherlineLathe_mm.in
+   metric units

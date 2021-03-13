@@ -20,6 +20,8 @@ kins \- kinematics definitions for LinuxCNC
 .PP
 .B loadrt maxkins
 .PP
+.B loadrt pentakins
+.PP
 .B loadrt pumakins
 .PP
 .B loadrt rosekins
@@ -230,9 +232,9 @@ The kinematics use Denavit-Hartenberg definition for the joint and
 links. The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
 manipulator are defined by hal pins.
-Note that this uses a convention sometimes known as "Modified DH Paremeters"
+Note that this uses a convention sometimes known as "Modified DH Parameters"
 and this must be borne in mind when setting up the system. 
-https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters#Modified_DH_parameters
+https://w.wiki/NcY
 .TP
 .B genserkins.A\-\fIN
 .TQ
@@ -247,6 +249,42 @@ head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
 UVW motion in the rotated coordinate system.  The source file, maxkins.c,
 may be a useful starting point for other 5-axis systems.
 
+.SS pentakins \- Pentapod Kinematics
+Gives five degrees of freedom in position and orientation (XYZAB).  The
+location of base and effector joints is defined by hal parameters.  The
+forward kinematics iteration is controlled by hal pins.
+.TP
+.B pentakins.base.\fIN\fB.x
+.TQ
+.B pentakins.base.\fIN\fB.y
+.TQ
+.B pentakins.base.\fIN\fB.z
+.TQ
+.B pentakins.effector.\fIN\fB.r
+.TQ
+.B pentakins.effector.\fIN\fB.z
+Parameters describing the \fIN\fRth effector joint's radius and axial
+position.
+.TQ
+.B pentakins.convergence\-criterion
+Minimum error value that ends iterations with converged solution.
+.TQ
+.B pentakins.limit\-iterations
+Limit of iterations, if exceeded iterations stop with no convergence.
+.TQ
+.B pentakins.max\-error
+Maximum error value, if exceeded iterations stop with no convergence.
+.TQ
+.B pentakins.last\-iterations
+Number of iterations spent for the last forward kinematics solution.
+.TQ
+.B pentakins.max\-iterations
+Maximum number of iterations spent for a converged solution during current
+session.
+.TQ
+.B pentakins.tool\-offset
+TCP offset from effector origin along Z to implement RTCP function. To
+avoid joints jump change tool offset only when the platform is not tilted.
 
 .SS pumakins \- kinematics for puma typed robots
 Kinematics for a puma-style robot with 6 joints
@@ -321,4 +359,9 @@ XYZBC (5 Joints)
 
 .SH SEE ALSO
 \fIKinematics\fR section in the LinuxCNC documentation
+
+The hal component \fBuserkins.comp\fR is a template for making
+kinematic modules using the halcompile tool.  The unmodified
+template supports an identity xyz configuration that uses
+3 joints.  See the \fBuserkins\fR man page for more info.
 

@@ -1,0 +1,83 @@
+.TH XHC_HB04_UTIL "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+xhc_hb04_util \- xhc-hb04 convenience utility
+.SH SYNOPSIS
+.HP
+.B loadrt xhc_hb04_util [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+Provides logic for a start/pause button and an interface
+to \fBhalui.program.is_paused\fR, \fBis_idle\fR, \fBis_running\fR to generate outputs for \fBhalui.program.pause\fR, \fBresume\fR, \fBrun\fR.
+
+Includes 4 simple lowpass filters with \fBcoef\fR and \fBscale\fR pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
+calculating the filter time constant ($ man lowpass).
+
+
+.SH FUNCTIONS
+.TP
+\fBxhc-hb04-util.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B xhc-hb04-util.\fIN\fB.start-or-pause\fR bit in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.is-paused\fR bit in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.is-idle\fR bit in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.is-running\fR bit in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.pause\fR bit out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.resume\fR bit out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.run\fR bit out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.in0\fR s32 in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.in1\fR s32 in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.in2\fR s32 in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.in3\fR s32 in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.out0\fR s32 out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.out1\fR s32 out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.out2\fR s32 out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.out3\fR s32 out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.scale0\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.scale1\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.scale2\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.scale3\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.coef0\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.coef1\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.coef2\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.coef3\fR float in \fR(default: \fI1.0\fR)
+.TQ
+.B xhc-hb04-util.\fIN\fB.divide-by-k-in\fR float in \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.divide-by-k-out\fR float out \fR
+.TQ
+.B xhc-hb04-util.\fIN\fB.k\fR float in \fR(default: \fI1.0\fR)
+.SH LICENSE
+
+GPL

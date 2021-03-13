@@ -135,6 +135,7 @@
         <glade-widget-class name="EMC_Action_MDI" generic-name="vcp_action_mdi" title="VCP Action MDI" icon-name='gtk-execute'/>
         <glade-widget-class name="EMC_Action_Home" generic-name="vcp_action_home" title="VCP Action Home" icon-name='gtk-home'/>
         <glade-widget-class name="EMC_Action_Unhome" generic-name="vcp_action_unhome" title="VCP Action Unhome" icon-name='gtk-home'/>
+        <glade-widget-class name="EMC_Action_Python" generic-name="vcp_action_python" title="VCP Action Python" icon-name='gtk-execute'/>
         
         <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="vcp_toggleaction_estop" title="VCP ToggleAction ESTOP" icon-name='gtk-stop'/>
         <glade-widget-class name="EMC_ToggleAction_Power" generic-name="vcp_toggleaction_power" title="VCP ToggleAction Power" icon-name='gtk-disconnect'/>
@@ -250,6 +251,7 @@
         <glade-widget-class-ref name="EMC_Action_Reload"/>
         <glade-widget-class-ref name="EMC_Action_Save"/>
         <glade-widget-class-ref name="EMC_Action_SaveAs"/>
+        <glade-widget-class-ref name="EMC_Action_Python"/>
         
     </glade-widget-group>
 </glade-catalog>
