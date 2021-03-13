@@ -175,15 +175,19 @@ class GetIniInfo:
 
     def get_trivial_kinematics(self):
         temp = self.inifile.find("KINS", "KINEMATICS").split()
-        print("found kinematics module", temp)
+        print("\n**** GMOCCAPY GETINIINFO **** \n")
+        print("[KINS] KINESTYPE is {0}".format(temp[0]))
 
         if temp[0].lower() == "trivkins":
-            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is trivkins")
-            print("Will use mode to switch between Joints and World mode")
-            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+            for element in temp:
+                if "BOTH" in element.upper():
+                    print("Found kinstype=BOTH but using trivkins")
+                    print("It is not recommended to do so!")
+                    print("Will use mode to switch between Joints and World mode")
+                    print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+                    return False
             return True
         else:
-            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
             print("Will use mode to switch between Joints and World mode")
             print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
             # I.e.

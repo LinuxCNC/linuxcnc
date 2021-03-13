@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3"
+_RELEASE = " 3.1.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2645,7 +2645,7 @@ class gmoccapy(object):
     def on_hal_status_motion_mode_changed(self, widget, new_mode):
         print("hal status motion mode changed")
         # Motion mode change in identity kinematics makes no sense
-        # so we will not react on the signal and correct the misbehavior
+        # but we will react on the signal and correct the misbehavior
         # self.stat.motion_mode return
         # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
@@ -3348,8 +3348,8 @@ class gmoccapy(object):
         # self.touch_button_dic
         # self.jog_button_dic
         # self.macro_dic
-        dictionaries = (self.ref_button_dic, self.touch_button_dic,
-                        self.jog_button_dic, self.macro_dic)
+        dictionaries = [self.ref_button_dic, self.touch_button_dic,
+                        self.jog_button_dic, self.macro_dic]
         if not self.trivial_kinematics:
             dictionaries.append(self.joints_button_dic)
         for dict in dictionaries:
