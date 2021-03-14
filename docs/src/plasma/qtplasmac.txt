@@ -277,7 +277,9 @@ HAL connection examples in the following table show examples for both a parallel
               "<machine_name>" describes the name entered into this field.|plasma_table.ini.
 |INI File|This is the .ini file that was created as a result of making a working and tested base machine configuration.|base.ini
 |HAL File|This is the .hal file that was created as a result of making a working and tested base machine configuration.|base.hal
-|Monitor Aspect Ratio|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
+|Monitor Aspect Ratio|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9 +
+                      The GUI resolution can be changed after the initial configuration by either running the qtplasmac-setup program again +
+                      and choosing *RECONFIGURE* or by editing the <<qt_ini-display, [DISPLAY] section>> of the <machine_name>.ini file.
 |Mode|Selects the required mode based on the following criteria: +
       0 - If using an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK. +
       1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
@@ -424,7 +426,7 @@ Reconfiguring a QtPlasmaC configuration is done from the <<qt_setup, qtplasmac-s
 
 It is highly recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
-After starting qtplasmac-setup the selection window is visible, select *Reconfigure* which shows an information dialog, select *Continue* and the Reconfigure window will display:
+After starting qtplasmac-setup the selection window is visible, select *RECONFIGURE* which shows an information dialog, select *CONTINUE* and the Reconfigure window will display:
 
 image::images/qtplasmac_setup_reconfigure.png[width=500,align="center"]
 
@@ -432,7 +434,7 @@ Select the <machine_name>.ini file of the QtPlasmaC configuration to reconfigure
 
 If the user changes modes, the entry boxes will change depending on the currently selected mode.
 
-When all entries are correct, click *Reconfigure* and the user's QtPlasmaC configuration will be reconfigured.
+When all entries are correct, click *RECONFIGURE* and the user's QtPlasmaC configuration will be reconfigured.
 
 Entry descriptions can be found <<qt_setup-table, here>>.
 
@@ -502,7 +504,7 @@ Leave these blank if they are not used/required.
                                                              *Imperial Example:*  -2.15
 |===
 
-After filling in the appropriate entries, press 'CONVERT'.
+After filling in the appropriate entries, press *CONVERT*.
 
 === Alternate Method
 
@@ -533,7 +535,7 @@ qtplasmac-cfg2prefs
 
 image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
 
-Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press 'CONVERT'.
+Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
 
 == Other QtPlasmaC Setup Considerations
 
@@ -715,6 +717,16 @@ HALFILE = HALUI   = halui (required)
 The <machine_name>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of a <<qt_scribe, scribe>>, if required.
 
 NOTE: The user could place custom HAL commands in the <machine_name>_connections.hal file as this file is not overwritten by QtPlasmaC updates.
+
+[[qt_ini-display]]
+
+*[DISPLAY]* Section
+
+----
+DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
+        = qtvcp qtplasmac_9x16 (use 9:16 resolution)
+        = qtvcp qtplasmac_4x3  (use 4:3 resolution)
+----
 
 *[TRAJ]* Section
 
@@ -1949,7 +1961,7 @@ image::images/qtplasmac_single_cut.png[width=300,align="center"]
 . Set required appropriate material, or edit the Feed Rate for the default material in the PARAMATERS tab. +
 . Press the assigned single cut user button. +
 . Enter the length of the cut along the X and/or Y axes. +
-. Press the *START CUT* button and the cut will commence.
+. Press the *CUT* button and the cut will commence.
 
 [underline]*Pendant Single Cut*
 
@@ -2065,12 +2077,12 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
         Program will run from selected line with no leadin applied"
 |===
 
-After pressing LOAD, the blinking "SELECTED nn" button will change to a blinking "RUN FROM nn" button. Click this button to start the program from the previously selected line.
+After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking "RUN FROM nn" button. Click this button to start the program from the previously selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 
 . Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G Code line in the G Code window.
-. Clicking RELOAD - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G Code window header. This will return the user to the originally loaded file.
+. Clicking RELOAD in the G Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G Code window header. This will return the user to the originally loaded file.
 
 [[qt_scribe]]
 
@@ -2245,15 +2257,15 @@ The button functions are as follows:
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|New|Removes the current G-Code file and load a blank G-Code file.
-|Save|Opens a dialog allowing the current shape to be saved as a G-Code file.
-|Settings|Allows the changing of the global settings.
-|Quit|Closes the Conversational Panel. All edits will be discarded.
-|Send|Closes the Conversational Panel and load the current shape into LinuxCNC (QtPlasmaC). If the last edit was not added then it will be discarded.
-|Preview|Displays a preview of the current shape provided the required information is present.
-|Continue|This button is used for lines and arcs only. Allows another segment to be added to the current segment/segments.
-|Add|Stores the current shape into the current job.
-|Undo|Reverts to the previously stored state. If there have been no edits since the last store, it will stay at the current state.
+|NEW|Removes the current G-Code file and load a blank G-Code file.
+|SAVE|Opens a dialog allowing the current shape to be saved as a G-Code file.
+|SETTINGS|Allows the changing of the global settings.
+|QUIT|Closes the Conversational Panel. All edits will be discarded.
+|SEND|Closes the Conversational Panel and load the current shape into LinuxCNC (QtPlasmaC). If the last edit was not added then it will be discarded.
+|PREVIEW|Displays a preview of the current shape provided the required information is present.
+|CONTINUE|This button is used for lines and arcs only. Allows another segment to be added to the current segment/segments.
+|ADD|Stores the current shape into the current job.
+|UNDO|Reverts to the previously stored state. If there have been no edits since the last store, it will stay at the current state.
 |===
 
 If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the Conversational Panel is opened, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the New button.
@@ -2275,9 +2287,9 @@ Global settings for the shape library can be set by pressing the *Settings* butt
 
 Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight lead-in with a length that is the lesser of either the radius of the hole or the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
 
-Pressing the *Save* button will save all the settings as displayed and will change the window size to the displayed size.
+Pressing the *SAVE* button will save all the settings as displayed and will change the window size to the displayed size.
 
-After saving the user may press *Quit* or they may click on any shape to start the Conversational process.
+After saving the user may press *QUIT* or they may click on any shape to start the Conversational process.
 
 === Conversational Lines And Arcs
 
@@ -2295,14 +2307,14 @@ There are two line types and three arc types available:
 
 To use lines and arcs:
 
-. Select Lines and Arcs.
+. Select the *Lines and Arcs* icon.
 . Select the type of line or arc to create.
 . Choose the material from the MATERIAL drop down. If no material is chosen, the default material (00000) will be used.
 . Enter the desired parameters.
-. Press *Preview* to see the shape.
-. If satisfied with the shape press *Continue*.
+. Press *PREVIEW* to see the shape.
+. If satisfied with the shape press *CONTINUE*.
 . Change the line or arc type if needed and continue this procedure until the shape is complete.
-. Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 If the user wishes to create a closed shape, they will need to create any required lead-in as the first segment of the shape. If a lead-out is required it will need to be the last segment of the shape.
 
@@ -2316,12 +2328,12 @@ image::images/qtplasmac_conv_shapes.png[width=400,align="center"]
 
 To create a shape:
 
-. Select the shape to create. The available parameters will be displayed.
+. Select the corresponding icon for the shape to create. The available parameters will be displayed.
 . Choose the material from the MATERIAL drop down. If no material is chosen, the default material (00000) will be used.
-. Enter the appropriate values and press *Preview* to display the shape.
-. If the shape is not correct, edit the values and press *Preview* and the new shape will be displayed. Repeat until satisfied with the shape.
-. Press *Add* to add the shape to the G-Code file.
-. Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Enter the appropriate values and press *PREVIEW* to display the shape.
+. If the shape is not correct, edit the values and press *PREVIEW* and the new shape will be displayed. Repeat until satisfied with the shape.
+. Press *ADD* to add the shape to the G-Code file.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Group Of Shapes
 
@@ -2336,11 +2348,11 @@ Groups cannot have shapes removed, only added to.
 To create a group of shapes:
 
 . Create the first shape as in *Single Shape*.
-. Press *Add* and the shape will be added to the group.
-. If the user wishes to add another version of the same shape then edit the required parameters and press *Add* when satisfied with the shape.
+. Press *ADD* and the shape will be added to the group.
+. If the user wishes to add another version of the same shape then edit the required parameters and press *ADD* when satisfied with the shape.
 . If the user wishes to add a different shape, select that shape and create it as in *Single Shape*.
 . Repeat until all the required shapes to complete the group have been added.
-. Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Rotate
 
@@ -2353,11 +2365,11 @@ Arrays created via Conversational may be rotated, however arrays that have been 
 Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Press *Rotate* to open the rotate dialog.
-. Enter the appropriate values in the rotate dialog and press *Preview* to display the rotated code.
-. If the rotation is not correct, edit the values and press *Preview* and the new rotated code will be shown. Repeat until satisfied with the rotated code.
-. Press *Add* to complete the procedure.
-. Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Click the *Rotate* icon to open the rotate dialog.
+. Enter the appropriate values in the rotate dialog and press *PREVIEW* to display the rotated code.
+. If the rotation is not correct, edit the values and press *PREVIEW* and the new rotated code will be shown. Repeat until satisfied with the rotated code.
+. Press *ADD* to complete the procedure.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Array
 
@@ -2370,15 +2382,15 @@ Arrays created with Conversational may be arrayed but imported arrays cannot be 
 The cut order of an array is from the left column to the right column, starting at the bottom row and ending at the top row.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Press *Array* to open the array dialog.
-. Enter the appropriate values in the array dialog and press *Preview* to display the array.
-. If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until satisfied with the array.
-. Press *Add* to complete the procedure.
-. Press *Send* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Click the *Array* icon to open the array dialog.
+. Enter the appropriate values in the array dialog and press *PREVIEW* to display the array.
+. If the array is not correct, edit the values and press *PREVIEW* and the new array will be shown. Repeat until satisfied with the array.
+. Press *ADD* to complete the procedure.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the bottom *Save* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the Conversational dialog box has closed, the user may still save the G-Code file from the GUI. Alternatively, the user could click the Conversational button in the Extras tab which will reload the job, at which time they can press the *Save* button.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the Conversational dialog box has closed, the user may still save the G-Code file from the GUI. Alternatively, the user could click the Conversational button in the Extras tab which will reload the job, at which time they can press the *SAVE* button.
 
 == Error Messages
 
