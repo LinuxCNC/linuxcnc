@@ -211,7 +211,7 @@ class App(QWidget):
                                 self.faultLabel.setText('')
                                 self.faultValue.setText('')
                             if fault == 210:
-                                if float(self.currentMax.text()) >110: 
+                                if float(self.currentMax.text()) >110:
                                     self.faultName.setText('{}'.format(faultCode[code][1]))
                                 else:
                                     self.faultName.setText('{}'.format(faultCode[code][1]))

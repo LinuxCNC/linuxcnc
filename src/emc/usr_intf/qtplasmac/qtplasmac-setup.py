@@ -28,9 +28,9 @@ import linuxcnc
 import time
 from shutil import copy as COPY
 from shutil import move as MOVE
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
-from PyQt5.QtGui import * 
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 class Configurator(QMainWindow, object):
 
@@ -41,10 +41,10 @@ class Configurator(QMainWindow, object):
         if 'usr' in self.appPath:
             self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
         else:
-            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac/') 
+            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac/')
         wid = QWidget(self)
         self.setCentralWidget(wid)
-        self.layout = QHBoxLayout()  
+        self.layout = QHBoxLayout()
         wid.setLayout(self.layout)
         self.setWindowTitle('QtPlasmaC Setup')
         self.setFixedWidth(440)

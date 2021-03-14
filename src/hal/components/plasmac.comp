@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.204 - 2021 Mar 08 - (QtPlasmaC V0.9.49)
+0.205 - 2021 Mar 14
 
 .I SUMMARY:
 .br
@@ -326,7 +326,7 @@ FUNCTION(_) {
         if(arc_valid_timer > 1){
             rtapi_print_msg(RTAPI_MSG_ERR,"invalid arc-voltage-in\n");
             arc_valid_timer = 0;
-        } 
+        }
         return;
     }
 

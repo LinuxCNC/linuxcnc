@@ -88,7 +88,7 @@ if [ $response -eq 1 ]; then
     fi
 # for full LinuxCNC installation
 elif [ $response -eq 2 ]; then
-    # check for valid $qtfile 
+    # check for valid $qtfile
     if [ -f /usr/lib/python2.7/dist-packages/qtvcp/designer/x86_64/qt$qtver/$qtfile ]; then
         sofile=/usr/lib/python2.7/dist-packages/qtvcp/designer/x86_64/qt$qtver/$qtfile
         pifile=/usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py
@@ -110,8 +110,9 @@ if [ $pyver -eq 2 ]; then
     fi
 
     # copy the new .so file
-    echo -e '\ncopy python2 plugin module\n'
-    sudo tar -xzvf $sofile -C /usr/lib/x86_64-linux-gnu/qt5/plugins/designer
+    echo -e '\ncopy python2 plugin module from:\n'$sofile
+    sudo tar -xzf $sofile -C /usr/lib/x86_64-linux-gnu/qt5/plugins/designer
+    echo -e 'to:\n/usr/lib/x86_64-linux-gnu/qt5/plugins/designer\n'
 fi
 
 # create users plugin directory
@@ -119,9 +120,9 @@ mkdir -p ~/.designer/plugins/python
 
 # link to plugins
 if [ -f ~/.designer/plugins/python/qtvcp_plugin.py ]; then
-    echo -e '\ncreate plugin link\n'
     sudo rm ~/.designer/plugins/python/qtvcp_plugin.py
 fi
+echo -e '\ncreate plugin link at:\n~/.designer/plugins/python/\n'
 ln -s $pifile ~/.designer/plugins/python/
 
 #clear

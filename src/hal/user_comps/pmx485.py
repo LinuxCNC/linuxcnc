@@ -43,7 +43,7 @@ errorCount   = 0
 # create pmx485 component
 pmx485 = hal.component('pmx485')
 pmx485.newpin('mode_set', hal.HAL_FLOAT, hal.HAL_IN)      #set cutting mode
-pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current 
+pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current
 pmx485.newpin('pressure_set', hal.HAL_FLOAT, hal.HAL_IN)  #set gas pressure
 pmx485.newpin('enable', hal.HAL_BIT, hal.HAL_IN)          #enabler
 pmx485.newpin('mode', hal.HAL_FLOAT, hal.HAL_OUT)         #cut mode feedback

@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 import sys
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
-from PyQt5.QtGui import * 
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 class MaterialConverter(QMainWindow, object):
 
@@ -32,7 +32,7 @@ class MaterialConverter(QMainWindow, object):
         super(MaterialConverter, self).__init__(parent)
         wid = QWidget(self)
         self.setCentralWidget(wid)
-        self.layout = QHBoxLayout()  
+        self.layout = QHBoxLayout()
         wid.setLayout(self.layout)
         self.setWindowTitle('QtPlasmaC  Material File Creator')
         self.create_widgets()
@@ -65,15 +65,15 @@ class MaterialConverter(QMainWindow, object):
         self.fPE = '0'
         self.fGP = '0'
         self.fCM = '1'
-        wid.setStyleSheet('* { color: #ffee06; background: #16160e; font: 12pt Lato } \
-                          QLabel { min-height: 20; min-width: 120 } \
-                          QPushButton { border: 1px solid #ffee06; border-radius: 4; min-height: 20; min-width: 120 } \
-                          QPushButton:disabled { color: #16160e; border: none } \
-                          QPushButton:pressed { color: #16160e; background: #ffee06 } \
-                          QLineEdit { border: 1px solid #ffee06; border-radius: 4; min-height: 20 } \
-                          QLineEdit:disabled { color: #16160e; border: none } \
-                          QRadioButton::indicator { border: 1px solid #ffee06; border-radius: 4; min-height: 20; min-width: 20} \
-                          QRadioButton::indicator:checked { background: #ffee06 }' \
+        wid.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+                          QLabel {height: 20; width: 120} \
+                          QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 120} \
+                          QPushButton:disabled {color: #16160e; border: none} \
+                          QPushButton:pressed {color: #16160e; background: #ffee06} \
+                          QLineEdit {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 360} \
+                          QLineEdit:disabled {color: #16160e; border: none} \
+                          QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
+                          QRadioButton::indicator:checked {background: #ffee06}' \
                          )
 
     def create_widgets(self):
@@ -87,33 +87,33 @@ class MaterialConverter(QMainWindow, object):
         self.inSheetcam = QRadioButton('SheetCam')
         self.T.addWidget(self.inSheetcam, 1, 0, 1, 1)
         self.modeGroup.addButton(self.inSheetcam)
-        self.inFusion = QRadioButton('Fusion360')
+        self.inFusion = QRadioButton('Fusion 360')
         self.T.addWidget(self.inFusion, 2, 0, 1, 1)
         self.modeGroup.addButton(self.inFusion)
-        self.outUnits = QLabel('Output Units:')
+        self.outUnits = QLabel('OUTPUT UNITS:')
         self.T.addWidget(self.outUnits, 0, 2, 1, 1)
         self.unitsGroup = QButtonGroup()
-        self.outMetric = QRadioButton('Metric')
+        self.outMetric = QRadioButton('METRIC')
         self.outMetric.setChecked(True)
         self.T.addWidget(self.outMetric, 0, 3, 1, 1)
         self.unitsGroup.addButton(self.outMetric)
-        self.outImperial = QRadioButton('Imperial')
+        self.outImperial = QRadioButton('IMPERIAL')
         self.T.addWidget(self.outImperial, 1, 3, 1, 1)
         self.unitsGroup.addButton(self.outImperial)
         v2 = QLabel('')
         self.T.addWidget(v2, 3, 0)
-        self.inButton = QPushButton('Input:')
+        self.inButton = QPushButton('INPUT:')
         self.T.addWidget(self.inButton, 4, 0, 1, 1)
         self.inFile = QLineEdit()
         self.T.addWidget(self.inFile, 4, 1, 1, 3)
-        self.outButton = QPushButton('Output:')
+        self.outButton = QPushButton('OUTPUT:')
         self.T.addWidget(self.outButton, 5, 0, 1, 1)
         self.outFile = QLineEdit()
         self.T.addWidget(self.outFile, 5, 1, 1, 3)
         self.msgLabel = QLabel('')
         self.msgLabel.setAlignment(Qt.AlignCenter)
         self.T.addWidget(self.msgLabel, 6, 0, 1, 4)
-        self.convert = QPushButton('Create')
+        self.convert = QPushButton('CREATE')
         self.convert.setFixedWidth(120)
         self.T.addWidget(self.convert, 7, 0, 1, 1)
         h1 = QLabel('')
@@ -122,7 +122,7 @@ class MaterialConverter(QMainWindow, object):
         self.T.addWidget(h2, 7, 2, 1, 1)
         h3 = QLabel('')
         self.T.addWidget(h3, 7, 3, 1, 1)
-        self.cancel = QPushButton('Exit')
+        self.cancel = QPushButton('EXIT')
         self.T.addWidget(self.cancel, 7, 3, 1, 1)
 
     def on_in_button_pressed(self):
@@ -174,25 +174,25 @@ class MaterialConverter(QMainWindow, object):
                 self.outImperial.hide()
                 self.inButton.setEnabled(False)
                 self.inFile.setEnabled(False)
-                self.convert.setText('Create')
+                self.convert.setText('CREATE')
             elif button.text() == 'SheetCam':
                 self.outUnits.show()
                 self.outMetric.show()
                 self.outImperial.show()
                 self.inButton.setEnabled(True)
                 self.inFile.setEnabled(True)
-                self.convert.setText('Convert')
+                self.convert.setText('CONVERT')
             elif button.text() == 'Fusion360':
                 self.outUnits.hide()
                 self.outMetric.hide()
                 self.outImperial.hide()
                 self.inButton.setEnabled(True)
                 self.inFile.setEnabled(True)
-                self.convert.setText('Convert')
+                self.convert.setText('CONVERT')
 
     def on_convert_clicked(self):
         self.msgLabel.setText('')
-        if self.convert.text() != 'Add':
+        if self.convert.text() != 'ADD':
             if not self.inManual.isChecked():
                 if not self.inFileName:
                     self.msgLabel.setText('missing input filename')
@@ -253,7 +253,7 @@ class MaterialConverter(QMainWindow, object):
             self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
             self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
             self.output()
-            self.convert.setText('Add')
+            self.convert.setText('ADD')
         elif self.inSheetcam.isChecked():
 #            try:
             with open(self.inFileName, 'r') as f_in:

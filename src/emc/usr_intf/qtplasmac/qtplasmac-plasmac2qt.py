@@ -41,8 +41,8 @@ class Converter(QMainWindow, object):
             self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac'
             self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
         else:
-            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac') 
-            self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac') 
+            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac')
+            self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
         self.setFixedWidth(600)
         self.setFixedHeight(660)
         wid = QWidget(self)
