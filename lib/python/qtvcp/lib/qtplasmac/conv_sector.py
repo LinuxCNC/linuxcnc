@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -50,7 +50,7 @@ def preview(P, W):
     if msg:
         errMsg = 'Valid numerical entries required for:\n\n{}'.format(msg)
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SECTOR', errMsg)
+        P.dialog_show(QMessageBox.Warning, 'SECTOR', errMsg)
         return
     if radius == 0 or sAngle == 0:
         P.conv_undo_shape()
@@ -59,7 +59,7 @@ def preview(P, W):
         msg  = 'A Lead In is required if\n\n'
         msg += 'kerf width offset is enabled\n'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SECTOR', msg)
+        P.dialog_show(QMessageBox.Warning, 'SECTOR', msg)
         return
 # set origin position
     kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
@@ -153,7 +153,7 @@ def preview(P, W):
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.rEntry.text() and W.sEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
@@ -178,8 +178,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')

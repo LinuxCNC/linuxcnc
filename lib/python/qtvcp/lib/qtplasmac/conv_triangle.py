@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -184,9 +184,9 @@ def preview(P, W):
     else:
         P.dialogError = True
         if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
-            P.dialog_error(QMessageBox.Warning, 'TRIANGLE', 'A + B + C must equal 180')
+            P.dialog_show(QMessageBox.Warning, 'TRIANGLE', 'A + B + C must equal 180')
         else:
-            P.dialog_error(QMessageBox.Warning, 'TRIANGLE', 'Minimum requirements are:\n\n'\
+            P.dialog_show(QMessageBox.Warning, 'TRIANGLE', 'Minimum requirements are:\n\n'\
                                      'a + b + c\n\n'\
                                      'or\n\n'\
                                      'a + b + C\n\n'\
@@ -213,7 +213,7 @@ def auto_preview(P, W):
        (W.aEntry.text() and W.BEntry.text() and W.cEntry.text()) or \
        (W.aEntry.text() and W.bEntry.text() and W.CEntry.text()) or \
        (W.aEntry.text() and W.bEntry.text() and W.cEntry.text()):
-        preview(P, W) 
+        preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -230,8 +230,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')
@@ -265,7 +265,7 @@ def widgets(P, W):
     #alignment and size
     rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
                   'liLabel', 'liEntry', 'loLabel', 'loEntry', 'ALabel', 'AEntry', \
-                  'BLabel', 'BEntry', 'CLabel', 'CEntry', 'aLabel', 'aEntry', 
+                  'BLabel', 'BEntry', 'CLabel', 'CEntry', 'aLabel', 'aEntry',
                   'bLabel', 'bEntry', 'cLabel', 'cEntry', 'angLabel', 'angEntry']
     centerAlign = ['lDesc']
     rButton = ['cExt', 'cInt']

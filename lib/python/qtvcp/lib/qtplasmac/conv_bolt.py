@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -154,7 +154,7 @@ def preview(P, W):
         if holes == 0:
             msg += '# of Holes are required'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'BOLT-CIRCLE', msg)
+        P.dialog_show(QMessageBox.Warning, 'BOLT-CIRCLE', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
@@ -178,7 +178,7 @@ def entry_changed(P, W, widget):
         dia = float(W.hdEntry.text())
     except:
         dia = 0
-    if dia >= P.holeDiameter:
+    if dia >= P.holeDiameter or dia == 0:
         W.overcut.setChecked(False)
         W.overcut.setEnabled(False)
         W.ocEntry.setEnabled(False)
@@ -189,7 +189,7 @@ def entry_changed(P, W, widget):
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.dEntry.text() and W.hdEntry.text() and W.hEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -206,8 +206,8 @@ def widgets(P, W):
     W.ocEntry = QLineEdit(objectName = 'ocEntry')
     W.ocEntry.setEnabled(False)
     W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)

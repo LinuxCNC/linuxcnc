@@ -21,9 +21,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 import numpy
 from shutil import copy as COPY
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -38,7 +38,7 @@ def preview(P, W):
         except:
             msg  = 'Invalid entry detected\n'
             P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -108,7 +108,7 @@ def preview(P, W):
             msg  = 'Last entry is not valid\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
             outNgc.close()
             outTmp.close()
             return
@@ -168,7 +168,7 @@ def preview(P, W):
             msg  = 'Last entry is not Invalid\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
             outNgc.close()
             outTmp.close()
             return
@@ -680,14 +680,14 @@ def auto_preview(P, W):
                   (W.lType.currentText() == 'ARC 3P' and W.entry4.text() and W.entry5.text()) or \
                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry4.text()) or \
                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
-                    preview(P, W) 
+                    preview(P, W)
             else:
                 if (W.lType.currentText() == 'LINE POINT ~ POINT') or \
                   (W.lType.currentText() == 'LINE BY ANGLE') or \
                   (W.lType.currentText() == 'ARC 3P' and W.entry3.text() and W.entry4.text()) or \
                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry3.text()) or \
                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
-                    preview(P, W) 
+                    preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_gcodeSave = P.conv_gcodeLine
@@ -792,7 +792,7 @@ def widgets(P, W):
     W.undo.pressed.connect(lambda:undo_shape(P, W))
     W.lType.currentTextChanged.connect(lambda:line_type_changed(P, W))
     W.g2Arc.toggled.connect(lambda:auto_preview(P, W))
-    entries = ['entry1', 'entry2', 'entry3', 'entry4', 
+    entries = ['entry1', 'entry2', 'entry3', 'entry4',
                'entry5', 'entry6', 'entry7', 'entry8']
     for entry in entries:
         W[entry].textChanged.connect(lambda w:entry_changed(P, W, W.sender(), w))
@@ -818,7 +818,7 @@ def widgets(P, W):
         W.entries.addWidget(W.entry7, 7, 1)
         W.entries.addWidget(W.label8, 8, 0)
         W.entries.addWidget(W.entry8, 8, 1)
-        for r in range(8, 12):
+        for r in range(9, 12):
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)

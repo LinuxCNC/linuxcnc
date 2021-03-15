@@ -20,9 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -169,12 +169,12 @@ def preview(P, W):
         if length < width:
             msg += 'Length must be greater than or equal to Width'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SLOT', msg)
+        P.dialog_show(QMessageBox.Warning, 'SLOT', msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.lEntry.text() and W.wEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
@@ -198,8 +198,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)

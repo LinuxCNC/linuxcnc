@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -149,19 +149,19 @@ def preview(P, W):
         if radius <= 0:
             msg += 'Diameter is required'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'POLYGON', msg)
+        P.dialog_show(QMessageBox.Warning, 'POLYGON', msg)
 
 def mode_changed(P, W):
     if W.mCombo.currentIndex() == 2:
-        W.dLabel.setText('Side Length')
+        W.dLabel.setText('LENGTH')
     else:
-        W.dLabel.setText('Diameter')
+        W.dLabel.setText('DIAMETER')
     auto_preview(P, W)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.sEntry.text() and W.dEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
@@ -185,8 +185,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
@@ -240,9 +240,9 @@ def widgets(P, W):
     #starting parameters
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.mCombo.addItem('Circumscribed')
-    W.mCombo.addItem('Inscribed')
-    W.mCombo.addItem('Side Length')
+    W.mCombo.addItem('CIRCUMSCRIBED')
+    W.mCombo.addItem('INSCRIBED')
+    W.mCombo.addItem('SIDE LENGTH')
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -295,7 +295,7 @@ def widgets(P, W):
         W.entries.addWidget(W.dEntry, 8, 1)
         W.entries.addWidget(W.aLabel, 9, 0)
         W.entries.addWidget(W.aEntry, 9, 1)
-        for r in range(9, 12):
+        for r in range(10, 12):
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)
