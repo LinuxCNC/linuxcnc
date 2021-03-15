@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -159,7 +159,7 @@ def preview(P, W):
         W.undo.setEnabled(True)
     else:
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'CIRCLE', 'Diameter is required')
+        P.dialog_show(QMessageBox.Warning, 'CIRCLE', 'Diameter is required')
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
@@ -194,7 +194,7 @@ def cut_type_toggled(P, W):
             dia = float(W.dEntry.text())
         except:
             dia = 0
-        if dia <= P.holeDiameter:
+        if dia <= P.holeDiameter and dia != 0:
             W.overcut.setEnabled(True)
             W.ocEntry.setEnabled(True)
     auto_preview(P, W)
@@ -211,7 +211,7 @@ def overcut_toggled(P, W):
             dia = 0
         if (W.cExt.isChecked() and lolen) or not dia or dia > P.holeDiameter:
             W.overcut.setChecked(False)
-    auto_preview(P, W)    
+    auto_preview(P, W)
 
 def entry_changed(P, W, widget):
     P.conv_entry_changed(widget)
@@ -219,7 +219,7 @@ def entry_changed(P, W, widget):
         dia = float(W.dEntry.text())
     except:
         dia = 0
-    if dia >= P.holeDiameter:
+    if dia >= P.holeDiameter or dia == 0:
         W.overcut.setChecked(False)
         W.overcut.setEnabled(False)
         W.ocEntry.setEnabled(False)
@@ -231,7 +231,7 @@ def entry_changed(P, W, widget):
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.dEntry.text() and float(W.dEntry.text()) > 0:
-        preview(P, W) 
+        preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -248,8 +248,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('Offset')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
@@ -382,7 +382,7 @@ def widgets(P, W):
         W.entries.addWidget(W.overcut, 6, 1)
         W.entries.addWidget(W.ocLabel, 6, 2)
         W.entries.addWidget(W.ocEntry, 6, 3)
-        for r in range(6, 9):
+        for r in range(7, 9):
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)

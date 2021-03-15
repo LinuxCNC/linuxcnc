@@ -225,7 +225,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -8956,7 +8956,7 @@ EDGE</string>
                  </size>
                 </property>
                 <property name="text">
-                 <string>PLASMAC CONFIGURATION</string>
+                 <string>CONFIGURATION</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>

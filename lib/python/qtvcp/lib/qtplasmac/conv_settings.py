@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
-from PyQt5.QtGui import * 
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 def save(P, W):
     P.preAmble = W.preEntry.text()
@@ -78,24 +78,24 @@ def show(P, W):
         W.conv_preview.set_current_view()
 
 def widgets(P, W):
-    W.preLabel = QLabel('Preamble')
+    W.preLabel = QLabel('PREAMBLE')
     W.preLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     W.entries.addWidget(W.preLabel, 0, 0)
     W.preEntry = QLineEdit()
     W.entries.addWidget(W.preEntry, 0, 1, 1, 4)
-    W.pstLabel = QLabel('Postamble')
+    W.pstLabel = QLabel('POSTAMBLE')
     W.entries.addWidget(W.pstLabel, 1, 0)
     W.pstEntry = QLineEdit()
     W.entries.addWidget(W.pstEntry, 1, 1, 1, 4)
     W.oLabel = QLabel('ORIGIN')
     W.entries.addWidget(W.oLabel, 2, 1, 1, 3)
-    W.center = QRadioButton('     Centre')
+    W.center = QRadioButton('  CENTER')
     W.entries.addWidget(W.center, 3, 1)
-    W.btLeft = QRadioButton('Bottom Left')
+    W.btLeft = QRadioButton('BTM LEFT')
     W.entries.addWidget(W.btLeft, 3, 3)
     W.llLabel = QLabel('LEAD LENGTHS')
     W.entries.addWidget(W.llLabel, 4, 1, 1, 3)
-    W.liLabel = QLabel('Lead In')
+    W.liLabel = QLabel('LEAD IN')
     W.entries.addWidget(W.liLabel, 5, 0)
     W.liEntry = QLineEdit()
     W.liEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -103,11 +103,11 @@ def widgets(P, W):
     W.loEntry = QLineEdit()
     W.loEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.loEntry, 5, 3)
-    W.loLabel = QLabel('Lead Out')
+    W.loLabel = QLabel('LEAD OUT')
     W.entries.addWidget(W.loLabel, 5, 4)
     W.shLabel = QLabel('SMALL HOLES')
     W.entries.addWidget(W.shLabel, 6, 1, 1, 3)
-    W.hdLabel = QLabel('Diameter')
+    W.hdLabel = QLabel('DIAMETER')
     W.entries.addWidget(W.hdLabel, 7, 0)
     W.hdEntry = QLineEdit()
     W.hdEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -115,11 +115,11 @@ def widgets(P, W):
     W.hsEntry = QLineEdit()
     W.hsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.hsEntry, 7, 3)
-    W.hsLabel = QLabel('Speed %')
+    W.hsLabel = QLabel('SPEED %')
     W.entries.addWidget(W.hsLabel, 7, 4)
     W.pvLabel = QLabel('PREVIEW')
     W.entries.addWidget(W.pvLabel, 8, 1, 1, 3)
-    W.gsLabel = QLabel('Grid Size')
+    W.gsLabel = QLabel('GRID SIZE')
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.gsEntry = QLineEdit()
     W.gsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))

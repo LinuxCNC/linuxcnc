@@ -20,9 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -161,12 +161,12 @@ def preview(P, W):
         if iRadius <= 0:
             msg += 'Inside Diameter is required'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'STAR', msg)
+        P.dialog_show(QMessageBox.Warning, 'STAR', msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.pEntry.text() and W.odEntry.text() and W.idEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
@@ -191,8 +191,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('Offset')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
@@ -208,7 +208,7 @@ def widgets(P, W):
     W.liEntry = QLineEdit(objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
     W.loEntry = QLineEdit(objectName = 'loEntry')
-    W.pLabel = QLabel('# OF POINTS')
+    W.pLabel = QLabel('POINTS')
     W.pEntry = QLineEdit()
     W.odLabel = QLabel('OUTER DIA')
     W.odEntry = QLineEdit()
@@ -256,6 +256,9 @@ def widgets(P, W):
     W.loEntry.setText('{}'.format(P.leadOut))
     W.xsEntry.setText('{}'.format(P.xSaved))
     W.ysEntry.setText('{}'.format(P.ySaved))
+    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+        W.kOffset.setChecked(False)
+        W.kOffset.setEnabled(False)
     W.aEntry.setText('0')
     P.conv_undo_shape()
     #connections

@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -44,7 +44,7 @@ def preview(P, W):
             if radius > height or radius > width:
                 msg = 'Radius must be less than width and height\n\n'
                 P.dialogError = True
-                P.dialog_error(QMessageBox.Warning, 'GUSSET', msg)
+                P.dialog_show(QMessageBox.Warning, 'GUSSET', msg)
                 return
         else:
             radius = 0.0
@@ -144,7 +144,7 @@ def preview(P, W):
                 x4 = x0 + radius * math.cos(angle)
                 y4 = y0 + radius * math.sin(angle)
                 outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x4, y4))
-                if W.rButton.text().startswith('Radius'):
+                if W.rButton.text().startswith('RADIUS'):
                     if y2 >= y0:
                         outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(x3, y3 , x0 - x4, y0 - y4))
                     else:
@@ -194,19 +194,19 @@ def preview(P, W):
         if height <= 0:
             msg += 'A positive height value is required\n\n'
         P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'GUSSET', msg)
+        P.dialog_show(QMessageBox.Warning, 'GUSSET', msg)
 
 def rad_button_pressed(P, W, widget):
-    if widget.text()[:3] == 'Rad':
-        widget.setText('Chamfer')
+    if widget.text()[:3] == 'RAD':
+        widget.setText('CHAMFER')
     else:
-        widget.setText('Radius')
+        widget.setText('RADIUS')
     auto_preview(P, W)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.wEntry.text() and W.hEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
@@ -231,8 +231,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
     W.xsEntry = QLineEdit(objectName = 'xsEntry')
