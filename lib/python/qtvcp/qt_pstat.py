@@ -38,17 +38,19 @@ class _PStat(object):
             return
         self.__class__._instanceNum += 1
 
-        self.WORKINGDIR = os.getcwd()
-        # Linuxcnc project base directory
-        self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-        self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
-        self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
-        self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
-        self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
-        # python library directory
-        self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
-        sys.path.insert(0, self.LIBDIR)
-
+        try:
+            self.WORKINGDIR = os.getcwd()
+            # Linuxcnc project base directory
+            self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
+            self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
+            self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
+            self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
+            # python library directory
+            self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
+            sys.path.insert(0, self.LIBDIR)
+        except:
+            pass
 
     def set_paths(self, filename='dummy', isscreen=False):
         self.PREFS_FILENAME = None
