@@ -93,7 +93,7 @@ class Notify:
         n.addAction("action_click", "Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
         n.addAction('destroy_clicked', 'Clear All', self.destroyClicked)
-        n.addAction('close_clicked', 'close', self.closeClicked)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
         self.notify_list.append(n)
         return n
 
@@ -102,8 +102,8 @@ class Notify:
         n.setUrgency(sys_notify.Urgency.NORMAL)
         n.setTimeout(int(timeout * 1000))
         n.addAction("action_click", "Show Last Five", self.last5_callback)
-        n.addAction('destroy_click', 'Clear all', self.destroyClicked)
-        n.addAction('close_clicked', 'close', self.closeClicked)
+        n.addAction('destroy_click', 'Clear All', self.destroyClicked)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
         n.onClose(self.handle_closed)
         self.notify_list.append(n)
         return n
