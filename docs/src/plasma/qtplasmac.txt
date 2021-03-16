@@ -669,8 +669,8 @@ ESTOP_TYPE          = 0 (estop is a indicator only)
                     = 1 (estop is hidden)
                     = 2 (estop is a button)
 
-BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~8)
-BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~8)
+BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
+BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
 
 PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
 
@@ -2623,6 +2623,8 @@ The number of user buttons varies by display type and resolution as follows:
 
 * 16:9 and 4:3 - Minimum 8, Maximum 20
 * 9:16 - Minimum 15, Maximum 20
+
+The user will need to run QtPlasmaC at the desired screen size to determine how many user buttons are available for use.
 
 All <machine_name>.ini file settings for the buttons are found in the [QTPLASMAC] section.
 
