@@ -1578,7 +1578,7 @@ msgid "make the preview as large as possible"
 msgstr "rendre le parcours le plus grand possible"
 
 #: gmoccapy.glade.h:198
-msgid "Close moccapy / leave the program"
+msgid "Close gmoccapy / leave the program"
 msgstr "Fermer gmoccapy / l quitter le programme"
 
 #: gmoccapy.glade.h:199

@@ -7112,7 +7112,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Close moccapy / leave the program</property>
+                    <property name="tooltip_text" translatable="yes">Close gmoccapy / leave the program</property>
                     <property name="image">img_close</property>
                     <signal name="clicked" handler="on_btn_exit_clicked" swapped="no"/>
                   </object>

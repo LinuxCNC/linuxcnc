@@ -375,8 +375,7 @@ msgstr "FEHLER : Externer Not Aus ist aktiv, konnte den Status nicht wechseln!"
 
 #: gmoccapy.py:2325
 msgid "ERROR : Could not switch the machine on, is limit switch activated?"
-msgstr ""
-"FEHLER : Konnte die Maschine nicht einschalten, ist ein Endschalter aktiv?"
+msgstr "FEHLER : Konnte die Maschine nicht einschalten, ist ein Endschalter aktiv?"
 
 #: gmoccapy.py:2405
 msgid "No file loaded"
@@ -1587,7 +1586,7 @@ msgid "make the preview as large as possible"
 msgstr "Zeige die Vorschau so groß wie möglich"
 
 #: gmoccapy.glade.h:198
-msgid "Close moccapy / leave the program"
+msgid "Close gmoccapy / leave the program"
 msgstr "Beende gmoccapy / verlasse das Programm"
 
 #: gmoccapy.glade.h:199

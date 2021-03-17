@@ -1534,7 +1534,7 @@ msgid "make the preview as large as possible"
 msgstr "缩放预览窗口"
 
 #: gmoccapy.glade.h:198
-msgid "Close moccapy / leave the program"
+msgid "Close gmoccapy / leave the program"
 msgstr "关闭moccapy /离开程序"
 
 #: gmoccapy.glade.h:199
