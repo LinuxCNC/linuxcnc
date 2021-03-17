@@ -171,6 +171,7 @@
     <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
     <signal name="metric-mode-changed" handler="on_hal_status_metric_mode_changed" swapped="no"/>
     <signal name="interp-run" handler="on_hal_status_interp_run" swapped="no"/>
+    <signal name="program-pause-changed" handler="on_hal_status_pause_changed" swapped="no"/>    
   </object>
   <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
   <object class="GtkImage" id="img_auto">
