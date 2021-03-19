@@ -54,6 +54,15 @@ TCLSRCS := \
 	../tcl/ngcgui_app.tcl \
 	../tcl/tooledit.tcl
 
+TOOLI18NSRCS := \
+    ../lib/python/gladevcp/iconview.py \
+    ../lib/python/gladevcp/hal_mdihistory.py \
+	../lib/python/gladevcp/offsetpage_widget.py \
+	../lib/python/gladevcp/tooledit_widget.py \
+    ../lib/python/gladevcp/gladevcp-test.glade \
+	../lib/python/gladevcp/offsetpage.glade \
+	../lib/python/gladevcp/tooledit_gtk.glade
+
 po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
 	$(Q)(cd ..; $(XGETTEXT) -k_ -o src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
@@ -108,25 +117,21 @@ po/linuxcnc.pot: emc/motion/control.c emc/motion/command.c emc/motion/motion.c e
 
 po/linuxcnc.pot: $(TCLSRCS)
 po/linuxcnc.pot: $(PYI18NSRCS)
+po/linuxcnc.pot: $(TOOLI18NSRCS)
 
 .PHONY: install-locale
 install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
 install-kernel-indep: install-locale
 
-INTLTOOL_GLADE := \
-	emc/usr_intf/gmoccapy/gmoccapy.glade.h \
-	../lib/python/gladevcp/offsetpage.glade.h \
-	../lib/python/gladevcp/tooledit_gtk.glade.h
+GMOCCAPY_GLADE := \
+	emc/usr_intf/gmoccapy/gmoccapy.glade.h
 
-$(INTLTOOL_GLADE): %.glade.h: %.glade
+$(GMOCCAPY_GLADE): %.glade.h: %.glade
 	intltool-extract --type=gettext/glade $<
 GMOCCAPY_I18N_SRCS := \
 	$(patsubst %,emc/usr_intf/gmoccapy/%, \
 		gmoccapy.py dialogs.py getiniinfo.py notification.py player.py \
 		preferences.py widgets.py gmoccapy.glade.h) \
-	$(patsubst %,../lib/python/gladevcp/%, \
-		iconview.py offsetpage_widget.py tooledit_widget.py \
-		offsetpage.glade.h tooledit_gtk.glade.h)
 
 po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
 	$(XGETTEXT) --from-code=UTF-8 --language=Python \
@@ -136,4 +141,4 @@ TARGETS += po/gmoccapy/gmoccapy.pot
 
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:
-	@rm -f $(INTLTOOL_GLADE)
+	@rm -f $(GMOCCAPY_GLADE)
