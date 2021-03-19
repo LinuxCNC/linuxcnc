@@ -1,4 +1,4 @@
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 import os, sys
 from shutil import copy as COPY
@@ -401,6 +401,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
+        CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])

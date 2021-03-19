@@ -911,9 +911,9 @@ class Configurator(QMainWindow, object):
                 outFile.write('# net plasmac:scribe-on  plasmac.scribe-on  => {YOUR_SCRIBE_ON_OUTPUT}\n')
             outFile.write('\n#***** LASER ALIGNMENT CONNECTION *****\n')
             if self.laserOnPin.text():
-                outFile.write('net plasmac:laser-on qtplasmac.laser_on => {}\n'.format(self.laserOnPin.text()))
+                outFile.write('net plasmac:laser-on => {}\n'.format(self.laserOnPin.text()))
             else:
-                outFile.write('# net plasmac:laser-on qtplasmac.laser_on => {YOUR_LASER_ON_OUTPUT}\n')
+                outFile.write('# net plasmac:laser-on => {YOUR_LASER_ON_OUTPUT}\n')
             outFile.write('\n#***** PUT YOUR CUSTOM CONNECTION BELOW HERE *****\n')
         return True
 

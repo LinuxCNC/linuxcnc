@@ -371,9 +371,9 @@ class Converter(QMainWindow, object):
                                     outConFile.write(line)
                                     outConFile.write('\n#***** LASER ALIGNMENT CONNECTION *****\n')
                                     if self.laserOnPin.text():
-                                        outConFile.write('net plasmac:laser-on qtplasmac.laser_on => {}\n'.format(self.laserOnPin.text()))
+                                        outConFile.write('net plasmac:laser-on => {}\n'.format(self.laserOnPin.text()))
                                     else:
-                                        outConFile.write('# net plasmac:laser-on qtplasmac.laser_on => {YOUR_LASER_ON_OUTPUT}\n\n')
+                                        outConFile.write('# net plasmac:laser-on => {YOUR_LASER_ON_OUTPUT}\n\n')
                                 else:
                                     outConFile.write(line)
                 elif line.startswith('HALFILE'):
