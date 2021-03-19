@@ -1,4 +1,4 @@
-VERSION = '1.0'
+VERSION = '1.0.1'
 
 import os, sys
 from shutil import copy as COPY
@@ -3384,7 +3384,7 @@ class HandlerClass:
             if not hal.component_exists('pmx485'):
                 port = self.iniFile.find('QTPLASMAC', 'PM_PORT')
                 try:
-                    Popen('halcmd loadusr -Wn pmx485 ./qtplasmac/pmx485.py {}'.format(port), stdout = PIPE, shell = True)
+                    Popen('halcmd loadusr -Wn pmx485 pmx485 {}'.format(port), stdout = PIPE, shell = True)
                     timeout = time.time() + 3
                     while 1:
                         time.sleep(0.1)

@@ -909,6 +909,11 @@ class Configurator(QMainWindow, object):
                 outFile.write('net plasmac:scribe-on  plasmac.scribe-on  => {}\n'.format(self.scribeOnPin.text()))
             else:
                 outFile.write('# net plasmac:scribe-on  plasmac.scribe-on  => {YOUR_SCRIBE_ON_OUTPUT}\n')
+            outFile.write('\n#***** LASER ALIGNMENT CONNECTION *****\n')
+            if self.laserOnPin.text():
+                outFile.write('net plasmac:laser-on qtplasmac.laser_on => {}\n'.format(self.laserOnPin.text()))
+            else:
+                outFile.write('# net plasmac:laser-on qtplasmac.laser_on => {YOUR_LASER_ON_OUTPUT}\n')
             outFile.write('\n#***** PUT YOUR CUSTOM CONNECTION BELOW HERE *****\n')
         return True
 
@@ -1144,10 +1149,22 @@ class Configurator(QMainWindow, object):
                         outFile.write('# {}'.format(line))
                 elif ':scribe-on' in line:
                     if self.scribeOnPin.text():
-                        if self.oldscribeOnPin != self.scribeOnPin.text():
-                            a, b = line.strip('#').strip().split(self.oldscribeOnPin)
+                        if self.oldScribeOnPin != self.scribeOnPin.text():
+                            a, b = line.strip('#').strip().split(self.oldScribeOnPin)
                             outFile.write('{}{}{}\n'.format(a, self.scribeOnPin.text(), b))
-                            self.oldscribeOnPin = self.scribeOnPin.text()
+                            self.oldScribeOnPin = self.scribeOnPin.text()
+                        else:
+                            outFile.write('{}\n'.format(line.strip('#').strip()))
+                    elif line.startswith('#'):
+                        outFile.write(line)
+                    else:
+                        outFile.write('# {}'.format(line))
+                elif ':laser-on' in line:
+                    if self.laserOnPin.text():
+                        if self.oldLaserOnPin != self.laserOnPin.text():
+                            a, b = line.strip('#').strip().split(self.oldLaserOnPin)
+                            outFile.write('{}{}{}\n'.format(a, self.laserOnPin.text(), b))
+                            self.oldLaserOnPin = self.laserOnPin.text()
                         else:
                             outFile.write('{}\n'.format(line.strip('#').strip()))
                     elif line.startswith('#'):
@@ -1268,6 +1285,8 @@ class Configurator(QMainWindow, object):
         self.oldScribeArmPin = ''
         self.scribeOnPin.setText('')
         self.oldScribeOnPin = ''
+        self.laserOnPin.setText('')
+        self.oldLaserOnPin = ''
         self.pmPortName.setText('')
         self.oldPmPortName = ''
         self.laserX.setText('')
@@ -1322,9 +1341,13 @@ class Configurator(QMainWindow, object):
                     if not line.strip().startswith('#'):
                         self.scribeArmPin.setText(self.oldScribeArmPin)
                 elif ':scribe-on' in line:
-                    self.oldscribeOnPin = (line.strip().split(' ')[-1].strip())
+                    self.oldScribeOnPin = (line.strip().split(' ')[-1].strip())
                     if not line.strip().startswith('#'):
-                        self.scribeOnPin.setText(self.oldscribeOnPin)
+                        self.scribeOnPin.setText(self.oldScribeOnPin)
+                elif ':laser-on' in line:
+                    self.oldLaserOnPin = (line.strip().split(' ')[-1].strip())
+                    if not line.strip().startswith('#'):
+                        self.laserOnPin.setText(self.oldLaserOnPin)
         # except:
         #     self.iniFile.setText('')
         #     self.dialog_ok(
@@ -1583,6 +1606,10 @@ class Configurator(QMainWindow, object):
             self.laserHBox.addWidget(self.laserY)
             self.laserVBox.addWidget(laserLabel)
             self.laserVBox.addLayout(self.laserHBox)
+            laserOnLabel = QLabel('Laser On HAL pin: (bit output)')
+            self.laserOnPin = QLineEdit()
+            self.laserVBox.addWidget(laserOnLabel)
+            self.laserVBox.addWidget(self.laserOnPin)
             self.vBR.addLayout(self.laserVBox)
             self.cameraVBox = QVBoxLayout()
             cameraLabel = QLabel('Camera Alignment: (X and Y offsets)')
@@ -1601,7 +1628,7 @@ class Configurator(QMainWindow, object):
             for widget in [self.aspectLabel, iniLabel, halLabel, self.modeLabel, self.arcVoltLabel, \
                            self.arcOkLabel, torchLabel, self.moveUpLabel, self.moveDownLabel, \
                            self.estopLabel, floatLabel, breakLabel, ohmicInLabel, ohmicOutLabel, \
-                           scribeArmLabel, scribeOnLabel, pmPortLabel, laserLabel, cameraLabel]:
+                           scribeArmLabel, scribeOnLabel, pmPortLabel, laserLabel, laserOnLabel, cameraLabel]:
                 widget.setFixedHeight(24)
                 widget.setAlignment(Qt.AlignBottom)
         blank = QLabel(' ')

@@ -135,6 +135,10 @@ class Converter(QMainWindow, object):
         laserHBox.addWidget(laserYLabel)
         laserHBox.addWidget(self.laserY)
         vBox.addLayout(laserHBox)
+        laserOnLabel = QLabel('Laser On HAL pin: (bit output)')
+        vBox.addWidget(laserOnLabel)
+        self.laserOnPin = QLineEdit()
+        vBox.addWidget(self.laserOnPin)
         vSpace4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vBox.addItem(vSpace4)
         cameraLabel = QLabel('CAMERA ALIGNMENT:   (leave blank if not required)')
@@ -360,6 +364,18 @@ class Converter(QMainWindow, object):
                     newConnectionsFile = '{}_connections.hal'.format(newName)
                     halFiles.append(newConnectionsFile)
                     COPY('{}/{}'.format(oldDir, oldConnectionsFile), '{}/{}'.format(newDir, newConnectionsFile))
+                    with open('{}/{}'.format(newDir, newConnectionsFile), 'w') as outConFile:
+                        with open('{}/{}'.format(oldDir, oldConnectionsFile), 'r') as inConFile:
+                            for line in inConFile:
+                                if 'plasmac:torch-on' in line:
+                                    outConFile.write(line)
+                                    outConFile.write('\n#***** LASER ALIGNMENT CONNECTION *****\n')
+                                    if self.laserOnPin.text():
+                                        outConFile.write('net plasmac:laser-on qtplasmac.laser_on => {}\n'.format(self.laserOnPin.text()))
+                                    else:
+                                        outConFile.write('# net plasmac:laser-on qtplasmac.laser_on => {YOUR_LASER_ON_OUTPUT}\n\n')
+                                else:
+                                    outConFile.write(line)
                 elif line.startswith('HALFILE'):
                     if 'plasmac.tcl' in line:
                         halFiles.append('plasmac.tcl')
