@@ -1,4 +1,4 @@
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 import os, sys
 from shutil import copy as COPY
@@ -452,8 +452,8 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:cornerlock-is-locked', 'plasmac.cornerlock-is-locked', 'qtplasmac.led_corner_lock'])
         CALL(['halcmd', 'net', 'plasmac:float-switch-out', 'qtplasmac.led_float_switch'])
         CALL(['halcmd', 'net', 'plasmac:kerfcross-is-locked', 'plasmac.kerfcross-is-locked', 'qtplasmac.led_kerf_lock'])
-        CALL(['halcmd', 'net', 'plasmac:move-up', 'plasmac.led-up', 'qtplasmac.led_thc_up'])
-        CALL(['halcmd', 'net', 'plasmac:move-down', 'plasmac.led-down', 'qtplasmac.led_thc_down'])
+        CALL(['halcmd', 'net', 'plasmac:led-up', 'plasmac.led-up', 'qtplasmac.led_thc_up'])
+        CALL(['halcmd', 'net', 'plasmac:led-down', 'plasmac.led-down', 'qtplasmac.led_thc_down'])
         CALL(['halcmd', 'net', 'plasmac:ohmic-probe-out', 'qtplasmac.led_ohmic_probe'])
         CALL(['halcmd', 'net', 'plasmac:thc-active', 'plasmac.thc-active', 'qtplasmac.led_thc_active'])
         CALL(['halcmd', 'net', 'plasmac:thc-enabled', 'plasmac.thc-enabled', 'qtplasmac.led_thc_enabled'])
