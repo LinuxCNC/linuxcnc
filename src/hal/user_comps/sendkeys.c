@@ -137,7 +137,6 @@ int init(int argc, char* argv[]){
                 ptr++;;
             }
             me->num_insts = index + 1;
-            rtapi_print("sendkeys: inst %i codes %i triggers %i\n", me->num_insts, codes[index], pins[index]);
             break;
         case 2: //  Parsing of "names" would be here, but is not enabled yet
             while (argv[i][ptr]){
