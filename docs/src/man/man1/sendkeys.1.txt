@@ -7,7 +7,7 @@ sendkeys - send input events based on pins or scancodes from HAL
 
 == SYNOPSIS
 
-*loadrt sendkeys config=s8t5, 16, t12*
+*loadusr sendkeys config=s8t5, 16, t12*
 
 == DESCRIPTION
 
