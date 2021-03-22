@@ -1,4 +1,4 @@
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 
 import os, sys
 from shutil import copy as COPY
@@ -148,6 +148,7 @@ class HandlerClass:
         self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
+        hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
         self.maxHeight = self.zMax - self.zMin
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
