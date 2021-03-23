@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options" native="true">
+     <widget class="ScreenOptions" name="screen_options">
       <property name="styleSheet">
        <string notr="true"/>
       </property>
@@ -104,7 +104,7 @@
        </color>
       </property>
       <property name="closeDialog_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="close_overlay_color" stdset="0">
        <color alpha="128">
@@ -468,7 +468,7 @@
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="GCodeGraphics" name="gcodegraphics" native="true">
+                         <widget class="GCodeGraphics" name="gcodegraphics">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                             <horstretch>0</horstretch>
@@ -893,7 +893,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager" native="true">
+                      <widget class="FileManager" name="filemanager">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                          <horstretch>0</horstretch>
@@ -1137,7 +1137,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="GcodeEditor" name="gcode_editor" native="true">
+                      <widget class="GcodeEditor" name="gcode_editor">
                        <property name="auto_show_mdi_status" stdset="0">
                         <bool>false</bool>
                        </property>
@@ -1477,7 +1477,7 @@ EDGE</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="CamView" name="camview" native="true"/>
+                         <widget class="CamView" name="camview"/>
                         </item>
                        </layout>
                       </widget>
@@ -3421,7 +3421,7 @@ ON</string>
                            </widget>
                           </item>
                           <item>
-                           <widget class="LED" name="led_arc_ok" native="true">
+                           <widget class="LED" name="led_arc_ok">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -3437,7 +3437,7 @@ ON</string>
                             <property name="statusTip">
                              <string>Arc OK signal</string>
                             </property>
-                            <property name="color" stdset="0">
+                            <property name="color">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -3878,7 +3878,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_torch_on" native="true">
+                        <widget class="LED" name="led_torch_on">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -3894,7 +3894,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Torch on status</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4180,7 +4180,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_kerf_lock" native="true">
+                        <widget class="LED" name="led_kerf_lock">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4196,7 +4196,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Void anti dive is active</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4429,7 +4429,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_corner_lock" native="true">
+                        <widget class="LED" name="led_corner_lock">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4445,7 +4445,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Velocity anti dive is active</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4694,7 +4694,7 @@ ON</string>
                         <number>4</number>
                        </property>
                        <item row="0" column="0">
-                        <widget class="LED" name="led_float_switch" native="true">
+                        <widget class="LED" name="led_float_switch">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4710,7 +4710,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Float switch status</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4745,7 +4745,7 @@ ON</string>
                         </widget>
                        </item>
                        <item row="1" column="0">
-                        <widget class="LED" name="led_ohmic_probe" native="true">
+                        <widget class="LED" name="led_ohmic_probe">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4761,7 +4761,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Ohmic probe status</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4796,7 +4796,7 @@ ON</string>
                         </widget>
                        </item>
                        <item row="2" column="0">
-                        <widget class="LED" name="led_breakaway_switch" native="true">
+                        <widget class="LED" name="led_breakaway_switch">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4812,7 +4812,7 @@ ON</string>
                          <property name="statusTip">
                           <string>Breakaway switch status</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -5019,7 +5019,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_up" native="true">
+                        <widget class="LED" name="led_thc_up">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -5035,7 +5035,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is moving the Z axis up</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -5108,7 +5108,7 @@ ON</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_enabled" native="true">
+                        <widget class="LED" name="led_thc_enabled">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -5124,7 +5124,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is enabled</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -5168,7 +5168,7 @@ ON</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_down" native="true">
+                        <widget class="LED" name="led_thc_down">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -5184,7 +5184,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is moving the Z axis down</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -5257,7 +5257,7 @@ ON</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_active" native="true">
+                        <widget class="LED" name="led_thc_active">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -5273,7 +5273,7 @@ ON</string>
                          <property name="statusTip">
                           <string>THC is currently active</string>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -6891,7 +6891,7 @@ ON</string>
                             <number>0</number>
                            </property>
                            <item>
-                            <widget class="MDIHistory" name="mdihistory" native="true">
+                            <widget class="MDIHistory" name="mdihistory">
                              <property name="soft_keyboard_option" stdset="0">
                               <bool>false</bool>
                              </property>
@@ -9014,7 +9014,7 @@ HOME ALL</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="GCodeGraphics" name="conv_preview" native="true"/>
+                        <widget class="GCodeGraphics" name="conv_preview"/>
                        </item>
                       </layout>
                      </widget>
