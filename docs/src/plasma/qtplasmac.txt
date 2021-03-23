@@ -1220,9 +1220,9 @@ QtPlasmaC will automatically add a line of G-Code to move the Z axis to the corr
 
 === Mandatory Codes
 
-Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-Code syntax for QtPlasmaC to run a G-Code program is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
+Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-Code syntax for QtPlasmaC to run a G-Code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
 
-If the user is using QtPlasmaC without <<qt_multi-tool, multiple tools>> enabled then it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0*.
+For backwards compatibility it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0* to end a cutting job. Note that this applies to cutting jobs only, for scribe and spotting jobs the *$n* tool identifier is mandatory.
 
 === Coordinates
 
@@ -1371,33 +1371,33 @@ Using this feature will cause all motion to pause at the end of the cut while th
 
 === Multiple Tools
 
-QtPlasmaC has the ability to allow the use of more than one tool when running a cut program. Multiple tools must be enabled in QtPlasmaC before they can be used. Valid tools are:
+QtPlasmaC has the ability to allow the use of more than one type of tool when running a G-Code program.
 
-* Plasma Torch - Used for normal Plasma cutting.
-* Scribe - Used for material engraving.
-* Plasma Torch - Used for spotting (creating dimples to aid in drilling).
+Valid tools for use are:
 
-If multiple tools are enabled then a LinuxCNC tool number (designated by $n) is required to be in the *M3* command to select the correct tool to be used. Examples:
+[width="100%",cols="3,2,10"]
+|===
+|*Name*|*TOOL #*|*Description*
+|Plasma Torch|0|Used for normal Plasma cutting.
+|Scribe|1|Used for material engraving.
+|Plasma Torch|2|Used for spotting (creating dimples to aid in drilling).
+|===
+
+A LinuxCNC tool number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct tool. Examples:
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
 * *M3 $1 S1* will select and start the scribe.
 * *M3 $2 S1* will select and the plasma spotting tool.
 
-To enable the multiple tools feature the user will need to edit the following line in the <machine_name>_connections.hal file.
 
-from:
+* *M5 $0* will stop the plasma cutting tool.
+* *M5 $1* will stop the scribe.
+* *M5 $2* will stop the plasma spotting tool.
 
-----
-setp plasmac.multi-tool 0
-----
+It is permissible to use *M5 $-1* in lieu of the M5 $n codes above to stop all tools.
 
-to:
 
-----
-setp plasmac.multi-tool 1
-----
-
-In order to use multiple tools with a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table. The tool.tbl file is found in the <machine_name> config folder. Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool. It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe, scribe>> in addition to a plasma torch. For more information, see <<qt_scribe, scribe>>.
+In order to use a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table. The tool.tbl file is found in the <machine_name> config folder. Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool. It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe, scribe>> in addition to a plasma torch. For more information, see <<qt_scribe, scribe>>.
 
 [[qt_velocity-reduction]]
 
@@ -2064,7 +2064,7 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
 |*Name*|*Description*
 |USE LEADIN|This radio button will allow the user to start the selected line with a leadin.
 |LEADIN LENGTH|If USE LEADIN is selected, this will set the length of the lead in the machine units.
-|USE LEADIN|If USE LEADIN is selected, this will set the angle of approach for the leadin. +
+|LEADIN ANGLE|If USE LEADIN is selected, this will set the angle of approach for the leadin. +
             The angle is measured such that positive increases in value move the leadin counter-clockwise: +
             0 Degrees = 3 o'clock position +
             90 Degrees = 12 o'clock position +
@@ -2088,11 +2088,13 @@ After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinki
 
 === Scribe
 
-A scribe may be operated by QtPlasmaC in addition to the plasma torch. This ability is disabled by default so as not to adversely affect existing configurations. To enable scribing, see the <<qt_multi-tool, Multiple Tools>> section for guidance in editing the <machine_name>_connections.hal file.
+A scribe may be operated by QtPlasmaC in addition to the plasma torch.
 
 Using a scribe requires the use of the LinuxCNC tool table. Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the scribe. The scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table. This is done by editing the tool table via the main GUI, or by editing the *tool.tbl* file in the *<machine_name>* configuration directory. This will be done after the scribe can move to the work piece to help determine the appropriate offset.
 
 The plasma torch offsets for X and Y will always be zero. The tools are selected by the *Tn M6* command followed by a *G43 H0* command which is required to apply the offsets. The tool is then started with a *M3 $n S1* command. For *n*, use 0 for torch cutting or 1 for scribing.
+
+To stop the scribe, use the G-Code command *M5 $1*.
 
 If the user has not yet assigned the HAL pins for the scribe in the qtplasmac-setup program then they will need to do so by invoking the <<qt_modify-config, reconfigure>> mode of the qtplasmac-setup program.
 
@@ -2150,7 +2152,9 @@ Spotting can be configured by following these steps:
 
 The torch is then turned on in G-Code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
 
-To enable spotting, see <<qt_multi-tool, multiple tools>>.
+To turn the torch off, use the G-Code command *M5 $2*.
+
+For more information on multiple tools, see <<qt_multi-tool, multiple tools>>.
 
 LinuxCNC (QtPlasmaC) requires some motion between any *M3* and *M5* commands. For this reason, a minimal movement at a high speed is required to be programmed.
 
