@@ -344,7 +344,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
+            try:
+                answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
@@ -352,6 +353,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  focus_text='',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
+            except:
+                answer = True
             # system shutdown
             if answer == -1:
                 if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
