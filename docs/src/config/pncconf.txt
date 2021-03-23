@@ -165,6 +165,12 @@ AXIS
 * has a 3D graphical window.
 * allows VCP integrated on the side or in center tab
 
+TkLinuxCNC
+
+* hi contrast bright blue screen
+* separate graphics window
+* no VCP integration
+
 TOUCHY
 
 * Touchy was designed to be used with a touchscreen, some minimal 
@@ -176,16 +182,10 @@ TOUCHY
 * has no graphical window
 * look can be changed with custom themes
 
-MINI
+QtPlasmaC
 
-* standard on OEM Sherline machines
-* does not use Estop
-* no VCP integration
-
-TkLinuxCNC
-
-* hi contrast bright blue screen   
-* separate graphics window
+* fully featured plasmac configuration based on the QtVCP infrastructure.
+* mouse/keybord operation or touchscreen operation
 * no VCP integration
 
 == External Configuration
@@ -266,6 +266,11 @@ There are a list of the current themes on the computer that you can pick from.
 To help some of the text to stand out PNCconf allows you to override the 
 Themes's defaults. The position and force max options can be used to move Touchy
 to a second monitor if the system is capable.
++
+QtPlasmaC options are specific to QtPlasmac, any common options that are not
+required will be disabled.
+If QtPlasmac is selected than the following screen will be a user button setup
+screen that is specific to QtPlasmaC and VCP options will not be available.
 
 VCP options::
 

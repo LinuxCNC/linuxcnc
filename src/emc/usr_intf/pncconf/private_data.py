@@ -40,6 +40,7 @@ class Private_Data:
                                 ['base',_('Base Information'),True,True],
                                 ['screen',_('Screen'),True,True],
                                 ['vcp',_('VCP'),True,True],
+                                ['ubuttons',_('QtPlasmaC User Buttons'),True,True],
                                 ['external',_('External Controls'),True,True],
                                 ['mesa0',_('Mesa Card 0'),False,True],
                                 ['mesa1',_('Mesa Card 1'),False,True],
@@ -65,6 +66,7 @@ class Private_Data:
         self._GMOCCAPY = 3
         self._TOUCHY = 4
         self._QTDRAGON = 5
+        self._QTPLASMAC = 6
 
         self._SSCOMBOLEN = 60
         self._IMPERIAL = 0
@@ -174,7 +176,8 @@ class Private_Data:
             S.Y_HALL1_OUT,S.Y_HALL2_OUT,S.Y_HALL3_OUT,S.Y_C1_OUT,S.Y_C2_OUT,S.Y_C4_OUT,S.Y_C8_OUT,
             S.Z_HALL1_OUT,S.Z_HALL2_OUT,S.Z_HALL3_OUT,S.Z_C1_OUT,S.Z_C2_OUT,S.Z_C4_OUT,S.Z_C8_OUT,
             S.A_HALL1_OUT,S.A_HALL2_OUT,S.A_HALL3_OUT,S.A_C1_OUT,S.A_C2_OUT,S.A_C4_OUT,S.A_C8_OUT,
-            S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT
+            S.S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT,
+            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON
         ) = self.hal_output_names = [
             "unused-output", 
             "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
@@ -185,7 +188,8 @@ class Private_Data:
             "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
             "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
             "a-hall1-out","a-hall2-out","a-hall3-out","a-gray-c1-out","a-gray-c2-out","a-gray-C4-out","a-gray-C8-out",
-            "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out", ]
+            "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out",
+            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on"]
 
         ###
         (   S.UNUSED_INPUT,
@@ -216,7 +220,8 @@ class Private_Data:
             S.HOME_X2,S.HOME_Y2,S.HOME_Z2,S.HOME_A2,S.ALL_HOME,
             S.MIN_HOME_X2,S.MIN_HOME_Y2,S.MIN_HOME_Z2,S.MIN_HOME_A2,
             S.MAX_HOME_X2,S.MAX_HOME_Y2,S.MAX_HOME_Z2,S.MAX_HOME_A2,
-            S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2
+            S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2,
+            S.ARC_VOLTS,S.ARC_OK,S.OHMIC_PROBE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
         ) = self.hal_input_names = [
             "unused-input",
             "min-x", "min-y", "min-z", "min-a",
@@ -247,7 +252,9 @@ class Private_Data:
             "home-x2", "home-y2", "home-z2", "home-a2","all-home",
             "min-home-x2", "min-home-y2", "min-home-z2", "min-home-a2",
             "max-home-x2", "max-home-y2", "max-home-z2", "max-home-a2",
-            "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2"]
+            "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2",
+            "plasmac:arc-voltage-in", "plasmac:arc-ok-in", "plasmac:ohmic-probe", "plasmac:float-switch",
+            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down"]
 
         (   S.UNUSED_PWM,
             S.X_PWM_PULSE,S.X_PWM_DIR,S.X_PWM_ENABLE,  S.Y_PWM_PULSE,S.Y_PWM_DIR,S.Y_PWM_ENABLE,
@@ -278,6 +285,7 @@ class Private_Data:
             S.Y2_ENCODER_A,S.Y2_ENCODER_B,S.Y2_ENCODER_I,S.Y2_ENCODER_M,
             S.Z2_ENCODER_A,S.Z2_ENCODER_B,S.Z2_ENCODER_I,S.Z2_ENCODER_M,
             S.A2_ENCODER_A,S.A2_ENCODER_B,S.A2_ENCODER_I,S.A2_ENCODER_M,
+            S.ARC_VOLT_ENC_A,S.ARC_VOLT_ENC_B,S.ARC_VOLT_ENC_I,S.ARC_VOLT_ENC_M,
         )  = self.hal_encoder_input_names = [
              "unused-encoder",
             "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
@@ -293,7 +301,8 @@ class Private_Data:
             "x2-encoder-a", "x2-encoder-b", "x2-encoder-i", "x2-encoder-m",
             "y2-encoder-a", "y2-encoder-b", "y2-encoder-i", "y2-encoder-m",
             "z2-encoder-a", "z2-encoder-b", "z2-encoder-i", "z2-encoder-m",
-            "a2-encoder-a", "a2-encoder-b", "a2-encoder-i", "a2-encoder-m",]
+            "a2-encoder-a", "a2-encoder-b", "a2-encoder-i", "a2-encoder-m",
+            "arc-volt-enc-a", "arc-volt-enc-b", "arc-volt-enc-i", "arc-volt-enc-m", ]
 
         (   S.USED_RESOLVER,S.X_RESOLVER,S.Y_RESOLVER,
                 S.Z_RESOLVER,S.A_RESOLVER,S.S_RESOLVER
@@ -447,14 +456,17 @@ class Private_Data:
         blimits = [[_("Main Axis"),limit],[_("Tandem Axis"),limit2]]
         bhome = [[_("Main Axis"),home],[_("Tandem Axis"),home2]]
         bshared = [[_("Main Axis"),home_limits_shared],[_("Tandem Axis"),home_limits_shared2]]
+        plasma_in = [[_("Arc Voltage"),S.ARC_VOLTS ], [_("Arc OK"),S.ARC_OK ], [_("Ohmic Probe"),S.OHMIC_PROBE ], [_("Float Switch"),S.FLOAT_SWITCH ],
+                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
+
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],
             [_("home"),bhome],[_("Limts/Home Shared"),bshared],
             [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],
             [_("Spindle"),spindle],[_("Operation"),operation],[_("External Control"),control],
             [_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
             [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
-            [_("A BLDC Control"),amotor_control],
-            [_("S BLDC Control"),smotor_control],[_("Custom Signals"),[]] ]
+            [_("A BLDC Control"),amotor_control],[_("S BLDC Control"),smotor_control],
+            [_("Plasma"),plasma_in],[_("Custom Signals"),[]] ]
         #
         tpwm = [[_("X2 Tandem PWM"), S.X2_PWM_PULSE], [_("Y2 Tandem PWM"), S.Y2_PWM_PULSE],
              [_("Z2 Tandem PWM"), S.Z2_PWM_PULSE], [_("A2 Tandem PWM"), S.A2_PWM_PULSE]]
@@ -485,10 +497,11 @@ class Private_Data:
                  [_("Z Hand Wheel"), S.Z_MPG_A], [_("A Hand Wheel"), S.A_MPG_A],
                  [_("Multi Hand Wheel"), S.SELECT_MPG_A]]
         over = [[_("Feed Override"),  S.FO_MPG_A], [_("spindle Override"),  S.SO_MPG_A],[_("Max Vel Override"),  S.MVO_MPG_A]]
+        thcad = [[_("Arc Voltage"), S.ARC_VOLT_ENC_A]]
         tandem_enc = [[_("Main Axis"),axis],[_("Tandem Axis"),taxis]]
         self.human_encoder_input_names = [ [_("Unused Encoder"), S.UNUSED_ENCODER],[_("Axis Encoder"), tandem_enc],
-             [_("Spindle Encoder"), S.SPINDLE_ENCODER_A], [_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
-            [_("Custom Signals"),[]] ]
+            [_("Spindle Encoder"), S.SPINDLE_ENCODER_A], [_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
+            [_("Plasma Encoder"), thcad], [_("Custom Signals"),[]] ]
 
         # These have two levels of columns
         self.human_notused_names = [ [_("Unused Unused"),[] ] ]
@@ -508,13 +521,14 @@ class Private_Data:
                 _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
         smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
                 _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
+        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On")]
 
         self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],
             [_("Coolant"),coolant_output],[_("Control"),control_output],
             [_("Digital"),digital_output],[_("X BLDC Control"),xmotor_control],
             [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
             [_("A BLDC Control"),amotor_control],[_(" S BLDC Control"),smotor_control,],
-            [_("Custom Signals"),[]]  ]
+            [_("Plasma"),plasma_out],[_("Custom Signals"),[]]  ]
 
         self.human_8i20_input_names =[ [_("Unused 8I20"),[]],[_("X Axis"), []],[_("Y Axis"), []],[_("Z Axis"), []],
             [_("A Axis"), []],[_("Spindle"), []],[_("Custom Signals"),[]] ]

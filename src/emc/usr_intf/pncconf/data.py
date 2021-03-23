@@ -310,6 +310,22 @@ class Data:
         self.touchydtgcolor = "default"
         self.touchyerrcolor = "default"
 
+        # QtPlasmaC
+        self.qtplasmacmode = 0
+        self.qtplasmacscreen = 0
+        self.qtplasmacestop = 0
+        self.qtplasmacxcam = 0.0
+        self.qtplasmacycam = 0.0
+        self.qtplasmacxlaser = 0.0
+        self.qtplasmacylaser = 0.0
+        self.qtplasmacpmx = ""
+        self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
+        self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
+        self.qtplasmac_bnames = ["PROBE\TEST","OHMIC\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE", \
+                                 "","","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["probe-test 10","ohmic-test","single-cut","cut-type","torch-pulse 0.5", \
+                                 "","","","","","","","","","","","","","",""]
+
         # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True
         self.multimpg = False

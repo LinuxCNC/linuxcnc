@@ -317,6 +317,24 @@ class App:
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
+        # link to qtplasmac common directory
+        if self.d.frontend == _PD._QTPLASMAC:
+            if BASE == "/usr":
+                commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
+            else:
+                commonPath = '{}/configs/by_machine/qtplasmac/qtplasmac/'.format(BASE)
+            oldDir = '{}/qtplasmac'.format(base)
+            if os.path.islink(oldDir):
+                os.unlink(oldDir)
+            elif os.path.exists(oldDir):
+                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
+            os.symlink(commonPath, '{}/qtplasmac'.format(base))
+            # different tool table for plasmac
+            filename = os.path.join(base, "tool.tbl")
+            file = open(filename, "w")
+            print("T0 P1 X0 Y0 ;torch", file=file)
+            print("T1 P2 X0 Y0 ;scribe", file=file)
+            file.close()
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_FINISH_QUIT,False):
             gtk.main_quit()
@@ -2298,7 +2316,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                    _PD.TXEN2,_PD.TXDATA3,_PD.RXDATA3,_PD.TXEN3,_PD.TXDATA4,_PD.RXDATA4,_PD.TXEN4,
                                   _PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5,_PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6,_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7 ):
                     index2 = 0
-                #print index,index2,signaltocheck[index+index2]
+                #print(index,index2,signaltocheck[index+index2])
                 self.d[p] = signaltocheck[index+index2]
                 self.d[ptype] = widgetptype
                 self.d[pinv] = self.widgets[pinv].get_active()

@@ -10,6 +10,7 @@ PYTARGETS += ../bin/pncconf  ../lib/python/pncconf/__init__.py $(patsubst %,../l
 	../share/linuxcnc/pncconf/base.glade \
 	../share/linuxcnc/pncconf/screen.glade \
 	../share/linuxcnc/pncconf/vcp.glade \
+	../share/linuxcnc/pncconf/ubuttons.glade \
 	../share/linuxcnc/pncconf/x_axis.glade \
 	../share/linuxcnc/pncconf/x_motor.glade \
 	../share/linuxcnc/pncconf/y_axis.glade \
@@ -36,6 +37,7 @@ PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py $(patsubst %,emc/usr_intf/pncconf/
 	emc/usr_intf/pncconf/base.glade \
 	emc/usr_intf/pncconf/screen.glade \
 	emc/usr_intf/pncconf/vcp.glade \
+	emc/usr_intf/pncconf/ubuttons.glade \
 	emc/usr_intf/pncconf/x_axis.glade \
 	emc/usr_intf/pncconf/x_motor.glade \
 	emc/usr_intf/pncconf/y_axis.glade \
@@ -105,6 +107,11 @@ PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py $(patsubst %,emc/usr_intf/pncconf/
 	$(Q)cp -f $< $@
 
 ../share/linuxcnc/pncconf/vcp.glade: emc/usr_intf/pncconf/vcp.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pncconf/ubuttons.glade: emc/usr_intf/pncconf/ubuttons.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@

@@ -80,7 +80,11 @@ class HAL:
             else: theme = " -t "+theme
             print("loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo), file=file)
         print("loadrt [KINS]KINEMATICS", file=file)
-        print("loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS", file=file)
+        # qtplasmac requires 3 spindles
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES", file=file)
+        else:
+            print("loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS", file=file)
         # pre process mesa commands
         mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string(substitution = self.d.useinisubstitution)
         if self.d.number_pports:
@@ -348,6 +352,10 @@ class HAL:
             print(file=file)
             print("net x-enable                                 => " + steppinname +".enable", file=file)
 
+        # do the qtplasmac connection
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.qtplasmac_connections(file)
+
         print(file=file)
         self.connect_output(file)              
         print(file=file)
@@ -399,56 +407,59 @@ class HAL:
                 jnum += 1
                 self.connect_joint(file, jnum, 'a2')
 
-        # usually add Spindle ##################
-        if self.d.include_spindle:
-            self.connect_joint(file, 0, 's') # 9 for [SPINDLE_9]
 
-        print(file=file)
-        print("#******************************", file=file)
-        print(_("# connect miscellaneous signals"), file=file) 
-        print("#******************************", file=file)
-        print(file=file)
-        print(_("#  ---HALUI signals---"), file=file)
-        print(file=file)
+        # qtplasmac doesn't require these:
+        if self.d.frontend != _PD._QTPLASMAC:
+            # usually add Spindle ##################
+            if self.d.include_spindle:
+                self.connect_joint(file, 0, 's') # 9 for [SPINDLE_9]
 
-        jnum = 0
-        for axletter in axis_convert:
-            if axletter in self.d.available_axes:
-                # support for KINEMATICS_IDENTITY kins only 
-                # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
-                #             (axis gui does this for joints_axes)
-                print("net axis-select-%s  halui.axis.%s.select"% (axletter,axletter), file=file)
-                print("net jog-%s-pos      halui.axis.%s.plus"% (axletter,axletter), file=file)
-                print("net jog-%s-neg      halui.axis.%s.minus"% (axletter,axletter), file=file)
-                print("net jog-%s-analog   halui.axis.%s.analog"% (axletter,axletter), file=file)
-
-                # joints only items (no corresponding axis item):
-                print("net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum), file=file)
-                jnum = jnum + 1 # expect joints in sequence (like trivkins)
-
-        print("net jog-selected-pos      halui.axis.selected.plus", file=file)
-        print("net jog-selected-neg      halui.axis.selected.minus", file=file)
-        print("net spindle-manual-cw     halui.spindle.0.forward", file=file)
-        print("net spindle-manual-ccw    halui.spindle.0.reverse", file=file)
-        print("net spindle-manual-stop   halui.spindle.0.stop", file=file)
-        print("net machine-is-on         halui.machine.is-on", file=file)
-        print("net jog-speed             halui.axis.jog-speed", file=file)
-        print("net MDI-mode              halui.mode.is-mdi", file=file)
-        print(file=file)
-        if pump:    
-            print(_("#  ---charge pump signals---"), file=file)
-            print("net estop-out       =>  charge-pump.enable", file=file)
-            print("net charge-pump     <=  charge-pump.out", file=file)
             print(file=file)
-        print(_("#  ---coolant signals---"), file=file)
-        print(file=file)
-        print("net coolant-mist      <=  iocontrol.0.coolant-mist", file=file)
-        print("net coolant-flood     <=  iocontrol.0.coolant-flood", file=file)
-        print(file=file)
-        print(_("#  ---probe signal---"), file=file)
-        print(file=file)
-        print("net probe-in     =>  motion.probe-input", file=file)
-        print(file=file)
+            print("#******************************", file=file)
+            print(_("# connect miscellaneous signals"), file=file) 
+            print("#******************************", file=file)
+            print(file=file)
+            print(_("#  ---HALUI signals---"), file=file)
+            print(file=file)
+
+            jnum = 0
+            for axletter in axis_convert:
+                if axletter in self.d.available_axes:
+                    # support for KINEMATICS_IDENTITY kins only 
+                    # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
+                    #             (axis gui does this for joints_axes)
+                    print("net axis-select-%s  halui.axis.%s.select"% (axletter,axletter), file=file)
+                    print("net jog-%s-pos      halui.axis.%s.plus"% (axletter,axletter), file=file)
+                    print("net jog-%s-neg      halui.axis.%s.minus"% (axletter,axletter), file=file)
+                    print("net jog-%s-analog   halui.axis.%s.analog"% (axletter,axletter), file=file)
+
+                    # joints only items (no corresponding axis item):
+                    print("net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum), file=file)
+                    jnum = jnum + 1 # expect joints in sequence (like trivkins)
+
+            print("net jog-selected-pos      halui.axis.selected.plus", file=file)
+            print("net jog-selected-neg      halui.axis.selected.minus", file=file)
+            print("net spindle-manual-cw     halui.spindle.0.forward", file=file)
+            print("net spindle-manual-ccw    halui.spindle.0.reverse", file=file)
+            print("net spindle-manual-stop   halui.spindle.0.stop", file=file)
+            print("net machine-is-on         halui.machine.is-on", file=file)
+            print("net jog-speed             halui.axis.jog-speed", file=file)
+            print("net MDI-mode              halui.mode.is-mdi", file=file)
+            print(file=file)
+            if pump:    
+                print(_("#  ---charge pump signals---"), file=file)
+                print("net estop-out       =>  charge-pump.enable", file=file)
+                print("net charge-pump     <=  charge-pump.out", file=file)
+                print(file=file)
+            print(_("#  ---coolant signals---"), file=file)
+            print(file=file)
+            print("net coolant-mist      <=  iocontrol.0.coolant-mist", file=file)
+            print("net coolant-flood     <=  iocontrol.0.coolant-flood", file=file)
+            print(file=file)
+            print(_("#  ---probe signal---"), file=file)
+            print(file=file)
+            print("net probe-in     =>  motion.probe-input", file=file)
+            print(file=file)
         if self.d.externaljog:
             print(_("# ---jog button signals---"), file=file)
             print(file=file)
@@ -704,21 +715,23 @@ class HAL:
                     value = self.d["soincrvalue%d"% i]
                     print("    setp soincr.in%02d          %f"% (i,value), file=file)
                 print(file=file)
-        print(_("#  ---motion control signals---"), file=file)
-        print(file=file)
-        print("net in-position               <=  motion.in-position", file=file)
-        print("net machine-is-enabled        <=  motion.motion-enabled", file=file)
-        print(file=file)
-        print(_("#  ---digital in / out signals---"), file=file)
-        print(file=file)
-        for i in range(4):
-            dout = "dout-%02d" % i
-            if self.a.findsignal(dout):
-                print("net %s     <=  motion.digital-out-%02d" % (dout, i), file=file)
-        for i in range(4):
-            din = "din-%02d" % i
-            if self.a.findsignal(din):
-                print("net %s     =>  motion.digital-in-%02d" % (din, i), file=file)
+        # qtplasmac doesn't require these:
+        if self.d.frontend != _PD._QTPLASMAC:
+            print(_("#  ---motion control signals---"), file=file)
+            print(file=file)
+            print("net in-position               <=  motion.in-position", file=file)
+            print("net machine-is-enabled        <=  motion.motion-enabled", file=file)
+            print(file=file)
+            print(_("#  ---digital in / out signals---"), file=file)
+            print(file=file)
+            for i in range(4):
+                dout = "dout-%02d" % i
+                if self.a.findsignal(dout):
+                    print("net %s     <=  motion.digital-out-%02d" % (dout, i), file=file)
+            for i in range(4):
+                din = "din-%02d" % i
+                if self.a.findsignal(din):
+                    print("net %s     =>  motion.digital-in-%02d" % (din, i), file=file)
         print(_("#  ---estop signals---"), file=file)
         print(file=file)
         print("net estop-out     <=  iocontrol.0.user-enable-out", file=file)
@@ -737,39 +750,46 @@ class HAL:
         else:
             print("net estop-out     =>  iocontrol.0.emc-enable-in", file=file)
         print(file=file)
-        if self.d.toolchangeprompt:
-            print(_("#  ---manual tool change signals---"), file=file)
-            print(file=file)
-            if not self.d.frontend == _PD._QTDRAGON:
-                print("loadusr -W hal_manualtoolchange", file=file)
-                print("net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change", file=file)
-                print("net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed", file=file)
-                print("net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number", file=file)
-
+        # qtplasmac doesn't require these:
+        if self.d.frontend != _PD._QTPLASMAC:
+            if self.d.toolchangeprompt:
+                print(_("#  ---manual tool change signals---"), file=file)
                 print(file=file)
-            else:
-                print("net tool-change-request     <= iocontrol.0.tool-change", file=file)
-                print("net tool-changed-confirmed  => iocontrol.0.tool-changed", file=file)
-                print("net tool-number             <= iocontrol.0.tool-prep-number", file=file)
-                qt = os.path.join(base, "qtvcp_postgui.hal")
-                if not os.path.exists(qt):
-                    f1 = open(qt, "w")
-                    print(_("#  ---manual tool change signals to qtdragon---"), file=file)
+                if not self.d.frontend == _PD._QTDRAGON:
+                    print("loadusr -W hal_manualtoolchange", file=file)
+                    print("net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change", file=file)
+                    print("net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed", file=file)
+                    print("net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number", file=file)
+
                     print(file=file)
-                    print("net tool-change  => hal_manualtoolchange.change", file=f1)
-                    print("net tool-changed <= hal_manualtoolchange.changed", file=f1)
-                    print("net tool-number  => hal_manualtoolchange.number", file=f1)
-                    f1.close()
-            print("net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared", file=file)
+                else:
+                    print("net tool-change-request     <= iocontrol.0.tool-change", file=file)
+                    print("net tool-changed-confirmed  => iocontrol.0.tool-changed", file=file)
+                    print("net tool-number             <= iocontrol.0.tool-prep-number", file=file)
+                    qt = os.path.join(base, "qtvcp_postgui.hal")
+                    if not os.path.exists(qt):
+                        f1 = open(qt, "w")
+                        print(_("#  ---manual tool change signals to qtdragon---"), file=file)
+                        print(file=file)
+                        print("net tool-change  => hal_manualtoolchange.change", file=f1)
+                        print("net tool-changed <= hal_manualtoolchange.changed", file=f1)
+                        print("net tool-number  => hal_manualtoolchange.number", file=f1)
+                        f1.close()
+                print("net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared", file=file)
+            else:
+                print(_("#  ---toolchange signals for custom tool changer---"), file=file)
+                print(file=file)
+                print("net tool-number             <=  iocontrol.0.tool-prep-number", file=file)
+                print("net tool-change-request     <=  iocontrol.0.tool-change", file=file)
+                print("net tool-change-confirmed   =>  iocontrol.0.tool-changed", file=file) 
+                print("net tool-prepare-request    <=  iocontrol.0.tool-prepare", file=file)
+                print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file) 
+                print(file=file)
+        # qtplasmac tool change passthrough
         else:
-            print(_("#  ---toolchange signals for custom tool changer---"), file=file)
-            print(file=file)
-            print("net tool-number             <=  iocontrol.0.tool-prep-number", file=file)
-            print("net tool-change-request     <=  iocontrol.0.tool-change", file=file)
-            print("net tool-change-confirmed   =>  iocontrol.0.tool-changed", file=file) 
-            print("net tool-prepare-request    <=  iocontrol.0.tool-prepare", file=file)
-            print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file) 
-            print(file=file)
+            print("\n# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---", file=file)
+            print("net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed", file=file)
+            print("net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared", file=file)
         if self.d.classicladder:
             print(file=file)
             if self.d.modbus:
@@ -1767,6 +1787,63 @@ class HAL:
                 i = self.d[pname+"_inv"]
                 if not p == "unused-output":
                     write_pins(pname,p,i,_PD.GPIOO,None,None,None,None,None)
+
+    # qtplasmac hal connections
+    def qtplasmac_connections(self, file):
+        print("\n# ---PLASMA INPUT DEBOUNCE---", file=file)
+        print("loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok", file=file)
+        print("addf db_float     servo-thread", file=file)
+        print("addf db_ohmic     servo-thread", file=file)
+        print("addf db_breakaway servo-thread", file=file)
+        print("addf db_arc-ok    servo-thread", file=file)
+        print("# for the float and ohmic inputs each increment in delay is", file=file)
+        print("# is a 0.001mm (0.00004\") increase in any probed height result", file=file)
+        print("setp db_float.delay     5", file=file)
+        print("setp db_ohmic.delay     5", file=file)
+        print("setp db_breakaway.delay 5", file=file)
+        print("setp db_arc-ok.delay    5", file=file)
+        print("\n# ---ARC VOLTAGE LOWPASS FILTER---", file=file)
+        print("# Only use this if comprehensive testing shows that it is required", file=file)
+        print("setp plasmac.lowpass-frequency 0", file=file)
+        print("\n# ---JOINT ASSOCIATED WITH THE Z AXIS---", file=file)
+        jnum = 0
+        tandemjoint = self.a.tandem_check('x')
+        if tandemjoint:
+            jnum += 1
+        jnum += 1
+        tandemjoint = self.a.tandem_check('y')
+        if tandemjoint:
+            jnum += 1
+        jnum += 1
+        print("net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position".format(jnum), file=file)
+        print("\n# ---PLASMA INPUTS---", file=file)
+        print("# ---all modes---", file=file)
+        print("net plasmac:float-switch   => db_float.in", file=file)
+        print("net plasmac:breakaway      => db_breakaway.in", file=file)
+        print("net plasmac:ohmic-probe    => db_ohmic.in", file=file)
+        print("# ---modes 0 & 1", file=file)
+        print("net plasmac:arc-voltage-in => plasmac.arc-voltage-in", file=file)
+        print("# ---modes 1 & 2", file=file)
+        print("net plasmac:arc-ok-in      => db_arc-ok.in", file=file)
+        print("# ---mode 2", file=file)
+        print("net plasmac:move-up        => plasmac.move-up", file=file)
+        print("net plasmac:move-down      => plasmac.move-down", file=file)
+        print("\n# ---PLASMA OUTPUTS---", file=file)
+        print("# ---all modes---", file=file)
+        print("net plasmac:ohmic-enable   <= plasmac.ohmic-enable", file=file)
+        print("net plasmac:scribe-arm     <= plasmac.scribe-arm", file=file)
+        print("net plasmac:scribe-on      <= plasmac.scribe-on", file=file)
+        # check for arc voltage encoder
+        pinname = self.a.make_pinname(self.a.findsignal("arc-volt-enc-a"), substitution = self.d.useinisubstitution)
+        if pinname:
+            ending = ""
+            if "enc" in pinname: ending = ".velocity"
+            print("\n# ---ARC VOLTAGE ENCODER---", file=file)
+            print("net plasmac:arc-voltage-in <= %s%s"% (pinname,ending), file=file)
+
+            print("setp {}.counter-mode  1".format(pinname), file=file)
+            print("setp {}.filter        1".format(pinname), file=file)
+            print("setp {}.scale        -1".format(pinname), file=file)
 
 # BOILER CODE
     def __getitem__(self, item):
