@@ -9,6 +9,7 @@ STEPCONF_GLADEFILES := \
 	spindle.glade \
 	options.glade \
 	halui_page.glade \
+	ubuttons.glade \
 	axisx.glade \
 	axisy.glade \
 	axisz.glade \

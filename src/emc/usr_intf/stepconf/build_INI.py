@@ -65,6 +65,10 @@ class INI:
         # will try to update for joints_axes if no VERSION is set
         print("VERSION = 1.1", file=file)
 
+        # write the qtplasmac section
+        if self.d.select_qtplasmac:
+            self.write_qtplasmac_section(file)
+
         print(file=file)
         print("[DISPLAY]", file=file)
         if self.d.select_axis:
@@ -74,14 +78,27 @@ class INI:
         elif self.d.select_qtdragon:
             print("DISPLAY = qtvcp qtdragon", file=file)
             print("PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref", file=file)
-        print("EDITOR = gedit", file=file)
+        # qtplasmac has multiple screen sizes
+        elif self.d.select_qtplasmac:
+            if self.d.qtplasmacscreen == 2:
+                screen = "qtplasmac_9x16"
+            elif self.d.qtplasmacscreen == 1:
+                screen = "qtplasmac_4x3"
+            else:
+                screen = "qtplasmac"
+            print("DISPLAY = qtvcp {}".format(screen), file=file)
+        # qtplasmac has an internal editor
+        if not self.d.select_qtplasmac:
+            print("EDITOR = gedit", file=file)
         print("POSITION_OFFSET = RELATIVE", file=file)
         print("POSITION_FEEDBACK = ACTUAL", file=file)
         print("ARCDIVISION = 64", file=file)
         print("GRIDS = 10mm 20mm 50mm 100mm 1in 2in 5in 10in", file=file)
         print("MAX_FEED_OVERRIDE = 1.2", file=file)
-        print("MIN_SPINDLE_OVERRIDE = 0.5", file=file)
-        print("MAX_SPINDLE_OVERRIDE = 1.2", file=file)
+        # qtplasmac doesn't use spindle override
+        if not self.d.select_qtplasmac:
+            print("MIN_SPINDLE_OVERRIDE = 0.5", file=file)
+            print("MAX_SPINDLE_OVERRIDE = 1.2", file=file)
         print("DEFAULT_LINEAR_VELOCITY = %.2f" % defvel, file=file)
         print("MIN_LINEAR_VELOCITY = 0", file=file)
         print("MAX_LINEAR_VELOCITY = %.2f" % maxvel, file=file)
@@ -95,10 +112,17 @@ class INI:
         print("INTRO_GRAPHIC = linuxcnc.gif", file=file)
         print("INTRO_TIME = 5", file=file)
         print("PROGRAM_PREFIX = %s" % os.path.expanduser("~/linuxcnc/nc_files"), file=file)
-        if self.d.units:
-            print("INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm", file=file)
+        # qtplasmac has different increments
+        if self.d.select_qtplasmac:
+            if self.d.units:
+                print("INCREMENTS = 10mm .1mm .1mm .01mm .001mm", file=file)
+            else:
+                print("INCREMENTS = 1in .1in .01in .001in .0001in", file=file)
         else:
-            print("INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in", file=file)
+            if self.d.units:
+                print("INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm", file=file)
+            else:
+                print("INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in", file=file)
         if self.d.pyvcp:
             print("PYVCP = custompanel.xml", file=file)
         if self.d.axes == 2:
@@ -120,27 +144,47 @@ class INI:
         elif self.d.axes == 4: num_joints = 2 # X Y
         else:
             print("___________________unknown self.d.axes",self.d.axes)
+        for j in self.d.tandemjoints:
+            num_joints += 1
 
-        if   self.d.axes == 1: coords = "X Y Z A"
-        elif self.d.axes == 0: coords = "X Y Z"
-        elif self.d.axes == 2: coords = "X Z"
-        elif self.d.axes == 3: coords = "X Y U V"
-        elif self.d.axes == 4: coords = "X Y"
+        if   self.d.axes == 1: self.d.coords = "X Y Z A"
+        elif self.d.axes == 0: self.d.coords = "X Y Z"
+        elif self.d.axes == 2: self.d.coords = "X Z"
+        elif self.d.axes == 3: self.d.coords = "X Y U V"
+        elif self.d.axes == 4: self.d.coords = "X Y"
+        for j in self.d.tandemjoints:
+            if j.upper() in self.d.coords:
+                self.d.coords = self.d.coords.replace(j.upper(), "{0} {0}".format(j.upper()))
+
+        self.d.axislist = []
+        for c in self.d.coords.lower().replace(" ",""):
+            if c not in self.d.axislist:
+                self.d.axislist.append(c)
+            else:
+                self.d.axislist[-1] = ("{}1".format(c))
+                self.d.axislist.append("{}2".format(c))
 
         print("[KINS]", file=file)
         # trivial kinematics: no. of joints == no.of axes)
         # with trivkins, axes do not have to be consecutive
         print("JOINTS = %d"%num_joints, file=file)
-        print("KINEMATICS = trivkins coordinates=%s"%coords.replace(" ",""), file=file)
+        print("KINEMATICS = trivkins coordinates=%s"%self.d.coords.replace(" ",""), file=file)
         print(file=file)
         print("[FILTER]", file=file)
-        print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
-        print("PROGRAM_EXTENSION = .py Python Script", file=file)
-        print("PROGRAM_EXTENSION = .nc,.tap G-Code File", file=file)
-        print("png = image-to-gcode", file=file)
-        print("gif = image-to-gcode", file=file)
-        print("jpg = image-to-gcode", file=file)
-        print("py = python", file=file)        
+        # qtplasmac has a different filter section
+        if self.d.select_qtplasmac:
+            print("PROGRAM_EXTENSION = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)", file=file)
+            print("ngc = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("nc  = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("tap = ./qtplasmac/qtplasmac_gcode.py", file=file)
+        else:
+            print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
+            print("PROGRAM_EXTENSION = .py Python Script", file=file)
+            print("PROGRAM_EXTENSION = .nc,.tap G-Code File", file=file)
+            print("png = image-to-gcode", file=file)
+            print("gif = image-to-gcode", file=file)
+            print("jpg = image-to-gcode", file=file)
+            print("py = python", file=file)        
 
         print(file=file)
         print("[TASK]", file=file)
@@ -150,6 +194,16 @@ class INI:
         print(file=file)
         print("[RS274NGC]", file=file)
         print("PARAMETER_FILE = linuxcnc.var", file=file)
+        # qtplasmac has extra rs274ngc variables
+        if self.d.select_qtplasmac:
+            if self.d.units:
+                units = "metric"
+            else:
+                units = "imperial"
+            print("RS274NGC_STARTUP_CODE = o<{}_startup> call".format(units), file=file)
+            print("SUBROUTINE_PATH = ./:./qtplasmac:../../nc_files/subroutines", file=file)
+            print("USER_M_PATH = ./:./qtplasmac", file=file)
+            print("", file=file)
 
         base_period = self.d.ideal_period()
 
@@ -162,9 +216,16 @@ class INI:
 
         print(file=file)
         print("[HAL]", file=file)
-        if self.d.halui:
+        # qtplasmac requires twopass and halui
+        if self.d.select_qtplasmac:
+            print("TWOPASS = ON", file=file)          
+            print("HALUI = halui", file=file)          
+        elif self.d.halui:
             print("HALUI = halui", file=file)          
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
+        # qtplasmac requires plasmac.tcl
+        if self.d.select_qtplasmac:
+            print("HALFILE = plasmac.tcl", file=file)
         if self.d.customhal:
             print("HALFILE = custom.hal", file=file)
             print("POSTGUI_HALFILE = postgui_call_list.hal", file=file)
@@ -178,8 +239,11 @@ class INI:
 
         print(file=file)
         print("[TRAJ]", file=file)
+        # qtplasmac requires 3 spindles
+        if self.d.select_qtplasmac:
+            print("SPINDLES = 3", file=file)
         # [TRAJ]AXES notused for joints_axes
-        print("COORDINATES = ",coords, file=file)
+        print("COORDINATES = ",self.d.coords, file=file)
         if self.d.units:
             print("LINEAR_UNITS = mm", file=file)
         else:
@@ -203,49 +267,102 @@ class INI:
                 all_homes = all_homes and self.a.home_sig("z")
             elif self.d.axes == 1: # XYZA
                 all_homes = all_homes and self.a.home_sig("z") and self.a.home_sig("a")
-
-        self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        if self.d.axes in(0,1): # xyz or xyza
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        if self.d.axes == 1: # xyza
-            self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
-        if self.d.axes == 2: # xZ
-            self.write_one_axis(file, 1, "z", "LINEAR", all_homes)
+        tandems = 0
+        if "x" in self.d.tandemjoints:
+            self.write_one_axis(file, 0, "x", "LINEAR", all_homes, False)
+            tandems += 1
+            self.write_one_axis(file, 0 + tandems, "x", "LINEAR", all_homes, True)
+        else:
+            self.write_one_axis(file, 0, "x", "LINEAR", all_homes, False)
+        if self.d.axes in(0,1): # XYZ OR XYZA
+            if "y" in self.d.tandemjoints:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
+            if "z" in self.d.tandemjoints:
+                self.write_one_axis(file, 2 + tandems, "z", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 2 + tandems, "z", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 2 + tandems, "z", "LINEAR", all_homes, False)
+        if self.d.axes == 1: # XYZA
+            if "a" in self.d.tandemjoints:
+                self.write_one_axis(file, 3 + tandems, "a", "ANGULAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 3 + tandems, "a", "ANGULAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 3 + tandems, "a", "ANGULAR", all_homes, False)
+        if self.d.axes == 2: # XZ
+            if "z" in self.d.tandemjoints:
+                self.write_one_axis(file, 1 + tandems, "z", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 1 + tandems, "z", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 1 + tandems, "z", "LINEAR", all_homes, False)
         if self.d.axes == 3: # xyuv
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
-            self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
-        if self.d.axes == 4: # xY
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+            if "y" in self.d.tandemjoints:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
+            if "u" in self.d.tandemjoints:
+                self.write_one_axis(file, 2 + tandems, "u", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 2 + tandems, "u", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 2 + tandems, "u", "LINEAR", all_homes, False)
+            if "v" in self.d.tandemjoints:
+                self.write_one_axis(file, 3 + tandems, "v", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 3 + tandems, "v", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 3 + tandems, "v", "LINEAR", all_homes, False)
+        if self.d.axes == 4: # XY
+            if "y" in self.d.tandemjoints:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
+                tandems += 1
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, True)
+            else:
+                self.write_one_axis(file, 1 + tandems, "y", "LINEAR", all_homes, False)
         file.close()
         self.d.add_md5sum(filename)
 
 #******************
 # HELPER FUNCTIONS
 #******************
-    def write_one_axis(self, file, num, letter, type, all_homes):
+    def write_one_axis(self, file, num, letter, type, all_homes, tandem):
         order = "1203"
         def get(s): return self.d[letter + s]
         scale = get("scale")
         vel = min(get("maxvel"), self.ideal_maxvel(scale))
         # linuxcnc doesn't like having home right on an end of travel,
-        # so extend the travel limit by up to .01in or .1mm
+        # so extend the travel limit by up to .001in or .01mm
         minlim = get("minlim")
         maxlim = get("maxlim")
         home = get("homepos")
         if self.d.units: extend = .001
         else: extend = .01
-        minlim = min(minlim, home - extend)
-        maxlim = max(maxlim, home + extend)
+        minlim = min(minlim, home) - extend
+        maxlim = max(maxlim, home) + extend
         axis_letter = letter.upper()
-
-        print(file=file)
-        print("[AXIS_%s]" % axis_letter, file=file)
-        print("MAX_VELOCITY = %s" % vel, file=file)
-        print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
-        print("MIN_LIMIT = %s" % minlim, file=file)
-        print("MAX_LIMIT = %s" % maxlim, file=file)
+        if not tandem:
+            print(file=file)
+            print("#******************************************", file=file)
+            print("[AXIS_%s]" % axis_letter, file=file)
+            # qtplasmac requires double vel & acc to use eoffsets correctly
+            if self.d.select_qtplasmac:
+                print("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value", file=file)
+                print("MAX_VELOCITY = %s" % (vel * 2), file=file)
+                print("MAX_ACCELERATION = %s" % (get("maxacc") * 2), file=file)
+                print("OFFSET_AV_RATIO = 0.5", file=file)
+            else:
+                print("MAX_VELOCITY = %s" % vel, file=file)
+                print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
+            print("MIN_LIMIT = %s" % minlim, file=file)
+            print("MAX_LIMIT = %s" % maxlim, file=file)
         print(file=file)
         print("[JOINT_%d]" % num, file=file)
         print("TYPE = %s" % type, file=file)
@@ -265,7 +382,6 @@ class INI:
         else:
             print("FERROR = 0.05", file=file)
             print("MIN_FERROR = 0.01", file=file)
-
 
         inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
@@ -293,11 +409,19 @@ class INI:
                 if self.d.axes == 3: # XYUV
                     if letter in('y','v'): hs = 1
                     else: hs = 0
-                    print("HOME_SEQUENCE = %d"% hs, file=file)
+                    if letter in self.d.tandemjoints:
+                        print("HOME_SEQUENCE = -%d"% hs, file=file)
+                    else:
+                        print("HOME_SEQUENCE = %d"% hs, file=file)
                 else:
-                    print("HOME_SEQUENCE = %s" % order[num], file=file)
+                    if letter in self.d.tandemjoints:
+                        print("HOME_SEQUENCE = -%s" % order["xyza".index(letter)], file=file)
+                    else:
+                        print("HOME_SEQUENCE = %s" % order["xyza".index(letter)], file=file)
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
+        if letter not in self.d.tandemjoints or tandem:
+            print("#******************************************", file=file)
 
     def hz(self, axname):
         steprev = self.d[axname+"steprev"]
@@ -327,6 +451,35 @@ class INI:
             return abs(.95 * 1e9 / self.d.ideal_period() / scale)
         else:
             return abs(.95 * .5 * 1e9 / self.d.ideal_period() / scale)
+
+    # write the qtplasmac section
+    def write_qtplasmac_section(self, file):
+        print(file=file)
+        print("[QTPLASMAC]", file=file)
+        print("# set the operating mode (default is 0)", file=file)
+        print("MODE = {}".format(self.d.qtplasmacmode), file=file)
+        print("# set the estop type (0=indicator, 1=hidden, 2=button)", file=file)
+        print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
+        print("# laser touchoff", file=file)
+        if self.d.qtplasmacxlaser or self.d.qtplasmacylaser:
+            print("LASER_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxlaser, self.d.qtplasmacylaser), file=file)
+        else:
+            print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
+        print("# camera touchoff", file=file)
+        if self.d.qtplasmacxcam or self.d.qtplasmacycam:
+            print("CAMERA_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxcam, self.d.qtplasmacycam), file=file)
+        else:
+            print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
+        print("# powermax communications", file=file)
+        if self.d.qtplasmacpmx:
+            print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
+        else:
+            print("#PM_PORT = /dev/ttyUSB0", file=file)
+        print("# user buttons", file=file)
+        for ub in range(1, 21):
+            if self.d.qtplasmac_bnames[ub-1]:
+                print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)
+                print("BUTTON_{}_CODE = {}".format(ub ,self.d.qtplasmac_bcodes[ub-1]), file=file)
 
     # Boiler code
     def __getitem__(self, item):

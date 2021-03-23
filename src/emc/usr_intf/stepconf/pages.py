@@ -360,7 +360,8 @@ class Pages:
                 self.w.radiobutton8.set_active(True)
         if self.d.select_axis: temp = 0
         elif self.d.select_gmoccapy: temp = 1
-        else: temp = 2
+        elif self.d.select_qtdragon: temp = 2
+        else: temp = 3
         self.w.combobox_screens.set_active(temp)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
@@ -380,16 +381,44 @@ class Pages:
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
 
+        # set the qtplasmac radiobuttons
+        if self.d.qtplasmacmode == 2:
+            self.w.qtplasmac_mode_2.set_active(True)
+        elif self.d.qtplasmacmode == 1:
+            self.w.qtplasmac_mode_1.set_active(True)
+        else:
+            self.w.qtplasmac_mode.set_active(True)
+        if self.d.qtplasmacscreen == 2:
+            self.w.qtplasmac_screen_2.set_active(True)
+        elif self.d.qtplasmacscreen == 1:
+            self.w.qtplasmac_screen_1.set_active(True)
+        else:
+            self.w.qtplasmac_screen.set_active(True)
+        if self.d.qtplasmacestop == 2:
+            self.w.qtplasmac_estop_2.set_active(True)
+        elif self.d.qtplasmacestop == 1:
+            self.w.qtplasmac_estop_1.set_active(True)
+        else:
+            self.w.qtplasmac_estop.set_active(True)
+        # set the qtplasmac spinboxes
+        self.w.qtplasmac_cam_x.set_value(self.d.qtplasmacxcam)
+        self.w.qtplasmac_cam_y.set_value(self.d.qtplasmacycam)
+        self.w.qtplasmac_laser_x.set_value(self.d.qtplasmacxlaser)
+        self.w.qtplasmac_laser_y.set_value(self.d.qtplasmacylaser)
+        self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
+
     def options_finish(self):
         SIG = self._p
-        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = False
+        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = self.d.select_qtplasmac = False
         choice = self.w.combobox_screens.get_active()
         if choice == 0:
             self.d.select_axis = True
         elif choice == 1:
             self.d.select_gmoccapy = True
-        else:
+        elif choice == 2:
             self.d.select_qtdragon = True
+        else:
+            self.d.select_qtplasmac = True
         self.d.pyvcp = self.w.pyvcp.get_active()
         self.d.classicladder = self.w.classicladder.get_active()
         self.d.modbus = self.w.modbus.get_active()
@@ -445,6 +474,15 @@ class Pages:
               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                  if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
                    return True
+        # set the qtplasmac variables
+        self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
+        self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
+        self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacxcam = self.w.qtplasmac_cam_x.get_value()
+        self.d.qtplasmacycam = self.w.qtplasmac_cam_y.get_value()
+        self.d.qtplasmacxlaser = self.w.qtplasmac_laser_x.get_value()
+        self.d.qtplasmacylaser = self.w.qtplasmac_laser_y.get_value()
+        self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
 
     # options page callback
     def on_loadladder_clicked(self, *args):
@@ -473,6 +511,26 @@ class Pages:
 
     def on_halui_toggled(self, *args):
         self.page_set_state('halui_page', self.w.halui.get_active())
+
+    def on_combobox_screens_changed(self, widget):
+        index = self.w.combobox_screens.get_active()
+        item = self.w.liststore_screens[index][0]
+        if item == "QtPlasmaC":
+            for item in ["manualtoolchange", "halui", "pyvcp", "classicladder"]:
+                self.w[item].set_active(False)
+            for item in ["manualtoolchange", "halui", "pyvcp", "classicladder", "vbox6", "ladderoptions"]:
+                self.w[item].hide()
+            self.w.qtplasmac_info.show()
+            self.w.qtplasmac_info.set_expanded(True)
+            self.page_set_state('ubuttons', True)
+            self.page_set_state('spindle', False)
+        else:
+            self.w.qtplasmac_info.hide()
+            self.w.qtplasmac_info.set_expanded(False)
+            for item in ["manualtoolchange", "halui", "pyvcp", "classicladder", "vbox6", "ladderoptions"]:
+                self.w[item].show()
+            self.page_set_state('ubuttons', False)
+            self.page_set_state('spindle', True)
 
 #***************
 # halui PAGE
@@ -557,10 +615,26 @@ class Pages:
         self.w.lstStore1.set_value(treeiter, 1, newvalue)
 
 #************
+# UBUTTONS (QtPlasmaC User Buttons)
+#************
+    def ubuttons_prepare(self):
+        self.d.help = "help-ubuttons.txt"
+        for ub in range(1, 21):
+            self.w["bname_{}".format(ub)].set_text(self.d.qtplasmac_bnames[ub-1])
+            self.w["bcode_{}".format(ub)].set_text(self.d.qtplasmac_bcodes[ub-1])
+
+    def ubuttons_finish(self):
+        for ub in range(1, 21):
+            self.d.qtplasmac_bnames[ub-1] = self.w["bname_{}".format(ub)].get_text()
+            self.d.qtplasmac_bcodes[ub-1] = self.w["bcode_{}".format(ub)].get_text()
+
+#************
 # pport1 PAGE
 #************
     def pport1_prepare(self):
         self._p.in_pport_prepare = True
+        self.d.jointcount = {"xdir": 0, "ydir": 0, "zdir": 0, "adir": 0}
+        self.d.tandemjoints = []
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.w[p].set_wrap_width(3)
@@ -589,6 +663,8 @@ class Pages:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
+            if self._p.hal_output_names[self.w[p].get_active()] in ["xdir", "ydir", "zdir", "adir"]:
+                self.d.jointcount[self._p.hal_output_names[self.w[p].get_active()]] += 1
         for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
@@ -600,6 +676,9 @@ class Pages:
             value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
             self.d.ioaddr = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
+        for j in ["xdir", "ydir", "zdir", "adir"]:
+            if self.d.jointcount[j] > 1:
+                self.d.tandemjoints.append(j[0])
 
     # pport1 callbacks
     def on_exclusive_check_pp1(self, widget):

@@ -180,6 +180,11 @@ your parallel port pinout.
 Turn on the 'invert' check box if the signal is inverted 
 (0V for true/active, 5V for false/inactive).
 
+It is possible to setup a gantry style config by selecting the required axis
+step and direction pins twice. For a dual Y motor gantry config select two pins
+as Y Step and two pins as Y Direction. In most circumstances you would normally
+also select the second Y Direction pin as Inverted.
+
 * 'Output pinout presets' - Automatically set pins 2 through 9 according to
 the Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
 (Direction on pins 3, 5, 7, 9).
