@@ -1,4 +1,4 @@
-VERSION = '1.0.5'
+VERSION = '1.0.6'
 
 import os, sys
 from shutil import copy as COPY
@@ -159,7 +159,8 @@ class HandlerClass:
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.materialFile = '{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE'))
+        self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.materialFile = '{}_material.cfg'.format(self.machineName)
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
         self.materialFileDict = {}
@@ -268,7 +269,7 @@ class HandlerClass:
         self.overlay.setText(self.get_overlay_text())
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
-        self.w.setWindowTitle('QtPlasmaC v{} - powered by QtVCP on LinuxCNC v{}'.format(VERSION, linuxcnc.version.split(':')[0]))
+        self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
@@ -1142,7 +1143,7 @@ class HandlerClass:
                                               time.localtime(time.time())[4], \
                                               time.localtime(time.time())[4],)
         outPath = '{}'.format(os.path.expanduser('~'))
-        outName = '{}_V{}_{}_{}.tar.gz'.format(self.iniFile.find('EMC', 'MACHINE'), VERSION, bDate, bTime)
+        outName = '{}_V{}_{}_{}.tar.gz'.format(self.machineName, VERSION, bDate, bTime)
         with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
         msg  = 'A compressed backup of the machine configuration\n'
@@ -2915,8 +2916,8 @@ class HandlerClass:
     def check_material_file(self):
         # create a new material file if it doesn't exist
         if not os.path.exists(self.materialFile):
-            if os.path.exists('{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE').lower())):
-                MOVE('{}_material.cfg'.format(self.iniFile.find('EMC', 'MACHINE').lower()), self.materialFile)
+            if os.path.exists('{}_material.cfg'.format(self.machineName.lower())):
+                MOVE('{}_material.cfg'.format(self.machineName.lower()), self.materialFile)
                 return
             with open(self.materialFile, 'w') as f_out:
                 f_out.write(\
@@ -3884,7 +3885,10 @@ class HandlerClass:
 # STYLING FUNCTIONS #
 #########################################################################################################################
     def openColorDialog(self, widget):
-        color = QColorDialog.getColor(QColor(widget.palette().color(QPalette.Background)))
+        initColor = QColor(widget.palette().color(QPalette.Background))
+        options  = QColorDialog.DontUseNativeDialog
+        options |= QColorDialog.ShowAlphaChannel
+        color = QColorDialog.getColor(initColor, options=options)
         if color.isValid():
             widget.setStyleSheet('background-color: {}'.format(color.name()))
             self.set_color_styles()
