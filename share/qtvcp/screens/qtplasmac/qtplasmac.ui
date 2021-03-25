@@ -243,7 +243,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -1533,13 +1533,13 @@ EDGE</string>
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>404</height>
+                  <height>364</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>404</height>
+                  <height>364</height>
                  </size>
                 </property>
                 <property name="frameShape">
@@ -2313,7 +2313,7 @@ ON</string>
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
-                     <height>308</height>
+                     <height>16777215</height>
                     </size>
                    </property>
                    <property name="frameShadow">
@@ -2388,7 +2388,7 @@ ON</string>
                        <item>
                         <widget class="StatusSlider" name="feed_slider">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
@@ -2396,13 +2396,13 @@ ON</string>
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
-                           <height>152</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
-                           <height>152</height>
+                           <height>16777215</height>
                           </size>
                          </property>
                          <property name="statusTip">
