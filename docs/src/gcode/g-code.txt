@@ -165,7 +165,7 @@ It is an error if:
 G1 axes
 -------------------
 
-For linear (straight line) motion at programed <<sec:set-feed-rate,feed rate>>
+For linear (straight line) motion at programmed <<sec:set-feed-rate,feed rate>>
 (for cutting or not), program 'G1 'axes'', where all the axis words are
 optional. The 'G1' is optional if the current motion mode is 'G1'. This will
 produce coordinated motion to the destination point at the current feed
@@ -1442,14 +1442,14 @@ systems.
 == G61 Exact Path Mode
 (((G61 G61.1 G64 Path Mode)))
 
-* 'G61' - Exact path mode, movement exactly as programed. Moves will slow or
-stop as needed to reach every programed point. If two sequential moves are
+* 'G61' - Exact path mode, movement exactly as programmed. Moves will slow or
+stop as needed to reach every programmed point. If two sequential moves are
 exactly co-linear movement will not stop.
 
 [[gcode:g61.1]]
 ==  G61.1 Exact Stop Mode
 
-* 'G61.1' - Exact stop mode, movement will stop at the end of each programed
+* 'G61.1' - Exact stop mode, movement will stop at the end of each programmed
 segment.
 
 [[gcode:g64]]
@@ -2252,7 +2252,7 @@ The 'G84' cycle is intended for tapping with floating chuck and dwell at the bot
 
     3. Move the Z-axis at the current feed rate to the Z position.
 
-    4. Stop the seleted spindle (chosen by the $ parameter)
+    4. Stop the selected spindle (chosen by the $ parameter)
 
     5. Start spindle rotation counterclockwise.
 

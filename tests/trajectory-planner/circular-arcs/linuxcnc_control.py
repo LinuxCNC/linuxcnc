@@ -37,8 +37,8 @@ class LinuxcncControl:
 
     def running(self, do_poll=True):
         '''
-        check wether interpreter is running.
-        If so, cant switch to MDI mode.
+        check whether interpreter is running.
+        If so, can't switch to MDI mode.
         '''
         if do_poll:
             self.s.poll()
@@ -54,7 +54,7 @@ class LinuxcncControl:
         if self.s.task_mode == m :
             return m
         if self.running(do_poll=False):
-            raise LinuxcncError("interpreter running - cant change mode")
+            raise LinuxcncError("interpreter running - can not change mode")
         self.c.mode(m)
         self.c.wait_complete()
 
@@ -80,14 +80,14 @@ class LinuxcncControl:
 
     def ok_for_mdi(self):
         '''
-        check wether ok to run MDI commands.
+        check whether ok to run MDI commands.
         '''
         self.s.poll()
         return not self.s.estop and self.s.enabled and self.s.homed
 
     def prepare_for_mdi(self):
         '''
-        check wether ok to run MDI commands.
+        check whether ok to run MDI commands.
         throw  LinuxcncError if told so.
         return current mode
         '''
@@ -112,7 +112,7 @@ class LinuxcncControl:
     def g(self,code,wait=False):
         '''
         issue G-Code as MDI command.
-        wait for completion if reqested
+        wait for completion if requested
         '''
 
         self.c.mdi(code)

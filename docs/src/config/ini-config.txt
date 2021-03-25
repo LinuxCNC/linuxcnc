@@ -482,7 +482,7 @@ An example of a custom G code converter located in the linuxcnc directory.
 * 'PROGRAM_EXTENSION = .gcode 3D Printer'
 ** 'gcode = /home/mill/linuxcnc/convert.py'
 
-NOTE: The program file assoiated with an extension must have either the full
+NOTE: The program file associated with an extension must have either the full
 path to the program or be located in a directory that is on the system path.
 
 It is also possible to specify an interpreter:
@@ -1132,7 +1132,7 @@ For more information on kinematics modules see the manpage: '$ man kins'
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
     MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
-    joint to jerk as it changes direction. If a COMP_FILE is specificed for a
+    joint to jerk as it changes direction. If a COMP_FILE is specified for a
     joint BACKLASH is not used.
 
 // add a link to machine units
@@ -1170,8 +1170,8 @@ Type 0 Example
 ----
 
 ** 'Type 1:' The second value specifies positive offset from nominal while
-    traveling in the positive direction. The third value specifies the negitive
-    offset from nominal while traveling in a negitive direction.
+    traveling in the positive direction. The third value specifies the negative
+    offset from nominal while traveling in a negative direction.
     +
     +
 Type 1 Example

@@ -43,7 +43,7 @@ MDI_COMMAND = o<mysub>call
 When halui starts it will read the MDI_COMMAND fields in the ini and
 export pins from 00 to the number of MDI_COMMAND's found in the ini up
 to a maximum of 64 commands.  These pins can be connected like any
-hal pins.  A common method is to use buttons provided by vitual
+hal pins.  A common method is to use buttons provided by virtual
 control panels.  Example halfile connections:
 
 ----

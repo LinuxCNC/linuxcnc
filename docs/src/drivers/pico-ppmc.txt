@@ -28,7 +28,7 @@ pins for whatever it finds. During loading (or attempted loading) the
 driver prints some useful debugging messages to the kernel log, which 
 can be viewed with 'dmesg'. 
 
-Up to 3 parport busses may be used, and each bus may have up to 8 (or
+Up to 3 parport buses may be used, and each bus may have up to 8 (or
 possibly 16 PPMC) devices on it.
 
 == Command Line Options

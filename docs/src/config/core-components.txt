@@ -170,7 +170,7 @@ These pins, parameters, and functions are created by the realtime
 * 'motion.requested-vel' - 
      (float, out) The current requested velocity in user units per
     second.  This value is the F-word setting from the G-code file,
-    possibly reduced to accomodate machine velocity and acceleration
+    possibly reduced to accommodate machine velocity and acceleration
     limits. The value on this pin does not reflect the feed override or
     any other adjustments.
 
@@ -277,7 +277,7 @@ Conceptually the spindle is in one of the following modes:
 
  - rotation mode (the default)
  - searching for desired orientation mode
- - orienation complete mode.
+ - orientation complete mode.
 
 When an M19 is executed, the spindle changes to 'searching for desired
 orientation' , and the `spindle.N.orient` HAL pin is asserted.  The
@@ -312,7 +312,7 @@ interpreted as follows:
  - 2: always rotate counterclockwise
 
 It can be used with the `orient` HAL component which provides a PID
-command value based on spindle encoder positon, `spindle-orient-angle`
+command value based on spindle encoder position, `spindle-orient-angle`
 and `spindle-orient-mode`.
 
 === Parameters

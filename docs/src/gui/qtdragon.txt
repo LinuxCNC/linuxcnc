@@ -349,7 +349,7 @@ through the stylesheet dialog widget in the GUI. To call up the dialog, press F1
 temporarily and then saved to a new qss file, or overwrite the current qss file.
 
 .qtdragon - Two Style Examples
-image::images/style-comparison.png["QTDragon stlyes",scale="25%"]
+image::images/style-comparison.png["QTDragon styles",scale="25%"]
 
 == Screen resolution
 

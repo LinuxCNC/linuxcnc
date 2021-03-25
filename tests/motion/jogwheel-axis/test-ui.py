@@ -44,7 +44,7 @@ def jog_axis(axis_letter, counts=1, scale=0.001):
                 success = False
         else:
             if h[pin_name] != start_pos[a]:
-                print("axis %c moved from %.6f to %.6f but shouldnt have!" % (a, start_pos[a], h[pin_name]))
+                print("axis %c moved from %.6f to %.6f but should not have!" % (a, start_pos[a], h[pin_name]))
                 success = False
 
     l.wait_for_axis_to_stop(axis_letter)

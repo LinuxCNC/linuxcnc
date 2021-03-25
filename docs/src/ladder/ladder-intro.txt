@@ -106,15 +106,15 @@ If the user releases B0, the Q0 output quickly returns to 0/off/false.
 Building on the above example, suppose we add a switch that closes 
 whenever the coil Q0 is active. This would be the case in a relay, 
 where the coil can activate the switch contacts; or in a contactor, 
-where there are often several small auxilliary contacts 
+where there are often several small auxiliary contacts 
 in addition to the large 3-phase contacts that are the 
 primary feature of the contactor. 
 
-Since this auxilliary switch is driven from coil Q0 in our earlier 
+Since this auxiliary switch is driven from coil Q0 in our earlier 
 example, we will give it the same number as the coil that drives it. 
 This is the standard practice followed in all ladder programming, 
 although it may seem strange at first to see a switch labeled the 
-same as a coil. So let's call this auxilliary contact Q0 and 
+same as a coil. So let's call this auxiliary contact Q0 and 
 connect it across the B0 'pushbutton' contact from our earlier example. 
 
 Let's take a look at it: 

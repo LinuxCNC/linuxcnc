@@ -81,7 +81,7 @@ I/O assignments
  - %I1 = Input from LinuxCNC's E-Stop
  - %I2 = Input from LinuxCNC's E-Stop Reset Pulse
  - %I3 = Input from the pyVCP panel reset button
- - %Q0 = Ouput to LinuxCNC to enable
+ - %Q0 = Output to LinuxCNC to enable
  - %Q1 = Output to external driver board enable pin (use a N/C output if
    your board had a disable pin)
 

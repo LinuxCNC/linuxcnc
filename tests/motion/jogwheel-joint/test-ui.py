@@ -59,7 +59,7 @@ def jog_joint(joint_number, counts=1, scale=0.001):
                 success = False
         else:
             if h[pin_name] != start_pos[j]:
-                print("joint %d moved from %.6f to %.6f but shouldnt have!" % (j, start_pos[j], h[pin_name]))
+                print("joint %d moved from %.6f to %.6f but should not have!" % (j, start_pos[j], h[pin_name]))
                 success = False
 
     wait_for_joint_to_stop(joint_number)

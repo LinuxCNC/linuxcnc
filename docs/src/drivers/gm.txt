@@ -469,8 +469,8 @@ and parameters to HAL. They receive position reference and
 provide encoder feedback via CAN bus.
 
 The frames are standard (11 bit) ID frames, with 4 byte data length. 
-Tha baud rate is 1 Mbit.
-The position commad IDs for axis 0..5 are 0x10..0x15.
+The baud rate is 1 Mbit.
+The position command IDs for axis 0..5 are 0x10..0x15.
 The position feedback IDs for axis 0..5 are 0x20..0x25.
 
 These configuration can be changed with the modifivation 
@@ -689,8 +689,8 @@ available modules automatically.
 
 If a module does not answer regularly the GM6-PCI card drops down the module.
 If a module with output do not gets data with correct CRC regularly, the 
-module switch to error sate (green LED blinking), and turns all outputs 
-to error sate.
+module switch to error state (green LED blinking), and turns all outputs 
+to error state.
 
 *Connecting the nodes:*
 
@@ -702,7 +702,7 @@ card, and the end is the last module.
 
 image::images/GM_RS485topology.png[align="center", scaledwidth="60%", alt="Connecting the RS485 nodes to the GM6-PCI card"]
 
-*Adressing:*
+*Addressing:*
 
 Each node on the bus has a 4 bit unique address that can be set with a red DIP switch.
 

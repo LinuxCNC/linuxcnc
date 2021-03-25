@@ -997,7 +997,7 @@ the file path and whether it's a file. +
 [source,python]
 ----
 temp = FILEMANAGER.getCurrentSelected()
-print 'filepath={}'.fomat(temp[0])
+print 'filepath={}'.format(temp[0])
 if temp[1]:
     print 'Is a file'
 ----

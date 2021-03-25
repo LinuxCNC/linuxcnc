@@ -35,7 +35,7 @@ image::5-axis-figures/Figure-1.png[align="center",height=400]
 
 == Translation and Rotation Matrices
 
-Homogenous transformations provide a simple way to describe the mathematics of
+Homogeneous transformations provide a simple way to describe the mathematics of
 multi-axis machine kinematics. A transformation of the space H is a 4x4 matrix and can represent translation and rotation transformations. Given a point x,y,x described by a vector u = {x,y,z,1}^T^, then its transformation v is represented by the matrix product
 
 image::5-axis-figures/equation__2.png[align="center"]
@@ -132,7 +132,7 @@ which is the 'forward transformation' of the kinematics.
 
 ==== Inverse Transformation
 
-We can solve for P from  equation (13) as 'P = (^Q^A~P~)^-1^ * Q'. Noting that the square matrix is a homogenous 4x4 matrix containing a rotation matrix R and translation vector q, for which the inverse can be written as:
+We can solve for P from  equation (13) as 'P = (^Q^A~P~)^-1^ * Q'. Noting that the square matrix is a homogeneous 4x4 matrix containing a rotation matrix R and translation vector q, for which the inverse can be written as:
 
 image::5-axis-figures/equation__15.png[align="center"]
 
@@ -325,7 +325,7 @@ LinuxCNC implements kinematics using a HAL component that is loaded
 at startup of LinuxCNC.  The most common kinematics module, 'trivkins',
 implements identity (trivial) kinematics where there is a one-to-one
 correspondence between an axis coordinate letter and a motor joint.
-Addtional kinematics modules for more complex systems (including 'xyzac-trt'
+Additional kinematics modules for more complex systems (including 'xyzac-trt'
 and 'xyzbc-trt' described above) are available.
 
 See the kins manpage (*\$ man kins*) for brief descriptions of the available

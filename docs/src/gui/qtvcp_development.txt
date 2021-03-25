@@ -51,7 +51,7 @@ library is forced to update. Hal component is set ready at this point. +
 POSTGUI HAL file (if a screen). Terminate signals are trapped and +
 QtVCP now polls for events. +
  * Finally when QtVCP is asked to shutdown, it calls shutdown functions +
-in the handler file, shuts down STATUS monitoring and kills teh HAL +
+in the handler file, shuts down STATUS monitoring and kills the HAL +
 component. +
 
 == Path information

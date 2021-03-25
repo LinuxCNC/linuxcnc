@@ -329,7 +329,7 @@ point.
 
 .Rapid Moves
 
-Rapid moves may be programed while compensation is turned on.
+Rapid moves may be programmed while compensation is turned on.
 
 .Good Practices
 

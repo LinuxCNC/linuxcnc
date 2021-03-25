@@ -493,7 +493,7 @@ To explicitly save the modal state at the current call level, program
 to exactly that state by executing an 'M72'.
 
 A pair of 'M70' and 'M72' instructions will typically be used to
-protect a program against inadvertant modal changes within
+protect a program against inadvertent modal changes within
 subroutines.
 
 [[mcode:m70-saved-state]]
@@ -566,7 +566,7 @@ feed value is interpreted in the correct unit setting.
 It is an error to execute an 'M72' with no previous 'M70' save
 operation at that level.
 
-The following example demonstrates saving and explicitely restoring
+The following example demonstrates saving and explicitly restoring
 modal state around a subroutine call using 'M70' and 'M72'. Note that
 the 'imperialsub' subroutine is not "aware" of the M7x features and can be
 used unmodified:
@@ -597,7 +597,7 @@ o<showstate> call
 
 M70 (save caller state in at global level)
 O<imperialsub> call
-M72 (explicitely restore state)
+M72 (explicitly restore state)
 
 (debug, back in main, state now:)
 o<showstate> call
@@ -620,7 +620,7 @@ will *not* restore state.
 The suggested use is at the beginning of a O-word subroutine as in the
 following example. Using 'M73' this way enables designing subroutines
 which need to modify modal state but will protect the calling program
-against inadvertant modal changes. Note the use of
+against inadvertent modal changes. Note the use of
 <<gcode:predefined-named-parameters, predefined named parameters>> in
 the 'showstate' subroutine.
 
@@ -708,13 +708,13 @@ M1-- <P- Q->
 
 [NOTE]
 After creating a new 'M1nn' file you must restart the GUI so it is aware
-of the new file, otherwise you will get an 'Unkown m code' error.
+of the new file, otherwise you will get an 'Unknown m code' error.
 
 The external program named 'M100' through 'M199' (no extension and a capitol M)
 is executed with the optional P and Q values as its two arguments.
 Execution of the G code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
-path specificed in the ini file configuration. See the 
+path specified in the ini file configuration. See the 
 <<sec:display-section,Display Section>> for more information on search paths.
 
 [WARNING]

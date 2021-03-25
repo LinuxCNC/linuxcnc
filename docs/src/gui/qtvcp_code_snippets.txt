@@ -124,7 +124,7 @@ Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
 == ToolBar Functions.
 Toolbar buttons and submenus are added in Designer but the code to make them do something is added in the handler file. +
 In this example we assume you added a tool bar with one submenu and three actions. +
-These will be configure to creat a recent file selection menu, an about pop up dialog action, a quit program action and +
+These will be configure to create a recent file selection menu, an about pop up dialog action, a quit program action and +
 a user defined function action. + 
 You can add submenus in designer by adding an qaction (by typing in the toolbar column) then clicking the 'plus' icon on the right. +
 This will ad a sub column that you need to type a name into. Now the original Qaction will be a Qmenu instead. +

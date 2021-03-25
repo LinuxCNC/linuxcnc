@@ -6,7 +6,7 @@ executing
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... ON_RESET()
     7 N..... MESSAGE(" before M400: call_level= 0.000000 remap_level=0.000000")
-    8 N..... MESSAGE(" I should complain if I were'nt called but I guess I cant do that")
+    8 N..... MESSAGE(" I should complain if I weren't called but I guess I can not do that")
     9 N..... MESSAGE("failing_epilog returning INTERP_ERROR")
 A failed Python epilog returning INTERP_ERROR
 o<mustbecalled>endsub

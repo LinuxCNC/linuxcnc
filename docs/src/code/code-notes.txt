@@ -18,10 +18,10 @@ very much a work in progress, and its layout may change in the future.
 
 * 'AXIS' - An axis is one of the nine degrees of freedom that define a tool
     position in three-dimensional Cartesian space. Those nine axes are
-    referred to as X, Y, Z, A, B, C, U, V, and W. The linear orthagonal
+    referred to as X, Y, Z, A, B, C, U, V, and W. The linear orthogonal
     coordinates X, Y, and Z determine where the tip of the tool is
     positioned. The angular coordinates A, B, and C determine the tool
-    orientation. A second set of linear orthagonal coordinates U, V, and W
+    orientation. A second set of linear orthogonal coordinates U, V, and W
     allows tool motion (typically for cutting actions) relative to the
     previously offset and rotated axes.
     Unfortunately “axis” is also
@@ -698,10 +698,10 @@ image::task-state-transitions.svg[align="center"]
 The I/O Controller is separate module that accepts NML commands from TASK. +
 It interacts with external I/O using HAL pins. +
 iocontrol.cc is loaded via the linuxcnc script before TASK is. +
-There are curently two versions of iocontrol. The second version handles toolchange hardware errors +
+There are currently two versions of iocontrol. The second version handles toolchange hardware errors +
  +
 
-Curently ESTOP/Enable, coolant, lube, and tool changing are handled by +
+Currently ESTOP/Enable, coolant, lube, and tool changing are handled by +
 iocontrol. These are relatively low speed events, high speed coordinated I/O is handled in motion. +
  +
 
@@ -1472,7 +1472,7 @@ settings.tool_offset::
 
 settings.pockets_max::
 
-    Used interchangably with +CANON_POCKETS_MAX+ (a #defined constant,
+    Used interchangeably with +CANON_POCKETS_MAX+ (a #defined constant,
     set to 1000 as of April 2020).  FIXME: This settings variable
     is not currently useful and should probably be removed.
 

@@ -327,9 +327,9 @@ A label is a way to add text to your panel.
 * '<text>"text"</text>' - the text to put in your label, a blank label can be
   used as a spacer to align other objects.
 
-* '<font>("Helvetica",20)</font>' - specificy the font and size of the text
+* '<font>("Helvetica",20)</font>' - specify the font and size of the text
 
-* '<relief>FLAT</relief>' - specificy the border around the label ('FLAT',
+* '<relief>FLAT</relief>' - specify the border around the label ('FLAT',
   'RAISED', 'SUNKEN') default is 'FLAT'
 
 * '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
@@ -356,7 +356,7 @@ image::images/pyvcp_label.png[]
 
 === Multi_Label
 
-An extention of the text label.
+An extension of the text label.
 
 Selectable text label, can display up to 6 label legends when associated bit pin
 is activated.
@@ -368,7 +368,7 @@ If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be
 displayed.
 
 If a disable pin is created with '<disable_pin>True</disable_pin>' and that pin
-is set to true the lable changes to a grayed out state.
+is set to true the label changes to a grayed out state.
 
 [source,xml]
 ----
@@ -475,7 +475,7 @@ button is released. Buttons can use the following optional options.
 
 * '<activebackground>"color"</activebackground>' - the cursor over color.
 
-* '<fg> "color"</fg>' - the forground color.
+* '<fg> "color"</fg>' - the foreground color.
 
 * '<bg>"color"</bg>' - the background color.
 
@@ -945,7 +945,7 @@ vertical fill
 
 .Anchor
 
-Container anchors are specificed with the <boxanchor anchor=""/> tag. The anchor
+Container anchors are specified with the <boxanchor anchor=""/> tag. The anchor
 specifies where to position each slave in its parcel. Valid entries are center,
 n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
 nw and ne are also valid.
@@ -955,7 +955,7 @@ nw and ne are also valid.
 
 .Expand
 
-Container expand is specificed with the boolean <boxexpand expand=""/> tag.
+Container expand is specified with the boolean <boxexpand expand=""/> tag.
 Valid entries are yes, no.
 
 * '<boxexpand expand="boolean"/>' -

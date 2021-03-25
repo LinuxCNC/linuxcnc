@@ -2,7 +2,7 @@
 
 = NGCGUI
 
-.NGCGUI imbedded into Axis
+.NGCGUI embedded into Axis
 image::images/ngcgui.png[align="center"]
 
 == Overview
@@ -116,7 +116,7 @@ any empty blanks with sensible values and press
 image:images/tool_run.png[] button to watch it run.  Experiment
 by creating multiple features and features from different tab pages.
 
-To create several subroutines concatinated into a single file, go to each tab
+To create several subroutines concatenated into a single file, go to each tab
 fill in the blanks, press 'Create Feature' then using the arrow keys move any
 tabs needed to put them in order. Now press 'Finalize' and answer the prompt
 to create 
@@ -133,7 +133,7 @@ example subroutines or any user file if it is in the linuxCNC subroutine
 path.
 
 To see special key bindings, click inside an ngcgui tab page to get
-focus and then presss Control-k.
+focus and then press Control-k.
 
 The demonstration subroutines should run on the simulated
 machine configurations included in the distribution.  A user
@@ -301,7 +301,7 @@ items needed)
 ....
 EMBED_TAB_NAME = Pyngcgui - name to appear on embedded tab
 EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui - invokes gladevcp
-EMBED_TAB_LOCATION = name_of_location - where the embeded page is located
+EMBED_TAB_LOCATION = name_of_location - where the embedded page is located
 ....
 
 [NOTE]
@@ -320,7 +320,7 @@ applications.
 The following INI file items go in the [DISPLAY] section for any gui
 that embeds either ngcgui or pyngcgui.
 
-* 'NGCGUI_FONT = Helvetica -12 normal' - specifices the font name,size, normal|bold
+* 'NGCGUI_FONT = Helvetica -12 normal' - specifies the font name,size, normal|bold
 * 'NGCGUI_PREAMBLE = in_std.ngc' - the preamble file to be added in front of the
   subroutines. When concatenating several common subroutine invocations, this preamble
  is only added once.  For mm-based machines, use mm_std.ngc
@@ -650,7 +650,7 @@ each of these parameters (no omissions).
 ----
 
 LinuxCNC considers all numbered parameters in the range #1 thru #30 to be calling
-parameters so ngcgui provides entry boxes for any occurence of parameters in
+parameters so ngcgui provides entry boxes for any occurrence of parameters in
 this range. It is good practice to avoid use of numbered parameters #1 through
 #30 anywhere else in the subroutine. Using local, named parameters is
 recommended for all internal variables.
@@ -767,7 +767,7 @@ preclude its use as general purpose subroutine file for LinuxCNC.
 The LinuxCNC distribution includes a library (ngcgui_lib directory) that
 includes both example ngcgui-compatible subfiles and utility files
 to illustrate the features of LinuxCNC subroutines and ngcgui usage.
-Another libary (gcmc_lib) provides examples for subroutine files for
+Another library (gcmc_lib) provides examples for subroutine files for
 the Gcode meta compiler (gcmc)
 
 Additional user sumitted subroutines can be found on the Forum in the

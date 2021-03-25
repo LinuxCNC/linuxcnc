@@ -124,7 +124,7 @@ Themes are a way to modify the look and feel of the widgets on the screen.
 For instance the color or size of buttons and sliders can be changed using
 themes.
 There are many GTK2 themes available on the web.
-Themes can also be customized to modifiy visuals of particular named widgets.
+Themes can also be customized to modify visuals of particular named widgets.
 This ties the theme file to the glade file more tightly.
 Some of the sample screen skins allow the user to select any of the themes on 
 the system. The sample 'gscreen' is an example.
@@ -222,7 +222,7 @@ image::images/tester_editor.png[align="center", alt="Glade editor tester.glade"]
 
 In this screen we are using VCP_actions to communicate to LinuxCNC the actions
 we want. This allows us standard functions without adding python code in the
-handler file. Let's link the estop toogle button to the estop action Select the
+handler file. Let's link the estop toggle button to the estop action Select the
 estop toggle button and under the general tab look for 'Related Action' and
 click the button beside it. Now select the toggle estop action. Now the button
 will toggle estop on and off when clicked. Under the general tab you can change
@@ -384,8 +384,8 @@ self.update_filepath(self, obj, path):
     self.widgets.my_path_label.set_text(path)
 ----
 
-When linuxcnc loads a new file, Gstat will send a callback message to the funciton 'update_filepath'. +
-In this example whe update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file. +
+When linuxcnc loads a new file, Gstat will send a callback message to the function 'update_filepath'. +
+In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file. +
 
 === Jogging Keys
 
@@ -489,7 +489,7 @@ The -c switch allows one to select a 'skin'. Gscreen assumes the Glade file and
 the handler file use this same name. The optional second screen will be the
 same name with a 2 (eg. tester2.glade) There is no second handler file allowed.
 It will only be loaded if it is present. Gscreen will search the LinuxCNC
-configuration file that was launched first for the files, then in the systen
+configuration file that was launched first for the files, then in the system
 skin folder.
 
 == User Dialog Messages
@@ -564,7 +564,7 @@ Note: Using POSIX non-realtime
 Found file(lib): /home/chris/emc-dev/lib/hallib/sim_spindle_encoder.hal
 Found file(lib): /home/chris/emc-dev/lib/hallib/axis_manualtoolchange.hal
 Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
-**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 libray installed?
+**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 library installed?
 **** GSCREEN INFO ini: /home/chris/emc-dev/configs/sim/gscreen/gscreen_custom/industrial_lathe.ini
 **** GSCREEN INFO: Skin name = industrial
 

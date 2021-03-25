@@ -16,7 +16,7 @@ int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
 setup. The names of the available UARTs are printed to standard output during 
 the driver loading process and take the form:
 hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
-The minimum bitrate is approximately 50bps, and the maximimum around the FPGA 
+The minimum bitrate is approximately 50bps, and the maximum around the FPGA 
 frequency, 48MHz for a 5i23. 
 The UART function allows different RX and TX bitrates, but that is not currently
 supported by this driver
@@ -24,7 +24,7 @@ supported by this driver
 tx_mode is bit mask defined in the Hostmot2 regmap:
 Bit 0..3 = TXEnable delay. TXEnable delay specifies the transmit data 
         holdoff time from the TXenable signal valid state. This is used for 
-        RS-485 (half duplex) operaton, to delay transmit data until the driver 
+        RS-485 (half duplex) operation, to delay transmit data until the driver 
         is enabled, allowing for driver enable delays, isolation barrier delays 
         etc. Delay is in units of ClockLow period.
 Bit 4 = FIFOError, it indicates that a host push has overflowed the FIFO
@@ -40,7 +40,7 @@ Bit 0 = FalseStart bit Status, 1 = false start bit detected
 Bit 1 = OverRun Status, 1 = overrun condition detected (no valid stop bit)
 Bit 2 = RXMaskEnable, 1= enable RXMask for half duplex operation,
     0 = ignore RXMask
-Bit 4 = FIFOError, indicates that a host read has attemped to read more 
+Bit 4 = FIFOError, indicates that a host read has attempted to read more 
         data than available. (mainly for driver debugging)
 Bit 5 = LostDataError, indicates that data was received with no room in FIFO, 
         therefore lost

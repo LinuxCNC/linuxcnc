@@ -34,7 +34,7 @@ net gs2-RPM spindle-vfd.speed-command <= spindle.N.speed-out
 
 [NOTE]
 The transmission speed might be able to be faster depending on the exact
-envirnment. Both the drive and the command line options must match. To check
+environment. Both the drive and the command line options must match. To check
 for transmission errors add the '-v' command line option and run from a
 terminal.
 

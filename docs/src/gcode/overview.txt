@@ -1007,7 +1007,7 @@ image::images/polar02.png[align="center", alt="Polar Square"]
 It is an error if:
 
 * An incremental move is started at the origin
-* A mix of Polar and and X or Y words are used
+* A mix of Polar and X or Y words are used
 
 [[gcode:modal-groups]](((Modal Groups)))
 

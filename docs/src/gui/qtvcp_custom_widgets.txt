@@ -268,7 +268,7 @@ in which the widget and any data must be accepted by the function. +
 
 ==== In the  'Designer properties setter/getters/resetters' section
 This is how Designer sets the attributes of the widget. +
-thes can also be called directly in the widget. +
+This can also be called directly in the widget. +
 
 ==== In the 'Designer properties' section
 This is the registering of properties in Designer. +
@@ -551,7 +551,7 @@ class SystemToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('systemtoolbutton')))
     def toolTip(self):
-        return "Button for selecting a User Co-ordinate System"
+        return "Button for selecting a User Coordinate System"
     def whatsThis(self):
         return ""
     def isContainer(self):

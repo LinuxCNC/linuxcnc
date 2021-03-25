@@ -34,7 +34,7 @@ for each task of the next highest priority, set their priorities
 to \fBrtapi_prio_next_lower(previous)\fR.
 
 .PP
-N.B. A high priority task will pre-empt or interrupt a lower priority
+N.B. A high priority task will preempt or interrupt a lower priority
 task. Linux is always the lowest priority!
 
 .SH REALTIME CONSIDERATIONS

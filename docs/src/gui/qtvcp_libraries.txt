@@ -132,7 +132,7 @@ ZIPPED_USRMESS =
 
 self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
 
-# embeded program info
+# embedded program info
 TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
 TAB_LOCATION = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
 TAB_CMD = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None

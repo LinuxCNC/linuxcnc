@@ -1,4 +1,4 @@
-this regression tests wether:
+this regression tests whether:
 
 (1)
 - variables inserted in a prolog can be references properly in the NGC procedure

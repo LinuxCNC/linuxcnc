@@ -15,8 +15,8 @@ These include:
 
 == Machine Coordinate System
 
-When LinuxCNC is started the postions of each axis is the machine origin. Once
-an axis homed the the machine orgin for that axis is set to the homed position.
+When LinuxCNC is started the positions of each axis is the machine origin. Once
+an axis homed the the machine origin for that axis is set to the homed position.
 The machine origin is the machine coordinate system which all other coordinate
 systems are based. The <<gcode:g53,G53>> G code can be used to move in the
 machine coordinate system.

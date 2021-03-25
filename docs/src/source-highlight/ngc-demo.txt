@@ -1,8 +1,8 @@
 
-Source Hightlight Filter Test
+Source Highlight Filter Test
 =============================
 
-// for now, PDF's cant have highlighted ini,hal or ngc files
+// for now, PDF's can't have highlighted ini,hal or ngc files
 // for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
 // and make it a local copy in the current directory
 // HTML works fine

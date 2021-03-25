@@ -32,7 +32,7 @@ int rtapi_is_realtime()
 
 .SH DESCRIPTION
 \fBrtapi_is_kernelspace()\fR returns nonzero when rtapi modules run in kernel space (e.g., under rtai) and zero when they
-run in userpace (e.g., under uspace).
+run in userspace (e.g., under uspace).
 
 \fBrtapi_is_realtime()\fR returns nonzero when capable of running with realtime
 guarantees.  For rtai, this always returns nonzero (but actually loading

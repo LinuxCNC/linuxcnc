@@ -276,7 +276,7 @@ To setup DoubleStep on the parallel port you must add the function
 parport.n.reset after parport.n.write and configure stepspace to 0 and
 the reset time wanted. So that step can be asserted on every period in
 HAL and then toggled off by parport after being asserted for time
-specificed by parport.n.reset-time.
+specified by parport.n.reset-time.
 
 For example:
 

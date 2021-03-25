@@ -10,7 +10,7 @@ This is a card made by Opto22 for adapting the PCI port to solid state
 relay racks such as their standard or G4 series. It has 2 ports that
 can control up to 24 points each and has 4 on board LEDs. The ports use
 50 pin connectors the same as Mesa boards. Any relay racks/breakout
-boards thats work with Mesa Cards should work with this card with the
+boards that work with Mesa Cards should work with this card with the
 understanding any encoder counters, PWM, etc., would have to be done in
 software. The AC5 does not have any 'smart' logic on board, it is just 
 an adapter.
@@ -121,7 +121,7 @@ BINARY (radio button Bin). Press 1 for every output you want and/or
 zero for every input. Remember that HAL pin 00 corresponds to the
 rightmost bit. 24 numbers represent the 24 I/O points of one port. So
 for the default setting (12 inputs then 12 outputs) you would push 1
-twelve times (thats the outputs) then 0 twelve times (thats the
+twelve times (that's the outputs) then 0 twelve times (that's the
 inputs). Notice the first I/O point is the lowest (rightmost) bit.
 (that bit corresponds to HAL pin 00 .looks backwards) You should have
 24 digits on the screen. Now push the Hex radio button. The displayed

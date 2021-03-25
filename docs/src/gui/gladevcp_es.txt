@@ -356,7 +356,7 @@ SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 
 Note the 'halcmd loadusr' way of starting the tab command - this
 assures that 'POSTGUI_HALFILE' will only be run after the HAL
-component is ready. In rare cases you might run a a command here which
+component is ready. In rare cases you might run a command here which
 uses a tab but does not have an associated HAL component. Such a
 command can be started without 'halcmd loadusr', and this signifies to
 Axis that it does not have to wait for a HAL component since there is
