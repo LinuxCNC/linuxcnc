@@ -74,8 +74,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.editing_flag = False
         self.current_system = None
         self.current_tool = 0
-        self.mm_text_template = '%10.3f'
-        self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
         self.dialog_code = 'CALCULATOR'
         self.text_dialog_code = 'KEYBOARD'
@@ -267,6 +265,22 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.dialog_code = 'KEYBOARD'
     text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
 
+    def setmetrictemplate(self, data):
+        self.tablemodel.metric_text_template = data
+    def getmetrictemplate(self):
+        return self.tablemodel.metric_text_template
+    def resetmetrictemplate(self):
+        self.tablemodel.metric_text_template =  '%10.3f'
+    metric_template = pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+
+    def setimperialtexttemplate(self, data):
+        self.tablemodel.imperial_text_template = data
+    def getimperialtexttemplate(self):
+        return self.tablemodel.imperial_text_template
+    def resetimperialtexttemplate(self):
+        self.tablemodel.imperial_text_template =  '%9.4f'
+    imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+
 #########################################
 # custom model
 #########################################
@@ -279,7 +293,7 @@ class MyTableModel(QAbstractTableModel):
         """
         super(MyTableModel, self).__init__(parent)
         self.text_template = '%.4f'
-        self.mm_text_template = '%10.3f'
+        self.metric_text_template = '%10.3f'
         self.zero_text_template = '%10.1f'
         self.imperial_text_template = '%9.4f'
         self.degree_text_template = '%10.1f'
@@ -351,7 +365,7 @@ class MyTableModel(QAbstractTableModel):
                     tmpl = lambda s: self.degree_text_template % s
                     return tmpl(value)
                 elif self.metric_display:
-                    tmpl = lambda s: self.mm_text_template % s
+                    tmpl = lambda s: self.metric_text_template % s
                 else:
                     tmpl = lambda s: self.imperial_text_template % s
                 if self.metric_display != INFO.MACHINE_IS_METRIC:
