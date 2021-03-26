@@ -138,8 +138,8 @@ class Calculator( gtk.VBox ):
     def compute( self ):
         qualified = ''
         # print"string:",self.eval_string
-        temp = self.eval_string.strip( " " )
-        for i in( '-', '+', '/', '*', 'math.pi' ):
+        # this loop adds only spaces around the mentioned operators 
+        for i in( '-', '+', '/', '*', 'math.pi', '(', ')' ):
             new = " %s " % i
             temp = temp.replace( i, new )
         for i in temp.split():
@@ -173,6 +173,7 @@ class Calculator( gtk.VBox ):
         except:
             b = "Error"
         self.wTree.get_object( "displayText" ).set_text( b )
+        self.eval_string = b 
 
     def delete( self ):
         self.eval_string = ''
