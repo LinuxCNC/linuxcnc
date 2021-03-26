@@ -73,11 +73,15 @@ class Dialogs(gobject.GObject):
         dialog = gtk.Dialog(header,
                    caller.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                  (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                   gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         label = gtk.Label(label)
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
+        # add label to control the height of the action_area
+        label_h = gtk.Label("\n\n\n")
+        dialog.action_area.pack_start(label_h)
+        dialog.action_area.reorder_child(label_h, 0)
         dialog.vbox.pack_start(label)
         dialog.vbox.add(calc)
         if data != None:
