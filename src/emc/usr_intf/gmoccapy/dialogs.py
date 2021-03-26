@@ -91,7 +91,7 @@ class Dialogs(gobject.GObject):
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
         calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
-        dialog.parse_geometry("400x400")
+        dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
         self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button

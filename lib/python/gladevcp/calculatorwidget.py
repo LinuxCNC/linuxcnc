@@ -76,6 +76,9 @@ class Calculator( gtk.VBox ):
             "on_Dot_clicked" : self.displayDot,
             "on_Equal_clicked" : self.displayEqual,
             "on_Add_clicked" : self.displayAdd,
+            "on_Backspace_clicked" : self.displayBackspace,
+            "on_mm_inch_clicked" : self.displayMmInch,
+            "on_inch_mm_clicked" : self.displayInchMm            
             }
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
@@ -138,6 +141,7 @@ class Calculator( gtk.VBox ):
     def compute( self ):
         qualified = ''
         # print"string:",self.eval_string
+        temp = self.eval_string.strip( " " ).replace("Pi", "math.pi")
         # this loop adds only spaces around the mentioned operators 
         for i in( '-', '+', '/', '*', 'math.pi', '(', ')' ):
             new = " %s " % i
@@ -197,6 +201,16 @@ class Calculator( gtk.VBox ):
     def displayClr( self, widget ):
         self.delete()
 
+    def displayBackspace( self, widget ):
+        text = self.wTree.get_object( "displayText" ).get_text()
+        if(text == "Error"):
+            self.delete()
+        else:
+            if text[-2:] == "Pi":
+                self.wTree.get_object( "displayText" ).set_text(text[:-2])
+            else:
+                self.wTree.get_object( "displayText" ).set_text(text[:-1])
+
     def displayLeftBracket( self, widget ):
         self.displayOperand( "(" )
 
@@ -237,7 +251,7 @@ class Calculator( gtk.VBox ):
         self.displayOperand( locale.localeconv()["decimal_point"] )
 
     def displayPi( self, widget ):
-        self.displayOperand( "math.pi" )
+        self.displayOperand( "Pi" )
 
     def displayDiv( self, widget ):
         self.displayOperand( "/" )
@@ -253,6 +267,16 @@ class Calculator( gtk.VBox ):
 
     def displayAdd( self, widget ):
         self.displayOperand( "+" )
+
+    def displayMmInch( self, widget ):
+        self.eval_string = "("+ self.eval_string + ") / " + locale.format("%f", float(25.4))
+        print("Mn->Inch: {}".format(self.eval_string))
+        self.compute()
+
+    def displayInchMm( self, widget ):
+        self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
+        print("Inch->Mm: {}".format(self.eval_string))
+        self.compute()
 
     def do_get_property( self, property ):
         name = property.name.replace( '-', '_' )
