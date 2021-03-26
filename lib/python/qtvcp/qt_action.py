@@ -127,9 +127,9 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
-    def CALL_MDI_WAIT(self, code, time=5):
+    def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
         log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
-        self.ensure_mode(linuxcnc.MODE_MDI)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
             log.debug('MDI_COMMAND: {}'.format(l))
             self.cmd.mdi(l)
@@ -148,6 +148,8 @@ class _Lcnc_Action(object):
                 STATUS.emit('error', result[0], result[1])
                 log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
+        if mode_return:
+            self.ensure_mode(premode)
         return 0
 
     def CALL_INI_MDI(self, number):

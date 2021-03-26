@@ -1703,7 +1703,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
         else:
             direction = 'M4'
         speed  = self.spinBox_rpm.value()
-        ACTION.CALL_MDI('s{} {}'.format(speed,direction))
+        ACTION.CALL_MDI_WAIT('s{} {}'.format(speed,direction), mode_return=True)
 
 ################################
 # for testing without editor:
