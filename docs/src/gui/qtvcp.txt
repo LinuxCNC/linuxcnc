@@ -368,6 +368,8 @@ Typically '<filename>' would be the screens base name + '_postgui' + '.hal' +
 eg. 'qtvcp_postgui.hal' +
 These commands are executed after the screen is built, guaranteeing the widget HAL +
 pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' +
+Each will be run one after the other in the order they appear. +
  +
 In our example there are no HAl pins to connect. +
 
