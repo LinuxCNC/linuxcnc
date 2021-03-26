@@ -374,6 +374,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.dialog_code = 'CALCULATOR'
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
+    def set_keyboard_code(self, data):
+        self.text_dialog_code = data
+    def get_keyboard_code(self):
+        return self.text_dialog_code
+    def reset_keyboard_code(self):
+        self.text_dialog_code = 'KEYBOARD'
+    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
+
     def setmetrictemplate(self, data):
         self.metric_text_template = data
     def getmetrictemplate(self):

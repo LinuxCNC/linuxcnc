@@ -258,11 +258,11 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_keyboard_code(self, data):
-        self.dialog_code = data
+        self.text_dialog_code = data
     def get_keyboard_code(self):
-        return self.dialog_code
+        return self.text_dialog_code
     def reset_keyboard_code(self):
-        self.dialog_code = 'KEYBOARD'
+        self.text_dialog_code = 'KEYBOARD'
     text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
 
     def setmetrictemplate(self, data):
