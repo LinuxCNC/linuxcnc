@@ -1,0 +1,13 @@
+QtPlasmaC User Button Setup Page
+
+Enter the name of the button and the code used by the button.
+
+Names can display on two lines by using the backslash character "\"
+e.g. PROBE\TEST
+
+Random buttons may be used, there is no requirement to use consecutive buttons.
+ 
+The number of buttons showing in the GUI is dependent on the screen size.
+For 16:9 and 4:3 formats the minimum displayed user buttons is 10 and for the
+9:16 format the minimum is 16.
+

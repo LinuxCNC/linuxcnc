@@ -9,12 +9,15 @@ Frontend:
             any of these 3 options writes a hidden file in your home 
             directory named .axisrc. If this file already exists it
             will need to overwrite it.
-    set TOUCHY options
+    Set TOUCHY options.
         -TOUCHY can use GTK themes to change its look and feel.
             these are the same themes can you could choose for the
             whole system. The available themes will be listed.
         - size position and forcemax after positioning can be used to
             move TOUCHY to a second monitor if the system is capable. 
+    Set QtPlasmaC options.
+        - QtPlasmac has specific options not available in other GUI's.
+             Any options not used by QtPlasmaC will be disabled.
 
 Virtual Control Panels:
     PyVCP:
