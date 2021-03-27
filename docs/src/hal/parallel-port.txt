@@ -105,7 +105,7 @@ optionally be specified.  The type is one of 'in', 'out', 'epp', or 'x'.
 |11|in|in|in
 |12|in|in|in
 |13|in|in|in
-|14|in|out|in
+|14|out|out|in
 |15|in|in|in
 |16|out|out|in
 |17|out|out|in
