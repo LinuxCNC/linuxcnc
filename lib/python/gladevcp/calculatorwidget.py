@@ -177,7 +177,7 @@ class Calculator( gtk.VBox ):
         except:
             b = "Error"
         self.wTree.get_object( "displayText" ).set_text( b )
-        self.eval_string = b 
+        self.eval_string = b + " " # add space to indicate that calculation was last
 
     def delete( self ):
         self.eval_string = ''
@@ -188,6 +188,12 @@ class Calculator( gtk.VBox ):
             self.delete()
         if "Error" in self.eval_string:
             self.eval_string = ""
+        # clear text area when entering a number after a finished calculation
+        #if i.isdigit():
+        if i not in "+-*/" and self.eval_string != "":
+            if self.eval_string[-1] == " ":
+                self.eval_string = ""
+    
         self.eval_string = self.eval_string + i
         self.wTree.get_object( "displayText" ).set_text( str( self.eval_string ) )
 
