@@ -1,4 +1,4 @@
-VERSION = '1.0.7'
+VERSION = '1.0.8'
 
 import os, sys
 from shutil import copy as COPY
@@ -173,6 +173,7 @@ class HandlerClass:
         self.pmx485Connected = False
         self.pmx485CommsError = False
         self.pmx485FaultCode = 0.0
+        self.pmx485ArcTime = 0.0
         self.camCurrentX = self.camCurrentY = 0
         self.degreeSymbol = u"\u00b0"
         self.cameraOn = False
@@ -383,6 +384,7 @@ class HandlerClass:
         self.pmx485PressureMaxPin = self.h.newpin('pmx485_pressure_max', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485PressureMinPin = self.h.newpin('pmx485_pressure_min', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485StatusPin = self.h.newpin('pmx485_status', hal.HAL_BIT, hal.HAL_IN)
+        self.pmx485ArcTimePin = self.h.newpin('pmx485_arc_time', hal.HAL_FLOAT, hal.HAL_IN)
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
@@ -976,6 +978,7 @@ class HandlerClass:
             self.w.run.setText('CYCLE START')
         if not self.w.pmx485_enable.isChecked():
             self.w.pmx485_label.setText('')
+            self.w.pmx_stats_frame.hide()
         elif self.pmx485CommsError:
             if self.w.pmx485_label.text() == '':
                 self.w.pmx485_label.setText('COMMS ERROR')
@@ -3326,6 +3329,7 @@ class HandlerClass:
     def pmx485_timeout(self):
         self.pmx485CommsTimer.stop()
         self.w.pmx485_label.setText('COMMS ERROR')
+        self.w.pmx_stats_frame.hide()
         self.pmx485CommsError = True
         self.pmx485Connected = False
         self.pmx485RetryTimer.start(3000)
@@ -3344,20 +3348,21 @@ class HandlerClass:
             self.pmx485StatusPin.value_changed.connect(lambda w:self.pmx485_status_changed(w))
             self.pmx485ModePin.value_changed.connect(self.pmx485_mode_changed)
             self.pmx485FaultPin.value_changed.connect(lambda w:self.pmx485_fault_changed(w))
+            self.pmx485ArcTimePin.value_changed.connect(lambda w:self.pmx485_arc_time_changed(w))
             self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
             self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
             self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
                         'pmx485.mode_set', 'pmx485.mode', \
                         'pmx485.current_set', 'pmx485.current', 'pmx485.current_min', 'pmx485.current_max', \
-                        'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max']
+                        'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max', 'pmx485.arcTime']
             pinsSelf = ['pmx485_enable', 'pmx485_status', 'pmx485_fault', \
                         'cut_mode-f', 'pmx485_mode', \
                         'cut_amps-f', 'pmx485_current', 'pmx485_current_min', 'pmx485_current_max', \
-                        'gas_pressure-f', 'pmx485_pressure', 'pmx485_pressure_min', 'pmx485_pressure_max']
+                        'gas_pressure-f', 'pmx485_pressure', 'pmx485_pressure_min', 'pmx485_pressure_max', 'pmx485_arc_time']
             pinType = [hal.HAL_BIT, hal.HAL_BIT, hal.HAL_FLOAT, \
                        hal.HAL_FLOAT, hal.HAL_FLOAT, \
                        hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, \
-                       hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
+                       hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
             for pin in self.pins485Comp:
                 hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[self.pins485Comp.index(pin)])
                 hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
@@ -3421,6 +3426,7 @@ class HandlerClass:
             # good to go
             else:
                 self.w.pmx485_label.setText('CONNECTING')
+                self.w.pmx_stats_frame.hide()
                 self.pmx485Loaded = True
                 self.pmx485CommsTimer.start(3000)
         else:
@@ -3473,15 +3479,25 @@ class HandlerClass:
                 self.w.pmx485_label.setText('CONNECTED')
                 self.pmx485Connected = True
                 self.pmx485_min_max_changed()
+                if self.pmx485ArcTimePin.get():
+                    self.pmx485_arc_time_changed(self.pmx485ArcTimePin.get())
                 if self.pmx485FaultPin.get():
                     self.pmx485_fault_changed(self.pmx485FaultPin.get())
                 self.pmx485CommsTimer.stop()
                 self.pmx485RetryTimer.stop()
             else:
                 self.w.pmx485_label.setText('COMMS ERROR')
+                self.w.pmx_stats_frame.hide()
                 self.pmx485CommsError = True
                 self.pmx485Connected = False
                 self.pmx485RetryTimer.start(3000)
+
+    def pmx485_arc_time_changed(self, time):
+        if self.pmx485Connected:
+            self.pmx485ArcTime = self.pmx485ArcTimePin.get()
+            self.w.pmx_stats_frame.show()
+            self.w.pmx_arc_time_label.setText('ARC ON TIME')
+            self.display_time('pmx_arc_time_t', self.pmx485ArcTime)
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
