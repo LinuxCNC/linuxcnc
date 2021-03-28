@@ -36,6 +36,8 @@ rMode        = '2093'
 rPressure    = '2096'
 rPressureMax = '209D'
 rPressureMin = '209C'
+rArcTimeLow  = '209E'
+rArcTimeHigh = '209F'
 validRead    = '0402'
 started      = False
 errorCount   = 0
@@ -55,6 +57,7 @@ pmx485.newpin('current_min', hal.HAL_FLOAT, hal.HAL_OUT)  #minimum allowed curre
 pmx485.newpin('current_max', hal.HAL_FLOAT, hal.HAL_OUT)  #maximum allowed current
 pmx485.newpin('pressure_min', hal.HAL_FLOAT, hal.HAL_OUT) #minimum allowed gas pressure
 pmx485.newpin('pressure_max', hal.HAL_FLOAT, hal.HAL_OUT) #maximum allowed gas pressure
+pmx485.newpin('arcTime', hal.HAL_FLOAT, hal.HAL_OUT)     #arc on time feedback
 pmx485.ready()
 
 enabled = pmx485.enable
@@ -230,8 +233,13 @@ try:
                     fault = read_register(rFault)
                     if fault:
                         pmx485.fault = int(fault, 16)
+                    # get arc on time
+                    arcTimeLow = read_register(rArcTimeLow)
+                    arcTimeHigh = read_register(rArcTimeHigh)
+                    if arcTimeLow and arcTimeHigh:
+                        pmx485.arcTime = int((arcTimeHigh + arcTimeLow), 16)
                     # set status
-                    if mode and current and pressure and fault:
+                    if mode and current and pressure and fault and arcTimeLow and arcTimeHigh:
                         pmx485.status = True
                         errorCount = 0
                     else:
