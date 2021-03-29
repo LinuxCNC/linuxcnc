@@ -46,7 +46,7 @@ def preview(P, W):
             hAngle = math.radians(cAngle / holes)
         else:
             hAngle = math.radians(cAngle / (holes - 1))
-        ijDiff = float(W.kerf_width.text()) *W.kOffset.isChecked() / 2
+        ijDiff = float(W.kerf_width.value()) *W.kOffset.isChecked() / 2
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)

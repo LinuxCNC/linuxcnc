@@ -62,7 +62,7 @@ def preview(P, W):
         P.dialog_show(QMessageBox.Warning, 'SECTOR', msg)
         return
 # set origin position
-    kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+    kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():

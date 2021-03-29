@@ -35,9 +35,9 @@ def preview(P, W):
         ijDiff = 0
         if W.kOffset.isChecked():
             if W.cExt.isChecked():
-                ijDiff = float(W.kerf_width.text()) / 2 * math.sin(angle)
+                ijDiff = float(W.kerf_width.value()) / 2 * math.sin(angle)
             else:
-                ijDiff = float(W.kerf_width.text()) / 2 * -math.sin(angle)
+                ijDiff = float(W.kerf_width.value()) / 2 * -math.sin(angle)
 
         if W.liEntry.text():
             leadInOffset = math.sin(angle) * float(W.liEntry.text())
@@ -47,7 +47,7 @@ def preview(P, W):
             leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
         else:
             leadOutOffset = 0
-        kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
         if W.center.isChecked():

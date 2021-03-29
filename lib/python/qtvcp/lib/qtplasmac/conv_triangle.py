@@ -25,7 +25,7 @@ from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
-    kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+    kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():

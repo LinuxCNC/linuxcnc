@@ -52,7 +52,7 @@ def preview(P, W):
         up = math.radians(90)
         left = math.radians(180)
         down = math.radians(270)
-        kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
         if W.center.isChecked():
