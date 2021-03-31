@@ -91,6 +91,9 @@ The difference between command and feedback.
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
 .TP
+\fBpid.\fIN\fB.keep-integrator\fR bit in
+When true, internal integrator is not reset when \fBenable\fR is false.
+.TP
 \fBpid.\fIN\fB.index\-enable\fR bit in
 On the falling edge of \fBindex\-enable\fR, pid does not update the
 internal command derivative estimate.  On systems which use the encoder
