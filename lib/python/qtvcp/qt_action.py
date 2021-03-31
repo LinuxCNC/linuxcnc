@@ -112,7 +112,7 @@ class _Lcnc_Action(object):
             # let calling function know we didn't release the limit override
             return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
             STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
