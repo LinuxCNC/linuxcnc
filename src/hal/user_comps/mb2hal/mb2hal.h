@@ -60,6 +60,7 @@ typedef enum { retOK, retOKwithWarning, retERR
 #define ERR(debug, fmt, args...) if(debug >= debugERR) {fprintf(stderr, "%s %s ERR: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}
 #define OK(debug, fmt, args...) if(debug >= debugOK) {fprintf(stdout, "%s %s OK: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}
 #define DBG(debug, fmt, args...) if(debug >= debugDEBUG) {fprintf(stdout, "%s %s DEBUG: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}
+#define DBGMAX(debug, fmt, args...) if(debug >= debugMAX) {fprintf(stdout, "%s %s DEBUGMAX: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}
 
 //Modbus transaction structure (mb_tx_t)
 //Store each transaction defined in INI config file

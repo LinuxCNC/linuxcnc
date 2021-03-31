@@ -149,7 +149,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             this_mb_tx_num = tx_counter;
             this_mb_tx = &gbl.mb_tx[this_mb_tx_num];
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //corresponding link and time (update_rate)
@@ -159,13 +159,13 @@ void *link_loop_and_logic(void *thrd_link_num)
                 return NULL;
             }
             if (ret_available == 0) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
+                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //first time connection or reconnection, run time parameters setting
@@ -175,13 +175,13 @@ void *link_loop_and_logic(void *thrd_link_num)
                 return NULL;
             }
             if (ret_connected == 0) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
+                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                 this_mb_tx->protocol_debug);
 
@@ -351,11 +351,11 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
                 this_mb_tx_num, this_mb_tx->mb_link_num, ret, modbus_get_socket(this_mb_link->modbus));
             return retOK; //not connected
         }
-        DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
+        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
     else {
-        DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
+        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
 
