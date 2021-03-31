@@ -588,7 +588,7 @@ class HandlerClass:
     def btn_home_clicked(self):
         joint = self.w.sender().property('joint')
         axis = INFO.GET_NAME_FROM_JOINT.get(joint).lower()
-        if self.w["dro_axis_{}".format(axis)].property('homed') is True:
+        if self.w["dro_axis_{}".format(axis)].property('isHomed') is True:
             ACTION.SET_MACHINE_UNHOMED(joint)
         else:
             ACTION.SET_MACHINE_HOMING(joint)
