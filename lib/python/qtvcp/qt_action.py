@@ -115,7 +115,7 @@ class _Lcnc_Action(object):
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error', 255, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):

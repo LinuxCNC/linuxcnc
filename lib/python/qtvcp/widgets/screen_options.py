@@ -324,7 +324,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
 
-            elif kind == 255: # temporary info
+            elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Low Priority:',
