@@ -532,6 +532,8 @@ class HandlerClass:
     def _check_override_limits(self,state,data):
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
+        else:
+            self.w.chk_override_limits.setChecked(True)
 
     #######################
     # CALLBACKS FROM FORM #

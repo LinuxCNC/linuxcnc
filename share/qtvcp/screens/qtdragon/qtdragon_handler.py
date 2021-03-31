@@ -512,6 +512,8 @@ class HandlerClass:
         print state, data
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
+        else:
+            self.w.chk_override_limits.setChecked(True)
 
     #######################
     # CALLBACKS FROM FORM #
