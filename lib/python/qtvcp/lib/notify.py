@@ -28,6 +28,7 @@ class Notify:
         self.alarmpage = []
         self.critical_message = None
         self.normal_message = None
+        self.hard_limits_message = None
         STATUS.connect('shutdown', self.cleanup)
 
     # This prints a message in the status bar (if available)
@@ -56,6 +57,17 @@ class Notify:
         except Exception as e:
             log.warning('New_critical error:', exc_info=e)
         return self.critical_message
+
+    # Screenoption uses this for hard limit errors
+    # they stay up till cleared
+    # self.critical_message gives reference for external controls
+    def new_hard_limits(self, icon="", callback=None):
+        messageid = None
+        try:
+            self.hard_limits_message = self.build_hard_limits_notification(icon, callback)
+        except Exception as e:
+            log.warning('New_critical error:', exc_info=e)
+        return self.hard_limits_message
 
     # Screenoption uses this for errors / operator messages
     # they stay up till cleared
@@ -93,6 +105,17 @@ class Notify:
         n.addAction("action_click", "Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
         n.addAction('destroy_clicked', 'Clear All', self.destroyClicked)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
+        self.notify_list.append(n)
+        return n
+
+    def build_hard_limits_notification(self, icon=None, callback=None):
+        self._hardLimitsCallback = callback
+        n = sys_notify.Notification('', '', icon)
+        n.setUrgency(sys_notify.Urgency.CRITICAL)
+        n.setTimeout(0)
+        n.addAction("action_click", "Override Limits", self._hardLimitsCallback)
+        n.onClose(self.handle_closed)
         n.addAction('close_clicked', 'Close', self.closeClicked)
         self.notify_list.append(n)
         return n
