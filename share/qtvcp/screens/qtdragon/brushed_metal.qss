@@ -33,7 +33,7 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#action_machine_on:checked {
+ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
 
