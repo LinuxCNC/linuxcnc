@@ -222,6 +222,9 @@ class Notification(object):
         except KeyError:
             return
 
+        if callback is None:
+            LOG.INFO('Callback is None: {}'.format(label))
+            return
         if user_data is None:
             callback(self, action)
         else:
