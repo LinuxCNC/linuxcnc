@@ -91,6 +91,7 @@ class HandlerClass:
         STATUS.connect('interp-idle', lambda w: self.stop_timer())
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
         STATUS.connect('requested-spindle-speed-changed',self.update_spindle_requested)
+        STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
         self.html = """<html>
 <head>
@@ -526,7 +527,12 @@ class HandlerClass:
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
-    
+
+    # keep check button in synch of external changes
+    def _check_override_limits(self,state,data):
+        if 0 in data:
+            self.w.chk_override_limits.setChecked(False)
+
     #######################
     # CALLBACKS FROM FORM #
     #######################
@@ -799,13 +805,21 @@ class HandlerClass:
         self.w.camview.rotation = float(value) / 10
 
     # settings tab
+
     def chk_override_limits_checked(self, state):
-        if state:
-            print("Override limits set")
+        # only toggle override if it's not in synch with the button
+        if state and not STATUS.is_limits_override_set():
+            self.add_status("Override limits set")
             ACTION.TOGGLE_LIMITS_OVERRIDE()
-        else:
-            ACTION.TOGGLE_LIMITS_OVERRIDE()
-            print("Override limits not set")
+        elif not state and STATUS.is_limits_override_set():
+            error = ACTION.TOGGLE_LIMITS_OVERRIDE()
+            # if override can't be released set the check button to reflect this
+            if error == False:
+                self.w.chk_override_limits.blockSignals(True)
+                self.w.chk_override_limits.setChecked(True)
+                self.w.chk_override_limits.blockSignals(False)
+            else:
+                self.add_status("Override limits not set")
 
     def chk_run_from_line_changed(self, state):
         if not state:

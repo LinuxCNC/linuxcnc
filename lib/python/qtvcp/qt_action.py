@@ -109,11 +109,12 @@ class _Lcnc_Action(object):
     def TOGGLE_LIMITS_OVERRIDE(self):
         if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '''Can Not Reset Limits Override - Still On Hard Limits''')
+            # let calling function know we didn't release the limit override
+            return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            # make it temporary
             STATUS.emit('error', 255, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
