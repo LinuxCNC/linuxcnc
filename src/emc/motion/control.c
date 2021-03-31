@@ -659,11 +659,10 @@ static void process_probe_inputs(void)
         int i;
         int aborted = 0;
 
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) &&
-           tpGetExecId(&emcmotDebug->coord_tp) <= 0) {
-            // running an MDI command
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp)) {
+            // running an command
             tpAbort(&emcmotDebug->coord_tp);
-            reportError(_("Probe tripped during non-probe MDI command."));
+            reportError(_("Probe tripped during non-probe move."));
 	    SET_MOTION_ERROR_FLAG(1);
         }
 
