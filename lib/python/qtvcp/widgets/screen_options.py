@@ -27,7 +27,7 @@ from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.machine_log import MachineLogger
-from qtvcp.core import Status, Info, Tool, Path
+from qtvcp.core import Status, Info, Tool, Path, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -46,6 +46,7 @@ TOOL = Tool()
 PATH = Path()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
+ACTION = Action()
 
 try:
     SOUND = Player()
@@ -253,6 +254,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.desktop_notify:
             self.notify_critical = NOTICE.new_critical()
             self.notify_normal = NOTICE.new_normal()
+            self.notify_hard_limits = NOTICE.new_hard_limits(callback = self._override_limits)
             if self.notify_start_greeting:
                 NOTICE.notify(self.notify_start_title, self.notify_start_detail, None,
                         self.notify_start_timeout, self. notify_start_timeout)
@@ -304,7 +306,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.emit('error',kind,text)
 
     def process_error(self, w, kind, text):
-            if kind == linuxcnc.OPERATOR_ERROR:
+            if 'on limit switch error' in text:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text)
+            elif kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
             elif kind == linuxcnc.OPERATOR_TEXT:
@@ -327,7 +332,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
-                                    title='Low Priority:',
+                                    title='Operator Info:',
                                      message=text,
                                     status_timeout=0,
                                     timeout=2)
@@ -630,6 +635,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.error('zmq message sending error: {}'.format(e))
         else:
             LOG.info('ZMQ Message not enabled. message:{} {}'.format(topic,args))
+
+    def _override_limits(self, n, signal_text):
+        if not STATUS.is_limits_override_set():
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
+        ACTION.SET_MACHINE_STATE(True)
 
     ########################################################################
     # This is how designer can interact with our widget properties.
