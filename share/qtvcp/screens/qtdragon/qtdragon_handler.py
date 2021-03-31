@@ -509,7 +509,6 @@ class HandlerClass:
 
     # keep check button in synch of external changes
     def _check_override_limits(self,state,data):
-        print state, data
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
         else:
