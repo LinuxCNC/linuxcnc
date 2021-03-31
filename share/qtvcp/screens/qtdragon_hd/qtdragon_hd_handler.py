@@ -490,17 +490,6 @@ class HandlerClass:
         else:
             self.w.progressBar.setFormat('COMPLETE: {}%'.format(fraction))
 
-    def homed(self, obj, joint):
-        i = int(joint)
-        axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-        try:
-            widget = self.w["dro_axis_{}".format(axis)]
-            widget.setProperty('homed', True)
-            widget.style().unpolish(widget)
-            widget.style().polish(widget)
-        except:
-            pass
-
     def all_homed(self, obj):
         self.home_all = True
         self.w.btn_home_all.setText("ALL HOMED")
