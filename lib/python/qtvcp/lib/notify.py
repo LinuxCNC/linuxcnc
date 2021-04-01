@@ -192,7 +192,7 @@ class Notify:
             num = len(self.alarmpage) - i
             if i > len(self.alarmpage): break
             n.body = '{}\nREVIEW #{} of {}\n{}'.format(n.body,
-                                                       i,
+                                                       num +1,
                                                        len(self.alarmpage),
                                                        self.alarmpage[num][1])
         n.show()
@@ -206,10 +206,22 @@ class Notify:
     #####################################################
     # update the critical message display
     # this adds the new message to the old
+    # show a max of 10 messages on screen
     def update(self, n, title='', message='', status_timeout=5, timeout=None):
         if title is not None:
             n.title = title
-        n.body = n.body + '\n' + title + '\n' + message
+        if self.alarmpage ==[]:
+            n.body = title + '\n' + message
+        elif len(self.alarmpage) <9:
+            n.body = ''
+            for i in range(len(self.alarmpage)):
+                n.body = n.body + '\n' +  self.alarmpage[i][1]
+            n.body = n.body + '\n' + title + '\n' + message
+        else:
+            n.body = ''
+            for i in range(len(self.alarmpage)-9,len(self.alarmpage)):
+                n.body = n.body + '\n' +  self.alarmpage[i][1]
+            n.body = n.body + '\n' + title + '\n' + message
         if timeout is not None:
             n.setTimeout(timeout * 1000)
         n.show()
