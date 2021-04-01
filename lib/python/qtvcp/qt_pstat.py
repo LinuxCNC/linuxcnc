@@ -179,34 +179,20 @@ class _PStat(object):
         qrcpy_fn = 'resources.py'
         self.QRCPY_IS_LOCAL = None
         if self.IS_SCREEN:
-            defaultqrcpy = os.path.join(self.SCREENDIR, self.BASEPATH, qrcpy_fn)
-            localqrcpy = os.path.join(self.CONFIGPATH, self.BASEPATH,qrcpy_fn)
+            localqrcpy = os.path.join(self.CONFIGPATH, 'qtvcp/screens', self.BASEPATH,qrcpy_fn)
         else:
-            localqrcpy = os.path.join(self.WORKINGDIR, qrcpy_fn)
-            defaultqrcpy = os.path.join(self.PANELDIR, self.BASEPATH, qrcpy_fn)
+            localqrcpy = os.path.join(self.WORKINGDIR, 'qtvcp/panels', qrcpy_fn)
 
         LOG.debug("Checking for resources.py in: yellow<{}>".format(localqrcpy))
         # if there is a local resource file or a QRC to compile it from:
-        if os.path.exists(localqrcpy) or self.QRC_IS_LOCAL:
+        if os.path.exists(localqrcpy) or self.QRC is not None:
             if os.path.exists(localqrcpy):
                 LOG.info("Using LOCAL resources.py file from yellow<{}>".format(localqrcpy))
             else:
-                LOG.info("LOCAL Resources.py file needs to be compiled at: {}".format(localqrcpy))
+                LOG.info("Resources.py file needs to be compiled at: {}".format(localqrcpy))
             self.QRCPY = localqrcpy
             self.QRCPY_IS_LOCAL = True
             return
-        else:
-            LOG.debug("Checking for resources.py in: yellow<{}>".format(defaultqrcpy))
-            # if there is a default resource file or a QRC to compile it from:
-            if os.path.exists(defaultqrcpy) or self.QRC_IS_LOCAL is not None:
-                if os.path.exists(defaultqrcpy):
-                    LOG.info("Using DEFAULT resources.py file from yellow<{}>".format(defaultqrcpy))
-                else:
-                    LOG.info("DEFAULT Resources.py file needs to be compiled at: {}".format(defaultqrcpy))
-                self.QRCPY = defaultqrcpy
-                self.QRCPY_IS_LOCAL = False
-                return
-
         self.QRCPY = None
         LOG.info("No resources.py file found, No QRC file to compile one from.")
 
