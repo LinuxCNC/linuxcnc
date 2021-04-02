@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.205 - 2021 Mar 14
+0.206 - 2021 Apr 2
 
 .I SUMMARY:
 .br
@@ -369,7 +369,7 @@ FUNCTION(_) {
         probe_velocity = setup_velocity;
     }
     if(mode == 2){
-        thc_velocity = thc_feed_rate * velocity_scale * pid_p_gain / 100;
+        thc_velocity = thc_feed_rate * velocity_scale * pid_p_gain * res / 100;
     }else{
         thc_velocity = thc_feed_rate * velocity_scale;
     }
@@ -1234,9 +1234,9 @@ FUNCTION(_) {
                                     if(fabs(pid_error_now) < fabs(thc_threshold * 0.1)){
                                         pid_error_now = 0;
                                     }
-                                    pid_output = pid_error_now * pid_p_gain;
-                                    pid_output += pid_error_now * pid_i_gain * fperiod;
-                                    pid_output += (pid_error_now - pid_error_old) * pid_d_gain / fperiod;
+                                    pid_output = pid_error_now * pid_p_gain * res;
+                                    pid_output += pid_error_now * pid_i_gain * res * fperiod;
+                                    pid_output += (pid_error_now - pid_error_old) * pid_d_gain * res / fperiod;
                                     pid_error_old = pid_error_now;
                                     if(pid_output > thc_velocity){
                                         pid_output = thc_velocity;
