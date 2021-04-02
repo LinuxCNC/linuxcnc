@@ -2119,7 +2119,9 @@ Write a Python module like so and save as e.g. handlers.py:
 ----------------------------------
 nhits = 0
 def on_button_press(gtkobj,data=None):
-    global nhits nhits += 1 gtkobj.set_label("hits: %d" % nhits)
+    global nhits
+    nhits += 1 
+    gtkobj.set_label("hits: %d" % nhits)
 ----------------------------------
 
 In Glade, define a button or HAL button, select the 'Signals' tab, and
