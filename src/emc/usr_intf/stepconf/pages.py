@@ -360,7 +360,8 @@ class Pages:
                 self.w.radiobutton8.set_active(True)
         if self.d.select_axis: temp = 0
         elif self.d.select_gmoccapy: temp = 1
-        else: temp = 2
+        elif self.d.select_qtdragon: temp = 2
+        else: temp = 3
         self.w.combobox_screens.set_active(temp)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
@@ -379,18 +380,50 @@ class Pages:
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
+        # set the qtplasmac radiobuttons
+        if self.d.sim_hardware:
+            self.d.qtplasmacestop = 0
+            self.w.qtplasmac_estop_2.set_sensitive(False)
+        else:
+            self.w.qtplasmac_estop_2.set_sensitive(True)
+        if self.d.qtplasmacmode == 2:
+            self.w.qtplasmac_mode_2.set_active(True)
+        elif self.d.qtplasmacmode == 1:
+            self.w.qtplasmac_mode_1.set_active(True)
+        else:
+            self.w.qtplasmac_mode.set_active(True)
+        if self.d.qtplasmacscreen == 2:
+            self.w.qtplasmac_screen_2.set_active(True)
+        elif self.d.qtplasmacscreen == 1:
+            self.w.qtplasmac_screen_1.set_active(True)
+        else:
+            self.w.qtplasmac_screen.set_active(True)
+        if self.d.qtplasmacestop == 2:
+            self.w.qtplasmac_estop_2.set_active(True)
+        elif self.d.qtplasmacestop == 1:
+            self.w.qtplasmac_estop_1.set_active(True)
+        else:
+            self.w.qtplasmac_estop.set_active(True)
+        # set the qtplasmac spinboxes
+        self.w.qtplasmac_cam_x.set_value(self.d.qtplasmacxcam)
+        self.w.qtplasmac_cam_y.set_value(self.d.qtplasmacycam)
+        self.w.qtplasmac_laser_x.set_value(self.d.qtplasmacxlaser)
+        self.w.qtplasmac_laser_y.set_value(self.d.qtplasmacylaser)
+        self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
     def options_finish(self):
         SIG = self._p
-        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = False
+        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = self.d.select_qtplasmac = False
         choice = self.w.combobox_screens.get_active()
         if choice == 0:
             self.d.select_axis = True
         elif choice == 1:
             self.d.select_gmoccapy = True
-        else:
+        elif choice == 2:
             self.d.select_qtdragon = True
-        self.d.pyvcp = self.w.pyvcp.get_active()
+        else:
+            self.d.select_qtplasmac = True
+        self.d.pyvcp = self.w.pyvcp.get_active() and not self.d.select_qtplasmac
         self.d.classicladder = self.w.classicladder.get_active()
         self.d.modbus = self.w.modbus.get_active()
         self.d.digitsin = self.w.digitsin.get_value()
@@ -399,10 +432,10 @@ class Pages:
         self.d.s32out = self.w.s32out.get_value()
         self.d.floatsin = self.w.floatsin.get_value()
         self.d.floatsout = self.w.floatsout.get_value()
-        self.d.halui = self.w.halui.get_active()
-        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active()  
+        self.d.halui = self.w.halui.get_active() and not self.d.select_qtplasmac
+        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active() and not self.d.select_qtplasmac
         self.d.ladderconnect = self.w.ladderconnect.get_active()   
-        self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
+        self.d.manualtoolchange = self.w.manualtoolchange.get_active() and not self.d.select_qtplasmac
         if self.d.classicladder:
            if self.w.radiobutton1.get_active() == True:
               if self.d.tempexists:
@@ -445,6 +478,17 @@ class Pages:
               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                  if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
                    return True
+        # set the qtplasmac variables
+        self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
+        self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
+        self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacxcam = self.w.qtplasmac_cam_x.get_value()
+        self.d.qtplasmacycam = self.w.qtplasmac_cam_y.get_value()
+        self.d.qtplasmacxlaser = self.w.qtplasmac_laser_x.get_value()
+        self.d.qtplasmacylaser = self.w.qtplasmac_laser_y.get_value()
+        self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
+        self.page_set_state('spindle',((self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) \
+                                        and not self.d.select_qtplasmac))
 
     # options page callback
     def on_loadladder_clicked(self, *args):
@@ -473,6 +517,22 @@ class Pages:
 
     def on_halui_toggled(self, *args):
         self.page_set_state('halui_page', self.w.halui.get_active())
+
+    def on_combobox_screens_changed(self, widget):
+        index = self.w.combobox_screens.get_active()
+        item = self.w.liststore_screens[index][0]
+        if item == "QtPlasmaC":
+            for item in ["manualtoolchange", "halui", "pyvcp"]:
+                self.w[item].set_active(False)
+            for item in ["manualtoolchange", "halui", "pyvcp", "vbox6"]:
+                self.w[item].hide()
+            self.w.qtplasmac_table.show()
+            self.page_set_state('ubuttons', True)
+        else:
+            self.w.qtplasmac_table.hide()
+            for item in ["manualtoolchange", "halui", "pyvcp", "vbox6"]:
+                self.w[item].show()
+            self.page_set_state('ubuttons', False)
 
 #***************
 # halui PAGE
@@ -583,9 +643,14 @@ class Pages:
         self._p.in_pport_prepare = False
 
     def pport1_finish(self):
+        self.page_set_state('thcad', False)
+        self.d.thcadenc = 0
         for pin in (10,11,12,13,15):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
+            if self.d[p] == "plasmac:arc-voltage-raw":
+                self.page_set_state('thcad', True)
+                self.d.thcadenc = 1
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
@@ -677,6 +742,36 @@ class Pages:
         self.a.do_exclusive_inputs(widget,2)
 
             
+#************
+# UBUTTONS (QtPlasmaC User Buttons)
+#************
+    def ubuttons_prepare(self):
+        for ub in range(1, 21):
+            self.w["bname_{}".format(ub)].set_text(self.d.qtplasmac_bnames[ub-1])
+            self.w["bcode_{}".format(ub)].set_text(self.d.qtplasmac_bcodes[ub-1])
+
+    def ubuttons_finish(self):
+        for ub in range(1, 21):
+            self.d.qtplasmac_bnames[ub-1] = self.w["bname_{}".format(ub)].get_text()
+            self.d.qtplasmac_bcodes[ub-1] = self.w["bcode_{}".format(ub)].get_text()
+
+#************
+# THCAD (QtPlasmaC THCAD)
+#************
+    def thcad_prepare(self):
+        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
+        self.w.voltszerof.set_value(self.d.voltszerof)
+        self.w.voltsfullf.set_value(self.d.voltsfullf)
+        self.w.voltsrdiv.set_value(self.d.voltsrdiv)
+
+    def thcad_finish(self):
+        self.d.voltsmodel = ["5", "10", "300"][self.w.voltsmodel.get_active()]
+        self.d.voltsfjumper = ["1", "32", "64", "128"][self.w.voltsfjumper.get_active()]
+        self.d.voltszerof = self.w.voltszerof.get_value()
+        self.d.voltsfullf = self.w.voltsfullf.get_value()
+        self.d.voltsrdiv = self.w.voltsrdiv.get_value()
+
 #*******************
 # AXIS X PAGE
 #*******************

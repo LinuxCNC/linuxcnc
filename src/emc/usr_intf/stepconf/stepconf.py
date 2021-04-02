@@ -154,6 +154,8 @@ class Private_Data:
                                 ['base',_('Base Information'),True],
                                 ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
                                 ['options',_('Options'), True],['halui_page', _('HALUI'), True],
+                                ['ubuttons',_('User Buttons'), False],
+                                ['thcad',_('QtPlasmaC THCAD'), False],
                                 ['axisx', _('Axis X'), True],
                                 ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
                                 ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
@@ -185,7 +187,8 @@ class Private_Data:
             self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
             self.MIST, self.FLOOD, self.ESTOP, self.AMP,
             self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
-            self.UNUSED_OUTPUT 
+            self.OHMIC_ENABLE,self.SCRIBE_ARM,self.SCRIBE_ON,self.PLASMAC_TORCH,self.PLASMAC_LASER,
+            self.UNUSED_OUTPUT,
         ) = self.hal_output_names = [
             "xstep", "xdir", "ystep", "ydir",
             "zstep", "zdir", "astep", "adir",
@@ -193,6 +196,7 @@ class Private_Data:
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "xenable",
             "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on",
             "unused-output"]
 
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
@@ -204,7 +208,8 @@ class Private_Data:
             self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
             self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
             self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
-            self.UNUSED_INPUT
+            self.ARC_VOLTS,self.ARC_OK,self.OHMIC_PROBE,self.FLOAT_SWITCH,self.BREAKAWAY,self.MOVE_UP,self.MOVE_DOWN,
+            self.UNUSED_INPUT,
         ) = self.hal_input_names = [
             "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
             "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
@@ -215,6 +220,8 @@ class Private_Data:
             "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
             "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
             "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
+            "plasmac:arc-voltage-raw", "plasmac:arc-ok-in", "plasmac:ohmic-probe", "plasmac:float-switch",
+            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down",
             "unused-input"]
 
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
@@ -224,6 +231,7 @@ class Private_Data:
             _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
             _("Charge Pump"),
             _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
+            _("Plasma Ohmic Enable"), _("Plasma Scribe Arm"), _("Plasma Scribe On"),_("Plasma Torch On"),_("Plasma Laser On"),
             _("Unused"))
 
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
@@ -249,6 +257,8 @@ class Private_Data:
             _("Both Limit U"), _("Both Limit V"),
             _("All limits"), _("All home"), _("All limits + homes"),
             _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
+            _("Plasma Arc Voltage"), _("Plasma Arc OK"), _("Plasma Ohmic Probe"), ("Plasma Float Switch"),
+            _("Plasma Breakaway"), _("Plasma Move Up"), _("Plasma Move Down"),
             _("Unused"))
 
         self.MESS_START = _('Start')
@@ -316,6 +326,7 @@ class Data:
         self.select_axis = True
         self.select_gmoccapy = False
         self.select_qtdragon = False
+        self.select_qtplasmac = False
 
         self.pin1inv = 0
         self.pin2inv = 0
@@ -422,6 +433,26 @@ class Data:
         self.halui_list = []
         self.createsymlink = 1
         self.createshortcut = 1
+
+        # QtPlasmaC
+        self.qtplasmacmode = 0
+        self.qtplasmacscreen = 0
+        self.qtplasmacestop = 0
+        self.qtplasmacxcam = 0.0
+        self.qtplasmacycam = 0.0
+        self.qtplasmacxlaser = 0.0
+        self.qtplasmacylaser = 0.0
+        self.qtplasmacpmx = ""
+        self.qtplasmac_bnames = ["PROBE\TEST","OHMIC\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE", \
+                                 "","","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["probe-test 10","ohmic-test","single-cut","cut-type","torch-pulse 0.5", \
+                                 "","","","","","","","","","","","","","",""]
+        self.thcadenc = 0
+        self.voltsmodel = "10"
+        self.voltsfjumper = "64"
+        self.voltszerof = 100.0
+        self.voltsfullf = 999.0
+        self.voltsrdiv = 20
 
     # change the XYZ axis defaults to metric or imperial
     # This only sets data that makes sense to change eg gear ratio don't change
@@ -818,6 +849,24 @@ class StepconfApp:
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
+        # link to qtplasmac common directory
+        if self.d.select_qtplasmac:
+            if BASE == "/usr":
+                commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
+            else:
+                commonPath = '{}/configs/by_machine/qtplasmac/qtplasmac/'.format(BASE)
+            oldDir = '{}/qtplasmac'.format(base)
+            if os.path.islink(oldDir):
+                os.unlink(oldDir)
+            elif os.path.exists(oldDir):
+                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
+            os.symlink(commonPath, '{}/qtplasmac'.format(base))
+            # different tool table for plasmac
+            filename = os.path.join(base, "tool.tbl")
+            file = open(filename, "w")
+            print("T0 P1 X0 Y0 ;torch", file=file)
+            print("T1 P2 X0 Y0 ;scribe", file=file)
+            file.close()
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_QUIT,False):
             Gtk.main_quit()
