@@ -846,7 +846,7 @@ class touchy:
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
         def postgui(self):
-                postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
+                postgui_halfile = self.ini.findall("HAL", "POSTGUI_HALFILE") or None
                 return postgui_halfile,sys.argv[2]
  
         def trivkins(self):
@@ -870,10 +870,11 @@ if __name__ == "__main__":
         # load a postgui file if one is present in the INI file
         postgui_halfile,inifile = touchy.postgui(hwg)
         print("TOUCHY postgui filename:",postgui_halfile)
-        if postgui_halfile:
-                if postgui_halfile.lower().endswith('.tcl'):
-                        res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
+        if postgui_halfile is not None:
+            for f in postgui_halfile:
+                if f.lower().endswith('.tcl'):
+                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
                 else:
-                        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
                 if res: raise SystemExit(res)
         gtk.main()
