@@ -5222,14 +5222,13 @@ if __name__ == "__main__":
     print ("**** GMOCCAPY INFO : inifile = {0} ****:".format(sys.argv[2]))
     postgui_halfile = app.get_ini_info.get_postgui_halfile()
     print ("**** GMOCCAPY INFO : postgui halfile = {0} ****:".format(postgui_halfile))
-
-    if postgui_halfile:
-        if postgui_halfile.lower().endswith('.tcl'):
-            res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, postgui_halfile])
-        else:
-            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", postgui_halfile])
-        if res:
-            raise SystemExit(res)
+    if postgui_halfile is not None:
+        for f in postgui_halfile:
+            if f.lower().endswith('.tcl'):
+                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+            else:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+            if res: raise SystemExit(res)
 
     gtk.main()
 

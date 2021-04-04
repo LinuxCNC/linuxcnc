@@ -51,9 +51,7 @@ class GetIniInfo:
             return 150
 
     def get_postgui_halfile(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
-        if not postgui_halfile:
-            postgui_halfile = None
+        postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile
 
     def get_preference_file_path(self):
