@@ -3869,7 +3869,7 @@ class Gscreen:
 
     # finds the postgui file name and INI file path
     def postgui(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
+        postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile,sys.argv[2]
 
     # zooms in a set amount (set deep in gremlin)
@@ -4666,11 +4666,12 @@ if __name__ == "__main__":
         sys.exit(0)
     postgui_halfile,inifile = Gscreen.postgui(app)
     print("**** GSCREEN INFO: postgui filename:",postgui_halfile)
-    if postgui_halfile:
-        if postgui_halfile.lower().endswith('.tcl'):
-            res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
-        else:
-            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
-        if res: raise SystemExit(res)
+    if postgui_halfile is not None:
+        for f in postgui_halfile:
+            if f.lower().endswith('.tcl'):
+                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+            else:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+            if res: raise SystemExit(res)
     gtk.main()
 
