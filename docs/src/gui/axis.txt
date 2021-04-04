@@ -861,9 +861,13 @@ image::images/axis-foam.png[align="center", alt="Foam cutting mode"]
 == Advanced Configuration
 
 When AXIS is started it creates the HAL pins for the GUI then it executes
-the HAL file named in '[HAL]POSTGUI_HALFILE' in the ini file. Only one post
-GUI file may be used. Place all HAL commands that connect to the GUI HAL pins
-in the post gui HAL file.
+the HAL file named in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
+Typically '<filename>' would be the configs base name + '_postgui' + '.hal' +
+eg. 'lathe_postgui.hal', but can be any legal filename. +
+These commands are executed after the screen is built, 
+guaranteeing the widget's HAL pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+Each will be run one after the other in the order they appear. +
 
 === Program Filters
 
