@@ -16,10 +16,10 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
 
 
-axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface.
+axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. link:../man/man9/axis.9.html[Details] 
 axis-remote:: AXIS Remote Interface.
-comp:: Build, compile and install LinuxCNC HAL components.
-gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets.
+comp:: Build, compile and install LinuxCNC HAL components. 
+gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. link:../man/man9/gladevcp.9.html[Details] 
 gs2:: HAL userspace component for Automation Direct GS2 VFD's.
 halcmd:: Manipulate the Enhanced Machine Controller HAL from the command line.
 hal_input:: Control HAL pins with any Linux input device, including USB HID devices.
@@ -96,75 +96,77 @@ select8:: (((select8)))8-bit binary match detector.
 
 === Arithmetic and float-components
 
-abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
+abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal. link:../man/man9/abs.9.html[Details]
 
-blend:: (((blend)))Perform linear interpolation between two values.
+blend:: (((blend)))Perform linear interpolation between two values. link:../man/man9/blend.9.html[Details]
 
-comp:: (((comp)))Two input comparator with hysteresis.
+comp:: (((comp)))Two input comparator with hysteresis. link:../man/man9/comp.9.html[Details]
 
-constant:: (((constant)))Use a parameter to set the value of a pin.
+constant:: (((constant)))Use a parameter to set the value of a pin. link:../man/man9/constant.9.html[Details]
 
-sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
+sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset. link:../man/man9/sum2.9.html[Details]
 
 counter:: (((counter)))Counts input pulses (deprecated).
 Use the <<sec:encoder, encoder>> component. 
 
-updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
+updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior. link:../man/man9/updown.9.html[Details]
 
-ddt:: (((ddt)))Compute the derivative of the input function.
+ddt:: (((ddt)))Compute the derivative of the input function. link:../man/man9/ddt.9.html[Details]
 
-deadzone:: (((deadzone)))Return the center if within the threshold.
+deadzone:: (((deadzone)))Return the center if within the threshold. link:../man/man9/deadzone.9.html[Details]
 
-hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator.
+hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator. link:../man/man9/hypot.9.html[Details]
 
-mult2:: (((mult2)))Product of two inputs.
+mult2:: (((mult2)))Product of two inputs. link:../man/man9/mult2.9.html[Details]
 
-mux16:: (((mux16)))Select from one of sixteen input values.
+mux2:: (((mux2)))Select from one of two input values. link:../man/man9/mux2.9.html[Details]
 
-mux2:: (((mux2)))Select from one of two input values.
+mux4:: (((mux4)))Select from one of four input values. link:../man/man9/mux4.9.html[Details]
 
-mux4:: (((mux4)))Select from one of four input values.
+mux8:: (((mux8)))Select from one of eight input values. link:../man/man9/mux8.9.html[Details]
 
-mux8:: (((mux8)))Select from one of eight input values.
+mux16:: (((mux16)))Select from one of sixteen input values. link:../man/man9/mux16.9.html[Details]
 
-near:: (((near)))Determine whether two values are roughly equal.
+near:: (((near)))Determine whether two values are roughly equal. link:../man/man9/near.9.html[Details]
 
-offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value.
+offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value. link:../man/man9/offset.9.html[Details]
 
-integ:: (((integ)))Integrator.
+integ:: (((integ)))Integrator with gain pin and windup limits. link:../man/man9/integ.9.html[Details]
 
-invert:: (((invert)))Compute the inverse of the input signal.
+invert:: (((invert)))Compute the inverse of the input signal. link:../man/man9/invert.9.html[Details]
 
-wcomp:: (((wcomp)))Window comparator.
+wcomp:: (((wcomp)))Window comparator. link:../man/man9/wcomp.9.html[Details]
 
-weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer.
+weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer. link:../man/man9/weighted_sum.9.html[Details]
 
-biquad:: (((biquad)))Biquad IIR filter
+biquad:: (((biquad)))Biquad IIR filter link:../man/man9/biquad.9.html[Details]
 
-lowpass:: (((lowpass)))Low-pass filter
+lowpass:: (((lowpass)))Low-pass filter link:../man/man9/lowpass.9.html[Details]
 
 limit1:: (((limit1)))Limit the output signal to fall between min and max. footnote:[When the input
-is a position, this means that the 'position' is limited.]
+is a position, this means that the 'position' is limited.] link:../man/man9/limit1.9.html[Details]
 
 limit2:: (((limit2)))Limit the output signal to fall between min and max.
 Limit its slew rate to less than maxv per second. footnote:[When the input
-is a position, this means that 'position' and 'velocity' are limited.]
+is a position, this means that 'position' and 'velocity' are limited.] link:../man/man9/limit2.9.html[Details]
 
 limit3:: (((limit3)))Limit the output signal to fall between min and max.
 Limit its slew rate to less than maxv per second.
 Limit its second derivative to less than MaxA per second squared. footnote:[When
 the input is a position, this means that the 'position', 'velocity', and
-'acceleration' are limited.]
+'acceleration' are limited.] link:../man/man9/limit3.9.html[Details]
 
-maj3:: (((maj3)))Compute the majority of 3 inputs.
+maj3:: (((maj3)))Compute the majority of 3 inputs. link:../man/man9/maj3.9.html[Details]
 
-scale:: (((scale)))Applies a scale and offset to its input.
+scale:: (((scale)))Applies a scale and offset to its input. link:../man/man9/scale.9.html[Details]
 
 === Type conversion
 
-conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32.
+conv_bit_float:: (((conv_bit_float)))Convert a value from bit to float. link:../man/man9/conv_bit_float.9.html[Details]
 
-conv_bit_u32:: (((conv_bit_u32)))Convert a value from bit to u32.
+conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32. link:../man/man9/conv_bit_s32.9.html[Details]
+
+conv_bit_u32:: (((conv_bit_u32)))Convert a value from bit to u32. link:../man/man9/conv_bit_u32.9.html[Details]
 
 conv_float_s32:: (((conv_float_s32)))Convert a value from float to s32.
 
@@ -187,17 +189,17 @@ conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 (((hal_ppmc)))
 
 hal_ppmc:: Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM
-and Stepper controller.
+and Stepper controller. 
 
 (((hm2_7i43)))
 
 hm2_7i43:: Mesa Electronics driver for the 7i43 EPP Anything IO board with
-HostMot2. (See the man page for more information)
+HostMot2. link:../man/man9/hm2_7i43.9.html[Details]
 
 (((hm2_pci)))
 
 hm2_pci:: Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68
-Anything I/O boards, with HostMot2 firmware. (See the man page for more information)
+Anything I/O boards, with HostMot2 firmware. link:../man/man9/hm2_pci.9.html[Details]
 
 (((hostmot2)))
 
@@ -207,7 +209,7 @@ HostMot2 firmware.
 (((7i65)))
 
 mesa_7i65:: Mesa Electronics driver for the 7i65 eight-axis servo card. (See the
-man page for more information)
+man page for more information) link:../man/man9/mesa_7i65.9.html[Details]
 
 (((pluto_servo)))
 
@@ -345,8 +347,6 @@ buffer in electronics.
 tristate_float:: (((tristate_float)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics.
 
-
-
 watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'.
 
 
@@ -451,4 +451,3 @@ rtapi_task_resume.3rtapi
 rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 ....
-
