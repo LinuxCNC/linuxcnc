@@ -464,6 +464,10 @@ net pdnt.mode.is-mdi                      halui.mode.is-mdi                     
 net pdnt.mode.is-joint                    halui.mode.is-joint                   whb.halui.mode.is-joint
 net pdnt.mode.is-teleop                   halui.mode.is-teleop                  whb.halui.mode.is-teleop
 
+# "is-homed" axis signal for allowing pendant when machine is not homed
+net pdnt.axis.X.is-homed                  halui.joint.0.is-homed                whb.halui.joint.x.is-homed
+net pdnt.axis.Y.is-homed                  halui.joint.1.is-homed                whb.halui.joint.y.is-homed
+net pdnt.axis.Z.is-homed                  halui.joint.2.is-homed                whb.halui.joint.z.is-homed
 
 # "selected axis" signals
 net pdnt.axis.X.select                    whb.halui.axis.x.select               halui.axis.x.select

@@ -158,6 +158,19 @@ public:
         //! to be connected to \ref halui.mode.is-teleop
         hal_bit_t* isModeTeleop{nullptr};
 
+
+        // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+        // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
+        hal_bit_t* JointXisHomed{nullptr};
+        hal_bit_t* JointYisHomed{nullptr};
+        hal_bit_t* JointZisHomed{nullptr};
+        hal_bit_t* JointAisHomed{nullptr};
+        hal_bit_t* JointBisHomed{nullptr};
+        hal_bit_t* JointCisHomed{nullptr};
+
+
+
+
         //! to be connected to \ref halui.machine.is-on
         hal_bit_t* isMachineOn{nullptr};
 
