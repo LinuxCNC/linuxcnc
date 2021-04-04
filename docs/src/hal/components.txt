@@ -15,24 +15,63 @@ To view the information in the man page, in a terminal window type:
 man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
 
-
-axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. link:../man/man9/axis.9.html[Details] 
-axis-remote:: AXIS Remote Interface.
-comp:: Build, compile and install LinuxCNC HAL components. 
-gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. link:../man/man9/gladevcp.9.html[Details] 
-gs2:: HAL userspace component for Automation Direct GS2 VFD's.
-halcmd:: Manipulate the Enhanced Machine Controller HAL from the command line.
+5axisgui:: Vismach Virtual Machine GUI link:../man/man1/5axisgui.1.html[Details]
+axis-remote:: AXIS Remote Interface. link:../man/man1/axis-remote.1.html[Details]
+axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. link:../man/man1/axis.1.html[Details] 
+debuglevel:: Sets the debug level for the userspace part of LinuxCNC. link:../man/man1/debuglevel.1.html[Details]
+elbpcom:: Communicate with Mesa ethernet cards link:../man/man1/elbpcom.1.html[Details]
+gladevcp:: Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. link:../man/man1/gladevcp.1.html[Details]
+gmoccapy:: TOUCHY LinuxCNC Graphical User Interface. link:../man/man1/gmoccapy.1.html[Details]
+gremlin_view:: G-code graphical preview. link:../man/man1/gremlin_view.1.html[Details]
+gs2_vfd:: HAL userspace component for Automation Direct GS2 VFD’s. link:../man/man1/gs2_vfd.1.html[Details]
+gscreen:: TOUCHY LinuxCNC Graphical User Interface. link:../man/man1/gscreen.1.html[Details]
+hal-histogram:: Plots the value of a HAL pin as a histogram. link:../man/man1/hal-histogram.1.html[Details]
+hal_input:: Control HAL pins with any Linux input device, including USB HID devices. link:../man/man1/hal_input.1.html[Details]
+hal_manualtoolchange:: HAL userspace component to enable manual tool changes. link:../man/man1/hal_manualtoolchange.1.html[Details]
+halcompile:: Build, compile and install LinuxCNC HAL components. link:../man/man1/halcompile.1.html[Details]
+halcmd:: Manipulate the LinuxCNC HAL from the command line. link:../man/man1/halcmd.1.html[Details]
 hal_input:: Control HAL pins with any Linux input device, including USB HID devices.
-halmeter:: Observe HAL pins, signals, and parameters.
-halrun:: Manipulate the Enhanced Machine Controller HAL from the command line.
-halsampler:: Sample data from HAL in realtime.
-halstreamer:: Stream file data into HAL in real time.
-halui:: Observe HAL pins and command LinuxCNC through NML.
-io:: Accepts NML I/O commands, interacts with HAL in userspace.
-iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace.
-linuxcnc:: LinuxCNC (The Enhanced Machine Controller).
-pyvcp:: Virtual Control Panel for LinuxCNC.
-shuttle:: control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design.
+halmeter:: Observe HAL pins, signals, and parameters. link:../man/man1/halmeter.1.html[Details]
+halreport:: creates a report on the status of the HAL. link:../man/man1/halreport.1.html[Details]
+halrmt:: Remote-control interface for LinuxCNC. link:../man/man1/halrmt.1.html[Details]
+halrun:: Manipulate the LinuxCNC HAL from the command line. link:../man/man1/halrun.1.html[Details]
+halsampler:: Sample data from HAL in realtime. link:../man/man1/halsampler.1.html[Details]
+halscope:: Software oscilloscope for LinuxCNC/HAL. link:../man/man1/halscope.1.html[Details]
+halshow:: GUI interface to view and interact with a running HAL session.  link:../man/man1/halshow.1.html[Details]
+halstreamer:: Stream file data into HAL in real time. link:../man/man1/halstreamer.1.html[Details]
+haltcl:: Manipulate the LinuxCNC HAL from the command line using a tcl interpreter. link:../man/man1/haltcl.1.html[Details]
+halui:: Observe HAL pins and command LinuxCNC through NML. link:../man/man1/halui.1.html[Details]
+hbmgui:: Vismach Virtual Machine GUI, simulating a Horizontal Boring Machine. link:../man/man1/hbmgui.1.html[Details]
+hexagui:: Vismach Virtual Machine GUI.  link:../man/man1/hexagui.1.html[Details]
+hy_gt_vfd:: HAL userspace component for Huanyang GT-series VFDs. link:../man/man1/hy_gt_vfd.1.html[Details]
+hy_vfd:: HAL userspace component for Huanyang VFDs. link:../man/man1/hy_vfd.1.html[Details]
+image-to-gcode:: Converts bitmap images to G-code. link:../man/man1/image-to-gcode.1.html[Details]
+inivar:: Query an INI file. link:../man/man1/inivar.1.html[Details]
+io:: Accepts NML I/O commands, interacts with HAL in userspace. link:../man/man1/io.1.html[Details]
+iocontrol:: Accepts NML I/O commands, interacts with HAL in userspace. link:../man/man1/iocontrol.1.html[Details]
+iov2:: An alternative to iocontrol. link:../man/man1/iov2.1.html[Details]
+latency-histogram:: Plot a histogram of machine latency. link:../man/man1/latency-histogram.1.html[Details]
+latency-plot:: Another way to view latency numbers. link:../man/man1/latency-plot.1.html[Details]
+latency-test:: Test the realtime system latency. link:../man/man1/latency-test.1.html[Details]
+lineardelta:: Vismach Virtual Machine GUI, simulating a delta robot with linear actuators. link:../man/man1/lineardelta.1.html[Details]
+linuxcnc:: LinuxCNC (The Enhanced Machine Controller). link:../man/man1/linuxcnc.1.html[Details]
+linuxcnc_info:: Supplies information about the linuxcnc version and system info. link:../man/man1/linuxcnc_info.1.html[Details]
+linuxcnc_var:: Retrieve LinuxCNC variables. link:../man/man1/linuxcnc_var.1.html[Details]
+linuxcnclcd:: LinuxCNC Graphical User Interface for LCD character display. link:../man/man1/linuxcnclcd.1.html[Details]
+linuxcncrsh:: Text-mode interface for commanding LinuxCNC over the network. link:../man/man1/linuxcncrsh.1.html[Details]
+linuxcncsvr:: Allows network access to LinuxCNC internals via NML. link:../man/man1/linuxcncsvr.1.html[Details]
+linuxcnctop:: displays LinuxCNC state in a live format similar to the Linux "top" command. link:../man/man1/linuxcnctop.1.html[Details]
+maho600gui:: Vismach GUIs for LinuxCNC, simulating a Maho 600 CNC Milling Machine.
+link:../man/man1/maho600gui.1.html[Details]
+max5gui:: Vismach GUIs for LinuxCNC, simulating a 5 axis CNC Milling Machine. link:../man/man1/max5gui.1.html[Details]
+mb2hal:: HAL userspace component for Modbus communication. link:../man/man1/mb2hal.1.html[Details]
+mdi:: Send G-code commands from the terminal to LinuxCNC. link:../man/man1/mdi.1.html[Details]
+milltask:: Userspace task controller for LinuxCNC.  link:../man/man1/milltask.1.html[Details]
+mitsub_vfd:: HAL userspace component for Mitsubishi A500 F500 E500 A500 D700 E700 F700-series VFDs. link:../man/man1/mitsub_vfd.1.html[Details]
+motion-logger:: test program to log motion commands. link:../man/man1/motion-logger.1.html[Details]
+moveoff_gui:: GUI for the moveoff component. link:../man/man1/moveoff_gui.1.html[Details]
+pyvcp:: Virtual Control Panel for LinuxCNC. link:../man/man1/pyvcp.1.html[Details]
+shuttle:: Control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design. link:../man/man1/shuttle.1.html[Details]
 
 [[sec:realtime-components]]
 
@@ -168,11 +207,11 @@ conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32. link:../man/ma
 
 conv_bit_u32:: (((conv_bit_u32)))Convert a value from bit to u32. link:../man/man9/conv_bit_u32.9.html[Details]
 
-conv_float_s32:: (((conv_float_s32)))Convert a value from float to s32.
+conv_float_s32:: (((conv_float_s32)))Convert a value from float to s32. link:../man/man9/conv_float_s32.9.html[Details]
 
-conv_float_u32:: (((conv_float_u32)))Convert a value from float to u32.
+conv_float_u32:: (((conv_float_u32)))Convert a value from float to u32. link:../man/man9/conv_float_u32.9.html[Details]
 
-conv_s32_bit:: (((conv_s32_bit)))Convert a value from s32 to bit.
+conv_s32_bit:: (((conv_s32_bit)))Convert a value from s32 to bit. 
 
 conv_s32_float:: (((conv_s32_float)))Convert a value from s32 to float.
 
@@ -206,10 +245,14 @@ Anything I/O boards, with HostMot2 firmware. link:../man/man9/hm2_pci.9.html[Det
 hostmot2:: Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the 
 HostMot2 firmware.
 
-(((7i65)))
+(((mesa_7i65)))
 
 mesa_7i65:: Mesa Electronics driver for the 7i65 eight-axis servo card. (See the
 man page for more information) link:../man/man9/mesa_7i65.9.html[Details]
+
+(((hal_parport)))
+
+hal_parport:: Realtime HAL component to communicate with one or more pc parallel ports. link:../man/man1/hal_parport.1.html[Details]
 
 (((pluto_servo)))
 
@@ -451,3 +494,4 @@ rtapi_task_resume.3rtapi
 rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 ....
+
