@@ -1064,8 +1064,127 @@ PyObject *get_value(PyObject *self, PyObject *args) {
 
 }
 
+/*######################################*/
+/* Get all Pin names     */
+PyObject *get_pins_info(PyObject *self, PyObject *args) {
+    int next;
+    int type;
+    char str_n[] = "name";
+    char str_v[] = "value";
+    void *d_ptr;
 
+    hal_pin_t *pin;
+    hal_sig_t *sig;
 
+    PyObject* python_list = PyList_New(0);
+    PyObject *obj;
+
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	    pin = (hal_pin_t*)SHMPTR(next);
+
+        type = pin->type;
+        if (pin->signal != 0) {
+            sig = (hal_sig_t*)SHMPTR(pin->signal);
+            d_ptr = SHMPTR(sig->data_ptr);
+        } else {
+            sig = 0;
+            d_ptr = &(pin->dummysig);
+        }
+
+        /* convert to dict of python values */
+        switch(type) {
+            case HAL_BIT:
+                obj = Py_BuildValue("{s:s,s:N}", str_n, pin->name, str_v, PyBool_FromLong((long)*(hal_bit_t *)d_ptr));
+                break;
+            case HAL_U32:
+                obj = Py_BuildValue("{s:s,s:l}", str_n, pin->name, str_v, (unsigned long)*(hal_u32_t *)d_ptr);
+                break;
+            case HAL_S32:
+                obj =  Py_BuildValue("{s:s,s:l}",  str_n, pin->name, str_v, (long)*(hal_s32_t *)d_ptr);
+                break;
+            case HAL_FLOAT:
+                obj = Py_BuildValue("{s:s,s:f}",  str_n, pin->name, str_v, (double)*(hal_float_t *)d_ptr);
+                break;
+            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                 obj = Py_BuildValue("{s:s,s:s}", str_n, pin->name, str_v, NULL);
+                 break;
+        }
+
+        // add to list
+        PyList_Append( python_list, obj);
+	    next = pin->next_ptr;
+    }
+    // give back the mutex, so others can use data
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    return python_list;
+}
+
+/*######################################*/
+/* Get all Pin names     */
+PyObject *get_signal_names(PyObject *self, PyObject *args) {
+    int next;
+    hal_sig_t *sig;
+    PyObject* python_list = PyList_New(0);
+
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+	    sig = (hal_sig_t*)SHMPTR(next);
+        PyObject *obj = Py_BuildValue("s", sig->name);
+        PyList_Append( python_list, obj);
+	    next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    return python_list;
+}
+
+/*######################################*/
+/* Get all Pin names     */
+PyObject *get_param_names(PyObject *self, PyObject *args) {
+    int next;
+    hal_param_t *param;
+    PyObject* python_list = PyList_New(0);
+
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	    param = (hal_param_t*)SHMPTR(next);
+        PyObject *obj = Py_BuildValue("s", param->name);
+        PyList_Append( python_list, obj);
+	    next = param->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    return python_list;
+}
 
 struct shmobject {
     PyObject_HEAD
@@ -1493,6 +1612,12 @@ PyMethodDef module_methods[] = {
 	"set pin value"},
     {"get_value", get_value, METH_VARARGS,
 	".get_value('name'}: Gets the pin, param or signal value"},
+    {"get_pins_info", get_pins_info, METH_VARARGS,
+	".get_pins_info(): Get a list of dicts for all the pins; {name:, value:}"},
+    {"get_signal_names", get_signal_names, METH_VARARGS,
+	".get_signal_names(): Get a list of all the signal names"},
+    {"get_param_names", get_param_names, METH_VARARGS,
+	".get_param_names(): Get a list of all the parameter names"},
     {NULL},
 };
 
