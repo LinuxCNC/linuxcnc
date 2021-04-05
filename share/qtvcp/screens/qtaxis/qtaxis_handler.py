@@ -267,10 +267,14 @@ class HandlerClass:
 
     def show_joints(self):
         for i in range(0,9):
+            j = INFO.GET_NAME_FROM_JOINT.get(i)
             if i in INFO.AVAILABLE_JOINTS:
                 self.w['ras_label_%s'%i].show()
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('J%d'%i)
+                print 'joint',i,j
+                self.w['ras_%s'%i].setProperty('axis_selection',j)
+                self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
                     self.w['machine_label_j%d'%i].setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Joint %d:</span></p></body></html>'%i)
                 except:
@@ -539,15 +543,19 @@ class HandlerClass:
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
         j = 1
+        d = 1
         if INFO.MACHINE_IS_LATHE:
             j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
-        self.kb_jog(state, j, 1, shift)
+            d= -1
+        self.kb_jog(state, j, d, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
         j = 1
+        d = -1
         if INFO.MACHINE_IS_LATHE:
             j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
-        self.kb_jog(state, j, -1, shift)
+            d = 1
+        self.kb_jog(state, j, d, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
         if INFO.MACHINE_IS_LATHE: return
