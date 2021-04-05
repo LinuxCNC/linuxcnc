@@ -1,4 +1,4 @@
-VERSION = '1.0.9'
+VERSION = '1.0.10'
 
 import os, sys
 from shutil import copy as COPY
@@ -929,7 +929,7 @@ class HandlerClass:
         if state:
             if self.ccButton and not hal.get_value('plasmac.cut-recovering') and hal.get_value('plasmac.stop-type-out'):
                 self.w[self.ccButton].setEnabled(True)
-            if self.w.torch_enable.isChecked():
+            if self.tpButton and self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
             if hal.get_value('plasmac.stop-type-out'):
