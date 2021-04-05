@@ -44,7 +44,7 @@ def load_handlers(usermod,halcomp,builder,commands,master):
         try:
             mod = __import__(basename)
         except ImportError as msg:
-            print(("panelui: module '%s' skipped - import error: %s" %(basename,msg)))
+            print("panelui: module '%s' skipped - import error: %s" %(basename,msg))
             continue
         DBG( "panelui: module '%s' imported OK" % mod.__name__)
         try:
@@ -72,7 +72,7 @@ def load_handlers(usermod,halcomp,builder,commands,master):
                         DBG("panelui: Register callback '%s' in %s" % (method, basename))
                         add_handler(method, f)
         except Exception as e:
-            print(("**** PANELUI ERROR: trouble looking for handlers in '%s': %s" %(basename, e)))
+            print("**** PANELUI ERROR: trouble looking for handlers in '%s': %s" %(basename, e))
 
     # Wrap lists in Trampoline, unwrap single functions
     for n,v in list(handlers.items()):
@@ -216,7 +216,7 @@ class CNC_COMMANDS():
                 for axisnum in (0,1,2,6,7,8):
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
 
         def set_angular_jog_velocity(self, wname, cmd):
             angular = float(cmd)
@@ -225,7 +225,7 @@ class CNC_COMMANDS():
                 for axisnum in (3,4,5):
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
 
         def continuous_jog(self, wname, cmd):
             axisnum = int(cmd[0])
@@ -422,22 +422,23 @@ class CNC_COMMANDS():
 
         def jnum_for_axisnum(self,axisnum):
             if self.emcstat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print(("\n%s:\n  Joint jogging not supported for"
-                       "non-identity kinematics"%__file__))
+                print("\n%s:\n  Joint jogging not supported for"
+                       "non-identity kinematics"%__file__)
                 return -1 # emcJogCont() et al reject neg joint/axis no.s
             jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
             if jnum > jointcount:
-                print(("\n%s:\n  Computed joint number=%d for axisnum=%d "
+                print("\n%s:\n  Computed joint number=%d for axisnum=%d "
                        "exceeds jointcount=%d with trajcoordinates=%s"
-                       %(__file__,jnum,axisnum,jointcount,trajcoordinates)))
+                       %(__file__,jnum,axisnum,jointcount,trajcoordinates))
                 # Note: primary gui should protect for this misconfiguration
                 # decline to jog
                 return -1 # emcJogCont() et al reject neg joint/axis no.s
             return jnum
 
-        def get_jog_info (self,axisnum):
-            jjogmode = self.get_jjogmode()
-            j_or_a = axisnum
-            if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
-            return jjogmode,j_or_a
+
+        def get_jog_info (self, num):
+            jmode = self.get_jjogmode()
+            if jmode == JOGJOINT:
+                return jmode, self.jnum_for_axisnum(num)
+            return jmode,num
 
