@@ -141,8 +141,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
         TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
         TOOLBAR.configure_action(self.w.actionShow_G53_in_DRO,'', self.g53_in_dro_changed)
-        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         TOOLBAR.configure_action(self.w.actionVersaProbe,'', self.launch_versa_probe)
+        TOOLBAR.configure_action(self.w.actionShowMessages, 'message_recall')
+        TOOLBAR.configure_action(self.w.actionClearMessages, 'message_close')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
