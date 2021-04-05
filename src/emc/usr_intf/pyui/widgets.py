@@ -228,7 +228,10 @@ class TOGGLE_BUTTONS( _ToggleBase):
 class MOMENTARY_BUTTONS( _ToggleBase):
     def toggle_state(self,pressed):
         """ Update internal button state """
-        self.state = not self.state
+        if pressed:
+            self.state = True
+        else:
+            self.state = False
         self.hal_update()
 
 # This works like a toggle button but
