@@ -108,10 +108,17 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOptionalStop, 'optional_stop')
         TOOLBAR.configure_action(self.w.actionZoomIn, 'zoom_in')
         TOOLBAR.configure_action(self.w.actionZoomOut, 'zoom_out')
-        TOOLBAR.configure_action(self.w.actionFrontView, 'view_x')
-        TOOLBAR.configure_action(self.w.actionSideView, 'view_y')
-        TOOLBAR.configure_action(self.w.actionRotatedView, 'view_z2')
-        TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
+        if not INFO.MACHINE_IS_LATHE:
+            TOOLBAR.configure_action(self.w.actionFrontView, 'view_x')
+            TOOLBAR.configure_action(self.w.actionRotatedView, 'view_z2')
+            TOOLBAR.configure_action(self.w.actionSideView, 'view_y')
+            TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
+        else:
+            self.w.actionFrontView.setVisible(False)
+            self.w.actionSideView.setVisible(False)
+            self.w.actionPerspectiveView.setVisible(False)
+            TOOLBAR.configure_action(self.w.actionSideView, 'view_y')
+            TOOLBAR.configure_action(self.w.actionTopView, 'view_y2')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionShowOffsets, 'show_offsets')
@@ -143,6 +150,10 @@ class HandlerClass:
             self.w.actionButton_home.set_home_select(True)
         self.make_corner_widgets()
         self.make_progressbar()
+
+        if INFO.MACHINE_IS_LATHE:
+            self.w.dro_relative_y.setVisible(False)
+            self.w.dro_absolute_y.setVisible(False)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -210,10 +221,6 @@ class HandlerClass:
             ACTION.UPDATE_MACHINE_LOG('Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
 
     def motion_mode(self, w, mode):
-        #print STATUS.stat.joints
-        #print STATUS.stat.kinematics_type
-        #print INFO.AVAILABLE_AXES
-        #print INFO.GET_NAME_FROM_JOINT
         if mode == linuxcnc.TRAJ_MODE_COORD:
             pass
         # Joint mode
@@ -260,10 +267,14 @@ class HandlerClass:
 
     def show_joints(self):
         for i in range(0,9):
+            j = INFO.GET_NAME_FROM_JOINT.get(i)
             if i in INFO.AVAILABLE_JOINTS:
                 self.w['ras_label_%s'%i].show()
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('J%d'%i)
+                print 'joint',i,j
+                self.w['ras_%s'%i].setProperty('axis_selection',j)
+                self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
                     self.w['machine_label_j%d'%i].setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Joint %d:</span></p></body></html>'%i)
                 except:
@@ -279,6 +290,10 @@ class HandlerClass:
                 self.w['ras_label_%s'%i].show()
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('%s'%j)
+                # lathes need adjustment
+                print 'axis',i,j
+                self.w['ras_%s'%i].setProperty('axis_selection',j)
+                self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
                     self.w['machine_label_j%d'%i].setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Machine %s:</span></p></body></html>' %j)
                 except:
@@ -394,7 +409,7 @@ class HandlerClass:
     (_("Ctrl-Space"), _("Clear notifications")),
     (_("Alt-F, M, V"), _("Open a Menu")),
 ]
-        help =  zip(help1,help2)
+        help =  list(zip(help1,help2))
         msg = QtWidgets.QDialog()
         msg.setWindowTitle("Quick Reference")
         button = QtWidgets.QPushButton("Ok")
@@ -516,21 +531,39 @@ class HandlerClass:
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        self.kb_jog(state, 0, 1, shift)
+        j = 0
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+        self.kb_jog(state, j, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        self.kb_jog(state, 0, -1, shift)
+        j = 0
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['Z']]
+        self.kb_jog(state, j, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        self.kb_jog(state, 1, 1, shift)
+        j = 1
+        d = 1
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
+            d= -1
+        self.kb_jog(state, j, d, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        self.kb_jog(state, 1, -1, shift)
+        j = 1
+        d = -1
+        if INFO.MACHINE_IS_LATHE:
+            j = INFO.GET_AXIS_INDEX_FROM_JOINT_NUM[INFO.GET_JOG_FROM_NAME['X']]
+            d = 1
+        self.kb_jog(state, j, d, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
+        if INFO.MACHINE_IS_LATHE: return
         self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
+        if INFO.MACHINE_IS_LATHE: return
         self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self,event,state,shift,cntrl):
