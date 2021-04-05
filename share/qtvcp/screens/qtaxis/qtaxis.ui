@@ -585,7 +585,7 @@
                       <item row="0" column="0">
                        <layout class="QHBoxLayout" name="horizontalLayout_12">
                         <item>
-                         <widget class="ActionButton" name="actionbutton">
+                         <widget class="ActionButton" name="actionbutton_2">
                           <property name="maximumSize">
                            <size>
                             <width>50</width>
@@ -593,9 +593,12 @@
                            </size>
                           </property>
                           <property name="text">
-                           <string>+</string>
+                           <string>-</string>
                           </property>
                           <property name="jog_selected_pos_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="jog_selected_neg_action" stdset="0">
                            <bool>true</bool>
                           </property>
                           <property name="joint_number" stdset="0">
@@ -631,7 +634,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="ActionButton" name="actionbutton_2">
+                         <widget class="ActionButton" name="actionbutton">
                           <property name="maximumSize">
                            <size>
                             <width>50</width>
@@ -639,12 +642,9 @@
                            </size>
                           </property>
                           <property name="text">
-                           <string>-</string>
+                           <string>+</string>
                           </property>
                           <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="jog_selected_neg_action" stdset="0">
                            <bool>true</bool>
                           </property>
                           <property name="joint_number" stdset="0">
