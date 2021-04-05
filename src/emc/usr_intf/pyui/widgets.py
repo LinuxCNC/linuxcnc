@@ -5,7 +5,7 @@ DBG_state = 0
 DBG_supress = True
 def DBG(str):
     if not DBG_state or DBG_supress: return
-    print str
+    print(str)
 
 """ Set of base classes """
 class _WidgetBase:
@@ -123,8 +123,8 @@ class _ToggleBase(_WidgetBase):
                 return self.cmd
             else:
                 return None
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             return None
 
     def toggle_state(self,pressed):
@@ -165,7 +165,7 @@ class _ToggleBase(_WidgetBase):
                     module[output.lower()](self, arg1)
                     DBG( '  Button: %s\n Command: %s\n State: %s\n'%(self.hal_name,output,self.state))
                 else:
-                    print 'Unknown Command',output,self.state
+                    print('Unknown Command',output,self.state)
 
         # If there are status pins set them based on state
         if self.status_pin:
@@ -228,7 +228,10 @@ class TOGGLE_BUTTONS( _ToggleBase):
 class MOMENTARY_BUTTONS( _ToggleBase):
     def toggle_state(self,pressed):
         """ Update internal button state """
-        self.state = not self.state
+        if pressed:
+            self.state = True
+        else:
+            self.state = False
         self.hal_update()
 
 # This works like a toggle button but
