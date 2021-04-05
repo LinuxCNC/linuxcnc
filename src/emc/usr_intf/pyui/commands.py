@@ -6,7 +6,7 @@ try:
     CONFIGPATH = os.environ['CONFIG_DIR']
     CONFIGDIR = os.path.join(CONFIGPATH, 'panelui_handler.py')
 except:
-    print '**** PANEL COMMAND: no panelui_handlers.py file in config directory'
+    print('**** PANEL COMMAND: no panelui_handlers.py file in config directory')
     CONFIGPATH = os.path.expanduser("~")
     CONFIGDIR = os.path.join(CONFIGPATH, 'panelui_handler.py')
 
@@ -21,7 +21,7 @@ jointcount = int(inifile.find("KINS","JOINTS"))
 DBG_state = 0
 def DBG(str):
     if DBG_state > 0:
-        print str
+        print(str)
 
 # Loads user commands from a file named 'panelui_handler.py' from the config
 def load_handlers(usermod,halcomp,builder,commands,master):
@@ -43,9 +43,9 @@ def load_handlers(usermod,halcomp,builder,commands,master):
             DBG( 'panelui: adding import dir %s' % directory)
         try:
             mod = __import__(basename)
-        except ImportError,msg:
-            print ("panelui: module '%s' skipped - import error: %s" %(basename,msg))
-	    continue
+        except ImportError as msg:
+            print("panelui: module '%s' skipped - import error: %s" %(basename,msg))
+            continue
         DBG( "panelui: module '%s' imported OK" % mod.__name__)
         try:
             # look for 'get_handlers' function
@@ -62,17 +62,17 @@ def load_handlers(usermod,halcomp,builder,commands,master):
             for object in objlist:
                 #DBG("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
-                    methods = dict.items()
+                    methods = list(dict.items())
                 else:
-                    methods = map(lambda n: (n, getattr(object, n, None)), dir(object))
+                    methods = [(n, getattr(object, n, None)) for n in dir(object)]
                 for method,f in methods:
                     if method.startswith('_'):
                         continue
                     if callable(f):
                         DBG("panelui: Register callback '%s' in %s" % (method, basename))
                         add_handler(method, f)
-        except Exception, e:
-            print ("**** PANELUI ERROR: trouble looking for handlers in '%s': %s" %(basename, e))
+        except Exception as e:
+            print("**** PANELUI ERROR: trouble looking for handlers in '%s': %s" %(basename, e))
 
     # Wrap lists in Trampoline, unwrap single functions
     for n,v in list(handlers.items()):
@@ -110,8 +110,8 @@ class CNC_COMMANDS():
             try:
                 handlers,self.handler_module,self.handler_instance = \
                 load_handlers([CONFIGDIR], self.emcstat, self.emccommand,self, master)
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
 
         def mdi_active(self, wname, m):
             self._mdi = m
@@ -216,7 +216,7 @@ class CNC_COMMANDS():
                 for axisnum in (0,1,2,6,7,8):
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
 
         def set_angular_jog_velocity(self, wname, cmd):
             angular = float(cmd)
@@ -225,7 +225,7 @@ class CNC_COMMANDS():
                 for axisnum in (3,4,5):
                     if self.isjogging[axisnum]:
                         jjogmode,j_or_a = self.get_jog_info(axisnum)
-                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[i] * rate)
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, jjogmode, j_or_a, self.isjogging[axisnum] * rate)
 
         def continuous_jog(self, wname, cmd):
             axisnum = int(cmd[0])
@@ -318,7 +318,7 @@ class CNC_COMMANDS():
                 self.emccommand.auto(self.emc.AUTO_STEP)
                 return
             if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                print self.restart_line_number
+                print(self.restart_line_number)
                 self.emccommand.auto(self.emc.AUTO_RUN, self.restart_line_number)
             self.restart_line_number = self.restart_reset_line
 
@@ -337,7 +337,7 @@ class CNC_COMMANDS():
                 self.set_mdi_mode()
                 if isinstance(cmd,list):
                     for i in cmd:
-                        print str(i)
+                        print(str(i))
                         self.emccommand.mdi(str(i))
                 else:
                     self.emccommand.mdi(str(cmd))
@@ -347,7 +347,7 @@ class CNC_COMMANDS():
             self.set_mdi_mode()
             if isinstance(cmd,list):
                 for i in cmd:
-                    print str(i)
+                    print(str(i))
                     self.emccommand.mdi(str(i))
             else:
                 self.emccommand.mdi(str(cmd))
@@ -417,17 +417,17 @@ class CNC_COMMANDS():
                 return JOGJOINT
             if self.emcstat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
                 return JOGTELEOP
-            print "commands.py: unexpected motion_mode",self.emcstat.motion_mode
+            print("commands.py: unexpected motion_mode",self.emcstat.motion_mode)
             return JOGTELEOP
 
         def jnum_for_axisnum(self,axisnum):
             if self.emcstat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print ("\n%s:\n  Joint jogging not supported for"
+                print("\n%s:\n  Joint jogging not supported for"
                        "non-identity kinematics"%__file__)
                 return -1 # emcJogCont() et al reject neg joint/axis no.s
             jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
             if jnum > jointcount:
-                print ("\n%s:\n  Computed joint number=%d for axisnum=%d "
+                print("\n%s:\n  Computed joint number=%d for axisnum=%d "
                        "exceeds jointcount=%d with trajcoordinates=%s"
                        %(__file__,jnum,axisnum,jointcount,trajcoordinates))
                 # Note: primary gui should protect for this misconfiguration
@@ -435,9 +435,10 @@ class CNC_COMMANDS():
                 return -1 # emcJogCont() et al reject neg joint/axis no.s
             return jnum
 
-        def get_jog_info (self,axisnum):
-            jjogmode = self.get_jjogmode()
-            j_or_a = axisnum
-            if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
-            return jjogmode,j_or_a
+
+        def get_jog_info (self, num):
+            jmode = self.get_jjogmode()
+            if jmode == JOGJOINT:
+                return jmode, self.jnum_for_axisnum(num)
+            return jmode,num
 
