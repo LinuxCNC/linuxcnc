@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>744</width>
+    <width>802</width>
     <height>626</height>
    </rect>
   </property>
@@ -585,7 +585,7 @@
                       <item row="0" column="0">
                        <layout class="QHBoxLayout" name="horizontalLayout_12">
                         <item>
-                         <widget class="ActionButton" name="actionbutton">
+                         <widget class="ActionButton" name="actionbutton_2">
                           <property name="maximumSize">
                            <size>
                             <width>50</width>
@@ -593,9 +593,12 @@
                            </size>
                           </property>
                           <property name="text">
-                           <string>+</string>
+                           <string>-</string>
                           </property>
                           <property name="jog_selected_pos_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="jog_selected_neg_action" stdset="0">
                            <bool>true</bool>
                           </property>
                           <property name="joint_number" stdset="0">
@@ -631,7 +634,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="ActionButton" name="actionbutton_2">
+                         <widget class="ActionButton" name="actionbutton">
                           <property name="maximumSize">
                            <size>
                             <width>50</width>
@@ -639,12 +642,9 @@
                            </size>
                           </property>
                           <property name="text">
-                           <string>-</string>
+                           <string>+</string>
                           </property>
                           <property name="jog_selected_pos_action" stdset="0">
-                           <bool>false</bool>
-                          </property>
-                          <property name="jog_selected_neg_action" stdset="0">
                            <bool>true</bool>
                           </property>
                           <property name="joint_number" stdset="0">
@@ -1785,7 +1785,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>744</width>
+     <width>802</width>
      <height>27</height>
     </rect>
    </property>
@@ -1929,7 +1929,8 @@
    <addaction name="actionSideView"/>
    <addaction name="actionFrontView"/>
    <addaction name="actionPerspectiveView"/>
-   <addaction name="actionToolRotate"/>
+   <addaction name="actionClearMessages"/>
+   <addaction name="actionShowMessages"/>
    <addaction name="actionClearPlot"/>
   </widget>
   <action name="actionAbout">
@@ -2306,6 +2307,28 @@
    </property>
    <property name="toolTip">
     <string>Versa Probe Dialog</string>
+   </property>
+  </action>
+  <action name="actionClearMessages">
+   <property name="icon">
+    <iconset theme="error"/>
+   </property>
+   <property name="text">
+    <string>Clear messages</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear Messages</string>
+   </property>
+  </action>
+  <action name="actionShowMessages">
+   <property name="icon">
+    <iconset theme="info"/>
+   </property>
+   <property name="text">
+    <string>Show messages</string>
+   </property>
+   <property name="toolTip">
+    <string>Show messages</string>
    </property>
   </action>
  </widget>
