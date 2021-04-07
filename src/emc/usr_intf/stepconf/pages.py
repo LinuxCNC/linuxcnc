@@ -621,6 +621,8 @@ class Pages:
 #************
     def pport1_prepare(self):
         self._p.in_pport_prepare = True
+        self.jointcount = {"x": 0, "y": 0, "z": 0, "a": 0, "u": 0, "w": 0}
+        self.d.tandemjoints = []
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.w[p].set_wrap_width(3)
@@ -638,7 +640,6 @@ class Pages:
             for count, current_port in enumerate(self.d.lparport):
                 if(current_port == self.d.ioaddr):
                     self.w.pp1_preset_io_combo.set_active(count)
-
         #self.w.ioaddr.set_text(self.d.ioaddr)
         self._p.in_pport_prepare = False
 
@@ -654,6 +655,10 @@ class Pages:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
+            if "dir" in self.d[p][-3:]:
+                if self.jointcount[self.d[p][0]] == 0 or \
+                   ("2" in self.d[p] and self.jointcount[self.d[p][0]] < 2):
+                    self.jointcount[self.d[p][0]] += 1
         for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
@@ -665,6 +670,9 @@ class Pages:
             value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
             self.d.ioaddr = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
+        for j in "xyzauw":
+            if self.jointcount[j] > 1:
+                self.d.tandemjoints.append(j[0])
 
     # pport1 callbacks
     def on_exclusive_check_pp1(self, widget):
@@ -741,7 +749,6 @@ class Pages:
     def on_exclusive_check_pp2(self, widget):
         self.a.do_exclusive_inputs(widget,2)
 
-            
 #************
 # UBUTTONS (QtPlasmaC User Buttons)
 #************

@@ -184,6 +184,7 @@ class Private_Data:
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
             self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
             self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
+            self.X2STEP, self.X2DIR, self.Y2STEP, self.Y2DIR,
             self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
             self.MIST, self.FLOOD, self.ESTOP, self.AMP,
             self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
@@ -193,6 +194,7 @@ class Private_Data:
             "xstep", "xdir", "ystep", "ydir",
             "zstep", "zdir", "astep", "adir",
             "ustep", "udir", "vstep", "vdir",
+            "x2step", "x2dir", "y2step", "y2dir",
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "xenable",
             "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
@@ -200,25 +202,25 @@ class Private_Data:
             "unused-output"]
 
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
-            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
-            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
-            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
-            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
-            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
-            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
-            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
+            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V, self.HOME_TX, self.HOME_TY,
+            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V, self.MIN_HOME_TX, self.MIN_HOME_TY,
+            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V, self.MAX_HOME_TX, self.MAX_HOME_TY,
+            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V, self.BOTH_HOME_TX, self.BOTH_HOME_TY,
+            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V, self.MIN_TX, self.MIN_TY,
+            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V, self.MAX_TX, self.MAX_TY,
+            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V, self.BOTH_TX, self.BOTH_TY,
             self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
             self.ARC_VOLTS,self.ARC_OK,self.OHMIC_PROBE,self.FLOAT_SWITCH,self.BREAKAWAY,self.MOVE_UP,self.MOVE_DOWN,
             self.UNUSED_INPUT,
         ) = self.hal_input_names = [
             "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-            "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
-            "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
-            "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
-            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
-            "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
-            "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
-            "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
+            "home-x", "home-y", "home-z", "home-a","home-u", "home-v", "home-x2", "home-y2",
+            "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v", "min-home-x2", "min-home-y2",
+            "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v", "max-home-x2", "max-home-y2",
+            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v", "both-home-x2", "both-home-y2",
+            "min-x", "min-y", "min-z", "min-a","min-u", "min-v", "min-x2", "min-y2",
+            "max-x", "max-y", "max-z", "max-a", "max-u", "max-v", "max-x2", "max-y2",
+            "both-x", "both-y", "both-z", "both-a", "both-u", "both-v", "both-x1", "both-y2",
             "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
             "plasmac:arc-voltage-raw", "plasmac:arc-ok-in", "plasmac:ohmic-probe", "plasmac:float-switch",
             "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down",
@@ -227,6 +229,7 @@ class Private_Data:
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
             _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
             _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
+            _("Tandem X Step"), _("Tandem X Direction"), _("Tandem Y Step"), _("Tandem Y Direction"),
             _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
             _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
             _("Charge Pump"),
@@ -237,24 +240,31 @@ class Private_Data:
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
             _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
             _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
+            _("Home Tandem X"), _("Home Tandem Y"),
             _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
+            _("Minimum Limit + Home Tandem X"), _("Minimum Limit + Home Tandem Y"),
             _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
             _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
             _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
+            _("Maximum Limit + Home Tandem X"), _("Maximum Limit + Home Tandem Y"),
             _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
             _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
             _("Both Limit + Home X"), _("Both Limit + Home Y"),
             _("Both Limit + Home Z"), _("Both Limit + Home A"),
             _("Both Limit + Home U"), _("Both Limit + Home V"),
+            _("Both Limit + Home Tandem X"), _("Both Limit + Home Tandem Y"),
             _("Minimum Limit X"), _("Minimum Limit Y"),
+            _("Minimum Limit Tandem X"), _("Minimum Limit Tandem Y"),
             _("Minimum Limit Z"), _("Minimum Limit A"),
             _("Minimum Limit U"), _("Minimum Limit V"),
             _("Maximum Limit X"), _("Maximum Limit Y"),
+            _("Maximum Limit Tandem X"), _("Maximum Limit Tandem Y"),
             _("Maximum Limit Z"), _("Maximum Limit A"),
             _("Maximum Limit U"), _("Maximum Limit V"),
             _("Both Limit X"), _("Both Limit Y"),
             _("Both Limit Z"), _("Both Limit A"),
             _("Both Limit U"), _("Both Limit V"),
+            _("Both Limit Tandem X"), _("Both Limit Tandem Y"),
             _("All limits"), _("All home"), _("All limits + homes"),
             _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
             _("Plasma Arc Voltage"), _("Plasma Arc OK"), _("Plasma Ohmic Probe"), ("Plasma Float Switch"),
@@ -453,6 +463,10 @@ class Data:
         self.voltszerof = 100.0
         self.voltsfullf = 999.0
         self.voltsrdiv = 20
+
+        # tandem joints
+        self.tandemjoints = []
+        self.axislist = []
 
     # change the XYZ axis defaults to metric or imperial
     # This only sets data that makes sense to change eg gear ratio don't change
@@ -823,6 +837,8 @@ class StepconfApp:
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
+        window.set_position(Gtk.WindowPosition.CENTER)
+        window.reshow_with_initial_size()
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -1199,58 +1215,80 @@ class StepconfApp:
             SIG.HOME_Y: (SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.HOME_Z: (SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.HOME_A: (SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.HOME_TX: (SIG.MAX_HOME_TX, SIG.MIN_HOME_TX, SIG.BOTH_HOME_TX, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.HOME_TY: (SIG.MAX_HOME_TY, SIG.MIN_HOME_TY, SIG.BOTH_HOME_TY, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
             SIG.MAX_HOME_X: (SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MAX_HOME_Y: (SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MAX_HOME_Z: (SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MAX_HOME_A: (SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_HOME_TX: (SIG.HOME_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_HOME_TY: (SIG.HOME_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
             SIG.MIN_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MIN_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MIN_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.MIN_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_HOME_TX:  (SIG.HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_HOME_TY:  (SIG.HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
             SIG.BOTH_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_HOME_TX:  (SIG.HOME_TX, SIG.MAX_HOME_TX, SIG.MIN_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_HOME_TY:  (SIG.HOME_TY, SIG.MAX_HOME_TY, SIG.MIN_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
             SIG.MIN_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MIN_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MIN_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MIN_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_TX: (SIG.BOTH_TX, SIG.BOTH_HOME_TX, SIG.MIN_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_TY: (SIG.BOTH_TY, SIG.BOTH_HOME_TY, SIG.MIN_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
             SIG.MAX_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MAX_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MAX_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.MAX_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_TX: (SIG.BOTH_TX, SIG.BOTH_HOME_TX, SIG.MIN_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_TY: (SIG.BOTH_TY, SIG.BOTH_HOME_TY, SIG.MIN_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
             SIG.BOTH_X: (SIG.MIN_X, SIG.MAX_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_Y: (SIG.MIN_Y, SIG.MAX_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_Z: (SIG.MIN_Z, SIG.MAX_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
             SIG.BOTH_A: (SIG.MIN_A, SIG.MAX_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_TX: (SIG.MIN_TX, SIG.MAX_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_TY: (SIG.MIN_TY, SIG.MAX_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
             SIG.ALL_LIMIT: (
                 SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
                 SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
                 SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.MIN_TX, SIG.MAX_TX, SIG.BOTH_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX,
+                SIG.MIN_TY, SIG.MAX_TY, SIG.BOTH_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY,
                 SIG.ALL_LIMIT_HOME),
             SIG.ALL_HOME: (
                 SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
                 SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
                 SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
                 SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.HOME_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX,
+                SIG.HOME_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY,
                 SIG.ALL_LIMIT_HOME),
             SIG.ALL_LIMIT_HOME: (
                 SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
                 SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
                 SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
                 SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.HOME_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX,
+                SIG.HOME_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY,
                 SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
                 SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
                 SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.MIN_TX, SIG.MAX_TX, SIG.BOTH_TX, SIG.MIN_HOME_TX, SIG.MAX_HOME_TX, SIG.BOTH_HOME_TX,
+                SIG.MIN_TY, SIG.MAX_TY, SIG.BOTH_TY, SIG.MIN_HOME_TY, SIG.MAX_HOME_TY, SIG.BOTH_HOME_TY,
                 SIG.ALL_LIMIT, SIG.ALL_HOME),
         }
         v = pin.get_active()
