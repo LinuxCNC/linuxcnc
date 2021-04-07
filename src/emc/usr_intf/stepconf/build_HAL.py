@@ -44,7 +44,11 @@ class HAL:
         print(_("# overwritten when you run stepconf again"), file=file)
 
         print("loadrt [KINS]KINEMATICS", file=file)
-        print("loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS", file=file)
+        # qtplasmac requires 3 spindles
+        if self.d.select_qtplasmac:
+            print("loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES", file=file)
+        else:
+            print("loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS", file=file)
         port3name=port2name=port2dir=port3dir=""
         if self.d.number_pports>2:
              port3name = ' '+self.d.ioaddr3
@@ -67,12 +71,15 @@ class HAL:
             print("loadrt sim_parport names=%s"%name, file=file)
         if self.a.doublestep():
             print("setp parport.0.reset-time %d" % self.d.steptime, file=file)
-        encoder = SIG.PHA in inputs
-        counter = SIG.PHB not in inputs
-        probe = SIG.PROBE in inputs
+        if not self.d.select_qtplasmac:
+            encoder = SIG.PHA in inputs
+            counter = SIG.PHB not in inputs
+            probe = SIG.PROBE in inputs
+            pwm = SIG.PWM in outputs
+            pump = SIG.PUMP in outputs
+        else:
+            encoder, counter, probe, pwm, pump = False, False, False, False, False, 
         limits_homes = SIG.ALL_LIMIT_HOME in inputs
-        pwm = SIG.PWM in outputs
-        pump = SIG.PUMP in outputs
         if self.d.axes == 0:
             print("loadrt stepgen step_type=0,0,0", file=file)
         elif self.d.axes in(1,3):
@@ -101,9 +108,11 @@ class HAL:
         if pwm:
             print("loadrt pwmgen output_type=1", file=file)
 
-
         if self.d.classicladder:
             print("loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" % (self.d.digitsin , self.d.digitsout , self.d.s32in, self.d.s32out, self.d.floatsin, self.d.floatsout), file=file)
+
+        if self.d.select_qtplasmac:
+            print("loadrt  plasmac", file=file)
 
         print(file=file)
         print("addf parport.0.read base-thread", file=file)
@@ -137,6 +146,9 @@ class HAL:
         print("addf motion-controller servo-thread", file=file)
         if self.d.classicladder:
             print("addf classicladder.0.refresh servo-thread", file=file)
+        if self.d.select_qtplasmac:
+            print("addf plasmac servo-thread", file=file)
+
         print("addf stepgen.update-freq servo-thread", file=file)
 
         if limits_homes:
@@ -166,25 +178,29 @@ class HAL:
             print("setp pwmgen.0.offset %s" % offset, file=file)
             print("setp pwmgen.0.dither-pwm true", file=file)
 
-        print("net spindle-cmd-rpm     <= spindle.0.speed-out", file=file)
-        print("net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs", file=file)
-        print("net spindle-cmd-rps     <= spindle.0.speed-out-rps", file=file)
-        print("net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs", file=file)
-        print("net spindle-at-speed    => spindle.0.at-speed", file=file)
-        if SIG.ON in outputs and not pwm:
-            print("net spindle-on <= spindle.0.on", file=file)
-        if SIG.CW in outputs:
-            print("net spindle-cw <= spindle.0.forward", file=file)
-        if SIG.CCW in outputs:
-            print("net spindle-ccw <= spindle.0.reverse", file=file)
-        if SIG.BRAKE in outputs:
-            print("net spindle-brake <= spindle.0.brake", file=file)
+            print("net spindle-cmd-rpm     <= spindle.0.speed-out", file=file)
+            print("net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs", file=file)
+            print("net spindle-cmd-rps     <= spindle.0.speed-out-rps", file=file)
+            print("net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs", file=file)
+            print("net spindle-at-speed    => spindle.0.at-speed", file=file)
+            if SIG.ON in outputs and not pwm:
+                print("net spindle-on <= spindle.0.on", file=file)
+            if SIG.CW in outputs:
+                print("net spindle-cw <= spindle.0.forward", file=file)
+            if SIG.CCW in outputs:
+                print("net spindle-ccw <= spindle.0.reverse", file=file)
+            if SIG.BRAKE in outputs:
+                print("net spindle-brake <= spindle.0.brake", file=file)
 
         if SIG.MIST in outputs:
             print("net coolant-mist <= iocontrol.0.coolant-mist", file=file)
 
         if SIG.FLOOD in outputs:
             print("net coolant-flood <= iocontrol.0.coolant-flood", file=file)
+
+        # do the qtplasmac connections
+        if self.d.select_qtplasmac:
+            self.qtplasmac_connections(file, self.d.thcadenc, base)
 
         if encoder:
             print(file=file)
@@ -201,21 +217,23 @@ class HAL:
             print("net spindle-phase-a encoder.0.phase-A", file=file)
             print("net spindle-phase-b encoder.0.phase-B", file=file)
             print("net spindle-index encoder.0.phase-Z", file=file)
-
-
         if probe:
             print(file=file)
             print("net probe-in => motion.probe-input", file=file)
-
         for i in range(4):
             dout = "dout-%02d" % i
             if dout in outputs:
-                print("net %s <= motion.digital-out-%02d" % (dout, i), file=file)
-
+                comment = ""
+                if self.d.select_qtplasmac and i > 0:
+                    comment = "#qtplasmac uses this digital output:   "
+                print("%snet %s <= motion.digital-out-%02d" % (comment, dout, i), file=file)
         for i in range(4):
             din = "din-%02d" % i
             if din in inputs:
-                print("net %s => motion.digital-in-%02d" % (din, i), file=file)
+                comment = ""
+                if self.d.select_qtplasmac and i > 0:
+                    comment  = "#qtplasmac uses this digital input:    "
+                print("%snet %s => motion.digital-in-%02d" % (comment, din, i), file=file)
 
         print(file=file)
         for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
@@ -225,7 +243,7 @@ class HAL:
             else:
                 pinlist = (1,2,3,4,5,6,7,8,9,14,16,17)
             print(file=file)
-            for i in pinlist: self.connect_output(file, i,1)
+            for i in pinlist: self.connect_output(file, i, 1)
             print(file=file)
 
         for i in (10,11,12,13,15): self.connect_input(file, i)
@@ -235,7 +253,7 @@ class HAL:
             else:
                 pinlist = (10,11,12,13,15)
             print(file=file)
-            for i in pinlist: self.connect_input(file, i,1)
+            for i in pinlist: self.connect_input(file, i, 1)
             print(file=file)
 
         if limits_homes:
@@ -282,21 +300,32 @@ class HAL:
             self.connect_joint(file, 1, 'y')
 
         print(file=file)
-        print("net estop-out <= iocontrol.0.user-enable-out", file=file)
-        if  self.d.classicladder and self.d.ladderhaltype == 1 and self.d.ladderconnect: # external estop program
-            print(file=file) 
-            print(_("# **** Setup for external estop ladder program -START ****"), file=file)
-            print(file=file)
-            print("net estop-out => classicladder.0.in-00", file=file)
-            print("net estop-ext => classicladder.0.in-01", file=file)
-            print("net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable", file=file)
-            print("net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in", file=file)
-            print(file=file)
-            print(_("# **** Setup for external estop ladder program -END ****"), file=file)
-        elif SIG.ESTOP_IN in inputs:
-            print("net estop-ext => iocontrol.0.emc-enable-in", file=file)
+        # wacky estop handling for qtplasmac with sim hardware
+        if self.d.select_qtplasmac and self.d.sim_hardware:
+            print("\n# ---QTPLASMAC SIM ESTOP HANDLING---", file=file)
+            print("loadrt or2 names=estop_or", file=file)
+            print("loadrt not names=estop_not", file=file)
+            print("addf estop_or servo-thread", file=file)
+            print("addf estop_not servo-thread", file=file)
+            print("net sim:estop-raw estop_or.out estop_not.in", file=file)
+            print("net sim:estop-out estop_not.out iocontrol.0.emc-enable-in", file=file)
         else:
-            print("net estop-out => iocontrol.0.emc-enable-in", file=file)
+        # standard estop handling
+            print("net estop-out <= iocontrol.0.user-enable-out", file=file)
+            if  self.d.classicladder and self.d.ladderhaltype == 1 and self.d.ladderconnect: # external estop program
+                print(file=file) 
+                print(_("# **** Setup for external estop ladder program -START ****"), file=file)
+                print(file=file)
+                print("net estop-out => classicladder.0.in-00", file=file)
+                print("net estop-ext => classicladder.0.in-01", file=file)
+                print("net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable", file=file)
+                print("net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in", file=file)
+                print(file=file)
+                print(_("# **** Setup for external estop ladder program -END ****"), file=file)
+            elif SIG.ESTOP_IN in inputs:
+                print("net estop-ext => iocontrol.0.emc-enable-in", file=file)
+            else:
+                print("net estop-out => iocontrol.0.emc-enable-in", file=file)
 
         print(file=file)
         if self.d.manualtoolchange:
@@ -347,74 +376,78 @@ class HAL:
         # when they change pyvcp sample options
         # if the user picked existing pyvcp option and the postgui_call_list is present
         # don't overwrite it. otherwise write the file.
-        calllist_filename = os.path.join(base, "postgui_call_list.hal")
-        f1 = open(calllist_filename, "w")
-        print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
-        print(_("# Generated by stepconf 1.1 at %s") % time.asctime(), file=f1)
-        print(_("# If you make changes to this file, they will be"), file=f1)
-        print(_("# overwritten when you run stepconf again"), file=f1)
-        print(file=f1)
-        if (self.d.pyvcp):
-            print("source pyvcp_options.hal", file=f1)
-        if self.d.manualtoolchange and self.d.select_qtdragon:
-            print("source qtvcp_postgui.hal", file=f1)
-        print("source custom_postgui.hal", file=f1)
-        f1.close()
-
-        # If the user asked for pyvcp sample panel add the HAL commands too
-        pyfilename = os.path.join(base, "pyvcp_options.hal")
-        f1 = open(pyfilename, "w")
-        if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect: # spindle speed/tool # display
+        # qtplasmac doesn't use call list
+        if not self.d.select_qtplasmac:
+            calllist_filename = os.path.join(base, "postgui_call_list.hal")
+            f1 = open(calllist_filename, "w")
             print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
             print(_("# Generated by stepconf 1.1 at %s") % time.asctime(), file=f1)
             print(_("# If you make changes to this file, they will be"), file=f1)
             print(_("# overwritten when you run stepconf again"), file=f1)
-            print(_("# **** Setup of spindle speed display using pyvcp -START ****"), file=f1)
-            if encoder:
-                print(_("# **** Use ACTUAL spindle velocity from spindle encoder"), file=f1)
-                print(_("# **** spindle-velocity-feedback-rps bounces around so we filter it with lowpass"), file=f1)
-                print(_("# **** spindle-velocity-feedback-rps is signed so we use absolute component to remove sign"), file=f1) 
-                print(_("# **** ACTUAL velocity is in RPS not RPM so we scale it."), file=f1)
-                print(file=f1)
-                print(("setp scale.0.gain 60"), file=f1)
-                print(("setp lowpass.0.gain %f")% self.d.spindlefiltergain, file=f1)
-                print(("net spindle-velocity-feedback-rps               => lowpass.0.in"), file=f1)
-                print(("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in"), file=f1)
-                print(("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in"), file=f1)
-                print(("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed"), file=f1)
-                print(file=f1)
-                print(_("# **** set up spindle at speed indicator ****"), file=f1)
-                if self.d.usespindleatspeed:
-                    print(file=f1)
-                    print(("net spindle-cmd-rps-abs             =>  near.0.in1"), file=f1)
-                    print(("net spindle-velocity-feedback-rps   =>  near.0.in2"), file=f1)
-                    print(("net spindle-at-speed                <=  near.0.out"), file=f1)
-                    print(("setp near.0.scale %f")% self.d.spindlenearscale, file=f1)
-                else:
-                    print(("# **** force spindle at speed indicator true because we chose no feedback ****"), file=f1)
-                    print(file=f1)
-                    print(("sets spindle-at-speed true"), file=f1)
-                print(("net spindle-at-speed       => pyvcp.spindle-at-speed-led"), file=f1)
-            else:
-                print(_("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified"), file=f1)
-                print(file=f1)
-                print(("net spindle-cmd-rpm-abs    => pyvcp.spindle-speed"), file=f1)
-                print(file=f1)
-                print(("# **** force spindle at speed indicator true because we have no feedback ****"), file=f1)
-                print(file=f1)
-                print(("net spindle-at-speed => pyvcp.spindle-at-speed-led"), file=f1)
-                print(("sets spindle-at-speed true"), file=f1)
+            print(file=f1)
+            if self.d.pyvcp and not self.d.select_qtplasmac:
+                print("source pyvcp_options.hal", file=f1)
+            if self.d.manualtoolchange and self.d.select_qtdragon:
+                print("source qtvcp_postgui.hal", file=f1)
+            print("source custom_postgui.hal", file=f1)
             f1.close()
-        else:
-            print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
-            print(_("# Generated by stepconf 1.1 at %s") % time.asctime(), file=f1)
-            print(_("# If you make changes to this file, they will be"), file=f1)
-            print(_("# overwritten when you run stepconf again"), file=f1)
-            print(("sets spindle-at-speed true"), file=f1)
+
+        # qtplasmac doesn't use pyvcp_options
+        if not self.d.select_qtplasmac:
+            pyfilename = os.path.join(base, "pyvcp_options.hal")
+            f1 = open(pyfilename, "w")
+            # If the user asked for pyvcp sample panel add the HAL commands too
+            if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect: # spindle speed/tool # display
+                print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
+                print(_("# Generated by stepconf 1.1 at %s") % time.asctime(), file=f1)
+                print(_("# If you make changes to this file, they will be"), file=f1)
+                print(_("# overwritten when you run stepconf again"), file=f1)
+                print(_("# **** Setup of spindle speed display using pyvcp -START ****"), file=f1)
+                if encoder:
+                    print(_("# **** Use ACTUAL spindle velocity from spindle encoder"), file=f1)
+                    print(_("# **** spindle-velocity-feedback-rps bounces around so we filter it with lowpass"), file=f1)
+                    print(_("# **** spindle-velocity-feedback-rps is signed so we use absolute component to remove sign"), file=f1) 
+                    print(_("# **** ACTUAL velocity is in RPS not RPM so we scale it."), file=f1)
+                    print(file=f1)
+                    print(("setp scale.0.gain 60"), file=f1)
+                    print(("setp lowpass.0.gain %f")% self.d.spindlefiltergain, file=f1)
+                    print(("net spindle-velocity-feedback-rps               => lowpass.0.in"), file=f1)
+                    print(("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in"), file=f1)
+                    print(("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in"), file=f1)
+                    print(("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed"), file=f1)
+                    print(file=f1)
+                    print(_("# **** set up spindle at speed indicator ****"), file=f1)
+                    if self.d.usespindleatspeed:
+                        print(file=f1)
+                        print(("net spindle-cmd-rps-abs             =>  near.0.in1"), file=f1)
+                        print(("net spindle-velocity-feedback-rps   =>  near.0.in2"), file=f1)
+                        print(("net spindle-at-speed                <=  near.0.out"), file=f1)
+                        print(("setp near.0.scale %f")% self.d.spindlenearscale, file=f1)
+                    else:
+                        print(("# **** force spindle at speed indicator true because we chose no feedback ****"), file=f1)
+                        print(file=f1)
+                        print(("sets spindle-at-speed true"), file=f1)
+                    print(("net spindle-at-speed       => pyvcp.spindle-at-speed-led"), file=f1)
+                else:
+                    print(_("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified"), file=f1)
+                    print(file=f1)
+                    print(("net spindle-cmd-rpm-abs    => pyvcp.spindle-speed"), file=f1)
+                    print(file=f1)
+                    print(("# **** force spindle at speed indicator true because we have no feedback ****"), file=f1)
+                    print(file=f1)
+                    print(("net spindle-at-speed => pyvcp.spindle-at-speed-led"), file=f1)
+                    print(("sets spindle-at-speed true"), file=f1)
+                f1.close()
+            else:
+                print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
+                print(_("# Generated by stepconf 1.1 at %s") % time.asctime(), file=f1)
+                print(_("# If you make changes to this file, they will be"), file=f1)
+                print(_("# overwritten when you run stepconf again"), file=f1)
+                print(("sets spindle-at-speed true"), file=f1)
             f1.close()
 
         # stepconf adds custom.hal and custom_postgui.hal file if one is not present
-        if self.d.customhal or self.d.classicladder or self.d.halui:
+        if self.d.customhal or self.d.classicladder or self.d.halui or self.d.select_qtplasmac:
             for i in ("custom","custom_postgui"):
                 custom = os.path.join(base, i+".hal")
                 if not os.path.exists(custom):
@@ -423,6 +456,10 @@ class HAL:
                     print(_("# This file will not be overwritten when you run stepconf again"), file=f1)
                     print(file=f1)
                     f1.close()
+
+        # qtplasmac requires connections to the plasmac hal component
+        if self.d.select_qtplasmac:
+            self.plasmac_hal_component(file)
 
         file.close()
         self.sim_hardware_halfile(base)
@@ -468,7 +505,7 @@ class HAL:
             print(_("# This is a generated file do not edit."), file=f1)
             print(file=f1)
             inputs = self.a.build_input_set()
-            if SIG.PHA in inputs:
+            if SIG.PHA in inputs and not self.d.select_qtplasmac:
                 print("loadrt sim_encoder names=sim-encoder", file=f1)
                 print("setp sim-encoder.ppr %d"%int(self.d.spindlecpr), file=f1)
                 print("setp sim-encoder.scale 1", file=f1)
@@ -496,22 +533,22 @@ class HAL:
                 print("net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos", file=f1)
             print(file=f1)
             print("setp sim-hardware.Xmaxsw-upper 1000", file=f1)
+            print("setp sim-hardware.Xminsw-lower -1000", file=f1)
             print("setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT", file=f1)
             print("setp sim-hardware.Xminsw-upper [JOINT_0]MIN_LIMIT", file=f1)
-            print("setp sim-hardware.Xminsw-lower -1000", file=f1)
             print("setp sim-hardware.Xhomesw-pos [JOINT_0]HOME_OFFSET", file=f1)
             print(file=f1)
             if self.d.axes in(0, 1): # XYZ XYZA
                 print("setp sim-hardware.Ymaxsw-upper 1000", file=f1)
+                print("setp sim-hardware.Yminsw-lower -1000", file=f1)
                 print("setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT", file=f1)
                 print("setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-lower -1000", file=f1)
                 print("setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET", file=f1)
                 print(file=f1)
                 print("setp sim-hardware.Zmaxsw-upper 1000", file=f1)
+                print("setp sim-hardware.Zminsw-lower -1000", file=f1)
                 print("setp sim-hardware.Zmaxsw-lower [JOINT_2]MAX_LIMIT", file=f1)
                 print("setp sim-hardware.Zminsw-upper [JOINT_2]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Zminsw-lower -1000", file=f1)
                 print("setp sim-hardware.Zhomesw-pos [JOINT_2]HOME_OFFSET", file=f1)
                 print(file=f1)
             if self.d.axes == 1: #  XYZA
@@ -643,14 +680,25 @@ class HAL:
             p ='{0:<20}'.format(p)
         else:
             p ='{0:<15}'.format(p)
+        # comment out inputs for a qtplasmac sim
+        comment = ""
+        if self.d.select_qtplasmac:
+            if p.strip()[-6:] in ["din-01", "din-02", "din-03"]:
+                comment = "#qtplasmac uses this digital input:    "
+            elif "spindle-" in p:
+                comment = "#qtplasmac doesn't use a spindle:      "
+            elif "probe-" in p:
+                comment = "#qtplasmac doesn't use a probe:        "
+            elif self.d.sim_hardware and "plasmac:" in p:
+                comment = "#qtplasmac disabled for sim mode:      "
         if i and not fake:
-            print("net %s <= parport.%d.pin-%02d-in-not%s" \
-                % (p, port, num,ending), file=file)
+            print("%snet %s <= parport.%d.pin-%02d-in-not%s" \
+                % (comment, p, port, num,ending), file=file)
         else:
-            print("net %s <= parport.%d.pin-%02d-in%s" \
-                % (p, port, num,ending), file=file)
+            print("%snet %s <= parport.%d.pin-%02d-in%s" \
+                % (comment, p, port, num, ending), file=file)
 
-    def connect_output(self, file, num,port=0,fake=False):
+    def connect_output(self, file, num, port=0, fake=False):
         ending=''
         if port == 0:
             p = self.d['pin%d' % num]
@@ -666,7 +714,16 @@ class HAL:
         else:
             signame ='{0:<15}'.format(p)
         if i and not fake: print("setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending), file=file)
-        print("net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending), file=file)
+        # comment out inputs for a qtplasmac sim
+        comment = ""
+        if self.d.select_qtplasmac:
+            if signame.strip()[-7:] in ["dout-01", "dout-02", "dout-03"]:
+                comment = "#qtplasmac uses this digital output:   "
+            elif "spindle-" in signame:
+                comment = "#qtplasmac doesn't use a spindle:      "
+            elif self.d.sim_hardware and "plasmac:" in signame:
+                comment = "#qtplasmac disabled for sim mode:      "
+        print("%snet %s => parport.%d.pin-%02d-out%s" % (comment, signame, port, num, ending), file=file)
         if self.a.doublestep() and not fake:
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP):
                 print("setp parport.0.pin-%02d-out-reset%s 1" % (num,ending), file=file)
@@ -694,6 +751,154 @@ class HAL:
                     return SIG.ALL_LIMIT
                 else:
                     return i
+
+    # qtplasmac hal connections
+    def qtplasmac_connections(self, file, thcad, base):
+        print("\n# ---PLASMA INPUT DEBOUNCE---", file=file)
+        print("loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok", file=file)
+        print("addf db_float     servo-thread", file=file)
+        print("addf db_ohmic     servo-thread", file=file)
+        print("addf db_breakaway servo-thread", file=file)
+        print("addf db_arc-ok    servo-thread", file=file)
+        print("\n# ---JOINT ASSOCIATED WITH THE Z AXIS---", file=file)
+        jnum = 2
+        if not self.d.sim_hardware:
+            print("net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position".format(jnum), file=file)
+        else:
+            print("net Zjoint-pos-fb => plasmac.axis-z-position", file=file)
+        comment = ""
+        if self.d.sim_hardware:
+            comment = "#qtplasmac disabled for sim mode:      "
+        print("\n# ---PLASMA INPUTS---", file=file)
+        print("# ---all modes---", file=file)
+        print("{}net plasmac:float-switch   => db_float.in".format(comment), file=file)
+        print("{}net plasmac:breakaway      => db_breakaway.in".format(comment), file=file)
+        print("{}net plasmac:ohmic-probe    => db_ohmic.in".format(comment), file=file)
+        print("# ---modes 0 & 1", file=file)
+        print("{}net plasmac:arc-voltage-in => plasmac.arc-voltage-in".format(comment), file=file)
+        print("# ---modes 1 & 2", file=file)
+        print("{}net plasmac:arc-ok-in      => db_arc-ok.in".format(comment), file=file)
+        print("# ---mode 2", file=file)
+        print("{}net plasmac:move-up        => plasmac.move-up".format(comment), file=file)
+        print("{}net plasmac:move-down      => plasmac.move-down".format(comment), file=file)
+        print("\n# ---PLASMA OUTPUTS---", file=file)
+        print("# ---all modes---", file=file)
+        print("net plasmac:ohmic-enable   <= plasmac.ohmic-enable", file=file)
+        print("net plasmac:scribe-arm     <= plasmac.scribe-arm", file=file)
+        print("net plasmac:scribe-on      <= plasmac.scribe-on", file=file)
+        if thcad:
+            print("\n# ---ARC VOLTAGE ENCODER---", file=file)
+            print("{}loadrt encoder num_chan=1".format(comment), file=file)
+            print("{}addf encoder.update-counters base-thread".format(comment), file=file)
+            print("{}addf encoder.capture-position servo-thread".format(comment), file=file)
+            print("{}setp encoder.0.counter-mode 1".format(comment), file=file)
+            print("{}setp encoder.0.position-scale -1".format(comment), file=file)
+            print("{}net arc-voltage-raw encoder.0.phase-A".format(comment), file=file)
+            print("{}net plasmac:arc-voltage-in encoder.0.velocity".format(comment), file=file)
+        # add custom.hal if not existing
+        chfilename = os.path.join(base, "custom.hal")
+        if not os.path.exists(chfilename):
+            f1 = open(chfilename, "a")
+            print(_("# Include your custom HAL commands here"), file=f1)
+            print(_("# This file will not be overwritten when you run stepconf again"), file=f1)
+            print("\n# for the float and ohmic inputs each increment in delay is", file=f1)
+            print("# is a 0.001mm (0.00004\") increase in any probed height result", file=f1)
+            print("setp db_float.delay     5", file=f1)
+            print("setp db_ohmic.delay     5", file=f1)
+            print("setp db_breakaway.delay 5", file=f1)
+            print("setp db_arc-ok.delay    5", file=f1)
+            print("\n# ---ARC VOLTAGE LOWPASS FILTER---", file=f1)
+            print("# Only use this if comprehensive testing shows that it is required", file=f1)
+            print("setp plasmac.lowpass-frequency 0", file=f1)
+            f1.close()
+        # if using thcad for arc voltage and not a sim config
+        if thcad and not self.d.sim_hardware:
+            if self.d.voltsrdiv < 150:
+                dratio = self.d.voltsrdiv
+            else:
+                dratio = (self.d.voltsrdiv + 100000) / 100000
+            vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
+            prefsfile = os.path.join(base, "qtplasmac.prefs")
+            if not os.path.exists(prefsfile):
+                f1 = open(prefsfile, "w")
+                print(("[PLASMA_PARAMETERS]"), file=f1)
+                print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+                print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+                f1.close()
+
+        # qtplasmac has a shutdown.hal
+        sdfilename = os.path.join(base, "shutdown.hal")
+        f1 = open(sdfilename, "w")
+        print("# Include your shutdown HAL commands here", file=f1)
+        print("# This file will not be overwritten when you run stepconf again", file=f1)
+        f1.close()
+        # if a sim config
+        if self.d.sim_hardware:
+            # make a sim_postgui.hal file
+            spfilename = os.path.join(base, "sim_postgui.hal")
+            f1 = open(spfilename, "w")
+            print("# QtPlasmaC simulator panel connections", file=f1)
+            print("\nloadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
+            print("net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on", file=f1)
+            print("net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in", file=f1)
+            print("net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in", file=f1)
+            print("net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in", file=f1)
+            print("net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in", file=f1)
+            print("net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in", file=f1)
+            print("net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up", file=f1)
+            print("net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down", file=f1)
+            f1.close()
+
+    def plasmac_hal_component(self, file):
+        print("\n# ---PLASMAC COMPONENT INPUTS---", file=file)
+        print("net plasmac:arc-ok               db_arc-ok.out               =>  plasmac.arc-ok-in", file=file)
+        print("net plasmac:axis-x-position      axis.x.pos-cmd              =>  plasmac.axis-x-position", file=file)
+        print("net plasmac:axis-y-position      axis.y.pos-cmd              =>  plasmac.axis-y-position", file=file)
+        print("net plasmac:breakaway-switch-out db_breakaway.out            =>  plasmac.breakaway", file=file)
+        print("net plasmac:current-velocity     motion.current-vel          =>  plasmac.current-velocity", file=file)
+        print("net plasmac:cutting-start        spindle.0.on                =>  plasmac.cutting-start", file=file)
+        print("net plasmac:feed-override        halui.feed-override.value   =>  plasmac.feed-override", file=file)
+        print("net plasmac:feed-reduction       motion.analog-out-03        =>  plasmac.feed-reduction", file=file)
+        print("net plasmac:float-switch-out     db_float.out                =>  plasmac.float-switch", file=file)
+        print("net plasmac:ignore-arc-ok-0      motion.digital-out-01       =>  plasmac.ignore-arc-ok-0", file=file)
+        print("net machine-is-on                halui.machine.is-on         =>  plasmac.machine-is-on", file=file)
+        print("net plasmac:motion-type          motion.motion-type          =>  plasmac.motion-type", file=file)
+        print("net plasmac:offsets-active       motion.eoffset-active       =>  plasmac.offsets-active", file=file)
+        print("net plasmac:ohmic-probe-out      db_ohmic.out                =>  plasmac.ohmic-probe", file=file)
+        print("net plasmac:program-is-idle      halui.program.is-idle       =>  plasmac.program-is-idle", file=file)
+        print("net plasmac:program-is-paused    halui.program.is-paused     =>  plasmac.program-is-paused", file=file)
+        print("net plasmac:program-is-running   halui.program.is-running    =>  plasmac.program-is-running", file=file)
+        print("net plasmac:requested-velocity   motion.requested-vel        =>  plasmac.requested-velocity", file=file)
+        print("net plasmac:scribe-start         spindle.1.on                =>  plasmac.scribe-start", file=file)
+        print("net plasmac:spotting-start       spindle.2.on                =>  plasmac.spotting-start", file=file)
+        print("net plasmac:thc-disable          motion.digital-out-02       =>  plasmac.thc-disable", file=file)
+        print("net plasmac:torch-off            motion.digital-out-03       =>  plasmac.torch-off", file=file)
+        print("net plasmac:units-per-mm         halui.machine.units-per-mm  =>  plasmac.units-per-mm", file=file)
+        print("net plasmac:x-offset-current     axis.x.eoffset              =>  plasmac.x-offset-current", file=file)
+        print("net plasmac:y-offset-current     axis.y.eoffset              =>  plasmac.y-offset-current", file=file)
+        print("net plasmac:z-offset-current     axis.z.eoffset              =>  plasmac.z-offset-current", file=file)
+
+        print("\n# ---PLASMAC COMPONENT OUTPUTS---", file=file)
+        print("net plasmac:adaptive-feed        plasmac.adaptive-feed       =>  motion.adaptive-feed", file=file)
+        print("net plasmac:cutting-stop         halui.spindle.0.stop        =>  plasmac.cutting-stop", file=file)
+        print("net plasmac:feed-hold            plasmac.feed-hold           =>  motion.feed-hold", file=file)
+        print("net plasmac:offset-scale         plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale", file=file)
+        print("net plasmac:program-pause        plasmac.program-pause       =>  halui.program.pause", file=file)
+        print("net plasmac:program-resume       plasmac.program-resume      =>  halui.program.resume", file=file)
+        print("net plasmac:program-run          plasmac.program-run         =>  halui.program.run", file=file)
+        print("net plasmac:program-stop         plasmac.program-stop        =>  halui.program.stop", file=file)
+        print("net plasmac:torch-on             plasmac.torch-on", file=file)
+        print("net plasmac:x-offset-counts      plasmac.x-offset-counts     =>  axis.x.eoffset-counts", file=file)
+        print("net plasmac:y-offset-counts      plasmac.y-offset-counts     =>  axis.y.eoffset-counts", file=file)
+        print("net plasmac:xy-offset-enable     plasmac.xy-offset-enable    =>  axis.x.eoffset-enable axis.y.eoffset-enable", file=file)
+        print("net plasmac:z-offset-counts      plasmac.z-offset-counts     =>  axis.z.eoffset-counts", file=file)
+        print("net plasmac:z-offset-enable      plasmac.z-offset-enable     =>  axis.z.eoffset-enable", file=file)
+
+        if self.d.qtplasmacpmx:
+            print("\n# ---POWERMAX RS485 COMPONENT---", file=file)
+            print("loadusr -Wn pmx485 pmx485 {}".format(self.d.qtplasmacpmx), file=file) 
+
     # Boiler code
     def __getitem__(self, item):
         return getattr(self, item)
