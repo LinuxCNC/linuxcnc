@@ -1,0 +1,19 @@
+QtPlasmaC THCAD Setup Page
+
+Model:
+Select the model of the THCAD from one of 5, 10, or 300.
+
+F Jumper:
+Select the F jumper setting from one of 1, 32, 64, or 128.
+
+0V Frequency & Full Scale Frequency:
+Enter the zero volt frequency and the full scale frequency exactly as 
+displayed on the calibration sticker on the THCAD card.
+
+Divider Ratio:
+For the arc voltage encoder, the divider ratio may be entered as a divider
+ratio or as a series resistance.
+If using a plasma machine with a CNC port and it has an onboard divider with 
+a ratio of 20:1 then enter 20.
+If using the full arc voltage with a series resistance then enter the total 
+value of resistance in ohms. 2MegOhm would be entered as 2000000.
