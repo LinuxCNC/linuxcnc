@@ -1,4 +1,4 @@
-VERSION = '1.0.10'
+VERSION = '1.0.11'
 
 import os, sys
 from shutil import copy as COPY
@@ -314,6 +314,7 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
+        ACTION.SET_MANUAL_MODE()
 
     def gcode_lexer_call(self):
         pass
@@ -1106,6 +1107,7 @@ class HandlerClass:
 
     def abort_pressed(self):
         hal.set_p('plasmac.cut-recovery', '0')
+        self.interp_idle(None)
 
     def user_button_pressed(self, button):
         self.user_button_down(button)
@@ -1239,6 +1241,7 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
+        ACTION.SET_MANUAL_MODE()
 
     def cone_size_changed(self, data):
         self.w.gcodegraphics.set_cone_basesize(data)
@@ -3004,6 +3007,7 @@ class HandlerClass:
                 self.overlay.show()
             self.button_normal('camera')
             self.cameraOn = False
+            ACTION.SET_MANUAL_MODE()
 
     def laser_pressed(self):
         if self.w.laser.text() == 'LASER':
@@ -4071,6 +4075,7 @@ class HandlerClass:
             self.torch_timeout()
         if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE and self.keyboard_shortcuts():
             ACTION.ABORT()
+            self.interp_idle(None)
         if STATUS.is_spindle_on():
             ACTION.SET_SPINDLE_STOP(0)
 
