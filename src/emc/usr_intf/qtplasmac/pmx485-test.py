@@ -44,6 +44,8 @@ rMode        = '2093'
 rPressure    = '2096'
 rPressureMax = '209D'
 rPressureMin = '209C'
+rArcTimeLow  = '209E'
+rArcTimeHigh = '209F'
 validRead    = '0402'
 
 class App(QWidget):
@@ -69,7 +71,7 @@ class App(QWidget):
         self.setLayout(self.grid)
         self.show()
         self.timer = QTimer(self)
-        self.portName.addItem('Select A Port')
+        self.portName.addItem('SELECT A PORT')
         for item in serial.tools.list_ports.comports():
             self.portName.addItem(item.device)
         self.writing = False
@@ -85,8 +87,7 @@ class App(QWidget):
             'QWidget {color: #ffee06; background: #16160e} \
             QLabel {height: 20} \
             QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; width: 80} \
-            QPushButton:pressed {color: #16160e; background: #ffee06} \
-            QComboBox {color: #ffee06; background-color: #16160e; border: 1 solid #ffee06; border-radius: 4; height: 30} \
+            QComboBox {color: #ffee06; background-color: #16160e; border: 1 solid #ffee06; border-radius: 4; height: 30; padding-left: 10} \
             QComboBox::drop-down {width: 0} \
             QComboBox QListView {border: 4p solid #ffee06; border-radius: 0} \
             QComboBox QAbstractItemView {border: 2px solid #ffee06; border-radius: 4} \
@@ -205,7 +206,7 @@ class App(QWidget):
                             fault = int(result[6:10], 16)
                             code = '{:04d}'.format(fault)
                             if fault > 0:
-                                self.faultLabel.setText('Fault')
+                                self.faultLabel.setText('FAULT')
                                 self.faultValue.setText('{}-{}-{}'.format(code[0], code[1:3], code[3]))
                             else:
                                 self.faultLabel.setText('')
@@ -219,7 +220,7 @@ class App(QWidget):
                                 try:
                                     self.faultName.setText('{}'.format(faultCode[code]))
                                 except:
-                                    self.faultName.setText('Unkown fault code')
+                                    self.faultName.setText('UNKNOWN FAULT CODE')
                             return code
                         elif reg == rCurrentMin:
                             data = float(int(result[6:10], 16) / 64.0)
@@ -251,6 +252,12 @@ class App(QWidget):
                             else:
                                 self.pressureMax.setText('{:.0f}'.format(data))
                                 self.pressureSet.setMaximum(data)
+                            return data
+                        elif reg == rArcTimeLow:
+                            data = result[6:10]
+                            return data
+                        elif reg == rArcTimeHigh:
+                            data = result[6:10]
                             return data
 
     def on_use_toggled(self):
@@ -287,6 +294,14 @@ class App(QWidget):
         self.currentSet.setRange(int(float(self.currentMin.text())),int(float(self.currentMax.text())))
         if not self.read_register(rPressureMin): return
         if not self.read_register(rPressureMax): return
+        if not self.read_register(rFault): return
+        ArcTimeLow = self.read_register(rArcTimeLow)
+        ArcTimeHigh = self.read_register(rArcTimeHigh)
+        if ArcTimeLow and ArcTimeHigh:
+            ArcTime = int((ArcTimeHigh + ArcTimeLow), 16)
+            m, s = divmod(ArcTime, 60)
+            h, m = divmod(m, 60)
+            self.arctimeValue.setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
         self.pressureSet.setRange((0),float(self.pressureMax.text()))
         self.minPressure = float(self.pressureMin.text())
         self.maxPressure = float(self.pressureMax.text())
@@ -300,7 +315,7 @@ class App(QWidget):
         except:
             pass
         self.portName.clear()
-        self.portName.addItem('Select A Port')
+        self.portName.addItem('SELECT A PORT')
         for item in serial.tools.list_ports.comports():
             self.portName.addItem(item.device)
         self.portName.showPopup()
@@ -311,7 +326,7 @@ class App(QWidget):
         self.usePanel.setChecked(True)
         self.usePanel.setEnabled(False)
         self.useComms.setEnabled(False)
-        if self.portName.currentText() == 'Select A Port':
+        if self.portName.currentText() == 'SELECT A PORT':
             return
         try:
             self.openPort.close()
@@ -346,6 +361,7 @@ class App(QWidget):
         self.faultName.setText('')
         self.currentMax.setText('')
         self.pressureMax.setText('')
+        self.arctimeValue.setText('')
         self.modeSet.setCurrentIndex(0)
         self.currentSet.setValue(40)
         self.pressureSet.setValue(0)
@@ -358,81 +374,92 @@ class App(QWidget):
 
     def createGridLayout(self):
         self.grid = QGridLayout()
-        self.portScan = QPushButton('Port Scan')
+        for r in range(0, 8):
+            self.grid.setRowMinimumHeight(r, 32)
+        for c in range(0, 5):
+            self.grid.setColumnMinimumWidth(c, 100)
+        self.portScan = QPushButton('PORT SCAN')
         self.grid.addWidget(self.portScan,0,0)
         self.portName = QComboBox()
         self.portName.setStyleSheet('QComboBox {width: 200}')
         self.grid.addWidget(self.portName,0,2,1,2)
-        self.usePanel = QRadioButton('Panel')
+        self.usePanel = QRadioButton('PANEL')
         self.usePanel.setChecked(True)
         self.usePanel.setEnabled(False)
         self.grid.addWidget(self.usePanel,0,4)
         self.useComms = QRadioButton('RS485')
         self.useComms.setEnabled(False)
         self.grid.addWidget(self.useComms,1,4)
-        self.minLabel = QLabel('Min.')
-        self.minLabel.setAlignment(Qt.AlignRight)
+        self.minLabel = QLabel('MIN.')
+        self.minLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.minLabel,2,1)
-        self.maxLabel = QLabel('Max.')
-        self.maxLabel.setAlignment(Qt.AlignRight)
+        self.maxLabel = QLabel('MAX.')
+        self.maxLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.maxLabel,2,2)
-        self.valueLabel = QLabel('Value')
-        self.valueLabel.setAlignment(Qt.AlignRight)
+        self.valueLabel = QLabel('VALUE')
+        self.valueLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.valueLabel,2,3)
-        self.setLabel = QLabel('Set To')
-        self.setLabel.setAlignment(Qt.AlignRight)
+        self.setLabel = QLabel('SET TO')
+        self.setLabel.setAlignment(Qt.AlignCenter| Qt.AlignVCenter)
         self.grid.addWidget(self.setLabel,2,4)
-        self.modeLabel = QLabel('Mode')
-        self.modeLabel.setAlignment(Qt.AlignRight)
+        self.modeLabel = QLabel('MODE')
+        self.modeLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.modeLabel,3,0)
-        self.currentLabel = QLabel('Current')
-        self.currentLabel.setAlignment(Qt.AlignRight)
+        self.currentLabel = QLabel('CURRENT')
+        self.currentLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.currentLabel,4,0)
-        self.pressureLabel = QLabel('Pressure')
-        self.pressureLabel.setAlignment(Qt.AlignRight)
+        self.pressureLabel = QLabel('PRESSURE')
+        self.pressureLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.pressureLabel,5,0)
-        self.faultLabel = QLabel('Error')
-        self.faultLabel.setAlignment(Qt.AlignRight)
-        self.grid.addWidget(self.faultLabel,6,0)
+        self.arctimeLabel = QLabel('ARC ON TIME')
+        self.arctimeLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
+        self.grid.addWidget(self.arctimeLabel,6,0)
+        self.faultLabel = QLabel('ERROR')
+        self.faultLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
+        self.grid.addWidget(self.faultLabel,7,0)
         self.modeValue = QLabel('0')
-        self.modeValue.setAlignment(Qt.AlignRight)
+        self.modeValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.modeValue,3,3)
         self.currentValue = QLabel('0')
-        self.currentValue.setAlignment(Qt.AlignRight)
+        self.currentValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.currentValue,4,3)
         self.pressureValue = QLabel('0')
-        self.pressureValue.setAlignment(Qt.AlignRight)
+        self.pressureValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.pressureValue,5,3)
+        self.arctimeValue = QLabel('0')
+        self.arctimeValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
+        self.grid.addWidget(self.arctimeValue,6,3)
         self.faultValue = QLabel('0')
-        self.faultValue.setAlignment(Qt.AlignRight)
-        self.grid.addWidget(self.faultValue,6,1)
+        self.faultValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
+        self.grid.addWidget(self.faultValue,7,1)
         self.currentMin = QLabel('0')
-        self.currentMin.setAlignment(Qt.AlignRight)
+        self.currentMin.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.currentMin,4,1)
         self.pressureMin = QLabel('0')
-        self.pressureMin.setAlignment(Qt.AlignRight)
+        self.pressureMin.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.pressureMin,5,1)
         self.currentMax = QLabel('0')
-        self.currentMax.setAlignment(Qt.AlignRight)
+        self.currentMax.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.currentMax,4,2)
         self.pressureMax = QLabel('0')
-        self.pressureMax.setAlignment(Qt.AlignRight)
+        self.pressureMax.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.pressureMax,5,2)
-        self.faultName = QLabel('0')
-        self.grid.addWidget(self.faultName,6,2)
+        self.faultName = QLabel('')
+        self.faultName.setAlignment(Qt.AlignLeft| Qt.AlignVCenter)
+        self.grid.addWidget(self.faultName,7,2,1,3)
         self.modeSet = QComboBox()
-        self.modeSet.addItems(['Normal','CPA','Gouge'])
+        self.modeSet.addItems(['NORMAL','CPA','GOUGE'])
         self.modeSet.setCurrentIndex(0)
         self.grid.addWidget(self.modeSet,3,4)
         self.currentSet = QDoubleSpinBox()
         self.currentSet.setMaximum(125)
         self.currentSet.setWrapping(True)
-        self.currentSet.setAlignment(Qt.AlignRight)
+        self.currentSet.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.currentSet,4,4)
         self.pressureSet = QDoubleSpinBox()
         self.pressureSet.setMaximum(125)
         self.pressureSet.setWrapping(True)
-        self.pressureSet.setAlignment(Qt.AlignRight)
+        self.pressureSet.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
         self.grid.addWidget(self.pressureSet,5,4)
         self.clear_text()
 
