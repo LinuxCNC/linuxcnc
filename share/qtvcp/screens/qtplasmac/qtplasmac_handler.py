@@ -276,6 +276,8 @@ class HandlerClass:
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
+        if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
+            self.set_autorepeat('-r')
         self.startupTimer.start(250)
 
     def startup_timeout(self):
@@ -564,13 +566,6 @@ class HandlerClass:
             self.w.estop.setEnabled(False)
         if self.w.estopButton == 1:
             self.w.estop.hide()
-# part 1 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
-        self.jogKeys = {Qt.Key_Left:0, Qt.Key_Right:0, Qt.Key_Up:0, Qt.Key_Down:0,
-                       Qt.Key_PageUp:0, Qt.Key_PageDown:0, Qt.Key_BracketLeft:0, Qt.Key_BracketRight:0}
-        self.keyTimer = QTimer()
-        self.keyTimer.setSingleShot(True)
-        self.keyTimer.timeout.connect(self.key_timer_timeout)
-# end part 1 of autorepeat workaround
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
@@ -649,6 +644,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.set_autorepeat('r')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -704,49 +700,7 @@ class HandlerClass:
                     return True
         if event.isAutoRepeat():
             return True
-# part 2 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
-        elif event.type() == QEvent.KeyPress:
-            if code in self.jogKeys:
-                self.jogKeys[code] = 1
-            if self.keyTimer.isActive():
-                self.keyTimer.stop()
-                return True
-        elif event.type() == QEvent.KeyRelease:
-            if code in self.jogKeys:
-                if self.jogKeys[code] == 1:
-                    self.jogKeys[code] = 0
-                self.keyTimer.start(5)
-                return True
-# end part 2 of autorepeat workaround
         return KEYBIND.manage_function_calls(self, event, is_pressed, key, shift, cntrl)
-
-# part 3 of 3 of a workaround for Qt randomly sending a rapid release/press sequence during autorepeat
-    def key_timer_timeout(self):
-        if self.jogKeys[Qt.Key_Right] == 0 and self.jogKeys[Qt.Key_Left] == 0:
-            self.kb_jog(0, 0, 0)
-        elif self.jogKeys[Qt.Key_Right] == 1 and self.jogKeys[Qt.Key_Left] == 0:
-            self.kb_jog(1, 0, 1)
-        elif self.jogKeys[Qt.Key_Right] == 0 and self.jogKeys[Qt.Key_Left] == 1:
-            self.kb_jog(1, 0, -1)
-        if self.jogKeys[Qt.Key_Up] == 0 and self.jogKeys[Qt.Key_Down] == 0:
-            self.kb_jog(0, 1, 0)
-        elif self.jogKeys[Qt.Key_Up] == 1 and self.jogKeys[Qt.Key_Down] == 0:
-            self.kb_jog(1, 1, 1)
-        elif self.jogKeys[Qt.Key_Up] == 0 and self.jogKeys[Qt.Key_Down] == 1:
-            self.kb_jog(1, 1, -1)
-        if self.jogKeys[Qt.Key_PageUp] == 0 and self.jogKeys[Qt.Key_PageDown] == 0:
-            self.kb_jog(0, 2, 0)
-        elif self.jogKeys[Qt.Key_PageUp] == 1 and self.jogKeys[Qt.Key_PageDown] == 0:
-            self.kb_jog(1, 2, 1)
-        elif self.jogKeys[Qt.Key_PageUp] == 0 and self.jogKeys[Qt.Key_PageDown] == 1:
-            self.kb_jog(1, 2, -1)
-        if self.jogKeys[Qt.Key_BracketRight] == 0 and self.jogKeys[Qt.Key_BracketLeft] == 0:
-            self.kb_jog(0, 3, 0)
-        elif self.jogKeys[Qt.Key_BracketRight] == 1 and self.jogKeys[Qt.Key_BracketLeft] == 0:
-            self.kb_jog(1, 3, 1)
-        elif self.jogKeys[Qt.Key_BracketRight] == 0 and self.jogKeys[Qt.Key_BracketLeft] == 1:
-            self.kb_jog(1, 3, -1)
-# end part 3 of autorepeat workaround
 
     def size_changed(self, object):
         rows = int((object.height() - 24) / 44)
@@ -1407,6 +1361,11 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+    def set_autorepeat(self, state):
+        jogKeys = {'34', '35', '111', '112', '113', '114', '116', '117'}
+        for key in jogKeys:
+            Popen('xset {} {}'.format(state, key), stdout = PIPE, shell = True)
+
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))

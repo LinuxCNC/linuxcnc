@@ -3444,11 +3444,13 @@ image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
 
 === Keyboard Jogging
 
-There is a known issue with the isAutoRepeat() function in Qt which causes unexpected key pressed/key released behaviors. These random key releases while a jog key is still being held down causes jerky/erratic jogging behavior. There are several bug reports citing this issue at the Qt project level.
+There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the autorepeat feature of keys used for jogging. QtPlasmaC uses this disabling feature by default and applies the disable to the standard jog keys for the X, Y, Z, and A axes. All other keys have autorepeat enabled. When QtPlasmaC is shut down then the autorepeat feature will be enabled for the jog keys.
 
-This condition is known and is worked around in 3 stages to provide the best/most consistent behavior possible. However, at times the user may notice unexpected jogging behavior. If odd behavior is noticed while a key is pressed then releasing the key will stop the active jog. If a jog continues after a key is released then pressing and releasing the key again will stop the active jog.
+If the user wishes to not disable the autorepeat feature for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
 
-Due to the issue with isAutoRepeat(), unexpected behavior with jogging has been observed and is believed to be caused as a result of multiple windows being open, and the QtPlasmaC window losing keyboard focus during the jog. For this reason, it is highly recommended that the user not run any other programs while using QtPlasmaC.
+----
+AUTOREPEAT_ALL == ENABLE
+----
 
 This issue does not affect any jogging using the GUI jog buttons.
 
