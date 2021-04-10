@@ -190,14 +190,15 @@ class HandlerClass:
         self.rflActive = False
         self.jogInhibit = ''
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
-        self.ccButton, self.otButton, self.ptButton = '', '', ''
-        self.tpButton, self.ctButton, self.scButton = '', '', ''
+        self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
+        self.ctButton, self.scButton, self.frButton = '', '', ''
         self.torchOn = False
         self.progRun = False
         self.rapidOn = False
         self.probeOn = False
         self.gcodeProps = ''
         self.framing = False
+        self.boundsError = {'loaded': False, 'framing': False}
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -281,6 +282,8 @@ class HandlerClass:
         if STATUS.stat.estop:
             self.w.power.setEnabled(False)
         self.w.run.setEnabled(False)
+        if self.frButton:
+            self.w[self.frButton].setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
 
@@ -867,14 +870,19 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.w.gcode_display.lines() > 1 and self.plasmacStatePin.get() == 0:
+           self.w.gcode_display.lines() > 1 and self.plasmacStatePin.get() == 0 and \
+           not self.boundsError['loaded']:
             self.runButtonTimer.start(75)
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
 
     def run_button_timeout(self):
         self.w.run.setEnabled(True)
+        if self.frButton:
+            self.w[self.frButton].setEnabled(True)
 
     def set_pause_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
@@ -907,6 +915,8 @@ class HandlerClass:
 
     def interp_running(self, obj):
         self.w.run.setEnabled(False)
+        if self.frButton:
+            self.w[self.frButton].setEnabled(False)
         for widget in self.idleList:
             self.w[widget].setEnabled(False)
         for widget in self.idleOnList:
@@ -1046,6 +1056,9 @@ class HandlerClass:
             self.startLine = 0
             self.preRflFile = ''
         self.w.mdihistory.reload()
+        msg, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
+        if self.boundsError['loaded']:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'AXIS LIMIT ERROR:\n{}'.format(msg))
         self.set_run_button_state()
         ACTION.SET_MANUAL_MODE()
 
@@ -1108,6 +1121,8 @@ class HandlerClass:
     def run_pressed(self):
         if self.startLine and not self.rflActive:
             self.w.run.setEnabled(False)
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
             self.rflActive = True
             self.do_run_from_line()
         else:
@@ -1398,6 +1413,27 @@ class HandlerClass:
             if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
+
+    def bounds_check(self, boundsType, xOffset , yOffset):
+        self.boundsError[boundsType] = False
+        msg = ''
+        xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
+        if xMin < self.xMin:
+            msg += 'X move will exceed X minimum limit\n'
+            self.boundsError[boundsType] = True
+        xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
+        if xMax > self.xMax:
+            msg += 'X move will exceed X maximum limit\n'
+            self.boundsError[boundsType] = True
+        yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
+        if yMin < self.yMin:
+            msg += 'Y move will exceed Y minimum limit\n'
+            self.boundsError[boundsType] = True
+        yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
+        if yMax > self.yMax:
+            msg += 'Y move will exceed Y maximum limit\n'
+            self.boundsError[boundsType] = True
+        return msg, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.w.PREFS_.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -2154,7 +2190,7 @@ class HandlerClass:
             elif 'toggle-halpin' in bCode:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'framing' in bCode:
-                self.idleHomedList.append('button_{}'.format(str(bNum)))
+                self.frButton = 'button_{}'.format(str(bNum))
             else:
                 for command in bCode.split('\\'):
                     if command.strip()[0] != '%':
@@ -2182,6 +2218,8 @@ class HandlerClass:
                 else:
                     hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
                 self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
                 self.w.pause.setEnabled(False)
                 if self.ccXpos == 'None':
                     self.ccXpos = STATUS.get_position()[0][0]
@@ -2422,10 +2460,10 @@ class HandlerClass:
 
     def do_framing(self, state, commands):
         if self.gcodeProps and state:
-            error = False
             self.framing = True
-            msg = ''
             self.w.run.setEnabled(False)
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
             lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
             if lCode == '0':
                 xOffset, yOffset = 0, 0
@@ -2440,27 +2478,15 @@ class HandlerClass:
                     msg  = 'Invalid entry for laser offset,\n'
                     msg += 'offsets will be set to zero\n'
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI FILE ERROR:\n{}'.format(msg))
-            xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
-            if xMin < self.xMin:
-                msg += 'X move will exceed X minimum limit\n'
-                error = True
-            xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
-            if xMax > self.xMax:
-                msg += 'X move will exceed X maximum limit\n'
-                error = True
-            yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
-            if yMin < self.yMin:
-                msg += 'Y move will exceed Y minimum limit\n'
-                error = True
-            yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
-            if yMax > self.yMax:
-                msg += 'Y move will exceed Y maximum limit\n'
-                error = True
-            if error:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'AXIS LIMIT ERROR:\n{}'.format(msg))
+            msg, xMin, yMin, xMax, yMax = self.bounds_check('framing', xOffset, yOffset)
+            if self.boundsError['framing']:
+                fMsg = 'limit due to laser offset'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'AXIS LIMIT ERROR:\n{}'.format(msg.replace('limit', fMsg)))
                 self.framing = False
                 self.w.run.setEnabled(True)
-                error = False
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(True)
+                self.boundsError['framing'] = False
                 return
             feed = float(self.w.cut_feed_rate.text())
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
