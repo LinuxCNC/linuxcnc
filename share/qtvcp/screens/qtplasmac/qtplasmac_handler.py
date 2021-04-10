@@ -801,6 +801,8 @@ class HandlerClass:
                 self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
+            if self.otButton and not self.w.ohmic_probe_enable.isChecked():
+                self.w[self.otButton].setEnabled(False)
             if STATUS.is_all_homed():
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(True)
@@ -836,6 +838,8 @@ class HandlerClass:
                 self.w[widget].setEnabled(True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
+            if self.otButton and not self.w.ohmic_probe_enable.isChecked():
+                self.w[self.otButton].setEnabled(False)
             if STATUS.is_all_homed():
                 for widget in self.idleHomedList:
                     self.w[widget].setEnabled(True)
@@ -932,6 +936,8 @@ class HandlerClass:
                 self.w[self.ccButton].setEnabled(True)
             if self.tpButton and self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
+            if self.otButton and self.w.ohmic_probe_enable.isChecked():
+                self.w[self.otButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
             if hal.get_value('plasmac.stop-type-out'):
                 self.w.set_cut_recovery()
@@ -939,8 +945,10 @@ class HandlerClass:
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
-            if self.tpButton:
+            if self.tpButton and STATUS.is_auto_running():
                 self.w[self.tpButton].setEnabled(False)
+            if self.otButton and STATUS.is_auto_running():
+                self.w[self.otButton].setEnabled(False)
 
     def jog_rate_changed(self, object, value):
         self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
@@ -1278,12 +1286,20 @@ class HandlerClass:
             if value:
                 self.cutrec_buttons_enable(False)
                 self.cutrec_motion_enable(False)
+                if self.tpButton:
+                    self.w[self.tpButton].setEnabled(False)
+                if self.otButton:
+                    self.w[self.otButton].setEnabled(False)
             else:
                 self.cutrec_buttons_enable(True)
                 self.cutrec_motion_enable(True)
                 if STATUS.is_interp_paused():
                     self.w.pause.setEnabled(True)
                     self.w[self.ccButton].setEnabled(True)
+                    if self.tpButton:
+                        self.w[self.tpButton].setEnabled(True)
+                    if self.otButton:
+                        self.w[self.otButton].setEnabled(True)
                 else:
                     if self.ccButton:
                         self.w[self.ccButton].setEnabled(False)
@@ -1452,6 +1468,7 @@ class HandlerClass:
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
+        self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
         self.w.grid_size.valueChanged.connect(self.grid_size_changed)
         self.w.gcode_display.linesChanged.connect(self.gcode_display_loaded)
@@ -2093,6 +2110,7 @@ class HandlerClass:
         self.probeTimer = QTimer()
         self.probeTimer.timeout.connect(self.probe_timeout)
         self.torchTimer = QTimer()
+        self.torchTimer.setSingleShot(True)
         self.torchTimer.timeout.connect(self.torch_timeout)
         self.cutType = 0
         self.single_cut_request = False
@@ -2202,15 +2220,19 @@ class HandlerClass:
                 self.button_normal(self.ptButton)
         elif 'torch-pulse' in commands.lower():
             if self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
-                torchTime = 1.0
+                self.torchTime = 1.0
                 if commands.lower().replace('torch-pulse','').strip():
-                    torchTime = float(commands.lower().replace('torch-pulse','').strip())
-                    torchTime = 3.0 if torchTime > 3.0 else torchTime
-                self.torchTimer.start(torchTime * 1000)
-                hal.set_p('plasmac.torch-pulse-time', str(torchTime))
+                    self.torchTime = float(commands.lower().replace('torch-pulse','').strip())
+                    self.torchTime = 3.0 if self.torchTime > 3.0 else self.torchTime
+                self.tpText = self.w[self.tpButton].text()
+                self.w[self.tpButton].setText('{}'.format(self.torchTime))
+                self.torchTimer.start(100)
+                hal.set_p('plasmac.torch-pulse-time', str(self.torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.button_active(self.tpButton)
             else:
+                self.torchTimer.stop()
+                self.torchTime = 0.1
                 self.torch_timeout()
         elif 'cut-type' in commands.lower():
             self.w.gcodegraphics.logger.clear()
@@ -2284,6 +2306,13 @@ class HandlerClass:
             else:
                 self.w[self.tpButton].setEnabled(False)
 
+    def ohmic_probe_enable_changed(self, state):
+        if self.otButton:
+            if state and STATUS.machine_is_on() and (not STATUS.is_interp_running() or STATUS.is_interp_paused()):
+                self.w[self.otButton].setEnabled(True)
+            else:
+                self.w[self.otButton].setEnabled(False)
+
     def probe_timeout(self):
         if self.probeTime > 1:
             self.probeTime -= 1
@@ -2297,9 +2326,14 @@ class HandlerClass:
             self.button_normal(self.ptButton)
 
     def torch_timeout(self):
-        self.torchTimer.stop()
-        hal.set_p('plasmac.torch-pulse-time', '0')
-        self.button_normal(self.tpButton)
+        self.torchTime -= 0.1
+        if self.torchTime <= 0.01:
+            self.w[self.tpButton].setText(self.tpText)
+            hal.set_p('plasmac.torch-pulse-time', '0')
+            self.button_normal(self.tpButton)
+        else:
+            self.torchTimer.start(100)
+            self.w[self.tpButton].setText('{:.1f}'.format(self.torchTime))
 
     def consumable_change_setup(self):
         self.ccXpos = self.ccYpos = self.ccFeed = 'None'
