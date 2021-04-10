@@ -64,77 +64,13 @@ deb-src http://buildbot.linuxcnc.org/ buster master-rtpreempt
 
 === Run In Place Installation If The User Has Linux with LinuxCNC v2.8
 
-A run in place installation run LinuxCNC from a compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html
+A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html
 
 Following these instructions will install the latest master branch (v2.9) of LinuxCNC.
 
-=== Creating A Working Base Machine Configuration
+== Creating A QtPlasmaC Configuration
 
-It is recommended that the user choose the AXIS GUI to make the Base Machine Configuration.
-
-NOTE: "Base machine configuration" means a complete working system without any of the plasma connections shown in the <<qt_io_requirements, I/O Requirements>> section. All axes should be working and tuned for best performance and all home and limit switches for X, Y, and Z axes (if installed) should be operating correctly.
-
-IMPORTANT: DO *NOT* ADD ANY OF THE PLASMA CONNECTIONS SHOWN IN THE <<qt_io_requirements, I/O REQUIREMENTS>> SECTION AT THIS TIME, THESE I/O'S WILL BE ADDED LATER DURING THE QTPLASMAC SETUP USING THE <<qt_setup, qtplasmac-setup>> PROGRAM.
-
-Some recommended settings:
-
-[[qt_z-settings]]
-
-* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2")) below the lowest slat.
-* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
-* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4") below the maximum limit.
-
-* *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
-
-----
-o = 0.5 × a × (v ÷ a)^2
-----
-
-where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
-
-Metric example:  given a Z axis MAX_ACCELERATION of 600mm/s^2^ and MAX_VELOCITY of 60mm/s, the overrun would be 3mm.
-
-Imperial example: given a Z axis MAX_ACCELERATION of 24in/s^2^ and MAX_VELOCITY of 2.4in/s, the overrun would be 0.12in.
-
-On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
-
-The user may opt to create a base machine manually or one of the existing configuration helpers may be used:
-
-NOTE: It is highly recommended to keep the base machine config simple until it has been fully tested and tuned. +
-If using Stepconf or Pncconf then deselect the VCP Panel, spindle, manual tool change, and classic ladder options. +
-Any of the aforementioned options can be added manually at a later time should the need arise.
-
-IMPORTANT: DO NOT ADD ANY OF THE <<qt_io_requirements, PLASMA SPECIFIC I/O REQUIREMENTS>> TO THE PNCCONF OR STEPCONF WIZARDS.
-
-If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>> (enter the following command into a terminal window):
-
-----
-pncconf
-----
-
-If using a parallel port, use the <<cha:stepconf-wizard, stepconf wizard>> (enter the following command into a terminal window):
-
-----
-stepconf
-----
-
-If using a Pico Systems board: +
-https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC forum thread] may be helpful.
-
-If the user already has a dual motor gantry configuration that requires the configuration to be hand edited: +
-https://forum.linuxcnc.org/49-basic-configuration/33079-how-to-2-or-more-motors-on-one-axis-gantry-linuxcnc-2-8-master?start=0[This LinuxCNC forum thread] may be helpful.
-
-IMPORTANT: BEFORE PROCEEDING, THE USER SHOULD BE ABLE TO HOME THE MACHINE, ZERO EACH AXIS, JOG ALL AXES TO SOFT LIMITS WITHOUT CRASHING, AND RUN TEST G-CODE PROGRAMS WITHOUT ANY ERRORS.
-
-ONLY WHEN this criteria is met should the user proceed with using the created .hal and .ini files from a working configuration to switch to the QtPlasmaC GUI by running the qtplasmac-setup program.
-
-CAUTION: DO *NOT* CONTINUE UNTIL THE BASE MACHINE IS CONFIGURED AND WORKING.
-
-[[qt_io_requirements]]
-
-== Plasma Specific I/O Considerations
-
-Prior to using the qtplasmac-setup program, it is important that the user has a firm understanding of the operating modes available, as well as the I/O's that are required for successful plasma operation.
+Prior to creating a QtPlasmaC configuration, it is important that the user has a firm understanding of the operating modes available, as well as the I/O's that are required for successful plasma operation.
 
 [[qt_mode]]
 
@@ -156,47 +92,61 @@ IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is
 
 === Available I/Os
 
-NOTE: This section only touches on the hardware I/O's required for QtPlasmaC. Base machine requirements such as limit switches, home switches, etc. are in addition to these and should already be configured and working prior to the user running the qtplasmac-setup program.
+NOTE: This section only touches on the hardware I/O's required for QtPlasmaC. Base machine requirements such as limit switches, home switches, etc. are in addition to these.
 
 [width="100%",cols="4,2,14"]
 |===
 |*Name*|*Modes*|*Description*
 |Arc Voltage|0, 1|Analog input; *optional.* +
-                 Connected to the velocity output of an encoder equipped breakout board.
-				 This signal is used to read the arc voltage to determine the necessary corrections to maintain the torch distance from the work piece during cutting.
+                  HAL pin name plasmac.arc-voltage-in +
+                  Connected to the velocity output of an encoder equipped breakout board.
+                  This signal is used to read the arc voltage to determine the necessary corrections to maintain the torch distance from the work piece during cutting.
 |Arc OK|1, 2|Digital input; *optional.* +
-                 Connected from the Arc OK output of the plasma power source to an input on the breakout board.
-				 This signal is used to determine if the cutting arc has been established and it is ok for the machine to move (sometimes called arc transfer).
+            HAL pin name plasmac.arc-ok-in +
+             Connected from the Arc OK output of the plasma power source to an input on the breakout board.
+             This signal is used to determine if the cutting arc has been established and it is ok for the machine to move (sometimes called arc transfer).
 |Float Switch|0, 1, 2|Digital input; *optional, see info below table:* +
-                    Connected from a breakout board input to a switch on the floating head.
-					This signal is used to mechanically probe the work piece with the torch and set Z zero at the top of the work piece. +
-                    If used and no ohmic probe is configured, this is the primary probing method. +
-                    If used and an ohmic probe is configured, this is the fallback probing method.
+                      HAL pin name plasmac.float-switch +
+                      Connected from a breakout board input to a switch on the floating head.
+                      This signal is used to mechanically probe the work piece with the torch and set Z zero at the top of the work piece. +
+                      If used and no ohmic probe is configured, this is the probing method. +
+                      If used and an ohmic probe is configured, this is the fallback probing method.
 |Ohmic Probe|0, 1, 2|Digital input; *optional, see info below table:* +
-                   Connected from to the ohmic probe's output to a breakout board input.
-				   This signal is used to probe electronically by completing a circuit using the work piece and the torch consumables and set Z zero at the top of the work piece. +
-                   If used, this is the primary probing method.
-				   If an ohmic probe fails to locate the work piece, and there is no float switch is present, probing will continue until the torch breaks away or the minimum Z limit is reached.
+                     HAL pin name plasmac.ohmic-probe +
+                     Connected from to the ohmic probe's output to a breakout board input.
+                     This signal is used to probe electronically by completing a circuit using the work piece and the torch consumables and set Z zero at the top of the work piece. +
+                     If used, this is the primary probing method.
+                     If an ohmic probe fails to locate the work piece, and there is no float switch is present, probing will continue until the torch breaks away or the minimum Z limit is reached.
 |Ohmic Probe Enable|0, 1, 2|Digital output; *optional, see info below table:* +
-                   Connected from a breakout board output to an input to control the ohmic probe's power.
+                            HAL pin name plasmac.ohmic-enable +
+                            Connected from a breakout board output to an input to control the ohmic probe's power.
 |Breakaway Switch|0, 1, 2|Digital input; *optional, see info below table:* +
-                        Connected from a breakout board input to a torch breakaway detection switch. +
-                  This signal senses if the torch has broken away from its cradle.
+                          HAL pin name plasmac.breakaway +
+                          Connected from a breakout board input to a torch breakaway detection switch. +
+                          This signal senses if the torch has broken away from its cradle.
 |Torch On|0, 1, 2|Digital output; *required.* +
-                Connected from a breakout board output to the torch-on input of the plasma power supply.
-				This signal is used to control the plasma power supply and start the arc.
+                  HAL pin name plasmac.torch-on +
+                  Connected from a breakout board output to the torch-on input of the plasma power supply.
+                  This signal is used to control the plasma power supply and start the arc.
 |Move Up|2|Digital input; *optional.* +
+           HAL pin name plasmac.move-up +
            Connected from the up output of the external THC control to a break out board input.
 		   This signal is used to control the Z axis in an upward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Move Down|2|Digital input; *optional.* +
+             HAL pin name plasmac.move-down +
              Connected from the down output of the external THC control to a break out board input.
-			 This signal is used to control the Z axis in a downward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
+             This signal is used to control the Z axis in a downward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Scribe Arming|0, 1, 2|Digital output; *optional.* +
-                     Connected from a breakout board output to the scribe arming circuit.
-					 This signal is used to place the scribe into position on the work piece .
+                       HAL pin name plasmac.scribe-arm +
+                       Connected from a breakout board output to the scribe arming circuit.
+					   This signal is used to place the scribe into position on the work piece .
 |Scribe On|0, 1, 2|Digital output; *optional.* +
-                     Connected from a breakout board output to the scribe-on circuit.
-					 This signal is used to turn the scribing device on.
+                   HAL pin name plasmac.scribe-on +
+                   Connected from a breakout board output to the scribe-on circuit.
+                   This signal is used to turn the scribing device on.
+|Laser On|0, 1, 2|Digital output; *optional.* +
+                  HAL pin name qtplasmac.laser_on +
+                  This signal is used to turn the alignment laser on.
 |===
 
 Only one of either *Float Switch* or *Ohmic Probe* is required. If both are used then *Float Switch* will be a fallback if *Ohmic Probe* is not sensed.
@@ -207,150 +157,94 @@ If *Ohmic Probe* is used then *Ohmic Probe Enable* is required to be checked on 
 
 NOTE: The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc Voltage* input OR *Arc OK* input, *Float Switch* input, and *Torch On* output. To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway switch when it is not probing.
 
-IMPORTANT: THE ABOVE PINS WILL BE ENTERED LATER DURING THE QTPLASMAC SETUP PROCESS. MAKE NOTE OF THE CORRESPONDING INPUTS AND OUTPUTS ON THE BREAKOUT BOARD DURING WIRING. THESE PINS SHOULD *NOT* BE USED TO CREATE THE BASE MACHINE .HAL FILE.
+[[qt_z-settings]]
 
-== Installing QtPlasmaC To A Base Machine
+=== Recommended Settings:
 
-By this point, the user NEEDS to have a fully tested and working base machine configuration without any connections to the plasma specific I/Os before proceeding. It is much more difficult to edit a base machine configuration after moving to QtPlasmaC as pncconf and stepconf can no longer be used to help edit the configuration.
+* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2") below the lowest slat.
+* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
+* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4") below the maximum limit.
 
-CAUTION: DO *NOT* PROCEED UNTIL THE BASE MACHINE IS COMPLETE.
-
-NOTE: If the user is using a *Mesa Electronics THCAD* card for arc voltage measurement, see <<qt_mesa-thcad, Mesa THCAD>> before proceeding.
-
-[[qt-dependency]]
-
-=== Qt Dependency Errors
-
-If any Qt dependency errors are encountered at any point in the following process, the user may need to run the QtVCP installation script to resolve these issues.
-
-For a package installation (Buildbot) enter the following command in a terminal window:
+* *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
 
 ----
-/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
+o = 0.5 × a × (v ÷ a)^2
 ----
 
-For a run in place installation enter the following command in a terminal window:
+where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
 
-----
-~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
-----
+Metric example:  given a Z axis MAX_ACCELERATION of 600mm/s^2^ and MAX_VELOCITY of 60mm/s, the overrun would be 3mm.
 
-[[qt_setup]]
+Imperial example: given a Z axis MAX_ACCELERATION of 24in/s^2^ and MAX_VELOCITY of 2.4in/s, the overrun would be 0.12in.
 
-=== Setup
+On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
 
-Installing a plasma configuration to a base machine and changing to the QtPlasmaC GUI is done via the qtplasmac-setup program.
+[[configuring]]
 
-For a package installation (Buildbot) enter the following command in a terminal window:
+=== Configuring
 
-----
-qtplasmac-setup
-----
+LinuxCNC provides two configuration wizards which can be used to build a machine configuration. The choice of these wizards is dependent on the hardware used to control the machine.
 
-For a run in place installation enter the following two commands in a terminal window:
+If the user wishes to use a Run In Place installation then prior to running one of the following commands they will need to run the following command from a terminal:
 
 ----
 source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-setup
 ----
 
-The selection window is now visible:
+If using a Package installation then no additional action is required.
 
-image::images/qtplasmac_setup_main.png[width=300,align="center"]
+If using a parallel port, use the <<cha:stepconf-wizard, StepConf wizard>> (enter the following command into a terminal window):
 
-Select *NEW* from the selection window, this will show an info dialog, select *CONTINUE* and the New Configuration window will display.
+----
+stepconf
+----
 
-NOTE: There will be different fields visible depending on the mode selected.
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard, PnCConf wizard>> (enter the following command into a terminal window):
 
-image::images/qtplasmac_setup_new.png[width=500,align="center"]
+----
+pncconf
+----
 
-[[qt_setup-table]]
+If using a Pico Systems board: +
+https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC forum thread] may be helpful.
 
-*Mandatory Settings*
+The machine specific settings are not described here, refer to the docementation for the particular configuration wizard that you are using.
 
-HAL connection examples in the following table show examples for both a parallel port config and a Mesa 7i96 config. Change the pin names as required to suit the breakout board configuration.
+There are Linuxcnc forum sections available for these wizards:
 
-[width="100%",cols="4,10,6"]
-|===
-|*Field*|*Description*|*Examples*
-|Machine Name|The new name for the machine. This will create a ~/linuxcnc/<machine_name> directory and a <machine_name>.ini file. +
-              *"<machine_name>" describes the name entered into this field.*|plasma_table.ini.
-|INI File|This is the .ini file that was created as a result of making a working and tested base machine configuration.|base.ini
-|HAL File|This is the .hal file that was created as a result of making a working and tested base machine configuration.|base.hal
-|Monitor Aspect Ratio|This is the <<qt_formats, aspect ratio format>> for the GUI. +
-                      The GUI resolution can be changed after the initial configuration by either running the qtplasmac-setup program again +
-                      and choosing *RECONFIGURE* or by editing the <<qt_ini-display, [DISPLAY] section>> of the <machine_name>.ini file.|16:9
-|Mode|Selects the required mode based on the following criteria: +
-      0 - If using an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK. +
-      1 - If using both an external arc voltage input to calculate Arc Voltage (for Torch Height Control) and an external Arc OK input for Arc OK. +
-      2 - If using both an external Arc OK input for Arc OK and an external up/down signals for Torch Height Control.|1
-|Estop type|Selects the required Estop type based on the following criteria: +
-      0 - Estop is an indicator only. +
-      1 - Estop indicator is hidden. +
-      2 - Estop is a button.|1
-|Arc Voltage|Required for Modes 0 and 1 only. +
-             Refers to the input HAL pin the arc voltage signal to is connected to.|*Parallel Port Example:*  encoder.0.velocity +
-                                                                                    *Mesa 7i96 Example:*  hm2_7i96.0.encoder.00.velocity
-|Arc OK|Required for Modes 1 and 2 only. +
-        Refers to the input HAL pin the Arc OK signal is connected to.|*Parallel Port Example:*  parport.0.pin-10-in-not +
-                                                                       *Mesa 7i96 Example:*  hm2_7i96.0.gpio.008.in
-|Torch On|Required for All modes. +
-          Refers to the output HAL pin the torch on signal is connected to.|*Parallel Port Example:*  parport.0.pin-16-out +
-                                                                               *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-00
-|Move Up|Required for Mode 2 only. +
-         Refers to the input HAL pin the move up signal is connected to.|*Parallel Port Example:*  parport.1.pin-10-in +
-                                                                         *Mesa 7i96 Example:*  hm2_7i96.0.gpio.004.in
-|Move Down|Required for Mode 2 only. +
-           Refers to the input HAL pin the move down signal is connected to.|*Parallel Port Example:*  parport.1.pin-11-in +
-                                                                             *Mesa 7i96 Example:*  hm2_7i96.0.gpio.003.in
-|===
+https://forum.linuxcnc.org/16-stepconf-wizard()[StepConf Wizard]
 
-*Optional Settings*
+https://forum.linuxcnc.org/39-pncconf[PnCConf Wizard]
 
-HAL connection examples in the following table show examples for both a parallel port config and a Mesa 7i96 config. Change the pin names as required to suit the breakout board configuration.
+Fill in the required entries to suit the machine wiring/breakout board configuration.
 
-[width="100%",cols="4,10,6"]
-|===
-|*Field*|*Description*|*Examples*
-|Float Switch|Required if using a float switch. +
-              Refers to the input HAL pin the float switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-12-in +
-                                                                                   *Mesa 7i96 Example:*  hm2_7i96.0.gpio.006.in
-|Breakaway Switch|Required if using a breakaway switch. +
-                  Refers to the input HAL pin the breakaway switch signal is connected to.|*Parallel Port Example:*  parport.0.pin-13-in +
-                                                                                           *Mesa 7i96 Example:*  hm2_7i96.0.gpio.005.in
-|Ohmic Probe|Required if using an ohmic probe. +
-             Refers to the input HAL pin the ohmic probe signal is connected to.|*Parallel Port Example:*  parport.0.pin-11-in +
-                                                                                 *Mesa 7i96 Example:*  hm2_7i96.0.gpio.007.in
-|Ohmic Probe Enable|Required if using an ohmic probe. +
-                    Refers to the output HAL pin the ohmic probe enable signal is connected to.|*Parallel Port Example:*  parport.1.pin-01-out +
-                                                                                                *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-01
-|Scribe Arming|Required if using a scribe. +
-               Refers to the the output HAL pin the scribe arming mechanism is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
-                                                                                             *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-02
-|Scribe On|Required if using a scribe. +
-           Refers to the output HAL pin the scribe power source is connected to.|*Parallel Port Example:*  parport.1.pin-16-out +
-                                                                                    *Mesa 7i96 Example:*  hm2_7i96.0.ssr.00.out-03
-|PowerMax Comms|Required if using PowerMax serial communications. +
-                Refers to the serial port to be used for communications.|/dev/ttyUSB0
-|Laser X:|Required if using a laser crosshair for sheet alignment. +
-          Refers to the X axis offset from the torch center.|*Metric Example:*  54.7 +
-                                                             *Imperial Example:*  2.15
-|Laser Y:|Required if using a laser crosshair for sheet alignment. +
-          Refers to the Y axis offset from the torch center.|*Metric Example:*  26.3 +
-                                                             *Imperial Example:*  1.03
-|Camera X:|Required if using a camera for sheet alignment. +
-           Refers to the X axis offset from the torch center.|*Metric Example:*  -54.7 +
-                                                             *Imperial Example:*  -2.15
-|Camera Y:|Required if using a camera for sheet alignment. +
-           Refers to the Y axis offset from the torch center.|*Metric Example:*  -54.7 +
-                                                             *Imperial Example:*  -2.15
-|===
+QtPlasmaC adds two pages to the LinuxCNC configuration wizards for QtPlasmaC specific parameters, the two pages are QtPlasmaC options and <<qt_custom-user-buttons, User Buttons>>. Complete each of the wizards QtPlasmaC page to suit the machine that is being configured and the user button requirements.
 
-NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC for the base machine and run *HalShow* for a full listing of all HAL pins.
+Note that PnCConf options allow user selection of Feed Override, Linear Velocity, and Jog Increments whereas in StepConf these are automatically calculated and set.
 
-Fill in the required entries to suit the machine wiring/breakout board configuration, click *CREATE* and a working QtPlasmaC configuration will be created in the following directory: ~/linuxcnc/configs/<machine_name>
+*PnCConf QtPlasmaC Options:*
 
-The newly created QtPlasmaC configuration can be run by entering the following command into a terminal window (*change "<machine_name>" to the machine name entered into the qtplasmac-setup program*):
+image::images/qtplasmac_pncconf_screen.png[width=600,align="center",Title="Blah Blh"]
+
+*StepConf QtPlasmaC Options:*
+
+image::images/qtplasmac_stepconf_options.png[width=600,align="center"]
+
+*QtPlasmaC User Buttons:*
+
+image::images/qtplasmac_pncconf_buttons.png[width=600,align="center"]
+
+*QtPlasmaC THCAD:*
+
+The THCAD screen will only appear if a Plasma Encoder is selected in the card screen.
+
+image::images/qtplasmac_pncconf_thcad.png[width=600,align="center"]
+
+More information on <<qt_mesa-thcad, Mesa THCAD>>.
+
+When the configuration is complete, the wizard will save a copy of the configuration that may be loaded and edited at a later time, a working QtPlasmaC configuration will be created in the following directory: ~/linuxcnc/configs/<machine_name>
+
+The newly created QtPlasmaC configuration can be run by entering the following command into a terminal window (*change "<machine_name>" to the machine name entered into the configuration wizard*):
 
 For a package installation (Buildbot):
 
@@ -364,13 +258,34 @@ For a run in place installation:
 ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
 ----
 
-After creating a new configuration some initial setup is required before using QtPlasmaC.
+After running the above command LinuxCNC should be running with the QtPlasmaC GUI visible.
+
+IMPORTANT: BEFORE PROCEEDING, THE USER SHOULD BE ABLE TO HOME THE MACHINE, ZERO EACH AXIS, JOG ALL AXES TO SOFT LIMITS WITHOUT CRASHING, AND RUN TEST G-CODE PROGRAMS WITHOUT ANY ERRORS.
+
+ONLY WHEN this criteria is met should the user proceed with the QtPlasmaC initial setup.
+
+NOTE: It is possible to create a sim configuration using StepConf but it is not possible to have tandem joints in the sim configuration.
+[[qt-dependency]]
+
+=== Qt Dependency Errors
+
+If any Qt dependency errors are encountered while attempting to run the QtPlasmaC configuration, the user may need to run the QtVCP installation script to resolve these issues.
+
+For a package installation (Buildbot) enter the following command in a terminal window:
+
+----
+/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
+----
+
+For a run in place installation enter the following command in a terminal window:
+
+----
+~/linuxcnc-dev/lib/python/qtvcp/designer/install_script
+----
 
 [[qt_initial-setup]]
 
 === Initial Setup
-
-After running the command at the end of section 5.1, LinuxCNC should be running with the QtPlasmaC GUI visible.
 
 Click on the *PARAMETERS* tab to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these is tailored to the machine.
 
@@ -404,51 +319,58 @@ If the machine is equipped with a float switch then the user will need to set th
 
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
 
+. CONGRATULATIONS! you should now have a working QtPlasmaC Configuration.
+
 NOTE: If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing, the probing section>> for a possible solution.
 
-IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN UP UNTIL NOW THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
+IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
 CAUTION: PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
 
 [[qt_modify-config]]
 
-=== Reconfigure An Existing QtPlasmaC Configuration
-
-The qtplasmac-setup program may also be used to reconfigure an existing QtPlasmaC configuration to change settings instead of modifying files manually.
-
-The qtplasmac-setup program cannot modify the following:
-
-* The machine name.
-* The machine HAL file.
-* The machine INI file.
-
-Reconfiguring a QtPlasmaC configuration is done from the <<qt_setup, qtplasmac-setup>> program.
-
-It is highly recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
-
-After starting qtplasmac-setup the selection window is visible, select *RECONFIGURE* which shows an information dialog, select *CONTINUE* and the Reconfigure window will display:
-
-image::images/qtplasmac_setup_reconfigure.png[width=500,align="center"]
-
-Select the <machine_name>.ini file of the QtPlasmaC configuration to reconfigure.
-
-If the user changes modes, the entry boxes will change depending on the currently selected mode.
-
-When all entries are correct, click *RECONFIGURE* and the user's QtPlasmaC configuration will be reconfigured.
-
-Entry descriptions can be found <<qt_setup-table, here>>.
-
-NOTE: Machine Name and <machine_name>.hal File cannot be modified.
-
 == Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
 
-There are several methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration. These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
+There are two methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration. These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
 
 If there are Qt dependency errors, the user should run the <<qt-dependency, QtVCP install script>>.
 
-=== Primary Method
+=== Preferred Method
 
-The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
+The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration.
+
+This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
+
+After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+
+Prior to running this conversion program, it is mandatory that the user have both an existing PlasmaC configuration and a new QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
+
+The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
+
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the plasma_material.cfg file to the existing QtPlasmaC configuration.
+
+To run the cfg2prefs conversion program, use the following instructions:
+
+For a package installation (Buildbot) enter the following line in a terminal window:
+
+----
+qtplasmac-cfg2prefs
+----
+
+For a run in place installation enter the following lines in terminal window:
+
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-cfg2prefs
+----
+
+image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
+
+Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
+
+=== Quick Method
+
+A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
 
 To run the plasmac2qt conversion program, use the following instructions:
 
@@ -506,36 +428,7 @@ Leave these blank if they are not used/required.
 
 After filling in the appropriate entries, press *CONVERT*.
 
-=== Alternate Method
-
-An alternate method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the <<qt_setup, qtplasmac-setup program>> using the original base .ini file and base .hal file that were backed up to the PlasmaC configuration folder. The user can then further customize the .hal and .ini files to suite their configuration (different types of ohmic sensing, added components, etc.).
-
-After using the setup program, the user can then run a conversion program (cfg2prefs) to convert their parameters, settings, and materials from the previous PlasmaC configuration to an existing QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
-
-Prior to running this program, it is mandatory that the user have both an existing PlasmaC configuration and an existing QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
-
-The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
-
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the plasma_material.cfg file to the existing QtPlasmaC configuration.
-
-To run the cfg2prefs conversion program, use the following instructions:
-
-For a package installation (Buildbot) enter the following line in a terminal window:
-
-----
-qtplasmac-cfg2prefs
-----
-
-For a run in place installation enter the following lines in terminal window:
-
-----
-source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-cfg2prefs
-----
-
-image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
-
-Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
+NOTE: This method will result in a slightly different file structure in the configuration directory than what is shown in this documentation. This should not cause any issues in the operation of QtPlasmaC.
 
 == Other QtPlasmaC Setup Considerations
 
@@ -545,7 +438,7 @@ Select the .ini file of the old PlasmaC configuration, select the .ini file of t
 
 The PlasmaC component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
-The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the <machine_name>_connections.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
+The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
 For example:
 
@@ -564,9 +457,9 @@ Contact bounce from mechanical relays, switches, or external interference may ca
 * Breakaway Switch
 * Arc OK (for modes 1 & 2)
 
-Due to the fact that the software is capable of sampling rates faster than the contact bounce period, it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period, and incorrectly interpret this as a very quick on-off of the input. One method of mitigating contact bounce is to "debounce" the input. To summarize debounce, as soon as the software sees an input with a debounce delay change states, it waits for a prescribed delay period before checking the state of the input again. After the debounce period the software will regard state changes as normal behavior of the input and react accordingly.
+Due to the fact that the software is capable of sampling rates faster than the contact bounce period, it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period, and incorrectly interpret this as a very quick on-off of the input. One method of mitigating contact bounce is to "debounce" the input. To summarize debounce, it requires the input state to be stable at the opposite state of the output state for consecutive delay periods before changing the state of the output.
 
-Debounce periods can be changed by editing the appropriate debounce value in the <machine_name>_connections.hal file in the <machine_name> config folder.
+Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config folder.
 
 Each increment of delay adds one servo thread cycle to the debounce time. For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000ns, or 5ms.
 
@@ -576,7 +469,7 @@ It is recommended to keep the debounce values as low as possible while still ach
 
 For QtPlasmaC installations, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
 
-All four signals above have an individual debounce component so the debounce periods can be catered individually to each input. Any changes made to these values in the <machine_name>_connections.hal file will not be overwritten by later updates of QtPlasmaC.
+All four signals above have an individual debounce component so the debounce periods can be catered individually to each input. Any changes made to these values in the custom.hal file will not be overwritten by later updates of QtPlasmaC.
 
 The default delay for all four inputs is five servo thread periods. In most cases this value will work quite well. If any of the inputs do not use mechanical switches, it may be possible to either reduce or remove the delay for those inputs.
 
@@ -612,40 +505,29 @@ After a successful QtPlasmaC installation, the following files are created in th
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|<machine_name>.ini|A configuration file that includes the base system parameters, as well as various settings required by QtPlasmaC.
-|<machine_name>.hal|A HAL connections file that includes the base system I/O HAL pin connections to LinuxCNC.
-|<machine_name>_connections.hal|A HAL connections that includes  I/O HAL pin connections specific to QtPlasmaC.
-|<machine_name>_material.cfg|This file is used to store the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
-|postgui.tcl|A HAL file that is ran after the GUI has loaded for user customizing.
+|<machine_name>.ini|A configuration file for the machine.
+|<machine_name>.hal|A HAL for the machine.
+|custom.hal|A HAL file for user customization.
+|custom_postgui.hal|A HAL file for user customization which is run after the GUI has initialized.
+|shutdown.hal|A HAL file which is run during the shutdown sequence.
 |tool.tbl|A tool table used to store offset information for additional tools (scribe, etc.) used by the QtPlasmaC configuration.
-|qtplasmac.prefs|A file containing the users preferences and parameters
+|qtplasmac|A link to the directory containing common qtplasmac support files.
+|backup|A directory for backups of config files.
 |===
 
-NOTE: <machine_name> is whatever name the user entered into the "Machine Name" field of the qtplasmac-setup program
-NOTE: Custom commands are allowed in <machine_name>_connections.hal and the postgui.tcl files as they are not overwritten during updates.
-
-In addition to the above files, the following link is created:
-[width="100%",cols="1,2"]
-|===
-|*Filename*|*Function*
-|qtplasmac|A directory containing common qtplasmac support files.
-|===
-
-Finally, the following directory is created:
-[width="100%",cols="1,2"]
-|===
-|*Folder*|*Function*
-|backup|A directory that contains backups of files that changed during updates to an existing installation and the original .hal and .ini files.
-|===
+NOTE: <machine_name> is whatever name the user entered into the "Machine Name" field of the configuration wizard program
+NOTE: Custom commands are allowed in custom.hal and the custom_postgui.hal files as they are not overwritten during updates.
 
 After running a new configuration for the first time the following files will be created in the configuration directory:
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
+|<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
+|qtplasmac.prefs|A file containing the users preferences and parameters
 |qtplasmac.qss|This file is used to store the current color configuration
 |===
 
-NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by qtplasmac-setup are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
+NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
 
 NOTE: The .prefs file is plain text and may be edited with any text editor.
 
@@ -669,16 +551,16 @@ ESTOP_TYPE          = 0 (estop is a indicator only)
                     = 1 (estop is hidden)
                     = 2 (estop is a button)
 
-BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
-BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
-
-PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
-
 LASER_TOUCHOFF      = X10.0000  Y0.0000
                       (X & Y offsets if a laser is installed for alignment)
 
 CAMERA_TOUCHOFF     = X-10.0000  Y0.0000
                       (X & Y offsets if a camera is installed for alignment)
+
+PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
+
+BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
+BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
 
 ----
 
@@ -707,16 +589,15 @@ IMPORTANT: SEE <<qt_path-tolerance, PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE I
 
 ----
 TWOPASS = on (needed for multiple .hal files)
-HALFILE = <machine_name>.hal (your base machine .hal file)
-HALFILE = plasmac.tcl (the standard QtPlasmaC .hal file )
-HALFILE = <machine_name>_connections.hal (QtPlasmaC connections to the machine)
-POSTGUI_HALFILE = postgui.tcl (required)
 HALFILE = HALUI   = halui (required)
+HALFILE = <machine_name>.hal (the machine HAL file)
+HALFILE = plasmac.tcl (the standard QtPlasmaC HAL file )
+HALFILE = custom.hal (Users custom HAL commands)
+POSTGUI_HALFILE = postgui_call_list.hal (required)
+SHUTDOWN = shutdown.hal (shutdown HAL commands)
 ----
 
-The <machine_name>.hal file has *num_spindles=[TRAJ]SPINDLES* appended to the end of the *loadrt motmod* line to allow the addition of a <<qt_scribe, scribe>>, if required.
-
-NOTE: The user could place custom HAL commands in the <machine_name>_connections.hal file as this file is not overwritten by QtPlasmaC updates.
+NOTE: The user could place custom HAL commands in the custom.hal file as this file is not overwritten by QtPlasmaC updates.
 
 [[qt_ini-display]]
 
@@ -1194,7 +1075,7 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 
 [[qt_backup]]
 
-The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the qtplasmac-setup program, and <version_info> is the current QtPlasmaC version the user is on.
+The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, and <version_info> is the current QtPlasmaC version the user is on.
 
 === STATISTICS Tab
 
@@ -1250,7 +1131,7 @@ image::images/qtplasmac_camview.png[width=900,align="center"]
 
 QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
 
-To use this feature, the user must set the camera's offset from the torch center line in the <machine_name>.ini file. This offset may be set manually by editing the ini file, or the user may use the configurator in <<qt_modify-config, reconfigure>> mode to add the offsets.
+To use this feature, the user must set the camera's offset from the torch center line in the <machine_name>.ini file. This offset may be set by using the appropriate <<configuring, configuration wizard>> or by manually editing the ini file, see <<qt_modify-config, modifying QtPlasmaC>>.
 
 To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
 
@@ -1288,7 +1169,7 @@ In the CAMVIEW panel, the mouse can effect the cross hairs and the zoom level as
 
 QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. The LASER button will be enabled after the machine is homed.
 
-To use this feature, the user must set the laser's offset from the torch center line in the <machine_name>.ini file. This offset may be set manually by editing the ini file, or the user may use the configurator in <<qt_modify-config, reconfigure>> mode to add the offsets.
+To use this feature, the user must set the laser's offset from the torch center line in the <machine_name>.ini file. This offset may be set by using the appropriate <<configuring, configuration wizard>> or by manually editing the ini file, see <<qt_modify-config, modifying QtPlasmaC>>.
 
 To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
 
@@ -1441,7 +1322,7 @@ NOTE: All references to CutFeedRate refer to the *Cut Feed Rate* value displayed
 
 === Material File
 
-Material handling uses a material file that was created for the machine configuration when the qtplasmac-setup program was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G Code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
+Material handling uses a material file that was created for the machine configuration when the configuration wizard was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G Code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
 
 QtPlasmaC does not require the use of a material file. Instead, the user could change the cut parameters manually from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. It is also not required to use the automatic material changes. If the user does not wish to use this feature they can simply omit the material change codes from the G-Code file.
 
@@ -1755,7 +1636,7 @@ Some float switches can exhibit a large switching hysteresis which shows up in t
 
  * This time may be decreased by changing the speed of the final probe up.
  * This speed defaults to 0.001mm (0.000039") per servo cycle.
- * It is possible to increase this speed by up to a factor of 10 by adding the following line to the <machine_name>_connections.hal file:
+ * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
 ----
 setp plasmac.probe-final-speed n
@@ -2096,7 +1977,7 @@ The plasma torch offsets for X and Y will always be zero. The tools are selected
 
 To stop the scribe, use the G-Code command *M5 $1*.
 
-If the user has not yet assigned the HAL pins for the scribe in the qtplasmac-setup program then they will need to do so by invoking the <<qt_modify-config, reconfigure>> mode of the qtplasmac-setup program.
+If the user has not yet assigned the HAL pins for the scribe in the configuration wizard then they may do so by using the appropriate <<configuring, configuration wizard>> or by manually editing the hal file, see <<qt_modify-config, modifying QtPlasmaC>>.
 
 There are two HAL output pins used to operate the scribe, the first pin is used to arm the scribe which moves the scribe to the surface of the material. After the <<qt_scribe-config, Arm Delay>> has elapsed, the second pin is used to start the scribe. After the <<qt_scribe-config, On Delay>> has elapsed, motion will begin.
 
@@ -2525,6 +2406,17 @@ sudo apt dist-upgrade
 
 Enhancements and bug fixes will not be available on a standard installation until a new minor release of LinuxCNC has been released. If the user wishes to update whenever a new QtPlasmaC version has been pushed, they could use the LinuxCNC Buildbot repository rather than the standard LinuxCNC repository by following the instructions at: http://buildbot.linuxcnc.org/
 
+== Modify An Existing QtPlasmaC Configuration
+
+There are two ways to modify an existing QtPlasmaC configuration:
+
+. Running the appropriate <<configuring, configuration wizard>> and loading the conf file saved by the wizard.
+. Manually edit the .ini and/or the .hal file of the configuration.
+
+IMPORTANT: Any manual modification to the <machine_name>.ini and <machine_name>.hal files will not be registered in PnCConf or StepConf.
+
+NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalShow* for a full listing of all HAL pins.
+
 == Customizing QtPlasmaC GUI
 
 Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It cannot change the layout of the GUI.
@@ -2845,7 +2737,7 @@ There is no requirement that a user button be setup to use the HAL pin variant a
 
 Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
 
-The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
+The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the custom.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
 
 ----
 setp plasmac.kerf-error-max 3
@@ -2861,7 +2753,7 @@ The following code would set a delay of 0.1 seconds:
 setp plasmac.arc-lost-delay 0.1
 ----
 
-It is recommended that the user set this pin in the <machine_name>_connections.hal file.
+It is recommended that the user set this pin in the custom.hal file.
 
 This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
 
@@ -2869,7 +2761,7 @@ This setting should only be used if the user experiences the above symptoms. It 
 
 Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.). After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0v.
 
-The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. The following example would set the voltage window to be displayed as 0v from -5v to +5v:
+The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1. To change this value, add the pin and the required value to the custom.hal file. The following example would set the voltage window to be displayed as 0v from -5v to +5v:
 
 ----
 setp plasmac.zero-window 5
@@ -2879,7 +2771,7 @@ setp plasmac.zero-window 5
 
 Max Offset is the distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC will allow the Z axis to travel while under machine control.
 
-The pin for adjusting this value is named plasmac.max-offset and the default value (in millimeters) is set to 5. To change this value, add the pin and the required value to the <machine_name>_connections.hal file. It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
+The pin for adjusting this value is named plasmac.max-offset and the default value (in millimeters) is set to 5. To change this value, add the pin and the required value to the custom.hal file. It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
 
 The following example would set the distance from Z MAX_LIMIT to 10mm:
 
@@ -3019,25 +2911,30 @@ There are some sample G-Code files in nc_files/plasmac.
 
 === Change Type Of LinuxCNC Installation
 
-Before changing the type of installation, the existing QtPlasmaC installation needs to be updated to the latest version. If QtPlasmaC is not at the latest version then changing the installation type may corrupt the existing QtPlasmaC configuration.
-
 It is recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
-If the user has changed the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
+To changed the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program.
 
 Enter the following command into a terminal window do one of the following:
 
-Reset to a new Package installation (Buildbot):
+Switch to a Package installation (Buildbot):
 
 ----
 qtplasmac-setup
 ----
 
-Reset to a new Run In Place installation:
+Switch to a Run In Place installation:
 
 ----
+source ~/linuxcnc-dev/scripts/rip-environment
 qtplasmac-setup
 ----
+
+This will load the setup program:
+
+image::images/qtplasmac_setup.png[width=400,align="center"]
+
+press 'SELECT' which will open a file dialog, select the .ini file of the QtPlasmaC configuration then press 'SWITCH'. The installation type will now be changed.
 
 === QtPlasmaC Specific G-Codes
 
@@ -3269,76 +3166,25 @@ options: +
 
 === Mesa THCAD
 
-The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter. The THCAD may be used for parallel port configurations or for configurations using Mesa Electronics hardware.
+The Mesa THCAD is a common way of obtaining the arc voltage from a plasma cutter and is also useful for ohmic sensing of the material during probing. The THCAD may be used for parallel port configurations as well as configurations using Mesa Electronics hardware. The THCAD is available in three different models, THCAD-5, THCAD-10, and THCAD-300.
 
-Add these parameters to the .hal file that was created as a result of making a working and tested base machine configuration.
+There is a mode jumper on each THCAD card which should be set to *UNIPOLAR*
 
-.Parallel Port Config
+There is a frequency divider jumper on each THCAD card which should be set according to the hardware type:
 
-An example parallel port config using a link:http://linuxcnc.org/docs/html/man/man9/encoder.9.html[software encoder].
+[width="40%"]
+|===
+|*Parallel Port*|*Mesa Card*
+|F/64|F/32
+|===
 
-THCAD jumper settings *UNIPOLAR* and *F/64*
+This value is required to be entered into PNcConf during installation.
 
-NOTE: If the user's computer has good latency then they may be able to use *F/32*
-
-----
-loadrt encoder num_chan=1
-setp encoder.0.counter−mode 1
-setp encoder.0.position−scale -1
-addf encoder.update-counters base-thread
-addf encoder.capture-position servo-thread
-net arc-voltage-raw parport.1.pin-04-in encoder.0.phase-A
-----
-
-The user then needs to note that the *Arc Voltage HAL Pin* entry in the qtplasmac-setup program will be:
-
-----
-encoder.0.velocity
-----
-
-.Mesa 7i96 Config:
-
-An example Mesa 7i96 config using the onboard hardware encoder is shown below. Other Mesa hardware will be similar but with a different board identifiers.
-
-THCAD jumper settings *UNIPOLAR* and *F/32*
-
-----
-setp  hm2_7i96.0.encoder.00.scale -1
-setp  hm2_7i96.0.encoder.00.filter 1
-setp  hm2_7i96.0.encoder.00.counter-mode 1
-----
-
-The user then needs to note that the *Arc Voltage HAL Pin* entry in the qtplasmac-setup program will be:
-
-----
-hm2_7i96.0.encoder.00.velocity
-----
-
-NOTE: There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
-
-.Obtaining The Divider Ratio
-
-[underline]*THCAD-10*
-
-If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine.
-
-If connecting to the plasma machines full arc voltage then a common setup is to use a 1 Megohm resistor from arc negative to THCAD negative and a 1 Megohm resistor from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V indefinitely.
-
-To get the divider ratio use (R1 + R2 + 100000) / 100000. An example with the above resistance values would be: (1000000 + 1000000 + 100000) / 100000, giving a ratio of 21.
-
-IMPORTANT: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN EACH OF THESE RESISTANCES SHOULD BE MADE UP OF SEVERAL HIGH VOLTAGE RESISTORS.
-
-[underline]*THCAD-300*
-
-This is connected to the plasma machines full arc voltage and the divider ratio = 1
+NOTE: If using a parallel port and the user's computer has very good latency then they may be able to use *F/32*
 
 [[qt_calibration-values]]
 
-.Calibration Values
-
-These values are used to obtain starting values for Voltage Offset and Voltage Scale in the ARC frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>.
-
-They are located on the rear of the THCAD via a calibration sticker showing:
+Located on the rear of the THCAD is a calibration sticker showing:
 
 ----
     THCAD-nnn
@@ -3347,52 +3193,56 @@ They are located on the rear of the THCAD via a calibration sticker showing:
  5V  925.3 kHz
 ----
 
-or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
+or similar values, these values are required to be entered into PNcConf during installation.
 
-The *Voltage Scale* and *Voltage Offset* can now be calculated manually, as shown below, or by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator].
+PNcConf has entries for all required THCAD parameters and will calculate and configure any required settings. The calculations used are as follows:
 
 [underline]*Voltage Scale*
 
-Use the formula:
-
 ----
-Divider_Ratio / ((THCAD_Full_Scale_Frequency - THCAD_0V_Frequency) / THCAD_Frequency_Divider / THCAD_Full_Scale_Voltage)
+vs = r / ((f - z) / d / f)
 ----
-
-This result will be used for setting *Voltage Scale* in the THC frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>> when setting up the configuration.
-
-THCAD-10 example with a jumper setting of F/32 would be:
-
-----
-21 / ((925300 - 121100) / 32 / 10) = 0.00835613
-----
-
-For the calculation above, 21 comes from the divider calculation example, 32 is the jumper setting *F/32*, and 10 is the full scale reading of the THCAD card itself.
-
-THCAD-300 example would be:
-
-----
-1 / ((925300 - 121100) / 32 / 300) = 0.01193732
-----
-
-For our calculation above, 1 is the divider ratio, 32 is the jumper setting *F/32*, and 300 is the full scale reading of the THCAD card itself.
-
 
 [underline]*Voltage Offset*
 
-Use the formula:
-
 ----
-THCAD_0V_Frequency / THCAD_Frequency_Divider
+vo = z / d
 ----
 
-This result will be used for setting *Voltage Offset* in the PARAMETERS Tab when setting up the configuration.
+_d_ = value from jumper above.
 
-The THCAD-10 and THCAD-300 examples above would be:
+_z_ = 0V value from calibration sticker.
+
+_f_ = Full scale value from calibration sticker.
+
+_r_ = Divider ratio below.
+
+[underline]*Divider Ratio*
+
+_THCAD-300_
 
 ----
-121100 / 32 = 3784.375
+r = 1
 ----
+
+_THCAD-5 or THCAD-10_
+
+If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1
+
+If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 Megohm resistor from arc negative to THCAD negative and a 1 Megohm resistor from arc positive to THCAD positive.
+The divider ratio is obtained by:
+
+----
+r = (total_resistance + 100000) / 100000
+----
+
+IMPORTANT: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN EACH OF THESE RESISTANCES SHOULD BE MADE UP OF SEVERAL HIGH VOLTAGE RESISTORS.
+
+CAUTION: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN OHMIC SENSING IS NOT RECOMMENDED.
+
+NOTE: These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator].
+
+NOTE: There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
 [[qt_rs485_connections]]
 
