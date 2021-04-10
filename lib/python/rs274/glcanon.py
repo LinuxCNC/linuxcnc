@@ -1740,6 +1740,7 @@ class GlCanonDraw:
     def make_cone(self, n):
         q = gluNewQuadric()
         glNewList(n, GL_COMPILE)
+        glBlendColor(0,0,0,self.colors['tool_alpha'])
         glEnable(GL_LIGHTING)
         gluCylinder(q, 0, .1, .25, 32, 1)
         glPushMatrix()
