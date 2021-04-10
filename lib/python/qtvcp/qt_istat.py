@@ -364,8 +364,11 @@ class _IStat(object):
 
         self.MDI_COMMAND_LIST = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
-        #self.POSTGUI_HALFILE_PATH = (self.INI.find("HAL", "POSTGUI_HALFILE")) or None
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
+
+        # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
+        self.DISABLE_REPEAT_KEYS_LIST = self.INI.find("DISPLAY", "DISABLE_REPEAT_KEYS") or None
+
     ###################
     # helper functions
     ###################

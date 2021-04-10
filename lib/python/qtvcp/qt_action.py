@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
@@ -638,6 +639,15 @@ class _Lcnc_Action(object):
             return
         self.CALL_MDI("G10 L2 P0 R0")
         self.RELOAD_DISPLAY()
+
+    # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
+    def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','115','117'}):
+        for k in keys:
+            subprocess.Popen('xset -r {}'.format(k), stdout = subprocess.PIPE, shell = True)
+
+    def ENABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','115','117'}):
+        for k in keys:
+            subprocess.Popen('xset r {}'.format(k), stdout = subprocess.PIPE, shell = True)
 
     ######################################
     # Action Helper functions
