@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget)
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
 from PyQt5 import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
@@ -455,6 +455,14 @@ class FileDialog(QFileDialog, GeometryMixin):
         self.setNameFilter(self.INI_exts)
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
 
+        # sidebar links
+        urls = []
+        urls.append(QUrl.fromLocalFile(os.path.expanduser('~')))
+        local = os.path.join(os.path.expanduser('~'),'linuxcnc/nc_files')
+        if os.path.exists(local):
+            urls.append(QUrl.fromLocalFile(local))
+        self.setSidebarUrls(urls)
+
     def _hal_init(self):
         self.set_default_geometry()
 
@@ -495,6 +503,7 @@ class FileDialog(QFileDialog, GeometryMixin):
     def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
+
         if extensions:
             self.setNameFilter(extensions)
         else:
