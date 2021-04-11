@@ -44,6 +44,7 @@ DOC_SRCS_EN := \
 	config/core-components.txt \
 	config/ini-config.txt \
 	config/ini-homing.txt \
+  config/iov2.txt \
 	config/integrator-concepts.txt \
 	config/lathe-config.txt \
 	config/moveoff.txt \
