@@ -1077,6 +1077,8 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 
 The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, and <version_info> is the current QtPlasmaC version the user is on.
 
+[[qt_statistics-tab]]
+
 === STATISTICS Tab
 
 The statistics tab provides statistics to allow for the tracking of consumable wear and job run times.
@@ -1088,6 +1090,8 @@ Previous job statistics are reset once the next program is run.
 The total values may be reset either individually by clicking the corresponding "RESET" button, or they may all be reset together by clicking "RESET ALL".
 
 image::images/qtplasmac_stats.png[width=900,align="center"]
+
+If the user has Hypertherm PowerMax communications, when a valid RS485 connection to the PowerMax is established an additional panel titled *RS485 PMX STATISTICS* will be displayed which will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
 == Using QtPlasmaC
 
@@ -2826,7 +2830,7 @@ The PlasmaC component has a HAL pin named *plasmac.debug-print* which if set to 
 
 === Hypertherm PowerMax Communications
 
-Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file.
+Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file. In addtion, the user will be able to view the PowerMax's *ARC ON TIME* in hh:mm:ss format on the <<qt_statistics-tab, STATISTICS Tab>>
 
 If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
 
