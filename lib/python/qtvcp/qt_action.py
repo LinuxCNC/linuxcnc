@@ -641,11 +641,11 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
 
     # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
-    def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','115','117'}):
+    def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','116','117'}):
         for k in keys:
             subprocess.Popen('xset -r {}'.format(k), stdout = subprocess.PIPE, shell = True)
 
-    def ENABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','115','117'}):
+    def ENABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','116','117'}):
         for k in keys:
             subprocess.Popen('xset r {}'.format(k), stdout = subprocess.PIPE, shell = True)
 
