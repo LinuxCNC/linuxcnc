@@ -172,7 +172,10 @@ class StyleSheetEditor(QDialog):
         urls = []
         urls.append(QUrl.fromLocalFile(os.path.expanduser('~')))
         urls.append(QUrl.fromLocalFile(DIR))
-        urls.append(QUrl.fromLocalFile(os.path.join(os.getcwd(),'qtvcp/screens',PATH.BASENAME)))
+        local = os.path.join(os.getcwd(),'qtvcp/screens',PATH.BASENAME)
+        if os.path.exists(local):
+            urls.append(QUrl.fromLocalFile(os.path.join(os.getcwd(),
+                    'qtvcp/screens',PATH.BASENAME)))
         dialog.setSidebarUrls(urls)
 
         result = dialog.exec_()
