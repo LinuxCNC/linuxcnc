@@ -1,4 +1,4 @@
-VERSION = '1.0.12'
+VERSION = '1.0.13'
 
 import os, sys
 from shutil import copy as COPY
@@ -2228,9 +2228,7 @@ class HandlerClass:
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.button_active(self.tpButton)
             else:
-                self.torchTimer.stop()
-                self.torchTime = 0.1
-                self.torch_timeout()
+                self.torchTime = 0.0
         elif 'cut-type' in commands.lower():
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
@@ -2324,7 +2322,7 @@ class HandlerClass:
 
     def torch_timeout(self):
         self.torchTime -= 0.1
-        if self.torchTime <= 0.01:
+        if self.torchTime <= 0.00:
             self.w[self.tpButton].setText(self.tpText)
             hal.set_p('plasmac.torch-pulse-time', '0')
             self.button_normal(self.tpButton)
@@ -4091,7 +4089,7 @@ class HandlerClass:
 
     def on_keycall_ABORT(self, event, state, shift, cntrl):
         if state:
-            self.torch_timeout()
+            self.torchTime = 0.0
         if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE and self.keyboard_shortcuts():
             ACTION.ABORT()
             self.interp_idle(None)
