@@ -139,6 +139,8 @@ include::config/ini-config.txt[]
 
 include::config/ini-homing.txt[]
 
+include::config/iov2.txt[]
+
 include::config/lathe-config.txt[]
 
 include::hal/haltcl.txt[]
