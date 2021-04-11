@@ -171,6 +171,9 @@ class HandlerClass:
                 if isinstance(receiver2, QtWidgets.QDialog):
                     flag = True
                     break
+                if isinstance(receiver2, QtWidgets.QListView):
+                    flag = True
+                    break
                 if isinstance(receiver2, MDI_WIDGET):
                     flag = True
                     break
