@@ -2894,8 +2894,8 @@ NOTE: If the user's computer has good latency then they may be able to use *F/32
 
 ----
 loadrt encoder num_chan=1
-setp encoder.0.counter−mode 1
-setp encoder.0.position−scale -1
+setp encoder.0.counter-mode 1
+setp encoder.0.position-scale -1
 addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
 net arc-voltage-raw parport.1.pin-04-in encoder.0.phase-A
