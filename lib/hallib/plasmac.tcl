@@ -39,8 +39,6 @@ if {[hal list pin db_float.out] != {}} {
     net plasmac:float-switch-out        db_float.out            =>  plasmac.float-switch
     net plasmac:ohmic-probe-out         db_ohmic.out            =>  plasmac.ohmic-probe
 } else {
-    puts "using old debounce component"
-    puts "it is recommended to convert to the new dbounce component\n"
     net plasmac:breakaway-switch-out    debounce.0.1.out        =>  plasmac.breakaway
     net plasmac:float-switch-out        debounce.0.0.out        =>  plasmac.float-switch
     net plasmac:ohmic-probe-out         debounce.0.2.out        =>  plasmac.ohmic-probe
