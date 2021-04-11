@@ -227,22 +227,22 @@ class _Lcnc_Action(object):
             if old == fname:
                 STATUS.emit('file-loaded', fname)
 
-    def SAVE_PROGRAM(self, source, fname):
+    def SAVE_PROGRAM(self, source, fname, ending = '.ngc'):
         # no gcode - ignore
         if source == '':
-            return
+            return None
 
         npath = None
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
             if '.' not in path:
-                path += '.ngc'
+                path += ending
             if path.count('.') > 1:
                 e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
                 log.debug(e)
-                return
+                return None
             name, ext = path.rsplit('.')
             npath = name + '.' + ext.lower()
         except Exception as e:
@@ -260,11 +260,17 @@ class _Lcnc_Action(object):
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+            try:
+                outfile.close()
+            except:
+                pass
+            return None
         finally:
             try:
                 outfile.close()
             except:
                 pass
+            return npath
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
