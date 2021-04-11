@@ -899,9 +899,10 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def save(self):
         self.getSaveFileName()
     def saveReturn(self, fname):
-        ACTION.SAVE_PROGRAM(self.editor.text(), fname)
-        self.editor.setModified(False)
-        ACTION.OPEN_PROGRAM(fname)
+        saved = ACTION.SAVE_PROGRAM(self.editor.text(), fname)
+        if saved is not None:
+            self.editor.setModified(False)
+            ACTION.OPEN_PROGRAM(saved)
 
     def undoCall(self):
         self.undo()
