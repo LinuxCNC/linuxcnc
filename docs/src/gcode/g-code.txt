@@ -1361,7 +1361,7 @@ used.
 (((Local Offsets)))
 
 ----
-G53 axes
+G52 axes
 ----
 
 G52 is used in a part program as a temporary "local coordinate system offset"
