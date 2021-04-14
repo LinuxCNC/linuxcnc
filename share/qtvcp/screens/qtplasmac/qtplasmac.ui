@@ -243,7 +243,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -6521,7 +6521,7 @@ ON</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="main_column_4">
+            <widget class="QFrame" name="dro_gcode_frame">
              <property name="minimumSize">
               <size>
                <width>320</width>
@@ -6540,7 +6540,7 @@ ON</string>
              <property name="frameShadow">
               <enum>QFrame::Plain</enum>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_23">
+             <layout class="QVBoxLayout" name="dro_gcode_layout">
               <property name="spacing">
                <number>2</number>
               </property>

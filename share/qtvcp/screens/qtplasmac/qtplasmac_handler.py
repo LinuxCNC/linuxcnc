@@ -1,4 +1,4 @@
-VERSION = '1.0.14'
+VERSION = '1.0.15'
 
 import os, sys
 from shutil import copy as COPY
@@ -515,6 +515,17 @@ class HandlerClass:
         self.grid_size_changed(self.w.grid_size.value())
 
     def init_widgets(self):
+        droPos = self.iniFile.find('QTPLASMAC', 'DRO_POSITION') or 'None'
+        if droPos.lower() == 'top':
+            #designer can change the layout name in the .ui file
+            #this will find the name and move the dro to the top
+            if self.landscape:
+                box = QVBoxLayout
+            else:
+                box = QHBoxLayout
+            lay = self.w.dro_gcode_frame.findChild(box).objectName()
+            self.w[lay].removeWidget(self.w.dro_frame)
+            self.w[lay].insertWidget(0,self.w.dro_frame)
         self.w.jogincrements.setItemText(0, 'CONTINUOUS')
         self.w.main_tab_widget.setCurrentIndex(0)
         self.w.preview_stack.setCurrentIndex(0)
@@ -2179,6 +2190,12 @@ class HandlerClass:
                 self.frButton = 'button_{}'.format(str(bNum))
             else:
                 for command in bCode.split('\\'):
+
+                    # if command.strip()[0] == '%':
+                    #     self.w['button_{}'.format(str(bNum))].setEnabled(True)
+                    #     continue
+                    # elif command.strip()[0] != '%':
+
                     if command.strip()[0].lower() in ['g', 'm', 'f', 's', 't', 'o'] and \
                          command.strip().replace(' ','')[1] in '0123456789<' and \
                          'button_{}'.format(str(bNum)) not in self.idleHomedList:

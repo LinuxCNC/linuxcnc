@@ -533,7 +533,7 @@ NOTE: The .prefs file is plain text and may be edited with any text editor.
 
 === INI File
 
-QtPlasmaC requires some specific <machine_name>.ini file variables as follows:
+QtPlasmaC has some specific <machine_name>.ini file variables as follows:
 
 [[qt_ini-mode]]
 
@@ -562,7 +562,11 @@ PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
 BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
 BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
 
+DRO_POSITION        = top (move the DRO to the top in the 16:9 and 4:3 formats)
+
 ----
+
+NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
 
 *[FILTER]* Section
 
