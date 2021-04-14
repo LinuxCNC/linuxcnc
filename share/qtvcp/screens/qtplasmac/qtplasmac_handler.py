@@ -277,7 +277,7 @@ class HandlerClass:
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
         if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
-            self.set_autorepeat('-r')
+            ACTION.DISABLE_AUTOREPEAT_KEYS()
         self.startupTimer.start(250)
 
     def startup_timeout(self):
@@ -644,7 +644,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.set_autorepeat('r')
+        ACTION.ENABLE_AUTOREPEAT_KEYS()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -1370,11 +1370,6 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
-    def set_autorepeat(self, state):
-        jogKeys = {'34', '35', '111', '112', '113', '114', '116', '117'}
-        for key in jogKeys:
-            Popen('xset {} {}'.format(state, key), stdout = PIPE, shell = True)
-
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))
