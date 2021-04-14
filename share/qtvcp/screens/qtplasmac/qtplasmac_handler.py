@@ -2167,14 +2167,34 @@ class HandlerClass:
             elif 'load' in bCode:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
+                halpin = bCode.lower().split('toggle-halpin')[1].strip()
+                try:
+                    pinstate = hal.get_value(halpin)
+                except:
+                    msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                    msg += 'Hal pin "{}" does not exist\n'.format(halpin)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'framing' in bCode:
                 self.frButton = 'button_{}'.format(str(bNum))
             else:
                 for command in bCode.split('\\'):
-                    if command.strip()[0] != '%':
+                    if command.strip()[0].lower() in ['g', 'm', 'f', 's', 't', 'o'] and \
+                         command.strip().replace(' ','')[1] in '0123456789<' and \
+                         'button_{}'.format(str(bNum)) not in self.idleHomedList:
                         self.idleHomedList.append('button_{}'.format(str(bNum)))
-                        continue
+                    elif command.strip()[0] == '%':
+                        cmd = command.lstrip('%').strip().split(' ', 1)[0]
+                        reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
+                        if not reply:
+                            msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                            msg += 'External command "{}" does not exist\n'.format(cmd)
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                        self.idleList.append('button_{}'.format(str(bNum)))
+                    else:
+                        msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                        msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text(), command)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
 
     def user_button_down(self, bNum):
         commands = self.iniButtonCode[bNum]
@@ -2270,22 +2290,25 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].strip()
-            pinstate = hal.get_value(halpin)
-            hal.set_p(halpin, str(not pinstate))
-            if pinstate:
-                self.button_normal('button_{}'.format(str(bNum)))
-            else:
-                self.button_active('button_{}'.format(str(bNum)))
+            try:
+                pinstate = hal.get_value(halpin)
+                hal.set_p(halpin, str(not pinstate))
+                if pinstate:
+                    self.button_normal('button_{}'.format(str(bNum)))
+                else:
+                    self.button_active('button_{}'.format(str(bNum)))
+            except:
+                msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                msg += 'Hal pin "{}" does not exist\n'.format(halpin)
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
         elif 'single-cut' in commands.lower():
             self.do_single_cut()
         elif 'framing' in commands.lower():
             self.do_framing(True, commands)
         else:
             for command in commands.split('\\'):
-                if command.strip()[0] == '%':
-                    command = command.strip().strip('%') + '&'
-                    msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
-                else:
+                if command.strip()[0].lower() in ['g', 'm', 'f', 's', 't', 'o'] and \
+                     command.strip().replace(' ','')[1] in '0123456789<':
                     if '{' in command:
                         newCommand = subCommand = ''
                         for char in command:
@@ -2304,7 +2327,20 @@ class HandlerClass:
                         ACTION.CALL_MDI(command)
                         if command.lower().replace(' ', '').startswith('g10l20'):
                             self.file_reload_clicked()
-                        ACTION.SET_MANUAL_MODE()
+                elif command.strip()[0] == '%':
+                    cmd = command.lstrip('%').strip().split(' ', 1)[0]
+                    reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
+                    if not reply:
+                        msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                        msg += 'External command "{}" does not exist\n'.format(cmd)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                    else:
+                        command = command.strip().strip('%') + '&'
+                        msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
+                else:
+                    msg  = 'Invalid code for user button #{}\n'.format(bNum)
+                    msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text(), command)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCode[bNum]
@@ -2686,7 +2722,7 @@ class HandlerClass:
             # should we stop or pause the program if a timeout occurs???
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
             msg = 'Material change timeout occurred for material #{}\n'.format(material)
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:{}\n'.format(msg))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:{}'.format(msg))
             self.materialChangeNumberPin.set(material)
             self.materialChangeTimeoutPin.set(0)
             hal.set_p('motion.digital-in-03','0')
@@ -2992,7 +3028,7 @@ class HandlerClass:
             if self.autoChange:
                 self.materialChangePin.set(-1)
                 self.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
-                msg = 'Material #{} not in material list'.format(int(material))
+                msg = 'Material #{} not in material list\n'.format(int(material))
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
             return False
 
@@ -3671,14 +3707,14 @@ class HandlerClass:
         distY = hal.get_value('qtplasmac.kerf_width-f') * y
         if hal.get_value('plasmac.axis-x-position') + \
            hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
-            msg = 'X axis motion would trip X maximum limit'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CUT RECOVERY ERROR:\n{}\n'.format(msg))
+            msg = 'X axis motion would trip X maximum limit\n'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CUT RECOVERY ERROR:\n{}'.format(msg))
             return
         moveX = int(distX / self.oScale)
         if hal.get_value('plasmac.axis-y-position') + \
            hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
-            msg = 'Y axis motion would trip Y maximum limit'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CUT RECOVERY ERROR:\n{}\n'.format(msg))
+            msg = 'Y axis motion would trip Y maximum limit\n'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CUT RECOVERY ERROR:\n{}'.format(msg))
             return
         moveY = int(distY / self.oScale)
         hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
