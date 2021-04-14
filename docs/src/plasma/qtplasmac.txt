@@ -2830,7 +2830,7 @@ The PlasmaC component has a HAL pin named *plasmac.debug-print* which if set to 
 
 === Hypertherm PowerMax Communications
 
-Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file. In addtion, the user will be able to view the PowerMax's *ARC ON TIME* in hh:mm:ss format on the <<qt_statistics-tab, STATISTICS Tab>>
+Communications can be established with a Hypertherm PowerMax plasma cutter that has a RS485 port. This feature enables the setting of *Cut Mode*, *Cutting Amperage* and *Gas Pressure* automatically from the *Cut Parameters* of the material file. In addition, the user will be able to view the PowerMax's *Arc On Time* in hh:mm:ss format on the <<qt_statistics-tab, STATISTICS Tab>>.
 
 If *Gas Pressure* is set to Zero then the PowerMax will automatically calculate the required pressure from the *Cut Mode*, *Cut Current*, torch type, and torch length.
 

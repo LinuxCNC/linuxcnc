@@ -1,4 +1,4 @@
-VERSION = '1.0.13'
+VERSION = '1.0.14'
 
 import os, sys
 from shutil import copy as COPY
@@ -1001,8 +1001,6 @@ class HandlerClass:
                 self.w.mdi_show.setText('MDI')
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
-        if self.single_cut_request:
-            ACTION.RUN()
         self.w.gcodegraphics.logger.clear()
         self.w.file_edit.setEnabled(True)
         if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
@@ -1013,7 +1011,18 @@ class HandlerClass:
         msg, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
         if self.boundsError['loaded']:
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'AXIS LIMIT ERROR:\n{}'.format(msg))
-        self.set_run_button_state()
+            if self.single_cut_request:
+                self.single_cut_request = False
+                if self.oldFile and not 'single_cut' in self.oldFile:
+                    print (self.oldFile)
+                    ACTION.OPEN_PROGRAM(self.oldFile)
+                    self.set_run_button_state()
+                self.w[self.scButton].setEnabled(True)
+                self.w.run.setEnabled(False)
+        else:
+            if self.single_cut_request:
+                ACTION.RUN()
+            self.set_run_button_state()
         ACTION.SET_MANUAL_MODE()
 
     def joints_all_homed(self, obj):
@@ -1376,22 +1385,38 @@ class HandlerClass:
     def bounds_check(self, boundsType, xOffset , yOffset):
         self.boundsError[boundsType] = False
         msg = ''
-        xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
-        if xMin < self.xMin:
-            msg += 'X move will exceed X minimum limit\n'
-            self.boundsError[boundsType] = True
-        xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
-        if xMax > self.xMax:
-            msg += 'X move will exceed X maximum limit\n'
-            self.boundsError[boundsType] = True
-        yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
-        if yMin < self.yMin:
-            msg += 'Y move will exceed Y minimum limit\n'
-            self.boundsError[boundsType] = True
-        yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
-        if yMax > self.yMax:
-            msg += 'Y move will exceed Y maximum limit\n'
-            self.boundsError[boundsType] = True
+        if self.units == 'inch':
+            units = 'in'
+        else:
+            units = 'mm'
+        if 'X' in self.gcodeProps:
+            xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
+            if xMin < self.xMin:
+                amount = float(self.xMin - xMin)
+                msg += 'X move would exceed X minimum limit by {:0.2f}{}\n'.format(amount, units)
+                self.boundsError[boundsType] = True
+            xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
+            if xMax > self.xMax:
+                amount = float(xMax - self.xMax)
+                msg += 'X move would exceed X maximum limit by {:0.2f}{}\n'.format(amount, units)
+                self.boundsError[boundsType] = True
+        else:
+            xMin = 0
+            xMax = 0
+        if 'Y' in self.gcodeProps:
+            yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
+            if yMin < self.yMin:
+                amount = float(self.yMin - yMin)
+                msg += 'Y move would exceed Y minimum limit by {:0.2f}{}\n'.format(amount, units)
+                self.boundsError[boundsType] = True
+            yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
+            if yMax > self.yMax:
+                amount = float(yMax - self.yMax)
+                msg += 'Y move would exceed Y maximum limit by {:0.2f}{}\n'.format(amount, units)
+                self.boundsError[boundsType] = True
+        else:
+            yMin = 0
+            yMax = 0
         return msg, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
