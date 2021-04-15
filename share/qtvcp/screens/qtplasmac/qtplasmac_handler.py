@@ -1,4 +1,4 @@
-VERSION = '1.0.15'
+VERSION = '1.0.16'
 
 import os, sys
 from shutil import copy as COPY
@@ -519,11 +519,7 @@ class HandlerClass:
         if droPos.lower() == 'top':
             #designer can change the layout name in the .ui file
             #this will find the name and move the dro to the top
-            if self.landscape:
-                box = QVBoxLayout
-            else:
-                box = QHBoxLayout
-            lay = self.w.dro_gcode_frame.findChild(box).objectName()
+            lay = self.w.dro_gcode_frame.children()[0].objectName()
             self.w[lay].removeWidget(self.w.dro_frame)
             self.w[lay].insertWidget(0,self.w.dro_frame)
         self.w.jogincrements.setItemText(0, 'CONTINUOUS')
@@ -1759,9 +1755,6 @@ class HandlerClass:
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
-        if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
-           (self.offsetsActivePin.get() and not self.manualCut) or self.runButtonTimer.isActive():
-            return
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             msg = 'Cannot jog\n{} tripped\n'.format(self.jogInhibit)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'JOG ERROR:\n{}'.format(msg))
@@ -1773,6 +1766,9 @@ class HandlerClass:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
         if state:
+            if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
+               (self.offsetsActivePin.get() and not self.manualCut) or self.runButtonTimer.isActive():
+                return
             if shift or self.jogFast:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             elif self.jogSlow and not self.w.jog_slow.text() == 'SLOW':
