@@ -1,4 +1,4 @@
-VERSION = '1.0.16'
+VERSION = '1.0.17'
 
 import os, sys
 from shutil import copy as COPY
@@ -1581,10 +1581,10 @@ class HandlerClass:
         self.w.jog_z_plus.released.connect(lambda:self.gui_button_jog(0, 'z', 1))
         self.w.jog_z_minus.pressed.connect(lambda:self.gui_button_jog(1, 'z', -1))
         self.w.jog_z_minus.released.connect(lambda:self.gui_button_jog(0, 'z', -1))
-        self.w.jog_a_plus.pressed.connect(lambda:self.gui_button_jog(1, 'y', 1))
-        self.w.jog_a_plus.released.connect(lambda:self.gui_button_jog(0, 'y', 1))
-        self.w.jog_a_minus.pressed.connect(lambda:self.gui_button_jog(1, 'y', -1))
-        self.w.jog_a_minus.released.connect(lambda:self.gui_button_jog(0, 'y', -1))
+        self.w.jog_a_plus.pressed.connect(lambda:self.gui_button_jog(1, 'a', 1))
+        self.w.jog_a_plus.released.connect(lambda:self.gui_button_jog(0, 'a', 1))
+        self.w.jog_a_minus.pressed.connect(lambda:self.gui_button_jog(1, 'a', -1))
+        self.w.jog_a_minus.released.connect(lambda:self.gui_button_jog(0, 'a', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
