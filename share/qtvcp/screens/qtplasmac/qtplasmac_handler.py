@@ -1,4 +1,4 @@
-VERSION = '1.0.17'
+VERSION = '1.0.18'
 
 import os, sys
 from shutil import copy as COPY
@@ -136,10 +136,13 @@ class HandlerClass:
         self.firstRun = True
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
-        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_xy', 'mdi_show', 'height_lower', 'height_raise']
-        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus', ]
+        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+                              'mdi_show', 'height_lower', 'height_raise']
+        self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
+                              'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
+        self.axisBList = ['dro_b', 'dro_label_b', 'home_b', 'touch_b', 'jog_b_plus', 'jog_b_minus']
         self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
         self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
         self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
@@ -1585,6 +1588,10 @@ class HandlerClass:
         self.w.jog_a_plus.released.connect(lambda:self.gui_button_jog(0, 'a', 1))
         self.w.jog_a_minus.pressed.connect(lambda:self.gui_button_jog(1, 'a', -1))
         self.w.jog_a_minus.released.connect(lambda:self.gui_button_jog(0, 'a', -1))
+        self.w.jog_b_plus.pressed.connect(lambda:self.gui_button_jog(1, 'b', 1))
+        self.w.jog_b_plus.released.connect(lambda:self.gui_button_jog(0, 'b', 1))
+        self.w.jog_b_minus.pressed.connect(lambda:self.gui_button_jog(1, 'b', -1))
+        self.w.jog_b_minus.released.connect(lambda:self.gui_button_jog(0, 'b', -1))
         self.w.cut_rec_fwd.pressed.connect(lambda:self.cutrec_motion(1))
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
@@ -1674,6 +1681,10 @@ class HandlerClass:
         # hide axis a if not being used
         if 'a' not in self.axisList:
             for i in self.axisAList:
+                self.w[i].hide()
+        # hide axis b if not being used
+        if 'b' not in self.axisList:
+            for i in self.axisBList:
                 self.w[i].hide()
         # setup home buttons
         for axis in self.axisList:
@@ -1802,7 +1813,7 @@ class HandlerClass:
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
-        for axis in 'xyza':
+        for axis in 'xyzab':
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = inputType
 
@@ -4021,6 +4032,7 @@ class HandlerClass:
         # style some buttons
         buttons = ['jog_x_minus', 'jog_x_plus', 'jog_y_minus', 'jog_y_plus',
                    'jog_z_minus', 'jog_z_plus', 'jog_a_minus', 'jog_a_plus',
+                   'jog_b_minus', 'jog_b_plus',
                    'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se',
                    'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
                    'conv_line', 'conv_circle', 'conv_triangle', 'conv_rectangle',
@@ -4236,6 +4248,14 @@ class HandlerClass:
     def on_keycall_ANEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             self.kb_jog(state, 3, -1, shift)
+
+    def on_keycall_BPOS(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 4, 1, shift)
+
+    def on_keycall_BNEG(self, event, state, shift, cntrl):
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+            self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
         if self.jogSlow:

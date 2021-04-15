@@ -166,19 +166,23 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-color: e-stop }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
-#touch_a, #touch_x, #touch_y, #touch_z    {
+#touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
     font: 20pt 'Lato' }
 
 /******    JOG BUTTON ************/
-#jog_a_minus, #jog_a_plus, #jog_x_minus, #jog_x_plus,
-#jog_y_minus, #jog_y_plus, #jog_z_minus, #jog_z_plus {
+#jog_x_minus, #jog_x_plus,
+#jog_y_minus, #jog_y_plus,
+#jog_z_minus, #jog_z_plus,
+#jog_a_minus, #jog_a_plus,
+#jog_b_minus, #jog_b_plus {
     background: backgnd;
     border: none }
 
 #jog_x_minus:pressed, #jog_x_plus:pressed,
 #jog_y_minus:pressed, #jog_y_plus:pressed,
 #jog_z_minus:pressed, #jog_z_plus:pressed,
-#jog_a_minus:pressed, #jog_a_plus:pressed {
+#jog_a_minus:pressed, #jog_a_plus:pressed,
+#jog_b_minus:pressed, #jog_b_plus:pressed {
     background: backalt }
 
 /******    CUT_RECOVERY BUTTON ************/
@@ -230,20 +234,22 @@ DROLabel[homed=false] {
     border-color: inactive }
 
 /****** DRO LABEL ************/
-#dro_label_a,
 #dro_label_x,
 #dro_label_y,
-#dro_label_z {
+#dro_label_z,
+#dro_label_a,
+#dro_label_b {
     color: backgnd;
     background: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
     font: 20pt 'Lato' }
 
-#dro_label_a[homed=false],
 #dro_label_x[homed=false],
 #dro_label_y[homed=false],
-#dro_label_z[homed=false] {
+#dro_label_z[homed=false],
+#dro_label_a[homed=false],
+#dro_label_b[homed=false] {
     background: inactive;
     border-color: inactive }
 
