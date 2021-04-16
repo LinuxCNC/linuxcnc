@@ -1,0 +1,157 @@
+.TH INTERP "9" "" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+interp \- exposes interpeter state in realtime (via state tags)
+.SH SYNOPSIS
+\fBLoaded with motion component with the following command:\fR
+.br
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
+See \fBman motion\fR for more information
+
+.SH DESCRIPTION
+Exposes the interpretter state in real time. Some units are derived in motion (eg Arc Heading) which requires the real time position on the current plane.
+Where coordinates refer to  (x,y), these also refer to the coordiantes on the current plane if traversing a plane other than XY.
+
+.SH  INTERP PINS
+
+.TP
+\fBinterp.feed\-rate\-upm\fR OUT FLOAT
+The commanded feed rate in device units per minute (eg gcode F command)
+
+.TP
+\fBinterp.feed\-rate\-ups\fR OUT FLOAT
+The commanded feed rate in device units per second (eg gcode F command). Useful in Halscope or working with velocities.
+
+.TP
+\fBinterp.arc\-radius\fR OUT FLOAT
+Radius of arcs. 0 if not traversing an arc). As set by G2 and G3 commands
+
+.TP
+\fBinterp.arc\-center\-x\fR OUT FLOAT
+X ordinate of arc centre. 0 if not traversing an arc). Calculated from G2 and G3 commands
+
+.TP
+\fBinterp.arc\-center\-y\fR OUT FLOAT
+y ordinate of arc centre. 0 if not traversing an arc. Calculated from G2 and G3 commands
+
+.TP
+\fBinterp.heading\fR OUT FLOAT
+Direction of travel, Tangential if traversing an arc. Useful for tangential knife machines.
+
+.TP
+\fBinterp.speed\fR OUT FLOAT
+Commanded spindle speed (eg gcode S command)
+
+.TP
+\fBinterp.path\-tolerance\fR OUT FLOAT
+Commanded path tolerance (eg from gcode G64 command)
+
+.TP
+\fBinterp.naieve\-cam\-tolerance\fR OUT FLOAT
+naieve cam tolerance from interpreter
+
+.TP
+\fBinterp.arc\-plane\fR OUT S32
+The plane currently being traversed
+.br
+    PLANE_XY = 1
+    PLANE_YZ = 2
+    PLANE_XZ = 3
+    PLANE_UV = 4
+    PLANE_VW = 5
+    PLANE_UW = 6
+refer cannon.hh
+
+.TP
+\fBinterp.program\-line\fR OUT S32
+The current source line number
+
+.TP
+\fBinterp.cutter\-comp\fR OUT S32
+Current Cutter compensation. Values are:
+.br
+    400 = Cutter Compensation Off
+    410 = Cutter Compensation on, to the LLEFT of programmed path
+    420 = Cutter Compensation on to Right of programmed path   
+
+.TP
+\fBinterp.tool\-radius\fR OUT S32
+Tool Radius for cutter compensation in device units
+
+.TP
+\fBinterp.gmode\-0\fR OUT S32
+Current block g-mode. 
+.br
+Refer interp_internal.hh
+
+.TP
+\fBinterp.motion\-mode\fR OUT S32
+Active Gcode for motion for values. 
+.br
+Refer interp_internal.hh
+
+.TP
+\fBinterp.m-modes\-4\fR OUT S32
+M mode for block. 
+.br
+Refer interp_internal.hh
+
+.TP
+\fBinterp.origin\fR OUT S32
+Active origin (1=G54 to 9=G59.3)
+
+.TP
+\fBinterp.toolchange\fR OUT S32
+Toolchange mode.
+.br
+Refer interp_internal.hh
+
+.TP
+\fBinterp.packed\-flags\fR OUT U32
+Bitmap of Interpreter state.
+.br
+Components using this field should #include state_tag.h
+to include the enumerated types shown below.
+.br
+    0 = GM_FLAG_UNITS
+    1 = GM_FLAG_ISTANCE_MODE
+    2 = GM_FLAG_TOOL_OFFSETS_ON
+    3 = GM_FLAG_RETRACT_OLDZ
+    4 = GM_FLAG_BLEND
+    5 = GM_FLAG_EXACT_STOP
+    6 = GM_FLAG_FEED_INVERSE_TIME
+    7 = GM_FLAG_FEED_UPM
+    8 = GM_FLAG_CSS_MODE
+    9 = GM_FLAG_IJK_ABS
+    10 = GM_FLAG_DIAMETER_MODE
+    11 = GM_FLAG_G92_IS_APPLIED
+    12 = GM_FLAG_SPINDLE_ON
+    13 = GM_FLAG_SPINDLE_CW
+    14 = GM_FLAG_MIST
+    15 = GM_FLAG_FLOOD
+    16 = GM_FLAG_FEED_OVERRIDE
+    17 = GM_FLAG_SPEED_OVERRIDE
+    18 = GM_FLAG_ADAPTIVE_FEED
+    19 = GM_FLAG_FEED_HOLD
+    20 = GM_FLAG_RESTORABLE
+    21 = GM_FLAG_IN_REMAP
+    22 = GM_FLAG_IN_SUB
+    23 = GM_FLAG_EXTERNAL_FILE
+    24 = GM_FLAG_IS_CIRCLE
+.br
+Also refer to interp_write.cc for added information.
+.br
+the following code will extract a tag from the packed\-flags pin into variable mask.
+.br
+       unsigned long int mask = 1 << GM_FLAG_ARC_IS_CIRCLE;
+.br
+       mask &= packed_flags;
+.br
+Be sure to use an implicit cast before assigning this value to a variable or pin.
+.SH SEE ALSO
+motion
