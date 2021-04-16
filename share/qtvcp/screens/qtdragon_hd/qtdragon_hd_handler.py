@@ -850,7 +850,7 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
-        if not fname.endswith(".html"):
+        if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
                 self.add_status("Unknown or invalid filename extension {}".format(file_extension))
                 return
@@ -861,15 +861,25 @@ class HandlerClass:
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.filemanager.recordBookKeeping()
-            # adjust ending to check for related setup files
+
+            # adjust ending to check for related HTML setup files
             fname = filename+'.html'
             if os.path.exists(fname):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
             else:
                 self.w.web_view.setHtml(self.html)
+
+            # look for PDF setup files
+            # load it with system program
+            fname = filename+'.pdf'
+            if os.path.exists(fname):
+                url = QtCore.QUrl.fromLocalFile(fname)
+                QtGui.QDesktopServices.openUrl(url)
+                self.add_status("Loaded PDF file : {}".format(fname))
             return
-        else:
+
+        if file_extension == ".html":
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
@@ -879,7 +889,12 @@ class HandlerClass:
                 self.w.jogging_frame.hide()
             except Exception as e:
                 print("Error loading HTML file : {}".format(e))
-
+        else:
+            # load PDF with system program
+            if os.path.exists(fname):
+                url = QtCore.QUrl.fromLocalFile(fname)
+                QtGui.QDesktopServices.openUrl(url)
+                self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0
