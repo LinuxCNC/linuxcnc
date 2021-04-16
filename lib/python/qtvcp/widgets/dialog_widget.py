@@ -72,6 +72,9 @@ class GeometryMixin(_HalWidgetBase):
         self._geometry_string = 'default'
 
     def set_default_geometry(self):
+        geom = self.frameGeometry()
+        geom.moveCenter(QDesktopWidget().availableGeometry().center())
+        self.setGeometry(geom)
         x = self.geometry().x()
         y = self.geometry().y()
         w = self.geometry().width()
@@ -82,7 +85,9 @@ class GeometryMixin(_HalWidgetBase):
     def read_preference_geometry(self,name):
         self._geoName = name
         if self.PREFS_:
-            self._geometry_string = self.PREFS_.getpref(name, self.get_default_geometry(), str, 'DIALOG_GEOMETRY')
+            self._geometry_string = self.PREFS_.getpref(name,
+                                        self.get_default_geometry(),
+                                        str, 'DIALOG_GEOMETRY')
         else:
             self._geometry_string = 'default'
 
@@ -126,8 +131,8 @@ class GeometryMixin(_HalWidgetBase):
                 temp = self._geometry_string.split(' ')
                 go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            LOG.debug('Dialog gometry python error: {}'.format(e))
+            LOG.error('Calculating geometry of {}. Will use natural placement.'.format(self.HAL_NAME_))
+            LOG.debug('Dialog geometry python error: {}'.format(e))
             x = self.geometry().x()
             y = self.geometry().y()
             w = self.geometry().width()
@@ -138,7 +143,7 @@ class GeometryMixin(_HalWidgetBase):
         if self.PREFS_ :
             temp = self._geometry_string.replace(' ','')
             temp = temp.strip('-')
-            if temp =='' or temp.isdigit():
+            if temp in('','default')  or temp.isdigit():
                 LOG.debug('Saving {} data from widget {} to file.'.format( self._geoName,self.HAL_NAME_))
                 x = self.geometry().x()
                 y = self.geometry().y()
@@ -349,7 +354,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
-        self.useDesktopDialog = False
+        self._useDesktopNotify = False
+        self._frameless = False
         self._curLine = 0
         self._actionbutton = self.addButton('Pause For Jogging', QMessageBox.ActionRole)
         self._actionbutton.setEnabled(False)
@@ -363,7 +369,6 @@ class ToolDialog(LcncDialog, GeometryMixin):
     def _hal_init(self):
         self.set_default_geometry()
         self.read_preference_geometry('ToolChangeDialog-geometry')
-        #_HalWidgetBase._hal_init(self)
 
         if not hal.component_exists('hal_manualtoolchange'):
             oldname = self.HAL_GCOMP_.comp.getprefix()
@@ -372,7 +377,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.hal_pin.value_changed.connect(self.tool_change)
             self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
             self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
-            #self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+            self.ext_ack = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+            self.ext_ack.value_changed.connect(self.external_acknowledge)
             self.HAL_GCOMP_.comp.setprefix(oldname)
         else:
             LOG.warning("""Detected hal_manualtoolchange component already loaded
@@ -385,12 +391,22 @@ class ToolDialog(LcncDialog, GeometryMixin):
         else:
             self.play_sound = False
 
+    # process callback from 'change' HAL pin
     def tool_change(self, change):
         if change:
             STATUS.stat.poll()
             self._curLine = STATUS.stat.motion_line
+            # enable/disable pause at jog button
+            if self._curLine > 0:
+                self._actionbutton.setEnabled(True)
+                jpause = True
+            else:
+                self._actionbutton.setEnabled(False)
+                jpause = False
+
             MORE = 'Please Insert Tool %d' % self.tool_number.get()
             tool_table_line = TOOL.GET_TOOL_INFO(self.tool_number.get())
+
             comment = str(tool_table_line[TOOL.COMMENTS])
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info: %s'% comment
@@ -402,40 +418,110 @@ class ToolDialog(LcncDialog, GeometryMixin):
                 if self.play_sound:
                     STATUS.emit('play-sound', self.sound_type)
 
-                # desktop notify dialog
-                if self.useDesktopDialog:
-                    NOTICE.notify_ok(MESS, MORE, None, 0, self._pin_change)
-                    return
-            # Qt dialog
-            if self._curLine > 0:
-                self._actionbutton.setEnabled(True)
+            # show desktop notify dialog rather then a qt dialog
+            if self._useDesktopNotify:
+                NOTICE.show_toolchange_notification(MESS,
+                                    MORE +'\n' + comment,
+                                    None, 0,
+                                    self._processChange,
+                                    jogpause = jpause)
             else:
-                self._actionbutton.setEnabled(False)
-            answer = self.showdialog(MESS, MORE, DETAILS, display_type='OK')
-            STATUS.emit('focus-overlay-changed', False, None, None)
-            self._pin_change(answer)
+                # ok show Qt dialog
+                self.showdialog(MESS, MORE, DETAILS,
+                                frameless = self._frameless)
         elif not change:
             self.changed.set(False)
 
+    # process callback for 'change-button' HAL pin
+    def external_acknowledge(self, state):
+        if state and self.isVisible():
+            self._processChange(True)
+
     # This also is called from DesktopDialog
-    def _pin_change(self,answer):
-        if answer == True:
-            self.changed.set(True)
-        elif answer == 0:
+    def _processChange(self,answer):
+        self.hide()
+        if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
-            STATUS.emit('update-machine-log', 'tool change Aorted with run from line', 'TIME')
+            STATUS.emit('update-machine-log', 'tool change paused for jogging; launched run-from-line', 'TIME')
             STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE',
                         'LINE':self._curLine+2, 'NONBLOCKING':True})
-        else:
+        elif answer == True:
+            self.changed.set(True)
+        elif answer == False:
             ACTION.ABORT()
-            STATUS.emit('update-machine-log', 'tool change Aorted', 'TIME')
+            STATUS.emit('update-machine-log', 'tool change Aborted', 'TIME')
+
+        self.record_geometry()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+
+    ###### overridden functions ################
+
+    def showdialog(self, message, more_info=None, details=None,
+                    play_alert=None,
+                    frameless = True):
+
+        self.setWindowModality(Qt.ApplicationModal)
+        if frameless:
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.FramelessWindowHint | Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        else:
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint
+                            | Qt.WindowSystemMenuHint)
+        self.setWindowTitle(self._title)
+        self.setIcon(QMessageBox.Critical)
+        self.setText('<b>%s</b>' % message)
+        self.setInformativeText(more_info)
+        self.setDetailedText(details)
+        self.setStandardButtons(QMessageBox.Ok)
+        self.buttonClicked.connect(self.msgbtn)
+        if play_alert:
+            STATUS.emit('play-sound', play_alert)
+        self.show()
+
+    # set the geometry when dialog shown
+    def showEvent(self, event):
+        self.set_geometry()
+        super(LcncDialog, self).showEvent(event)
+
+    # decode button presses
+    def msgbtn(self, i):
+        LOG.debug('Button pressed is: {}'.format(i.text()))
+        btn = i.text().encode('utf-8')
+        if i == self._actionbutton:
+            self._processChange(-1)
+        elif btn in ('&OK','&Yes'):
+            self._processChange(True)
+        else:
+            self._processChange(False)
+
+    ############################################
 
     # **********************
     # Designer properties
     # **********************
-    # inherited
+    # inherited from lcncDialog
+    # plus :
 
+    def setFrameless(self, value):
+        self._frameless = value
+    def getFrameless(self):
+        return self._frameless
+    def resetFrameless(self):
+        self._frameless = False
+
+    frameless = pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
+
+    def setUseDesktopNotify(self, value):
+        self._useDesktopNotify = value
+    def getUseDesktopNotify(self):
+        return self._useDesktopNotify
+    def resetUseDesktopNotify(self):
+        self._useDesktopNotify = False
+
+    useDesktopNotify = pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
 
 ################################################################################
 # File Open Dialog

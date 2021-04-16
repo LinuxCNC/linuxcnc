@@ -132,6 +132,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolUseDesktopNotify = False
+        self._toolFrameless = False
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
@@ -467,6 +469,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.toolDialog_.setObjectName('toolDialog_')
         w.toolDialog_.hal_init(HAL_NAME='')
         w.toolDialog_.overlay_color = self._toolDialogColor
+        w.toolDialog_.setProperty('useDesktopNotify', self._toolUseDesktopNotify)
+        w.toolDialog_.setProperty('frameless', self._toolFrameless)
 
     def init_message_dialog(self):
         from qtvcp.widgets.dialog_widget import LcncDialog
@@ -805,6 +809,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_toolDialogColor(self, value):
         self._toolDialogColor = value
     tool_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
+    def setUseDesktopNotify(self, value):
+        self._toolUseDesktopNotify = value
+    def getUseDesktopNotify(self):
+        return self._toolUseDesktopNotify
+    def resetUseDesktopNotify(self):
+        self._toolUseDesktopNotify = False
+    ToolUseDesktopNotify = QtCore.pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
+    def setFrameless(self, value):
+        self._toolFrameless = value
+    def getFrameless(self):
+        return self._toolFrameless
+    def resetFrameless(self):
+        self._toolFrameless = False
+    ToolFrameless = QtCore.pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
 
     def set_fileDialog(self, data):
         self.add_file_dialog = data
