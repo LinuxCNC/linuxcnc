@@ -148,7 +148,7 @@ class Notify:
         n.setTimeout(timeout * 1000)
         n.addAction("Ok", "ok", self.okClicked, callback)
         n.onClose(self.handle_closed)
-        n.addAction('Canel', 'canel', self.cancelClicked, callback)
+        n.addAction('Canel', 'cancel', self.cancelClicked, callback)
         n.show()
         self.notify_list.append(n)
 
@@ -164,7 +164,7 @@ class Notify:
     def okClicked(self, n, action, callback):
         callback(True)
 
-    def cancelClicked(self, n, action, callack):
+    def cancelClicked(self, n, action, callback):
         callback(False)
 
     def handle_closed(self, n):
