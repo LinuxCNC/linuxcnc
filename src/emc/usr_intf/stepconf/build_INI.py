@@ -144,6 +144,7 @@ class INI:
         elif self.d.axes == 4: num_joints = 2 # X Y
         else:
             print("___________________unknown self.d.axes",self.d.axes)
+        num_joints += len(self.d.tandemjoints)
 
         if   self.d.axes == 1: coords = "X Y Z A"
         elif self.d.axes == 0: coords = "X Y Z"
@@ -151,6 +152,15 @@ class INI:
         elif self.d.axes == 3: coords = "X Y U V"
         elif self.d.axes == 4: coords = "X Y"
 
+        for j in self.d.tandemjoints:
+            if j.upper() in coords:
+                coords = coords.replace(j.upper(), "{0} {0}".format(j.upper()))
+        self.d.axislist = []
+        for c in coords.lower().replace(" ",""):
+            if c not in self.d.axislist:
+                self.d.axislist.append(c)
+            else:
+                self.d.axislist.append("{}2".format(c))
         print("[KINS]", file=file)
         # trivial kinematics: no. of joints == no.of axes)
         # with trivkins, axes do not have to be consecutive
@@ -244,38 +254,24 @@ class INI:
         print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
 
-        if self.d.axes == 2: # XZ
-            all_homes = self.a.home_sig("x") and self.a.home_sig("z")
-        else:
-            all_homes = self.a.home_sig("x") and self.a.home_sig("y")
-            if self.d.axes == 3: # XYUV
-                all_homes = all_homes and self.a.home_sig("u") and self.a.home_sig("v")
-            elif self.d.axes == 0: # XYZ
-                all_homes = all_homes and self.a.home_sig("z")
-            elif self.d.axes == 1: # XYZA
-                all_homes = all_homes and self.a.home_sig("z") and self.a.home_sig("a")
+        all_homes = "None"
+        for axis in self.d.axislist:
+            all_homes = all_homes and self.a.home_sig(axis)
 
-        self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        if self.d.axes in(0,1): # xyz or xyza
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        if self.d.axes == 1: # xyza
-            self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
-        if self.d.axes == 2: # xZ
-            self.write_one_axis(file, 1, "z", "LINEAR", all_homes)
-        if self.d.axes == 3: # xyuv
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
-            self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
-        if self.d.axes == 4: # xY
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+        for axis in self.d.axislist:
+            if "2" in axis:
+                tandem = True
+            else:
+                tandem = False
+            self.write_one_axis(file, self.d.axislist.index(axis), axis[0], "LINEAR", all_homes, tandem)
+
         file.close()
         self.d.add_md5sum(filename)
 
 #******************
 # HELPER FUNCTIONS
 #******************
-    def write_one_axis(self, file, num, letter, type, all_homes):
+    def write_one_axis(self, file, num, letter, type, all_homes, tandem):
         order = "1203"
         def get(s): return self.d[letter + s]
         scale = get("scale")
@@ -290,19 +286,22 @@ class INI:
         minlim = min(minlim, home) - extend
         maxlim = max(maxlim, home) + extend
         axis_letter = letter.upper()
-        print(file=file)
-        print("[AXIS_%s]" % axis_letter, file=file)
-        # qtplasmac requires double vel & acc to use eoffsets correctly
-        if self.d.select_qtplasmac:
-            print("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value", file=file)
-            print("MAX_VELOCITY = %s" % (vel * 2), file=file)
-            print("MAX_ACCELERATION = %s" % (get("maxacc") * 2), file=file)
-            print("OFFSET_AV_RATIO = 0.5", file=file)
-        else:
-            print("MAX_VELOCITY = %s" % vel, file=file)
-            print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
-        print("MIN_LIMIT = %s" % minlim, file=file)
-        print("MAX_LIMIT = %s" % maxlim, file=file)
+        if not tandem:
+            print(file=file)
+            print("#*** AXIS_%s *******************************" % axis_letter, file=file)
+            print("[AXIS_%s]" % axis_letter, file=file)
+            # qtplasmac requires double vel & acc to use eoffsets correctly
+            if self.d.select_qtplasmac:
+                print("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value", file=file)
+                print("MAX_VELOCITY = %s" % (vel * 2), file=file)
+                print("MAX_ACCELERATION = %s" % (get("maxacc") * 2), file=file)
+                print("OFFSET_AV_RATIO = 0.5", file=file)
+            else:
+                print("MAX_VELOCITY = %s" % vel, file=file)
+                print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
+            print("MIN_LIMIT = %s" % minlim, file=file)
+            print("MAX_LIMIT = %s" % maxlim, file=file)
+
         print(file=file)
         print("[JOINT_%d]" % num, file=file)
         print("TYPE = %s" % type, file=file)
@@ -349,11 +348,19 @@ class INI:
                 if self.d.axes == 3: # XYUV
                     if letter in('y','v'): hs = 1
                     else: hs = 0
-                    print("HOME_SEQUENCE = %d"% hs, file=file)
+                    if letter in self.d.tandemjoints:
+                        print("HOME_SEQUENCE = -%d"% hs, file=file)
+                    else:
+                        print("HOME_SEQUENCE = %d"% hs, file=file)
                 else:
-                    print("HOME_SEQUENCE = %s" % order[num], file=file)
+                    if letter in self.d.tandemjoints:
+                        print("HOME_SEQUENCE = -%s" % order["xyza".index(letter)], file=file)
+                    else:
+                        print("HOME_SEQUENCE = %s" % order["xyza".index(letter)], file=file)
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
+        if letter not in self.d.tandemjoints or tandem:
+            print("#******************************************", file=file)
 
     def hz(self, axname):
         steprev = self.d[axname+"steprev"]

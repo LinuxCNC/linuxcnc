@@ -80,13 +80,11 @@ class HAL:
         else:
             encoder, counter, probe, pwm, pump = False, False, False, False, False, 
         limits_homes = SIG.ALL_LIMIT_HOME in inputs
-        if self.d.axes == 0:
-            print("loadrt stepgen step_type=0,0,0", file=file)
-        elif self.d.axes in(1,3):
-            print("loadrt stepgen step_type=0,0,0,0", file=file)
-        elif self.d.axes in(2,4):
-            print("loadrt stepgen step_type=0,0", file=file)
 
+        stepgens = '0'
+        for axis in range(1, len(self.d.axislist)):
+            stepgens += ",0"
+        print("loadrt stepgen step_type={}".format(stepgens), file=file)
 
         if encoder:
             print("loadrt encoder num_chan=1", file=file)
@@ -234,8 +232,14 @@ class HAL:
                 if self.d.select_qtplasmac and i > 0:
                     comment  = "#qtplasmac uses this digital input:    "
                 print("%snet %s => motion.digital-in-%02d" % (comment, din, i), file=file)
+        self.tandemsigs = {}
+        if self.d.tandemjoints:
+            for j in self.d.tandemjoints:
+                self.tandemsigs["{}step".format(j)] = 1
+                self.tandemsigs["{}dir".format(j)] = 1
 
         print(file=file)
+        self.outputlist = []
         for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
         if self.d.number_pports>1:
             if self.d.pp2_direction:# Input option
@@ -246,6 +250,7 @@ class HAL:
             for i in pinlist: self.connect_output(file, i, 1)
             print(file=file)
 
+        self.inputlist = []
         for i in (10,11,12,13,15): self.connect_input(file, i)
         if self.d.number_pports>1:
             if self.d.pp2_direction: # Input option
@@ -260,44 +265,12 @@ class HAL:
             print("setp lut5.0.function 0x10000", file=file)
             print("net all-limit-home => lut5.0.in-4", file=file)
             print("net all-limit <= lut5.0.out", file=file)
-            if self.d.axes in(2,4):
-                print("net homing-x <= joint.0.homing => lut5.0.in-0", file=file)
-                print("net homing-z <= joint.1.homing => lut5.0.in-1", file=file)
-            elif self.d.axes == 0:
-                print("net homing-x <= joint.0.homing => lut5.0.in-0", file=file)
-                print("net homing-y <= joint.1.homing => lut5.0.in-1", file=file)
-                print("net homing-z <= joint.2.homing => lut5.0.in-2", file=file)
-            elif self.d.axes == 1:
-                print("net homing-x <= joint.0.homing => lut5.0.in-0", file=file)
-                print("net homing-y <= joint.1.homing => lut5.0.in-1", file=file)
-                print("net homing-z <= joint.2.homing => lut5.0.in-2", file=file)
-                print("net homing-a <= joint.3.homing => lut5.0.in-3", file=file)
-            elif self.d.axes == 3:
-                print("net homing-x <= joint.0.homing => lut5.0.in-0", file=file)
-                print("net homing-y <= joint.1.homing => lut5.0.in-1", file=file)
-                print("net homing-u <= joint.6.homing => lut5.0.in-2", file=file)
-                print("net homing-v <= joint.7.homing => lut5.0.in-3", file=file)
+            for j in self.d.axislist:
+                print("net homing-{0} <= joint.{1}.homing => lut5.0.in-{1}".format(j.upper(), self.d.axislist.index(j)), file=file)
 
-        if self.d.axes == 2:
-            self.connect_joint(file, 0, 'x')
-            self.connect_joint(file, 1, 'z')
-        elif self.d.axes == 0:
-            self.connect_joint(file, 0, 'x')
-            self.connect_joint(file, 1, 'y')
-            self.connect_joint(file, 2, 'z')
-        elif self.d.axes == 1:
-            self.connect_joint(file, 0, 'x')
-            self.connect_joint(file, 1, 'y')
-            self.connect_joint(file, 2, 'z')
-            self.connect_joint(file, 3, 'a')
-        elif self.d.axes == 3:
-            self.connect_joint(file, 0, 'x')
-            self.connect_joint(file, 1, 'y')
-            self.connect_joint(file, 2, 'u')
-            self.connect_joint(file, 3, 'v')
-        elif self.d.axes == 4:
-            self.connect_joint(file, 0, 'x')
-            self.connect_joint(file, 1, 'y')
+        # connect the joints
+        for j in self.d.axislist:
+            self.connect_joint(file, self.d.axislist.index(j), j)
 
         print(file=file)
         # wacky estop handling for qtplasmac with sim hardware
@@ -470,7 +443,7 @@ class HAL:
 #******************
 
     def connect_joint(self, file, num, let):
-        axnum = "xyzabcuvw".index(let)
+        axnum = "xyzabcuvw".index(let[0])
         lat = self.d.latency
         print(file=file)
         print("setp stepgen.%d.position-scale [JOINT_%d]SCALE" % (num, num), file=file)
@@ -517,86 +490,26 @@ class HAL:
                 print(file=f1)
             print("loadrt sim_axis_hardware names=sim-hardware", file=f1)
             print(file=f1)
-            print("net Xjoint-pos-fb      joint.0.pos-fb      sim-hardware.Xcurrent-pos", file=f1)
-            if self.d.axes in(0, 1): # XYZ XYZA
-                print("net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos", file=f1)
-                print("net Zjoint-pos-fb      joint.2.pos-fb      sim-hardware.Zcurrent-pos", file=f1)
-            if self.d.axes == 2: # XZ
-                print("net Zjoint-pos-fb      joint.1.pos-fb      sim-hardware.Zcurrent-pos", file=f1)
-            if self.d.axes == 1: # XYZA
-                print("net Ajoint-pos-fb      joint.3.pos-fb      sim-hardware.Acurrent-pos", file=f1)
-            if self.d.axes == 3: # XYUV
-                print("net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos", file=f1)
-                print("net Ujoint-pos-fb      joint.2.pos-fb      sim-hardware.Ucurrent-pos", file=f1)
-                print("net Vjoint-pos-fb      joint.3.pos-fb      sim-hardware.Vcurrent-pos", file=f1)
-            if self.d.axes == 4: # XY
-                print("net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos", file=f1)
+            for j in self.d.axislist:
+                print("net {:16}joint.{}.pos-fb   sim-hardware.{}current-pos".format(j.upper() + "joint-pos-fb", self.d.axislist.index(j), j.upper()), file=f1)
             print(file=f1)
-            print("setp sim-hardware.Xmaxsw-upper 1000", file=f1)
-            print("setp sim-hardware.Xminsw-lower -1000", file=f1)
-            print("setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT", file=f1)
-            print("setp sim-hardware.Xminsw-upper [JOINT_0]MIN_LIMIT", file=f1)
-            print("setp sim-hardware.Xhomesw-pos [JOINT_0]HOME_OFFSET", file=f1)
-            print(file=f1)
-            if self.d.axes in(0, 1): # XYZ XYZA
-                print("setp sim-hardware.Ymaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Yminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET", file=f1)
-                print(file=f1)
-                print("setp sim-hardware.Zmaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Zminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Zmaxsw-lower [JOINT_2]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Zminsw-upper [JOINT_2]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Zhomesw-pos [JOINT_2]HOME_OFFSET", file=f1)
-                print(file=f1)
-            if self.d.axes == 1: #  XYZA
-                print("setp sim-hardware.Amaxsw-upper 20000", file=f1)
-                print("setp sim-hardware.Amaxsw-lower [JOINT_3]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Aminsw-upper [JOINT_3]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Aminsw-lower -20000", file=f1)
-                print("setp sim-hardware.Ahomesw-pos [JOINT_3]HOME_OFFSET", file=f1)
-                print(file=f1)
-            if self.d.axes == 2: # XZ
-                print("setp sim-hardware.Zmaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Zmaxsw-lower [JOINT_1]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Zminsw-upper [JOINT_1]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Zminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Zhomesw-pos [JOINT_1]HOME_OFFSET", file=f1)
-                print(file=f1)
-            if self.d.axes == 3: # XYUV
-                print("setp sim-hardware.Ymaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET", file=f1)
-                print(file=f1)
-                print("setp sim-hardware.Umaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Umaxsw-lower [JOINT_2]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Uminsw-upper [JOINT_2]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Uminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Uhomesw-pos [JOINT_2]HOME_OFFSET", file=f1)
-                print(file=f1)
-                print("setp sim-hardware.Vmaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Vmaxsw-lower [JOINT_3]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Vminsw-upper [JOINT_3]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Vminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Vhomesw-pos [JOINT_3]HOME_OFFSET", file=f1)
-                print(file=f1)
-            if self.d.axes == 4: # XY
-                print("setp sim-hardware.Ymaxsw-upper 1000", file=f1)
-                print("setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT", file=f1)
-                print("setp sim-hardware.Yminsw-lower -1000", file=f1)
-                print("setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET", file=f1)
+            for j in self.d.axislist:
+                if j[0] == 'a':
+                    limit = 20000
+                else:
+                    limit = 1000
+                print("setp sim-hardware.{:14}{}".format(j.upper() + "maxsw-upper", limit), file=f1)
+                print("setp sim-hardware.{:14}[JOINT_{}]MAX_LIMIT".format(j.upper() + "maxsw-lower", self.d.axislist.index(j)), file=f1)
+                print("setp sim-hardware.{:14}[JOINT_{}]MIN_LIMIT".format(j.upper() + "minsw-upper", self.d.axislist.index(j)), file=f1)
+                print("setp sim-hardware.{:14}-{}".format(j.upper() + "minsw-lower", limit), file=f1)
+                print("setp sim-hardware.{:14}[JOINT_{}]HOME_OFFSET".format(j.upper() + "homesw-pos", self.d.axislist.index(j)), file=f1)
                 print(file=f1)
             for port in range(0,self.d.number_pports):
-                print(file=f1)
                 if port==0 or not self.d.pp2_direction: # output option
                     pinlist = (10,11,12,13,15)
                 else:
                     pinlist = (2,3,4,5,6,7,8,9,10,11,12,13,15)
+                self.inputlist = []
                 for i in pinlist:
                     self.connect_input(f1, i, port, True)
                 print(file=f1)
@@ -604,67 +517,37 @@ class HAL:
                     pinlist = (1,2,3,4,5,6,7,8,9,14,16,17)
                 else:
                     pinlist = (1,14,16,17)
+                self.tandemsigs = {}
+                if self.d.tandemjoints:
+                    for j in self.d.tandemjoints:
+                        self.tandemsigs["{}step".format(j)] = 1
+                        self.tandemsigs["{}dir".format(j)] = 1
+                self.outputlist = []
                 for o in pinlist:
                     self.connect_output(f1, o, port, True) 
             print(file=f1)
-            print("net fake-all-home          sim-hardware.homesw-all", file=f1)
-            print("net fake-all-limit         sim-hardware.limitsw-all", file=f1)
-            print("net fake-all-limit-home    sim-hardware.limitsw-homesw-all", file=f1)
-            print("net fake-both-x            sim-hardware.Xbothsw-out", file=f1)
-            print("net fake-max-x             sim-hardware.Xmaxsw-out", file=f1)
-            print("net fake-min-x             sim-hardware.Xminsw-out", file=f1)
-            print("net fake-both-y            sim-hardware.Ybothsw-out", file=f1)
-            print("net fake-max-y             sim-hardware.Ymaxsw-out", file=f1)
-            print("net fake-min-y             sim-hardware.Yminsw-out", file=f1)
-            print("net fake-both-z            sim-hardware.Zbothsw-out", file=f1)
-            print("net fake-max-z             sim-hardware.Zmaxsw-out", file=f1)
-            print("net fake-min-z             sim-hardware.Zminsw-out", file=f1)
-            print("net fake-both-a            sim-hardware.Abothsw-out", file=f1)
-            print("net fake-max-a             sim-hardware.Amaxsw-out", file=f1)
-            print("net fake-min-a             sim-hardware.Aminsw-out", file=f1)
-            print("net fake-both-u            sim-hardware.Ubothsw-out", file=f1)
-            print("net fake-max-u             sim-hardware.Umaxsw-out", file=f1)
-            print("net fake-min-u             sim-hardware.Uminsw-out", file=f1)
-            print("net fake-both-v            sim-hardware.Vbothsw-out", file=f1)
-            print("net fake-max-v             sim-hardware.Vmaxsw-out", file=f1)
-            print("net fake-min-v             sim-hardware.Vminsw-out", file=f1)
-
-            print("net fake-home-x            sim-hardware.Xhomesw-out", file=f1)
-            print("net fake-home-y            sim-hardware.Yhomesw-out", file=f1)
-            print("net fake-home-z            sim-hardware.Zhomesw-out", file=f1)
-            print("net fake-home-a            sim-hardware.Ahomesw-out", file=f1)
-            print("net fake-home-u            sim-hardware.Uhomesw-out", file=f1)
-            print("net fake-home-v            sim-hardware.Vhomesw-out", file=f1)
-
-            print("net fake-both-home-x       sim-hardware.Xbothsw-homesw-out", file=f1)
-            print("net fake-max-home-x        sim-hardware.Xmaxsw-homesw-out", file=f1)
-            print("net fake-min-home-x        sim-hardware.Xminsw-homesw-out", file=f1)
-
-            print("net fake-both-home-y       sim-hardware.Ybothsw-homesw-out", file=f1)
-            print("net fake-max-home-y        sim-hardware.Ymaxsw-homesw-out", file=f1)
-            print("net fake-min-home-y        sim-hardware.Yminsw-homesw-out", file=f1)
-
-            print("net fake-both-home-z       sim-hardware.Zbothsw-homesw-out", file=f1)
-            print("net fake-max-home-z        sim-hardware.Zmaxsw-homesw-out", file=f1)
-            print("net fake-min-home-z        sim-hardware.Zminsw-homesw-out", file=f1)
-
-            print("net fake-both-home-a       sim-hardware.Abothsw-homesw-out", file=f1)
-            print("net fake-max-home-a        sim-hardware.Amaxsw-homesw-out", file=f1)
-            print("net fake-min-home-a        sim-hardware.Aminsw-homesw-out", file=f1)
-
-            print("net fake-both-home-u       sim-hardware.Ubothsw-homesw-out", file=f1)
-            print("net fake-max-home-u        sim-hardware.Umaxsw-homesw-out", file=f1)
-            print("net fake-min-home-u        sim-hardware.Uminsw-homesw-out", file=f1)
-
-            print("net fake-both-home-v       sim-hardware.Vbothsw-homesw-out", file=f1)
-            print("net fake-max-home-v        sim-hardware.Vmaxsw-homesw-out", file=f1)
-            print("net fake-min-home-v        sim-hardware.Vminsw-homesw-out", file=f1)
+            print("net fake-all-home        sim-hardware.homesw-all", file=f1)
+            print("net fake-all-limit       sim-hardware.limitsw-all", file=f1)
+            print("net fake-all-limit-home  sim-hardware.limitsw-homesw-all", file=f1)
+            print(file=f1)
+            for j in ["x","x2","y","y2","z","a","u","v"]:
+                print("net {:21}sim-hardware.{}bothsw-out".format("fake-both-" + j, j.upper()), file=f1)
+                print("net {:21}sim-hardware.{}maxsw-out".format("fake-max-" + j, j.upper()), file=f1)
+                print("net {:21}sim-hardware.{}minsw-out".format("fake-min-" + j, j.upper()), file=f1)
+            print(file=f1)
+            for j in ["x","x2","y","y2","z","a","u","v"]:
+                print("net {:21}sim-hardware.{}homesw-out".format("fake-home-" + j, j.upper()), file=f1)
+            print(file=f1)
+            for j in ["x","x2","y","y2","z","a","u","v"]:
+                print("net {:21}sim-hardware.{}bothsw-homesw-out".format("fake-both-home-" + j, j.upper()), file=f1)
+                print("net {:21}sim-hardware.{}maxsw-homesw-out".format("fake-max-home-" + j, j.upper()), file=f1)
+                print("net {:21}sim-hardware.{}minsw-homesw-out".format("fake-min-home-" + j, j.upper()), file=f1)
             f1.close()
         else:
             if os.path.exists(custom):
                 os.remove(custom)
 
-    def connect_input(self, file, num,port=0,fake=False):
+    def connect_input(self, file, num, port=0, fake=False):
         ending=''
         if port == 0:
             p = self.d['pin%d' % num]
@@ -672,8 +555,14 @@ class HAL:
         else:
             p = self.d['pp2_pin%d_in' % num]
             i = self.d['pp2_pin%d_in_inv' % num]
-
         if p == SIG.UNUSED_INPUT: return
+        if p not in self.inputlist:
+            self.inputlist.append(p)
+        else:
+            if not fake:
+                print("duplicate input \"%s\" will not be connected to \"parport.%d.pin-%02d-in%s\"" % \
+                      (SIG.human_input_names[SIG.hal_input_names.index(p)], port, num, ending))
+            return
         if fake:
             p='fake-'+p
             ending='-fake'
@@ -693,7 +582,7 @@ class HAL:
                 comment = "#qtplasmac disabled for sim mode:      "
         if i and not fake:
             print("%snet %s <= parport.%d.pin-%02d-in-not%s" \
-                % (comment, p, port, num,ending), file=file)
+                % (comment, p, port, num, ending), file=file)
         else:
             print("%snet %s <= parport.%d.pin-%02d-in%s" \
                 % (comment, p, port, num, ending), file=file)
@@ -707,6 +596,13 @@ class HAL:
             p = self.d['pp2_pin%d' % num]
             i = self.d['pp2_pin%dinv' % num]
         if p == SIG.UNUSED_OUTPUT: return
+        if p not in self.outputlist:
+            self.outputlist.append(p)
+        else:
+            if not fake:
+                print("duplicate output \"%s\" will not be connected to \"parport.%d.pin-%02d-out%s\"" % \
+                      (SIG.human_output_names[SIG.hal_output_names.index(p)], port, num, ending))
+            return
         if fake:
             signame ='fake-'+p
             ending='-fake'
@@ -714,6 +610,13 @@ class HAL:
         else:
             signame ='{0:<15}'.format(p)
         if i and not fake: print("setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending), file=file)
+        # check for a tandem joint
+        sig = signame.strip().replace("fake-", "")
+        if sig in self.tandemsigs:
+            value = self.tandemsigs[sig]
+            if value == 2:
+                signame = signame.replace('{} '.format(sig), '{}{}{}'.format(sig[0], value, sig[1:]))
+            self.tandemsigs[sig] = value + 1
         # comment out inputs for a qtplasmac sim
         comment = ""
         if self.d.select_qtplasmac:
@@ -725,7 +628,7 @@ class HAL:
                 comment = "#qtplasmac disabled for sim mode:      "
         print("%snet %s => parport.%d.pin-%02d-out%s" % (comment, signame, port, num, ending), file=file)
         if self.a.doublestep() and not fake:
-            if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP):
+            if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP, SIG.X2STEP, SIG.Y2STEP):
                 print("setp parport.0.pin-%02d-out-reset%s 1" % (num,ending), file=file)
 
     def min_lim_sig(self, axis):
