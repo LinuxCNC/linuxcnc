@@ -481,7 +481,7 @@ If debounce is required for other equipment like home or limit switches etc then
 
 === Desktop Launcher
 
-If a link to the launch the configuration was not created when creating the config, the user could create a desktop launcher to the config by right clicking on the desktop and selecting Create Launcher or similar. This will bring up a dialog to create a launcher. Give the icon a nice short name, enter anything for the command and click OK.
+If a link to the launch the configuration was not created when creating the config, the user could create a desktop launcher to the config by right clicking on the desktop and selecting Create Launcher or similar. This will bring up a dialog box to create a launcher. Give the icon a nice short name, enter anything for the command and click OK.
 
 After the launcher appears on the desktop, right click on it and then edit it with the user's editor of choice. Edit the file so it looks similar to:
 
@@ -1069,7 +1069,7 @@ This section shows parameters that effect the GUI appearance and GUI behaviors.
 |Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard.
 |KB Shortcuts|This radio button allows the user to enable or disable <<qt_keyboard-shortcuts, Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
                 In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
-|View Material|This radio button allows the user to enable or disable a visual reference of key material cut settings to the <<qt_main-tab, MAIN Tab>> Preview Window. +
+|View Material|This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab, MAIN>> and <<qt_conversational-tab, CONVERSATIONAL>> tabs. +
                 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
@@ -1457,7 +1457,7 @@ source ~/linuxcnc-dev/scripts/rip-environment
 qtplasmac-materials
 ----
 
-This will bring up the Material Converter Main dialog with Manual selected as the default.
+This will bring up the Material Converter Main dialog box with Manual selected as the default.
 
 Select one of:
 
@@ -1481,7 +1481,7 @@ To convert:
 . Select the Output File to write to, press *OUTPUT* to bring up a file selector or directly enter the file in the entry box. This would normally be ~/linuxcnc/configs/<machine_name>_material.cfg. If necessary, the user could select a different file and hand edit the <machine_name>_material.cfg file.
 . Click *CREATE/CONVERT* and the new material file will be created.
 
-For both a Manual creation or a Fusion 360 conversion, a dialog will show with all available parameters displayed for input. Any entry marked with pass:[***] is mandatory and all other entries are optional depending on the user's configuration needs.
+For both a Manual creation or a Fusion 360 conversion, a dialog box will show with all available parameters displayed for input. Any entry marked with pass:[***] is mandatory and all other entries are optional depending on the user's configuration needs.
 
 image::images/qtplasmac_material_manual_dialog.png[width=150,align="center"]
 
@@ -1927,15 +1927,15 @@ Both *Mesh Mode* and *Ignore Arc OK* can be enabled/disabled at any time during 
 
 image::images/qtplasmac_cut_recovery.png[width=250,align="center"]
 
-This feature will produce a dialog box that will allow the torch to be moved away from the cut path during a <<qt_paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. This feature will display automatically over top of the JOGGING panel when motion is paused.
+This feature will produce a CUT RECOVERY panel that will allow the torch to be moved away from the cut path during a <<qt_paused-motion, paused motion>> event in order to position the torch over a scrap portion of the material being cut so that the cut restarts with a minimized arc-divot. The CUT RECOVERY panel will display automatically over top of the JOGGING panel when motion is paused.
 
-It is preferable to make torch position adjustments from the point at which paused motion occurred, however if moving along the cut path is necessary prior to setting the new start point, the user may use the paused motion controls (*REV*, *FWD*, and a *JOG-SPEED* slider) at the top of the dialog box. Once the user is satisfied with the positioning of the torch along the cut path, moving off the cut path is achieved by pressing the *DIRECTION* buttons. Each press of the *DIRECTION* button will move the torch a distance equivalent to the *Kerf Width* parameter of the currently selected material.
+It is preferable to make torch position adjustments from the point at which paused motion occurred, however if moving along the cut path is necessary prior to setting the new start point, the user may use the paused motion controls (*REV*, *FWD*, and a *JOG-SPEED* slider) at the top of the CUT RECOVERY panel. Once the user is satisfied with the positioning of the torch along the cut path, moving off the cut path is achieved by pressing the *DIRECTION* buttons. Each press of the *DIRECTION* button will move the torch a distance equivalent to the *Kerf Width* parameter of the currently selected material.
 
-The moment the torch has been moved off the cut path, the paused motion controls (*REV*, *FWD*, and a *JOG-SPEED* slider) at the top of the dialog box will become disabled.
+The moment the torch has been moved off the cut path, the paused motion controls (*REV*, *FWD*, and a *JOG-SPEED* slider) at the top of the CUT RECOVERY panel will become disabled.
 
 Once the torch position is satisfactory, press *CYCLE RESUME* and the cut will resume from the new position and travel the shortest distance to the original paused motion location. The CUT RECOVERY panel will close and the JOGGING panel will display when the torch returns to the original paused motion location.
 
-Pressing *CANCEL* (or *CYCLE STOP*) will cause the torch to move back to where it was positioned when the motion became paused and the dialog box will close.
+Pressing *CANCEL* (or *CYCLE STOP*) will cause the torch to move back to where it was positioned when the motion became paused and the CUT RECOVERY panel overlay will return to the JOGGING panel.
 
 [[qt_run-from-line]]
 
@@ -2157,17 +2157,20 @@ All lead-ins and lead-outs are arcs except for:
 * Small holes
 * Stars
 
-The cut order will occur in the same order as the shape was built.
+*The cut order will occur in the same order as the shape was built.*
 
 Pressing *Return* on the keyboard while editing parameters will automatically show the preview of the shape if there are enough parameters entered to create the shape. Clicking any of the available check boxes will do the same.
 
-The button functions are as follows:
+The general functions are as follows:
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
+|Material Drop Down|Allows the user to select the desired material for cutting. +
+                    If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational's Preview Window. +
+                    Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Convesational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW|Removes the current G-Code file and load a blank G-Code file.
-|SAVE|Opens a dialog allowing the current shape to be saved as a G-Code file.
+|SAVE|Opens a dialog box allowing the current shape to be saved as a G-Code file.
 |SETTINGS|Allows the changing of the global settings.
 |SEND|Loads the current shape into LinuxCNC (QtPlasmaC). If the last edit was not added then it will be discarded.
 |PREVIEW|Displays a preview of the current shape provided the required information is present.
@@ -2177,6 +2180,8 @@ The button functions are as follows:
 |===
 
 If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the CONVERSATIONAL Tab is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
+
+IMPORTANT: Any unsaved or unsent work will be discarded if the user leaves the CONVERSATIONAL Tab.
 
 NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
@@ -2286,8 +2291,8 @@ Arrays created via Conversational may be rotated, however arrays that have been 
 Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Click the *Rotate* icon to open the rotate dialog.
-. Enter the appropriate values in the rotate dialog and press *PREVIEW* to display the rotated code.
+. Click the *Rotate* icon to open the rotate dialog box.
+. Enter the appropriate values in the rotate dialog box and press *PREVIEW* to display the rotated code.
 . If the rotation is not correct, edit the values and press *PREVIEW* and the new rotated code will be shown. Repeat until satisfied with the rotated code.
 . Press *ADD* to complete the procedure.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
@@ -2303,15 +2308,15 @@ Arrays created with Conversational may be arrayed but imported arrays cannot be 
 The cut order of an array is from the left column to the right column, starting at the bottom row and ending at the top row.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Click the *Array* icon to open the array dialog.
-. Enter the appropriate values in the array dialog and press *PREVIEW* to display the array.
+. Click the *Array* icon to open the array dialog box.
+. Enter the appropriate values in the array dialog box and press *PREVIEW* to display the array.
 . If the array is not correct, edit the values and press *PREVIEW* and the new array will be shown. Repeat until satisfied with the array.
 . Press *ADD* to complete the procedure.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the Conversational dialog box has closed, the user may still save the G-Code file from the GUI. Alternatively, the user could click the CONVERSATIONAL Tab which will reload the job, at which time they can press the *SAVE* button.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the user has left the CONVERSATIONAL Tab, the user may still save the G-Code file from the GUI. Alternatively, the user could click the CONVERSATIONAL Tab which will reload the job, at which time they can press the *SAVE* button.
 
 == Error Messages
 
@@ -2958,7 +2963,7 @@ This will load the setup program:
 
 image::images/qtplasmac_setup.png[width=400,align="center"]
 
-press 'SELECT' which will open a file dialog, select the .ini file of the QtPlasmaC configuration then press 'SWITCH'. The installation type will now be changed.
+press 'SELECT' which will open a file dialog box, select the .ini file of the QtPlasmaC configuration then press 'SWITCH'. The installation type will now be changed.
 
 === QtPlasmaC Specific G-Codes
 

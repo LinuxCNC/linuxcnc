@@ -391,12 +391,12 @@ def rad_button_pressed(P, W, button, value):
     auto_preview(P, W)
 
 def entry_changed(P, W, widget):
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+    char = P.conv_entry_changed(widget)
+    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     else:
         W.kOffset.setEnabled(True)
-    P.conv_entry_changed(widget)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \

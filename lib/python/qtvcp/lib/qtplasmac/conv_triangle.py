@@ -198,8 +198,8 @@ def preview(P, W):
                                      'A + B + C + (a or b or c)')
 
 def entry_changed(P, W, widget):
-    P.conv_entry_changed(widget)
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+    char = P.conv_entry_changed(widget)
+    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     else:
