@@ -266,7 +266,7 @@ class HAL:
             print("net all-limit-home => lut5.0.in-4", file=file)
             print("net all-limit <= lut5.0.out", file=file)
             for j in self.d.axislist:
-                print("net homing-{0} <= joint.{1}.homing => lut5.0.in-{1}".format(j.upper(), self.d.axislist.index(j)), file=file)
+                print("net {0}homing <= joint.{1}.homing => lut5.0.in-{1}".format(j, self.d.axislist.index(j)), file=file)
 
         # connect the joints
         for j in self.d.axislist:
@@ -542,6 +542,15 @@ class HAL:
                 print("net {:21}sim-hardware.{}bothsw-homesw-out".format("fake-both-home-" + j, j.upper()), file=f1)
                 print("net {:21}sim-hardware.{}maxsw-homesw-out".format("fake-max-home-" + j, j.upper()), file=f1)
                 print("net {:21}sim-hardware.{}minsw-homesw-out".format("fake-min-home-" + j, j.upper()), file=f1)
+
+#        if self.d.sim_hardware:
+            print(file=f1)
+            for j in self.d.axislist:
+                if SIG.ALL_LIMIT_HOME in inputs:
+                    print("net {}homing => sim-hardware.{}homing".format(j, j.upper()), file=f1)
+                else:
+                    print("net {}homing  joint.{}.homing => sim-hardware.{}homing".format(j, self.d.axislist.index(j), j.upper()), file=f1)
+
             f1.close()
         else:
             if os.path.exists(custom):
