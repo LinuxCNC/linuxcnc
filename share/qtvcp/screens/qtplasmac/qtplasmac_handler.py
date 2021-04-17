@@ -1,4 +1,4 @@
-VERSION = '1.0.19'
+VERSION = '1.0.20'
 
 import os, sys
 from shutil import copy as COPY
@@ -281,9 +281,11 @@ class HandlerClass:
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
-        self.overlay.setText(self.get_overlay_text())
+        self.overlay.setText(self.get_overlay_text(False))
+        self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
             self.overlay.hide()
+            self.overlayConv.hide()
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
@@ -590,6 +592,7 @@ class HandlerClass:
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont("arial,helvetica", 16)
         self.overlay = OverlayMaterial(self.w.gcodegraphics)
+        self.overlayConv = OverlayMaterial(self.w.conv_preview)
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
@@ -598,11 +601,13 @@ class HandlerClass:
         self.runButtonTimer.timeout.connect(self.run_button_timeout)
         self.manualCut = False
 
-    def get_overlay_text(self):
+    def get_overlay_text(self, kerf):
         text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
         text += ('PH: {}\n'.format(self.w.pierce_height.text()))
         text += ('PD: {}\n'.format(self.w.pierce_delay.text()))
         text += ('CH: {}'.format(self.w.cut_height.text()))
+        if kerf == True:
+            text += ('\nKW: {}'.format(self.w.kerf_width.text()))
         if self.pmx485Exists:
             text += ('\nCA: {}'.format(self.w.cut_amps.text()))
         return text
@@ -1267,6 +1272,7 @@ class HandlerClass:
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
+            self.overlayConv.setText(self.get_overlay_text(True))
             self.conv_setup()
 
     def z_height_changed(self, value):
@@ -1830,8 +1836,10 @@ class HandlerClass:
     def overlay_changed(self):
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
+            self.overlayConv.show()
         else:
             self.overlay.hide()
+            self.overlayConv.hide()
 
     def dialog_show(self, icon, title, error):
         msg = QMessageBox(self.w)
@@ -2151,7 +2159,9 @@ class HandlerClass:
         self.probePressed = False
         self.probeTime = 0
         self.probeTimer = QTimer()
+        self.probeTimer.setSingleShot(True)
         self.probeTimer.timeout.connect(self.probe_timeout)
+        self.torchTime = 0.0
         self.torchTimer = QTimer()
         self.torchTimer.setSingleShot(True)
         self.torchTimer.timeout.connect(self.torch_timeout)
@@ -2290,19 +2300,25 @@ class HandlerClass:
                 self.w[self.ptButton].setText(self.probeText)
                 self.button_normal(self.ptButton)
         elif 'torch-pulse' in commands.lower():
-            if self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
+            if not self.torchTime and \
+               self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
                 self.torchTime = 1.0
                 if commands.lower().replace('torch-pulse','').strip():
                     self.torchTime = float(commands.lower().replace('torch-pulse','').strip())
                     self.torchTime = 3.0 if self.torchTime > 3.0 else self.torchTime
-                self.tpText = self.w[self.tpButton].text()
-                self.w[self.tpButton].setText('{}'.format(self.torchTime))
                 self.torchTimer.start(100)
                 hal.set_p('plasmac.torch-pulse-time', str(self.torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
+                self.tpText = self.w[self.tpButton].text()
+                self.w[self.tpButton].setText('{}'.format(self.torchTime))
                 self.button_active(self.tpButton)
             else:
+                self.torchTimer.stop()
                 self.torchTime = 0.0
+                hal.set_p('plasmac.torch-pulse-time', '0')
+                self.w[self.tpButton].setText(self.tpText)
+                self.button_normal(self.tpButton)
+
         elif 'cut-type' in commands.lower():
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
@@ -2411,14 +2427,16 @@ class HandlerClass:
             self.button_normal(self.ptButton)
 
     def torch_timeout(self):
-        self.torchTime -= 0.1
-        if self.torchTime <= 0.00:
-            self.w[self.tpButton].setText(self.tpText)
-            hal.set_p('plasmac.torch-pulse-time', '0')
-            self.button_normal(self.tpButton)
-        else:
+        if self.torchTime > 0.1:
+            self.torchTime -= 0.1
             self.torchTimer.start(100)
             self.w[self.tpButton].setText('{:.1f}'.format(self.torchTime))
+        else:
+            self.torchTimer.stop()
+            self.torchTime = 0
+            hal.set_p('plasmac.torch-pulse-time', '0')
+            self.w[self.tpButton].setText(self.tpText)
+            self.button_normal(self.tpButton)
 
     def consumable_change_setup(self):
         self.ccXpos = self.ccYpos = self.ccFeed = 'None'
@@ -2732,7 +2750,8 @@ class HandlerClass:
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
-        self.overlay.setText(self.get_overlay_text())
+        self.overlay.setText(self.get_overlay_text(False))
+        self.overlayConv.setText(self.get_overlay_text(True))
 
     def material_change_pin_changed(self, halpin):
         if halpin == 0:
@@ -3860,7 +3879,7 @@ class HandlerClass:
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self.w,
-                                                  'QFileDialog.getSaveFileName()',
+                                                  'Save',
                                                   self.programPrefix,
                                                   'G-Code Files (*.ngc *.nc *.tap);;All Files (*)',
                                                   options=options)
@@ -3959,8 +3978,8 @@ class HandlerClass:
                 if t in good:
                     out += t
             widget.setText(out)
-            if widget.text() in '.-':
-                return
+            if widget.text() in '-.' or widget.text() == '-.':
+                return "operator"
             try:
                 a = float(widget.text())
             except:
