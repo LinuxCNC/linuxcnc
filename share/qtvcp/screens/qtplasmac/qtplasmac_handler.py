@@ -1,4 +1,4 @@
-VERSION = '1.0.18'
+VERSION = '1.0.19'
 
 import os, sys
 from shutil import copy as COPY
@@ -127,6 +127,11 @@ class HandlerClass:
         KEYBIND.add_call('Key_ParenLeft', 'on_keycall_NUMBER', 9)
         KEYBIND.add_call('Key_0', 'on_keycall_NUMBER', 0)
         KEYBIND.add_call('Key_ParenRight', 'on_keycall_NUMBER', 0)
+        # there are no default keys for joint/axis 4
+        KEYBIND.add_call('Key_Comma', 'on_keycall_BPOS')
+        KEYBIND.add_call('Key_Less', 'on_keycall_BPOS')
+        KEYBIND.add_call('Key_Period', 'on_keycall_BNEG')
+        KEYBIND.add_call('Key_Greater', 'on_keycall_BNEG')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -143,6 +148,11 @@ class HandlerClass:
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
         self.axisBList = ['dro_b', 'dro_label_b', 'home_b', 'touch_b', 'jog_b_plus', 'jog_b_minus']
+        nonRepeatKeys = ['113','114','111','116','112','117','34','35','59','60',]
+        self.nonRepeatKeys = []
+        for k in range(0, len(self.axisList) * 2, 2):
+            self.nonRepeatKeys.append(nonRepeatKeys[k])
+            self.nonRepeatKeys.append(nonRepeatKeys[k + 1])
         self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
         self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
         self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
@@ -280,7 +290,7 @@ class HandlerClass:
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
         if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
-            ACTION.DISABLE_AUTOREPEAT_KEYS()
+            ACTION.DISABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
         self.startupTimer.start(250)
 
     def startup_timeout(self):
@@ -654,7 +664,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        ACTION.ENABLE_AUTOREPEAT_KEYS()
+        ACTION.ENABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions

@@ -11,7 +11,15 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution. QtPlasmaC uses the QtVCP infrastructure provided with LinuxCNC and is based on a theme by user "pinder" on the LinuxCNC Forum. There are three available formats:
+QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution.
+
+The QtPlasmaC GUI supports up to five axes and uses the QtVCP infrastructure provided with LinuxCNC.
+
+The standard theme is based on a design by user "pinder" on the LinuxCNC Forum and the colors are able to be changed by the user.
+
+The QtPlasmaC GUI will run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
+
+There are three available formats:
 
 [[qt_formats]]
 
@@ -23,19 +31,15 @@ Screenshot examples of QtPlasmaC are below:
 
 *16:9*
 
-image::images/qtplasmac_16x9.png[width=900,align="center"]
+image::images/qtplasmac_16x9.png[width=800,align="center"]
 
 *9:16*
 
-image::images/qtplasmac_9x16.png[width=550,align="center"]
+image::images/qtplasmac_9x16.png[width=450,align="center"]
 
 *4:3*
 
-image::images/qtplasmac_4x3.png[width=700,align="center"]
-
-The QtPlasmaC GUI will run on any hardware that is supported by LinuxCNC provided there are enough hardware I/O pins to fulfill the requirements of a plasma configuration.
-
-If the user is new to CNC plasma cutting, it is recommended that they read the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
+image::images/qtplasmac_4x3.png[width=600,align="center"]
 
 NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.
 
@@ -656,7 +660,7 @@ The following sections will give a general overview of the QtPlasmaC layout.
 
 Screenshot example of the QtPlasmaC MAIN tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_16x9.png[width=900,align="center"]
+image::images/qtplasmac_16x9.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
@@ -674,10 +678,10 @@ Some functions/features are only used for particular modes and are not displayed
 |CA:|If "View Material" is selected on the PARAMETERS tab, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |P|This button changes the preview to an isometric view.
 |Z|This button changes the preview to a top down view.
-|Right Arrow|This button the preview right.
-|Left Arrow|This button the preview left.
-|Up Arrow|This button the preview up.
-|Down Arrow|This button the preview down.
+|Right Arrow|This button pans the preview right.
+|Left Arrow|This button pans the preview left.
+|Up Arrow|This button pans the preview up.
+|Down Arrow|This button pans the preview down.
 |+|This button zooms the preview.
 |-|This button zooms the preview.
 |C|This button clears the live plot.
@@ -872,7 +876,7 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 
 Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_conversational.png[width=900,align="center"]
+image::images/qtplasmac_conversational.png[width=800,align="center"]
 
 The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
 
@@ -890,7 +894,7 @@ setp qtplasmac.conv_disable 1
 
 Screenshot example of the QtPlasmaC PARAMETERS tab in *16:9* aspect ratio:
 
-image::images/qtplasmac_parameters.png[width=900,align="center"]
+image::images/qtplasmac_parameters.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
@@ -1093,7 +1097,7 @@ Previous job statistics are reset once the next program is run.
 
 The total values may be reset either individually by clicking the corresponding "RESET" button, or they may all be reset together by clicking "RESET ALL".
 
-image::images/qtplasmac_stats.png[width=900,align="center"]
+image::images/qtplasmac_stats.png[width=800,align="center"]
 
 If the user has Hypertherm PowerMax communications, when a valid RS485 connection to the PowerMax is established an additional panel titled *RS485 PMX STATISTICS* will be displayed which will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
@@ -1135,7 +1139,7 @@ If the user intends to place the material randomly on the table then the user mu
 
 === CAMERA
 
-image::images/qtplasmac_camview.png[width=900,align="center"]
+image::images/qtplasmac_camview.png[width=800,align="center"]
 
 QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
 
@@ -2076,7 +2080,7 @@ IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE 
 
 === Keyboard Shortcuts
 
-Below is a list of all available keyboard shortcuts in QtPlasmaC that are in addition to the standard jogging keys. In order for the user to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
+Below is a list of all available keyboard shortcuts in QtPlasmaC. In order for the user to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
 
 [width="100%",cols="4,16"]
 |===
@@ -2084,6 +2088,7 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC that are in add
 |ESC|Stops current automated motion (For example: a running program).
 |F1|Toggles the E-STOP button (if the GUI E-STOP button is enabled).
 |F2|Toggles the GUI power button.
+|F9|Toggles the "Cutting" command, used to begin or end a manual cut.
 |1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
@@ -2119,16 +2124,27 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC that are in add
 |SPACE BAR|Pause motion.
 |o|Open a new program.
 |l|Load the previously opened program if no program is loaded. Reload the current program if there is a program loaded.
+|right arrow|jog the X axis positive.
+|left arrow|jog the X axis negative.
+|up arrow|jog the Y axis positive.
+|down arrow|jog the Y axis negative.
+|page up|jog the Z axis positive.
+|page down|jog the Z axis negative.
+|[|jog the A axis positive.
+|]|jog the A axis negative.
+|.|jog the B axis positive.
+|,|jog the B axis negative.
+|shift|used in conjunction with any jog key to invoke a rapid jog.
 |+|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
 |-|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
-    If SLOW jogging is already active, the axis will jog at the displayed jog speed.
+   If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 |===
 
 [[qt_shape-library]]
 
 == Conversational Shape Library
 
-image::images/qtplasmac_conversational.png[width=900,align="center"]
+image::images/qtplasmac_conversational.png[width=800,align="center"]
 
 The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-Code at the machine to cut simple shapes quickly. This feature is found on the <<qt_conversational-tab, CONVERSATIONAL Tab>>.
 
