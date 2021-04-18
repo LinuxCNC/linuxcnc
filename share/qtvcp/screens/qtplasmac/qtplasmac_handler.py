@@ -1,4 +1,4 @@
-VERSION = '1.0.20'
+VERSION = '1.0.21'
 
 import os, sys
 from shutil import copy as COPY
@@ -1183,7 +1183,7 @@ class HandlerClass:
         if STATUS.is_joint_mode():
             self.kb_jog(state, self.coordinates.index(joint), direction, shift)
         else:
-            self.kb_jog(state, self.axisList.index(joint), direction, shift)
+            self.kb_jog(state, ["x","y","z","a","b"].index(joint), direction, shift)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -4248,43 +4248,73 @@ class HandlerClass:
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 0, 1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("x"), 1, shift)
+            else:
+                self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 0, -1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("x"), -1, shift)
+            else:
+                self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 1, 1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("y"), 1, shift)
+            else:
+                self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 1, -1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("y"), -1, shift)
+            else:
+                self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 2, 1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("z"), 1, shift)
+            else:
+                self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 2, -1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("z"), -1, shift)
+            else:
+                self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, 1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("a"), 1, shift)
+            else:
+                self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 3, -1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("a"), -1, shift)
+            else:
+                self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_BPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 4, 1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("b"), 1, shift)
+            else:
+                self.kb_jog(state, 4, 1, shift)
 
     def on_keycall_BNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
-            self.kb_jog(state, 4, -1, shift)
+            if STATUS.is_joint_mode():
+                self.kb_jog(state, self.coordinates.index("b"), -1, shift)
+            else:
+                self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
         if self.jogSlow:
