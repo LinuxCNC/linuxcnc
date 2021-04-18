@@ -171,6 +171,7 @@
     <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
     <signal name="metric-mode-changed" handler="on_hal_status_metric_mode_changed" swapped="no"/>
     <signal name="interp-run" handler="on_hal_status_interp_run" swapped="no"/>
+    <signal name="program-pause-changed" handler="on_hal_status_pause_changed" swapped="no"/>    
   </object>
   <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
   <object class="GtkImage" id="img_auto">
@@ -7112,7 +7113,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Close moccapy / leave the program</property>
+                    <property name="tooltip_text" translatable="yes">Close gmoccapy / leave the program</property>
                     <property name="image">img_close</property>
                     <signal name="clicked" handler="on_btn_exit_clicked" swapped="no"/>
                   </object>

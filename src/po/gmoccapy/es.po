@@ -1580,7 +1580,7 @@ msgid "make the preview as large as possible"
 msgstr "Hacer la vista previa lo mas grande posible "
 
 #: gmoccapy.glade.h:198
-msgid "Close moccapy / leave the program"
+msgid "Close gmoccapy / leave the program"
 msgstr "Cerrar moccapy / salir del  programa"
 
 #: gmoccapy.glade.h:199

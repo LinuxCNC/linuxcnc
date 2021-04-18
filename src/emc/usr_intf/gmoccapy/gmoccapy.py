@@ -2451,6 +2451,7 @@ class gmoccapy(object):
             self.macro_dic["keyboard"].set_sensitive(False)
 
         self.widgets.btn_run.set_sensitive(True)
+        self.widgets.btn_stop.set_sensitive(False)
 
         if self.tool_change:
             self.command.mode(linuxcnc.MODE_MANUAL)
@@ -2474,6 +2475,7 @@ class gmoccapy(object):
 
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
+        self.widgets.btn_stop.set_sensitive(True)
 
         self._change_kbd_image("stop")
         self.macro_dic["keyboard"].set_sensitive(True)
@@ -4765,9 +4767,19 @@ class gmoccapy(object):
 
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
-    def on_tbtn_pause_toggled(self, widget, data=None):
-        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop"]
-        self._sensitize_widgets(widgetlist, widget.get_active())
+    def on_hal_status_pause_changed(self, emc_stat, is_paused):
+        if is_paused:
+            self.widgets.ntb_jog.set_sensitive(True)
+            self.widgets.rbt_forward.set_sensitive(True)
+            self.widgets.rbt_reverse.set_sensitive(True)
+            self.widgets.rbt_stop.set_sensitive(True)
+            self.widgets.tbtn_pause.set_active(True)
+        else:
+            self.widgets.ntb_jog.set_sensitive(False)
+            self.widgets.rbt_forward.set_sensitive(False)
+            self.widgets.rbt_reverse.set_sensitive(False)
+            self.widgets.rbt_stop.set_sensitive(False)
+            self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_stop_clicked(self, widget, data=None):
         self.command.abort()
