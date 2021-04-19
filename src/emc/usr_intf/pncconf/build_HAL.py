@@ -1845,7 +1845,6 @@ class HAL:
             ending = ""
             if "enc" in pinname: ending = ".velocity"
             voltspin = pinname.replace(".00", ".0{}".format(["ENCA", "ENCB", "IDX"].index(self.d.voltsenc)))
-            print("ARC-V:", voltspin)
             print("\n# ---ARC VOLTAGE ENCODER---", file=file)
             print("net plasmac:arc-voltage-in <= %s%s"% (voltspin, ending), file=file)
             print("setp {}.counter-mode  1".format(voltspin), file=file)
