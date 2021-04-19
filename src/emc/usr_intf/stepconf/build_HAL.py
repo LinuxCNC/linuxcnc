@@ -695,7 +695,7 @@ class HAL:
             print("{}addf encoder.update-counters base-thread".format(comment), file=file)
             print("{}addf encoder.capture-position servo-thread".format(comment), file=file)
             print("{}setp encoder.0.counter-mode 1".format(comment), file=file)
-            print("{}setp encoder.0.position-scale -1".format(comment), file=file)
+            print("{}setp encoder.0.position-scale 1".format(comment), file=file)
             print("{}net arc-voltage-raw encoder.0.phase-A".format(comment), file=file)
             print("{}net plasmac:arc-voltage-in encoder.0.velocity".format(comment), file=file)
         # add custom.hal if not existing
