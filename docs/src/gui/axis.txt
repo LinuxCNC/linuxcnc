@@ -1057,6 +1057,15 @@ Type  Dir    Name
 float OUT               axisui.jog.increment
 ----
 
+Axis has a Hal output pin that indicates when an error has occurred. The
+'axisui.error' pin will remain 'TRUE' until all error notifications have
+been dismissed.
+
+----
+Type  Dir    Name
+bit   OUT    axisui.error
+----
+
 Axis has Hal input pins to clear the pop up notifications for errors and
 information.
 
