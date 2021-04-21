@@ -165,9 +165,10 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0:
-        W.kOffset.setChecked(False)
+    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
         W.kOffset.setEnabled(False)
+        W.kOffset.setChecked(False)
     else:
         W.kOffset.setEnabled(True)
 

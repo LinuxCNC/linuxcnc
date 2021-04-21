@@ -1,4 +1,4 @@
-VERSION = '1.0.21'
+VERSION = '1.0.22'
 
 import os, sys
 from shutil import copy as COPY
@@ -1272,7 +1272,6 @@ class HandlerClass:
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
-            self.overlayConv.setText(self.get_overlay_text(True))
             self.conv_setup()
 
     def z_height_changed(self, value):
@@ -2217,28 +2216,25 @@ class HandlerClass:
                 self.frButton = 'button_{}'.format(str(bNum))
             else:
                 for command in bCode.split('\\'):
-
-                    # if command.strip()[0] == '%':
-                    #     self.w['button_{}'.format(str(bNum))].setEnabled(True)
-                    #     continue
-                    # elif command.strip()[0] != '%':
-
-                    if command.strip()[0].lower() in ['g', 'm', 'f', 's', 't', 'o'] and \
-                         command.strip().replace(' ','')[1] in '0123456789<' and \
-                         'button_{}'.format(str(bNum)) not in self.idleHomedList:
-                        self.idleHomedList.append('button_{}'.format(str(bNum)))
-                    elif command.strip()[0] == '%':
-                        cmd = command.lstrip('%').strip().split(' ', 1)[0]
+                    command = command.strip()
+                    if command and command[0].lower() in 'gmfsto' and command.replace(' ','')[1] in '0123456789<':
+                        if 'button_{}'.format(str(bNum)) not in self.idleHomedList:
+                            self.idleHomedList.append('button_{}'.format(str(bNum)))
+                    elif command and command[0] == '%':
+                        cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
                         reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             msg  = 'Invalid code for user button #{}\n'.format(bNum)
                             msg += 'External command "{}" does not exist\n'.format(cmd)
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'EXTERNAL CODE ERROR:\n{}'.format(msg))
                         self.idleList.append('button_{}'.format(str(bNum)))
                     else:
                         msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                        msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text(), command)
+                        msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
+                        if 'button_{}'.format(str(bNum)) in self.idleHomedList:
+                            self.idleHomedList.remove('button_{}'.format(str(bNum)))
+                        break
 
     def user_button_down(self, bNum):
         commands = self.iniButtonCode[bNum]
@@ -2318,7 +2314,6 @@ class HandlerClass:
                 hal.set_p('plasmac.torch-pulse-time', '0')
                 self.w[self.tpButton].setText(self.tpText)
                 self.button_normal(self.tpButton)
-
         elif 'cut-type' in commands.lower():
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
@@ -2357,8 +2352,8 @@ class HandlerClass:
             self.do_framing(True, commands)
         else:
             for command in commands.split('\\'):
-                if command.strip()[0].lower() in ['g', 'm', 'f', 's', 't', 'o'] and \
-                     command.strip().replace(' ','')[1] in '0123456789<':
+                command = command.strip()
+                if command and command[0].lower() in 'gmfsto' and command.replace(' ','')[1] in '0123456789<':
                     if '{' in command:
                         newCommand = subCommand = ''
                         for char in command:
@@ -2377,19 +2372,12 @@ class HandlerClass:
                         ACTION.CALL_MDI(command)
                         if command.lower().replace(' ', '').startswith('g10l20'):
                             self.file_reload_clicked()
-                elif command.strip()[0] == '%':
-                    cmd = command.lstrip('%').strip().split(' ', 1)[0]
-                    reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
-                    if not reply:
-                        msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                        msg += 'External command "{}" does not exist\n'.format(cmd)
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
-                    else:
-                        command = command.strip().strip('%') + '&'
-                        msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
+                elif command and command[0] == '%':
+                    command = command.lstrip('%').lstrip() + '&'
+                    ACTION.SET_MANUAL_MODE()
                 else:
                     msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                    msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text(), command)
+                    msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
 
     def user_button_up(self, bNum):
@@ -2845,7 +2833,7 @@ class HandlerClass:
         self.w.conv_material.clear()
         for key in sorted(self.materialFileDict):
             self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.material_selector.addItem('Material = {:05d}: {}'.format(key, self.materialFileDict[key][0]))
+            self.w.material_selector.addItem('MATERIAL = {:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.materialList.append(key)
 
@@ -3101,7 +3089,7 @@ class HandlerClass:
 
     def load_default_material(self):
         self.write_materials( \
-                0, 'Default' , \
+                0, 'DEFAULT' , \
                 self.w.PREFS_.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
                 self.w.PREFS_.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
                 self.w.PREFS_.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'), \
@@ -3901,8 +3889,8 @@ class HandlerClass:
         CONVSET.show(self, self.w)
 
     def conv_send_pressed(self):
-        COPY(self.fNgcBkp, self.fNgc)
-        ACTION.OPEN_PROGRAM(self.fNgc)
+        COPY(self.fNgcBkp, self.fNgc.replace("shape","sent_shape"))
+        ACTION.OPEN_PROGRAM(self.fNgc.replace("shape","sent_shape"))
         self.w.main_tab_widget.setCurrentIndex(0)
         self.w.conv_send.setEnabled(False)
 
