@@ -302,10 +302,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             vcpObject._NOTICE = NOTICE # Guve reference
 
     def on_periodic(self, w):
-        e = self.error.poll()
-        if e:
-            kind, text = e
-            STATUS.emit('error',kind,text)
+        try:
+            e = self.error.poll()
+            if e:
+                kind, text = e
+                STATUS.emit('error',kind,text)
+        except Exception as e:
+                LOG.error('Error channel reading error: {}'.format(e))
 
     def process_error(self, w, kind, text):
             if 'on limit switch error' in text:
