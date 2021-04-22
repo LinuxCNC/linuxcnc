@@ -527,8 +527,8 @@ After running a new configuration for the first time the following files will be
 |===
 |*Filename*|*Function*
 |<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
-|qtplasmac.prefs|A file containing the users preferences and parameters
-|qtplasmac.qss|This file is used to store the current color configuration
+|qtplasmac.prefs|A file containing the users preferences and parameters. It also stores the current color configuration.
+|qtplasmac.qss|This file is used to store the stylesheet for the currently loaded loaded session of QtPlasmaC.
 |===
 
 NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
@@ -1054,6 +1054,8 @@ The **DELETE** this button is used to delete a material. After pressing it, the 
 
 This section shows parameters that effect the GUI appearance and GUI behaviors.
 
+To return any of the color changes to their default values, see the <<qt_default_styling, Returning To The Default Styling>> section.
+
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
@@ -1334,7 +1336,7 @@ NOTE: All references to CutFeedRate refer to the *Cut Feed Rate* value displayed
 
 === Material File
 
-Material handling uses a material file that was created for the machine configuration when the configuration wizard was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G Code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
+Material handling uses a material file that was created for the machine configuration when the configuration wizard was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G-Code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
 
 QtPlasmaC does not require the use of a material file. Instead, the user could change the cut parameters manually from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. It is also not required to use the automatic material changes. If the user does not wish to use this feature they can simply omit the material change codes from the G-Code file.
 
@@ -1851,7 +1853,7 @@ This is the preferred method. The parameters for this method are entered in the 
 image::images/qtplasmac_single_cut.png[width=300,align="center"]
 
 . Jog to the required X/Y start position. +
-. Set required appropriate material, or edit the Feed Rate for the default material in the PARAMATERS tab. +
+. Set required appropriate material, or edit the Feed Rate for the default material in the PARAMETERS tab. +
 . Press the assigned single cut user button. +
 . Enter the length of the cut along the X and/or Y axes. +
 . Press the *CUT* button and the cut will commence.
@@ -1941,12 +1943,12 @@ Pressing *CANCEL* (or *CYCLE STOP*) will cause the torch to move back to where i
 
 === Run From Line
 
-If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>> they will have the ability to start from any line in a G Code program via the following methods:
+If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>> they will have the ability to start from any line in a G-Code program via the following methods:
 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-Code Window
 
-It is important to note that G Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
+It is important to note that G-Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
 Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED nn"* where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
 
@@ -1974,8 +1976,8 @@ After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinki
 
 *Run From Line selections may be canceled in the following ways:*
 
-. Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G Code line in the G Code window.
-. Clicking *RELOAD* in the G Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G Code window header. This will return the user to the originally loaded file.
+. Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
+. Clicking *RELOAD* in the G-Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-Code window header. This will return the user to the originally loaded file.
 
 [[qt_scribe]]
 
@@ -2167,8 +2169,8 @@ The general functions are as follows:
 |===
 |*Name*|*Description*
 |Material Drop Down|Allows the user to select the desired material for cutting. +
-                    If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational's Preview Window. +
-                    Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Convesational only). Cut Amps will be shown if PowerMax communications are enabled.
+                    If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
+                    Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW|Removes the current G-Code file and load a blank G-Code file.
 |SAVE|Opens a dialog box allowing the current shape to be saved as a G-Code file.
 |SETTINGS|Allows the changing of the global settings.
@@ -2460,9 +2462,9 @@ There are two methods available to apply custom styles:
 
 === Add A Custom Style
 
-Adding style changes to the default stylesheet is achieved by creating a file in the machine config folder. This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
+Adding style changes to the default stylesheet is achieved by creating a file in the <machine_name> configuration folder. This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
 
-For example the user may want the arc voltge dispay in red, a green Torch On LED of a larger size and a larger Torch Enable button. This would be done with the following code in qtplasmac_custom.qss:
+For example the user may want the arc voltage display in red, a green Torch On LED of a larger size and a larger Torch Enable button. This would be done with the following code in qtplasmac_custom.qss:
 
 ----
 #arc_voltage {
@@ -2525,16 +2527,45 @@ The above colors are used for the following widgets. So any custom styling will 
                   foreground of camera/laser buttons +
                   foreground of conversational shape buttons +
                   background of active conversational shape buttons
-|color2 (#16160e)|Background|background of latchinguser buttons +
+|color2 (#16160e)|Background|background of latching user buttons +
                   background of camera/laser buttons +
-                  background of gcode editor active line +
+                  background of G-Code editor active line +
                   background of conversational shape buttons
 |color3 (#ffee06)|Highlight|background of active latching user buttons +
                   background of active camera/laser buttons +
-                  foreground of gcode editor cursor
-|color4 (#36362e)|Alt Background|background of gcode display active line
+                  foreground of G-Code editor cursor
+|color4 (#36362e)|Alt Background|background of G-Code display active line
 |color5 (#b0b0b0)|foreground of disabled buttons
 |===
+
+[[qt_default_styling]]
+
+=== Returning To The Default Styling
+
+The user may return to the default styling at any time by following the following steps:
+
+. Close QtPlasmaC if open.
+. Delete qtplasmac.qss from the machine config folder.
+. Delete qtplasmac_custom.qss from the machine config folder (if it exists).
+. Comment out or delete any CUSTOM_STYLE lines from the <machine_name>.ini file.
+. Open qtplasmac.prefs and delete the "[COLOR_OPTIONS]" section. Save the file.
+
+The next time QtPlasmaC is loaded all custom styling will be removed and the default styling will return.
+
+Below is an example of the section to be deleted from qtplasmac.prefs:
+
+----
+[COLOR_OPTIONS]
+Foreground = #ffee06
+Highlight = #ffee06
+LED = #ffee06
+Background = #16160e
+Background Alt = #36362e
+Frames = #ffee06
+Estop = #ff0000
+Disabled = #b0b0b0
+Preview = #000000
+----
 
 == QtPlasmaC Advanced Topics
 

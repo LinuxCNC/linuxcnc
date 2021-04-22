@@ -1,4 +1,4 @@
-VERSION = '1.0.22'
+VERSION = '1.0.23'
 
 import os, sys
 from shutil import copy as COPY
@@ -1410,12 +1410,12 @@ class HandlerClass:
         else:
             units = 'mm'
         if 'X' in self.gcodeProps:
-            xMin = float(self.gcodeProps['X'].split('to')[0].strip()) - xOffset
+            xMin = float(self.gcodeProps['X'].split()[0]) - xOffset
             if xMin < self.xMin:
                 amount = float(self.xMin - xMin)
                 msg += 'X move would exceed X minimum limit by {:0.2f}{}\n'.format(amount, units)
                 self.boundsError[boundsType] = True
-            xMax = float(self.gcodeProps['X'].split('to')[1].split('=')[0].strip()) - xOffset
+            xMax = float(self.gcodeProps['X'].split()[2]) - xOffset
             if xMax > self.xMax:
                 amount = float(xMax - self.xMax)
                 msg += 'X move would exceed X maximum limit by {:0.2f}{}\n'.format(amount, units)
@@ -1424,12 +1424,12 @@ class HandlerClass:
             xMin = 0
             xMax = 0
         if 'Y' in self.gcodeProps:
-            yMin = float(self.gcodeProps['Y'].split('to')[0].strip()) - yOffset
+            yMin = float(self.gcodeProps['Y'].split()[0]) - yOffset
             if yMin < self.yMin:
                 amount = float(self.yMin - yMin)
                 msg += 'Y move would exceed Y minimum limit by {:0.2f}{}\n'.format(amount, units)
                 self.boundsError[boundsType] = True
-            yMax = float(self.gcodeProps['Y'].split('to')[1].split('=')[0].strip()) - yOffset
+            yMax = float(self.gcodeProps['Y'].split()[2]) - yOffset
             if yMax > self.yMax:
                 amount = float(yMax - self.yMax)
                 msg += 'Y move would exceed Y maximum limit by {:0.2f}{}\n'.format(amount, units)
