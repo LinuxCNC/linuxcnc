@@ -1,4 +1,4 @@
-VERSION = '1.0.23'
+VERSION = '1.0.24'
 
 import os, sys
 from shutil import copy as COPY
@@ -2217,7 +2217,7 @@ class HandlerClass:
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
-                    if command and command[0].lower() in 'gmfsto' and command.replace(' ','')[1] in '0123456789<':
+                    if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
                         if 'button_{}'.format(str(bNum)) not in self.idleHomedList:
                             self.idleHomedList.append('button_{}'.format(str(bNum)))
                     elif command and command[0] == '%':
@@ -2353,7 +2353,7 @@ class HandlerClass:
         else:
             for command in commands.split('\\'):
                 command = command.strip()
-                if command and command[0].lower() in 'gmfsto' and command.replace(' ','')[1] in '0123456789<':
+                if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
                     if '{' in command:
                         newCommand = subCommand = ''
                         for char in command:
@@ -2368,13 +2368,12 @@ class HandlerClass:
                             else:
                                 newCommand += char
                         command = newCommand
-                    if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                        ACTION.CALL_MDI(command)
-                        if command.lower().replace(' ', '').startswith('g10l20'):
-                            self.file_reload_clicked()
+                    ACTION.CALL_MDI(command)
+                    if command.lower().replace(' ', '').startswith('g10l20'):
+                        self.file_reload_clicked()
                 elif command and command[0] == '%':
                     command = command.lstrip('%').lstrip() + '&'
-                    ACTION.SET_MANUAL_MODE()
+                    msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
                 else:
                     msg  = 'Invalid code for user button #{}\n'.format(bNum)
                     msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
