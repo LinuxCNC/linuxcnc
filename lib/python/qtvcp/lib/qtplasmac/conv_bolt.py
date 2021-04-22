@@ -116,12 +116,9 @@ def preview(P, W):
                 ylStart = ylCentre + (leadInOffset * math.sin(angle + up))
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
                 outTmp.write('m3 $0 s1\n')
-                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
+                if leadIn:
+                    outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
             outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f}\n'.format(xS, yS, hRadius - ijDiff))
-            if not sHole:
-                xlEnd = xlCentre + (leadInOffset * math.cos(angle + down))
-                ylEnd = ylCentre + (leadInOffset * math.sin(angle + down))
-                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd, xlCentre - xS, ylCentre - yS))
             torch = True
             if W.overcut.isChecked() and sHole:
                 Torch = False
@@ -226,9 +223,9 @@ def widgets(P, W):
     W.hdLabel = QLabel('HOLE DIA')
     W.hdEntry = QLineEdit()
     W.hLabel = QLabel('# OF HOLES')
-    W.hEntry = QLineEdit()
+    W.hEntry = QLineEdit(objectName='intEntry')
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit()
+    W.aEntry = QLineEdit(objectName='aEntry')
     W.caLabel = QLabel('CIRCLE ANG')
     W.caEntry = QLineEdit()
     W.preview = QPushButton('PREVIEW')

@@ -195,7 +195,7 @@ def widgets(P, W):
     W.sLabel = QLabel('SECT ANGLE')
     W.sEntry = QLineEdit()
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit()
+    W.aEntry = QLineEdit(objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')

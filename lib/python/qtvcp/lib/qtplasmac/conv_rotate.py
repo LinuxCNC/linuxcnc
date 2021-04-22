@@ -133,11 +133,11 @@ def undo_pressed(P, W):
 def widgets(P, W):
     #widgets
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit()
+    W.aEntry = QLineEdit(objectName='aEntry')
     W.xLabel = QLabel('X OFFSET')
-    W.xEntry = QLineEdit()
+    W.xEntry = QLineEdit(objectName = 'xsEntry')
     W.yLabel = QLabel('Y OFFSET')
-    W.yEntry = QLineEdit()
+    W.yEntry = QLineEdit(objectName = 'ysEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')

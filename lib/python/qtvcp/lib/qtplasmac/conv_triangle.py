@@ -255,7 +255,7 @@ def widgets(P, W):
     W.cLabel = QLabel('c LENGTH')
     W.cEntry = QLineEdit()
     W.angLabel = QLabel('ANGLE')
-    W.angEntry = QLineEdit()
+    W.angEntry = QLineEdit(objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')

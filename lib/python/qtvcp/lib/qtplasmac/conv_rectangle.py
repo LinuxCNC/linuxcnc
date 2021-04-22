@@ -441,7 +441,7 @@ def widgets(P, W):
     W.ylLabel = QLabel('Y LENGTH')
     W.ylEntry = QLineEdit()
     W.angLabel = QLabel('ANGLE')
-    W.angEntry = QLineEdit()
+    W.angEntry = QLineEdit(objectName='aEntry')
     W.angEntry.setText('0')
     W.r1Button = QPushButton('RADIUS 1')
     W.r1Entry = QLineEdit()

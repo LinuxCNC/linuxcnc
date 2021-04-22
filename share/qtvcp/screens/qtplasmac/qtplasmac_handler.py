@@ -1,4 +1,4 @@
-VERSION = '1.0.24'
+VERSION = '1.0.25'
 
 import os, sys
 from shutil import copy as COPY
@@ -1272,6 +1272,8 @@ class HandlerClass:
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
+            self.conv_button_color('conv_line')
+            self.oldConvButton = False
             self.conv_setup()
 
     def z_height_changed(self, value):
@@ -3956,13 +3958,15 @@ class HandlerClass:
     def conv_entry_changed(self, widget):
         name = widget.objectName()
         if widget.text():
-            if name == 'hsEntry':
+            if name in ['intEntry', 'hsEntry']:
                 good = '0123456789'
-            else:
+            elif name in ['xsEntry', 'ysEntry', 'aEntry']:
                 good = '-.0123456789'
+            else:
+                good = '.0123456789'
             out = ''
             for t in widget.text():
-                if t in good:
+                if t in good and not(t == '-' and len(out) > 0) and not(t == '.' and t in out):
                     out += t
             widget.setText(out)
             if widget.text() in '-.' or widget.text() == '-.':

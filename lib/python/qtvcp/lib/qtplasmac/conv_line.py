@@ -244,6 +244,7 @@ def do_arc_by_angle_radius(P, W, inL, inA, inR):
     do_arc_2_points_radius(P, W, xE, yE, inR)
 
 def set_line_point_to_point(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixLinePoint)
     if P.conv_add_segment > 0:
         W.label1.setText('END X')
@@ -306,6 +307,7 @@ def set_line_point_to_point(P, W):
             W.entry3.setFocus()
 
 def set_line_by_angle(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixLineAngle)
     if P.conv_add_segment > 0:
         W.label1.setText('LENGTH')
@@ -368,6 +370,7 @@ def set_line_by_angle(P, W):
             W.entry3.setFocus()
 
 def set_arc_3_points(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixArc3p)
     if P.conv_add_segment > 0:
         W.label1.setText('NEXT X')
@@ -460,6 +463,7 @@ def set_arc_3_points(P, W):
             W.entry3.setFocus()
 
 def set_arc_2_points_radius(P, W):
+    P.lType = 'a2pr'
     W.iLabel.setPixmap(W.pixArc2pr)
     if P.conv_add_segment > 0:
         W.label1.setText('END X')
@@ -556,6 +560,7 @@ def set_arc_2_points_radius(P, W):
             W.entry3.setFocus()
 
 def set_arc_by_angle_radius(P, W):
+    P.lType = 'abar'
     W.iLabel.setPixmap(W.pixArcAngle)
     if P.conv_add_segment > 0:
         W.label1.setText('LENGTH')
@@ -712,6 +717,16 @@ def undo_shape(P, W):
         P.conv_gcodeLine = P.conv_gcodeSave
 
 def entry_changed(P, W, widget, entry):
+    if (P.lType == 'a2pr' and P.conv_add_segment >= 1 and P.landscape and widget == W.entry4) or \
+       (P.lType == 'a2pr' and P.conv_add_segment >= 1 and not P.landscape and widget == W.entry3) or \
+       (P.lType == 'a2pr' and P.conv_add_segment == 0 and P.landscape and widget == W.entry7) or \
+       (P.lType == 'a2pr' and P.conv_add_segment == 0 and not P.landscape and widget == W.entry5) or \
+       (P.lType == 'abar' and P.conv_add_segment >= 1 and widget == W.entry3) or \
+       (P.lType == 'abar' and P.conv_add_segment == 0 and P.landscape and widget == W.entry7) or \
+       (P.lType == 'abar' and P.conv_add_segment == 0 and not P.landscape and widget == W.entry5):
+        widget.setObjectName(None)
+    else:
+        widget.setObjectName('aEntry')
     P.conv_entry_changed(widget)
 
 def widgets(P, W):
