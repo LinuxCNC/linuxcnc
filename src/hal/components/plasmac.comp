@@ -7,11 +7,11 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.206 - 2021 Apr 2
+0.207 - 2021 Apr 23
 
 .I SUMMARY:
 .br
-Usage of this component is demonstrated in the PlasmaC example configurations included with LinuxCNC.
+Usage of this component is demonstrated in the QtPlasmaC example configurations included with LinuxCNC.
 
 .I DISCLAIMER:
 .br
@@ -369,7 +369,7 @@ FUNCTION(_) {
         probe_velocity = setup_velocity;
     }
     if(mode == 2){
-        thc_velocity = thc_feed_rate * velocity_scale * pid_p_gain * res / 100;
+        thc_velocity = thc_feed_rate * velocity_scale * pid_p_gain / 100;
     }else{
         thc_velocity = thc_feed_rate * velocity_scale;
     }
