@@ -1107,7 +1107,10 @@ class GlCanonDraw:
         if icon is limiticon:
             if idx in self.show_icon_limit_list: return
             self.show_icon_limit_list.append(idx)
-        glBitmap(13, 16, 0, 3, 17, 0, icon.tostring())
+        if sys.version_info[0] == 3:
+            glBitmap(13, 16, 0, 3, 17, 0, icon.tobytes())
+        else:
+            glBitmap(13, 16, 0, 3, 17, 0, icon.tostring())
 
     def redraw(self):
         s = self.stat
