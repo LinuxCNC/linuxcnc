@@ -29,16 +29,16 @@ def preview(P, W):
     if W.xlEntry.text() and W.ylEntry.text():
         try:
             if float(W.xlEntry.text()) <= 0 or float(W.ylEntry.text()) <= 0:
-                msg  = 'A positive X Length is required\n\n'
-                msg += 'and\n\n'
-                msg += 'A positive Y Length is required\n'
+                msg = 'A positive X LENGTH is required.\n\n' \
+                      '                    AND\n\n' \
+                      'A positive Y LENGTH is required.\n'
                 P.dialogError = True
-                P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
                 return
         except:
-            msg = 'Invalid X Length or Y Length\n'
+            msg = 'Invalid X LENGTH or Y LENGTH entry.\n'
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
         if W.r1Entry.text():
             radius1 = float(W.r1Entry.text())
@@ -57,28 +57,28 @@ def preview(P, W):
         else:
             radius4 = 0.0
         if radius1 + radius2 > float(W.xlEntry.text()):
-            msg  = 'Radius 1 plus Radius 2 ({})\n\n'.format(radius1 + radius2)
-            msg += 'can not be greater than {}\n'.format(float(W.xlEntry.text()))
+            msg = 'Radius 1 plus Radius 2 ({})\n\n' \
+                  'cannot be greater than {}\n'.format(radius1 + radius2, float(W.xlEntry.text()))
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
         if radius1 + radius3 > float(W.ylEntry.text()):
-            msg  = 'Radius 1 plus Radius 3 ({})\n\n'.format(radius1 + radius3)
-            msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
+            msg = 'Radius 1 plus Radius 3 ({})\n\n' \
+                  'cannot be greater than {}\n'.format(radius1 + radius3, float(W.ylEntry.text()))
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
         if radius2 + radius4 > float(W.ylEntry.text()):
-            msg  = 'Radius 2 plus Radius 4 ({})\n\n'.format(radius2 + radius4)
-            msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
+            msg = 'Radius 2 plus Radius 4 ({})\n\n' \
+                  'can not be greater than {}\n'.format(radius2 + radius4, float(W.ylEntry.text()))
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
         if radius3 > float(W.xlEntry.text()) / 2 or radius4 > float(W.xlEntry.text()) / 2:
-            msg  = 'Neither Radius 3 nor Radius 4\n\n'
-            msg += 'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
+            msg = 'Neither Radius 3 nor Radius 4\n\n' \
+                  'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
         if W.xlEntry.text():
             xLB = float(W.xlEntry.text()) - (radius3 + radius4)
@@ -375,11 +375,11 @@ def preview(P, W):
             W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        msg  = 'A positive X Length is required\n\n'
-        msg += 'and\n\n'
-        msg += 'A positive Y Length is required\n'
+        msg = 'A positive X LENGTH is required.\n\n' \
+              '                    AND\n\n' \
+              'A positive Y LENGTH is required.\n'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'RECTANGLE', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
 
 def rad_button_pressed(P, W, button, value):
     if button.text()[:3] == 'RAD':

@@ -1,4 +1,4 @@
-VERSION = '1.0.25'
+VERSION = '1.0.26'
 
 import os, sys
 from shutil import copy as COPY
@@ -323,11 +323,8 @@ class HandlerClass:
 # patched gcode editor functions
     def exit_call(self):
         if self.w.gcode_editor.editor.isModified():
-            result = QMessageBox.question(self.w,
-                                         'Warning!!',
-                                         'Unsaved changes will be lost...\n\nDo you want to exit?\n',
-                                         QMessageBox.Yes | QMessageBox.No)
-            if result != QMessageBox.Yes:
+            msg = 'Unsaved changes will be lost...\n\nDo you want to exit?\n'
+            if not self.dialog_show_yesno(QMessageBox.Question, 'Unsaved Changes', msg):
                 return
             else:
                 self.file_reload_clicked()
@@ -343,11 +340,8 @@ class HandlerClass:
         pass
 
     def kill_check(self):
-        choice = QMessageBox.question(self.w,
-                                     'Warning!!',
-                                     'Unsaved changes will be lost...\n\nDo you want to exit?\n',
-                                     QMessageBox.Yes | QMessageBox.No)
-        if choice == QMessageBox.Yes:
+        msg = 'Unsaved changes will be lost...\n\nDo you want to exit?\n'
+        if self.dialog_show_yesno(QMessageBox.Question, 'Unsaved Changes', msg):
             return True
         else:
             return False
@@ -1162,12 +1156,12 @@ class HandlerClass:
         outName = '{}_V{}_{}_{}.tar.gz'.format(self.machineName, VERSION, bDate, bTime)
         with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
-        msg  = 'A compressed backup of the machine configuration\n'
-        msg += 'has been saved in your home directory.\n\n'
-        msg += 'The file name is: {}\n\n'.format(outName)
-        msg += 'This file may be attached to a post on the\n'
-        msg += 'LinuxCNC forum to aid in problem solving.\n\n'
-        self.dialog_show(QMessageBox.Information, 'BACKUP COMPLETE', msg)
+        msg = 'A compressed backup of the machine configuration\n' \
+              'has been saved in your home directory.\n\n' \
+              'The file name is: {}\n\n' \
+              'This file may be attached to a post on the\n' \
+              'LinuxCNC forum to aid in problem solving.\n\n'.format(outName)
+        self.dialog_show_ok(QMessageBox.Information, 'Backup Complete', msg)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -1644,7 +1638,7 @@ class HandlerClass:
         self.w.conv_sector.pressed.connect(lambda:self.conv_shape_request('conv_sector', CONVSECT, True))
         self.w.conv_rotate.pressed.connect(self.conv_rotate_pressed)
         self.w.conv_array.pressed.connect(self.conv_array_pressed)
-        self.w.conv_new.pressed.connect(self.conv_new_pressed)
+        self.w.conv_new.pressed.connect(lambda:self.conv_new_pressed('button'))
         self.w.conv_save.pressed.connect(self.conv_save_pressed)
         self.w.conv_settings.pressed.connect(self.conv_settings_pressed)
         self.w.conv_send.pressed.connect(self.conv_send_pressed)
@@ -1842,14 +1836,41 @@ class HandlerClass:
             self.overlay.hide()
             self.overlayConv.hide()
 
-    def dialog_show(self, icon, title, error):
+    def dialog_show_ok(self, icon, title, error, bText='OK'):
         msg = QMessageBox(self.w)
+        buttonY = msg.addButton(QMessageBox.Yes)
+        buttonY.setText(bText)
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
         msg.exec_()
         self.dialogError = False
         return msg
+
+    def dialog_show_yesno(self, icon, title, error, bY='YES', bN='NO'):
+        msg = QMessageBox(self.w)
+        buttonY = msg.addButton(QMessageBox.Yes)
+        buttonY.setText(bY)
+        buttonN = msg.addButton(QMessageBox.No)
+        buttonN.setText(bN)
+        msg.setIcon(icon)
+        msg.setWindowTitle(title)
+        msg.setText(error)
+        choice = msg.exec_()
+        if choice == QMessageBox.Yes:
+            return True
+        else:
+            return False
+
+    def dialog_input(self, title, text, ok='OK', cancel='CANCEL'):
+        input = QInputDialog(self.w)
+        input.setWindowTitle(title)
+        input.setLabelText('{}'.format(text))
+        input.setOkButtonText(ok)
+        input.setCancelButtonText(cancel)
+        valid = input.exec_()
+        out = input.textValue()
+        return valid, out
 
     def do_run_from_line(self):
         inData,outData,newFile,params = [],[],[],[]
@@ -1970,11 +1991,11 @@ class HandlerClass:
                     oSub = True
         if cutComp or oSub:
             if cutComp:
-                msg  = 'Cannot run from line while\n'
-                msg += 'cutter compensation is active\n'
+                msg = 'Cannot run from line while\n' \
+                      'cutter compensation is active\n'
             elif oSub:
-                msg  = 'Cannot do run from line\n'
-                msg += 'inside a subroutine\n'
+                msg = 'Cannot do run from line\n' \
+                      'inside a subroutine\n'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCODE ERROR:\n{}'.format(msg))
             self.rflActive = False
             self.set_run_button_state()
@@ -2081,8 +2102,8 @@ class HandlerClass:
                     xL = float(x) + ((len.value() * scale) * math.cos(math.radians(ang.value())))
                     yL = float(y) + ((len.value() * scale) * math.sin(math.radians(ang.value())))
         except:
-            msg  = 'Unable to calculate a leadin for this cut\n'
-            msg += 'Program will run from selected line with no leadin applied\n'
+            msg = 'Unable to calculate a leadin for this cut\n' \
+                  'Program will run from selected line with no leadin applied\n'
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCODE ERROR:\n{}'.format(msg))
         if xL != x and yL != y:
             newFile.append('G0 X{} Y{}'.format(xL, yL))
@@ -2207,13 +2228,21 @@ class HandlerClass:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
                 halpin = bCode.lower().split('toggle-halpin')[1].strip()
-                try:
-                    pinstate = hal.get_value(halpin)
-                except:
-                    msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                    msg += 'Hal pin "{}" does not exist\n'.format(halpin)
+                excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
+                                'plasmac.probe-test', 'plasmac.consumable-change')
+                if halpin in excludedHalPins:
+                    msg = 'Invalid code for user button #{}\n' \
+                          'HAL pin "{}" must be toggled\n' \
+                          'using standard button code\n'.format(bNum, halpin)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
-                self.idleOnList.append('button_{}'.format(str(bNum)))
+                else:
+                    try:
+                        pinstate = hal.get_value(halpin)
+                        self.idleOnList.append('button_{}'.format(str(bNum)))
+                    except:
+                        msg = 'Invalid code for user button #{}\n' \
+                              'HAL pin "{}" does not exist\n'.format(bNum, halpin)
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
             elif 'framing' in bCode:
                 self.frButton = 'button_{}'.format(str(bNum))
             else:
@@ -2226,13 +2255,14 @@ class HandlerClass:
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
                         reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
-                            msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                            msg += 'External command "{}" does not exist\n'.format(cmd)
+                            msg = 'Invalid code for user button #{}\n' \
+                                  'External command "{}" does not exist\n'.format(bNum, cmd)
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'EXTERNAL CODE ERROR:\n{}'.format(msg))
-                        self.idleList.append('button_{}'.format(str(bNum)))
+                        else:
+                            self.idleList.append('button_{}'.format(str(bNum)))
                     else:
-                        msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                        msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
+                        msg = 'Invalid code for user button #{}\n' \
+                              '{}: "{}"\n'.format(bNum, self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
                         if 'button_{}'.format(str(bNum)) in self.idleHomedList:
                             self.idleHomedList.remove('button_{}'.format(str(bNum)))
@@ -2241,7 +2271,7 @@ class HandlerClass:
     def user_button_down(self, bNum):
         commands = self.iniButtonCode[bNum]
         if not commands: return
-        if 'change-consumables' in commands.lower():
+        if 'change-consumables' in commands.lower() and not 'toggle-halpin' in commands.lower():
             if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
                 hal.set_p('plasmac.consumable-change', '0')
                 hal.set_p('plasmac.x-offset', '0')
@@ -2251,9 +2281,9 @@ class HandlerClass:
             else:
                 self.consumable_change_setup()
                 if self.ccFeed == 'None' or self.ccFeed < 1:
-                    msg  = 'Invalid feed rate for consumable change,\n'
-                    msg += 'check .ini file settings\n'
-                    msg += 'BUTTON_{}_CODE\n'.format(str(button))
+                    msg = 'Invalid feed rate for consumable change,\n' \
+                          'check .ini file settings\n' \
+                          'BUTTON_{}_CODE\n'.format(str(button))
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'USER BUTTON ERROR:\n{}'.format(msg))
                     return
                 else:
@@ -2278,9 +2308,9 @@ class HandlerClass:
                 hal.set_p('plasmac.y-offset', '{:.0f}'.format((self.ccYpos - STATUS.get_position()[0][1]) / hal.get_value('plasmac.offset-scale')))
                 hal.set_p('plasmac.consumable-change', '1')
                 self.button_active(self.ccButton)
-        elif 'ohmic-test' in commands.lower():
+        elif 'ohmic-test' in commands.lower() and not 'toggle-halpin' in commands.lower():
             hal.set_p('plasmac.ohmic-test','1')
-        elif 'probe-test' in commands.lower():
+        elif 'probe-test' in commands.lower() and not 'toggle-halpin' in commands.lower():
             if not self.probeTime and \
                self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
                 self.probeTime = 30
@@ -2297,7 +2327,7 @@ class HandlerClass:
                 hal.set_p('plasmac.probe-test','0')
                 self.w[self.ptButton].setText(self.probeText)
                 self.button_normal(self.ptButton)
-        elif 'torch-pulse' in commands.lower():
+        elif 'torch-pulse' in commands.lower() and not 'toggle-halpin' in commands.lower():
             if not self.torchTime and \
                self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
                 self.torchTime = 1.0
@@ -2332,7 +2362,7 @@ class HandlerClass:
             if self.w.file_open.text() != 'OPEN':
                 self.file_reload_clicked()
         elif 'load' in commands.lower():
-            lFile = '{}/{}'.format(self.programPrefix, commands.split('load')[1].strip())
+            lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
             self.w.gcode_progress.setValue(0)
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
@@ -2345,8 +2375,8 @@ class HandlerClass:
                 else:
                     self.button_active('button_{}'.format(str(bNum)))
             except:
-                msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                msg += 'Hal pin "{}" does not exist\n'.format(halpin)
+                msg = 'Invalid code for user button #{} code\n' \
+                      'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
         elif 'single-cut' in commands.lower():
             self.do_single_cut()
@@ -2377,16 +2407,16 @@ class HandlerClass:
                     command = command.lstrip('%').lstrip() + '&'
                     msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
                 else:
-                    msg  = 'Invalid code for user button #{}\n'.format(bNum)
-                    msg += '{}: "{}"\n'.format(self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
+                    msg = 'Invalid code for user button #{}\n' \
+                          '{}: "{}"\n'.format(bNum, self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'CODE ERROR:\n{}'.format(msg))
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCode[bNum]
         if not commands: return
-        if 'ohmic-test' in commands.lower():
+        if 'ohmic-test' in commands.lower() and not 'toggle-halpin' in commands.lower():
             hal.set_p('plasmac.ohmic-test','0')
-        elif 'torch-pulse' in commands.lower():
+        elif 'torch-pulse' in commands.lower() and not 'toggle-halpin' in commands.lower():
             hal.set_p('plasmac.torch-pulse-start','0')
 
     def torch_enable_changed(self, state):
@@ -2529,8 +2559,8 @@ class HandlerClass:
                         yOffset = float(parms[1].replace('y', ''))
                 except:
                     xOffset, yOffset = 0, 0
-                    msg  = 'Invalid entry for laser offset,\n'
-                    msg += 'offsets will be set to zero\n'
+                    msg = 'Invalid entry for laser offset,\n' \
+                          'offsets will be set to zero\n'
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI FILE ERROR:\n{}'.format(msg))
             msg, xMin, yMin, xMax, yMax = self.bounds_check('framing', xOffset, yOffset)
             if self.boundsError['framing']:
@@ -2589,28 +2619,31 @@ class HandlerClass:
         self.materialReloadPin.set(0)
 
     def new_material_clicked(self, repeat, value):
-        text = 'New Material Number:'
+        title = 'Add Material'
+        text = 'Enter New Material Number:'
         while(1):
-            num = QInputDialog.getText(self.w, 'Add New Material', '{}'.format(text))
-            if not num[1]:
+            valid, num = self.dialog_input(title, text)
+            if not valid:
                 return
             try:
-                if num != 0:
-                    num = int(num[0])
+                num = int(num)
             except:
-                text = '{} is not a valid number.\n\nNew Material Number:'.format(num[0])
+                if not num:
+                    text = 'A material number is required.\n\nEnter New Material Number:'
+                else:
+                    text = '{} is not a valid number.\n\nEnter New Material Number:'.format(num)
                 continue
             if num == 0 or num in self.materialNumList:
-                text = 'Material #{} is in use.\n\nNew Material Number:'.format(num)
+                text = 'Material #{} is in use.\n\nEnter New Material Number:'.format(num)
                 continue
             break
-        text = 'New Naterial Name:'
+        text = 'New Material Name:'
         while(1):
-            nam = QInputDialog.getText(self.w, 'Add New Material', '{}'.format(text))
-            if not nam[1]:
+            valid, nam = self.dialog_input(title, text, 'ADD')
+            if not valid:
                 return
-            if not nam[0]:
-                text = 'Material name is required.\n\nNew Material Name:'.format(num)
+            if not nam:
+                text = 'Material name is required.\n\nEnter New Material Name:'.format(num)
                 continue
             break
         material = self.w.materials_box.currentText().split(': ', 1)[0].lstrip('0')
@@ -2626,7 +2659,7 @@ class HandlerClass:
                    (line.startswith('[MATERIAL_NUMBER_') and \
                    num < int(line.strip().split('NUMBER_')[1].rstrip(']'))):
                     outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
-                    outFile.write('NAME               = {}\n'.format(nam[0]))
+                    outFile.write('NAME               = {}\n'.format(nam))
                     outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[material][1]))
                     outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[material][2]))
                     outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[material][3]))
@@ -2659,29 +2692,29 @@ class HandlerClass:
         self.materialUpdate = False
 
     def delete_material_clicked(self):
-        text = 'Material Number To Delete:'
+        title = 'Delete Material'
+        text = 'Enter Material Number To Delete:'
         while(1):
-            num = QInputDialog.getText(self.w, 'Delete Material', '{}'.format(text))
-            if not num[1]:
+            valid, num = self.dialog_input(title, text, 'DELETE')
+            if not valid:
                 return
             try:
-                if num != 0:
-                    num = int(num[0])
+                num = int(num)
             except:
-                text = '{} is not a valid number.\n\nMaterial Number To Delete:'.format(num[0])
+                if not num:
+                    text = 'A material number is required.\n\nEnter Material Number To Delete:'
+                else:
+                    text = '{} is not a valid number.\n\nEnter Material Number To Delete:'.format(num)
                 continue
             if num == 0:
-                text = 'Default material cannot be deleted.\n\nMaterial Number To Delete:'
+                text = 'Default material cannot be deleted.\n\nEnter Material Number To Delete:'
                 continue
             if num not in self.materialNumList:
-                text = 'Material #{} does not exist.\n\nMaterial Number To Delete:'.format(num)
+                text = 'Material #{} does not exist.\n\nEnter Material Number To Delete:'.format(num)
                 continue
             break
-        result = QMessageBox.question(self.w,
-                                     'Warning!!',
-                                     'Do you really want to delete material #{}?\n'.format(num),
-                                     QMessageBox.Yes | QMessageBox.No)
-        if result != QMessageBox.Yes:
+        msg = 'Do you really want to delete material #{}?\n'.format(num)
+        if not self.dialog_show_yesno(QMessageBox.Question, 'Delete Material', msg):
             return
         COPY(self.materialFile, self.tmpMaterialFile)
         inFile = open(self.tmpMaterialFile, 'r')
@@ -3458,8 +3491,8 @@ class HandlerClass:
             self.pmx485Exists = True
             self.pmx485CommsError = False
             if not hal.component_exists('pmx485'):
-                msg  = 'pmx485 component is not loaded,\n'
-                msg += 'Powermax communications is not available\n'
+                msg = 'PMX485 component is not loaded,\n' \
+                      'Powermax communications are not available\n'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'COMMUNICATIONS ERROR:\n{}'.format(msg))
                 return
             self.w.pmx485Status = False
@@ -3518,16 +3551,16 @@ class HandlerClass:
                         if time.time() > timeout:
                             self.w.pmx485_enable.setChecked(False)
                             self.w.pmx485_label.setText('')
-                            self.w.pmx485_label.setStatusTip('status of pmx485 communications')
-                            msg  = 'Timeout while reconnecting,\n'
-                            msg += 'check cables and connections then re-enable\n'
+                            self.w.pmx485_label.setStatusTip('Status of PMX485 communications')
+                            msg = 'Timeout while reconnecting,\n' \
+                                  'check cables and connections then re-enable\n'
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'COMMUNICATIONS ERROR:\n{}'.format(msg))
                             return
                         if hal.component_exists('pmx485'):
                             break
                 except:
-                    msg  = 'pmx485 component is not loaded,\n'
-                    msg += 'Powermax communications is not available\n'
+                    msg = 'PMX485 component is not loaded,\n' \
+                          'Powermax communications are not available\n'
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'COMMUNICATIONS ERROR:\n{}'.format(msg))
                     return
             # if pins not connected then connect them
@@ -3536,8 +3569,8 @@ class HandlerClass:
                     hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
             # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
-                msg  = 'Invalid Cut Mode or Cut Amps,\n'
-                msg += 'cannot connect to Powermax\n'
+                msg = 'Invalid Cut Mode or Cut Amps,\n' \
+                      'cannot connect to Powermax\n'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
                 self.w.pmx485_enable.setChecked(False)
                 self.pmx485Loaded = False
@@ -3552,7 +3585,7 @@ class HandlerClass:
             self.pmx485Connected = False
             self.pmx485CommsError = False
             self.w.pmx485_label.setText('')
-            self.w.pmx485_label.setStatusTip('status of pmx485 communications')
+            self.w.pmx485_label.setStatusTip('Status of PMX485 communications')
             self.pmx485CommsTimer.stop()
             self.pmx485RetryTimer.stop()
 
@@ -3624,7 +3657,7 @@ class HandlerClass:
             self.pmx485FaultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
             if faultRaw == '0000':
                 self.w.pmx485_label.setText('CONNECTED')
-                self.w.pmx485_label.setStatusTip('status of pmx485 communications')
+                self.w.pmx485_label.setStatusTip('Status of PMX485 communications')
             elif faultRaw in self.pmx485FaultName.keys():
                 if faultRaw == '0210' and self.w.pmx485.current_max.value() > 110:
                     faultMsg = self.pmx485FaultName[faultRaw][1]
@@ -3820,7 +3853,7 @@ class HandlerClass:
 #                print('EXCEPTION')
 #                self.conv_new_pressed()
         else:
-            self.conv_new_pressed()
+            self.conv_new_pressed(None)
         self.xOrigin = STATUS.get_position()[0][0]
         self.yOrigin = STATUS.get_position()[0][1]
         self.xSaved = '0.000'
@@ -3835,8 +3868,14 @@ class HandlerClass:
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
         self.w.conv_settings.setEnabled(True)
+        self.conv_enable_tabs()
 
-    def conv_new_pressed(self):
+    def conv_new_pressed(self, button):
+        if button and (self.w.conv_save.isEnabled() or self.w.conv_send.isEnabled()):
+            msg  = '\nYou have an unsaved or unsent shape.\n' \
+                   '\nIf you continue it will be deleted.\n'
+            if not self.dialog_show_yesno(QMessageBox.Warning, 'Unsaved Shape', msg, 'CONTINUE', 'CANCEL'):
+                return
         if self.oldConvButton == 'conv_line':
             self.w.add_segment = 0
             if self.w.lType.currentText() == 'line point to point':
@@ -3858,12 +3897,14 @@ class HandlerClass:
         self.w.conv_preview.load(self.fNgc)
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
+        self.conv_enable_tabs()
 
     def conv_save_pressed(self):
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_show(QMessageBox.Warning, 'SAVE ERROR', 'The empty file: {}\n\ncannot be saved'.format(os.path.basename(self.fNgc)))
+                    msg = 'The empty file: {}\n\ncannot be saved.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Save Error', msg)
                     return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -3875,6 +3916,7 @@ class HandlerClass:
         if fileName:
             COPY(self.fNgc, fileName)
         self.w.conv_save.setEnabled(False)
+        self.conv_enable_tabs()
 
     def conv_settings_pressed(self):
         self.color_button_image(self.oldConvButton, self.foreColor)
@@ -3892,14 +3934,16 @@ class HandlerClass:
     def conv_send_pressed(self):
         COPY(self.fNgcBkp, self.fNgc.replace("shape","sent_shape"))
         ACTION.OPEN_PROGRAM(self.fNgc.replace("shape","sent_shape"))
-        self.w.main_tab_widget.setCurrentIndex(0)
         self.w.conv_send.setEnabled(False)
+        self.conv_enable_tabs()
+        self.w.main_tab_widget.setCurrentIndex(0)
 
     def conv_rotate_pressed(self):
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_show(QMessageBox.Warning, 'ROTATE', 'The empty file: {}\n\ncannot be rotated'.format(os.path.basename(self.fNgc)))
+                    msg = 'The empty file: {}\n\ncannot be rotated.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', msg)
                     return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
 
@@ -3907,10 +3951,12 @@ class HandlerClass:
         with open(self.fNgc) as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
-                    self.dialog_show(QMessageBox.Warning, 'ARRAY', 'The empty file: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    msg = 'The empty file: {}\n\ncannot be arrayed.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
                     return
                 elif '#<ucs_' in line:
-                    self.dialog_show(QMessageBox.Warning, 'ARRAY', 'This existing array: {}\n\ncannot be arrayed'.format(os.path.basename(self.fNgc)))
+                    msg = 'This existing array: {}\n\ncannot be arrayed.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
                     return
                 elif '(conversational' in line:
                     self.arrayMode = 'conversational'
@@ -3955,6 +4001,23 @@ class HandlerClass:
         for button in ['new', 'save', 'settings', 'send']:
             self.w['conv_{}'.format(button)].setEnabled(state)
 
+    def conv_enable_tabs(self):
+        if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            tabs = 5
+        else:
+            tabs = 4
+        if self.w.conv_save.isEnabled() and self.w.conv_send.isEnabled():
+            for n in range(tabs):
+                if n != 1:
+                    self.w.main_tab_widget.setTabEnabled(n, False)
+        else:
+            for n in range(tabs):
+                self.w.main_tab_widget.setTabEnabled(n, True)
+                self.w.gcode_editor.setStyleSheet( \
+                        'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(self.foreColor))
+                self.w.gcode_display.setStyleSheet( \
+                        'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(self.foreColor))
+
     def conv_entry_changed(self, widget):
         name = widget.objectName()
         if widget.text():
@@ -3974,7 +4037,8 @@ class HandlerClass:
             try:
                 a = float(widget.text())
             except:
-                self.dialog_show(QMessageBox.Warning, 'NUMERIC ENTRY', 'An invalid entry has been detected')
+                msg = 'An invalid entry has been detected.'
+                self.dialog_show_ok(QMessageBox.Warning, 'Numeric Entry Error', msg)
                 widget.setText('0')
         if name == 'gsEntry':
             # grid size is in inches
@@ -4009,6 +4073,7 @@ class HandlerClass:
         self.w.undo.setEnabled(False)
         self.w.conv_save.setEnabled(True)
         self.w.conv_send.setEnabled(True)
+        self.conv_enable_tabs()
 
     def conv_clear_widgets(self):
         for i in reversed(range(self.w.entries.count())):
@@ -4153,15 +4218,15 @@ class HandlerClass:
                     if button:
                         self.button_normal(button)
         except ColorError:
-            msg  = 'Invalid number of colors defined\n'
-            msg += 'in custom stylesheet header\n'
-            msg += '\nReverting to standard stylesheet\n'
-            self.dialog_show(QMessageBox.Warning, 'STYLESHEET', msg)
+            msg = 'Invalid number of colors defined\n' \
+                  'in custom stylesheet header.\n' \
+                  '\nReverting to standard stylesheet.\n'
+            self.dialog_show_ok(QMessageBox.Warning, 'Stylesheet Error', msg)
             self.standard_stylesheet()
         except:
-            msg  = 'Cannot open custom stylesheet\n'
-            msg += '\nReverting to standard stylesheet\n'
-            self.dialog_show(QMessageBox.Warning, 'STYLESHEET', msg)
+            msg = 'Cannot open custom stylesheet.\n' \
+                  '\nReverting to standard stylesheet.\n'
+            self.dialog_show_ok(QMessageBox.Warning, 'Stylesheet Error', msg)
             self.standard_stylesheet()
 
     def color_button_image(self, button, color):

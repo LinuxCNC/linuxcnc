@@ -153,15 +153,15 @@ def preview(P, W):
     else:
         msg = ''
         if points < 3:
-            msg += 'Points must be 3 or more\n\n'
+            msg += 'POINTS must be 3 or more.\n\n'
         if oRadius <= 0:
-            msg += 'Outside Diameter is required\n\n'
+            msg += 'OUTER DIA is required.\n\n'
         if iRadius >= oRadius:
-            msg += 'Outside Diameter must be > Inside Diameter\n\n'
+            msg += 'OUTER DIA must be greater than INNER DIA.\n\n'
         if iRadius <= 0:
-            msg += 'Inside Diameter is required'
+            msg += 'INNER DIA is required.'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'STAR', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \

@@ -145,11 +145,11 @@ def preview(P, W):
     else:
         msg = ''
         if sides < 3:
-            msg += 'Sides must be 3 or more\n\n'
+            msg += 'SIDES entry must be 3 or more.\n\n'
         if radius <= 0:
-            msg += 'Diameter is required'
+            msg += 'DIAMETER is required.'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'POLYGON', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
 
 def mode_changed(P, W):
     if W.mCombo.currentIndex() == 2:

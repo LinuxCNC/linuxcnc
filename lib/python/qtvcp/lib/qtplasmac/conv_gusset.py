@@ -37,14 +37,19 @@ def preview(P, W):
         down = math.radians(270)
         if W.aEntry.text():
             angle = math.radians(float(W.aEntry.text()))
+            if angle == 0:
+                msg = 'ANGLE must be greater than zero.'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+                return
         else:
             angle = up
         if W.rEntry.text():
             radius = float(W.rEntry.text())
             if radius > height or radius > width:
-                msg = 'Radius must be less than width and height\n\n'
+                msg = '{} must be less than WIDTH and HEIGHT.\n\n'.format(W.rButton.text())
                 P.dialogError = True
-                P.dialog_show(QMessageBox.Warning, 'GUSSET', msg)
+                P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
                 return
         else:
             radius = 0.0
@@ -190,11 +195,11 @@ def preview(P, W):
     else:
         msg = ''
         if width <= 0:
-            msg += 'A positive width value is required\n\n'
+            msg += 'A positive WIDTH value is required.\n\n'
         if height <= 0:
-            msg += 'A positive height value is required\n\n'
+            msg += 'A positive HEIGHT value is required.\n\n'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'GUSSET', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
 
 def rad_button_pressed(P, W, widget):
     if widget.text()[:3] == 'RAD':
