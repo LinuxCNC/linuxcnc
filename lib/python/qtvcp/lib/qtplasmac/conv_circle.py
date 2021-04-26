@@ -159,7 +159,7 @@ def preview(P, W):
         W.undo.setEnabled(True)
     else:
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'CIRCLE', 'Diameter is required')
+        P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', 'DIAMETER is required.')
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:

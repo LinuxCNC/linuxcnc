@@ -145,13 +145,13 @@ def preview(P, W):
     else:
         msg = ''
         if cRadius == 0:
-            msg += 'Diameter is required\n\n'
+            msg += 'DIAMETER is required.\n\n'
         if hRadius == 0:
-            msg += 'Hole Diameter is required\n\n'
+            msg += 'HOLE DIA is required.\n\n'
         if holes == 0:
-            msg += '# of Holes are required'
+            msg += '# OF HOLES is required.'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'BOLT-CIRCLE', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:

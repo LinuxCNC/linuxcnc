@@ -184,9 +184,10 @@ def preview(P, W):
     else:
         P.dialogError = True
         if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
-            P.dialog_show(QMessageBox.Warning, 'TRIANGLE', 'A + B + C must equal 180')
+            msg = 'A + B + C must equal 180.'
+            P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
         else:
-            P.dialog_show(QMessageBox.Warning, 'TRIANGLE', 'Minimum requirements are:\n\n'\
+            msg = 'Minimum requirements are:\n\n'\
                                      'a + b + c\n\n'\
                                      'or\n\n'\
                                      'a + b + C\n\n'\
@@ -195,7 +196,8 @@ def preview(P, W):
                                      'or\n\n'\
                                      'A + b + c\n\n'\
                                      'or\n\n'\
-                                     'A + B + C + (a or b or c)')
+                                     'A + B + C + (a or b or c)'
+            P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)

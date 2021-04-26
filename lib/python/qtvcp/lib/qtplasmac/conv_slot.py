@@ -163,13 +163,13 @@ def preview(P, W):
     else:
         msg = ''
         if length <= 0:
-            msg += 'A positive Length is required\n\n'
+            msg += 'A positive LENGTH is required.\n\n'
         if width <= 0:
-            msg += 'A positive Width is required\n\n'
+            msg += 'A positive WIDTH is required.\n\n'
         if length < width:
-            msg += 'Length must be greater than or equal to Width'
+            msg += 'LENGTH must be greater than or equal to WIDTH'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'SLOT', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \

@@ -30,36 +30,39 @@ def preview(P, W):
     try:
         leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
     except:
-        msg += 'Lead In\n'
+        msg += 'LEAD IN\n'
     try:
         leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
     except:
-        msg += 'Lead Out\n'
+        msg += 'LEAD OUT\n'
     try:
         radius = float(W.rEntry.text())
     except:
-        msg += 'Radius\n'
+        msg += 'RADIUS\n'
     try:
         sAngle = math.radians(float(W.sEntry.text()))
     except:
-        msg += 'Sector Angle\n'
+        msg += 'SEC ANGLE\n'
     try:
         angle = math.radians(float(W.aEntry.text()))
     except:
-        msg += 'Angle\n'
+        msg += 'ANGLE\n'
     if msg:
-        errMsg = 'Valid numerical entries required for:\n\n{}'.format(msg)
+        errMsg = 'Valid numerical entries required for:\n\n{}.'.format(msg)
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'SECTOR', errMsg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', errMsg)
         return
     if radius == 0 or sAngle == 0:
+        msg = 'RADIUS or SEC ANGLE must be greater than zero.'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
         P.conv_undo_shape()
         return
     if W.kOffset.isChecked() and leadInOffset <= 0:
-        msg  = 'A Lead In is required if\n\n'
-        msg += 'kerf width offset is enabled\n'
+        msg  = 'LEAD IN is required if\n\n'
+        msg += 'KERF OFFSET is enabled.\n'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'SECTOR', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
         return
 # set origin position
     kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
@@ -192,7 +195,7 @@ def widgets(P, W):
     W.loEntry = QLineEdit(objectName = 'loEntry')
     W.rLabel = QLabel('RADIUS')
     W.rEntry = QLineEdit()
-    W.sLabel = QLabel('SECT ANGLE')
+    W.sLabel = QLabel('SEC ANGLE')
     W.sEntry = QLineEdit()
     W.aLabel = QLabel('ANGLE')
     W.aEntry = QLineEdit(objectName='aEntry')

@@ -36,9 +36,9 @@ def preview(P, W):
                 W.entry2.setText('{:0.3f}'.format(P.yOrigin))
             W.yS = float(W.entry2.text())
         except:
-            msg  = 'Invalid entry detected\n'
+            msg  = 'Invalid entry detected.\n'
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -105,10 +105,10 @@ def preview(P, W):
                     do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
                                                  float(W.entry5.text()))
         except Exception as e:
-            msg  = 'Last entry is not valid\n\n'
+            msg  = 'Last entry is not valid.\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             outNgc.close()
             outTmp.close()
             return
@@ -165,10 +165,10 @@ def preview(P, W):
                 do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                              float(W.entry3.text()))
         except Exception as e:
-            msg  = 'Last entry is not Invalid\n\n'
+            msg  = 'Last entry is not valid.\n\n'
             msg += str(e)
             P.dialogError = True
-            P.dialog_show(QMessageBox.Warning, 'LINE', msg)
+            P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             outNgc.close()
             outTmp.close()
             return

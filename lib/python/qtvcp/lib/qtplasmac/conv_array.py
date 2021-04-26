@@ -168,15 +168,15 @@ def preview(P, W):
     else:
         msg = ''
         if columns <= 0:
-            msg += 'Columns are required\n\n'
+            msg += 'COLUMNS entries are required.\n\n'
         if rows <= 0:
-            msg += 'Rows are required\n\n'
+            msg += 'ROWS entries are required.\n\n'
         if xOffset == 0 and columns > 1:
-            msg += 'Column Offset is required\n\n'
+            msg += 'COLUMNS OFFSET is required.\n\n'
         if yOffset == 0 and rows > 1:
-            msg += 'Row Offset is required'
+            msg += 'ROWS OFFSET is required.'
         P.dialogError = True
-        P.dialog_show(QMessageBox.Warning, 'ARRAY', msg)
+        P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
         return
     W.add.setEnabled(True)
 

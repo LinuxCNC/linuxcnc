@@ -528,7 +528,7 @@ After running a new configuration for the first time the following files will be
 |*Filename*|*Function*
 |<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 |qtplasmac.prefs|A file containing the users preferences and parameters. It also stores the current color configuration.
-|qtplasmac.qss|This file is used to store the stylesheet for the currently loaded loaded session of QtPlasmaC.
+|qtplasmac.qss|This file is used to store the stylesheet for the currently loaded session of QtPlasmaC.
 |===
 
 NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
@@ -763,7 +763,7 @@ If this box is not filled, then running a loaded program will cause the machine 
 |VELOCITY A/DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY A/DIVE.
 |VOID A/DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID A/DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID A/DIVE.
-|MESH MODE|0, 1, 2|This box will enable or disable <<qt_mesh-mode, Mesh Mode>> for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. Additionally this mode may be enabled or disabled via proper M codes in a running program. +
+|MESH MODE|0, 1, 2|This box will enable or disable <<qt_mesh-mode, Mesh Mode>> for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. +
 Mesh mode: +
 - Will require an Arc OK signal to start machine motion. +
 - Will disable the THC. +
@@ -2183,7 +2183,9 @@ The general functions are as follows:
 
 If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the CONVERSATIONAL Tab is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
 
-IMPORTANT: Any unsaved or unsent work will be discarded if the user leaves the CONVERSATIONAL Tab.
+If there is an added shape that is unsaved or unsent then it is not possible to switch tabs in the GUI. To re-enable switching tabs it is necessary to either *SAVE* the shape, *SEND* the shape, or press *NEW* to remove the shape.
+
+If *NEW* is pressed to remove an added shape that is unsaved or unsent then a warning dialog will be displayed.
 
 NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
@@ -2730,10 +2732,10 @@ BUTTON_n_CODE = change-consumables X10 Y10 F1000
 Load a G-Code program by using the following format:
 
 ----
-BUTTON_n_CODE = load path/to/G-Code.ngc
+BUTTON_n_CODE = load <path>G-Code.ngc
 ----
 
-The path is relative to the directory specified by *PROGRAM_PREFIX* in the <machine_name>.ini file. This is usually ~/linuxcnc/nc_files. For example: If the user's G-Code file was in a subdirectory of the *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/G-Code.ngc*.
+<path> does not need to be set by the user as it represents the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file. This is usually ~/linuxcnc/nc_files. For example: If the user's G-Code file was in a subdirectory of the *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/G-Code.ngc*. Note that the first "/" is not necessary as it will be added automatically.
 
 [[qt_button-torch]]
 
