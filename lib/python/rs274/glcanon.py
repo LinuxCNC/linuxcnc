@@ -25,6 +25,7 @@ import array
 import gcode
 import os
 import re
+import sys
 from functools import reduce
 
 def minmax(*args):
