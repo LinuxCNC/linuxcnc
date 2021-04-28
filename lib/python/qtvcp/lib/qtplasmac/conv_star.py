@@ -30,39 +30,81 @@ def preview(P, W):
         points = int(W.pEntry.text())
     else:
         points = 0
-    if W.odEntry.text():
-        oRadius = float(W.odEntry.text()) / 2
-    else:
-        oRadius = 0
-    if W.idEntry.text():
-        iRadius = float(W.idEntry.text()) / 2
-    else:
-        iRadius = 0
+    try:
+        if W.odEntry.text():
+            oRadius = float(W.odEntry.text()) / 2
+        else:
+            oRadius = 0
+    except:
+        msg = 'Invalid OUTER DIA entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+        return
+    try:
+        if W.idEntry.text():
+            iRadius = float(W.idEntry.text()) / 2
+        else:
+            iRadius = 0
+    except:
+        msg = 'Invalid INNER DIA entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+        return
     if points >= 3 and iRadius > 0 and oRadius > 0 and oRadius > iRadius:
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-        if W.center.isChecked():
-            xC = float(W.xsEntry.text())
-        else:
-            xC = float(W.xsEntry.text()) + oRadius * math.cos(math.radians(0))
+        try:
+            if W.center.isChecked():
+                xC = float(W.xsEntry.text())
+            else:
+                xC = float(W.xsEntry.text()) + oRadius * math.cos(math.radians(0))
+        except:
+            msg = 'Invalid X ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+            return
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.center.isChecked():
-            yC = float(W.ysEntry.text())
-        else:
-            yC = float(W.ysEntry.text()) + oRadius * math.sin(math.radians(90))
-        if W.liEntry.text():
-            leadInOffset = float(W.liEntry.text())
-        else:
-            leadInOffset = 0
-        if W.loEntry.text():
-            leadOutOffset = float(W.loEntry.text())
-        else:
-            leadOutOffset = 0
-        if W.aEntry.text():
-            angle = math.radians(float(W.aEntry.text()))
-        else:
-            angle = 0.0
+        try:
+            if W.center.isChecked():
+                yC = float(W.ysEntry.text())
+            else:
+                yC = float(W.ysEntry.text()) + oRadius * math.sin(math.radians(90))
+        except:
+            msg = 'Invalid Y ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+            return
+        try:
+            if W.liEntry.text():
+                leadInOffset = float(W.liEntry.text())
+            else:
+                leadInOffset = 0
+        except:
+            msg = 'Invalid LEAD IN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+            return
+        try:
+            if W.loEntry.text():
+                leadOutOffset = float(W.loEntry.text())
+            else:
+                leadOutOffset = 0
+        except:
+            msg = 'Invalid LEAD OUT entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+            return
+        try:
+            if W.aEntry.text():
+                angle = math.radians(float(W.aEntry.text()))
+            else:
+                angle = 0.0
+        except:
+            msg = 'Invalid ANGLE entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+            return
         pList = []
         for i in range(points * 2):
             pAngle = angle + 2 * math.pi * i / (points * 2)
@@ -170,12 +212,18 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Star Error', msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()

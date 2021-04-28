@@ -32,11 +32,17 @@ def preview(P, W):
             if not W.entry1.text():
                 W.entry1.setText('{:0.3f}'.format(P.xOrigin))
             W.xS = float(W.entry1.text())
+        except:
+            msg = 'Invalid X ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+            return
+        try:
             if not W.entry2.text():
                 W.entry2.setText('{:0.3f}'.format(P.yOrigin))
             W.yS = float(W.entry2.text())
         except:
-            msg  = 'Invalid entry detected.\n'
+            msg = 'Invalid Y ORIGIN entry detected.\n'
             P.dialogError = True
             P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             return
@@ -70,7 +76,7 @@ def preview(P, W):
                     do_line_point_to_point(P, W, float(W.entry3.text()), float(W.entry4.text()))
             elif W.lType.currentText() == 'LINE BY ANGLE':
                 if not float(W.entry4.text()):
-                    raise Exception('length cannot be 0')
+                    raise Exception('Length cannot be zero.\n')
                 if P.landscape:
                     do_line_by_angle(P, W, float(W.entry4.text()), float(W.entry5.text()))
                 else:
@@ -90,23 +96,46 @@ def preview(P, W):
                 if P.landscape:
                     W.conv_savedX = W.entry4.text()
                     W.conv_savedY = W.entry5.text()
-                    do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
-                                                 float(W.entry7.text()))
+                    if float(W.entry7.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                                     float(W.entry7.text()))
                 else:
                     W.conv_savedX = W.entry3.text()
                     W.conv_savedY = W.entry4.text()
-                    do_arc_2_points_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
-                                                 float(W.entry5.text()))
+                    if float(W.entry5.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
+                                                     float(W.entry5.text()))
             elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
                 if P.landscape:
-                    do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
-                                                 float(W.entry7.text()))
+                    if float(W.entry7.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                                     float(W.entry7.text()))
                 else:
-                    do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
-                                                 float(W.entry5.text()))
-        except Exception as e:
-            msg  = 'Last entry is not valid.\n\n'
-            msg += str(e)
+                    if float(W.entry5.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
+                                                     float(W.entry5.text()))
+        except:
+            msg = 'Invalid entry detected.\n'
             P.dialogError = True
             P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             outNgc.close()
@@ -156,17 +185,34 @@ def preview(P, W):
                 W.conv_savedX = W.entry1.text()
                 W.conv_savedY = W.entry2.text()
                 if P.landscape:
-                    do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                                 float(W.entry4.text()))
+                    if float(W.entry4.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                     float(W.entry4.text()))
                 else:
-                    do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                                 float(W.entry3.text()))
+                    if float(W.entry3.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        P.dialogError = True
+                        P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                     float(W.entry3.text()))
             elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
-                do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                             float(W.entry3.text()))
-        except Exception as e:
-            msg  = 'Last entry is not valid.\n\n'
-            msg += str(e)
+                if float(W.entry3.text()) == 0:
+                    msg = 'Radius must be greater than zero.\n'
+                    P.dialogError = True
+                    P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+                    return
+                else:
+                    do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                 float(W.entry3.text()))
+        except:
+            msg = 'Invalid entry detected.\n'
             P.dialogError = True
             P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
             outNgc.close()
@@ -753,8 +799,8 @@ def widgets(P, W):
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
     W.lDesc = QLabel('CREATING LINE OR ARC')
-    W.g2Arc = QRadioButton('CLOCK')
-    W.g3Arc = QRadioButton('COUNTER')
+    W.g2Arc = QRadioButton('      CW')
+    W.g3Arc = QRadioButton('     CCW')
     W.iLabel = QLabel()
     W.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
     W.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)

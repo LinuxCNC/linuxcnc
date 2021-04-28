@@ -21,9 +21,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 from shutil import copy as COPY
 from re import compile as COMPILE
-from PyQt5.QtCore import Qt 
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtGui import QPixmap
 
 def cancel(P, W):
     COPY(P.fNgcBkp, P.fNgc)
@@ -42,18 +42,33 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
-    if W.aEntry.text():
-        angle = float(W.aEntry.text())
-    else:
-        angle = 0
-    if W.xEntry.text():
-        xOffset = float(W.xEntry.text())
-    else:
-        xOffset = 0
-    if W.yEntry.text():
-        yOffset = float(W.yEntry.text())
-    else:
-        yOffset = 0
+    msg = ''
+    try:
+        if W.aEntry.text():
+            angle = float(W.aEntry.text())
+        else:
+            angle = 0
+    except:
+        msg += 'ANGLE\n'
+    try:
+        if W.xEntry.text():
+            xOffset = float(W.xEntry.text())
+        else:
+            xOffset = 0
+    except:
+        msg += 'X OFFSET\n'
+    try:
+        if W.yEntry.text():
+            yOffset = float(W.yEntry.text())
+        else:
+            yOffset = 0
+    except:
+        msg += 'Y OFFSET\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', errMsg)
+        return
     outNgc = open(P.fNgc, 'w')
     inCod = open(P.fNgcBkp, 'r')
     for line in inCod:

@@ -25,28 +25,50 @@ from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
-    if W.dEntry.text():
-        cRadius = float(W.dEntry.text()) / 2
-    else:
-        cRadius = 0
-    if W.hdEntry.text():
-        hRadius = float(W.hdEntry.text()) / 2
-    else:
-        hRadius = 0
-    if W.hEntry.text():
-        holes = int(W.hEntry.text())
-    else:
-        holes = 0
+    msg = ''
+    try:
+        if W.dEntry.text():
+            cRadius = float(W.dEntry.text()) / 2
+        else:
+            cRadius = 0
+    except:
+        msg += 'DIAMETER\n'
+    try:
+        if W.hdEntry.text():
+            hRadius = float(W.hdEntry.text()) / 2
+        else:
+            hRadius = 0
+    except:
+        msg += 'HOLE DIA\n'
+    try:
+        if W.hEntry.text():
+            holes = int(W.hEntry.text())
+        else:
+            holes = 0
+    except:
+        msg += '# OF HOLES\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', errMsg)
+        return
     if cRadius > 0 and hRadius > 0 and holes > 0:
-        if W.caEntry.text():
-            cAngle = float(W.caEntry.text())
-        else:
-            cAngle = 360.0
-        if cAngle == 360:
-            hAngle = math.radians(cAngle / holes)
-        else:
-            hAngle = math.radians(cAngle / (holes - 1))
-        ijDiff = float(W.kerf_width.value()) *W.kOffset.isChecked() / 2
+        msg =''
+        try:
+            if W.caEntry.text():
+                cAngle = float(W.caEntry.text())
+            else:
+                cAngle = 360.0
+            if cAngle == 360:
+                hAngle = math.radians(cAngle / holes)
+            else:
+                hAngle = math.radians(cAngle / (holes - 1))
+        except:
+            msg += 'CIRCLE ANG\n'
+        try:
+            ijDiff = float(W.kerf_width.value()) *W.kOffset.isChecked() / 2
+        except:
+            msg += 'Kerf Width entry in material\n'
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)
@@ -55,32 +77,49 @@ def preview(P, W):
             sHole = True
         else:
             sHole = False
-        if W.aEntry.text():
-            angle = math.radians(float(W.aEntry.text()))
-        else:
-            angle = 0
-        if W.liEntry.text():
-            leadIn = float(W.liEntry.text())
-            leadInOffset = leadIn * math.sin(math.radians(45))
-        else:
-            leadIn = 0
-            leadInOffset = 0
-        if leadIn > hRadius:
-            leadIn = hRadius
-        if leadInOffset > hRadius:
-            leadInOffset = hRadius
+        try:
+            if W.aEntry.text():
+                angle = math.radians(float(W.aEntry.text()))
+            else:
+                angle = 0
+        except:
+            msg += 'ANGLE\n'
+        try:
+            if W.liEntry.text():
+                leadIn = float(W.liEntry.text())
+                leadInOffset = leadIn * math.sin(math.radians(45))
+            else:
+                leadIn = 0
+                leadInOffset = 0
+            if leadIn > hRadius:
+                leadIn = hRadius
+            if leadInOffset > hRadius:
+                leadInOffset = hRadius
+        except:
+            msg += 'LEAD IN\n'
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-        if W.center.isChecked():
-            xC = float(W.xsEntry.text())
-        else:
-            xC = float(W.xsEntry.text()) + cRadius
+        try:
+            if W.center.isChecked():
+                xC = float(W.xsEntry.text())
+            else:
+                xC = float(W.xsEntry.text()) + cRadius
+        except:
+            msg += 'X ORIGIN\n'
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.center.isChecked():
-            yC = float(W.ysEntry.text())
-        else:
-            yC = float(W.ysEntry.text()) + cRadius
+        try:
+            if W.center.isChecked():
+                yC = float(W.ysEntry.text())
+            else:
+                yC = float(W.ysEntry.text()) + cRadius
+        except:
+            msg += 'Y ORIGIN\n'
+        if msg:
+            errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', errMsg)
+            return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
         inWiz = open(P.fNgcBkp, 'r')
@@ -149,7 +188,7 @@ def preview(P, W):
         if hRadius == 0:
             msg += 'HOLE DIA is required.\n\n'
         if holes == 0:
-            msg += '# OF HOLES is required.'
+            msg += '# OF HOLES is required.\n'
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
 
@@ -157,7 +196,11 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
         oclength = float(W.ocEntry.text())
     except:
+        msg = 'Invalid OC LENGTH entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
         oclength = 0
+        return
     centerX = lastX + IJ
     centerY = lastY
     cosA = math.cos(oclength / radius)

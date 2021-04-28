@@ -27,50 +27,98 @@ from PyQt5.QtGui import QPixmap
 def preview(P, W):
     if P.dialogError: return
     length = width = 0
-    if W.lEntry.text():
-        length = float(W.lEntry.text())
-    if W.wEntry.text():
-        width = float(W.wEntry.text())
-        radius = width / 2
+    try:
+        if W.lEntry.text():
+            length = float(W.lEntry.text())
+    except:
+        msg = 'Invalid LENGTH entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+        return
+    try:
+        if W.wEntry.text():
+            width = float(W.wEntry.text())
+            radius = width / 2
+    except:
+        msg = 'Invalid WIDTH entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+        return
     if length > 0 and width > 0 and length >= width:
         blLength = math.sqrt((length / 2) ** 2 + width ** 2)
         blAngle = math.atan(width / (length / 2))
         length = length - width
-        if W.aEntry.text():
-            angle = math.radians(float(W.aEntry.text()))
-        else:
-            angle = 0.0
-        if W.liEntry.text():
-            leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-        else:
-            leadInOffset = 0
-        if W.loEntry.text():
-            leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-        else:
-            leadOutOffset = 0
+        try:
+            if W.aEntry.text():
+                angle = math.radians(float(W.aEntry.text()))
+            else:
+                angle = 0.0
+        except:
+            msg = 'Invalid ANGLE entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
+        try:
+            if W.liEntry.text():
+                leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+            else:
+                leadInOffset = 0
+        except:
+            msg = 'Invalid LEAD IN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
+        try:
+            if W.loEntry.text():
+                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+            else:
+                leadOutOffset = 0
+        except:
+            msg = 'Invalid LEAD OUT entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)
         down = math.radians(270)
-        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+        try:
+            kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+        except:
+            msg = 'Invalid Kerf Width entry in material detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-        if W.center.isChecked():
-            xS = float(W.xsEntry.text()) + (width / 2) * math.cos(angle + up)
-        else:
-            if W.cExt.isChecked():
-                xS = (float(W.xsEntry.text()) + kOffset) + blLength * math.cos(angle + right + blAngle)
+        try:
+            if W.center.isChecked():
+                xS = float(W.xsEntry.text()) + (width / 2) * math.cos(angle + up)
             else:
-                xS = (float(W.xsEntry.text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
+                if W.cExt.isChecked():
+                    xS = (float(W.xsEntry.text()) + kOffset) + blLength * math.cos(angle + right + blAngle)
+                else:
+                    xS = (float(W.xsEntry.text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
+        except:
+            msg = 'Invalid X ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.center.isChecked():
-            yS = float(W.ysEntry.text()) + (width / 2) * math.sin(angle + up)
-        else:
-            if W.cExt.isChecked():
-                yS = (float(W.ysEntry.text()) + kOffset) + blLength * math.sin(angle + right + blAngle)
+        try:
+            if W.center.isChecked():
+                yS = float(W.ysEntry.text()) + (width / 2) * math.sin(angle + up)
             else:
-                yS = (float(W.ysEntry.text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
+                if W.cExt.isChecked():
+                    yS = (float(W.ysEntry.text()) + kOffset) + blLength * math.sin(angle + right + blAngle)
+                else:
+                    yS = (float(W.ysEntry.text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
+        except:
+            msg = 'Invalid Y ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+            return
         if W.cExt.isChecked():
             dir = [up, left, right]
         else:
@@ -178,12 +226,18 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
