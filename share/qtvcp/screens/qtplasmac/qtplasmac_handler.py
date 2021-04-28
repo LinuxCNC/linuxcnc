@@ -1,4 +1,4 @@
-VERSION = '1.0.26'
+VERSION = '1.0.27'
 
 import os, sys
 from shutil import copy as COPY
@@ -2321,6 +2321,7 @@ class HandlerClass:
                 self.probeText = self.w[self.ptButton].text()
                 self.w[self.ptButton].setText('{}'.format(self.probeTime))
                 self.button_active(self.ptButton)
+                self.w.run.setEnabled(False)
             else:
                 self.probeTimer.stop()
                 self.probeTime = 0

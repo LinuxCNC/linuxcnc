@@ -29,42 +29,69 @@ def preview(P, W):
         sides = int(W.sEntry.text())
     else:
         sides = 0
-    if W.dEntry.text():
-        data = float(W.dEntry.text())
-        if W.mCombo.currentIndex() == 0:
-            radius = data / 2
-        elif W.mCombo.currentIndex() == 1:
-            radius = (data / 2) / math.cos(math.radians(180 / sides))
+    try:
+        if W.dEntry.text():
+            data = float(W.dEntry.text())
+            if W.mCombo.currentIndex() == 0:
+                radius = data / 2
+            elif W.mCombo.currentIndex() == 1:
+                radius = (data / 2) / math.cos(math.radians(180 / sides))
+            else:
+                radius = data / (2 * math.sin(math.radians(180 / sides)))
         else:
-            radius = data / (2 * math.sin(math.radians(180 / sides)))
-    else:
-        radius = 0
+            radius = 0
+    except:
+        msg = 'Invalid DIAMETER entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
+        return
     if sides >= 3 and radius > 0:
+        msg = ''
         ijOffset = radius * math.sin(math.radians(45))
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-        if W.center.isChecked():
-            xS = float(W.xsEntry.text())
-        else:
-            xS = float(W.xsEntry.text()) + radius * math.cos(math.radians(0))
+        try:
+            if W.center.isChecked():
+                xS = float(W.xsEntry.text())
+            else:
+                xS = float(W.xsEntry.text()) + radius * math.cos(math.radians(0))
+        except:
+            msg += 'X ORIGIN\n'
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.center.isChecked():
-            yS = float(W.ysEntry.text())
-        else:
-            yS = float(W.ysEntry.text()) + radius * math.sin(math.radians(90))
-        if W.liEntry.text():
-            leadInOffset = float(W.liEntry.text()) / (2 * math.pi * (90.0 / 360))
-        else:
-            leadInOffset = 0
-        if W.loEntry.text():
-            leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-        else:
-            leadOutOffset = 0
-        if W.aEntry.text():
-            sAngle = math.radians(float(W.aEntry.text()))
-        else:
-            sAngle = 0.0
+        try:
+            if W.center.isChecked():
+                yS = float(W.ysEntry.text())
+            else:
+                yS = float(W.ysEntry.text()) + radius * math.sin(math.radians(90))
+        except:
+            msg += 'Y ORIGIN\n'
+        try:
+            if W.liEntry.text():
+                leadInOffset = float(W.liEntry.text()) / (2 * math.pi * (90.0 / 360))
+            else:
+                leadInOffset = 0
+        except:
+            msg += 'LEAD IN\n'
+        try:
+            if W.loEntry.text():
+                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+            else:
+                leadOutOffset = 0
+        except:
+            msg += 'LEAD OUT\n'
+        try:
+            if W.aEntry.text():
+                sAngle = math.radians(float(W.aEntry.text()))
+            else:
+                sAngle = 0.0
+        except:
+            msg += 'ANGLE\n'
+        if msg:
+            errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', errMsg)
+            return
         pList = []
         for i in range(sides):
             angle = sAngle + 2 * math.pi * i / sides
@@ -165,12 +192,18 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()

@@ -40,30 +40,36 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
+    msg = ''
     try:
         columns = int(W.cnEntry.text())
     except:
-        columns = 1
+        msg += 'COLUMNS NUMBER\n'
     try:
         rows = int(W.rnEntry.text())
     except:
-        rows = 1
+        msg += 'ROWS NUMBER\n'
     try:
         xOffset = float(W.coEntry.text())
     except:
-        xOffset = 0
+        msg += 'COLUMNS OFFSET\n'
     try:
         yOffset = float(W.roEntry.text())
     except:
-        yOffset = 0
+        msg += 'ROWS OFFSET\n'
     try:
         xOrgOffset = float(W.oxEntry.text())
     except:
-        xOrgOffset = 0
+        msg += 'X OFFSET ORIGIN\n'
     try:
         yOrgOffset = float(W.oyEntry.text())
     except:
-        yOrgOffset = 0
+        msg += 'Y OFFSET ORIGIN\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Array Error', errMsg)
+        return
     if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset != 0)) and (rows == 1 or (rows > 1 and yOffset != 0)):
         cancel(P, W, None)
         if P.arrayMode == 'conversational':
@@ -174,7 +180,7 @@ def preview(P, W):
         if xOffset == 0 and columns > 1:
             msg += 'COLUMNS OFFSET is required.\n\n'
         if yOffset == 0 and rows > 1:
-            msg += 'ROWS OFFSET is required.'
+            msg += 'ROWS OFFSET is required.\n'
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
         return

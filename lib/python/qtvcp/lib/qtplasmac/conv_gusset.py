@@ -26,44 +26,80 @@ from PyQt5.QtGui import QPixmap
 def preview(P, W):
     if P.dialogError: return
     width = height = 0
-    if W.wEntry.text():
-        width = float(W.wEntry.text())
-    if W.hEntry.text():
-        height = float(W.hEntry.text())
+    try:
+        if W.wEntry.text():
+            width = float(W.wEntry.text())
+    except:
+        msg = 'Invalid WIDTH entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        return
+    try:
+        if W.hEntry.text():
+            height = float(W.hEntry.text())
+    except:
+        msg = 'Invalid HEIGHT entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        return
     if width > 0 and height > 0:
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)
         down = math.radians(270)
-        if W.aEntry.text():
-            angle = math.radians(float(W.aEntry.text()))
-            if angle == 0:
-                msg = 'ANGLE must be greater than zero.'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
-                return
-        else:
-            angle = up
-        if W.rEntry.text():
-            radius = float(W.rEntry.text())
-            if radius > height or radius > width:
-                msg = '{} must be less than WIDTH and HEIGHT.\n\n'.format(W.rButton.text())
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
-                return
-        else:
-            radius = 0.0
-        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+        try:
+            if W.aEntry.text():
+                angle = math.radians(float(W.aEntry.text()))
+                if angle == 0:
+                    msg = 'ANGLE must be greater than zero.'
+                    P.dialogError = True
+                    P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+                    return
+            else:
+                angle = up
+        except:
+            msg = 'Invalid ANGLE entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
+        try:
+            if W.rEntry.text():
+                radius = float(W.rEntry.text())
+                if radius > height or radius > width:
+                    msg = '{} must be less than WIDTH and HEIGHT.\n'.format(W.rButton.text())
+                    P.dialogError = True
+                    P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+                    return
+            else:
+                radius = 0.0
+        except:
+            msg = 'Invalid {} entry detected.\n'.format(W.rButton.text())
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
+        try:
+            kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+        except:
+            msg = 'Invalid Kerf Width entry in material detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.cExt.isChecked():
-            x0 = float(W.xsEntry.text()) + kOffset
-            y0 = float(W.ysEntry.text()) + kOffset
-        else:
-            x0 = float(W.xsEntry.text()) - kOffset
-            y0 = float(W.ysEntry.text()) - kOffset
+        try:
+            if W.cExt.isChecked():
+                x0 = float(W.xsEntry.text()) + kOffset
+                y0 = float(W.ysEntry.text()) + kOffset
+            else:
+                x0 = float(W.xsEntry.text()) - kOffset
+                y0 = float(W.ysEntry.text()) - kOffset
+        except:
+            msg = 'Invalid X or Y ORIGIN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
         x1 = x0 + width * math.cos(right)
         y1 = y0 + width * math.sin(right)
         x2 = x0 + height * math.cos(angle)
@@ -75,14 +111,26 @@ def preview(P, W):
             hypotAngle = right - math.atan((y2 - y1) / (x1 - x2))
         xS = x1 + (hypotLength / 2) * math.cos(hypotAngle)
         yS = y1 + (hypotLength / 2) * math.sin(hypotAngle)
-        if W.liEntry.text():
-            leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-        else:
-            leadInOffset = 0
-        if W.loEntry.text():
-            leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-        else:
-            leadOutOffset = 0
+        try:
+            if W.liEntry.text():
+                leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+            else:
+                leadInOffset = 0
+        except:
+            msg = 'Invalid LEAD IN entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
+        try:
+            if W.loEntry.text():
+                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+            else:
+                leadOutOffset = 0
+        except:
+            msg = 'Invalid LEAD OUT entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            return
         if W.cExt.isChecked():
             if y2 >= y0:
                 dir = [up, right]
@@ -215,12 +263,18 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()

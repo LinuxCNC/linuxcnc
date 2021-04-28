@@ -25,43 +25,85 @@ from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
-    kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+    msg = ''
+    try:
+        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+    except:
+        msg += 'Kerf Width entry in material\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+        return
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():
         W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-    if W.cExt.isChecked():
-        xBPoint = float(W.xsEntry.text()) + kOffset
-        yBPoint = float(W.ysEntry.text()) + kOffset
-    else:
-        xBPoint = float(W.xsEntry.text()) - kOffset
-        yBPoint = float(W.ysEntry.text()) - kOffset
-    if W.angEntry.text():
-        angle = math.radians(float(W.angEntry.text()))
-    else:
-        angle = 0.0
-    if W.liEntry.text():
-        leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-    else:
-        leadInOffset = 0
-    if W.loEntry.text():
-        leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-    else:
-        leadOutOffset = 0
+    try:
+        if W.cExt.isChecked():
+            xBPoint = float(W.xsEntry.text()) + kOffset
+            yBPoint = float(W.ysEntry.text()) + kOffset
+        else:
+            xBPoint = float(W.xsEntry.text()) - kOffset
+            yBPoint = float(W.ysEntry.text()) - kOffset
+    except:
+        msg += 'X or Y ORIGIN\n'
+    try:
+        if W.angEntry.text():
+            angle = math.radians(float(W.angEntry.text()))
+        else:
+            angle = 0.0
+    except:
+        msg += 'ANGLE\n'
+    try:
+        if W.liEntry.text():
+            leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+        else:
+            leadInOffset = 0
+    except:
+        msg += 'LEAD IN\n'
+    try:
+        if W.loEntry.text():
+            leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+        else:
+            leadOutOffset = 0
+    except:
+        msg += 'LEAD OUT\n'
     done = False
     a = b = c = A = B = C = 0
-    if W.aEntry.text():
-        a = float(W.aEntry.text())
-    if W.bEntry.text():
-        b = float(W.bEntry.text())
-    if W.cEntry.text():
-        c = float(W.cEntry.text())
-    if W.AEntry.text():
-        A = math.radians(float(W.AEntry.text()))
-    if W.BEntry.text():
-        B = math.radians(float(W.BEntry.text()))
-    if W.CEntry.text():
-        C = math.radians(float(W.CEntry.text()))
+    try:
+        if W.aEntry.text():
+            a = float(W.aEntry.text())
+    except:
+        msg += 'a LENGTH\n'
+    try:
+        if W.bEntry.text():
+            b = float(W.bEntry.text())
+    except:
+        msg += 'b LENGTH\n'
+    try:
+        if W.cEntry.text():
+            c = float(W.cEntry.text())
+    except:
+        msg += 'c LENGTH\n'
+    try:
+        if W.AEntry.text():
+            A = math.radians(float(W.AEntry.text()))
+    except:
+        msg += 'A ANGLE\n'
+    try:
+        if W.BEntry.text():
+            B = math.radians(float(W.BEntry.text()))
+    except:
+        msg += 'B ANGLE\n'
+    try:
+        if W.CEntry.text():
+            C = math.radians(float(W.CEntry.text()))
+    except:
+        msg += 'C ANGLE\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', errMsg)
+        return
     if a and b and c:
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
         done = True
@@ -201,12 +243,18 @@ def preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+        return
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \

@@ -48,7 +48,7 @@ def preview(P, W):
     except:
         msg += 'ANGLE\n'
     if msg:
-        errMsg = 'Valid numerical entries required for:\n\n{}.'.format(msg)
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', errMsg)
         return
@@ -65,17 +65,29 @@ def preview(P, W):
         P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
         return
 # set origin position
-    kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+    try:
+        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+    except:
+        msg = 'Invalid Kerf Width entry in material detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
+        return
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():
         W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-    if W.cExt.isChecked():
-        xO = float(W.xsEntry.text()) + kOffset
-        yO = float(W.ysEntry.text()) + kOffset
-    else:
-        xO = float(W.xsEntry.text()) - kOffset
-        yO = float(W.ysEntry.text()) - kOffset
+    try:
+        if W.cExt.isChecked():
+            xO = float(W.xsEntry.text()) + kOffset
+            yO = float(W.ysEntry.text()) + kOffset
+        else:
+            xO = float(W.xsEntry.text()) - kOffset
+            yO = float(W.ysEntry.text()) - kOffset
+    except:
+        msg = 'Invalid X or Y ORIGIN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
+        return
 # set start point
     xS = xO + (radius * 0.75) * math.cos(angle)
     yS = yO + (radius * 0.75) * math.sin(angle)
@@ -160,12 +172,18 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()

@@ -24,14 +24,36 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 def save(P, W):
+    if P.dialogError: return
+    msg = ''
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
     P.origin = W.center.isChecked()
-    P.leadIn = float(W.liEntry.text())
-    P.leadOut = float(W.loEntry.text())
-    P.holeDiameter = float(W.hdEntry.text())
-    P.holeSpeed = int(W.hsEntry.text())
-    P.gridSize = float(W.gsEntry.text())
+    try:
+        P.leadIn = float(W.liEntry.text())
+    except:
+        msg += 'LEAD IN\n'
+    try:
+        P.leadOut = float(W.loEntry.text())
+    except:
+        msg += 'LEAD OUT\n'
+    try:
+        P.holeDiameter = float(W.hdEntry.text())
+    except:
+        msg += 'DIAMETER\n'
+    try:
+        P.holeSpeed = int(W.hsEntry.text())
+    except:
+        msg += 'SPEED %\n'
+    try:
+        P.gridSize = float(W.gsEntry.text())
+    except:
+        msg += 'GRID SIZE\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Settings Error', errMsg)
+        return
     W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Origin', int(P.origin), int, 'CONVERSATIONAL')

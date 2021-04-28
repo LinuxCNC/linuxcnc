@@ -36,26 +36,32 @@ def preview(P, W):
                 P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
                 return
         except:
-            msg = 'Invalid X LENGTH or Y LENGTH entry.\n'
+            msg = 'Invalid X LENGTH or Y LENGTH entry detected.\n'
             P.dialogError = True
             P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
             return
-        if W.r1Entry.text():
-            radius1 = float(W.r1Entry.text())
-        else:
-            radius1 = 0.0
-        if W.r2Entry.text():
-            radius2 = float(W.r2Entry.text())
-        else:
-            radius2 = 0.0
-        if W.r3Entry.text():
-            radius3 = float(W.r3Entry.text())
-        else:
-            radius3 = 0.0
-        if W.r4Entry.text():
-            radius4 = float(W.r4Entry.text())
-        else:
-            radius4 = 0.0
+        try:
+            if W.r1Entry.text():
+                radius1 = float(W.r1Entry.text())
+            else:
+                radius1 = 0.0
+            if W.r2Entry.text():
+                radius2 = float(W.r2Entry.text())
+            else:
+                radius2 = 0.0
+            if W.r3Entry.text():
+                radius3 = float(W.r3Entry.text())
+            else:
+                radius3 = 0.0
+            if W.r4Entry.text():
+                radius4 = float(W.r4Entry.text())
+            else:
+                radius4 = 0.0
+        except:
+            msg = 'Invalid RADIUS entry detected.\n'
+            P.dialogError = True
+            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            return
         if radius1 + radius2 > float(W.xlEntry.text()):
             msg = 'Radius 1 plus Radius 2 ({})\n\n' \
                   'cannot be greater than {}\n'.format(radius1 + radius2, float(W.xlEntry.text()))
@@ -91,48 +97,83 @@ def preview(P, W):
         if xLB >= 0 and yLR >= 0 and xLT >= 0 and yLL >= 0:
             blLength = math.sqrt(xC ** 2 + (yC * 2) ** 2)
             blAngle = math.atan((yC * 2) / xC)
-            if W.angEntry.text():
-                angle = math.radians(float(W.angEntry.text()))
-            else:
-                angle = 0.0
-            if W.liEntry.text():
-                leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-            else:
-                leadInOffset = 0
-            if W.loEntry.text():
-                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-            else:
-                leadOutOffset = 0
+            try:
+                if W.angEntry.text():
+                    angle = math.radians(float(W.angEntry.text()))
+                else:
+                    angle = 0.0
+            except:
+                msg = 'Invalid ANGLE entry detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
+            try:
+                if W.liEntry.text():
+                    leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+                else:
+                    leadInOffset = 0
+            except:
+                msg = 'Invalid LEAD IN entry detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
+            try:
+                if W.loEntry.text():
+                    leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+                else:
+                    leadOutOffset = 0
+            except:
+                msg = 'Invalid LEAD OUT entry detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
-            kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+            try:
+                kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+            except:
+                msg = 'Invalid Kerf Width entry in material detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
             if not W.xsEntry.text():
                 W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-            if W.center.isChecked():
-                if W.cExt.isChecked():
-                    xS = float(W.xsEntry.text()) + ((yC - radius2) * math.cos(angle + up)) + (xC * math.cos(angle + right))
+            try:
+                if W.center.isChecked():
+                    if W.cExt.isChecked():
+                        xS = float(W.xsEntry.text()) + ((yC - radius2) * math.cos(angle + up)) + (xC * math.cos(angle + right))
+                    else:
+                        xS = float(W.xsEntry.text()) + yC * math.cos(angle + up)
                 else:
-                    xS = float(W.xsEntry.text()) + yC * math.cos(angle + up)
-            else:
-                if W.cExt.isChecked():
-                    xS = (float(W.xsEntry.text()) + kOffset) + (float(W.xlEntry.text()) * math.cos(angle + up)) + (float(W.xlEntry.text()) * math.cos(angle + right))
-                else:
-                    xS = (float(W.xsEntry.text()) - kOffset) + (blLength * math.cos(angle + right + blAngle))
-
+                    if W.cExt.isChecked():
+                        xS = (float(W.xsEntry.text()) + kOffset) + (float(W.xlEntry.text()) * math.cos(angle + up)) + (float(W.xlEntry.text()) * math.cos(angle + right))
+                    else:
+                        xS = (float(W.xsEntry.text()) - kOffset) + (blLength * math.cos(angle + right + blAngle))
+            except:
+                msg = 'Invalid X ORIGIN entry detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
             if not W.ysEntry.text():
                 W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-            if W.center.isChecked():
-                if W.cExt.isChecked():
-                    yS = float(W.ysEntry.text()) + (yC - radius2 * math.sin(angle + up)) + (xC * math.sin(angle + right))
+            try:
+                if W.center.isChecked():
+                    if W.cExt.isChecked():
+                        yS = float(W.ysEntry.text()) + (yC - radius2 * math.sin(angle + up)) + (xC * math.sin(angle + right))
+                    else:
+                        yS = float(W.ysEntry.text()) + yC * math.sin(angle + up)
                 else:
-                    yS = float(W.ysEntry.text()) + yC * math.sin(angle + up)
-            else:
-                if W.cExt.isChecked():
-                    yS = (float(W.ysEntry.text()) + kOffset) + ((float(W.ylEntry.text()) - radius2) * math.sin(angle + up)) + (float(W.xlEntry.text()) * math.sin(angle + right))
-                else:
-                    yS = (float(W.ysEntry.text()) - kOffset) + (blLength * math.sin(angle + right + blAngle))
+                    if W.cExt.isChecked():
+                        yS = (float(W.ysEntry.text()) + kOffset) + ((float(W.ylEntry.text()) - radius2) * math.sin(angle + up)) + (float(W.xlEntry.text()) * math.sin(angle + right))
+                    else:
+                        yS = (float(W.ysEntry.text()) - kOffset) + (blLength * math.sin(angle + right + blAngle))
+            except:
+                msg = 'Invalid Y ORIGIN entry detected.\n'
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                return
             outTmp = open(P.fTmp, 'w')
             outNgc = open(P.fNgc, 'w')
             inWiz = open(P.fNgcBkp, 'r')
@@ -392,12 +433,18 @@ def rad_button_pressed(P, W, button, value):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
-    if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+        return
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
