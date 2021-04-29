@@ -2844,7 +2844,7 @@ class HandlerClass:
             self.display_materials()
             self.change_material(0)
             self.w.materials_box.setCurrentIndex(0)
-            self.w.materialTempPin.set(0)
+            self.materialTempPin.set(0)
 
     def save_materials(self, material, index):
         if index == 0:
