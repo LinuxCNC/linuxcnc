@@ -1282,7 +1282,7 @@ A LinuxCNC tool number (designated by $n) is required to be in the starting comm
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
 * *M3 $1 S1* will select and start the scribe.
-* *M3 $2 S1* will select and the plasma spotting tool.
+* *M3 $2 S1* will select and start the plasma spotting tool.
 
 
 * *M5 $0* will stop the plasma cutting tool.
@@ -2288,15 +2288,15 @@ To create a group of shapes:
 
 image::images/qtplasmac_conv_rotate.png[width=100,align="left"]
 
-The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or an imported G-Code file.
+The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group, or an imported G-Code file.
 
 Arrays created via Conversational may be rotated, however arrays that have been imported cannot be rotated.
 
 Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Click the *Rotate* icon to open the rotate dialog box.
-. Enter the appropriate values in the rotate dialog box and press *PREVIEW* to display the rotated code.
+. Click the *Rotate* icon to open the rotate tab.
+. Enter the appropriate values in the rotate tab and press *PREVIEW* to display the rotated code.
 . If the rotation is not correct, edit the values and press *PREVIEW* and the new rotated code will be shown. Repeat until satisfied with the rotated code.
 . Press *ADD* to complete the procedure.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
@@ -2305,16 +2305,31 @@ Rotation will not work on G-Code that is mathematically calculated, the values n
 
 image::images/qtplasmac_conv_array.png[width=100,align="left"]
 
-An array can be created from a shape, a group or an imported G-Code file.
+An array can be created from a shape, a group, or an imported G-Code file.
 
 Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
 
 The cut order of an array is from the left column to the right column, starting at the bottom row and ending at the top row.
 
 . Create a shape, a group, or use the imported G-Code file.
-. Click the *Array* icon to open the array dialog box.
-. Enter the appropriate values in the array dialog box and press *PREVIEW* to display the array.
+. Click the *Array* icon to open the array tab.
+. Enter the appropriate values in the array tab and press *PREVIEW* to display the array.
 . If the array is not correct, edit the values and press *PREVIEW* and the new array will be shown. Repeat until satisfied with the array.
+. Press *ADD* to complete the procedure.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+
+=== Conversational Scaling
+
+image::images/qtplasmac_conv_scaling.png[width=100,align="left"]
+
+The scaling feature will scale the current code displayed in the Preview tab, this can be a single shape, a group, or an imported G-Code file.
+
+It is advisable to scale the shape before attempting to use it to create an array.
+
+. Create a shape, a group, or use the imported G-Code file.
+. Click the *Scaling* icon to open the scaling tab.
+. Enter the appropriate values in the scaling tab and press *PREVIEW* to display the scaling.
+. If the scaling is not correct, edit the values and press *PREVIEW* and the new scaling will be shown. Repeat until satisfied with the scaling.
 . Press *ADD* to complete the procedure.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 

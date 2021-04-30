@@ -1,4 +1,4 @@
-VERSION = '1.0.27'
+VERSION = '1.0.28'
 
 import os, sys
 from shutil import copy as COPY
@@ -40,6 +40,7 @@ from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
 from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
+from qtvcp.lib.qtplasmac import conv_scale as CONVSCAL
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1638,6 +1639,7 @@ class HandlerClass:
         self.w.conv_sector.pressed.connect(lambda:self.conv_shape_request('conv_sector', CONVSECT, True))
         self.w.conv_rotate.pressed.connect(self.conv_rotate_pressed)
         self.w.conv_array.pressed.connect(self.conv_array_pressed)
+        self.w.conv_scale.pressed.connect(self.conv_scale_pressed)
         self.w.conv_new.pressed.connect(lambda:self.conv_new_pressed('button'))
         self.w.conv_save.pressed.connect(self.conv_save_pressed)
         self.w.conv_settings.pressed.connect(self.conv_settings_pressed)
@@ -3862,7 +3864,7 @@ class HandlerClass:
         self.oSaved = self.origin
         if not self.oldConvButton:
             self.conv_shape_request('conv_line', CONVLINE, True)
-        if self.oldConvButton == 'conv_array' or self.oldConvButton == 'conv_rotate':
+        if self.oldConvButton == 'conv_array' or self.oldConvButton == 'conv_rotate' or self.oldConvButton == 'conv_scale':
             self.w.conv_new.setEnabled(False)
         else:
             self.w.conv_new.setEnabled(True)
@@ -3965,6 +3967,15 @@ class HandlerClass:
                 else:
                     self.arrayMode = 'external'
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
+
+    def conv_scale_pressed(self):
+        with open(self.fNgc) as inFile:
+            for line in inFile:
+                if '(new conversational file)' in line:
+                    msg = 'The empty file: {}\n\ncannot be scaled.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Scale Error', msg)
+                    return
+        self.conv_shape_request(self.w.sender().objectName(), CONVSCAL, False)
 
     def conv_shape_request(self, shape, module, material):
 # **** TEMP TESTING ****
@@ -4123,7 +4134,8 @@ class HandlerClass:
                    'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
                    'conv_line', 'conv_circle', 'conv_triangle', 'conv_rectangle',
                    'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star',
-                   'conv_gusset', 'conv_sector', 'conv_rotate', 'conv_array']
+                   'conv_gusset', 'conv_sector', 'conv_rotate', 'conv_array',
+                   'conv_scale']
         for button in buttons:
             self.color_button_image(button, self.foreColor)
             self.w[button].setStyleSheet(\
