@@ -2124,19 +2124,19 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC. In order for t
 |CTRL+h|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+r|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |SPACE BAR|Pause motion.
-|o|Open a new program.
-|l|Load the previously opened program if no program is loaded. Reload the current program if there is a program loaded.
-|right arrow|jog the X axis positive.
-|left arrow|jog the X axis negative.
-|up arrow|jog the Y axis positive.
-|down arrow|jog the Y axis negative.
-|page up|jog the Z axis positive.
+|o|Opens a new program.
+|l|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
+|right arrow|Jogs the X axis positive.
+|left arrow|Jogs the X axis negative.
+|up arrow|Jogs the Y axis positive.
+|down arrow|Jogs the Y axis negative.
+|page up|Jogs the Z axis positive.
 |page down|jog the Z axis negative.
-|[|jog the A axis positive.
-|]|jog the A axis negative.
-|.|jog the B axis positive.
-|,|jog the B axis negative.
-|shift|used in conjunction with any jog key to invoke a rapid jog.
+|[|Jogs the A axis positive.
+|]|Jogs the A axis negative.
+|.|Jogs the B axis positive.
+|,|Jogs the B axis negative.
+|shift|Is used in conjunction with any jog key to invoke a rapid jog.
 |+|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
 |-|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
    If SLOW jogging is already active, the axis will jog at the displayed jog speed.
