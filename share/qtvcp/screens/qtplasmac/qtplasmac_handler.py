@@ -1,4 +1,4 @@
-VERSION = '1.0.28'
+VERSION = '1.0.29'
 
 import os, sys
 from shutil import copy as COPY

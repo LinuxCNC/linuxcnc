@@ -71,6 +71,7 @@ def preview(P, W):
         return
     outNgc = open(P.fNgc, 'w')
     inCod = open(P.fNgcBkp, 'r')
+    relative = False
     for line in inCod:
         line = line.strip().lower()
         # remove line numbers
@@ -81,7 +82,11 @@ def preview(P, W):
                 if not line:
                     break
         if line.startswith('g'):
-            rLine = rotate(P, W, angle, xOffset, yOffset, line)
+            if 'g91' in line:
+                relative = True
+            elif 'g90' in line:
+                relative = False
+            rLine = rotate(P, W, angle, xOffset, yOffset, line, relative)
             if rLine is not None:
                 outNgc.write(rLine)
             else:
@@ -95,7 +100,7 @@ def preview(P, W):
     W.add.setEnabled(True)
     W.undo.setEnabled(True)
 
-def rotate(P, W, angle, xOffset, yOffset, line):
+def rotate(P, W, angle, xOffset, yOffset, line, relative):
     REGCODE = COMPILE('([a-z]-?[0-9]+\.?([0-9]+)?)|\(.*\)')
     inLine = line
     comment = ''
@@ -130,16 +135,28 @@ def rotate(P, W, angle, xOffset, yOffset, line):
                         params['j'] = float(p.strip(n))
                         used += 'j'
         newLine = ('{}'.format(parts[0]))
-        if 'x' in used:
-            newLine += (' x{:.6f}'.format(params['x'] * math.cos(angle) - params['y'] * math.sin(angle) + xOffset))
-        if 'y' in used:
-            newLine += (' y{:.6f}'.format(params['y'] * math.cos(angle) + params['x'] * math.sin(angle) + yOffset))
-        if 'r' in used:
-            newLine += (' r{:.6f}'.format(params['r']))
-        if 'i' in used:
-            newLine += (' i{:.6f}'.format(params['i'] * math.cos(angle) - params['j'] * math.sin(angle)))
-        if 'j' in used:
-            newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
+        if relative:
+            if 'x' in used:
+                newLine += (' x{:.6f}'.format(params['x']))
+            if 'y' in used:
+                newLine += (' x{:.6f}'.format(params['y']))
+            if 'r' in used:
+                newLine += (' r{:.6f}'.format(params['r']))
+            if 'i' in used:
+                newLine += (' x{:.6f}'.format(params['i']))
+            if 'j' in used:
+                newLine += (' x{:.6f}'.format(params['j']))
+        else:
+            if 'x' in used:
+                newLine += (' x{:.6f}'.format(params['x'] * math.cos(angle) - params['y'] * math.sin(angle) + xOffset))
+            if 'y' in used:
+                newLine += (' y{:.6f}'.format(params['y'] * math.cos(angle) + params['x'] * math.sin(angle) + yOffset))
+            if 'r' in used:
+                newLine += (' r{:.6f}'.format(params['r']))
+            if 'i' in used:
+                newLine += (' i{:.6f}'.format(params['i'] * math.cos(angle) - params['j'] * math.sin(angle)))
+            if 'j' in used:
+                newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
         return ('{}\n'.format(newLine))
 
 def undo_pressed(P, W):
