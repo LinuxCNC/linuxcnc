@@ -42,21 +42,37 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
-    if W.scEntry.text():
-        try:
+    msg = ''
+    try:
+        if W.scEntry.text():
             scale = float(W.scEntry.text())
-        except:
-            msg = 'Invalid SCALE entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
-            return
+        else:
+            scale = 1
         if scale == 0:
-            msg = 'A scale greater then zero is required.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
-            return
-    else:
-        scale = 1
+            msg += 'SCALE (greater than zero is required)\n'
+    except:
+        msg += 'SCALE\n'
+    try:
+        if W.xEntry.text():
+            xOffset = float(W.xEntry.text())
+        else:
+            xOffset = 0
+    except:
+        msg += 'X OFFSET\n'
+    try:
+        if W.yEntry.text():
+            yOffset = float(W.yEntry.text())
+        else:
+            yOffset = 0
+    except:
+        msg += 'Y OFFSET\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        error_set(P, W, errMsg)
+        return
+    if scale == 1 and not xOffset and not yOffset:
+        cancel(P, W)
+        return
     scl = '#<conv_scale>'
     inCod = open(P.fNgcBkp, 'r')
     if scl in inCod.read():
@@ -80,7 +96,7 @@ def preview(P, W):
                     if not line:
                         break
             if len(line) and line[0] in 'gxy':
-                rLine = scale_shape(P, W, scl, line)
+                rLine = scale_shape(P, W, scl, line, xOffset, yOffset)
                 if rLine is not None:
                     outNgc.write(rLine)
                 else:
@@ -94,65 +110,108 @@ def preview(P, W):
     W.add.setEnabled(True)
     W.undo.setEnabled(True)
 
-def scale_shape(P, W, scale, line):
+def scale_shape(P, W, scale, line, xOffset, yOffset):
     if line[0] == 'g' and (line[1] not in '0123' or (line[1] in '0123' and len(line) > 2 and line[2] in '0123456789')):
         return '{}\n'.format(line)
     if line[0] == 'g' and line[1] in '0123' and line[2] == 'z':
         return '{}\n'.format(line)
     newLine = ''
-    multi = False
-    vary = False
-    zed = False
+    multiAxis = False
+    numParam = False
+    namParam = False
+    zAxis = False
+    lastAxis = ''
+    offset = ''
     while 1:
+        # remove spaces
         if line[0] == ' ':
             line = line[1:]
+        # if beginning of comment
         if line[0] == '(' or line[0] == ';':
-            if multi:
-                newLine += '*{}]'.format(scale)
+            if multiAxis:
+                print("0", line[0])
+                if lastAxis in 'xy':
+                    newLine += '*{} + {}]'.format(scale, offset)
+                else:
+                    newLine += '*{}]'.format(scale)
             newLine += line
             break
+        # if alpha character
         elif line[0].isalpha():
-            if multi and not vary:
-                multi = False
-                newLine += '*{}]'.format(scale)
-            if line[0] == 'z':
-                zed = True
+            if not numParam and not namParam:
+                if multiAxis:
+                    if lastAxis in 'xy':
+                        newLine += '*{} + {}]'.format(scale, offset)
+                    else:
+                        newLine += '*{}]'.format(scale)
+                lastAxis = line[0]
+                if line[0] == 'x':
+                    offset = xOffset
+                elif line[0] == 'y':
+                    offset = yOffset
+                elif line[0] == 'z':
+                    zAxis = True
             newLine += line[0]
             line = line[1:]
-        elif line[0] == '<':
-            vary = True
+        # if beginning of parameter
+        elif line[0] == '#':
+            numParam = True
             newLine += line[0]
             line = line[1:]
-        elif line[0] == '>':
-            vary = False
+        # if parameter should be a named parameter
+        elif line[0] == '<' and numParam:
+            numParam = False
+            namParam = True
             newLine += line[0]
             line = line[1:]
-        elif newLine[-1] in 'xyij' and not vary:
-            multi = True
+        #if end of numbered parameter
+        elif not line[0].isdigit() and numParam:
+            numParam = False
+            newLine += line[0]
+            line = line[1:]
+        # if end of named parameter
+        elif line[0] == '>' and namParam:
+            namParam = False
+            newLine += line[0]
+            line = line[1:]
+        #if last axis was x, y, i, or j
+        elif newLine[-1] in 'xyij' and not numParam and not namParam:
+            multiAxis = True
             newLine += '[{}'.format(line[0])
             line = line[1:]
+        # everything else
         else:
             newLine += line[0]
             line = line[1:]
+        # empty line, must be finished
         if not line:
-            if not zed:
-                newLine += '*{}]'.format(scale)
+            if not zAxis:
+                if lastAxis in 'xy':
+                    newLine += '*{} + {}]'.format(scale, offset)
+                else:
+                    newLine += '*{}]'.format(scale)
             break
     return ('{}\n'.format(newLine))
 
-def undo_pressed(P, W):
-    P.conv_undo_shape()
+def error_set(P, W, msg):
+    cancel(P, W)
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
 
 def widgets(P, W):
     #widgets
     W.scLabel = QLabel('SCALE')
-    W.scEntry = QLineEdit()
+    W.scEntry = QLineEdit('1.0')
+    W.xLabel = QLabel('X OFFSET')
+    W.xEntry = QLineEdit('0.0', objectName = 'xsEntry')
+    W.yLabel = QLabel('Y OFFSET')
+    W.yEntry = QLineEdit('0.0', objectName = 'ysEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
     W.lDesc = QLabel('SCALING SHAPE')
     #alignment and size
-    rightAlign = ['scLabel', 'scEntry']
+    rightAlign = ['scLabel', 'scEntry', 'xLabel', 'xEntry', 'yLabel', 'yEntry']
     centerAlign = ['lDesc']
     pButton = ['preview', 'add', 'undo']
     for widget in rightAlign:
@@ -170,16 +229,15 @@ def widgets(P, W):
     W.conv_send.setEnabled(False)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.scEntry.setText('1')
     P.conv_undo_shape()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:accept(P, W))
     W.undo.pressed.connect(lambda:cancel(P, W))
-    entries = ['scEntry']
+    entries = ['scEntry', 'xEntry', 'yEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
-        W[entry].editingFinished.connect(lambda:preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         for r in range(14):
@@ -188,6 +246,10 @@ def widgets(P, W):
             W.entries.addWidget(W['{}'.format(r)], 0 + r, 0)
         W.entries.addWidget(W.scLabel, 2, 1)
         W.entries.addWidget(W.scEntry, 2, 2)
+        W.entries.addWidget(W.xLabel, 4, 1)
+        W.entries.addWidget(W.xEntry, 4, 2)
+        W.entries.addWidget(W.yLabel, 6 , 1)
+        W.entries.addWidget(W.yEntry, 6, 2)
         W.entries.addWidget(W.preview, 13, 0)
         W.entries.addWidget(W.add, 13, 2)
         W.entries.addWidget(W.undo, 13, 4)
@@ -195,6 +257,10 @@ def widgets(P, W):
     else:
         W.entries.addWidget(W.scLabel, 1, 1)
         W.entries.addWidget(W.scEntry, 1, 2)
+        W.entries.addWidget(W.xLabel, 3, 1)
+        W.entries.addWidget(W.xEntry, 3, 2)
+        W.entries.addWidget(W.yLabel, 5 , 1)
+        W.entries.addWidget(W.yEntry, 5, 2)
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)

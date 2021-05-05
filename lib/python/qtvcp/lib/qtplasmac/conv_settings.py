@@ -51,8 +51,7 @@ def save(P, W):
         msg += 'GRID SIZE\n'
     if msg:
         errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Settings Error', errMsg)
+        error_set(P, W, errMsg)
         return
     W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
@@ -64,6 +63,10 @@ def save(P, W):
     W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
     W[P.oldConvButton].click()
+
+def error_set(P, W, msg):
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
 
 #def reload(parent, ambles, unitCode):
 def reload(P, W):

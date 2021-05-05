@@ -1,4 +1,4 @@
-VERSION = '1.0.29'
+VERSION = '1.0.30'
 
 import os, sys
 from shutil import copy as COPY
@@ -1402,17 +1402,22 @@ class HandlerClass:
     def bounds_check(self, boundsType, xOffset , yOffset):
         self.boundsError[boundsType] = False
         msg = ''
+        boundsMultiplier = 1
         if self.units == 'inch':
             units = 'in'
+            if self.gcodeProps['Units'] == 'mm':
+                boundsMultiplier = 0.03937
         else:
             units = 'mm'
+            if self.gcodeProps['Units'] == 'in':
+                boundsMultiplier = 25.4
         if 'X' in self.gcodeProps:
-            xMin = float(self.gcodeProps['X'].split()[0]) - xOffset
+            xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier - xOffset
             if xMin < self.xMin:
                 amount = float(self.xMin - xMin)
                 msg += 'X move would exceed X minimum limit by {:0.2f}{}\n'.format(amount, units)
                 self.boundsError[boundsType] = True
-            xMax = float(self.gcodeProps['X'].split()[2]) - xOffset
+            xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier - xOffset
             if xMax > self.xMax:
                 amount = float(xMax - self.xMax)
                 msg += 'X move would exceed X maximum limit by {:0.2f}{}\n'.format(amount, units)
@@ -1421,12 +1426,12 @@ class HandlerClass:
             xMin = 0
             xMax = 0
         if 'Y' in self.gcodeProps:
-            yMin = float(self.gcodeProps['Y'].split()[0]) - yOffset
+            yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier - yOffset
             if yMin < self.yMin:
                 amount = float(self.yMin - yMin)
                 msg += 'Y move would exceed Y minimum limit by {:0.2f}{}\n'.format(amount, units)
                 self.boundsError[boundsType] = True
-            yMax = float(self.gcodeProps['Y'].split()[2]) - yOffset
+            yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier - yOffset
             if yMax > self.yMax:
                 amount = float(yMax - self.yMax)
                 msg += 'Y move would exceed Y maximum limit by {:0.2f}{}\n'.format(amount, units)
@@ -3948,7 +3953,28 @@ class HandlerClass:
                     msg = 'The empty file: {}\n\ncannot be rotated.'.format(os.path.basename(self.fNgc))
                     self.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', msg)
                     return
+                elif ';rotated conversational shape' in line:
+                    errMsg = 'Cannot rotate a previously rotated shape:\n'
+                    self.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', errMsg)
+                    return
         self.conv_shape_request(self.w.sender().objectName(), CONVROTA, False)
+
+    def conv_scale_pressed(self):
+        with open(self.fNgc) as inFile:
+            rotated = False
+            for line in inFile:
+                if '(new conversational file)' in line:
+                    msg = 'The empty file: {}\n\ncannot be scaled.'.format(os.path.basename(self.fNgc))
+                    self.dialog_show_ok(QMessageBox.Warning, 'Scale Error', msg)
+                    return
+                elif line.strip().startswith('#<conv_scale>'):
+                    if rotated:
+                        errMsg = 'Cannot scale a previously scaled then rotated shape:\n'
+                        self.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', errMsg)
+                        return
+                elif line.strip().startswith(';rotated conversational shape'):
+                    rotated = True
+        self.conv_shape_request(self.w.sender().objectName(), CONVSCAL, False)
 
     def conv_array_pressed(self):
         with open(self.fNgc) as inFile:
@@ -3967,15 +3993,6 @@ class HandlerClass:
                 else:
                     self.arrayMode = 'external'
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
-
-    def conv_scale_pressed(self):
-        with open(self.fNgc) as inFile:
-            for line in inFile:
-                if '(new conversational file)' in line:
-                    msg = 'The empty file: {}\n\ncannot be scaled.'.format(os.path.basename(self.fNgc))
-                    self.dialog_show_ok(QMessageBox.Warning, 'Scale Error', msg)
-                    return
-        self.conv_shape_request(self.w.sender().objectName(), CONVSCAL, False)
 
     def conv_shape_request(self, shape, module, material):
 # **** TEMP TESTING ****
@@ -4033,7 +4050,7 @@ class HandlerClass:
     def conv_entry_changed(self, widget):
         name = widget.objectName()
         if widget.text():
-            if name in ['intEntry', 'hsEntry']:
+            if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
                 good = '0123456789'
             elif name in ['xsEntry', 'ysEntry', 'aEntry']:
                 good = '-.0123456789'

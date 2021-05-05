@@ -42,8 +42,7 @@ def preview(P, W):
             radius = 0
     except:
         msg = 'Invalid DIAMETER entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
+        error_set(P, msg)
         return
     if sides >= 3 and radius > 0:
         msg = ''
@@ -89,8 +88,7 @@ def preview(P, W):
             msg += 'ANGLE\n'
         if msg:
             errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', errMsg)
+            error_set(P, errMsg)
             return
         pList = []
         for i in range(sides):
@@ -175,8 +173,12 @@ def preview(P, W):
             msg += 'SIDES entry must be 3 or more.\n\n'
         if radius <= 0:
             msg += 'DIAMETER is required.'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
 
 def mode_changed(P, W):
     if W.mCombo.currentIndex() == 2:
@@ -201,8 +203,7 @@ def entry_changed(P, W, widget):
             W.kOffset.setEnabled(True)
     except:
         msg = 'Invalid LEAD IN entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Polygon Error', msg)
+        error_set(P, msg)
         return
 
 def add_shape_to_file(P, W):
@@ -229,20 +230,20 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.sLabel = QLabel('SIDES')
     W.sEntry = QLineEdit(objectName = 'intEntry')
     W.mCombo = QComboBox()
     W.dLabel = QLabel('DIAMETER')
     W.dEntry = QLineEdit()
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit(objectName='aEntry')
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -281,14 +282,9 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
-    W.aEntry.setText('0')
     P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -303,7 +299,7 @@ def widgets(P, W):
                'sEntry', 'dEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

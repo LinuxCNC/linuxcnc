@@ -32,8 +32,7 @@ def preview(P, W):
             radius = 0
     except:
         msg = 'Invalid DIAMETER entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', msg)
+        error_set(P, msg)
         return
     if radius > 0:
         msg = ''
@@ -92,8 +91,7 @@ def preview(P, W):
             msg += 'Y ORIGIN\n'
         if msg:
             errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', errMsg)
+            error_set(P, errMsg)
             return
         xS = xC - ijOffset - ijDiff
         yS = yC - ijOffset - ijDiff
@@ -187,16 +185,20 @@ def preview(P, W):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', 'DIAMETER is required.')
+        msg = 'DIAMETER is required'
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
         oclength = float(W.ocEntry.text())
     except:
         msg = 'Invalid OC LENGTH entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', msg)
+        error_set(P, msg)
         oclength = 0
         return
     centerX = lastX + IJ
@@ -290,13 +292,13 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.dLabel = QLabel('DIAMETER')
     W.dEntry = QLineEdit(objectName = '')
     W.overcut = QPushButton('OVER CUT')
@@ -341,10 +343,6 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
     P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -358,7 +356,7 @@ def widgets(P, W):
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'dEntry', 'ocEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

@@ -32,13 +32,11 @@ def preview(P, W):
                 msg = 'A positive X LENGTH is required.\n\n' \
                       '                    AND\n\n' \
                       'A positive Y LENGTH is required.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
         except:
             msg = 'Invalid X LENGTH or Y LENGTH entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         try:
             if W.r1Entry.text():
@@ -59,32 +57,27 @@ def preview(P, W):
                 radius4 = 0.0
         except:
             msg = 'Invalid RADIUS entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         if radius1 + radius2 > float(W.xlEntry.text()):
             msg = 'Radius 1 plus Radius 2 ({})\n\n' \
                   'cannot be greater than {}\n'.format(radius1 + radius2, float(W.xlEntry.text()))
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         if radius1 + radius3 > float(W.ylEntry.text()):
             msg = 'Radius 1 plus Radius 3 ({})\n\n' \
                   'cannot be greater than {}\n'.format(radius1 + radius3, float(W.ylEntry.text()))
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         if radius2 + radius4 > float(W.ylEntry.text()):
             msg = 'Radius 2 plus Radius 4 ({})\n\n' \
                   'can not be greater than {}\n'.format(radius2 + radius4, float(W.ylEntry.text()))
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         if radius3 > float(W.xlEntry.text()) / 2 or radius4 > float(W.xlEntry.text()) / 2:
             msg = 'Neither Radius 3 nor Radius 4\n\n' \
                   'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+            error_set(P, msg)
             return
         if W.xlEntry.text():
             xLB = float(W.xlEntry.text()) - (radius3 + radius4)
@@ -104,8 +97,7 @@ def preview(P, W):
                     angle = 0.0
             except:
                 msg = 'Invalid ANGLE entry detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             try:
                 if W.liEntry.text():
@@ -114,8 +106,7 @@ def preview(P, W):
                     leadInOffset = 0
             except:
                 msg = 'Invalid LEAD IN entry detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             try:
                 if W.loEntry.text():
@@ -124,8 +115,7 @@ def preview(P, W):
                     leadOutOffset = 0
             except:
                 msg = 'Invalid LEAD OUT entry detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             right = math.radians(0)
             up = math.radians(90)
@@ -135,8 +125,7 @@ def preview(P, W):
                 kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
             except:
                 msg = 'Invalid Kerf Width entry in material detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             if not W.xsEntry.text():
                 W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -153,8 +142,7 @@ def preview(P, W):
                         xS = (float(W.xsEntry.text()) - kOffset) + (blLength * math.cos(angle + right + blAngle))
             except:
                 msg = 'Invalid X ORIGIN entry detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             if not W.ysEntry.text():
                 W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
@@ -171,8 +159,7 @@ def preview(P, W):
                         yS = (float(W.ysEntry.text()) - kOffset) + (blLength * math.sin(angle + right + blAngle))
             except:
                 msg = 'Invalid Y ORIGIN entry detected.\n'
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+                error_set(P, msg)
                 return
             outTmp = open(P.fTmp, 'w')
             outNgc = open(P.fNgc, 'w')
@@ -419,8 +406,12 @@ def preview(P, W):
         msg = 'A positive X LENGTH is required.\n\n' \
               '                    AND\n\n' \
               'A positive Y LENGTH is required.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
 
 def rad_button_pressed(P, W, button, value):
     if button.text()[:3] == 'RAD':
@@ -442,8 +433,7 @@ def entry_changed(P, W, widget):
             W.kOffset.setEnabled(True)
     except:
         msg = 'Invalid LEAD IN entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
+        error_set(P, msg)
         return
 
 def auto_preview(P, W):
@@ -476,20 +466,19 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.xlLabel = QLabel('X LENGTH')
     W.xlEntry = QLineEdit()
     W.ylLabel = QLabel('Y LENGTH')
     W.ylEntry = QLineEdit()
     W.angLabel = QLabel('ANGLE')
-    W.angEntry = QLineEdit(objectName='aEntry')
-    W.angEntry.setText('0')
+    W.angEntry = QLineEdit('0.0', objectName='aEntry')
     W.r1Button = QPushButton('RADIUS 1')
     W.r1Entry = QLineEdit()
     W.r2Button = QPushButton('RADIUS 2')
@@ -535,11 +524,6 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.angEntry.setText('0.0')
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
@@ -556,7 +540,7 @@ def widgets(P, W):
                'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '1'))
     W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '2'))
     W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '3'))

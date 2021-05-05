@@ -30,8 +30,7 @@ def preview(P, W):
         kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
     except:
         msg += 'Kerf Width entry in material\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+        error_set(P, msg)
         return
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -101,8 +100,7 @@ def preview(P, W):
         msg += 'C ANGLE\n'
     if msg:
         errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', errMsg)
+        error_set(P, errMsg)
         return
     if a and b and c:
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
@@ -224,10 +222,8 @@ def preview(P, W):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        P.dialogError = True
         if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
             msg = 'A + B + C must equal 180.'
-            P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
         else:
             msg = 'Minimum requirements are:\n\n'\
                                      'a + b + c\n\n'\
@@ -239,7 +235,12 @@ def preview(P, W):
                                      'A + b + c\n\n'\
                                      'or\n\n'\
                                      'A + B + C + (a or b or c)'
-            P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
@@ -252,8 +253,7 @@ def entry_changed(P, W, widget):
             W.kOffset.setEnabled(True)
     except:
         msg = 'Invalid LEAD IN entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+        error_set(P, msg)
         return
 
 def auto_preview(P, W):
@@ -285,13 +285,13 @@ def widgets(P, W):
     W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.ALabel = QLabel('A ANGLE')
     W.AEntry = QLineEdit()
     W.BLabel = QLabel('B ANGLE')
@@ -305,7 +305,7 @@ def widgets(P, W):
     W.cLabel = QLabel('c LENGTH')
     W.cEntry = QLineEdit()
     W.angLabel = QLabel('ANGLE')
-    W.angEntry = QLineEdit(objectName='aEntry')
+    W.angEntry = QLineEdit('0.0', objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -338,11 +338,6 @@ def widgets(P, W):
     #starting parameters
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.angEntry.setText('0.0')
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
@@ -358,7 +353,7 @@ def widgets(P, W):
                'CEntry', 'aEntry', 'bEntry', 'cEntry', 'angEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

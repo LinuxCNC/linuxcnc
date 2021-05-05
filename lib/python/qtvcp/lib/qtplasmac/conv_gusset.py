@@ -31,16 +31,14 @@ def preview(P, W):
             width = float(W.wEntry.text())
     except:
         msg = 'Invalid WIDTH entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        error_set(P, msg)
         return
     try:
         if W.hEntry.text():
             height = float(W.hEntry.text())
     except:
         msg = 'Invalid HEIGHT entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        error_set(P, msg)
         return
     if width > 0 and height > 0:
         right = math.radians(0)
@@ -52,37 +50,32 @@ def preview(P, W):
                 angle = math.radians(float(W.aEntry.text()))
                 if angle == 0:
                     msg = 'ANGLE must be greater than zero.'
-                    P.dialogError = True
-                    P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+                    error_set(P, msg)
                     return
             else:
                 angle = up
         except:
             msg = 'Invalid ANGLE entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         try:
             if W.rEntry.text():
                 radius = float(W.rEntry.text())
                 if radius > height or radius > width:
                     msg = '{} must be less than WIDTH and HEIGHT.\n'.format(W.rButton.text())
-                    P.dialogError = True
-                    P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+                    error_set(P, msg)
                     return
             else:
                 radius = 0.0
         except:
             msg = 'Invalid {} entry detected.\n'.format(W.rButton.text())
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         try:
             kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
         except:
             msg = 'Invalid Kerf Width entry in material detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -97,8 +90,7 @@ def preview(P, W):
                 y0 = float(W.ysEntry.text()) - kOffset
         except:
             msg = 'Invalid X or Y ORIGIN entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         x1 = x0 + width * math.cos(right)
         y1 = y0 + width * math.sin(right)
@@ -118,8 +110,7 @@ def preview(P, W):
                 leadInOffset = 0
         except:
             msg = 'Invalid LEAD IN entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         try:
             if W.loEntry.text():
@@ -128,8 +119,7 @@ def preview(P, W):
                 leadOutOffset = 0
         except:
             msg = 'Invalid LEAD OUT entry detected.\n'
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+            error_set(P, msg)
             return
         if W.cExt.isChecked():
             if y2 >= y0:
@@ -246,8 +236,12 @@ def preview(P, W):
             msg += 'A positive WIDTH value is required.\n\n'
         if height <= 0:
             msg += 'A positive HEIGHT value is required.\n\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
 
 def rad_button_pressed(P, W, widget):
     if widget.text()[:3] == 'RAD':
@@ -272,8 +266,7 @@ def entry_changed(P, W, widget):
             W.kOffset.setEnabled(True)
     except:
         msg = 'Invalid LEAD IN entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Gusset Error', msg)
+        error_set(P, msg)
         return
 
 def add_shape_to_file(P, W):
@@ -295,21 +288,21 @@ def widgets(P, W):
     W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.wLabel = QLabel('WIDTH')
     W.wEntry = QLineEdit()
     W.hLabel = QLabel('HEIGHT')
     W.hEntry = QLineEdit()
     W.rButton = QPushButton('RADIUS')
-    W.rEntry = QLineEdit()
+    W.rEntry = QLineEdit('0.0')
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit(objectName='aEntry')
+    W.aEntry = QLineEdit('90.0', objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -341,12 +334,6 @@ def widgets(P, W):
     #starting parameters
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.rEntry.setText('0')
-    W.aEntry.setText('90.0')
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
@@ -362,7 +349,7 @@ def widgets(P, W):
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'rEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

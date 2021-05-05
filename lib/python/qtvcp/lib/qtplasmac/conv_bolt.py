@@ -49,8 +49,7 @@ def preview(P, W):
         msg += '# OF HOLES\n'
     if msg:
         errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', errMsg)
+        error_set(P, errMsg)
         return
     if cRadius > 0 and hRadius > 0 and holes > 0:
         msg =''
@@ -117,8 +116,7 @@ def preview(P, W):
             msg += 'Y ORIGIN\n'
         if msg:
             errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-            P.dialogError = True
-            P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', errMsg)
+            error_set(P, errMsg)
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -189,16 +187,19 @@ def preview(P, W):
             msg += 'HOLE DIA is required.\n\n'
         if holes == 0:
             msg += '# OF HOLES is required.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
         oclength = float(W.ocEntry.text())
     except:
         msg = 'Invalid OC LENGTH entry detected.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Bolt-Circle Error', msg)
+        error_set(P, msg)
         oclength = 0
         return
     centerX = lastX + IJ
@@ -256,11 +257,11 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.dLabel = QLabel('DIAMETER')
     W.dEntry = QLineEdit(objectName = '')
     W.hdLabel = QLabel('HOLE DIA')
@@ -268,9 +269,9 @@ def widgets(P, W):
     W.hLabel = QLabel('# OF HOLES')
     W.hEntry = QLineEdit(objectName='intEntry')
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit(objectName='aEntry')
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.caLabel = QLabel('CIRCLE ANG')
-    W.caEntry = QLineEdit()
+    W.caEntry = QLineEdit('360')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -307,11 +308,6 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.aEntry.setText('0')
-    W.caEntry.setText('360')
     P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -325,7 +321,7 @@ def widgets(P, W):
                'hdEntry', 'hEntry', 'aEntry', 'caEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.overcut, 0, 0)

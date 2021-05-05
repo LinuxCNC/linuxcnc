@@ -41,6 +41,8 @@ def accept(P, W):
     W.conv_send.setEnabled(True)
 
 def preview(P, W):
+    global PARAMS
+    PARAMS = {}
     if P.dialogError: return
     msg = ''
     try:
@@ -66,12 +68,17 @@ def preview(P, W):
         msg += 'Y OFFSET\n'
     if msg:
         errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', errMsg)
+        error_set(P, W, errMsg)
+        return
+    if not angle and not xOffset and not yOffset:
+        cancel(P, W)
         return
     outNgc = open(P.fNgc, 'w')
-    inCod = open(P.fNgcBkp, 'r')
+    outNgc.write(';rotated conversational shape\n')
+    with open(P.fNgcBkp, 'r') as inFile:
+        inCod = inFile.readlines()
     relative = False
+    lastCoords = ['','','','','','','']
     for line in inCod:
         line = line.strip().lower()
         # remove line numbers
@@ -86,90 +93,194 @@ def preview(P, W):
                 relative = True
             elif 'g90' in line:
                 relative = False
-            rLine = rotate(P, W, angle, xOffset, yOffset, line, relative)
+            rLine = rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords)
             if rLine is not None:
                 outNgc.write(rLine)
             else:
                 return
         else:
             outNgc.write('{}\n'.format(line))
-    inCod.close()
     outNgc.close()
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(True)
     W.undo.setEnabled(True)
 
-def rotate(P, W, angle, xOffset, yOffset, line, relative):
-    REGCODE = COMPILE('([a-z]-?[0-9]+\.?([0-9]+)?)|\(.*\)')
-    inLine = line
-    comment = ''
-    i = inLine.find('(')
-    if i >= 0:
-      comment = inLine[i:]
-      inLine = inLine[:i - 1].strip()
-    if len(inLine) > 0:
-        parts = list([ list(cmd)[0] for cmd in REGCODE.findall(inLine) ])
-        if len(parts) <= 1 or parts[0] not in ['g0', 'g1', 'g2', 'g3', 'x', 'y'] or \
-           inLine.replace(' ','').startswith('g0z[#<_ini[axis_z]max_limit>-'):
-            return '{}\n'.format(line)
-        angle = math.radians(angle)
-        params = {'x':0.0, 'y':0.0, 'r':0.0, 'i':0.0, 'j':0.0,}
-        used = ''
-        for p in parts:
-            for n in 'xyrij':
-                if n in p:
-                    if n == 'x':
-                        params['x'] = float(p.strip(n))
-                        used += 'x'
-                    elif n == 'y':
-                        params['y'] = float(p.strip(n))
-                        used += 'y'
-                    elif n == 'r':
-                        params['r'] = float(p.strip(n))
-                        used += 'r'
-                    elif n == 'i':
-                        params['i'] = float(p.strip(n))
-                        used += 'i'
-                    elif n == 'j':
-                        params['j'] = float(p.strip(n))
-                        used += 'j'
-        newLine = ('{}'.format(parts[0]))
-        if relative:
-            if 'x' in used:
-                newLine += (' x{:.6f}'.format(params['x']))
-            if 'y' in used:
-                newLine += (' x{:.6f}'.format(params['y']))
-            if 'r' in used:
-                newLine += (' r{:.6f}'.format(params['r']))
-            if 'i' in used:
-                newLine += (' x{:.6f}'.format(params['i']))
-            if 'j' in used:
-                newLine += (' x{:.6f}'.format(params['j']))
-        else:
-            if 'x' in used:
-                newLine += (' x{:.6f}'.format(params['x'] * math.cos(angle) - params['y'] * math.sin(angle) + xOffset))
-            if 'y' in used:
-                newLine += (' y{:.6f}'.format(params['y'] * math.cos(angle) + params['x'] * math.sin(angle) + yOffset))
-            if 'r' in used:
-                newLine += (' r{:.6f}'.format(params['r']))
-            if 'i' in used:
-                newLine += (' i{:.6f}'.format(params['i'] * math.cos(angle) - params['j'] * math.sin(angle)))
-            if 'j' in used:
-                newLine += (' j{:.6f}'.format(params['j'] * math.cos(angle) + params['i'] * math.sin(angle)))
-        return ('{}\n'.format(newLine))
+def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
+    global PARAMS
+    if line[0] == 'g' and (line.replace(' ','')[1] not in '0123' or (line.replace(' ','')[1] in '0123' and len(line.replace(' ','')) > 2 and line.replace(' ','')[2] in '0123456789')):
+        return '{}\n'.format(line)
+    if line[0] == 'g' and line.replace(' ','')[1] in '0123' and line.replace(' ','')[2] == 'z':
+        return '{}\n'.format(line)
+    bracket = 0
+    param = 0
+    params = []
+    pcount = 0
+    zed = False
+    coords = ['','','','','','','']
+    clist = 'gxyijrc'
+    current = ''
+    # break line up into a list of command plus coordinates
+    while line:
+        if line[0] == ' ':
+            line = line[1:]
+        elif line[0] == '(' or line[0] == ';':
+            current = 'c'
+            coords[clist.index(current)] += line[0]
+            line = line[1:]
+        elif line[0] == '#' and current != 'c':
+            param = 1
+            pcount += 1
+            params.append(line[0])
+            if current:
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+        elif line[0] == '<' and current != 'c':
+            if param:
+                params[pcount-1] += line[0]
+            if param == 1:
+                param = 2
+            if current:
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+        elif line[0] == '>' and current != 'c':
+            if param:
+                params[pcount-1] += line[0]
+            param = 0
+            if current:
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+        elif line[0].isalpha() and not param and not bracket and current != 'c':
+            if line[0] in 'gxyijr':
+                current = line[0]
+            else:
+                current = ''
+            if line[0] == 'z':
+                zed = True
+            line = line[1:]
+        elif line[0] == '[' and not param and current != 'c':
+            bracket += 1
+            if current:
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+#        elif line[0] == ']' and not param and current != 'c':
 
-def undo_pressed(P, W):
-    P.conv_undo_shape()
+        elif line[0] == ']' and current != 'c':
+            if param:
+                params[pcount-1] += line[0]
+            param = 0
+
+            bracket -= 1
+            if current:
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+        else:
+            if param:
+                params[pcount-1] += line[0]
+            if current and (line[0] in '-.0123456789' or bracket):
+                coords[clist.index(current)] += line[0]
+            elif current == 'c':
+                coords[clist.index(current)] += line[0]
+            line = line[1:]
+    # create dict of all discovered parameters plus values
+    if params:
+        for p in params:
+            if p not in PARAMS:
+                with open(P.fNgcBkp, 'r') as inFile:
+                    for l in inFile:
+                        l = l.replace(' ','')
+                        if l.startswith('{}='.format(p)):
+                            v = l.split('=')[1]
+                            PARAMS[p] = v.strip()
+    # replace params with values
+    if PARAMS:
+        for p in PARAMS:
+            coords = [sub.replace(p, PARAMS[p]) for sub in coords]
+    # relative coordinates need no calcs
+    if relative:
+        newLine = 'g{}'.format(coords[clist.index('g')])
+        if coords[clist.index('x')]:
+            newLine += ' x{}'.format(coords[clist.index('x')])
+        if coords[clist.index('y')]:
+            newLine += ' y{}'.format(coords[clist.index('y')])
+    else:
+        # if no x/y value replace with last value
+        if not coords[clist.index('x')]:
+            coords[clist.index('x')] = lastCoords[clist.index('x')]
+        if not coords[clist.index('y')]:
+            coords[clist.index('y')] = lastCoords[clist.index('y')]
+        # calculate new coordinates
+        if len(coords[clist.index('g')]):
+            newLine = 'g{}'.format(coords[clist.index('g')]) 
+        s = math.sin(math.radians(angle))
+        c = math.cos(math.radians(angle))
+        # attempt to create a float from the x/y coordinates
+        try:
+            x = float(coords[clist.index('x')].replace('[','(').replace(']',')'))
+            y = float(coords[clist.index('y')].replace('[','(').replace(']',')'))
+            xo = float(xOffset)
+            yo = float(yOffset)
+            newLine += ' x{:.6f}'.format(x * c - y * s + xo) 
+            newLine += ' y{:.6f}'.format(y * c + x * s + yo) 
+        # otherwise use the original x/y calculation
+        except:
+            newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
+            newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+
+            # if coords[clist.index('x')] and coords[clist.index('y')]:
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+            # elif coords[clist.index('x')]:
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, lastCoords[clist.index('y')], s, xOffset) 
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(lastCoords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+            # elif coords[clist.index('y')]:
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(lastCoords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, lastCoords[clist.index('x')], s, yOffset) 
+
+
+        # do arc calculations
+        if newLine[1] == '2' or newLine[1] == '3':
+            # center format arc
+            if not len(coords[clist.index('r')]):
+                # attempt to create a float from the i/j value
+                try:
+                    i = float(coords[clist.index('i')])
+                    j = float(coords[clist.index('j')])
+                    newLine += (' i{:.6f}'.format(i * c - j * s))
+                    newLine += (' j{:.6f}'.format(j * c + i * s))
+                # otherwise use the original i/j calculation
+                except:
+                    newLine += ' i[{}*{:.6f}-{}*{:.6f}]'.format(coords[clist.index('i')], c, coords[clist.index('j')], s) 
+                    newLine += ' j[{}*{:.6f}+{}*{:.6f}]'.format(coords[clist.index('j')], c, coords[clist.index('i')], s) 
+            # radius format arc
+            else:
+                # attempt to create a float from the r value
+                try:
+                    r = float(coords[clist.index('r')])
+                    newLine += (' r{:.6f}'.format(r))
+                # otherwise use the original r calculation
+                except:
+                    newLine += ' r[{}]'.format(coords[clist.index('r')]) 
+        # save the coordinates
+        for co in coords:
+            if co:
+                lastCoords[coords.index(co)] = co
+        newLine += ' {}'.format(coords[clist.index('c')])
+    return '{}\n'.format(newLine)
+
+def error_set(P, W, msg):
+    cancel(P, W)
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', msg)
 
 def widgets(P, W):
     #widgets
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit(objectName='aEntry')
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.xLabel = QLabel('X OFFSET')
-    W.xEntry = QLineEdit(objectName = 'xsEntry')
+    W.xEntry = QLineEdit('0.0', objectName = 'xsEntry')
     W.yLabel = QLabel('Y OFFSET')
-    W.yEntry = QLineEdit(objectName = 'ysEntry')
+    W.yEntry = QLineEdit('0.0', objectName = 'ysEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -193,9 +304,6 @@ def widgets(P, W):
     W.conv_send.setEnabled(False)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.aEntry.setText('0')
-    W.xEntry.setText('0')
-    W.yEntry.setText('0')
     P.conv_undo_shape()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))
@@ -204,7 +312,7 @@ def widgets(P, W):
     entries = ['aEntry', 'xEntry', 'yEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
-        W[entry].editingFinished.connect(lambda:preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         for r in range(14):

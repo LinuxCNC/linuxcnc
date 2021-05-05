@@ -67,8 +67,7 @@ def preview(P, W):
         msg += 'Y OFFSET ORIGIN\n'
     if msg:
         errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Array Error', errMsg)
+        error_set(P, W, errMsg)
         return
     if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset != 0)) and (rows == 1 or (rows > 1 and yOffset != 0)):
         cancel(P, W, None)
@@ -181,35 +180,31 @@ def preview(P, W):
             msg += 'COLUMNS OFFSET is required.\n\n'
         if yOffset == 0 and rows > 1:
             msg += 'ROWS OFFSET is required.\n'
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
+        error_set(P, W, msg)
         return
     W.add.setEnabled(True)
 
-def auto_preview(P, W):
-    try:
-        if (int(W.cnEntry.text()) == 1 or (int(W.cnEntry.text()) > 1 and float(W.coEntry.text()) > 0)) and \
-           (int(W.rnEntry.text()) == 1 or (int(W.rnEntry.text()) > 1 and float(W.roEntry.text()) > 0)):
-            preview(P, W)
-    except:
-        pass
+def error_set(P, W, msg):
+    cancel(P, W, 'dummy')
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
 
 def widgets(P, W):
     #widgets
     W.cLabel = QLabel('COLUMNS')
     W.cnLabel = QLabel('NUMBER')
-    W.cnEntry = QLineEdit()
-    W.coEntry = QLineEdit()
+    W.cnEntry = QLineEdit('1', objectName='cnEntry')
+    W.coEntry = QLineEdit('0.0')
     W.coLabel = QLabel('OFFSET')
     W.rLabel = QLabel('ROWS')
     W.rnLabel = QLabel('NUMBER')
-    W.rnEntry = QLineEdit()
-    W.roEntry = QLineEdit()
+    W.rnEntry = QLineEdit('1', objectName='rnEntry')
+    W.roEntry = QLineEdit('0.0')
     W.roLabel = QLabel('OFFSET')
     W.oLabel = QLabel('ORIGIN')
     W.oxLabel = QLabel('X OFFSET')
-    W.oxEntry = QLineEdit(objectName = 'xsEntry')
-    W.oyEntry = QLineEdit(objectName = 'ysEntry')
+    W.oxEntry = QLineEdit('0.0', objectName = 'xsEntry')
+    W.oyEntry = QLineEdit('0.0', objectName = 'ysEntry')
     W.oyLabel = QLabel('Y OFFSET')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
@@ -241,12 +236,6 @@ def widgets(P, W):
     W.conv_send.setEnabled(False)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.cnEntry.setText('1')
-    W.coEntry.setText('0')
-    W.rnEntry.setText('1')
-    W.roEntry.setText('0')
-    W.oxEntry.setText('0')
-    W.oyEntry.setText('0')
     P.conv_undo_shape()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))
@@ -255,7 +244,7 @@ def widgets(P, W):
     entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry', 'oyEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.s0 = QLabel('')
