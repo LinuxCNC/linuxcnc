@@ -1,4 +1,4 @@
-VERSION = '1.0.30'
+VERSION = '1.0.31'
 
 import os, sys
 from shutil import copy as COPY
@@ -27,6 +27,7 @@ from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -47,6 +48,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
+AUX_PRGM = Aux_program_loader()
 
 # a vertical line as a separator on the status bar
 class VLine(QFrame):
@@ -311,18 +313,20 @@ class HandlerClass:
 #################################################################################################################################
     def class_patch__(self):
         self.old_exitCall = EDITOR.exitCall
-        EDITOR.exitCall = self.exit_call
+        EDITOR.exitCall = self.new_exitCall
         self.old_gcodeLexerCall = EDITOR.gcodeLexerCall
-        EDITOR.gcodeLexerCall = self.gcode_lexer_call
+        EDITOR.gcodeLexerCall = self.new_gcodeLexerCall
         self.old_pythonLexerCall = EDITOR.pythonLexerCall
-        EDITOR.pythonLexerCall = self.python_lexer_call
+        EDITOR.pythonLexerCall = self.new_pythonLexerCall
         self.old_wheelEvent = CAM.wheelEvent
-        CAM.wheelEvent = self.wheelEvent
+        CAM.wheelEvent = self.new_wheelEvent
         self.old_drawText = CAM.drawText
-        CAM.drawText = self.drawText
+        CAM.drawText = self.new_drawText
+        self.old_submit = MDI_LINE.submit
+        MDI_LINE.submit = self.new_submit
 
 # patched gcode editor functions
-    def exit_call(self):
+    def new_exitCall(self):
         if self.w.gcode_editor.editor.isModified():
             msg = 'Unsaved changes will be lost...\n\nDo you want to exit?\n'
             if not self.dialog_show_yesno(QMessageBox.Question, 'Unsaved Changes', msg):
@@ -334,10 +338,10 @@ class HandlerClass:
             self.overlay.show()
         ACTION.SET_MANUAL_MODE()
 
-    def gcode_lexer_call(self):
+    def new_gcodeLexerCall(self):
         pass
 
-    def python_lexer_call(self):
+    def new_pythonLexerCall(self):
         pass
 
     def kill_check(self):
@@ -348,7 +352,7 @@ class HandlerClass:
             return False
 
 # patched camera functions
-    def drawText(self, event, qp):
+    def new_drawText(self, event, qp):
         qp.setPen(self.w.camview.text_color)
         qp.setFont(self.w.camview.font)
         if self.w.camview.pix:
@@ -357,7 +361,7 @@ class HandlerClass:
         else:
             qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignCenter, self.w.camview.text)
 
-    def wheelEvent(self, event):
+    def new_wheelEvent(self, event):
         mouseState = qApp.mouseButtons()
         size = self.w.camview.size()
         w = size.width()
@@ -375,6 +379,44 @@ class HandlerClass:
         if self.w.camview.diameter > w: self.w.camview.diameter = w
         if self.w.camview.scale < 1: self.w.camview.scale = 1
         if self.w.camview.scale > 5: self.w.camview.scale = 5
+
+# patched mdi_line functions
+    def new_submit(self):
+        text = str(self.w.mdihistory.MDILine.text()).rstrip()
+        if text == '': return
+        if text == 'HALMETER':
+            AUX_PRGM.load_halmeter()
+        elif text == 'STATUS':
+            AUX_PRGM.load_status()
+        elif text == 'HALSHOW':
+            AUX_PRGM.load_halshow()
+        elif text == 'CLASSICLADDER':
+            AUX_PRGM.load_ladder()
+        elif text == 'HALSCOPE':
+            AUX_PRGM.load_halscope()
+        elif text == 'CALIBRATION':
+            AUX_PRGM.load_calibration()
+        elif text == 'PREFERENCE':
+            STATUS.emit('show-preference')
+            self.w.preview_stack.setCurrentIndex(2)
+        else:
+            if 'm3' in text.lower().replace(' ',''):
+                msg = 'M3 commands are not allowed in MDI mode\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\n{}'.format(msg))
+                return
+            elif 'm5' in text.lower().replace(' ',''):
+                msg = 'M5 commands are not allowed in MDI mode\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\n{}'.format(msg))
+                return
+            ACTION.CALL_MDI(text+'\n')
+            try:
+                fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+                fp = open(fp, 'a')
+                fp.write(text + "\n")
+                fp.close()
+            except:
+                pass
+            STATUS.emit('mdi-history-changed')
 
 
 #################################################################################################################################
