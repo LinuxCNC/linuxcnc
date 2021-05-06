@@ -3277,7 +3277,7 @@ PNcConf has entries for all required THCAD parameters and will calculate and con
 [underline]*Voltage Scale*
 
 ----
-vs = r / ((f - z) / d / f)
+vs = r / ((f - z) / d / v)
 ----
 
 [underline]*Voltage Offset*
@@ -3286,21 +3286,17 @@ vs = r / ((f - z) / d / f)
 vo = z / d
 ----
 
-_d_ = value from jumper above.
+_r_ = divider ratio (see below).
+
+_f_ = full scale value from calibration sticker.
 
 _z_ = 0V value from calibration sticker.
 
-_f_ = Full scale value from calibration sticker.
+_d_ = value from jumper above.
 
-_r_ = Divider ratio below.
+_v_ = full scale voltage of THCAD
 
 [underline]*Divider Ratio*
-
-_THCAD-300_
-
-----
-r = 1
-----
 
 _THCAD-5 or THCAD-10_
 
@@ -3311,6 +3307,12 @@ The divider ratio is obtained by:
 
 ----
 r = (total_resistance + 100000) / 100000
+----
+
+_THCAD-300_
+
+----
+r = 1
 ----
 
 IMPORTANT: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN EACH OF THESE RESISTANCES SHOULD BE MADE UP OF SEVERAL HIGH VOLTAGE RESISTORS.
