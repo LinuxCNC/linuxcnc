@@ -53,8 +53,8 @@ static unsigned char rev2_gpios[] = {2, 3, 4,  7,  8,  9, 10, 11, 14, 15, 17, 18
 static unsigned char rev2_pins[] = {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
 
 // Raspberry2/3:
-static unsigned char rpi2_gpios[] = {2, 3, 4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 21, 23, 24, 25, 26, 27 };
-static unsigned char rpi2_pins[] =  {3, 5, 7, 29, 31, 26, 24, 21, 19, 23, 32, 33,  8, 10, 36, 11, 12, 35, 38, 15, 40, 16, 18, 22, 37, 13 };
+static unsigned char rpi2_gpios[] = {2, 3, 4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 };
+static unsigned char rpi2_pins[] =  {3, 5, 7, 29, 31, 26, 24, 21, 19, 23, 32, 33,  8, 10, 36, 11, 12, 35, 38, 40, 15, 16, 18, 22, 37, 13 };
 
 static int npins;
 static int  mem_fd;

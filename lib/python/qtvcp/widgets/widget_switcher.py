@@ -86,8 +86,12 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             num = n+1
             if num == number:
                 #print 'switch to ',obj[0],' tp ',self.widget(num).layout().objectName()
-                #print num, self.widget(num).objectName()
-                self.widget(num).layout().addWidget(obj[0])
+                #print num, self.widget(num).objectName(),self.widget(num).layout()
+                if self.widget(num).layout() is None:
+                    LOG.error('''Cannot move widget '{}' to widget '{}', No layout found in '{}'
+'''.format( obj[0].objectName(),self.widget(num).objectName(), self.widget(num).objectName()))
+                else:
+                    self.widget(num).layout().addWidget(obj[0])
                 self.setCurrentIndex(num)
                 self._current_object = obj
                 self._current_number = num

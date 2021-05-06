@@ -401,7 +401,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 else:
                     ACTION.SET_MACHINE_UNHOMED(self.joint)
             else:
-                if STATUS.is_all_homed():
+                if self.joint == -1:
+                    if STATUS.is_all_homed():
+                        ACTION.SET_MACHINE_UNHOMED(-1)
+                    else:
+                        ACTION.SET_MACHINE_HOMING(-1)
+                elif STATUS.is_joint_homed(self.joint):
                     ACTION.SET_MACHINE_UNHOMED(self.joint)
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint)
@@ -601,7 +606,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
         # defult error case
         else:
-            self.safecheck(state)
+            if state is not None:
+                self.safecheck(state)
             if not self._python_command:
                 LOG.error('No action recognised')
 

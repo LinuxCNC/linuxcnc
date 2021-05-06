@@ -468,6 +468,19 @@ class GlCanonDraw:
             print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
                    msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
+        g = self.get_geometry().upper()
+        linuxcnc.gui_respect_offsets(int('!' in g))
+
+        geometry_chars = "XYZABCUVW-!"
+        dupchars = []; badchars = []
+        for ch in g:
+            if g.count(ch) >1: dupchars.append(ch)
+            if not ch in geometry_chars: badchars.append(ch)
+        if dupchars:
+            print("Warning: duplicate chars %s in geometry: %s"%(dupchars,g))
+        if badchars:
+            print("Warning: unknown chars %s in geometry: %s"%(badchars,g))
+
     def realize(self):
         self.hershey = hershey.Hershey()
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
@@ -1093,6 +1106,9 @@ class GlCanonDraw:
     def redraw(self):
         s = self.stat
         s.poll()
+        linuxcnc.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
+                                 s.g5x_offset[1] + s.g92_offset[1],
+                                 s.g5x_offset[2] + s.g92_offset[2])
 
         machine_limit_min, machine_limit_max = self.soft_limits()
 

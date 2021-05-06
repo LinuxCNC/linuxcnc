@@ -20,6 +20,8 @@ image::images/blender.png["QTscreen Blender",align="left"]
 image::images/x1mill.png["QTscreen x1mill",align="left"]
 .cam_align - Camera alignment VCP
 image::images/qtvcp-cam-align.png["QTscreen x1mill",align="left"]
+.test panel - Test Panel VCP
+image::images/test_panel.png["Test Panel",align="left"]
 
 [[sec:qtvcp-overview]](((QtVcp Overview)))
 

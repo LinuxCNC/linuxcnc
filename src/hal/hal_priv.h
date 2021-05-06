@@ -185,6 +185,16 @@ typedef struct {
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
+/** HAL 'component' type.
+    Assigned according to RTAPI and ULAPI definitions.
+ */
+typedef enum {
+    COMPONENT_TYPE_UNKNOWN = -1,
+    COMPONENT_TYPE_USER,
+    COMPONENT_TYPE_REALTIME,
+    COMPONENT_TYPE_OTHER
+} component_type_t;
+
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
     An instance of this structure is added to a linked list when the
@@ -194,7 +204,7 @@ typedef struct {
     rtapi_intptr_t next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
-    int type;			/* 1 if realtime, 0 if not */
+    component_type_t type;
     int ready;                  /* nonzero if ready, 0 if not */
     int pid;			/* PID of component (user components only) */
     void *shmem_base;		/* base of shmem for this component */
