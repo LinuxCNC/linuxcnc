@@ -16,9 +16,9 @@ class ObjectRenderer(GLObject):
     def __init__(self):
         # initial position / rotation / scale
         self.position = glm.vec3(0)
-        self.rot_x = glm.radians(240)
+        self.rot_x = glm.radians(0)
         self.rot_y = glm.radians(0)
-        self.rot_z = glm.radians(240)
+        self.rot_z = glm.radians(0)
         self.rotate_pos = glm.vec3(0)
         self.scale = glm.vec3(1)
         # generate model matrix
@@ -218,11 +218,12 @@ class ObjectRenderer(GLObject):
     def set_rotate_pos(self, pos):
         self.rotate_pos = pos
         self._update_matrix()
-        
+
+    # sets the rotation in degrees
     def rotate(self, x, y, z):
-        self.rot_x = x
-        self.rot_y = y
-        self.rot_z = z
+        self.rot_x = glm.radians(x)
+        self.rot_y = glm.radians(y)
+        self.rot_z = glm.radians(z)
         self._update_matrix()
 
     # updates scale of the scene

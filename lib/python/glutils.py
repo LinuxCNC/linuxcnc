@@ -179,6 +179,11 @@ class Camera():
         self.zoomlevel *= level
         self.update_view()
 
+    def set_x_view(self):
+        self.rot_x = 0;
+        self.rot_y = 0;
+        self.rot_z = 0;
+        
     def update_view(self):
         self.view = glm.mat4()
         self.view = glm.translate(self.view, self.rotate_pos)
@@ -188,12 +193,10 @@ class Camera():
         self.view = glm.translate(self.view, self.position)
         self.view = glm.scale(self.view, glm.vec3(self.zoomlevel))
 
-    """
     def lookat(self, center):
         self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
         self.view = glm.lookAt(self.position, self.lookpos, glm.vec3(0.0,1.0,0))
-    """
 
     # this method is called on resize and may not contain
     # any gl calls, because the context may not be bound

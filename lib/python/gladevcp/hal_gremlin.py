@@ -143,17 +143,21 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
 
     def do_get_property(self, property):
+        if "-" in property.name:
+            print("do_get_property {}".format(property.name))
+
         name = property.name.replace('-', '_')
         if name == 'view':
-            return self.current_view
+            return self.get_current_view()
         elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
+        if "-" in property.name:
+            print("do_set_property {}".format(property.name))
         # TODO: fix do_set_property
-        return
         name = property.name.replace('-', '_')
 
         if name == 'view':
@@ -176,7 +180,6 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         else:
             raise AttributeError('unknown property %s' % property.name)
 
-        self.queue_draw()
         return True
 
     # This overrides glcannon.py method so we can change the DRO 
@@ -271,8 +274,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             line = -1
         self.emit('line-clicked', line)
 
-    def realize(self, widget):
-        gremlin.Gremlin.realize(self, widget)
+    #def realize(self, widget):
+    #    gremlin.Gremlin.realize(self, widget)
 
     def report_gcode_error(self, result, seq, filename):
         error_str = gcode.strerror(result)

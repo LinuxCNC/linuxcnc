@@ -46,6 +46,8 @@ import rs274.interpret
 import linuxcnc
 import gcode
 
+import string
+
 import time
 import re
 import tempfile
@@ -67,17 +69,39 @@ class Gremlin(Gtk.GLArea):
 
     def init_glcanondraw(self):
         pass
+
     def activate(self):
-        pass
-    def deactivate(self):
-        pass
-    def set_current_view(self):
+        print("activated")
         pass
 
+    def deactivate(self):
+        print("deactivated")
+        pass
+
+    def set_view(self, instance, param):
+        print(f"set_view called {instance}, {param}")
+
+    def get_current_view(self):
+        print("get current view")
+        return self.view
+
+    def set_current_view(self):
+        print("set current view")
+        #self.view = view
+
     def __init__(self, inifile):
+        temp = inifile.find("DISPLAY", "LATHE")
+        if temp:
+            temp = temp.lower()
+            self.lathe_option = temp in ["1", "true"]
+        else:
+            self.lathe_option = False
+
         Gtk.GLArea.__init__(self)
 
         self.set_auto_render(True)
+
+        self.view = "z"
 
         # save mouseposition, because
         # it's the only way to get a position delta
@@ -86,10 +110,11 @@ class Gremlin(Gtk.GLArea):
         self.mouse_y = 0
 
         self.object_renderer = ObjectRenderer()
+        self.object_renderer.rotate(240, 0, 240)
 
         # camera is for managing the projection and view matrices
         self.camera = Camera()
-        self.camera.setpos(glm.vec3(0,0,-5))
+        self.camera.setpos(glm.vec3(0, 0, -5))
 
         self.connect("realize", self.on_realize)
         self.connect("render", self.on_render)
@@ -99,6 +124,8 @@ class Gremlin(Gtk.GLArea):
         self.connect("button-press-event", self.on_button_pressed)
         self.connect("button-release-event", self.on_button_released)
         self.connect("scroll-event", self.on_scroll)
+        # view property
+        self.connect('notify::view', self.set_view)
 
         self.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
         self.add_events(Gdk.EventMask.POINTER_MOTION_HINT_MASK)
@@ -108,6 +135,8 @@ class Gremlin(Gtk.GLArea):
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
 
         self.statwrapper = StatWrapper(linuxcnc.stat(), inifile)
+
+        self.initialised = False
 
     def load(self, f):
         self.statwrapper.load(f)
@@ -171,9 +200,12 @@ class Gremlin(Gtk.GLArea):
     # the opengl context is initialized at this point
     def on_realize(self, area):
         ctx = self.get_context()
-        ctx.make_current()
+        if ctx:
+            ctx.make_current()
+        else:
+            raise Exception("opengl context not initialised")
 
-        self.on_resize(area,self.get_allocated_width(),self.get_allocated_height())
+        self.on_resize(area,self.get_allocated_width(), self.get_allocated_height())
 
         self.object_renderer.init()
 
