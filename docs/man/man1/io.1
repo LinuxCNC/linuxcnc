@@ -6,18 +6,19 @@
 ..
 
 .SH NAME
-iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
+iocontrol \- interacts with HAL or G-code in userspace
 
 .SH SYNOPSIS
 
-\fBloadusr io [\-ini \fIinifile\fB]
-
 .B [EMCIO]
 .br
-.B EMCIO = iov2
+.B EMCIO = io
 
 .SH DESCRIPTION
-These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
+
+I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+
+The following pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
 .P
 The signals are turned on and off in userspace - if you have strict timing requirements or simply need more i/o, consider using the realtime synchronized i/o provided by \fBmotion\fR(9) instead.
 .P
@@ -119,3 +120,14 @@ successful tool change (M6).
 \fBmotion\fR(9)
 
 \}
+.SH REPORTING BUGS
+Report bugs at 
+.UR https://github.com/LinuxCNC/linuxcnc/issues
+.UE
+.SH AUTHOR
+Derived from a work by Fred Proctor & Will Shackleford.
+.SH COPYRIGHT
+Copyright \(co 2004 the LinuxCNC project.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
