@@ -301,13 +301,13 @@ typedef struct {
     int task_id;		/* ID of the task that runs this thread */
     hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
     hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-#ifndef __KERNEL__
-    hal_s32_t *involuntary;	/* (param) total of involuntary context switches (uspace only) */
-    hal_bit_t involuntary_increased;	/* on last call, involuntary increased */
-#endif
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
     int comp_id;
+    // These two only are used in uspace, but so that the structure has
+    // consistent layout the fields are enabled unconditionally.
+    hal_s32_t *involuntary;	/* (param) total of involuntary context switches (uspace only) */
+    hal_bit_t involuntary_increased;	/* on last call, involuntary increased */
 } hal_thread_t;
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
