@@ -87,32 +87,32 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
         
         switch (chan->myinst){
         case HM2_GTAG_FABS:
-            r += hm2_register_tram_read_region(hm2, chan->reg_2_addr,
+            r += hm2_register_tram_read_region(hm2, chan->rw_addr[2],
                     sizeof(rtapi_u32),
-                    &chan->reg_2_read);
+                    &chan->read[2]);
                     /* no break */
         case HM2_GTAG_SSI:
-            r += hm2_register_tram_read_region(hm2, chan->reg_1_addr,
+            r += hm2_register_tram_read_region(hm2, chan->rw_addr[1],
                     sizeof(rtapi_u32),
-                    &chan->reg_1_read);
-            r += hm2_register_tram_read_region(hm2, chan->reg_0_addr,
+                    &chan->read[1]);
+            r += hm2_register_tram_read_region(hm2, chan->rw_addr[0],
                     sizeof(rtapi_u32),
-                    &chan->reg_0_read);
+                    &chan->read[0]);
             break;
         case HM2_GTAG_BISS:
             //BiSS is different, it reads mutliple times from the same address
-            r += hm2_register_tram_read_region(hm2, chan->reg_0_addr,
+            r += hm2_register_tram_read_region(hm2, chan->rw_addr[0],
                     sizeof(rtapi_u32),
-                    &chan->reg_0_read);
+                    &chan->read[0]);
             if (chan->num_read_bits > 32){
-                r += hm2_register_tram_read_region(hm2, chan->reg_0_addr,
+                r += hm2_register_tram_read_region(hm2, chan->rw_addr[0],
                         sizeof(rtapi_u32),
-                        &chan->reg_1_read);
+                        &chan->read[1]);
             }
             if (chan->num_read_bits > 64){
-                r += hm2_register_tram_read_region(hm2, chan->reg_0_addr,
+                r += hm2_register_tram_read_region(hm2, chan->rw_addr[0],
                         sizeof(rtapi_u32),
-                        &chan->reg_2_read);
+                        &chan->read[2]);
             }
             if (chan->num_read_bits > 96){
                 HM2_ERR("The driver is currently limited to 96 total bits and"
@@ -151,10 +151,10 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.ssi_version = md->version;
 
-    chan->reg_0_addr = md->base_address 
+    chan->rw_addr[0] = md->base_address 
             + (0 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_1_addr = md->base_address 
+    chan->rw_addr[1] = md->base_address 
             + (1 * md->register_stride)
             + chan->index * md->instance_stride;
     chan->reg_cs_addr = md->base_address 
@@ -162,7 +162,7 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
             + chan->index * md->instance_stride;
     hm2->absenc.ssi_global_start_addr = md->base_address 
             + (3 * md->register_stride);
-    chan->data_written = 0;
+    chan->data_written[0] = 0;
 
     
     chan->params->float_param = 500;
@@ -179,18 +179,18 @@ int hm2_absenc_setup_biss(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.biss_version = md->version;
     
-    chan->reg_0_addr = md->base_address 
+    chan->rw_addr[0] = md->base_address 
             + (0 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_1_addr = md->base_address 
+    chan->rw_addr[1] = md->base_address 
             + (1 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_2_addr = md->base_address 
+    chan->rw_addr[2] = md->base_address 
             + (2 * md->register_stride)
             + chan->index * md->instance_stride;
     hm2->absenc.biss_global_start_addr = md->base_address 
             + (3 * md->register_stride);
-    chan->data_written = 0;
+    chan->data_written[0] = 0;
     
     chan->params->float_param = 500;
     chan->params->timer_num = 0;
@@ -206,13 +206,13 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.fanuc_version = md->version;
 
-    chan->reg_0_addr = md->base_address 
+    chan->rw_addr[0] = md->base_address 
             + (0 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_1_addr = md->base_address 
+    chan->rw_addr[1] = md->base_address 
             + (1 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_2_addr = md->base_address 
+    chan->rw_addr[2] = md->base_address 
             + (2 * md->register_stride)
             + chan->index * md->instance_stride;
     chan->reg_cs_addr = md->base_address 
@@ -223,7 +223,7 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
             + chan->index * md->instance_stride;
     hm2->absenc.fabs_global_start_addr = md->base_address 
             + (5 * md->register_stride);
-    chan->data_written = 0;
+    chan->data_written[0] = 0;
 
     if (hal_param_u32_newf(HAL_RW, &(chan->params->u32_param),
             hm2->llio->comp_id,"%s.filter",
@@ -507,7 +507,7 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
         hm2_sserial_read_pins(chan);
 
         if ((chan->myinst == HM2_GTAG_FABS) 
-                &&(*chan->reg_2_read & 0x80000000)){
+                &&(*chan->read[2] & 0x80000000)){
 
             err_flag = 1;
             
@@ -573,12 +573,12 @@ void hm2_absenc_write(hostmot2_t *hm2){
                     | (chan->params->timer_num == 0) << 8
                     | (chan->params->timer_num != 0) << 9
                     | chan->num_read_bits;
-            if (buff != chan->data_written){
+            if (buff != chan->data_written[0]){
                 hm2->llio->write(hm2->llio,
                         chan->reg_cs_addr,
                         &buff,
                         sizeof(rtapi_u32));
-                chan->data_written = buff;
+                chan->data_written[0] = buff;
             }
             break;
         
@@ -591,24 +591,24 @@ void hm2_absenc_write(hostmot2_t *hm2){
             buff = dds << 16
             | filt << 10				
             | chan->num_read_bits;
-            if (buff != chan->data_written){
+            if (buff != chan->data_written[0]){
                HM2_PRINT("BISS DDS set to %d\n",dds);
                HM2_PRINT("BISS Filter set to %d\n",filt);
                hm2->llio->write(hm2->llio,
-                        chan->reg_1_addr,
+                        chan->rw_addr[1],
                         &buff,
                         sizeof(rtapi_u32));
-                chan->data_written = buff;
+                chan->data_written[0] = buff;
              }     
              buff2 =   chan->params->timer_num << 12
                     | (chan->params->timer_num == 0) << 8
                     | (chan->params->timer_num != 0) << 9;
-             if (buff2 != chan->data2_written){
+             if (buff2 != chan->data_written[1]){
                 hm2->llio->write(hm2->llio,
-                        chan->reg_2_addr,
+                        chan->rw_addr[2],
                         &buff2,
                         sizeof(rtapi_u32));
-                chan->data2_written = buff2;
+                chan->data_written[1] = buff2;
               }
         break;
         
@@ -623,29 +623,29 @@ void hm2_absenc_write(hostmot2_t *hm2){
             buff =  chan->params->timer_num << 12
                     | (chan->params->timer_num == 0) << 8
                     | (chan->params->timer_num != 0) << 9
-                    | (buff3 != chan->data3_written || buff2 != chan->data2_written) << 7;
-            if (buff != chan->data_written){
+                    | (buff3 != chan->data_written[2] || buff2 != chan->data_written[1]) << 7;
+            if (buff != chan->data_written[0]){
                 // if necessary this will set the write flag, then next time through
                 // it will get cleared. 
                 hm2->llio->write(hm2->llio,
                         chan->reg_cs_addr,
                         &buff,
                         sizeof(rtapi_u32));
-                chan->data_written = buff;
+                chan->data_written[0] = buff;
             }
-            if (buff2 != chan->data2_written){
+            if (buff2 != chan->data_written[1]){
                 hm2->llio->write(hm2->llio,
                         chan->data_reg_addr,
                         &buff,
                         sizeof(rtapi_u32));
-                chan->data2_written = buff2;
+                chan->data_written[1] = buff2;
             }
-            if (buff3 != chan->data3_written){
+            if (buff3 != chan->data_written[2]){
                 hm2->llio->write(hm2->llio,
-                        chan->reg_2_addr,
+                        chan->rw_addr[2],
                         &buff,
                         sizeof(rtapi_u32));
-                chan->data3_written = buff3;
+                chan->data_written[2] = buff3;
             }
             break;
         default:
@@ -683,8 +683,8 @@ void hm2_absenc_print_module(hostmot2_t *hm2) {
         HM2_PRINT("    instance %d:\n", i);
         HM2_PRINT("        hw:\n");
         HM2_PRINT("    command_addr: 0x%04X\n", hm2->absenc.chans[i].reg_cs_addr);
-        HM2_PRINT("    data 0 addr: 0x%04X\n", hm2->absenc.chans[i].reg_0_addr);
-        HM2_PRINT("    data 1 addr: 0x%04X\n", hm2->absenc.chans[i].reg_1_addr);
-        HM2_PRINT("    data 2 addr: 0x%04X\n", hm2->absenc.chans[i].reg_2_addr);
+        HM2_PRINT("    data 0 addr: 0x%04X\n", hm2->absenc.chans[i].rw_addr[0]);
+        HM2_PRINT("    data 1 addr: 0x%04X\n", hm2->absenc.chans[i].rw_addr[1]);
+        HM2_PRINT("    data 2 addr: 0x%04X\n", hm2->absenc.chans[i].rw_addr[2]);
     }
 }

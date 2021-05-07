@@ -262,6 +262,7 @@ extern "C" {
     int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
     EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
+    int state; /*spindle state*/
     char    direction;      /* CANON_DIRECTION flag for spindle orient */
     double  timeout;        /* of wait for spindle orient to complete */
     unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
@@ -544,6 +545,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double net_scale;   // scale or zero if inhibited
 	double css_factor;
 	double xoffset;
+	int state;
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient

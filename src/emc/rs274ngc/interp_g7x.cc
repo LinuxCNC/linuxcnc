@@ -1057,6 +1057,10 @@ int Interp::convert_g7x(int mode,
     original_block.x_number=x;
     original_block.z_number=z;
 
+    int error=convert_straight(G_0, block, settings);
+    if(error!=INTERP_OK)
+	return error;
+
     g7x path;
     std::complex<double> start(z,x);
 

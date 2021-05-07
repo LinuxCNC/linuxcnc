@@ -41,11 +41,14 @@ def reparent_qt_to_x11(window, parent):
 
     return window
 
+
 # forward events to an X11 window id
 from PyQt5.QtCore import Qt
 from Xlib.protocol import event
 from Xlib import display, X
 from Xlib.xobject import drawable
+
+
 class XEmbedFowarding():
 
     def __init__(self, window, forward):
@@ -56,7 +59,6 @@ class XEmbedFowarding():
             forward = int(forward, 0)
         except:
             return
-
 
         d = display.Display()
         self.fw = drawable.Window(d.display, forward, 0)
@@ -71,18 +73,13 @@ class XEmbedFowarding():
         print(e.nativeScanCode())
         print(e.nativeVirtualKey())
         print(e.text())
-        self.forward(e,e.nativeScanCode())
+        self.forward(e, e.nativeScanCode())
 
     def catch_keyrelease(self, e):
         return
 
-
-
-
-
-
-    #ks = gtk.keysyms
-    #ignore = [ ks.Tab, ks.Page_Up, ks.Page_Down
+    # ks = gtk.keysyms
+    # ignore = [ ks.Tab, ks.Page_Up, ks.Page_Down
     #         , ks.KP_Page_Up, ks.KP_Page_Down
     #         , ks.Left, ks.Right, ks.Up, ks.Down
     #         , ks.KP_Left, ks.KP_Right, ks.KP_Up, ks.KP_Down
@@ -104,29 +101,30 @@ class XEmbedFowarding():
                   event_x=0, event_y=0, same_screen=1)
         return klass(time=e.time, **kw)
 
-    def build_event(self,e, keycode, g):
+    def build_event(self, e, keycode, g):
         klass = event.KeyPress
-        time_lie = 264209133 # can't get XWIN event time from qtvcp events
-        kw = dict(window=self.fw, # window id to forward to 
-                    detail=keycode, # keysys code
-                    state=0,        # shift/cntrl/ etc modifier state anded together
-                    child=X.NONE,   # no child window
-                    root=g._data['root'],
-                    root_x=g._data['x'],
-                    root_y=g._data['y'],
-                    event_x=0, event_y=0,
-                    same_screen=1)        # not from our screen
+        time_lie = 264209133  # can't get XWIN event time from qtvcp events
+        kw = dict(window=self.fw,  # window id to forward to
+                  detail=keycode,  # keysys code
+                  state=0,  # shift/cntrl/ etc modifier state anded together
+                  child=X.NONE,  # no child window
+                  root=g._data['root'],
+                  root_x=g._data['x'],
+                  root_y=g._data['y'],
+                  event_x=0, event_y=0,
+                  same_screen=1)  # not from our screen
         return klass(time=time_lie, **kw)
 
     def forward(self, e, keycode):
-#        if e.keyval in ignore:
-#            return
+        #        if e.keyval in ignore:
+        #            return
 
         g = self.fw.get_geometry()
         fe = self.build_event(e, keycode, g)
         if not fe: return
 
         self.fw.send_event(fe)
+
 
 class X11ClientMessage():
     def __init__(self, receiver_id):
@@ -137,11 +135,10 @@ class X11ClientMessage():
     def send_client_message(self, message="Visible\0\0\0\0\0\0\0\0\0\0\0\0\0", mtype='Gladevcp'):
         print('X11 message sent')
         mess_type = self.d.intern_atom(mtype)
-        #TODO add check of message for 20 characters
+        # TODO add check of message for 20 characters
 
         cm_event = event.ClientMessage(
-            window = self.receiver_id,
-            client_type = mess_type,
-            data = (8, message))
+            window=self.receiver_id,
+            client_type=mess_type,
+            data=(8, message))
         self.d.send_event(self.receiver_id, cm_event)
-

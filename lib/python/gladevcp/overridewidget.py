@@ -48,7 +48,7 @@ class Override(Gtk.HScale):
         self.set_value_pos(Gtk.PositionType.LEFT)
         #self.add_mark(100.0,Gtk.PositionType.LEFT,'')
         self.connect('value-changed',self.update_value)
-        # The update time: every 100 milliseonds
+        # The update time: every 100 milliseconds
         GLib.timeout_add(100, self.periodic)
 
     # we set the adjustment limits based on the INI entries

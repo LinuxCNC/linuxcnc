@@ -10,17 +10,17 @@ Descripción detallada:
 
 * archivos nml
 
-- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
+-- utiliza un archivo nml predeterminado (que se encuentra en configs/common/linuxcnc.nml)
 
 * archivos hal
 
-- boss.hal - este es el archivo hal principal para Motenc, carga el controlador del motor y establece los enlaces de movimiento y de E/S (como el número de pin donde está el interruptor de límite X, o donde está conectado el pin de arranque del husillo); está bastante bien comentado, por lo que debería ser fácil de leer/modificar. Esta configuración servo es principalmente para máquinas serias, por lo que ESTOP debería planearse/implementarse adecuadamente (eso significa usar una cadena ESTOP externa, y dejar que LinuxCNC lo sepa, y también que interrumpa la cadena externa). Lea más sobre esto en la wiki en http://wiki.linuxcnc.org/
+-- boss.hal - este es el archivo hal principal para Motenc, carga el controlador del motor y establece los enlaces de movimiento y de E/S (como el número de pin donde está el interruptor de límite X, o donde está conectado el pin de arranque del husillo); está bastante bien comentado, por lo que debería ser fácil de leer/modificar. Esta configuración servo es principalmente para máquinas serias, por lo que ESTOP debería planearse/implementarse adecuadamente (eso significa usar una cadena ESTOP externa, y dejar que LinuxCNC lo sepa, y también que interrumpa la cadena externa). Lea más sobre esto en la wiki en http://wiki.linuxcnc.org/
 
 * archivos adicionales
 
-- boss.tbl: este es el archivo de la tabla de herramientas y contiene las definiciones de las herramientas utilizadas, junto con los tamaños de herramienta para la compensación (longitud y diámetro de la herramienta)
+-- boss.tbl: este es el archivo de la tabla de herramientas y contiene las definiciones de las herramientas utilizadas, junto con los tamaños de herramienta para la compensación (longitud y diámetro de la herramienta)
 
-- boss.var - el archivo de variables. El intérprete utiliza este archivo para guardar las variables internas cuando LinuxCNC se apaga y las vuelve a leer en el siguiente inicio.
+-- boss.var - el archivo de variables. El intérprete utiliza este archivo para guardar las variables internas cuando LinuxCNC se apaga y las vuelve a leer en el siguiente inicio.
 
 Más información específica se puede encontrar en la wiki de LinuxCNC:
 http://wiki.linuxcnc.org/

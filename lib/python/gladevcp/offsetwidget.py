@@ -54,7 +54,7 @@ class HAL_Offset(Gtk.Label):
         self.display_units_mm=0
         self.machine_units_mm=0
         self.unit_convert=[1]*9
-        # The update time: every 500 milliseonds
+        # The update time: every 500 milliseconds
         GObject.timeout_add(500, self.periodic)
 
         # check the ini file if UNITS are set to mm

@@ -1,0 +1,42 @@
+ifdef TOOL_NML_FLAG
+  LIBTOOLDATA_SRCS += emc/tooldata/tooldata_nml.cc
+  CXXUSERSRCS += emc/tooldata/tooldata_nml.cc
+else
+  LIBTOOLDATA_SRCS += emc/tooldata/tooldata_mmap.cc
+  CXXUSERSRCS += emc/tooldata/tooldata_mmap.cc
+  CXXUSERSRCS += emc/tooldata/tool_mmap_read.cc
+  TARGETS += ../bin/tool_mmap_read
+endif
+
+CXXUSERSRCS += emc/tooldata/tooldata_common.cc
+LIBTOOLDATA_SRCS += emc/tooldata/tooldata_common.cc
+
+CXXUSERSRCS      += emc/tooldata/tooldata_db.cc
+LIBTOOLDATA_SRCS += emc/tooldata/tooldata_db.cc
+
+CXXUSERSRCS += emc/tooldata/tool_watch.cc
+INCLUDES += emc/tooldata
+USERSRCS += $(LIBTOOLDATA_SRCS)
+
+TARGETS += ../lib/libtooldata.so ../lib/libtooldata.so.0
+TARGETS += ../bin/tool_watch
+
+$(call TOOBJSDEPS, $(LIBTOOLDATA_SRCS)) : EXTRAFLAGS=-fPIC
+
+../lib/libtooldata.so.0: $(patsubst %.cc,objects/%.o,$(LIBTOOLDATA_SRCS))
+	$(ECHO) tooldata: depends: $(patsubst %.cc,objects/%.o,$(LIBTOOLDATA_SRCS))
+	$(ECHO) tooldata: Linking: $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(LIBDL)
+
+ifdef TOOL_NML_FLAG
+else
+TOOL_MMAP_READ_SRCS = emc/tooldata/tool_mmap_read.cc
+../bin/tool_mmap_read: $(TOOL_MMAP_READ_SRCS) ../lib/libtooldata.so.0
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) ../lib/libtooldata.so.0
+endif
+
+TOOL_WATCH_SRCS = emc/tooldata/tool_watch.cc
+../bin/tool_watch: $(TOOL_WATCH_SRCS) ../lib/liblinuxcnc.a ../lib/libnml.so.0
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) ../lib/liblinuxcnc.a ../lib/libnml.so.0

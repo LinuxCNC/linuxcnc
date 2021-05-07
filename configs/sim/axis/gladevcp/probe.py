@@ -42,7 +42,7 @@ class EmcInterface(object):
             self.s = linuxcnc.stat()
             self.c = linuxcnc.command()
         except Exception as msg:
-            print("cant initialize EmcInterface: %s - LinuxCNC not running?" %(msg))
+            print("can not initialize EmcInterface: %s - LinuxCNC not running?" %(msg))
 
     def running(self,do_poll=True):
         if do_poll: self.s.poll()
@@ -112,13 +112,13 @@ class HandlerClass:
         if self.e.ensure_mode(linuxcnc.MODE_MANUAL):
             print("switched to manual mode")
         else:
-            print("cant switch to manual in this state")
+            print("can not switch to manual in this state")
 
     def on_mdi_mode(self,widget,data=None):
         if self.e.ensure_mode(linuxcnc.MODE_MDI):
             print("switched to MDI mode")
         else:
-            print("cant switch to MDI in this state")
+            print("can not switch to MDI in this state")
 
     def _query_emc_status(self,data=None):
         (task_mode, task_state, exec_state, interp_state) = self.e.emc_status()
@@ -149,7 +149,7 @@ class HandlerClass:
             print("%s axis not homed" %(chr(axis + ord('X'))))
             return
         if self.e.running(do_poll=False):
-            print("cant do that now - intepreter running")
+            print("can not do that now - interpreter running")
             return
 
         self.e.ensure_mode(linuxcnc.MODE_MDI)

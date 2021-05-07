@@ -191,6 +191,36 @@ read a pin, param or signal directly. +
 example: +
 value = hal.get_value("iocontrol.0.emc-enable-in") +
 
+=== get_info_pins()
+
+returns a list of dicts of all system pins. +
+[source,python]
+----
+listOfDicts = hal.get_info_pins()
+pinName1 = listOfDicts[0].get('NAME')
+pinValue1 = listOfDicts[0].get('VALUE')
+pinDirection1 = listOfDicts[0].get('DIRECTION')
+----
+
+=== get_info_signals()
+returns a list of dicts of all system signals. +
+[source,python]
+----
+listOfDicts = hal.get_info_signals()
+signalName1 = listOfDicts[0].get('NAME')
+signalValue1 = listOfDicts[0].get('VALUE')
+driverPin1 = listOfDicts[0].get('DRIVER')
+----
+=== get_info_params()
+
+returns a list of dicts of all system parameters. +
+[source,python]
+----
+listOfDicts = hal.get_info_params()
+paramName1 = listOfDicts[0].get('NAME')
+paramValue1 = listOfDicts[0].get('VALUE')
+----
+
 === new_signal
 Create a New signal of the type specified. +
 example" +

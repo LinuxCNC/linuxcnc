@@ -26,7 +26,7 @@ For a named widget, use:
 To retrieve a list of all widgets in the UI file, use:
     wl = self.builder.get_objects()
 
-This works regardless wether the UI is in libglade or GtkBuilder format.
+This works regardless whether the UI is in libglade or GtkBuilder format.
 
 persistence.py
 ==============

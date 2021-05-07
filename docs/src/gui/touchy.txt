@@ -27,7 +27,7 @@ connect its controls. Touchy executes the HAL commands in this file
 after it has made its own pins available for connection.
 
 For more information on HAL files and the net command see the
-<<cha:basic-hal-reference,Basic HAL Reference>>.
+<<cha:basic-hal-reference,HAL Basics>>.
 
 Touchy has several output pins that are meant to be connected to the
 motion controller to control wheel jogging:

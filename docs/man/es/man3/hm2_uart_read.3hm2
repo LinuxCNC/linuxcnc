@@ -1,5 +1,5 @@
-\ # Autor Andy Pugh
-\ # Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
 .TH hm2_uart_read "3hm2" "2012-05-23" "Documentación LinuxCNC" "Hostmot2"
 .SH NOMBRE
 

@@ -39,6 +39,13 @@ component spindle "Control a spindle with different acceleration and deceleratio
 
 description """This component will control a spindle with adjustable 
 acceleration and deceleration.
+
+ NOTE: This component is unfortunately named and creates pins with
+ names very much like those created by the motion component
+ In nearly every case this is not the documentation page that you are
+ looking for. See
+ http://linuxcnc.org/docs/html/man/man9/motion.9.html instead.
+
 It is designed for use with non-servo spindle drives that have separate 
 fwd/reverse inputs, such as DC drives and inverters.
 If a spindle encoder is available it is used to tailor the acceleration and 

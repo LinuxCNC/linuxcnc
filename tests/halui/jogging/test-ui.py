@@ -8,7 +8,7 @@ import os
 
 
 # this is how long we wait for linuxcnc to do our bidding
-timeout = 5.0
+timeout = 10.0
 
 
 # unbuffer stdout

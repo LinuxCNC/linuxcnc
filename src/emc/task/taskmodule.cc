@@ -30,7 +30,6 @@
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
 #include "taskclass.hh"
-#include "initool.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
 namespace bp = boost::python;
@@ -178,11 +177,13 @@ typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_cod
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_tw)( EMC_TASK_STAT &t );
 typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_tw)( EMC_TASK_STAT &t );
 
+#ifdef TOOL_NML //{
 typedef pp::array_1_t< CANON_TOOL_TABLE, CANON_POCKETS_MAX> tool_array, (*tool_w)( EMC_TOOL_STAT &t );
 
 static  tool_array tool_wrapper ( EMC_TOOL_STAT & t) {
     return tool_array(t.toolTable);
 }
+#endif //}
 
 static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
     return axis_array(m.axis);
@@ -248,7 +249,6 @@ static const char *ini_filename() { return emc_inifile; }
 
 BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;
-    using namespace boost;
 
     scope().attr("__doc__") =
         "Task introspection\n"
@@ -321,7 +321,7 @@ BOOST_PYTHON_MODULE(emctask) {
             .BOOST_PYENUM_VAL(EMC_ABORT_USER)
             ;
 
-    class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
+    class_<TaskWrap, boost::shared_ptr<TaskWrap>, boost::noncopyable >("Task")
 
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
@@ -330,7 +330,7 @@ BOOST_PYTHON_MODULE(emctask) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    class_ <EMC_TRAJ_STAT, noncopyable>("EMC_TRAJ_STAT",no_init)
+    class_ <EMC_TRAJ_STAT, boost::noncopyable>("EMC_TRAJ_STAT",no_init)
 	.def_readwrite("linearUnits", &EMC_TRAJ_STAT::linearUnits )
 	.def_readwrite("angularUnits", &EMC_TRAJ_STAT::angularUnits )
 	.def_readwrite("cycleTime", &EMC_TRAJ_STAT::cycleTime )
@@ -365,7 +365,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("feed_hold_enabled", &EMC_TRAJ_STAT::feed_hold_enabled )
 	;
 #pragma GCC diagnostic pop
-    class_ <EMC_JOINT_STAT, noncopyable>("EMC_JOINT_STAT",no_init)
+    class_ <EMC_JOINT_STAT, boost::noncopyable>("EMC_JOINT_STAT",no_init)
 	.def_readwrite("units", &EMC_JOINT_STAT::units)
 	.def_readwrite("backlash", &EMC_JOINT_STAT::backlash)
 	.def_readwrite("minPositionLimit", &EMC_JOINT_STAT::minPositionLimit)
@@ -389,7 +389,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("overrideLimits",  &EMC_JOINT_STAT::overrideLimits)
 	;
 
-    class_ <EMC_SPINDLE_STAT, noncopyable>("EMC_SPINDLE_STAT",no_init)
+    class_ <EMC_SPINDLE_STAT, boost::noncopyable>("EMC_SPINDLE_STAT",no_init)
 	.def_readwrite("speed", &EMC_SPINDLE_STAT::speed )
 	.def_readwrite("direction", &EMC_SPINDLE_STAT::direction )
 	.def_readwrite("brake", &EMC_SPINDLE_STAT::brake )
@@ -401,17 +401,17 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("spindle_orient_fault", &EMC_SPINDLE_STAT::orient_fault )
 	;
 
-    class_ <EMC_COOLANT_STAT , noncopyable>("EMC_COOLANT_STAT ",no_init)
+    class_ <EMC_COOLANT_STAT , boost::noncopyable>("EMC_COOLANT_STAT ",no_init)
 	.def_readwrite("mist", &EMC_COOLANT_STAT::mist )
 	.def_readwrite("flood", &EMC_COOLANT_STAT::flood )
 	;
 
-    class_ <EMC_LUBE_STAT, noncopyable>("EMC_LUBE_STAT",no_init)
+    class_ <EMC_LUBE_STAT, boost::noncopyable>("EMC_LUBE_STAT",no_init)
 	.def_readwrite("on", &EMC_LUBE_STAT::on )
 	.def_readwrite("level", &EMC_LUBE_STAT::level )
 	;
 
-    class_ <EMC_MOTION_STAT, noncopyable>("EMC_MOTION_STAT",no_init)
+    class_ <EMC_MOTION_STAT, boost::noncopyable>("EMC_MOTION_STAT",no_init)
 	.def_readwrite("traj", &EMC_MOTION_STAT::traj)
 	.add_property( "axis",
 		       bp::make_function( axis_w(&axis_wrapper),
@@ -434,7 +434,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	;
 
 
-    class_ <EMC_TASK_STAT, noncopyable>("EMC_TASK_STAT",no_init)
+    class_ <EMC_TASK_STAT, boost::noncopyable>("EMC_TASK_STAT",no_init)
 	.def_readwrite("mode",  &EMC_TASK_STAT::mode)
 	.def_readwrite("state",  &EMC_TASK_STAT::state)
 	.def_readwrite("execState",  &EMC_TASK_STAT::execState)
@@ -470,19 +470,21 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("delayLeft", &EMC_TASK_STAT::delayLeft)
 	;
 
-    class_ <EMC_TOOL_STAT, noncopyable>("EMC_TOOL_STAT",no_init)
+    class_ <EMC_TOOL_STAT, boost::noncopyable>("EMC_TOOL_STAT",no_init)
 	.def_readwrite("pocketPrepped", &EMC_TOOL_STAT::pocketPrepped )
 	.def_readwrite("toolInSpindle", &EMC_TOOL_STAT::toolInSpindle )
+#ifdef TOOL_NML //{
 	.add_property( "toolTable",
 		       bp::make_function( tool_w(&tool_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+#endif //}
 	;
 
-    class_ <EMC_AUX_STAT, noncopyable>("EMC_AUX_STAT",no_init)
+    class_ <EMC_AUX_STAT, boost::noncopyable>("EMC_AUX_STAT",no_init)
 	.def_readwrite("estop", &EMC_AUX_STAT::estop)
 	;
 
-    class_ <EMC_IO_STAT, noncopyable>("EMC_IO_STAT",no_init)
+    class_ <EMC_IO_STAT, boost::noncopyable>("EMC_IO_STAT",no_init)
 	.def_readwrite("cycleTime", &EMC_IO_STAT::cycleTime )
 	.def_readwrite("debug", &EMC_IO_STAT::debug )
 	.def_readwrite("reason", &EMC_IO_STAT::reason )
@@ -495,7 +497,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	;
 
 
-    class_ <EMC_STAT, emcstatus_ptr, noncopyable>("EMC_STAT",no_init)
+    class_ <EMC_STAT, emcstatus_ptr, boost::noncopyable>("EMC_STAT",no_init)
 	.def_readwrite("task", &EMC_STAT::task)
 	.def_readwrite("motion", &EMC_STAT::motion)
 	.def_readwrite("io", &EMC_STAT::io)

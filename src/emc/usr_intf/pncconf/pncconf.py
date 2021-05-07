@@ -318,6 +318,39 @@ class App:
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
+        # link to qtplasmac common directory
+        if self.d.frontend == _PD._QTPLASMAC:
+            if BASE == "/usr":
+                commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
+            else:
+                commonPath = '{}/configs/by_machine/qtplasmac/qtplasmac/'.format(BASE)
+            oldDir = '{}/qtplasmac'.format(base)
+            if os.path.islink(oldDir):
+                os.unlink(oldDir)
+            elif os.path.exists(oldDir):
+                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
+            os.symlink(commonPath, '{}/qtplasmac'.format(base))
+            # different tool table for plasmac
+            filename = os.path.join(base, "tool.tbl")
+            file = open(filename, "w")
+            print("T0 P1 X0 Y0 ;torch", file=file)
+            print("T1 P2 X0 Y0 ;scribe", file=file)
+            file.close()
+            # if using thcad for arc voltage
+            if self.d.thcadenc == 1:
+                if self.d.voltsrdiv < 150:
+                    dratio = self.d.voltsrdiv
+                else:
+                    dratio = (self.d.voltsrdiv + 100000) / 100000
+                vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+                voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
+                prefsfile = os.path.join(base, "qtplasmac.prefs")
+                if not os.path.exists(prefsfile):
+                    f1 = open(prefsfile, "w")
+                    print(("[PLASMA_PARAMETERS]"), file=f1)
+                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+                    f1.close()
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_FINISH_QUIT,False):
             gtk.main_quit()
@@ -1170,8 +1203,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     #dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firmraw")
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
-                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA1","TXDATA2","TXDATA3",
-                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
+                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA0", "TXDATA1","TXDATA2","TXDATA3",
+                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7"):
                         sserialchannels +=1
                 #dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firmraw")
                 if not tempcon in tempconlist:
@@ -1187,8 +1220,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         for k in range(0,placeholders):
                             #print "%d fill here with %d parts"% (k,placeholders)
                             temppinlist.append((_PD.NUSED,0))
-            if not sserialchannels == 0:
-                sserialchannels +=1
             # 7i96 doesn't number the connectors with P numbers so we fake it
             # TODO
             # probably should move the connector numbers to board data rather then firmware
@@ -2301,7 +2332,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                    _PD.TXEN2,_PD.TXDATA3,_PD.RXDATA3,_PD.TXEN3,_PD.TXDATA4,_PD.RXDATA4,_PD.TXEN4,
                                   _PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5,_PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6,_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7 ):
                     index2 = 0
-                #print index,index2,signaltocheck[index+index2]
+                #print(index,index2,signaltocheck[index+index2])
                 self.d[p] = signaltocheck[index+index2]
                 self.d[ptype] = widgetptype
                 self.d[pinv] = self.widgets[pinv].get_active()
@@ -2890,7 +2921,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                                 self.d[p] = _PD.I7I64_T
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
-                                                self.d[p] = _PD.I7I73_M0_T
+                                                self.d[p] = _PD.I7I73_M1_T
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
@@ -3418,6 +3449,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     relatedsearch = [_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM]
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = len(humansignallist)-1
+                    # check for a thcad encoder
+                    if "Arc Voltage" in pinchanged:
+                        self.p.page_set_state('thcad', True)
+                        self.d.thcadenc = 1
+                    else:
+                        self.p.page_set_state('thcad', False)
+                        self.d.thcadenc = 0
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1): 
                     #print"\nptype encoder"

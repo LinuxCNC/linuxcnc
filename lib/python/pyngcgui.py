@@ -1253,7 +1253,7 @@ class SubFile():
         self.inputlines = []
 
     def flagerror(self,e):
-        # accumulate erors from read() so entire file can be processed
+        # accumulate errors from read() so entire file can be processed
         self.errlist.append(e)
 
     def specialcomments_ngc(self,s):
@@ -1632,7 +1632,7 @@ class EntryFields():
 
     def make_entryfields(self,nparms):
         self.no_of_entries = nparms
-        # make VBoxes as required to accomodate entries
+        # make VBoxes as required to accommodate entries
         # destroy them when starting over -- this occurs
         # when a OnePg is reused for a different subfile
         try:

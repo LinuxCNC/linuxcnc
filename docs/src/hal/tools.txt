@@ -86,7 +86,7 @@ image::images/hal-meter02.png[alt="Halmeter"]
 
 == Halshow
 
-Halshow (see separate section for complete usage description)
+Halshow (<<cha:halshow,complete usage description>>) 
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
 The WATCH tab provides a continuous display of selected pin, parameters, and

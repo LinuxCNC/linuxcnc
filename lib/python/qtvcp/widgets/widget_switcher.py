@@ -29,7 +29,7 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
@@ -119,8 +119,8 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
                     obj[0].setParent(obj[1])
                 obj[0].show()
 
-    # show the stacked widget as orignally layed out (hopefully)
-    # This will set the stacked widget to diplay the first page
+    # show the stacked widget as originally laid out (hopefully)
+    # This will set the stacked widget to display the first page
     # which is index 0
     def show_default(self):
         for i in self._widgetNames:

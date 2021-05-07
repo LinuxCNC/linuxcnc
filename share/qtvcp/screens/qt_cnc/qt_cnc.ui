@@ -1153,6 +1153,9 @@ p, li { white-space: pre-wrap; }
       <blue>255</blue>
      </color>
     </property>
+    <property name="keyboardDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
     <property name="versaProbeDialog_option" stdset="0">
      <bool>true</bool>
     </property>

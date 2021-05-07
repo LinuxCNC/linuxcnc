@@ -18,8 +18,10 @@ FUNCTION(_) {
 		in1 = -in1;
 		in2 = -in2;
 	}
-	if((scale > 1 && in1/scale <= in2 && in2 <= in1*scale) || fabs(in1-in2) <= difference)
+	if((scale > 1 && in1/scale <= in2 && in2 <= in1*scale) || fabs(in1-in2) <= difference) {
 		out = 1;
-	else
+	}
+	else {
 		out = 0;
+	}
 }

@@ -2,12 +2,16 @@ component toggle2nist "toggle button to nist logic";
 
 description
 """
-toggle2nist can be used with a momentary push button connected to a
-toggle component to control a device that has separate on and off inputs
-and has an is-on output. 
-If in changes states via the toggle output
-  If is-on is true then on is false and off is true. 
-  If is-on is false the on true and off is false.
+Toggle2nist can be used with a momentary push button 
+to control a device that has separate on and off inputs
+and an is-on output. 
+
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
+
+\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
+
+
+.PSPIC -L ../man/images/toggle2nist.ps
 """;
 
 pin in  bit in;

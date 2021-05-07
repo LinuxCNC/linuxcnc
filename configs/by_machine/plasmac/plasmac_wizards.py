@@ -54,6 +54,7 @@ class wizards:
         self.initialized = True
         self.filter = './plasmac/plasmac_gcode.py'
         self.wizardButton = self.builder.get_object('wizard-b')
+        self.buttonBG = 'none'
         gobject.timeout_add(100, self.periodic)
 
     def set_theme(self):
@@ -247,6 +248,14 @@ class wizards:
                 Popen('axis-remote {}/{}'.format(path, lFile), stdout = PIPE, shell = True)
             elif self.gui == 'gmoccapy':
                 self.c.program_open('{}/{}'.format(path, lFile))
+        elif 'toggle-halpin' in commands.lower() and hal.get_value('halui.program.is-idle'):
+            halpin = commands.lower().split('toggle-halpin')[1].strip()
+            pinstate = hal.get_value(halpin)
+            hal.set_p(halpin, str(not pinstate))
+            if pinstate:
+                button.set_style(self.buttonPlain)
+            else:
+                button.set_style(self.buttonGreen)
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
@@ -332,6 +341,9 @@ class wizards:
         self.buttonRed = self.builder.get_object('button10').get_style().copy()
         self.buttonRed.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse('red')
         self.buttonRed.bg[gtk.STATE_PRELIGHT] = gtk.gdk.color_parse('red')
+        self.buttonGreen = self.builder.get_object('button10').get_style().copy()
+        self.buttonGreen.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse('green')
+        self.buttonGreen.bg[gtk.STATE_PRELIGHT] = gtk.gdk.color_parse('green')
 
     def periodic(self):
         self.s.poll()

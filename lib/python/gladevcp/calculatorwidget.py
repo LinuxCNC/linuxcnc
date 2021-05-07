@@ -2,7 +2,7 @@
 # GladeVcp Widget - calculator input
 # This widgets allows simple calculations.
 # The result can be returned for further use.
-# Origially to be used as numerical input on a touch screen.
+# Originally to be used as numerical input on a touch screen.
 #
 # Copyright (c) 2012 Chris Morley
 #

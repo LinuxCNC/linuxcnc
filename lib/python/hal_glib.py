@@ -16,13 +16,25 @@ else:
 # constants
 JOGJOINT  = 1
 JOGTELEOP = 0
+
+# add try for QtVCP Designer and probably GTK GLADE editor too
+# The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
     jointcount = int(inifile.find("KINS", "JOINTS"))
 except:
     pass
-
+try:
+    # get cycle time which could be in ms or seconds
+    # convert to ms - use this to set update time
+    ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+    if ct < 1:
+        CYCLE_TIME = int(ct * 1000)
+    else:
+        CYCLE_TIME = int(ct)
+except:
+    CYCLE_TIME = 100
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -143,56 +155,59 @@ class _GStat(GObject.GObject):
         'current-x-rel-position': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'current-position': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
                             GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
-        'current-z-rotation': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'requested-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'actual-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-z-rotation': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'requested-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'actual-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'spindle-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'feed-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'rapid-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'max-velocity-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'spindle-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'feed-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'rapid-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'feed-hold-enabled-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'feed-hold-enabled-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'itime-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpr-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'css-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'rpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'radius-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'diameter-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'flood-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'mist-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'itime-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpm-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpr-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'css-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'rpm-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'radius-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'diameter-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'flood-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'mist-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'm-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'g-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'm-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'g-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'f-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'blend-code-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
-        'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'user-system-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'metric-mode-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'user-system-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'mdi-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'gcode-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
-        'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'update-machine-log': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'move-text-lineup': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'move-text-linedown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'dialog-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
+        'mdi-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'gcode-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-line-selected': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-loading-progress': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-gcode-error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'graphics-gcode-properties': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-view-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
+        'mdi-history-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'machine-log-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'update-machine-log': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'move-text-lineup': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'move-text-linedown': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'dialog-request': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'focus-overlay-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
                             GObject.TYPE_PYOBJECT)),
-        'play-sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'virtual-keyboard': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'dro-reference-change-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'show-preference': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'shutdown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
-        'error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
-        'general': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'forced-update': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'play-sound': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'virtual-keyboard': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'dro-reference-change-request': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'show-preference': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'shutdown': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
+        'general': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'forced-update': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'progress': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -237,9 +252,9 @@ class _GStat(GObject.GObject):
         self.set_timer()
 
     # we put this in a function so qtvcp
-    # can overide it to fix a seg fault
+    # can override it to fix a seg fault
     def set_timer(self):
-        GObject.timeout_add(100, self.update)
+        GObject.timeout_add(CYCLE_TIME, self.update)
 
     def merge(self):
         self.old['command-state'] = self.stat.state
@@ -248,7 +263,7 @@ class _GStat(GObject.GObject):
         self.old['interp']= self.stat.interp_state
         # Only update file if call level is 0, which
         # means we are not executing a subroutine/remap
-        # This avoids emiting signals for bogus file names below
+        # This avoids emitting signals for bogus file names below
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
@@ -345,6 +360,10 @@ class _GStat(GObject.GObject):
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
         self.old['tool-info']  = self.stat.tool_table[0]
+        settings = self.stat.settings
+        self.old['f-code'] = settings[1]
+        self.old['blend-tolerance-code'] = settings[3]
+        self.old['nativecam-tolerance-code'] = settings[4]
 
     def update(self):
         try:
@@ -386,7 +405,7 @@ class _GStat(GObject.GObject):
             elif state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
 
-            # reset modes/interpeter on machine on
+            # reset modes/interpreter on machine on
             if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
@@ -428,7 +447,7 @@ class _GStat(GObject.GObject):
             # still be emitted if aborting a program shortly after it ran an
             # external file subroutine, but that is fixed by not updating the
             # file name if call level != 0 in the merge() function above.
-            # do avoid that a signal is emited in that case, causing
+            # do avoid that a signal is emitted in that case, causing
             # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.emit('file-loaded', file_new)
@@ -480,7 +499,7 @@ class _GStat(GObject.GObject):
                 self._is_all_homed = False
                 self.emit('not-all-homed', unhomed_joints)
 
-        # override limts
+        # override limits
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
         or_limits_set_new = self.old['override-limits-set']
@@ -633,6 +652,25 @@ class _GStat(GObject.GObject):
         if tool_info_new != tool_info_old:
             self.emit('tool-info-changed', tool_info_new)
 
+        #####################################
+        # settings
+        #####################################
+        # feed code
+        f_code_old = old.get('f-code', None)
+        f_code_new = self.old['f-code']
+        if f_code_new != f_code_old:
+            self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_old = old.get('blend-tolerance-code', None)
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_old = old.get('nativecam-tolerance-code', None)
+        cam_code_new = self.old['nativecam-tolerance-code']
+
+        if blend_code_new != blend_code_old or \
+           blend_code_new != blend_code_old:
+                self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
         # AND DONE... Return true to continue timeout
         self.emit('periodic')
         return True
@@ -663,6 +701,10 @@ class _GStat(GObject.GObject):
         or_limits_new = self.old['override-limits']
         or_limits_set_new = self.old['override-limits-set']
         self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
+        # hard limits tripped
+        t_list_new = self.old['hard-limits-list']
+        hard_limits_tripped_new = self.old['hard-limits-tripped']
+        self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # overrides
         feed_or_new = self.old['feed-or']
         self.emit('feed-override-changed',feed_or_new * 100)
@@ -731,6 +773,15 @@ class _GStat(GObject.GObject):
         tool_num_new = self.old['tool-prep-number']
         self.emit('tool-prep-changed', tool_num_new)
 
+        # feed code
+        f_code_new = self.old['f-code']
+        self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_new = self.old['nativecam-tolerance-code']
+        self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']
         self.emit('motion-mode-changed', motion_mode_new)
@@ -765,7 +816,7 @@ class _GStat(GObject.GObject):
             self._is_all_homed = False
             self.emit('not-all-homed', unhomed_joints)
 
-        # update external ojects
+        # update external objects
         self.emit('forced-update')
 
     # ********** Helper function ********************
@@ -804,7 +855,7 @@ class _GStat(GObject.GObject):
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    # check for requied modes
+    # check for required modes
     # fail if mode is 0
     # fail if machine is busy
     # true if all ready in mode
@@ -815,7 +866,10 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         premode = self.stat.task_mode
         if not modes: return (None, premode)
-        if  self.stat.task_mode in modes: return (True, premode)
+        try:
+            if  self.stat.task_mode in modes[0]: return (True, premode)
+        except:
+            if  self.stat.task_mode == modes[0]: return (True, premode)
         if running( self.stat): return (None, premode)
         return (False, premode)
 

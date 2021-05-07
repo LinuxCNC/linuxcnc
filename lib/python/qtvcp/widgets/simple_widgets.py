@@ -233,6 +233,13 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._is_spindle_rev = False
         self._joint_number = 0
 
+        # property data for style sheet dynamic changes
+        self._isManualProp = False
+        self._isMDIProp = False
+        self._isAutoProp = False
+        self._isEstopProp = False
+        self._isStateOnProp = False
+
     # Override setText function so we can toggle displayed text
     def setText(self, text):
         if not self._state_text:
@@ -265,11 +272,11 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self._flip_state(False)
 
         if self._is_estopped:
-            STATUS.connect('state-estop', lambda w: self._flip_state(True))
-            STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))
+            STATUS.connect('state-estop', lambda w: self._flip_state(True, prop='isEstopped'))
+            STATUS.connect('state-estop-reset', lambda w: self._flip_state(False, prop ='isEstopped'))
         elif self._is_on:
-            STATUS.connect('state-on', lambda w: self._flip_state(True))
-            STATUS.connect('state-off', lambda w: self._flip_state(False))
+            STATUS.connect('state-on', lambda w: self._flip_state(True, prop ='isStateOn'))
+            STATUS.connect('state-off', lambda w: self._flip_state(False, prop ='isStateOn'))
         elif self._is_homed:
             STATUS.connect('all-homed', lambda w: self._flip_state(True))
             STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False))
@@ -299,10 +306,12 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         elif self._is_spindle_stopped or self._is_spindle_fwd or self._is_spindle_rev:
             STATUS.connect('spindle-control-changed',  lambda w, state, speed: self._spindle_changed(speed))
 
-    def _flip_state(self, data):
+    def _flip_state(self, data, prop = None):
             if self._invert_status:
                 data = not data
             self.indicator_update(data)
+            if prop is not None:
+                self._style_polish(prop, data)
 
     def _j_homed(self, joint):
         if int(joint) == self._joint_number:
@@ -320,14 +329,22 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._flip_state(False)
 
     def _mode_changed(self, mode):
-        if self._is_manual and mode == 0:
-            self._flip_state(True)
-        elif self._is_mdi and mode == 1:
-            self._flip_state(True)
-        elif self._is_auto and mode == 2:
-            self._flip_state(True)
-        else:
-            self._flip_state(False)
+        state = False
+        if self._is_manual:
+            prop ='isManual'
+            if  mode == 0:
+                state = True
+        elif self._is_mdi:
+            prop ='isMDI'
+            if mode == 1:
+                state = True
+        elif self._is_auto:
+            prop ='isAuto'
+            if mode == 2:
+                state = True
+
+        self._flip_state(state)
+        self._style_polish(prop, state)
 
     def _spindle_changed(self, state):
         if self._is_spindle_stopped and state == 0:
@@ -339,8 +356,15 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         else:
             self._flip_state(False)
 
+    # force style sheet to update
+    def _style_polish(self, prop, state):
+        # print(prop,state)
+        self.setProperty(prop, state)
+        self.style().unpolish(self)
+        self.style().polish(self)
+
     # arbitraray python commands are possible using 'INSTANCE' in the string
-    # gives acess to widgets and handler functions 
+    # gives access to widgets and handler functions 
     def python_command(self, state = None):
         if self._python_command:
             if state:
@@ -627,7 +651,6 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)
     false_python_cmd_string = QtCore.pyqtProperty(str, get_false_python_command, set_false_python_command, reset_false_python_command)
 
-
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the QtCore.pyqtProperty properties in the editor
@@ -861,6 +884,37 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
     # NON BOOL
     joint_number_status = QtCore.pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
+
+# properties for stylesheet dynamic changes
+    def setisManual(self, data):
+        self._isManualProp = data
+    def getisManual(self):
+        return self._isManualProp
+    isManual = QtCore.pyqtProperty(bool, getisManual, setisManual)
+
+    def setisMDI(self, data):
+        self._isMDIProp = data
+    def getisMDI(self):
+        return self._isMDIProp
+    isMDI = QtCore.pyqtProperty(bool, getisMDI, setisMDI)
+
+    def setisAuto(self, data):
+        self._isAutoProp = data
+    def getisAuto(self):
+        return self._isAutoProp
+    isAuto = QtCore.pyqtProperty(bool, getisAuto, setisAuto)
+
+    def setisEstop(self, data):
+        self._isEstopProp = data
+    def getisEstop(self):
+        return self._isEstopProp
+    isEstop = QtCore.pyqtProperty(bool, getisEstop, setisEstop)
+
+    def setisStateOn(self, data):
+        self._isStateOnProp = data
+    def getisStateOn(self):
+        return self._isStateOnProp
+    isStateOn = QtCore.pyqtProperty(bool, getisStateOn, setisStateOn)
 
     # boilder code
     def __getitem__(self, item):

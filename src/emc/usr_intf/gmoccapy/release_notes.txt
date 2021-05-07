@@ -1,3 +1,54 @@
+ver 3.1.3.1
+- when used trivkins together with kinstype=BOTH, there was no 
+  joint jog buttons, as this way of using trivkins is not recommended 
+  nor useful. Even so a user might want to use that config so I 
+  changed gmoccapy to display in this case the joints jog button
+  Thanks to Clive S and mucy007 for reporting
+
+ver 3.1.3
+- added a dialog asking the user to save changes
+- when in min screen resolution the editing page was wrong formated
+  while using German language, because of too long strings
+  Thanks to Hans470 for reporting this bugs
+
+ver 3.1.2.3
+- when going back from file loading menu without selecting a file
+  brought you into fullscreen view.
+  Reported by: Hans (Hans470)
+  Thanks for reporting
+  
+ver 3.1.2.2
+- bug while running a program it was possible to click the reload file
+  button, resulting in an immediate reloading and stopping the running
+  code. Button is no insensitive while running a file
+
+ver 3.1.2.1
+- still a bug in handling ignore limits solved
+  issue #1000 reported by Hans470
+  solved by using new hal staus signal and deleted 
+  some unneded code
+
+ver 3.1.2
+- connecting macro button to physical button did send
+  a clicked signal, but macro button did expect a pressed signal
+  This bug has been reported from ulistermclame
+
+ver 3.1.1
+- setting analog-enable hal pins signal allways resetted
+  the jog vel of the slider. This has been reported from hans23
+  solved with this update
+
+ver 3.1.0
+- added the ability to hide the tooltips to
+  make the use with touch monitors more usefull
+  Thanks to neilwhelcher for the code and pointing this out
+
+ver 3.0.10
+- bug in handling ignore limits solved
+  issue #1000 reported by Hans470
+  solved by using new hal staus signal and deleted 
+  some unneded code
+
 ver 3.0.9.1
 - bug in handling back tool lathe solved
   reported on the forum from Schaap

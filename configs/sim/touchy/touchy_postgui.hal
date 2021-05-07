@@ -2,7 +2,7 @@
 # The commands in this file are run after TOUCHY starts
 
 # connect out test panel controls to TOUCHY
-# In a real machine you would connect similarily to REAL buttons
+# In a real machine you would connect similarly to REAL buttons
 
 net TEST-MPG    touchy_test.mpg =>
 net TEST-MPG    touchy.wheel-counts

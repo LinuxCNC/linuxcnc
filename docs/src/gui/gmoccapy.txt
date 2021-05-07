@@ -454,11 +454,16 @@ The goal is to get a GUI that may be operated in a tool shop, completely/mostly
 without mouse or keyboard.
 
 [NOTE]
-You will have to do all connections to gmoccapy pins in your postgui.hal file,
-because they are not available before loading the GUI completely. It is possible
-to call several postgui hal files, making the config easier to debug. Just use 
-a postgui_call_list.hal file. Connections to user panel must be made in a 
-separate hal file, as the panels are loaded after the GUI. 
+You will have to do all connections to gmoccapy pins in your postgui.hal file.
+When gmoccapy is started it creates the HAL pins for the GUI then it executes
+the HAL file named  in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
+Typically '<filename>' would be the configs base name + '_postgui' + '.hal' 
+eg. 'lathe_postgui.hal', but can be any legal filename. +
+These commands are executed after the screen is built, guaranteeing the widget's HAL 
+pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+Each will be run one after the other in the order they appear. +
+
 See <<gmoccapy:configuration-of-tabs-and-side-panels, Tabs and side panels>>
 for details.
 
@@ -650,8 +655,8 @@ To connect encoders the following pin are exported:
 * gmoccapy.spindle.spindle-override.count-enable = HAL_BIT  Must be True, to enable counts
 * gmoccapy.spindle.reset-spindle-override        = HAL_BIT  reset the spindle override to 100 %
 
-* gmoccapy.rapid.rapid_override.counts       = HAL_S32  Maximal Velocity of the machine
-* gmoccapy.rapid.rapid_override.count-enable = HAL_BIT  Must be True, to enable counts
+* gmoccapy.rapid.rapid-override.counts       = HAL_S32  Maximal Velocity of the machine
+* gmoccapy.rapid.rapid-override.count-enable = HAL_BIT  Must be True, to enable counts
 
 To connect potentiometers, use the following hal pin:
 
@@ -664,8 +669,8 @@ To connect potentiometers, use the following hal pin:
 * gmoccapy.spindle.spindle-override.direct-value  = HAL_FLOAT To adjust the spindle override slider
 * gmoccapy.spindle.spindle-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
 
-* gmoccapy.rapid.rapid_override.direct-value  = HAL_FLOAT To adjust the max velocity slider
-* gmoccapy.rapid.rapid_override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
+* gmoccapy.rapid.rapid-override.direct-value  = HAL_FLOAT To adjust the max velocity slider
+* gmoccapy.rapid.rapid-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
 
 In addition gmoccapy 3 offers additional hal pin to control
 the new slider widgets with momentary switches. The values how fast the increase
@@ -861,7 +866,7 @@ net gmoccapy-pin gmoccapy.messages.pin
 ----
 
 For more information on HAL files and the net command see the
-<<cha:basic-hal-reference,Basic HAL Reference>>.
+<<cha:basic-hal-reference,HAL Basics>>.
 
 === Spindle Feedback Pins
 

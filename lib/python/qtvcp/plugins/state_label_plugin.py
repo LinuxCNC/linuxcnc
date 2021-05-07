@@ -4,7 +4,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.state_label import StateLabel
 from qtvcp.widgets.qtvcp_icons import Icon
+
 ICON = Icon()
+
 
 class StateLabelPlugin(QPyDesignerCustomWidgetPlugin):
 
@@ -50,5 +52,3 @@ class StateLabelPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.state_label"
-
-

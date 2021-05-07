@@ -1,7 +1,7 @@
-This configuration step is intended for Sherline 3-axis stepper machines.
+Esta configuracion de pasos está destinada a máquinas Sherline de 3 ejes.
 
 Sherline3Axis_inch.ini
-   inch units
+   unidades imperiales
 
 Sherline3Axis_mm.ini
-   metric units
+   unidades metricas

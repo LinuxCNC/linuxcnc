@@ -9,7 +9,7 @@ Notes:
 
 1) Using corexykins requires home
 switches operating on motor
-postions for joints 0 and 1
+positions for joints 0 and 1
 
 2) An alternative method for coreXY
 kinematics uses trivkins kinematics

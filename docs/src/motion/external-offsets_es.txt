@@ -256,9 +256,9 @@ reemplazar el elemento 'LIB:basic_sim.tcl' con HALFILEs apropiados para la
 máquina. Los archivos pyvcp proporcionados (.hal y .xml) podrían ser un
 punto de partida para interfaces gui específicas de la aplicación.
 
-=== eoffsets_demo.ini
+=== eoffsets.ini
 
-La configuración sim 'sim/configs/axis/external_offsets/eoffsets_demo.ini'
+La configuración sim 'sim/configs/axis/external_offsets/eoffsets.ini'
 demuestra una máquina cartesiana XYZ con controles para habilitar
 offsets externos en cualquier eje.
 

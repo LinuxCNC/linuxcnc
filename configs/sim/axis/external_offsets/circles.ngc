@@ -12,7 +12,7 @@
 ;
 ; Alternate method for polygons:
 ;  1) use #<radius>=0 and jog to safe starting position
-;  2) use #<revs>=1, run progam for one revolution
+;  2) use #<revs>=1, run program for one revolution
 ;  3) Run program repeatedly and manually jog x (radius)
 ;     before each program start to increase/decrease
 ;     current radius for inside/outside polygon respectively

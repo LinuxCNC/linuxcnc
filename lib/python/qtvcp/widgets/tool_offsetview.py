@@ -19,7 +19,7 @@ import os
 import locale
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -41,8 +41,8 @@ INFO = Info()
 TOOL = Tool()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
-LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # custom spinbox controls for editing
 class ItemEditorFactory(QItemEditorFactory):
@@ -74,9 +74,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.editing_flag = False
         self.current_system = None
         self.current_tool = 0
-        self.mm_text_template = '%10.3f'
-        self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
+        self.dialog_code = 'CALCULATOR'
+        self.text_dialog_code = 'KEYBOARD'
 
         # create table
         self.createAllView()
@@ -91,6 +91,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('diameter-mode', lambda w, data: self.diameterMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
+        STATUS.connect('general',self.return_value)
+
         conversion = {5:"Y", 6:'Y', 7:"Z", 8:'Z', 9:"A", 10:"B", 11:"C", 12:"U", 13:"V", 14:"W"}
         for num, let in conversion.items():
             if let in (INFO.AVAILABLE_AXES):
@@ -158,6 +160,46 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
+        # row 0 is not editable (absolute position)
+        # column 19 is the descritive text column
+        if item.column() == 19:
+            self.callTextDialog(text,item)
+        elif item.column() <19 and item.column() > 0:
+            self.callDialog(text,item)
+
+    # alphanumerical
+    def callTextDialog(self, text,item):
+        text = self.tablemodel.arraydata[item.row()][19]
+        tool = self.tablemodel.arraydata[item.row()][1]
+        mess = {'NAME':self.text_dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':text, 'TITLE':'Tool {} Description Entry'.format(tool),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+    # numerical only
+    def callDialog(self, text,item):
+        axis = self.tablemodel.headerdata[item.column()]
+        tool = self.tablemodel.arraydata[item.row()][1]
+        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+                'PRELOAD':float(text), 'TITLE':'Tool {} Offset of {},{}'.format(tool, axis,text),
+                'ITEM':item}
+        LOG.debug('message sent:{}'.format (mess))
+        STATUS.emit('dialog-request', mess)
+
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        LOG.debug('message returned:{}'.format (message))
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        name2 = bool(message.get('NAME') == self.text_dialog_code)
+        item = message.get('ITEM')
+        if code and name and num is not None:
+            self.tablemodel.setData(item, num, None)
+        elif code and name2 and num is not None:
+            self.tablemodel.setData(item, num, None)
 
     #############################################################
 
@@ -166,7 +208,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         row = new.row()
         col = new.column()
         data = self.tablemodel.data(new)
-        print('Entered data:', data, row,col)
+        #print('Entered data:', data, row,col)
         # now update linuxcnc to the change
         try:
             if STATUS.is_status_valid():
@@ -200,6 +242,45 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def get_checked_list(self):
         return self.tablemodel.listCheckedTools()
 
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    ########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_keyboard_code(self, data):
+        self.text_dialog_code = data
+    def get_keyboard_code(self):
+        return self.text_dialog_code
+    def reset_keyboard_code(self):
+        self.text_dialog_code = 'KEYBOARD'
+    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
+
+    def setmetrictemplate(self, data):
+        self.tablemodel.metric_text_template = data
+    def getmetrictemplate(self):
+        return self.tablemodel.metric_text_template
+    def resetmetrictemplate(self):
+        self.tablemodel.metric_text_template =  '%10.3f'
+    metric_template = pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+
+    def setimperialtexttemplate(self, data):
+        self.tablemodel.imperial_text_template = data
+    def getimperialtexttemplate(self):
+        return self.tablemodel.imperial_text_template
+    def resetimperialtexttemplate(self):
+        self.tablemodel.imperial_text_template =  '%9.4f'
+    imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+
 #########################################
 # custom model
 #########################################
@@ -212,7 +293,7 @@ class MyTableModel(QAbstractTableModel):
         """
         super(MyTableModel, self).__init__(parent)
         self.text_template = '%.4f'
-        self.mm_text_template = '%10.3f'
+        self.metric_text_template = '%10.3f'
         self.zero_text_template = '%10.1f'
         self.imperial_text_template = '%9.4f'
         self.degree_text_template = '%10.1f'
@@ -284,7 +365,7 @@ class MyTableModel(QAbstractTableModel):
                     tmpl = lambda s: self.degree_text_template % s
                     return tmpl(value)
                 elif self.metric_display:
-                    tmpl = lambda s: self.mm_text_template % s
+                    tmpl = lambda s: self.metric_text_template % s
                 else:
                     tmpl = lambda s: self.imperial_text_template % s
                 if self.metric_display != INFO.MACHINE_IS_METRIC:

@@ -169,7 +169,7 @@ widget_class "MetaFrames"          style "titlebar"
 # to match in the glade file 
 style "halsourceview" = "default"
 {
-    base[SELECTED]    = "#FFFFFF" # hilight color
+    base[SELECTED]    = "#FFFFFF" # highlight color
     text[NORMAL]      = "#000000" # normal gcode text
     base[INSENSITIVE] = "#d7d7d7" # gcode background 'insensitive'
     base[NORMAL]      = "#d7d7d7" # gcode background 'sensitive'

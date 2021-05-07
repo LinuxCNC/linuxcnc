@@ -36,6 +36,8 @@ rMode        = '2093'
 rPressure    = '2096'
 rPressureMax = '209D'
 rPressureMin = '209C'
+rArcTimeLow  = '209E'
+rArcTimeHigh = '209F'
 validRead    = '0402'
 started      = False
 errorCount   = 0
@@ -43,7 +45,7 @@ errorCount   = 0
 # create pmx485 component
 pmx485 = hal.component('pmx485')
 pmx485.newpin('mode_set', hal.HAL_FLOAT, hal.HAL_IN)      #set cutting mode
-pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current 
+pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current
 pmx485.newpin('pressure_set', hal.HAL_FLOAT, hal.HAL_IN)  #set gas pressure
 pmx485.newpin('enable', hal.HAL_BIT, hal.HAL_IN)          #enabler
 pmx485.newpin('mode', hal.HAL_FLOAT, hal.HAL_OUT)         #cut mode feedback
@@ -55,6 +57,7 @@ pmx485.newpin('current_min', hal.HAL_FLOAT, hal.HAL_OUT)  #minimum allowed curre
 pmx485.newpin('current_max', hal.HAL_FLOAT, hal.HAL_OUT)  #maximum allowed current
 pmx485.newpin('pressure_min', hal.HAL_FLOAT, hal.HAL_OUT) #minimum allowed gas pressure
 pmx485.newpin('pressure_max', hal.HAL_FLOAT, hal.HAL_OUT) #maximum allowed gas pressure
+pmx485.newpin('arcTime', hal.HAL_FLOAT, hal.HAL_OUT)     #arc on time feedback
 pmx485.ready()
 
 enabled = pmx485.enable
@@ -169,7 +172,14 @@ def get_limits():
 # main loop
 try:
     while 1:
-        if hal.component_exists('plasmac_run'):
+        # if hal.component_exists('qtplasmac') or \
+        #    hal.component_exists('qtplasmac_9x16') or \
+        #    hal.component_exists('qtplasmac_4x3') or \
+        #    hal.component_exists('plasmac_run'):
+
+        # we don't really need the gui stuff above active to run this.
+        if 1:
+
             if enabled != pmx485.enable:
                 enabled = pmx485.enable
                 if not enabled:
@@ -223,8 +233,13 @@ try:
                     fault = read_register(rFault)
                     if fault:
                         pmx485.fault = int(fault, 16)
+                    # get arc on time
+                    arcTimeLow = read_register(rArcTimeLow)
+                    arcTimeHigh = read_register(rArcTimeHigh)
+                    if arcTimeLow and arcTimeHigh:
+                        pmx485.arcTime = int((arcTimeHigh + arcTimeLow), 16)
                     # set status
-                    if mode and current and pressure and fault:
+                    if mode and current and pressure and fault and arcTimeLow and arcTimeHigh:
                         pmx485.status = True
                         errorCount = 0
                     else:
@@ -245,6 +260,7 @@ try:
                             comms.close()
                             pmx485.status = False
                             started = False
+                            comms.close()
 except:
     print('Shutting down pmx485 communications')
     if started:

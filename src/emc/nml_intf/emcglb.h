@@ -48,8 +48,6 @@ extern "C" {
 
     extern int emc_task_interp_max_len;
 
-    extern char tool_table_file[LINELEN];
-
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
 

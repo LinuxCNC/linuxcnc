@@ -29,7 +29,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -39,7 +39,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         self.linear = True
         self._block_signal = False
 
-    # Default to continous jogging
+    # Default to continuous jogging
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):

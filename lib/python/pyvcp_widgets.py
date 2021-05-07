@@ -100,7 +100,7 @@ class pyvcp_dial(Canvas):
     """
     # FIXME:
     # -jogging should be enabled only when the circle has focus
-    #   TJP nocando:   only widgets have events, not thier 'items', the circle is an item
+    #   TJP nocando:   only widgets have events, not their 'items', the circle is an item
     
     # -circle should maintain focus when mouse over dot
     #   TJP nocando:   ditto, the circle is an item, so focus & event are not aligned to it
@@ -1250,7 +1250,7 @@ class pyvcp_bar(Canvas):
         start=tmp[0]
         end=tmp[1]
         self.bar=self.create_rectangle(start,2,end,self.bh-1)
-        # default fill unless overriden
+        # default fill unless overridden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text

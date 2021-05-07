@@ -2,6 +2,8 @@ component userkins"Template for user-built kinematics";
 
 description
 """
+.if \\n[.g] .mso www.tmac
+
 The userkins.comp file is a template for creating
 kinematics that can be user-built using halcompile.
 
@@ -16,7 +18,7 @@ kinematics for an xyz machine employing 3 joints
      directory (\\fBmydir\\fR).
 
      Note: The userkins.comp file can be downloaded from:
-     https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp
+.URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp 
      where '2.8' is the branch name (use 'master' for
      the master branch)
 

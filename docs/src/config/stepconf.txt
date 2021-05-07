@@ -199,6 +199,11 @@ to your charge pump input. The charge pump output is connected to the base
 thread by Stepconf. The charge pump output will be about 1/2 of the maximum
 step rate shown on the Basic Machine Configuration page.
 
+* 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc
+voltage then select Plasma Arc Voltage from the list of output pins.
+This will enable a THCAD page during the setup procedure for the entry of
+the card parameters.
+
 == Parallel Port 2 Setup
 
 .Parallel Port 2 Setup Page

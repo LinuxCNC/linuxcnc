@@ -1,6 +1,8 @@
 [[cha:basic-hal-reference]]
 
-= Basic HAL Reference
+= HAL Basics
+:toc:
+:toclevels: 3
 
 This document provides a reference to the basics of HAL.
 
@@ -87,6 +89,10 @@ addf <function> <thread>
 
 addf mux4.0 servo-thread
 ----
+
+[NOTE]
+If the component requires a floating point thread that is usually the slower
+servo-thread.
 
 === loadusr
 
@@ -338,7 +344,7 @@ have up to three HAL files in your config directory.
    GUI is loaded. Any HAL commands that use pyVCP widgets need to be
    placed here.
 
-== HAL Components
+== HAL Parameter
 
 Two parameters are automatically added to each HAL component when it
 is created. These parameters allow you to scope the execution time of a
@@ -356,12 +362,14 @@ function. Tmax is a read/write parameter so the user can set it to 0 to
 get rid of the first time initialization on the function's execution
 time.
 
-== Logic Components
+== Basic Logic Components
 
 HAL contains several real time logic components. Logic components
 follow a 'Truth Table' that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
+
+For further components see <<sec:realtime-components, Realtime Components List>> or the man pages.
 
 === and2
 
@@ -486,7 +494,7 @@ Truth Table
 |False | False | False
 |========================================
 
-=== Logic Examples
+== Logic Examples
 
 An 'and2' example connecting two inputs to one output.
 
@@ -508,53 +516,3 @@ connected to the in0 bit of the and gate. Next pin 12 is connected to
 the in1 bit of the and gate. Last we connect the and2 out bit to the
 parallel port pin 14. So following the truth table for and2 if pin 11
 and pin 12 are on then the output pin 14 will be on.
-
-== Conversion Components
-
-=== weighted_sum
-
-The weighted_sum converts a group of bits to an integer. The
-conversion is the sum of the 'weights' of the bits that are on plus any
-offset. The weight of the m-th bit is 2^m. This is similar to a binary
-coded decimal but with more options. The 'hold' bit stops processing the
-input changes so the 'sum' will not change.
-
-The following syntax is used to load the weighted_sum component.
-
-----
-loadrt weighted_sum wsum_sizes=size[,size,...]
-----
-
-Creates weighted sum groups each with the given number of input bits
-(size).
-
-To update the weighted_sum you need to attach process_wsums to a thread.
-
-----
-addf process_wsums servo-thread
-----
-
-This updates the weighted_sum component.
-
-In the following example clipped from the HAL Configuration window in
-Axis the bits '0' and '2' are true and there is no offset. The 'weight'
-of 0 is 1 and the 'weight' of 2 is 4 so the sum is 5.
-
-.weighted_sum
------------------------------------------------------------
-Component Pins: 
-Owner   Type  Dir         Value  Name
-    10  bit   In           TRUE  wsum.0.bit.0.in
-    10  s32   I/O             1  wsum.0.bit.0.weight
-    10  bit   In          FALSE  wsum.0.bit.1.in
-    10  s32   I/O             2  wsum.0.bit.1.weight
-    10  bit   In           TRUE  wsum.0.bit.2.in
-    10  s32   I/O             4  wsum.0.bit.2.weight
-    10  bit   In          FALSE  wsum.0.bit.3.in
-    10  s32   I/O             8  wsum.0.bit.3.weight
-    10  bit   In          FALSE  wsum.0.hold
-    10  s32   I/O             0  wsum.0.offset
-    10  s32   Out             5  wsum.0.sum
------------------------------------------------------------
-
-

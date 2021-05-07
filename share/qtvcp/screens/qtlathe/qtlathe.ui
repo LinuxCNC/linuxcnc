@@ -5213,7 +5213,7 @@ border-radius: 4px;
                        <bool>true</bool>
                       </property>
                       <property name="joint_number" stdset="0">
-                       <number>2</number>
+                       <number>1</number>
                       </property>
                       <property name="axis_letter" stdset="0">
                        <string>Z</string>
@@ -5260,7 +5260,7 @@ border-radius: 4px;
                        <bool>true</bool>
                       </property>
                       <property name="joint_number" stdset="0">
-                       <number>2</number>
+                       <number>1</number>
                       </property>
                       <property name="axis_letter" stdset="0">
                        <string>Z</string>

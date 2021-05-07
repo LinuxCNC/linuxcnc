@@ -40,8 +40,9 @@
 ###########################################################################
 
 import os
+import sys
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
+from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream, QUrl
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
         QStyleFactory, QWidget, QColorDialog)
 from PyQt5 import QtGui, QtCore
@@ -153,23 +154,41 @@ class StyleSheetEditor(QDialog):
 
     @pyqtSlot()
     def on_openButton_clicked(self):
-        dialog = QFileDialog(self)
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
         else:
             DIR = PATH.PANELDIR
+
+        dialog = QFileDialog(self)
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        dialog.setOptions(options)
         dialog.setDirectory(DIR)
-        fileName, _ = dialog.getOpenFileName()
-        if fileName:
+        dialog.setFileMode(QFileDialog.ExistingFile)
+        dialog.setNameFilter("style files (*.qss *.style);;All files (*.*)")
+        dialog.setWindowTitle('Open StyleSheet')
+
+        # sidebar links
+        urls = []
+        urls.append(QUrl.fromLocalFile(os.path.expanduser('~')))
+        urls.append(QUrl.fromLocalFile(DIR))
+        local = os.path.join(os.getcwd(),'qtvcp/screens',PATH.BASENAME)
+        if os.path.exists(local):
+            urls.append(QUrl.fromLocalFile(os.path.join(os.getcwd(),
+                    'qtvcp/screens',PATH.BASENAME)))
+        dialog.setSidebarUrls(urls)
+
+        result = dialog.exec_()
+        if result:
+            fileName = dialog.selectedFiles()[0]
             file = QFile(fileName)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            try:
+            if sys.version_info.major > 2:
+                styleSheet = str(styleSheet, encoding='utf8')
+            else:
                 # Python v2.
                 styleSheet = unicode(styleSheet, encoding='utf8')
-            except NameError:
-                # Python v3.
-                styleSheet = str(styleSheet, encoding='utf8')
 
             self.styleTextView.setPlainText(styleSheet)
             model = self.styleSheetCombo.model()
@@ -180,8 +199,32 @@ class StyleSheetEditor(QDialog):
 
     @pyqtSlot()
     def on_saveButton_clicked(self):
-        fileName, _ = QFileDialog.getSaveFileName(self)
-        if fileName:
+        if PATH.IS_SCREEN:
+            DIR = PATH.SCREENDIR
+        else:
+            DIR = PATH.PANELDIR
+
+        dialog = QFileDialog(self)
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        dialog.setOptions(options)
+        dialog.setDirectory(DIR)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setNameFilter("style files (*.qss *.style);;All files (*.*)")
+        dialog.setWindowTitle('Save StyleSheet')
+        dialog.setLabelText( QFileDialog.Accept, "Save" )
+
+        # sidebar links
+        urls = []
+        urls.append(QUrl.fromLocalFile(os.path.expanduser('~')))
+        urls.append(QUrl.fromLocalFile(DIR))
+        urls.append(QUrl.fromLocalFile(os.path.join(os.getcwd(),'qtvcp/screens',PATH.BASENAME)))
+
+        dialog.setSidebarUrls(urls)
+
+        result = dialog.exec_()
+        if result:
+            fileName = dialog.selectedFiles()[0]
             self.saveStyleSheet(fileName)
 
     @pyqtSlot()
@@ -223,13 +266,11 @@ class StyleSheetEditor(QDialog):
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            try:
-                # Python v2.
-                styleSheet = str(styleSheet)
-            except NameError:
+            if sys.version_info.major > 2:
                 # Python v3.
                 styleSheet = str(styleSheet, encoding='utf8')
-
+            else:
+                styleSheet = str(styleSheet)
         self.styleTextView.setPlainText(styleSheet)
 
     def saveStyleSheet(self, fileName):

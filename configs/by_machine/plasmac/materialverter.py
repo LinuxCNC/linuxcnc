@@ -267,7 +267,7 @@ class materialConverter:
                     elif line.startswith('Tool\ number'):
                         a,b = line.split('=')
                         self.materialNum = '[MATERIAL_NUMBER_{}]'.format(b.strip().replace(']',''))
-                    elif line.startswith('Name'):
+                    elif line.startswith('Name='):
                         a,b = line.split('=',1)
                         self.materialName = 'NAME               = {}'.format(b.strip())
                     elif line.startswith('Kerf\ width'):

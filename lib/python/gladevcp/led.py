@@ -22,7 +22,7 @@ class HAL_LED(Gtk.DrawingArea, _HalSensitiveBase):
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'has_hal_pin' : ( GObject.TYPE_BOOLEAN, 'Create HAL pin', 'Whether to create a HAL pin',
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-        'led_shape' : ( GObject.TYPE_INT, 'Shape', '0: round 1:oval 2:square 3:horizonal 4: vertical',
+        'led_shape' : ( GObject.TYPE_INT, 'Shape', '0: round 1:oval 2:square 3:horizontal 4: vertical',
                     0, 4, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'led_size'  : ( GObject.TYPE_INT, 'Size', 'size of LED',
                     5, 30, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
@@ -308,7 +308,7 @@ class HAL_LED(Gtk.DrawingArea, _HalSensitiveBase):
         return True # keep running this event
 
     # This allows setting of the on and off colour
-    # red,green and blue are float numbers beteen 0 and 1
+    # red,green and blue are float numbers between 0 and 1
     # if color = None uses colorname. only a few names supported
     # Usage: ledname.set_color("off",[r,g,b],"colorname")
     def set_color(self, state, color):
@@ -331,7 +331,7 @@ class HAL_LED(Gtk.DrawingArea, _HalSensitiveBase):
         if state == 'on' and getattr(self, 'off_color') == 'dark':
             self.set_color('off', 'dark')
 
-    # This alows setting the diameter of the LED
+    # This allows setting the diameter of the LED
     # Usage: ledname.set_dia(10)
     def set_dia(self, dia):
         self._dia = dia

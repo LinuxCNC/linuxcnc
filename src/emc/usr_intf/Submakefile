@@ -35,7 +35,7 @@ TARGETS += ../bin/schedrmt
 	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
 TARGETS += ../bin/linuxcnclcd
 
-../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
 TARGETS += ../bin/halui

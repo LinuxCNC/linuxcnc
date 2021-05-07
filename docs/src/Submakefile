@@ -50,6 +50,7 @@ DOC_SRCS_EN := \
 	config/core-components.txt \
 	config/ini-config.txt \
 	config/ini-homing.txt \
+  config/iov2.txt \
 	config/integrator-concepts.txt \
 	config/lathe-config.txt \
 	config/moveoff.txt \
@@ -146,6 +147,8 @@ DOC_SRCS_EN := \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
+	plasma/qtplasmac.txt \
+	tooldatabase/tooldatabase.txt \
 	plasma/plasmac-user-guide.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
@@ -193,6 +196,7 @@ DOC_SRCS_FR := \
 	gcode/rs274ngc_fr.txt \
 	gcode/tool_compensation_fr.txt \
 	gui/axis_fr.txt \
+	gui/filter_programs.txt \
 	gui/gladevcp_fr.txt \
 	gui/image-to-gcode_fr.txt \
 	gui/ngcgui_fr.txt \
@@ -315,7 +319,7 @@ DOC_SRCS_ES := \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \
 	motion/tweaking-steppers_es.txt \
-        plasma/plasmac-user-guide_es.txt \
+	plasma/plasmac-user-guide_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	remap/remap_es.txt \
 	user/starting-linuxcnc_es.txt \
@@ -474,7 +478,7 @@ PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(M
 $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
-		| ps2pdf - $@
+		| ps2pdf - $@ 
 
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
@@ -506,7 +510,7 @@ $(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.p
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+	@(cd $(DOC_DIR)/man; groff -Thtml -man stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
@@ -555,6 +559,8 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 		fi; \
 	done; \
 	if [ $$FAIL -ne 0 ]; then false; fi
+	mkdir -p $(DOC_DIR)/html/man/man/images/
+	find $(DOC_DIR)/man -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_DIR)/html/man/man/images/" \;
 
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \

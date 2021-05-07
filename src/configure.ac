@@ -242,6 +242,20 @@ AC_ARG_WITH(realtime,
         ])
 AC_SUBST([RTS])
 
+TOOL_NML=no
+AC_ARG_ENABLE(toolnml,
+    AS_HELP_STRING(
+        [--enable-toolnml],
+        [Use nml for tooldata, default is mmap]
+    ),
+    [
+        case "$enableval" in
+        N*|n*)
+            TOOL_NML=no ;;
+        Y*|y*)
+            TOOL_NML=yes ;;
+        esac
+    ])
 ##############################################################################
 # Subsection 2.2                                                             #
 # 1. If a RT has been specified by the user it needs to be checked for       #
@@ -696,13 +710,21 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
+    if test "$TOOL_NML" = "yes"; then
+       DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc_big.nml
+    else
+       DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
+    fi
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    if test "$TOOL_NML" = "yes"; then
+       DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc_big.nml
+    else
+       DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    fi
     DEFAULT_TOOLTABLE=${prefix}/share/doc/linuxcnc/examples/sample-configs/common/tool.tbl
     AC_MSG_RESULT([$MODULE_DIR])
 fi
@@ -711,6 +733,7 @@ AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
+AC_SUBST([TOOL_NML])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml file])
 

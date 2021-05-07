@@ -429,7 +429,6 @@ void FINISH() {}
 void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {}
-void SELECT_POCKET(int pocket, int tool) {}
 void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
@@ -552,18 +551,22 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
-    CANON_TOOL_TABLE t = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
-    if(interp_error) return t;
+    CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
+    if(interp_error) return tdata;
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
-       !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
-                          &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
-                          &t.diameter, &t.frontangle, &t.backangle, &t.orientation))
-            interp_error ++;
-
+       !PyArg_ParseTuple(result, "iddddddddddddi",
+             &tdata.toolno,
+             &tdata.offset.tran.x, &tdata.offset.tran.y, &tdata.offset.tran.z,
+             &tdata.offset.a,      &tdata.offset.b,      &tdata.offset.c,
+             &tdata.offset.u,      &tdata.offset.v,      &tdata.offset.w,
+             &tdata.diameter,      &tdata.frontangle,    &tdata.backangle,
+             &tdata.orientation)) {
+       interp_error ++;
+    }
     Py_XDECREF(result);
-    return t;
+    return tdata;
 }
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
@@ -591,7 +594,6 @@ int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
 CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0; }
-int GET_EXTERNAL_POCKETS_MAX() { return CANON_POCKETS_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 
 
@@ -811,6 +813,13 @@ out_error:
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
                     "interp_error > 0 but no Python exception set");
+        } else {
+            // seems a PyErr_Ocurred(), but no exception was set ?
+            // so return error info that can be caught and handled
+            PyErr_Format(PyExc_RuntimeError,"parse_file interp_error");
+            fprintf(stderr,"!!!%s: parse_file() f=%s\n"
+                    "!!!interp_error=%d result=%d last_sequence_number=%d\n",
+                    __FILE__,f,interp_error,result,last_sequence_number);
         }
         return NULL;
     }

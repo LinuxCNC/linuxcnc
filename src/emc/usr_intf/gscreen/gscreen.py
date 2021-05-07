@@ -3889,7 +3889,7 @@ class Gscreen:
 
     # finds the postgui file name and INI file path
     def postgui(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
+        postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile,sys.argv[2]
 
     # zooms in a set amount (set deep in gremlin)
@@ -4485,8 +4485,7 @@ class Gscreen:
         self.widgets.s_display.set_target_value(abs(self.data.spindle_speed))
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
-        except Exception as e:
-            print("spindle bar err-->>>", e)
+        except:
             global update_spindle_bar_error_ct,update_spindle_bar_error_ct_max
             if update_spindle_bar_error_ct < update_spindle_bar_error_ct_max:
                 print("%2d/%2d update_spindle_bar error"%(
@@ -4690,11 +4689,12 @@ if __name__ == "__main__":
         print(e)
     postgui_halfile,inifile = Gscreen.postgui(app)
     print("**** GSCREEN INFO: postgui filename:",postgui_halfile)
-    if postgui_halfile:
-        if postgui_halfile.lower().endswith('.tcl'):
-            res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
-        else:
-            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
-        if res: raise SystemExit(res)
+    if postgui_halfile is not None:
+        for f in postgui_halfile:
+            if f.lower().endswith('.tcl'):
+                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+            else:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+            if res: raise SystemExit(res)
     Gtk.main()
 

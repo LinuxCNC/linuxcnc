@@ -351,7 +351,7 @@ w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
 if orientation == 'portrait':
     w(fpausedmotion,'configure','-relief','raised','-bd','1')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
-w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
+w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin forwardd direction')
 w('DynamicHelp::add',fpausedmotion + '.display.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
 
 # hide bottom pane until modified
@@ -641,20 +641,20 @@ def paused_motion(direction):
 
 def height_lower():
     global torch_height 
-    torch_height -= 0.1
-    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    torch_height -= hal.get_value('plasmac.thc-threshold')
+    w(foverride + '.height-override','configure','-text','%0.2fV' % (torch_height))
     hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def height_raise():
     global torch_height 
-    torch_height += 0.1
-    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    torch_height += hal.get_value('plasmac.thc-threshold')
+    w(foverride + '.height-override','configure','-text','%0.2fV' % (torch_height))
     hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def height_reset():
     global torch_height 
     torch_height = 0
-    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    w(foverride + '.height-override','configure','-text','%0.2fV' % (torch_height))
     hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def torch_enable():
@@ -765,6 +765,17 @@ def user_button_pressed(button,commands):
             hal.set_p('plasmac_run.cut-type','0')
             w(fbuttons + '.button' + button,'configure','-bg',bgc,'-activebackground',abgc,'-text','Pierce\n & Cut')
         Popen('axis-remote -r', stdout = PIPE, shell = True)
+    elif 'toggle-halpin' in commands.lower() and hal.get_value('halui.program.is-idle'):
+        global button_bg
+        if button_bg == 'none':
+            button_bg = w(fbuttons + '.button' + button,'cget','-bg')
+        halpin = commands.lower().split('toggle-halpin')[1].strip()
+        pinstate = hal.get_value(halpin)
+        hal.set_p(halpin, str(not pinstate))
+        if pinstate:
+            w(fbuttons + '.button' + button,'configure','-bg',button_bg,'-activebackground','green')
+        else:
+            w(fbuttons + '.button' + button,'configure','-bg','green','-activebackground',button_bg)
     else:
         for command in commands.split('\\'):
             if command.strip()[0] == '%':
@@ -1026,10 +1037,11 @@ torchPulse = 0
 torch_height = 0
 cutType = 0
 pm_cycles = 0
+button_bg = 'none'
 hal.set_p('plasmac.torch-enable','0')
 hal.set_p('plasmac.height-override','%f' % (torch_height))
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
-w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+w(foverride + '.height-override','configure','-text','%0.2fV' % (torch_height))
 for button in range(1,6):
     if 'change-consumables' in inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'):
         ccParm = inifile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None

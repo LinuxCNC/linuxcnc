@@ -143,15 +143,15 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
         }
 
         rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.rate", hm2->llio->name);
-        r = hal_param_float_new(name, HAL_RW, &(hm2->rcpwmgen.hal->param.rate), hm2->llio->comp_id);
+        r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.hal->pin.rate), hm2->llio->comp_id);
         if (r < 0) {
-            HM2_ERR("error adding param '%s', aborting\n", name);
+            HM2_ERR("error adding pin '%s', aborting\n", name);
             goto fail1;
         }
     }
 
     // initialize width to 0, scale to 1, offset 0 and rate to 50 Hz
-    hm2->rcpwmgen.hal->param.rate = 50;
+    *hm2->rcpwmgen.hal->pin.rate = 50;
     int i;
     for (i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
        *hm2->rcpwmgen.instance[i].hal.pin.width = 0;
@@ -191,9 +191,9 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
     rtapi_u32 reg;
 
     // Set rate
-    double rate = hm2->rcpwmgen.hal->param.rate;
+    double rate = *hm2->rcpwmgen.hal->pin.rate;
     if  (rate < 0.01) {
-        hm2->rcpwmgen.hal->param.rate = 0.01;
+        *hm2->rcpwmgen.hal->pin.rate = 0.01;
         rate = 0.01;
         if (hm2->rcpwmgen.error_throttle == 0) {
             HM2_ERR("rcpwmgen frequency must be >= .01, resetting to %.3lf \n",0.01);
@@ -202,7 +202,7 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
     } 
 
     if (rate > 1000) {
-        hm2->rcpwmgen.hal->param.rate = 1000;
+        *hm2->rcpwmgen.hal->pin.rate = 1000;
         rate = 1000;
          if (hm2->rcpwmgen.error_throttle == 0) {
              HM2_ERR("rcpwmgen frequency must be <= 1000, resetting to %.3lf \n",1000.0);
@@ -261,8 +261,8 @@ void hm2_rcpwmgen_write(hostmot2_t *hm2) {
 
     // check rate 
  
-    if ( hm2->rcpwmgen.hal->param.rate != hm2->rcpwmgen.written_rate) {
-            hm2->rcpwmgen.written_rate = hm2->rcpwmgen.hal->param.rate;
+    if ( *hm2->rcpwmgen.hal->pin.rate != hm2->rcpwmgen.written_rate) {
+            hm2->rcpwmgen.written_rate = *hm2->rcpwmgen.hal->pin.rate;
             goto force_write;
        }
 	

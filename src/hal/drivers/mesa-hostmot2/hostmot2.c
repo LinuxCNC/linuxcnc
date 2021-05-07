@@ -302,6 +302,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_LED:             return "LED";
         case HM2_GTAG_MUXED_ENCODER:   return "Muxed Encoder";
         case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
+        case HM2_GTAG_SMARTSERIALB:
         case HM2_GTAG_SMARTSERIAL:     return "Smart Serial Interface";
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
@@ -986,6 +987,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_tp_pwmgen_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_SMARTSERIALB:
             case HM2_GTAG_SMARTSERIAL:
                 md_accepted = hm2_sserial_parse_md(hm2, md_index);
                 break;

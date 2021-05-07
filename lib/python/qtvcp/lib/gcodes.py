@@ -5,6 +5,7 @@ from qtvcp.qt_makegui import VCPWindow
 
 WIDGETS = VCPWindow()
 
+
 class GCodes:
     def __init__(self, widgets=None):
         self.w = WIDGETS
@@ -17,7 +18,8 @@ class GCodes:
         self.w.gcode_description.setReadOnly(True)
 
     def list_row_changed(self, row):
-        line = self.w.gcode_list.currentItem().text().encode('utf-8')
+        line = self.w.gcode_list.currentItem().text()
+        print(line)
         text = line.split(' ')[0]
         desc = mdiText.gcode_descriptions(text) or 'No Match'
         self.w.gcode_description.clear()
@@ -34,8 +36,7 @@ class GCodes:
                 self.w.gcode_parameters.setText('')
 
     def mdiClear(self):
-        for index in range(1,8):
+        for index in range(1, 8):
             getattr(parent, 'gcodeParameter_' + str(index)).setText('')
         self.w.gcode_description.setText('')
         self.w.gcodeHelpLabel.setText('')
-

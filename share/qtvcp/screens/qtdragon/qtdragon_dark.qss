@@ -9,7 +9,11 @@ QStatusBar {
     color: #FFFFD0;
 }
 
-QPushButton, ActionButton, SystemToolButton, AxisToolButton {
+QPushButton,
+ActionButton,
+SystemToolButton,
+AxisToolButton,
+QToolButton {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid brown;
     border-radius: 4px;
@@ -17,16 +21,21 @@ QPushButton, ActionButton, SystemToolButton, AxisToolButton {
     color: white;
 }
 
-QPushButton:checked, QPushButton:pressed {
+QPushButton:checked,
+QPushButton:pressed {
     border-color: #00FF00;
     color: #00FF00;
 }
 
-QPushButton:hover, ActionButton:hover, SystemToolButton:hover, AxisToolButton:hover {
+QPushButton:hover,
+ActionButton:hover,
+SystemToolButton:hover,
+AxisToolButton:hover {
     border: 1px solid #00FF00;
 }
 
-QPushButton:disabled, ActionButton:disabled {
+QPushButton:disabled,
+ActionButton:disabled {
     color: gray;
 }
 
@@ -35,7 +44,7 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#action_machine_on:checked {
+ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
 
@@ -54,7 +63,11 @@ QLabel {
     color: white;
 }
 
-QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_axis_a {
+DROLabel, 
+QLabel#label_axis_x,
+QLabel#label_axis_y,
+QLabel#label_axis_z,
+QLabel#label_axis_a {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -62,7 +75,12 @@ QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_a
     color: #00FF00;
 }
 
-QLabel#lbl_cycle_start, QLabel#lbl_home_all {
+DROLabel[isHomed=false] {
+    color: red;
+}
+
+QLabel#lbl_cycle_start,
+QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
     color: white;
 }
@@ -81,6 +99,10 @@ QLineEdit {
     border-radius: 4px;
     font: 10pt "Lato Heavy";
     color:white;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
 }
 
 QLineEdit#mdiline{
@@ -112,6 +134,8 @@ QCheckBox::indicator:checked {
 
 QCheckBox::indicator:unchecked {
     background-color: #404040;
+    height: 14px;
+    width: 14px;
 }
 
 QComboBox {
@@ -181,7 +205,8 @@ QProgressBar::chunk {
     border: 1px solid orange;
 }
 
-QFrame#frame_cycle_start, QFrame#frame_home_all {
+QFrame#frame_cycle_start,
+QFrame#frame_home_all {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -189,7 +214,8 @@ QFrame#frame_cycle_start, QFrame#frame_home_all {
     color: white;
 }
 
-QFrame#frame_cycle_start:hover, QFrame#frame_home_all:hover {
+QFrame#frame_cycle_start:hover,
+QFrame#frame_home_all:hover {
     border: 1px solid #00FF00;
 }
 
@@ -202,7 +228,8 @@ QHeaderView {
     font: 10pt "Lato Heavy";
 }
 
-QHeaderView::section::vertical::first, QHeaderView::section::vertical::only-one {
+QHeaderView::section::vertical::first,
+QHeaderView::section::vertical::only-one {
     width: 60px;
 }
 
@@ -279,27 +306,55 @@ QSlider::sub-page:horizontal:disabled, QSlider::sub-page:vertical:disabled {
     border-color: #999;
 }
 
-QSlider::add-page:horizontal:disabled,  QSlider::add-page:vertical:disabled{
+QSlider::add-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled{
     background: #eee;
     border-color: #999;
 }
 
-QSlider::handle:horizontal:disabled,  QSlider::handle:vertical:disabled{
+QSlider::handle:horizontal:disabled,
+QSlider::handle:vertical:disabled{
     background: #eee;
     border: 1px solid #aaa;
     border-radius: 4px;
 }
-ToolDialog,CloseDialog,EntryDialog{
+
+/* warning colors for overrides if out of normal range*/
+
+    #slider_spindle_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='under'] {
+        background: yellow;
+    }
+
+QDialog,
+LcncDialog,
+ToolDialog,
+CloseDialog,
+EntryDialog,
+CalculatorDialog {
 background-color: gray;
 }
-ToolDialog QPushButton{
+
+LcncDialog QPushButton,
+ToolDialog QPushButton {
     width: 100px;
     height: 40px;
 }
-EntryDialog QPushButton, CloseDialog QPushButton{
+
+RunFromLineDialog QPushButton,
+CalculatorDialog QPushButton,
+EntryDialog QPushButton,
+CloseDialog QPushButton {
     width: 80px;
     height: 40px;
 }
+
+
 QMenu {
     background-color: #ABABAB; /* sets background of the menu */
     border: 1px solid black;
@@ -313,4 +368,36 @@ QMenu::item {
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: darkblue;
+}
+
+QHeaderView::section {
+    background-color:  foregnd;
+    color: white;
+    border: 1px solid #6c6c6c;
+}
+
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
 }

@@ -1,6 +1,6 @@
 jwp_z.ini
 
-Usage:
+Uso:
   1) Estop OFF       (F1)
   2) Máquina ON      (F2)
   3) HOME Todo       (Ctrl-Home)

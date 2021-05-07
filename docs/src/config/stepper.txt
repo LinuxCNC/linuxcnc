@@ -48,7 +48,7 @@ others.)
 One of the major flaws in LinuxCNC was that you couldn't specify the pinout
 without recompiling the source code. LinuxCNC is far more flexible, and now
 (thanks to the Hardware Abstraction Layer) you can easily specify which
-signal goes where. See the <<cha:basic-hal-reference,Basic HAL Tutorial>>
+signal goes where. See the <<cha:basic-hal-reference,HAL Basics>>
 for more information on HAL.
 
 As it is described in the HAL Introduction and tutorial, we have

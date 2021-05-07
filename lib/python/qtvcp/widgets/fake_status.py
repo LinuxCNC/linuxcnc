@@ -17,7 +17,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# This program is used to fake the status of linuxcnc in python fot the graphics display
+# This program is used to fake the status of linuxcnc in python for the graphics display
 # in qtvcp. Now in designer it shows a fake display of an xyz machine.
 # you could probably extends this to update some attributes and fake tool movement on a demo display
 #

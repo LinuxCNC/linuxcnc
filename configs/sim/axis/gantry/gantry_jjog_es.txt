@@ -1,29 +1,28 @@
 Configuracion sim gantry_jjog
 
-o Configuraciones predeterminadas que sincronizan el
+o Configuración predeterminada que sincroniza el
   movimiento final de homing para múltiples articulaciones
   no permitiendo jog individual de tales articulaciones ya
   que tales movimientos invitan al operador al error y a 
   desviaciones del pórtico. Esta configuración más 
   compleja demuestra:
 
-Jogging individual en modo articulación para articulación1
-y articulación3
+Jogging individual en modo articulación para joint1
+y joint3
 
-Jogging sincronizado en modo articulación para articulación1
-y articulación3
+Jogging sincronizado en modo articulación para joint1
+y joint3
 
 
 Procedimiento de ejemplo:
 
  1) Estop-Off (F1)
  2) Máquina-On (F2)
- 3) Establecer halscope en "Roll" y cambiar tamaño
+ 3) Establecer halscope en "Roll" y redimensionar.
  4) Panel "J1,3 JOGGING": establecer ENABLE en ON
-    para permitir jogging de la articulación1 y la 
-    articulación3
- 5) usar COUNTS para jog tanto de articulación1 y la 
-    articulación3 SINCRÓNICAMENTE en tiempo real
+    para permitir jogging de joint1 y joint3
+ 5) usar COUNTS para jog tanto de joint1 y 
+    joint3 SINCRÓNICAMENTE en tiempo real
  6) usar los botones radio del número de jog de 
     axisgui y los botones más (+) y menos (-) para
     jog INDIVIDUAL de cualquier articulación.
@@ -40,7 +39,7 @@ Procedimiento de ejemplo:
 10) Regrese al modo articulacion usando la tecla $
 
 Notas:
-a) Utilice  trivkins coordinates=XYZY kinstype=BOTH
+a) Utilice trivkins coordinates=XYZY kinstype=BOTH
 b) El panel "J1,3 JOGGING" hace conexiones hal y
    altera la configuracion de ini.[13].home_sequence y 
    motion.homing-inhibit para permitir el jogging de 

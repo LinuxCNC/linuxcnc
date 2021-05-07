@@ -23,8 +23,8 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
-LOG.setLevel(logger.WARNING) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.WARNING) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###########################
 """ Set of base classes """
@@ -37,7 +37,7 @@ class _HalWidgetBase_(object):
         # only initialize once for all instances
         if self.__class__._instanceNum >=1:
             return
-        # embed these varibles in all instances
+        # embed these variables in all instances
         self.__class__.HAL_GCOMP_ = comp
         self.__class__.PATHS_ = path
         self.__class__.QTVCP_INSTANCE_ = window
@@ -51,7 +51,7 @@ class _HalWidgetBase_(object):
             self.HAL_NAME_ = str(HAL_NAME)
         else:
             if self.objectName() =='':
-                LOG.warning('Nno objectName for HAL pin: {}'.format(self))
+                LOG.warning('No objectName for HAL pin: {}'.format(self))
             self.HAL_NAME_ = self.objectName()
         self.QT_OBJECT_ = self
         self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
@@ -93,6 +93,8 @@ class _HalScaleBase(_HalWidgetBase):
         self.valueChanged.connect(lambda data: self._pin_update(data))
         # default scale
         self.input = 1
+        # force pin update
+        self.valueChanged.emit(self.value())
 
     def _pin_update(self, data):
         self.hal_pin_f.set(data * self.input)

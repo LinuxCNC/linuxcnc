@@ -385,6 +385,86 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         return setattr(self, item, value)
 
 ----
+
+== Stylesheet Property Changes Based On Events
+It's possible to have widgets restyled when events change. +
+You must explicitly 'polish' the widget to have PyQt redo the style. +
+This is a relatively expensive function so should be used sparingly. +
+This example will set the property isHomed based on linuxcnc's homed state. +
+This property can be used in the stylesheet to change stylesheet properties. +
+
+[source,python]
+----
+class HomeLabel(QLabel, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(HomeLabel, self).__init__(parent)
+        self.joint_number = 0
+        # for stylesheet reading
+        self._isHomed = False
+
+    def _hal_init(self):
+        super(HomeLabel, self)._hal_init()
+        STATUS.connect('homed', lambda w,d: self._home_status_polish(int(d), True))
+        STATUS.connect('unhomed', lambda w,d: self._home_status_polish(int(d), False))
+
+    # update ishomed property
+    # polish widget so stylesheet sees the property change
+    # some stylessheets color the text on home/unhome
+    def _home_status_polish(self, d, state):
+        if self.joint_number = d:
+            self.setProperty('isHomed', state)
+            self.style().unpolish(self)
+            self.style().polish(self)
+
+    # Qproperty getter and setter
+    def getisHomed(self):
+        return self._isHomed
+    def setisHomed(self, data):
+        self._isHomed = data
+
+    # Qproperty
+    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+----
+
+Here is a sample stylesheet to change text color based on home state. +
+In this case any widget based on the HomeLabel widget above will change text color. +
+You would usually pick specific widgets using 'HomeLabel #specific_widget_name[homed=true]{' +
+
+----
+HomeLabel[homed=true] {
+    color: green;
+}
+HomeLabel[homed=false] {
+    color: red;
+}
+----
+
+== Use Stylesheets To Change Custom Widget Properties
+
+[source,python]
+----
+class Label(QLabel):
+    def __init__(self, parent=None):
+        super(Label, self).__init__(parent)
+        alternateFont0 = self.font
+
+    # Qproperty getter and setter
+    def getFont0(self):
+        return self.aleternateFont0
+    def setFont0(self, value):
+        self.alternateFont0(value)
+    # Qproperty
+    styleFont0 = pyqtProperty(QFont, getFont0, setFont0)
+----
+
+Sample stylesheet that sets a custom widget property.
+
+----
+Label{
+qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
+}
+----
+
 == Widget Plugins
 We must register our custom widget for Designer to use them. +
 Here is a typical samples +
@@ -394,7 +474,7 @@ to import them. +
 
 === Gridlayout example
 
-[source,python]
+
 ----
 #!/usr/bin/env python
 

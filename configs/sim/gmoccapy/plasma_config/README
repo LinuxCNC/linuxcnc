@@ -1,6 +1,6 @@
 This is a simulation of an XYZ plasma cutter (with metric units).
 
-The main purpose of this is to show the posibilities offered by gscreen / gmoccapy to design custom screens.
+The main purpose of this is to show the possibilities offered by gscreen / gmoccapy to design custom screens.
 
 This special layout has been made to control plasma cutters, many work has be done by Marius.
 

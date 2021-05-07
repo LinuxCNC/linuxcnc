@@ -1,7 +1,20 @@
 Package: @MAIN_PACKAGE_NAME@
 Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
-Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
+Recommends: linuxcnc-doc-en | linuxcnc-doc,
+    python-pyqt5,
+    python-pyqt5.qsci,
+    python-pyqt5.qtopengl,
+    python-pyqt5.qtsvg,
+    python-pyqt5.qtwebkit,
+    python-opencv,
+    python-rsvg,
+    python-dbus.mainloop.pyqt5,
+    gstreamer1.0-tools,
+    python-espeak,
+    espeak,
+    pyqt5-dev-tools,
+    @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python3,

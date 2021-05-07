@@ -1,0 +1,302 @@
+QMainWindow {
+    background: url(images/brushed_metal.png);
+}
+
+QStatusBar {
+    background: #606060;
+    font: 10pt "Lato Heavy";
+    color: #FFFFD0;
+}
+
+QPushButton, ActionButton, SystemToolButton, AxisToolButton {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+}
+
+QPushButton:checked, QPushButton:pressed {
+    border-color: blue;
+    color: #0000FF;
+}
+
+QPushButton:hover, ActionButton:hover, SystemToolButton:hover, AxisToolButton:hover {
+    border: 2px solid blue;
+}
+
+QPushButton:disabled, ActionButton:disabled {
+    color: gray;
+}
+
+ActionButton#action_machine_on {
+    border: 2px solid black;
+    color: #FF0000;
+}
+
+ActionButton#action_machine_on:checked {
+    border-color: blue;
+    color: #00FF00;
+}
+
+ActionButton#action_estop {
+    border: 2px solid red;
+    color: #FF0000;
+}
+
+ActionButton#action_estop:checked {
+    border-color: blue;
+    color: #00FF00;
+}
+
+QLabel {
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_axis_a {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: blue;
+}
+
+QLabel#lbl_cycle_start, QLabel#lbl_home_all {
+    font: 10pt "Lato Heavy";
+}
+
+StatusLabel, StateLabel {
+    background: rgb(250, 250, 250);
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QLineEdit {
+    background: rgb(250, 250, 250);
+    border: 1px solid;
+    border-left-color: black;
+    border-top-color: black;
+    border-right-color: white;
+    border-bottom-color: white;
+    font: 10pt "Lato Heavy";
+}
+
+Calculator QLineEdit, NumDigitButtons{
+  font: 25pt "Lato Heavy";
+}
+
+Calculator QPushButton{
+  font: 13pt "Lato Heavy";
+}
+
+QTextEdit {
+    background: rgb(250,250,250);
+    font: 10pt "Lato";
+}
+
+QCheckBox {
+    font: 10pt "Lato Heavy";
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(images/unchecked.png);
+}
+
+QCheckBox::indicator:checked {
+    image: url(images/checked.png);
+}
+
+QComboBox {
+    border: 1px solid black;
+    width: 20px;
+    font: 10pt "Lato Heavy";
+    color: black;    
+}
+
+QGroupBox {
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-top: 16px;
+    font: 10pt "Lato Heavy";
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 0 3px;
+    color: black;
+}
+
+QProgressBar {
+    background-color: rgb(250, 250, 250);
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 9 pt "Lato Heavy";
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+}
+
+.QFrame {
+    background: url(:/newPrefix/images/qtdragon/images/brushed_metal.png)
+}
+
+QTabWidget::pane > QWidget {
+    background: lightgray;
+    border: none;
+}
+
+QTabWidget::tab-bar {
+    left: 2px; /* move to the right by 2px */
+}
+
+QTabBar::tab {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:0.66, stop:0 rgba(240, 240, 240, 255), stop:0.6 rgba(20, 20, 20, 255));    margin-top: 2px;
+    margin-bottom: 4px;
+    margin-left: 2px;
+    margin-right: 2px;
+    border: 2px solid black;
+    border-radius: 4px;
+    min-width: 80px;
+    min-height: 30px;
+    padding: 2px;
+    font: 10pt "Lato Heavy";
+    color: #FFFFD0;
+}
+
+QTabBar::tab:selected  {
+    color: #00FF00;
+}
+
+QTabBar::tab:hover {
+    border: 2px solid #3DAEE9;
+}
+
+AxisToolButton:enabled {
+    color: black;
+}
+
+AxisToolButton:disabled {
+    color: darkgray;
+}
+
+AxisToolButton:pressed {
+    background:  qlineargradient(x1: 0, y1: 0,
+        stop: 0 #5C5959, stop: 1.0 #A19E9E)
+}
+
+AxisToolButton:checked {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #4a6aa7, stop: 1.0 #6f96cd)
+}
+
+.QFrame {
+}
+
+QFrame#frame_cycle_start, QFrame#frame_home_all {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+}
+
+QFrame#frame_cycle_start:hover, QFrame#frame_home_all:hover {
+    border: 2px solid blue;
+}
+
+QHeaderView {
+    background-color: #B0B0D0;
+    border: 0px transparent #32414B;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 0px;
+    font: 10pt "Lato Heavy";
+}
+
+QHeaderView::section::vertical::first, QHeaderView::section::vertical::only-one {
+    width: 60px;
+}
+
+OriginOffsetView, ToolOffsetView {
+    font: 10pt "Lato Heavy";
+}
+
+QSlider::groove:horizontal {
+    border: 1px black;
+    height: 12px;
+}
+
+QSlider::groove:vertical {
+    border: 1px black;
+    width: 12px;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf stop: 1 #55f);
+    border: 1px solid #777;
+    border-radius: 3px;
+    height: 12px;
+}
+
+QSlider::add-page:horizontal {
+    background: white;
+    border: 1px solid #777;
+    border-radius: 3px;
+    width: 12px;
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+    border: 1px solid #777;
+    border-radius: 3px;
+    height: 12px;
+}
+
+QSlider::sub-page:vertical {
+    background: white;
+    border: 1px solid #777;
+    border-radius: 3px;
+    width: 12px;
+}
+
+QSlider::handle:horizontal {
+    background: lightgray;
+    border: 1px solid black;
+    width: 12px;
+    margin-top: -2px;
+    margin-bottom: -2px;
+    border-radius: 2px;
+}
+
+QSlider::handle:vertical {
+    background: lightgray;
+    border: 1px solid black;
+    height: 12px;
+    margin-top: -2px;
+    margin-bottom: -2px;
+    border-radius: 2px;
+}
+
+QDialog {
+    background-color: gray;
+}
+
+QDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}
+
+ToolDialog QPushButton{
+    width: 100px;
+    height: 40px;
+}
+EntryDialog QPushButton, CloseDialog QPushButton{
+    width: 80px;
+    height: 40px;
+}
+

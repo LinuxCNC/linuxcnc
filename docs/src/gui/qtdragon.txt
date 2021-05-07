@@ -14,55 +14,144 @@ SilverDragon and QtVcp are new programs added into linuxcnc.
 Bugs and oddities are possible. Please test carefully when using a 
 dangerous machine. Please forward reports to the forum or maillist.
 
-.qtdragon - 3 or 4 Axis Sample
+.qtdragon - 3 or 4 Axis Sample (1440x860) in silver theme
 image::images/silverdragon.png["QTDragon Router",scale="25%"]
+
+.qtdragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
+image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
 
 == Getting Started
 
 If your configuration is not currently set up to use SilverDragon, 
 you can change it by editing the INI file. +
-In the section '[DISPLAY]' change the 'DISPLAY' line to read: +
+This is not an exaustive list of options. +
 <<sec:display-section,Display Section>>
+
+=== Display
+In the section '[DISPLAY]' change the 'DISPLAY' line to read: +
+'qtdragon' for a small version +
+'qtdradon_hd' for the large version. +
+you can add '-c-' or '-v' for debug output to the terminal. +
+
 [source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = qtvcp qtdragon
 ----
 
+=== Preference
 To keep track of preferences, qtdragon looks for a preference text file. +
-add the following entry under the '[DISPLAY]' heading. 
+add the following entry under the '[DISPLAY]' heading. +
+This will save the file in the config folder of the launch screen. +
 (other options are possible see the qtvcp's screenoption widget docs.) +
 
 [source,{ini}]
 ----
+[DISPLAY]
 PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 ----
 
+=== Logging
 You can specify where to save history/logs. +
 In the section '[DISPLAY]' add: +
 
 [source,{ini}]
 ----
+[DISPLAY]
 MDI_HISTORY_FILE = mdi_history.dat
 MACHINE_LOG_PATH = machine_log.dat
 LOG_FILE = qtdragon.log
 ----
 
-For the basicprobe routines to work the SUBROUTINE_PATH must be set properly. +
-(Your path may be different then this sample) +
-<<sec:rs274ngc-section,RS274ngc Section>>
+=== Override controls
+set override controls (1.0 = 100 percent):
 [source,{ini}]
 ----
-[RS274NGC]
-SUBROUTINE_PATH = ../../../../nc_files/probe/basic_probe/macros
+[DISPLAY]
+MAX_SPINDLE_0_OVERRIDE = 1.5
+MIN_SPINDLE_0_OVERRIDE = .5
+MAX_FEED_OVERRIDE       = 1.2
 ----
 
-It also requires extra analog I/O pins for probing. +
-Make sure this line in the HAL file has the 'num_aio=13' entry: +
-The rest of the line depends on your setup and could be different and should not be changed. +
-[source,{hal}]
+=== Spindle controls
+Spindle control settings (in rpm):
+[source,{ini}]
 ----
-loadrt motmod servo_period_nsec = [EMCMOT] SERVO_PERIOD num_joints = 4 num_aio = 13
+[DISPLAY]
+DEFAULT_SPINDLE_0_SPEED = 500
+SPINDLE_INCREMENT = 200
+MIN_SPINDLE_0_SPEED = 100
+MAX_SPINDLE_0_SPEED = 2500
+----
+
+=== Jogging increments
+Set selectable jogging increments
+[source,{ini}]
+----
+[DISPLAY]
+INCREMENTS = Continuous, .001 mm, .01 mm, .1 mm, 1 mm, 1.0 inch, 0.1 inch, 0.01 inch
+ANGULAR_INCREMENTS = 1, 5, 10, 30, 45, 90, 180, 360
+----
+
+=== Jog speed
+Set jog speed controls (in units per minute)
+[source,{ini}]
+----
+[DISPLAY]
+MIN_LINEAR_VELOCITY     = 0
+MAX_LINEAR_VELOCITY     = 60.00
+DEFAULT_LINEAR_VELOCITY = 50.0
+----
+
+=== User message dialog system
+Popup Message dialogs, controlled by HAL pins +
+MESSAGE_TYPE can be 'okdialog' or 'yesnodialog' +
+[source,{ini}]
+----
+[DISPLAY]
+MESSAGE_BOLDTEXT = This is the short text
+MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
+MESSAGE_DETAILS = BOTH DETAILS
+MESSAGE_TYPE = okdialog
+MESSAGE_PINNAME = oktest
+----
+
+=== Program Extensions/Filters
+
+You can control what programs are displayed in the filemanager window with program extensions: +
+Create a line with the . endings you wish to use separated by commas, then a space and the description. +
+You can add multiple lines for different selections in the combo box +
+
+[source,{ini}]
+----
+[FILTER]
+PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
+----
+
+Qtdragon has the ability to send loaded files through a 'filter program'. +
+This filter can do any desired task: Something as simple as making sure +
+the file ends with 'M2', or something as complicated as generating +
+G-Code from an image. +
+
+The '[FILTER]'  section of the ini file controls how filters work. +
+First, for each type of file, write a 'PROGRAM_EXTENSION' line. +
+Then, specify the program to execute for each type of file. +
+This program is given the name of the input file as its first argument, +
+and must write rs274ngc code to standard output. This output is what +
+will be displayed in the text area, previewed in the display area, and +
+executed by LinuxCNC when 'Run'. The following lines add support for the +
+'image-to-gcode' converter included with LinuxCNC and running python based +
+filter programs: +
+
+[source,{ini}]
+----
+[FILTER]
+PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
+PROGRAM_EXTENSION = .py Python Script
+png = image-to-gcode
+gif = image-to-gcode
+jpg = image-to-gcode
+py = python
 ----
 
 SilverDragon has custom INI entries: +
@@ -121,24 +210,6 @@ If you need a manual tool change prompt, add these lines in your postgui file.
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
-----
-
-These pins must be connected in the postgui file for probing to work:
-[source,{hal}]
-----
-net xwidth           motion.analog-out-00 => qtdragon.x_width
-net ywidth           motion.analog-out-01 => qtdragon.y_width
-net avg_dia          motion.analog-out-02 => qtdragon.avg_diameter
-net edge_angle       motion.analog-out-03 => qtdragon.edge_angle
-net edge_delta       motion.analog-out-04 => qtdragon.edge_delta
-net xminus           motion.analog-out-05 => qtdragon.x_minus
-net yminus           motion.analog-out-06 => qtdragon.y_minus
-net zminus           motion.analog-out-07 => qtdragon.z_minus
-net xplus            motion.analog-out-08 => qtdragon.x_plus
-net yplus            motion.analog-out-09 => qtdragon.y_plus
-net xcenter          motion.analog-out-10 => qtdragon.x_center
-net ycenter          motion.analog-out-11 => qtdragon.y_center
-net cal_offset       motion.analog-out-12 => qtdragon.cal_offset
 ----
 
 This input pin should be connected to indicate probe state: 
@@ -212,7 +283,7 @@ works with 3 or 4 axes with one joint per axis or 3 or 4 axes in a gantry config
 
 == Manual Tool Changes
 If your machine requires manual tool changes, SilverDragon can pop a message box to direct you. +
-You must connect the proper HAL pin in the post_gui file.
+You must connect the proper HAL pin in the postgui HAL file.
 For example:
 [source,{hal}]
 ----
@@ -229,16 +300,22 @@ to his own machine setup.
 
 == Probing
 
-The probe screen has been through basic testing but there could still be some minor bugs.
-When running probing routines, use extreme caution until you are familiar
-with how everything works. Probe routines run without blocking the main GUI. This gives the operator the opportunity 
-to watch the DROs and stop the routine at any time.
+The probe screen has been through basic testing but there could still be some minor bugs. +
+When running probing routines, use extreme caution until you are familiar with how everything works. + 
+Probe routines run without blocking the main GUI. This gives the operator the opportunity +
+to watch the DROs and stop the routine at any time. +
 
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
 .qtdragon - Probe Sample
 image::images/silverdragon_probe.png["QTDragon Probe",scale="25%"]
+
+QtDragon has 2 possible methods for setting Z0. The first is a touchplate, where a metal plate of known thickness is placed on top of the workpiece and then the tool is lowered until it touches the plate, triggering the probe signal. Z0 is set to probe height - plate thickness. +
+
+The second method uses a tool setter in a fixed position and a known height above the table where the probe signal will be triggered. In order to set Z0 to the top of the workpiece, it has to know how far above the table the probe trigger point is (tool setter height) and how far above the table the top of the workpiece is. This operation has to be done every time the tool is changed as the tool length is not saved.
+
+For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine, the height from table to top of workpiece parameter is not taken into account and can be ignored. It is only for the tool setter.
 
 == Run from Line
 
@@ -249,14 +326,14 @@ The start line is indicated in the box labelled LINE, next to the CYCLE START bu
 The run from line feature can be disabled in the settings page.
 
 [NOTE]
-Linuxcnc's run-from-line is not very user friendly. eg. It does not start the spindle or confirm the proper tool.
+Linuxcnc's run-from-line is not very user friendly. eg. It does not start the spindle or confirm the proper tool. +
 It does not handle subroutines well. If used it is best to start on a rapid move.
 
 == Laser buttons
 
-The LASER ON/OFF button in intended to turn an output on or off which is connected to a small laser crosshair projector.
-When the crosshair is positioned over a desired reference point on the workpiece, the REF LASER button can be pushed which then sets
-the X and Y offsets to the values indicated by the LASER OFFSET fields in the Settings page and the INI file.
+The LASER ON/OFF button in intended to turn an output on or off which is connected to a small laser crosshair projector. +
+When the crosshair is positioned over a desired reference point on the workpiece, the REF LASER button can be pushed which then sets +
+the X and Y offsets to the values indicated by the LASER OFFSET fields in the Settings page and the INI file. +
 
 == Setup Tab
 It's possible to load Html file (.html ending) with setup notes. They will be displayed in the setup tab. +
@@ -276,8 +353,9 @@ image::images/style-comparison.png["QTDragon stlyes",scale="25%"]
 
 == Screen resolution
 
-This GUI was initially developed for a screen with 1440 x 900 resolution. It is not resizable. It will work in window mode on
-any monitor with higher resolution but not on monitors with lower resolution.
+This GUI was initially developed for a screen with 1440 x 900 resolution. It is not resizable. It will work in window mode on +
+any monitor with higher resolution but not on monitors with lower resolution. +
+qtdragon_hd has a resolution of 1920 x 1056. +
 
 == Customization
 
