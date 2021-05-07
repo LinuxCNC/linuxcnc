@@ -255,7 +255,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 HM2_ERR_NO_LL("Invalid field length specification, you may "
                         "not get the pins you expected\n");
             }
-            else if (strchr("bBuUsSeEfFpPgGhHlL", *format)){
+            else if (strchr("bBuUsSeEfFpPgGhHlLmM", *format)){
                 hm2_sserial_data_t *conf;
                 chan->num_confs++;
                 chan->confs = (hm2_sserial_data_t *)rtapi_krealloc(chan->confs,
