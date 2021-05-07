@@ -12,9 +12,9 @@
 
 
 
-import os, ConfigParser
+import os, configparser
 
-cp = ConfigParser.RawConfigParser
+cp = configparser.RawConfigParser
 cp.optionxform=str
 class preferences(cp):
     types = {

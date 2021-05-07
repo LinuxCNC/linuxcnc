@@ -273,13 +273,13 @@ class mdi_control:
 
     def not_editing(self, n):
         e = self.eventboxes[n]
-        e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse("#ccc"))
+        e.modify_bg(self.gtk.STATE_NORMAL, self.gdk.color_parse("#ccc"))
 
     def editing(self, n):
         self.not_editing(self.selected)
         self.selected = n
         e = self.eventboxes[n]
-        e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse("#fff"))
+        e.modify_bg(self.gtk.STATE_NORMAL, self.gdk.color_parse("#fff"))
 
     def get_text(self):
         w = self.labels[self.selected]

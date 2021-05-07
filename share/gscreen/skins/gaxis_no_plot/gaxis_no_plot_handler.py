@@ -186,7 +186,7 @@ class HandlerClass:
 
     def on_offset_origin_entry_return(self,widget,result,calc,axis,userdata2):
         value = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == gtk.ResponseType.ACCEPT:
             if value == None:
                 return
             if not axis == "s":

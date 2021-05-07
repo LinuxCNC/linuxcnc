@@ -20,11 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
 import sys
-import gtk
 import linuxcnc
-import gobject
 import hal, hal_glib
 import gladevcp
 import time
@@ -36,7 +37,7 @@ class HandlerClass:
 
     def dialog_error(self, title, error):
         md = gtk.MessageDialog(self.W,
-                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.DialogFlags.DESTROY_WITH_PARENT,
                                gtk.MESSAGE_ERROR,
                                gtk.BUTTONS_CLOSE,
                                error)
@@ -49,7 +50,7 @@ class HandlerClass:
     def dialog_ok_cancel(self,title,text,button1Txt,button2Txt):
         md = gtk.Dialog(title,
                         self.W,
-                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                         (button1Txt, 1, button2Txt, 0))
         md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
         md.set_keep_above(True)
@@ -63,7 +64,7 @@ class HandlerClass:
     def dialog_common(self,title,label1Txt,label2Txt,button1Txt,button2Txt):
         md = gtk.Dialog(title,
                         self.W,
-                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                         (button1Txt, 1, button2Txt, 0))
         md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
         md.set_keep_above(True)

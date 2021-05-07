@@ -892,8 +892,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,
                      "\n".join(warnings))
             dialog.show_all()
             dialog.run()

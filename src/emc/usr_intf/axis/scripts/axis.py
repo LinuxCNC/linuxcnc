@@ -23,6 +23,11 @@
 from __future__ import print_function
 import sys, os
 import string
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -43,7 +48,7 @@ if sys.version_info[0] == 3:
 else:
     import Tkinter
     import thread as _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 # Print Tk errors to stdout. python.org/sf/639266
 OldTk = Tkinter.Tk
@@ -58,7 +63,6 @@ class Tk(OldTk):
 
 Tkinter.Tk = Tk
 
-from minigl import *
 RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
 old_flags = sys.getdlopenflags()
 sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);

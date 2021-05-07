@@ -41,6 +41,9 @@
 
 #include <cmath>
 
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
+
 #ifndef T_BOOL
 // The C++ standard probably doesn't specify the amount of storage for a 'bool',
 // and on some systems it might be more than one byte.  However, on x86 and

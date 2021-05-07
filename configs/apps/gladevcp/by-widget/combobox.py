@@ -7,8 +7,9 @@
 '''
 
 #import pygtk
-import gtk
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
 debug = 0
 

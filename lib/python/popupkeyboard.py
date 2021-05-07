@@ -56,22 +56,10 @@ Optional button LABELS (case insensitive):
 import linuxcnc
 import sys
 import os
-import pango
-
+import gi
+from gi.repository import Pango as pango
+from gi.repository import Gtk as gtk
 g_ui_dir = linuxcnc.SHARE + "/linuxcnc"
-
-try:
-    import pygtk
-    pygtk.require('2.0')
-except:
-    pass
-
-try:
-    import gtk
-except ImportError,msg:
-    print('GTK not available: %s' % msg)
-    sys.exit(1)
-
 
 class PopupKeyboard:
     def __init__(self

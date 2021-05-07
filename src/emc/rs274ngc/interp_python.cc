@@ -15,23 +15,6 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-// Support for embedding Python in the RS274NGC interpreter
-// with access to Interp and Canon
-//
-// NB: all this is executed at readahead time
-//
-// Michael Haberler 4/2011
-//
-// if you get a segfault like described
-// here: https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219
-// or here: https://www.libavg.de/wiki/LinuxInstallIssues#glibc_invalid_pointer :
-//
-// try this before starting milltask and axis in emc:
-//  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCTASK ...
-//  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCDISPLAY ...
-//
-// this is actually a bug in libgl1-mesa-dri and it looks
-// it has been fixed in mesa - 7.10.1-0ubuntu2
 
 #include "py3c/py3c.h"
 #define BOOST_PYTHON_MAX_ARITY 4

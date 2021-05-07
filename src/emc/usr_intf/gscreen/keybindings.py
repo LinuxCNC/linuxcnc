@@ -34,7 +34,7 @@ class Keycalls:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-# This holds/converts the actual keypress (keyname = gtk.gdk.keyval_name(event.keyval))
+# This holds/converts the actual keypress (keyname = gdk.keyval_name(event.keyval))
 # to a generic function keyword
 # you can add or change these.
 class Keybinding:
@@ -60,7 +60,7 @@ class Keybinding:
 
 # These is the public methods for key conversion to function call name.
 # get_call and get_binding are for confirmation of a call or binding entry.
-# convert() takes a key string (from gtk.gdk.keyval_name(event.keyval)) and converts it to a function call string or returns None
+# convert() takes a key string (from gdk.keyval_name(event.keyval)) and converts it to a function call string or returns None
 # add_call and add_binding allow adding or changing calls or bindings
 # add_conversion() does both at the same time
 class Keylookup:

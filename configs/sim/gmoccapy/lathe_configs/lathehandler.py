@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    savestate.py copyright 2013 Andy Pugh
@@ -24,14 +24,18 @@ import os,sys
 from gladevcp.persistence import IniFile,widget_defaults,set_debug,select_widgets
 import hal
 import hal_glib
-import gtk
 import glib
 import linuxcnc
-import rsvg
 import cairo
 import signal
-import pango
-
+import gi
+gi.require_version('Rsvg', '2.0')
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import Rsvg
 debug = 0
 
 class HandlerClass:
@@ -41,17 +45,20 @@ class HandlerClass:
     def on_expose(self,nb,data=None):
         tab_num = nb.get_current_page()
         tab = nb.get_nth_page(tab_num)
-        cr = tab.window.cairo_create()
+        cr = tab.get_property('window').cairo_create()
         cr.set_operator(cairo.OPERATOR_OVER)
-        x, y, w, h = tab.allocation
-        sx, sy, sw, sh =  self.svg.get_dimension_data()
+        alloc = tab.get_allocation()
+        x, y, w, h = (alloc.x, alloc.y, alloc.width, alloc.height)
+        sw = self.svg.get_dimensions().width
+        sh =  self.svg.get_dimensions().height
         cr.translate(0, y)
         cr.scale(1.0 *w / sw, 1.0*h/sh)
-        self.svg.render_cairo(cr = cr, id = '#layer%i' % tab_num)
+        #TODO: gtk3 drawing works, but svg is drawn over the UI elements
+        #self.svg.render_cairo_sub(cr = cr, id = '#layer%i' % tab_num)
 
     # This catches our messages from another program
     def event(self,w,event):
-        print event.message_type,event.data
+        print(event.message_type,event.data)
         if event.message_type == 'Gladevcp':
             if event.data[:7] == 'Visible':
                 self.active = True
@@ -61,8 +68,8 @@ class HandlerClass:
     # We connect to client-events from the new toplevel widget
     def on_map_event(self, widget, data=None):
         top = widget.get_toplevel()
-        print "map event"
-        top.connect('client-event', self.event)
+        print("map event")
+        #TODO: GTK3 top.connect('client-event', self.event)
 
     def on_destroy(self,obj,data=None):
         self.ini.save_state(self)
@@ -92,23 +99,22 @@ class HandlerClass:
         # This catches the signal from Touchy to say that the tab is exposed 
         t = self.builder.get_object('eventbox1')
         t.connect('map-event',self.on_map_event)
-        t.add_events(gtk.gdk.STRUCTURE_MASK)
+        t.add_events(Gdk.EventMask.STRUCTURE_MASK)
         self.cmd = linuxcnc.command()
 
         # This connects the expose event to re-draw and scale the SVG frames
         t = self.builder.get_object('tabs1')
-        t.connect_after("expose_event", self.on_expose)
-        t.connect("destroy", gtk.main_quit)
-        t.add_events(gtk.gdk.STRUCTURE_MASK)
-        self.svg = rsvg.Handle(file='LatheMacro.svg', )
-        
+        t.connect_after("draw", self.on_expose)
+        t.connect("destroy", Gtk.main_quit)
+        t.add_events(Gdk.EventMask.STRUCTURE_MASK)
+        self.svg = Rsvg.Handle().new_from_file('LatheMacro.svg')
         self.active = True
 
     def show_keyb(self, obj, data=None):
         self.active_ctrl = obj
         self.keyb = self.builder.get_object('keyboard')
         self.entry = self.builder.get_object('entry1')
-        self.entry.modify_font(pango.FontDescription("courier 42"))
+        self.entry.modify_font(Pango.FontDescription("courier 42"))
         resp = self.keyb.run()
 
     def keyb_prev_click(self, obj, data=None):
@@ -169,16 +175,16 @@ class HandlerClass:
         self.keyb.hide()
 
     def set_alpha(self, obj, data = None):
-        cr = obj.window.cairo_create()
+        cr = obj.get_property('window').cairo_create()
         cr.set_source_rgba(1.0, 1.0, 1.0, 0.0)
 
     def cycle_pin(self, pin, data = None):
         if pin.get() == 0:
             return
-        print 'cycle pin'
+        print('cycle pin')
         if self.active:
             nb = self.builder.get_object('tabs1')
-            print 'current tab', nb.get_current_page()
+            print('current tab', nb.get_current_page())
             tab = nb.get_nth_page(nb.get_current_page())
             for c in tab.get_children():
                 if c.name.partition('.')[2] == 'action':
@@ -188,13 +194,13 @@ class HandlerClass:
                     c.emit('clicked')
 
     def gash(self, obj, data = None):
-        print 'event', data
+        print('event', data)
 
 def get_handlers(halcomp,builder,useropts):
 
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     set_debug(debug)
     return [HandlerClass(halcomp,builder,useropts)]

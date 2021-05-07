@@ -18,8 +18,8 @@
 
 # This fixes integer division error
 # so dividing two integers gives a float
-from __future__ import division
-import sys, os, pango
+
+import sys, os
 import math
 
 # localization
@@ -28,30 +28,30 @@ locale.setlocale( locale.LC_ALL, '' )
 
 datadir = os.path.abspath( os.path.dirname( __file__ ) )
 
-try:
-    import gobject, gtk
-except:
-    print( 'GTK not available' )
-    sys.exit( 1 )
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 
-class Calculator( gtk.VBox ):
+class Calculator( Gtk.VBox ):
     __gtype_name__ = 'Calculator'
     __gproperties__ = {
-        'is_editable' : ( gobject.TYPE_BOOLEAN, 'Is Editable', 'Ability to use a keyboard to enter data',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT ),
-        'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-                "sans 12", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT ),
+        'is_editable' : ( GObject.TYPE_BOOLEAN, 'Is Editable', 'Ability to use a keyboard to enter data',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT ),
+        'font' : ( GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                "sans 12", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT ),
     }
     __gproperties = __gproperties__
 
     def __init__( self, *a, **kw ):
-        gtk.VBox.__init__( self, *a, **kw )
+        Gtk.VBox.__init__( self, *a, **kw )
         self.preset_value = None
         self.eval_string = ""
         self.font = "sans 12"
         self.is_editable = False
         self.integer_only = False
-        self.wTree = gtk.Builder()
+        self.wTree = Gtk.Builder()
         self.wTree.add_from_file( os.path.join( datadir, "calculator.glade" ) )
         dic = {
             "on_displayText_activate" : self.displayText,
@@ -79,7 +79,7 @@ class Calculator( gtk.VBox ):
             }
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
-        self.entry.modify_font( pango.FontDescription( self.font ) )
+        self.entry.modify_font( Pango.FontDescription( self.font ) )
         self.calc_box = self.wTree.get_object( "calc_box" )
         window = self.wTree.get_object( "calc_box" )
         window.reparent( self )
@@ -108,12 +108,12 @@ class Calculator( gtk.VBox ):
 
     def set_font( self, font ):
         self.font = font
-        self.entry.modify_font( pango.FontDescription( font ) )
+        self.entry.modify_font( Pango.FontDescription( font ) )
 
     def set_value( self, value ):
         val = value
         try:
-            val = str( locale.format( "%f", float( val ) ).rstrip( "0" ) )
+            val = str( locale.format_string( "%f", float( val ) ).rstrip( "0" ) )
             if val[-1] == locale.localeconv()["decimal_point"]:
                 val = val.rstrip( locale.localeconv()["decimal_point"] )
         except:
@@ -167,7 +167,7 @@ class Calculator( gtk.VBox ):
         # we have to replace the internal dot by a comma,
         # otherwise it will be interpreted as an thousend separator
         try:
-            b = locale.format( "%f", float( b ) ).rstrip( "0" )
+            b = locale.format_string( "%f", float( b ) ).rstrip( "0" )
             if b[-1] == locale.localeconv()["decimal_point"]:
                 b = b.rstrip( locale.localeconv()["decimal_point"] )
         except:
@@ -272,21 +272,21 @@ class Calculator( gtk.VBox ):
 
 # for testing without glade editor:
 def main():
-    window = gtk.Dialog( "My dialog",
+    window = Gtk.Dialog( "My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   ( gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT ) )
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   ( Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT ) )
     calc = Calculator()
 
     window.vbox.add( calc )
-    window.connect( "destroy", gtk.main_quit )
+    window.connect( "destroy", Gtk.main_quit )
     calc.set_value( 2.5 )
     calc.set_font( "sans 25" )
     calc.set_editable( True )
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == Gtk.ResponseType.ACCEPT:
        print(calc.get_value())
     else:
        print(calc.get_preset_value())

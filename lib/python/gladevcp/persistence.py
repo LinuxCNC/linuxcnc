@@ -24,12 +24,15 @@
 import os
 import sys
 import time
-import gtk
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 from configobj import ConfigObj, flatten_errors
 from validate import Validator
 from hashlib import sha1
-from hal_widgets import _HalWidgetBase
-from hal_actions import _EMC_ActionBase
+from .hal_widgets import _HalWidgetBase
+from .hal_actions import _EMC_ActionBase
 from gladevcp.gladebuilder import widget_name
 
 class UselessIniError(Exception):
@@ -45,13 +48,13 @@ version_number = 1
 
 
 def warn(*args):
-    print >> sys.stderr,''.join(args)
+    print(''.join(args), file=sys.stderr)
 
 
 def dbg(level,*args):
     global debug
     if debug < level: return
-    print ''.join(args)
+    print(''.join(args))
 
 
 def set_debug(value):
@@ -74,12 +77,12 @@ def select_widgets(widgets, hal_only=False,output_only = False):
             continue
         if hal_only and not isinstance(w, _HalWidgetBase):
             continue
-        if output_only and not isinstance(w, (gtk.Range,
-                                              gtk.SpinButton,
-                                              gtk.ComboBox,
-                                              gtk.CheckButton,
-                                              gtk.ToggleButton,
-                                              gtk.RadioButton)):
+        if output_only and not isinstance(w, (Gtk.Range,
+                                              Gtk.SpinButton,
+                                              Gtk.ComboBox,
+                                              Gtk.CheckButton,
+                                              Gtk.ToggleButton,
+                                              Gtk.RadioButton)):
             continue
         wlist.append(w)
     return wlist
@@ -89,9 +92,9 @@ def accessors(w):
     '''
     retrieve getter/setter name of an 'interesting' widget
     '''
-    if isinstance(w, (gtk.Range, gtk.SpinButton)):
+    if isinstance(w, (Gtk.Range, Gtk.SpinButton)):
         return (w.get_value,w.set_value)
-    if isinstance(w, (gtk.CheckButton, gtk.ToggleButton,gtk.RadioButton,gtk.ComboBox)):
+    if isinstance(w, (Gtk.CheckButton, Gtk.ToggleButton,Gtk.RadioButton,Gtk.ComboBox)):
         return (w.get_active,w.set_active)
     return (None,None)
 
@@ -113,7 +116,7 @@ def widget_defaults(widgets):
         try:
             v = get_value(w)
             wvalues[k] = v
-        except Exception,msg:
+        except Exception as msg:
             warn("widget_defaults:" + msg)
             continue
     return wvalues
@@ -141,7 +144,7 @@ class IniFile(object):
             spec += '[' + section + ']\n'
             for varname in sorted(vdict[section].keys()):
                 typename = type(vdict[section][varname]).__name__
-                if co_map.has_key(typename):
+                if typename in co_map:
                     typename = co_map[typename]
                 spec += '\t' + varname + ' = ' + typename  + '\n'
         return spec
@@ -153,7 +156,7 @@ class IniFile(object):
         '''
         dbg(1, "restore_state() from %s" % (self.filename))
 
-        if not self.defaults.has_key(IniFile.ini):
+        if IniFile.ini not in self.defaults:
             raise BadDescriptorDictError("defaults dict lacks 'ini' section")
 
         if  self.defaults[IniFile.ini][IniFile.signature] != (
@@ -167,12 +170,12 @@ class IniFile(object):
         else:
             dbg(1,"signature verified OK for %s " % (self.filename))
 
-        if self.config.has_key(IniFile.vars):
-            for k,v in self.defaults[IniFile.vars].items():
+        if IniFile.vars in self.config:
+            for k,v in list(self.defaults[IniFile.vars].items()):
                 setattr(obj,k,self.config[IniFile.vars][k])
 
-        if self.config.has_key(IniFile.widgets):
-            for k,v in self.config[IniFile.widgets].items():
+        if IniFile.widgets in self.config:
+            for k,v in list(self.config[IniFile.widgets].items()):
                 store_value(self.builder.get_object(k),v)
 
     def save_state(self, obj):
@@ -180,12 +183,12 @@ class IniFile(object):
         save obj attributes as listed in ini file 'IniFile.vars' section and
         widget state to 'widgets' section
         '''
-        if self.defaults.has_key(IniFile.vars):
-            for k,v in self.defaults[IniFile.vars].items():
+        if IniFile.vars in self.defaults:
+            for k,v in list(self.defaults[IniFile.vars].items()):
                 self.config[IniFile.vars][k] = getattr(obj,k,None)
 
-        if self.config.has_key(IniFile.widgets):
-            for k in self.defaults[IniFile.widgets].keys():
+        if IniFile.widgets in self.config:
+            for k in list(self.defaults[IniFile.widgets].keys()):
                 self.config[IniFile.widgets][k] = get_value(self.builder.get_object(k))
 
         self.config.final_comment = ['last update  by %s.save_state() on %s ' %
@@ -242,7 +245,7 @@ class IniFile(object):
                     else:
                         raise Exception(error)
 
-            except (IOError, TypeError,UselessIniError),msg:
+            except (IOError, TypeError,UselessIniError) as msg:
                 warn("%s - creating default" % (msg))
                 self.create_default_ini()
                 continue
@@ -268,7 +271,7 @@ class IniFile(object):
         self.filename = filename
         self.builder = builder
         spec = self._gen_spec(self.defaults)
-        self.signature = sha1(spec).hexdigest()
+        self.signature = sha1(spec.encode('utf-8')).hexdigest()
         self.defaults[IniFile.ini][IniFile.signature] = self.signature
 
         dbg(2, "auto-generated spec:\n%s\nsignature = %s" %

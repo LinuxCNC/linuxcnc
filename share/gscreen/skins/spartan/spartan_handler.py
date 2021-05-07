@@ -20,10 +20,13 @@
 # Heidenhain TNC 151a controller.
 # Chris Brady   Oct 2015
 #
+
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import Pango as pango
+
 import hal
-import gtk
 import gladevcp.makepins # needed for the dialog's calulator widget
-import pango
 import hal_glib
 
 _MAN = 0;_MDI = 1;_AUTO = 2;_LOCKTOGGLE = 1
@@ -249,7 +252,7 @@ class HandlerClass:
 
     def on_mode_clicked(self,widget,event):
         # only change machine modes on click
-        if event.type == gtk.gdk.BUTTON_PRESS:
+        if event.type == gdk.BUTTON_PRESS:
             a,b,c = self.data.mode_order
             self.data.mode_order = b,c,a
             label = self.data.mode_labels

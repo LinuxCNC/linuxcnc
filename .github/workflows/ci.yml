@@ -10,7 +10,7 @@ on:
 
 jobs:
   rip-and-test:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Dump GitHub context
       env:
@@ -32,7 +32,7 @@ jobs:
         ../scripts/rip-environment runtests -p
     
   htmldocs:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Dump GitHub context
       env:
@@ -53,7 +53,7 @@ jobs:
         # Note that the package build covers html docs
 
   package:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Dump GitHub context
       env:

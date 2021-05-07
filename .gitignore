@@ -42,4 +42,3 @@ position.txt
 *.glade.h
 # Ignore test results
 *.result
-

@@ -52,17 +52,20 @@ These ini file items are compatible with ngcgui.tcl:
   [DISPLAY]NGCGUI_FONT        not used
   [DISPLAY]TKPKG              not applicable
 """
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
 from   types import * # IntType etc
 import os
 import sys
 import re
-import gtk
 import getopt
 import datetime
 import subprocess
 import linuxcnc
 import hashlib
-import gobject
 import glob
 import shutil
 import popupkeyboard
@@ -93,12 +96,6 @@ if sys.version_info[0] == 3:
 else:
     gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
-try:
-    import pygtk
-    pygtk.require('2.0')
-except ImportError as msg:
-    print('import pygtk failed: %s',msg)
-    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
@@ -138,23 +135,23 @@ g_gcmc_exe = None
 g_gcmc_funcname = 'tmpgcmc'
 g_gcmc_id = 0
 
-black_color   = gtk.gdk.color_parse('black')
-white_color   = gtk.gdk.color_parse('white')
-error_color   = gtk.gdk.color_parse('red')
-green_color   = gtk.gdk.color_parse('green')
-blue_color    = gtk.gdk.color_parse('blue')
-yellow_color  = gtk.gdk.color_parse('yellow')
-purple_color  = gtk.gdk.color_parse('purple')
-feature_color = gtk.gdk.color_parse('lightslategray')
+black_color   = gdk.color_parse('black')
+white_color   = gdk.color_parse('white')
+error_color   = gdk.color_parse('red')
+green_color   = gdk.color_parse('green')
+blue_color    = gdk.color_parse('blue')
+yellow_color  = gdk.color_parse('yellow')
+purple_color  = gdk.color_parse('purple')
+feature_color = gdk.color_parse('lightslategray')
 
-label_normal_color = gtk.gdk.color_parse('lightsteelblue2')
-label_active_color = gtk.gdk.color_parse('ivory2')
-base_entry_color   = gtk.gdk.color_parse('azure1')
-fg_created_color   = gtk.gdk.color_parse('palegreen')
-fg_multiple_color  = gtk.gdk.color_parse('cyan')
+label_normal_color = gdk.color_parse('lightsteelblue2')
+label_active_color = gdk.color_parse('ivory2')
+base_entry_color   = gdk.color_parse('azure1')
+fg_created_color   = gdk.color_parse('palegreen')
+fg_multiple_color  = gdk.color_parse('cyan')
 fg_normal_color    = black_color
 
-bg_dvalue_color = gtk.gdk.color_parse('darkseagreen2')
+bg_dvalue_color = gdk.color_parse('darkseagreen2')
 #------------------------------------------------------------------------------
 
 def exception_show(ename,detail,src=''):
@@ -252,7 +249,7 @@ def file_save(fname,title_message='Save File'):
        ,parent=None
        ,action=gtk.FILE_CHOOSER_ACTION_SAVE
        ,buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
-                ,gtk.STOCK_OK,     gtk.RESPONSE_OK
+                ,gtk.STOCK_OK,     gtk.ResponseType.OK
                 )
        ,backend=None
        )
@@ -270,7 +267,7 @@ def file_save(fname,title_message='Save File'):
     fc.set_current_name(os.path.basename(fname)) # suggest name (for save)
     fname = None
     ans = fc.run()
-    if ans == gtk.RESPONSE_OK:
+    if ans == gtk.ResponseType.OK:
         fname = fc.get_filename()
     elif ans == gtk.RESPONSE_CANCEL:
         print(_('file_save:canceled'))
@@ -405,8 +402,8 @@ def find_positional_parms(s):
     return name,pnum,dvalue,comment
 
 def user_message(title=""
-                ,mtype=gtk.MESSAGE_INFO
-                ,flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
+                ,mtype=gtk.MessageType.INFO
+                ,flags=gtk.DialogFlags.MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
                 ,msg=None):
     if msg is None: return(None)
     if type(msg) == ListType:
@@ -418,7 +415,7 @@ def user_message(title=""
     popup = gtk.MessageDialog(parent = None
           ,flags=flags
           ,type=mtype
-          ,buttons = gtk.BUTTONS_OK
+          ,buttons = gtk.ButtonsType.OK
           ,message_format = txt
           )
     popup.set_title(title)
@@ -460,7 +457,7 @@ def sized_image(ifile):
     new_width  = int(scale*iwidth)
     new_height = int(scale*iheight)
     pixbuf = pixbuf.scale_simple(new_width,new_height
-                                ,gtk.gdk.INTERP_BILINEAR)
+                                ,gdk.INTERP_BILINEAR)
     img.set_from_pixbuf(pixbuf)
     return(img)
 
@@ -675,8 +672,8 @@ def make_g_styles():
 
     global g_lbl_style_default
     g_lbl_style_default   = dummylabel.get_style().copy()
-    g_lbl_style_default.bg[gtk.STATE_NORMAL] = label_normal_color
-    g_lbl_style_default.bg[gtk.STATE_ACTIVE] = label_active_color
+    #g_lbl_style_default.bg[gtk.StateType.NORMAL] = label_normal_color TODO:
+    #g_lbl_style_default.bg[gtk.STATE_ACTIVE] = label_active_color
 
     global g_lbl_style_created
     g_lbl_style_created  = dummylabel.get_style().copy()
@@ -684,11 +681,11 @@ def make_g_styles():
     global g_lbl_style_multiple
     g_lbl_style_multiple = dummylabel.get_style().copy()
 
-    g_lbl_style_multiple.bg[gtk.STATE_NORMAL] = feature_color
-    g_lbl_style_multiple.bg[gtk.STATE_ACTIVE] = feature_color
+    #g_lbl_style_multiple.bg[gtk.STATE_NORMAL] = feature_color
+    #g_lbl_style_multiple.bg[gtk.STATE_ACTIVE] = feature_color
 
-    g_lbl_style_created.bg[gtk.STATE_NORMAL] = feature_color
-    g_lbl_style_created.bg[gtk.STATE_ACTIVE] = feature_color
+    #g_lbl_style_created.bg[gtk.STATE_NORMAL] = feature_color
+    #g_lbl_style_created.bg[gtk.STATE_ACTIVE] = feature_color
 
     del dummylabel
 
@@ -704,12 +701,12 @@ def make_g_styles():
     global g_ent_style_error
     g_ent_style_error   = dummyentry.get_style().copy()
 
-    g_ent_style_normal.base[gtk.STATE_NORMAL]  = base_entry_color
+    #g_ent_style_normal.base[gtk.STATE_NORMAL]  = base_entry_color
 
-    g_ent_style_default.base[gtk.STATE_NORMAL] = bg_dvalue_color
+    #g_ent_style_default.base[gtk.STATE_NORMAL] = bg_dvalue_color
 
-    g_ent_style_error.text[gtk.STATE_NORMAL]   = error_color
-    g_ent_style_error.base[gtk.STATE_NORMAL]   = base_entry_color
+    #g_ent_style_error.text[gtk.STATE_NORMAL]   = error_color
+    #g_ent_style_error.base[gtk.STATE_NORMAL]   = base_entry_color
 
     del dummyentry
 
@@ -800,22 +797,22 @@ class CandidateDialog():
         lname = long_name(self.ftype)
         title = "Choose %s file" % lname
 
-        btns=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT
-             ,gtk.STOCK_OK,     gtk.RESPONSE_ACCEPT)
+        btns=(gtk.STOCK_CANCEL, gtk.ResponseType.REJECT
+             ,gtk.STOCK_OK,     gtk.ResponseType.ACCEPT)
         if ( (self.ftype == 'pre') or (self.ftype == 'pst') ):
             # RESPONSE_NO used to allow 'nofile' for 'pre','pst'
             btns = btns + ('No %s File' % lname, gtk.RESPONSE_NO)
 
         self.fdialog = gtk.Dialog(title=title
                      ,parent=None
-                     ,flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
+                     ,flags=gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
                      ,buttons=btns
                      )
         self.fdialog.set_size_request(600,600)
 
         scrollw = gtk.ScrolledWindow()
         scrollw.set_border_width(5)
-        scrollw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+        scrollw.set_policy(gtk.PolicyType.AUTOMATIC, gtk.POLICY_ALWAYS)
         scrollw.show()
 
         box = self.fdialog.get_content_area()
@@ -883,7 +880,7 @@ class CandidateDialog():
         return('TRYAGAIN',emsg)
 
     def row_activated(self,tview,iter,column):
-        self.fdialog.response(gtk.RESPONSE_ACCEPT)
+        self.fdialog.response(gtk.ResponseType.ACCEPT)
         pass
 
     def run(self):
@@ -1607,7 +1604,7 @@ class EntryFields():
                   'EntryFields:nparms=%d g_max_parm=%d')
                   % (nparms,g_max_parm))
         self.ebox = gtk.Frame()
-        self.ebox.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        self.ebox.set_shadow_type(gtk.ShadowType.ETCHED_IN)
         self.ebox.set_border_width(2)
 
         efbox = gtk.VBox()
@@ -1827,7 +1824,7 @@ class ControlPanel():
         self.mypg = mypg
  
         frame = gtk.Frame()
-        frame.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        frame.set_shadow_type(gtk.ShadowType.ETCHED_IN)
         frame.set_border_width(2)
         self.box = frame
         
@@ -1887,7 +1884,7 @@ class ControlPanel():
 
         tfiles = gtk.Table(rows=3, columns=2, homogeneous=0)
 
-        bx = gtk.FILL|gtk.EXPAND; by = 0
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
 
         tfiles.attach(bpre,0,1,0,1,xoptions=bx,yoptions=by)
         tfiles.attach(bsub,0,1,1,2,xoptions=bx,yoptions=by)
@@ -1911,7 +1908,7 @@ class ControlPanel():
         if g_alive: self.bautosend.connect("toggled", self.toggle_autosend)
 
         tchkbs = gtk.Table(rows=3, columns=1, homogeneous=0)
-        bx = gtk.FILL|gtk.EXPAND; by = gtk.FILL|gtk.EXPAND
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
         #tchkbs.attach(bretain,  0,1,0,1,xoptions=bx,yoptions=by)
         tchkbs.attach(self.bexpand,  0,1,1,2,xoptions=bx,yoptions=by)
 
@@ -1962,7 +1959,7 @@ class ControlPanel():
         lmsgf.add(self.lmsg)
 
         tactions = gtk.Table(rows=3, columns=3, homogeneous=1)
-        bx = gtk.FILL|gtk.EXPAND; by = gtk.FILL|gtk.EXPAND
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
         tactions.attach(bcreate,  0,2,0,1,xoptions=bx,yoptions=by)
         tactions.attach(bfinalize,2,3,0,1,xoptions=bx,yoptions=by)
 
@@ -1970,7 +1967,7 @@ class ControlPanel():
         # tactions.attach(self.breread ,0,1,1,2,xoptions=bx,yoptions=by)
         tactions.attach(brestart,   2,3,1,2,xoptions=bx,yoptions=by)
 
-        bx = gtk.FILL|gtk.EXPAND; by = 0
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
         #tactions.attach(self.lmsg,0,3,2,3,xoptions=bx,yoptions=by)
         tactions.attach(lmsgf,0,3,2,3,xoptions=bx,yoptions=by)
 
@@ -1983,7 +1980,7 @@ class ControlPanel():
              or mypg.imageoffpage
            ):
             # show all controls
-            bx = gtk.FILL|gtk.EXPAND; by = gtk.FILL|gtk.EXPAND
+            bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
             tactions.attach(self.breread, 0,1,1,2,xoptions=bx,yoptions=by)
             tactions.attach(lfctf,        1,2,1,2,xoptions=bx,yoptions=by)
             cpbox.pack_start(lcontrol,expand=0,fill=0,padding=0)
@@ -1993,7 +1990,7 @@ class ControlPanel():
                 self.separate_image(img,sub_file,show=False)
                 mypg.imageoffpage = True
         else:
-            bx = gtk.FILL|gtk.EXPAND; by = gtk.FILL|gtk.EXPAND
+            bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
             tactions.attach(lfctf,  0,2,1,2,xoptions=bx,yoptions=by)
             # show image instead of controls
             if image_file:
@@ -2315,7 +2312,7 @@ class ControlPanel():
                   )
             popup = gtk.Dialog(title='Page Selection'
                   ,parent=None
-                  ,flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
+                  ,flags=gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
                   ,buttons=(gtk.STOCK_NO,     gtk.RESPONSE_NO
                            ,gtk.STOCK_YES,    gtk.RESPONSE_YES
                            ,gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
@@ -2437,11 +2434,11 @@ class ControlPanel():
         while True:
             response   = mydiag.run()
             fname,errmsg = mydiag.get_file_result()
-            if   response == gtk.RESPONSE_ACCEPT:
+            if   response == gtk.ResponseType.ACCEPT:
                 vprint('file_choose: ACCEPT')
                 self.mypg.cpanel.set_message(_('file_choose ACCEPT'))
                 pass
-            elif response == gtk.RESPONSE_REJECT:
+            elif response == gtk.ResponseType.REJECT:
                 self.mypg.cpanel.set_message(_('file_choose REJECT'))
                 vprint('file_choose: REJECT')
                 mydiag.destroy()
@@ -2575,7 +2572,7 @@ class OnePg():
         tabarrange_buttons = gtk.HBox()        # main buttons
 
         self.mtable = gtk.Table(rows=1, columns=2, homogeneous=0)
-        bx = gtk.FILL|gtk.EXPAND; by = 0
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
         no_of_parms = g_max_parm
 
 
@@ -2586,11 +2583,11 @@ class OnePg():
 
         self.fill_entrypage(emode='initial')
 
-        bx = 0; by = gtk.FILL|gtk.EXPAND
+        bx = 0; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
         self.mtable.attach(self.cpanel.box, 0,1,0,1,xoptions=bx,yoptions=by)
 
-        bx = gtk.FILL; by = gtk.FILL|gtk.EXPAND
-        bx = gtk.FILL|gtk.EXPAND ; by = gtk.FILL|gtk.EXPAND
+        bx = gtk.AttachOptions.FILL; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND ; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
         entrystuff = self.efields.get_box()
         self.mtable.attach(entrystuff, 1,2,0,1,xoptions=bx,yoptions=by)
 
@@ -2675,37 +2672,37 @@ class OnePg():
         return True      # True to repeat
 
     def any_event(self,widget,event):
-        if   event.type == gtk.gdk.ENTER_NOTIFY:
+        if   event.type == gdk.ENTER_NOTIFY:
             #widget.set_can_focus(True)
             self.key_enable = True
             #print('ENTER enable')
             return
-        elif event.type == gtk.gdk.LEAVE_NOTIFY:
+        elif event.type == gdk.LEAVE_NOTIFY:
             #print "LEAVE can, is",widget.is_focus(),widget.get_can_focus(),'\n'
             if widget.get_can_focus():
                 #widget.set_can_focus(False)
                 self.key_enable = False
                 #print('LEAVE disable')
             return
-        elif event.type == gtk.gdk.EXPOSE:
+        elif event.type == gdk.EXPOSE:
             widget.grab_focus()
             return
-        elif event.type == gtk.gdk.KEY_PRESS:
+        elif event.type == gdk.KEY_PRESS:
             if not self.key_enable:
                 #print('IGNORE')
                 return
-            keyname = gtk.gdk.keyval_name(event.keyval)
+            keyname = gdk.keyval_name(event.keyval)
             kl = keyname.lower()
             # ignore special keys (until they modify)
             if kl in ['alt_r','alt_l']         : return
             if kl in ['control_r','control_l'] : return
             if kl in ['shift_r','shift_l']     : return
             pre = ''
-            if  event.state & gtk.gdk.CONTROL_MASK:
+            if  event.state & gdk.ModifierType.CONTROL_MASK:
                 pre = "Control-"
-            elif event.state & gtk.gdk.MOD1_MASK:
+            elif event.state & gdk.ModifierType.MOD1_MASK:
                 pre = "Alt-"
-            elif event.state & gtk.gdk.SHIFT_MASK:
+            elif event.state & gdk.ModifierType.SHIFT_MASK:
                 pre = "Shift-"
             k = pre + keyname
             #print("%10s (%03d=%#2X)" % (k, event.keyval,event.keyval))

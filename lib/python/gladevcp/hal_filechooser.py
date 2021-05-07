@@ -17,7 +17,11 @@
 import os, sys, time, select, re
 import tempfile, atexit, shutil
 
-import gtk, gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -198,13 +202,13 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
             self.load_file(self.fixed_file)
             return
         dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
-                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
+                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.ResponseType.OK))
         dialog.set_current_folder(self.currentfolder)
         dialog.show()
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.hide()
-        if r == gtk.RESPONSE_OK:
+        if r == gtk.ResponseType.OK:
             dialog.load_file(fn)
             self.currentfolder = os.path.dirname(fn)
         dialog.destroy()

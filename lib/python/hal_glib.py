@@ -38,7 +38,7 @@ except:
 
 class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
-    __gsignals__ = {'value-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ())}
+    __gsignals__ = {'value-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())}
 
     REGISTRY = []
     UPDATE = False
@@ -100,60 +100,60 @@ class GComponent:
 class _GStat(GObject.GObject):
     '''Emits signals based on linuxcnc status '''
     __gsignals__ = {
-        'periodic': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-estop': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-estop-reset': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-on': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'state-off': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'periodic': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'state-estop': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'state-estop-reset': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'state-on': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'state-off': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
 
-        'homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'unhomed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'all-homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'not-all-homed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'override-limits-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
+        'homed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'unhomed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'all-homed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'not-all-homed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'override-limits-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'hard-limits-tripped': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
+        'hard-limits-tripped': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'mode-manual': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'mode-auto': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'mode-mdi': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'mode-manual': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'mode-auto': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'mode-mdi': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
 
-        'command-running': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'command-stopped': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'command-error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'command-running': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'command-stopped': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'command-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
 
-        'interp-run': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-idle': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-paused': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-reading': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'interp-waiting': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-run': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-idle': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-paused': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-reading': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'interp-waiting': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
 
-        'jograte-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'jograte-angular-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'jogincrement-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
-        'jogincrement-angular-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
+        'jograte-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jograte-angular-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jogincrement-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
+        'jogincrement-angular-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
 
-        'joint-selection-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'axis-selection-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'joint-selection-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'axis-selection-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'program-pause-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'optional-stop-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'block-delete-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'program-pause-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'optional-stop-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'block-delete-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'file-loaded': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'reload-display': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
-        'line-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'file-loaded': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'reload-display': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'line-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
 
-        'tool-in-spindle-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'tool-prep-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'tool-info-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'current-tool-offset': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'tool-in-spindle-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-prep-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-info-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'current-tool-offset': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
-        'motion-mode-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'spindle-control-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,GObject.TYPE_INT)),
-        'current-feed-rate': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'current-x-rel-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'current-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
+        'motion-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'spindle-control-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,GObject.TYPE_INT)),
+        'current-feed-rate': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-x-rel-position': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-position': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
                             GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
         'current-z-rotation': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'requested-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),

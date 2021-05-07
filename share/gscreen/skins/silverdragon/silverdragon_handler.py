@@ -4,11 +4,12 @@
 # the toplevel window is called window1 (The default name) and you connect a destroy
 # window signal otherwise you can't close down linuxcnc 
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 import hal
 import hal_glib
-import gtk
-import pango
-import gobject
 import linuxcnc
 from time import strftime
 
@@ -281,17 +282,17 @@ class HandlerClass:
         # set the button background colors and digits of the DRO
         self.homed_textcolor = self.gscreen.prefs.getpref("homed_textcolor", "#00FF00", str)     # default green
         self.unhomed_textcolor = self.gscreen.prefs.getpref("unhomed_textcolor", "#FF0000", str) # default red
-        self.widgets.homed_colorbtn.set_color(gtk.gdk.color_parse(self.homed_textcolor))
-        self.widgets.unhomed_colorbtn.set_color(gtk.gdk.color_parse(self.unhomed_textcolor))
+        self.widgets.homed_colorbtn.set_color(gdk.color_parse(self.homed_textcolor))
+        self.widgets.unhomed_colorbtn.set_color(gdk.color_parse(self.unhomed_textcolor))
         self.homed_color = self.gscreen.convert_to_rgb(self.widgets.homed_colorbtn.get_color())
         self.unhomed_color = self.gscreen.convert_to_rgb(self.widgets.unhomed_colorbtn.get_color())
-        self.widgets.tbtn_estop.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_estop.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FF0000"))
-        self.widgets.tbtn_on.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
-        self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
-        self.label_home_x.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
-        self.label_home_y.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
-        self.label_home_z.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
+        self.widgets.tbtn_estop.modify_bg(gtk.STATE_NORMAL, gdk.color_parse("#00FF00"))
+        self.widgets.tbtn_estop.modify_bg(gtk.STATE_ACTIVE, gdk.color_parse("#FF0000"))
+        self.widgets.tbtn_on.modify_bg(gtk.STATE_NORMAL, gdk.color_parse("#FF0000"))
+        self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gdk.color_parse("#00FF00"))
+        self.label_home_x.modify_fg(gtk.STATE_NORMAL, gdk.color_parse("#FF0000"))
+        self.label_home_y.modify_fg(gtk.STATE_NORMAL, gdk.color_parse("#FF0000"))
+        self.label_home_z.modify_fg(gtk.STATE_NORMAL, gdk.color_parse("#FF0000"))
         # set the active colours of togglebuttons and radiobuttons
         blue_list = ["tbtn_mist", "tbtn_flood", "tbtn_laser", "tbtn_spare",
                      "tbtn_units", "tbtn_pause",
@@ -302,11 +303,11 @@ class HandlerClass:
         other_list = ["rbt_view_p", "rbt_view_x", "rbt_view_y", "rbt_view_z",
                       "tbtn_view_dimension", "tbtn_view_tool_path"]
         for btn in blue_list:
-            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#44A2CF"))
+            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gdk.color_parse("#44A2CF"))
         for btn in green_list:
-            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#A2E592"))
+            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gdk.color_parse("#A2E592"))
         for btn in other_list:
-            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#BB81B5"))
+            self.widgets["{0}".format(btn)].modify_bg(gtk.STATE_ACTIVE, gdk.color_parse("#BB81B5"))
 
     def init_sensitive_on_off(self):
         self.data.sensitive_on_off = ["table_run", "tbl_dro", "vbox_overrides",
@@ -1293,10 +1294,10 @@ class HandlerClass:
         j = 0
         for i in self.data.axis_list:
             if self.stat.joint[j]['homed']:
-                self["label_home_%s"%i].modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#0000FF"))
+                self["label_home_%s"%i].modify_fg(gtk.STATE_NORMAL, gdk.color_parse("#0000FF"))
                 color = self.homed_color
             else:
-                self["label_home_%s"%i].modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
+                self["label_home_%s"%i].modify_fg(gtk.STATE_NORMAL, gdk.color_parse("#FF0000"))
                 color = self.unhomed_color
             j += 1
             attr = pango.AttrList()
@@ -1457,7 +1458,7 @@ class HandlerClass:
 
     def on_offset_axis_return(self, widget, result, calc, userdata, userdata2):
         value = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == gtk.ResponseType.ACCEPT:
             if value is not None:
                 r = self.axis_to_ref
                 self.gscreen.prefs.putpref("offset_axis_{}".format(r), value, str)
@@ -1473,7 +1474,7 @@ class HandlerClass:
 
     def on_blockheight_return(self, widget, result, calc, userdata, userdata2):
         blockheight = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == gtk.ResponseType.ACCEPT:
             if blockheight == "CANCEL" or blockheight == "ERROR":
                 return
             if blockheight is not None or blockheight is not False or blockheight == 0:

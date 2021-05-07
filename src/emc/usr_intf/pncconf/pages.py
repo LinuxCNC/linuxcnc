@@ -30,9 +30,10 @@
 # add large or common function calls to pncconf.py
 
 from __future__ import print_function
-import gtk
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
-import gobject
 
 class Pages:
     def __init__(self, app):

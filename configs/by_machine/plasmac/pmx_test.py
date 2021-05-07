@@ -20,8 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-import gtk
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import time
 
 address      = '01'
@@ -48,7 +49,7 @@ while 1:
               '\nsudo apt-get install python-serial\n'
         dialog = gtk.Dialog('ERROR',
                             None,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('OK', 1)
                            )
         label = gtk.Label(msg)
@@ -335,7 +336,7 @@ class pmx(gtk.Window):
     def dialog_ok(self,title,text):
         dialog = gtk.Dialog(title,
                             self,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('OK', 1)
                            )
         label = gtk.Label(text)
@@ -348,7 +349,7 @@ class pmx(gtk.Window):
     def dialog_ok_cancel(self,title,text,name1,name2):
         dialog = gtk.Dialog(title,
                             self,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                             (name1, 1,
                             name2, 0)
                            )

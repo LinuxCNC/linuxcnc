@@ -18,7 +18,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import gobject
+import gi
+from gi.repository import GObject as gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
 from PyQt5.QtCore import QObject

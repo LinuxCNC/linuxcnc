@@ -39,8 +39,7 @@ build-stamp:
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
             $(enable_build_documentation) \
-	    --disable-check-runtime-deps \
-            --with-python=/usr/bin/python2.7
+	    --disable-check-runtime-deps
 	(cd src; $(MAKE) $(MAKEFLAGS))
 	$(if $(enable_build_documentation),(cd src; $(MAKE) $(MAKEFLAGS) docs))
 	touch build-stamp

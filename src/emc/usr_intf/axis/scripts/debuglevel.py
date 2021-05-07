@@ -5,7 +5,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 if sys.version_info[0] == 3:
     gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 else:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 import linuxcnc
 if sys.version_info[0] == 3:
