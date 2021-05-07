@@ -74,6 +74,11 @@ MODULE_LICENSE("GPL");
 #include <time.h>
 #endif
 
+#ifndef __KERNEL__
+#include <sys/resource.h>
+#include <sys/time.h>
+#endif
+
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
@@ -2022,6 +2027,23 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
         return -EINVAL;
     }
     *(new->runtime) = 0;
+
+#ifndef __KERNEL__
+    if (hal_pin_s32_newf(HAL_OUT, &(new->involuntary), new->comp_id,"%s.involuntary",new->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+           "HAL: ERROR: fail to create pin '%s.involuntary'\n", new->name);
+        return -EINVAL;
+    }
+    *(new->involuntary) = 0;
+
+    if (hal_param_bit_newf(HAL_RO, &(new->involuntary_increased), new->comp_id,"%s.involuntary-increased",new->name)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+           "HAL: ERROR: fail to create pin '%s.involuntary-increased'\n", new->name);
+        return -EINVAL;
+    }
+    new->involuntary_increased = 0;
+#endif
+
     hal_ready(new->comp_id);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
@@ -2866,6 +2888,12 @@ static void thread_task(void *arg)
 	    if ( *(thread->runtime) > thread->maxtime) {
 	        thread->maxtime = *(thread->runtime);
 	    }
+#ifndef __KERNEL__
+            struct rusage ru;
+            getrusage(RUSAGE_THREAD, &ru);
+            thread->involuntary_increased = (hal_s32_t)ru.ru_nivcsw != *thread->involuntary;
+            *thread->involuntary = (hal_s32_t)ru.ru_nivcsw;
+#endif
 	}
 	/* wait until next period */
 	rtapi_wait();
