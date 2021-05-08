@@ -98,8 +98,23 @@ struct message_t {
 boost::lockfree::queue<message_t, boost::lockfree::capacity<128>>
 rtapi_msg_queue;
 
+static void set_namef(const char *fmt, ...) {
+    char *buf = NULL;
+    va_list ap;
+
+    va_start(ap, fmt);
+    if (vasprintf(&buf, fmt, ap) < 0) {
+        return;
+    }
+    va_end(ap);
+
+    int res = pthread_setname_np(pthread_self(), buf);
+    free(buf);
+}
+
 pthread_t queue_thread;
 void *queue_function(void *arg) {
+    set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
     // point of running this in a thread)
@@ -1040,6 +1055,7 @@ void *Posix::wrapper(void *arg)
 	  task, task->period, task->ratio);
 
   pthread_setspecific(key, arg);
+  set_namef("rtapi_app:T#%d", task->id);
 
   Posix &papp = reinterpret_cast<Posix&>(App());
   if(papp.do_thread_lock)
