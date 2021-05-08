@@ -375,6 +375,13 @@ sudo apt-get update
 ----
 sudo apt-get install linuxcnc-uspace
 ----
+
+. Optionally you can install mesaflash if your using a Mesa card.
++
+----
+sudo apt install mesaflash
+----
+
 [[cha:Installing-RTAI]]
 === Installing on Debian Buster (with experimental RTAI kernel)
 
