@@ -35,8 +35,9 @@ cmd = linuxcnc.command()
 h = hal.component('dummy')
 inCode = sys.argv[1]
 materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
-#tmpMaterialFile = ini.find('EMC', 'MACHINE').lower() + '_material.tmp'
-tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE').lower())
+tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
+tmpMatNum = 1000000
+tmpMatNam = ''
 prefsFile = 'qtplasmac.prefs'
 cutType = hal.get_value('qtplasmac.cut_type')
 currentMat = hal.get_value('qtplasmac.material_change_number')
@@ -320,16 +321,22 @@ def do_material_change():
         firstMaterial = material[0]
     print(line)
 
-# check if matarial edit required
+# check if material edit required
 def check_material_edit():
+    global tmpMatNum, tmpMatNam
+    tmpMaterial = False
     newMaterial = []
     th = 0
     kw = jh = jd = ca = cv = pe = gp = cm = 0.0
+    ca = 15
+    cv = 100
     # try:
     if 'ph=' in line and 'pd=' in line and 'ch=' in line and 'fr=' in line:
         if '(o=0' in line:
-            nu = 0
-            na = 'Temporary'
+            tmpMaterial = True
+            nu = tmpMatNum
+            na = 'Temporary {}'.format(tmpMatNum)
+            tmpMatNam = na
             newMaterial.append(0)
         elif '(o=1' in line and 'nu=' in line and 'na=' in line:
             newMaterial.append(1)
@@ -338,10 +345,12 @@ def check_material_edit():
         if newMaterial[0] in [0, 1, 2]:
             for item in line.split('(')[1].split(')')[0].split(','):
                 # mandatory items
-                if 'nu=' in item:
+                if 'nu=' in item and not tmpMaterial:
                     nu = int(item.split('=')[1])
                 elif 'na=' in item:
                     na = item.split('=')[1].strip()
+                    if tmpMaterial:
+                        tmpMatNam = na
                 elif 'ph=' in item:
                     ph = float(item.split('=')[1])
                 elif 'pd=' in item:
@@ -397,8 +406,9 @@ def check_material_edit():
 # write temporary materials file
 def write_temp_default_material(data):
     with open(tmpMaterialFile, 'w') as fWrite:
-        fWrite.write('#plasmac temp default material file, format is:\n')
-        fWrite.write('#name = value\n\n')
+        fWrite.write('#plasmac temporary material file\n')
+        fWrite.write('\nnumber={}\n'.format(tmpMatNum))
+        fWrite.write('name={}\n'.format(tmpMatNam))
         fWrite.write('kerf-width={}\n'.format(data[3]))
         fWrite.write('thc-enable={}\n'.format(data[4]))
         fWrite.write('pierce-height={}\n'.format(data[5]))
@@ -413,7 +423,7 @@ def write_temp_default_material(data):
         fWrite.write('gas-pressure={}\n'.format(data[14]))
         fWrite.write('cut-mode={}\n'.format(data[15]))
         fWrite.write('\n')
-    hal.set_p('qtplasmac.material_temp', '1')
+    hal.set_p('qtplasmac.material_temp', '{}'.format(tmpMatNum))
     matDelay = time.time()
     while 1:
         if time.time() > matDelay + 3:
@@ -440,6 +450,9 @@ def rewrite_material_file(newMaterial):
         else:
             break
     while 1:
+        if not line:
+            add_edit_material(newMaterial, outFile)
+            break
         if line.strip().startswith('[MATERIAL_NUMBER_'):
             mNum = int(line.split('NUMBER_')[1].replace(']',''))
             if mNum == newMaterial[1]:
@@ -567,6 +580,11 @@ with open(inCode, 'r') as fRead:
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
+            # add material change for temporay material
+            if line.startswith('(o=0'):
+                print('m190 p{} ({})'.format(tmpMatNum, tmpMatNam))
+                print('m66 p3 l3 q1')
+                tmpMatNum += 1
             continue
         # if line is a comment then print it and get next line
         if line.startswith(';') or line.startswith('('):
@@ -599,6 +617,9 @@ with open(inCode, 'r') as fRead:
             else:
                 zBypass = False
             print(line)
+            continue
+        # remove any additional z max moves
+        if '[#<_ini[axis_z]max_limit>' in line and zSetup:
             continue
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):

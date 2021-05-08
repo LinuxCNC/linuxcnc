@@ -351,7 +351,7 @@ Prior to running this conversion program, it is mandatory that the user have bot
 
 The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
 
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the plasma_material.cfg file to the existing QtPlasmaC configuration.
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
 
 To run the cfg2prefs conversion program, use the following instructions:
 
@@ -1364,6 +1364,8 @@ The following variables are optional. If they are not detected or have no value 
 * GAS_PRESSURE
 * CUT_MODE
 
+NOTE: Material numbers 1000000 and above are reserved for temporary materials.
+
 WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the G-Code to be run.
 
 The material file uses the following format:
@@ -1505,24 +1507,30 @@ Omitting this magic comment, or setting this value to anything but 1 will cause 
 
 * *Materials Adding And Editing Via G-Code*
 
-It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
+By using "magic comments" in a G-Code file it is possible to do the following:
 
-Formatting rules are:
+- Add new materials to the <machine_name>_material.cfg file.
+- Edit existing materials in the <machine_name>_material.cfg file.
+- Use one or more temporary materials.
+
+Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the GCode file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, you could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
+
+TIP: It is possible to use temporary materials only and have an empty <machine_name>_material.cfg file. This negates the need to keep the QtPlasmaC materials file updated with the CAM tool file.
 
 - The entire comment must be in parentheses.
 - The beginning of the magic comment must be: *(o=*
 - The equals sign must immediately follow each parameter with no space.
-- The mandatory parameters must be in the magic comment (*nu* and *na* are not required for option 0).
-- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 comment is found in the G-Code file then only the last one found will be used.
-- If option 0 is to be used in addition to option 1 and/or option 2 then the option 0 comment must be the last one in the G-Code file.
+- The mandatory parameters must be in the magic comment (for option 0, *na* is optional and *nu* is not used).
+- There can be any number and type of magic comments in a G-Code file.
+- If option 0 is to be used in addition to option 1 and/or option 2 then all option 0 must appear after all option 1 or all option 2 in the G-Code file.
 
 The options are:
 
-[width="75%",cols="1,1"]
+[width="90%",cols="1,7"]
 |===
 |*Option*|*Description*
 |0|Creates a temporary default material. +
-     Material information added with this option will be discarded by a manual reload or a LinuxCNC restart.
+     Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new GCode file that has temporary materials.
 |1|Adds a new material if the number specified does not exist.
 |2|Overwrites an existing material if the number specified exists. +
      Adds a new material if the number specified does not exist.
@@ -1530,12 +1538,12 @@ The options are:
 
 Mandatory parameters are:
 
-[width="75%",cols="1,1"]
+[width="90%",cols="1,7"]
 |===
 |*Name*|*Description*
 |o|Selects the option to be used.
-|nu|Sets the material number (not required for option 0).
-|na|Sets the material name (not required for option 0).
+|nu|Sets the material number (not used for option 0).
+|na|Sets the material name (optional for option 0).
 |ph|Sets the pierce height.
 |pd|Sets the pierce delay.
 |ch|Sets the cut height.
@@ -1544,7 +1552,7 @@ Mandatory parameters are:
 
 Optional parameters are:
 
-[width="75%",cols="1,1"]
+[width="90%",cols="1,7"]
 |===
 |*Name*|*Description*
 |kw|Sets the kerf width.

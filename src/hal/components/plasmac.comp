@@ -117,6 +117,7 @@ pin in  bit     torch_off                   "turn torch off";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
+pin in  float   units_multiplier = 1        "multiplier if gcode units different to machine units";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
 pin in  float   x_offset                    "offset to apply to axis x for consumable change";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
@@ -757,7 +758,7 @@ FUNCTION(_) {
                     break;
                 }
                 if((float_switch && !float_detected) || ohmic_detected){
-                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(z_pierce > z_max){
                         stop_type = PAUSE;
@@ -811,7 +812,7 @@ FUNCTION(_) {
                     }
                 }else if(float_switch && !float_detected){
                     if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
-                        z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                        z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                         z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                         if(z_pierce > z_max){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
@@ -832,7 +833,7 @@ FUNCTION(_) {
                         float_detected = TRUE;
                     }
                 }else if(ohmic_detected){
-                    z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
+                    z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(z_pierce > z_max){
                         rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
@@ -901,9 +902,9 @@ FUNCTION(_) {
                         probe_offset = float_switch_travel / offset_scale;
                     }
                     zero_target = z_offset_counts + probe_offset;
-                    cut_target = zero_target + (cut_height / offset_scale);
-                    pierce_target = zero_target + (pierce_height / offset_scale);
-                    puddle_jump_target = zero_target + ((pierce_height * puddle_jump_percent * 0.01) / offset_scale );
+                    cut_target = zero_target + (cut_height / units_multiplier / offset_scale);
+                    pierce_target = zero_target + (pierce_height / units_multiplier / offset_scale);
+                    puddle_jump_target = zero_target + ((pierce_height / units_multiplier * puddle_jump_percent * 0.01) / offset_scale );
                     safe_min = pierce_target + ((1 * units_per_mm) / offset_scale);
                     safe_preferred = zero_target + (safe_height / offset_scale);
                     offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
@@ -1109,14 +1110,14 @@ FUNCTION(_) {
                         count = 0;
                         /* set feed rate for this cut */
                         if(cut_feed_rate > 0){
-                            requested_feed_rate = cut_feed_rate;
+                            requested_feed_rate = cut_feed_rate / units_multiplier;
                         }else{
                             requested_feed_rate = requested_velocity * 60;
                         }
                         if(cut_recovering){
                             angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
-                            x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
-                            y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                            x_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * cos(angle_x_y));
+                            y_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * sin(angle_x_y));
                             state = CUT_RECOVERY_OFF;
                         }else{
                             feed_hold = FALSE;
@@ -1422,8 +1423,8 @@ FUNCTION(_) {
                                 }
                                 if(cut_recovering){
                                     angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
-                                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
-                                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                                    x_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * cos(angle_x_y));
+                                    y_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * sin(angle_x_y));
                                     state = CUT_RECOVERY_OFF;
                                     cut_recovering = FALSE;
                                 }
@@ -1691,8 +1692,8 @@ FUNCTION(_) {
                 xy_offset_enable = TRUE;
                 angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
                 if(program_is_running){
-                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
-                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                    x_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * cos(angle_x_y));
+                    y_velocity = fabs(cut_feed_rate / units_multiplier * velocity_scale * sin(angle_x_y));
                 }else{
                     x_velocity = fabs(recovery_velocity * cos(angle_x_y));
                     y_velocity = fabs(recovery_velocity * sin(angle_x_y));

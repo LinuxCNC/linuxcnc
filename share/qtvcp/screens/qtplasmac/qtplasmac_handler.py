@@ -1,4 +1,4 @@
-VERSION = '1.0.31'
+VERSION = '1.0.32'
 
 import os, sys
 from shutil import copy as COPY
@@ -432,7 +432,7 @@ class HandlerClass:
         self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeTimeoutPin = self.h.newpin('material_change_timeout', hal.HAL_BIT, hal.HAL_IN)
         self.materialReloadPin = self.h.newpin('material_reload', hal.HAL_BIT, hal.HAL_IN)
-        self.materialTempPin = self.h.newpin('material_temp', hal.HAL_BIT, hal.HAL_IN)
+        self.materialTempPin = self.h.newpin('material_temp', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMinPin = self.h.newpin('pmx485_current_min', hal.HAL_FLOAT, hal.HAL_IN)
@@ -639,7 +639,10 @@ class HandlerClass:
         self.manualCut = False
 
     def get_overlay_text(self, kerf):
-        text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
+        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
+            text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text().split('.')[0]))
+        else:
+            text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
         text += ('PH: {}\n'.format(self.w.pierce_height.text()))
         text += ('PD: {}\n'.format(self.w.pierce_delay.text()))
         text += ('CH: {}'.format(self.w.cut_height.text()))
@@ -1121,6 +1124,13 @@ class HandlerClass:
             self.w.chk_override_limits.setChecked(False)
 
     def gcodes_changed(self, obj, cod):
+        if self.units == 'inch' and STATUS.is_metric_mode():
+            hal.set_p('plasmac.units-multiplier', '25.4')
+        elif self.units == 'mm' and not STATUS.is_metric_mode():
+            hal.set_p('plasmac.units-multiplier', '{}'.format(1 / 25.4))
+        else:
+            hal.set_p('plasmac.units-multiplier', '1')
+
         self.w.lbl_gcodes.setText('G-Codes: {}'.format(cod))
 
     def mcodes_changed(self, obj, cod):
@@ -1314,7 +1324,7 @@ class HandlerClass:
             self.conv_setup()
 
     def z_height_changed(self, value):
-        self.w.dro_z.update_user(value)
+        self.w.dro_z.update_user(value * hal.get_value('plasmac.units-multiplier'))
 
     def offsets_active_changed(self, value):
         if not value:
@@ -1810,13 +1820,13 @@ class HandlerClass:
             self.w.kerf_width.setRange(0.0, 1.0)
             self.w.kerf_width.setDecimals(4)
             self.w.kerf_width.setSingleStep(0.0001)
-            self.w.cut_feed_rate.setRange(0.0, 999.0)
+#            self.w.cut_feed_rate.setRange(0.0, 999.0)
             self.w.cut_feed_rate.setDecimals(1)
             self.w.cut_feed_rate.setSingleStep(0.1)
-            self.w.cut_height.setRange(0.0, 1.0)
+#            self.w.cut_height.setRange(0.0, 1.0)
             self.w.cut_height.setDecimals(3)
             self.w.cut_height.setSingleStep(0.001)
-            self.w.pierce_height.setRange(0.0, 1.0)
+#            self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
         else:
@@ -2686,6 +2696,9 @@ class HandlerClass:
             if num == 0 or num in self.materialNumList:
                 text = 'Material #{} is in use.\n\nEnter New Material Number:'.format(num)
                 continue
+            elif num >= 1000000:
+                text = 'Material number needs to be less than 1000000.\n\nEnter New Material Number:'
+                continue
             break
         text = 'New Material Name:'
         while(1):
@@ -2812,6 +2825,10 @@ class HandlerClass:
                 self.autoChange = False
                 return
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
+            if material >= 1000000:
+                self.w.save_material.setEnabled(False)
+            else:
+                self.w.save_material.setEnabled(True)
             if self.autoChange:
                 hal.set_p('motion.digital-in-03','0')
                 self.change_material(material)
@@ -2858,11 +2875,12 @@ class HandlerClass:
 
     def material_temp_pin_changed(self, halpin):
         if halpin:
-            t_number = 0
-            t_name = 'Temporary'
+            t_name = 'Temporary {}'.format(halpin)
             t_item = 0
             with open(self.tmpMaterialFileGCode, 'r') as f_in:
                 for line in f_in:
+                    if line.startswith('name'):
+                        t_name = line.split('=')[1].strip()
                     if line.startswith('kerf-width'):
                         k_width = float(line.split('=')[1].strip())
                     elif line.startswith('pierce-height'):
@@ -2887,7 +2905,7 @@ class HandlerClass:
                         g_press = float(line.split('=')[1].strip())
                     elif line.startswith('cut-mode'):
                         c_mode = float(line.split('=')[1].strip())
-            self.write_materials(0, 'Temporary', k_width, p_height, \
+            self.write_materials(halpin, t_name, k_width, p_height, \
                                  p_delay, pj_height, pj_delay, c_height, c_speed, \
                                  c_amps, c_volts, pause, g_press, c_mode, 0)
             self.display_materials()
