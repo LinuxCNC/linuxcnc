@@ -6,11 +6,9 @@
 ..
 
 .SH NAME
-iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
+iocontrol \- interacts with HAL or G-code in userspace
 
 .SH SYNOPSIS
-
-\fBloadusr io [\-ini \fIinifile\fB]
 
 .B [EMCIO]
 .br
@@ -18,9 +16,9 @@ iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
 
 .SH DESCRIPTION
 
-iocontrol handles I/O tasks like coolant, toolchange, e-stop and lube. The
-signals are turned on and off with G code or in the case of e-stop
-in hal.
+I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+
+The following pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
 .P
 iocontrol is a userspace process - if you have strict timing requirements
 or simply need more i/o, consider using the realtime synchronized i/o
@@ -91,11 +89,9 @@ mechanism) of the tool requested by the most recent T-word.
 \fBiocontrol.0.user\-request\-enable 
 (Bit, Out) TRUE when the user has requested that estop be cleared
 
-.SH PARAMETERS
-
 .TP
 \fBiocontrol.0.tool\-prep\-index
-(s32, RO) IO's internal array index of the prepped tool requested
+(s32, Out) IO's internal array index of the prepped tool requested
 by the most recent T-word.  0 if no tool is prepped.  On Random
 toolchanger machines this is the tool's pocket number (ie, the same as the
 tool\-prep\-pocket pin), on Non-random toolchanger machines this is
@@ -125,3 +121,14 @@ successful tool change (M6).
 \fBmotion\fR(9)
 
 \}
+.SH REPORTING BUGS
+Report bugs at 
+.UR https://github.com/LinuxCNC/linuxcnc/issues
+.UE
+.SH AUTHOR
+Derived from a work by Fred Proctor & Will Shackleford.
+.SH COPYRIGHT
+Copyright \(co 2004 the LinuxCNC project.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
