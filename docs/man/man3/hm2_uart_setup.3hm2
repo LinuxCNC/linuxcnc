@@ -35,7 +35,7 @@ Bit 5 = DriveEnableAuto, When set, enables Drive when any data is in FIFO or
 Bit 6 = DriveEnableBit, If DriveEnableAuto is 0, controls Drive (
         for software control of Xmit drive)
         
-tx_mode is bit mask defined in the Hostmot2 regmap:
+rx_mode is bit mask defined in the Hostmot2 regmap:
 Bit 0 = FalseStart bit Status, 1 = false start bit detected
 Bit 1 = OverRun Status, 1 = overrun condition detected (no valid stop bit)
 Bit 2 = RXMaskEnable, 1= enable RXMask for half duplex operation,
