@@ -508,7 +508,7 @@ static int
 get_fifo_path(char *buf, size_t bufsize) {
     const char *s = get_fifo_path();
     if(!s) return -1;
-    strncpy(buf, s, bufsize);
+    snprintf(buf, bufsize, "%s", s);
     return 0;
 }
 
