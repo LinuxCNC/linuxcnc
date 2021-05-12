@@ -770,6 +770,15 @@ static int emcTaskPlan(void)
 	type = 0;
     }
 
+    // Always display messages
+	switch (type) {
+        case EMC_OPERATOR_ERROR_TYPE:
+        case EMC_OPERATOR_TEXT_TYPE:
+        case EMC_OPERATOR_DISPLAY_TYPE:
+		retval = emcTaskIssueCommand(emcCommand);
+		return retval;
+    }
+
     // handle any new command
     switch (emcStatus->task.state) {
     case EMC_TASK_STATE_OFF:
