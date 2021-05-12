@@ -42,6 +42,8 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 from qtvcp.lib.qtplasmac import conv_scale as CONVSCAL
+# **** TEMP FOR CONVERSATIONAL TESTING ****
+#from importlib import reload
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -4055,8 +4057,8 @@ class HandlerClass:
         self.conv_shape_request(self.w.sender().objectName(), CONVARAY, False)
 
     def conv_shape_request(self, shape, module, material):
-# **** TEMP TESTING ****
-        reload(module)
+# **** TEMP FOR CONVERSATIONAL TESTING ****
+#        reload(module)
         if material:
             self.w.conv_material.show()
         else:
