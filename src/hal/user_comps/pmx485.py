@@ -25,6 +25,8 @@ import hal
 import time
 import serial
 
+print('Starting pmx485 communications')
+
 address      = '01'
 regRead      = '04'
 regWrite     = '06'
@@ -95,8 +97,8 @@ def write_register(reg, value):
         lrc = get_lrc(data)
         packet = ':{}{}\r\n'.format(data, lrc)
         reply = ''
-        comms.write(packet)
-        reply = comms.readline()
+        comms.write(packet.encode())
+        reply = comms.readline().decode()
         if reply:
             if reply == packet:
                 return 1
@@ -109,8 +111,8 @@ def read_register(reg):
         lrc = get_lrc(data)
         packet = ':{}{}\r\n'.format(data, lrc)
         reply = ''
-        comms.write(packet)
-        reply = comms.readline()
+        comms.write(packet.encode())
+        reply = comms.readline().decode()
         if reply:
             if len(reply) == 15 and reply[:7] == ':{}{}'.format(address, validRead):
                 lrc = get_lrc(reply[1:11])
@@ -262,7 +264,7 @@ try:
                             started = False
                             comms.close()
 except:
-    print('Shutting down pmx485 communications')
+    print('Shutting down pmx485 communications, unknown error')
     if started:
         if not comms.isOpen():
             comms.open()
