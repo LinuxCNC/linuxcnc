@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 '''
 pmx485.py

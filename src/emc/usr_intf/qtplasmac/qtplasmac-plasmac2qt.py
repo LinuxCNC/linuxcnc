@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 '''
 qtplasmac-plasmac2qt.py

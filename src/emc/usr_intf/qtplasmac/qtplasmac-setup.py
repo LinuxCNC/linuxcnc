@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 '''
 qtplasmac-setup.py

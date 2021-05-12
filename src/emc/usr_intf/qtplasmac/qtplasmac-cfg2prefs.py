@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 '''
 qtplasmac-cfg2prefs.py
