@@ -116,10 +116,12 @@ class QTVCP:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            PATH.set_paths()
-
+            print(parser.print_help())
+            sys.exit(0)
         # set paths using basename
-        PATH.set_paths(basepath, bool(INIPATH))
+        error = PATH.set_paths(basepath, bool(INIPATH))
+        if error:
+            sys.exit(0)
 
         # keep track of python version during this transition
         if sys.version_info.major > 2:
@@ -356,12 +358,13 @@ Pressing cancel will close linuxcnc.""" % target)
     def postgui(self):
         postgui_halfile = INFO.POSTGUI_HALFILE_PATH
         LOG.info("postgui filename: yellow<{}>".format(postgui_halfile))
-        if postgui_halfile:
-            if postgui_halfile.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, postgui_halfile])
-            else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", postgui_halfile])
-            if res: raise SystemExit(res)
+        if postgui_halfile is not None:
+            for f in postgui_halfile:
+                if f.lower().endswith('.tcl'):
+                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, f])
+                else:
+                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", f])
+                if res: raise SystemExit(res)
 
     # This can be called normally or by control c
     # call optional handlerfile cleanup function

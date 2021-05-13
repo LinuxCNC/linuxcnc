@@ -120,7 +120,7 @@ ScreenOptions widget.
 === Widget special setup functions
 
 QtVCP looks for and calls the '_hal_init' function, when the widget +
-is first loaded. It is not called when using Designer. +
+is first loaded. It is not called when using Designer editor. +
 After this function is called the widget has access to some special +
 variables: +
 
@@ -135,13 +135,15 @@ variables: +
 ----
 
 When making a custom widget, import and sub class the +
-'_HalWidgetBase' class:
+'_HalWidgetBase' class for this behaivor:
 
 === Dialogs
 
-Dialogs (AKA pop up windows) are placed on the screen in Designer. +
+Dialogs (AKA pop up windows) are best loaded with the screenoptions widget, +
+but they can be placed on the screen in Designer. +
 It doesn't matter where on the layout but to make them hidden, +
 cycle the 'state' property to true then false. +
+ +
 By default, if there is a preference file, the dialogs will +
 remember their last size/placement. It is possible to override +
 this so they open in the same location each time. +

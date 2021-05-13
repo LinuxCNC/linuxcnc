@@ -106,6 +106,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_dtg = False
         self.exit = False
         self.template_label = False
+        self.lathe_mirror_x = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -359,6 +360,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             pass
         elif True in(self.exit, self.machine_log_dialog):
             pass
+        elif self.lathe_mirror_x:
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
 
         # connect a signal and callback function to the button
         if self.isCheckable():
@@ -604,6 +612,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self.QTVCP_INSTANCE_.close()
         elif self.machine_log_dialog:
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
+        elif self.lathe_mirror_x:
+            if state:
+                ACTION.SET_LATHE_MIRROR_X()
+            else:
+                ACTION.UNSET_LATHE_MIRROR_X()
         # default error case
         else:
             if state is not None:
@@ -735,7 +748,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
-                 'origin_offset_dialog', 'run_from_status', 'run_from_slot')
+                 'origin_offset_dialog', 'run_from_status', 'run_from_slot',
+                 'lathe_mirror_x')
 
         for i in data:
             if not i == picked:
@@ -1270,6 +1284,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_machine_log_dialog(self):
         self.machine_log_dialog = False
 
+    def set_lathe_mirror_x(self, data):
+        self.lathe_mirror_x = data
+        if data:
+            self._toggle_properties('lathe_mirror_x')
+    def get_lathe_mirror_x(self):
+        return self.lathe_mirror_x
+    def reset_lathe_mirror_x(self):
+        self.lathe_mirror_x = False
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1405,6 +1428,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
     exit_action = QtCore.pyqtProperty(bool, get_exit, set_exit, reset_exit)
     machine_log_dialog_action = QtCore.pyqtProperty(bool, get_machine_log_dialog, set_machine_log_dialog, reset_machine_log_dialog)
+    lathe_mirror_x_action = QtCore.pyqtProperty(bool, get_lathe_mirror_x, set_lathe_mirror_x, reset_lathe_mirror_x)
 
     def set_template_label(self, data):
         self.template_label = data

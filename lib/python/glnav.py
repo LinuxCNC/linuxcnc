@@ -68,7 +68,7 @@ if sys.version_info[0] == 3:
             if w and h: 
                 try:
                     pass
-                    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a.tostring())
+                    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a.tobytes())
                 except Exception as e:
                     print("glnav Exception ",e)
 

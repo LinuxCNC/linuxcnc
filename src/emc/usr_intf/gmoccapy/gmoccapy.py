@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.2.1"
+_RELEASE = " 3.1.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -208,6 +208,8 @@ class gmoccapy(object):
         self.height = 750     # The height of the main Window
 
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
+
+        self.file_changed = False
 
         self.lathe_mode = None # we need this to check if we have a lathe config
         self.backtool_lathe = False
@@ -1032,8 +1034,9 @@ class gmoccapy(object):
     def _jog_increment_changed(self, widget,):
         # first cancel any joints jogging
         JOGMODE = self._get_jog_mode()
-        for jnum in range(self.stat.joints):
-            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
+        if self.stat.task_mode == linuxcnc.MODE_MANUAL:
+            for jnum in range(self.stat.joints):
+                self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
         self.distance = self._parse_increment(widget.name)
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
@@ -2418,7 +2421,7 @@ class gmoccapy(object):
 
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
-                      "btn_load", "btn_edit", "tbtn_optional_blocks"
+                      "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append("tbtn_setup")
@@ -2464,7 +2467,7 @@ class gmoccapy(object):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "btn_reload"
         ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
@@ -2643,7 +2646,7 @@ class gmoccapy(object):
     def on_hal_status_motion_mode_changed(self, widget, new_mode):
         print("hal status motion mode changed")
         # Motion mode change in identity kinematics makes no sense
-        # so we will not react on the signal and correct the misbehavior
+        # but we will react on the signal and correct the misbehavior
         # self.stat.motion_mode return
         # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
@@ -3346,8 +3349,8 @@ class gmoccapy(object):
         # self.touch_button_dic
         # self.jog_button_dic
         # self.macro_dic
-        dictionaries = (self.ref_button_dic, self.touch_button_dic,
-                        self.jog_button_dic, self.macro_dic)
+        dictionaries = [self.ref_button_dic, self.touch_button_dic,
+                        self.jog_button_dic, self.macro_dic]
         if not self.trivial_kinematics:
             dictionaries.append(self.joints_button_dic)
         for dict in dictionaries:
@@ -3652,13 +3655,15 @@ class gmoccapy(object):
            self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
+        state = widget.get_active()
         name = gtk.Buildable.get_name(widget)
         if name[-1] == "0":
             name_2 = name[:-1] + "1"
         else:
             name_2 = name[:-1] + "0"
+        self.widgets[name_2].set_active(state)
         print("tbtn_fullsize_toggled", name, name_2)
-        state = widget.get_active()
+
         if state:
             self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
@@ -3672,8 +3677,7 @@ class gmoccapy(object):
             self.widgets.vbx_jog.show()
             if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
-        self.widgets[name_2].set_active(state)
-        
+
 # =========================================================
 # this are hal-tools copied from gsreen function
     def on_btn_show_hal_clicked(self, widget, data=None):
@@ -3971,11 +3975,18 @@ class gmoccapy(object):
     # All use the same callback offset
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
+            if self.file_changed:
+                message = "Do you want to exit without saving the changes?"
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+                if not result: # user says no, he want to save
+                    return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
             if self.widgets.tbtn_fullsize_preview0.get_active():
                 self.widgets.vbx_jog.set_visible(False)
         elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
+            self.widgets.tbtn_fullsize_preview0.set_active(False)
+            self.on_tbtn_fullsize_preview_toggled(self.widgets.tbtn_fullsize_preview0)
         else:  # else we go to main button on manual
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_main.set_current_page(0)
@@ -4595,7 +4606,6 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_LOAD_FILE)
         self.widgets.ntb_preview.set_current_page(3)
         self.widgets.tbtn_fullsize_preview0.set_active(True)
-#        self.widgets.tbtn_fullsize_preview1.set_active(True)
         self._show_iconview_tab(True)
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
@@ -4632,6 +4642,7 @@ class gmoccapy(object):
         self.widgets[buttonname].set_sensitive(state)
 
     def on_IconFileSelection1_exit(self, widget):
+        print("exit icon file selection")
         self.widgets.ntb_preview.set_current_page(0)
         self.widgets.tbtn_fullsize_preview0.set_active(False)
 #        self.widgets.tbtn_fullsize_preview1.set_active(False)
@@ -4659,6 +4670,11 @@ class gmoccapy(object):
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
+        self.file_changed = False
+
+    def on_gcode_view_changed(self, state):
+        print("gcode view changed")
+        self.file_changed = True
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode
@@ -4691,6 +4707,7 @@ class gmoccapy(object):
 
     # if we leave the edit mode, we will have to show all widgets again
     def on_ntb_button_switch_page(self, *args):
+        print("ntb_button_switch_page")
         if self.widgets.ntb_preview.get_current_page() == 0:  # preview tab is active,
             # check if offset tab is visible, if so we have to hide it
             page = self.widgets.ntb_preview.get_nth_page(1)
@@ -4703,14 +4720,14 @@ class gmoccapy(object):
         elif self.widgets.ntb_preview.get_current_page() == 3:
             self._show_iconview_tab(False)
 
-#        if self.widgets.tbtn_fullsize_preview0.get_active() or self.widgets.tbtn_fullsize_preview1.get_active():
-#            self.widgets.tbtn_fullsize_preview0.set_active(False)
-#            self.widgets.tbtn_fullsize_preview1.set_active(False)
-        if self.widgets.ntb_button.get_current_page() == _BB_EDIT or self.widgets.ntb_preview.get_current_page() == _BB_HOME:
+        if self.widgets.ntb_button.get_current_page()  == _BB_EDIT or \
+           self.widgets.ntb_preview.get_current_page() == _BB_HOME or \
+           self.widgets.ntb_preview.get_current_page() == _BB_LOAD_FILE:
+            print("we are in special case")
             self.widgets.ntb_preview.show()
             self.widgets.tbl_DRO.show()
             self.widgets.vbx_jog.set_size_request(360, -1)
-            self.widgets.gcode_view.set_sensitive(0)
+            self.widgets.gcode_view.set_sensitive(False)
             self.widgets.btn_save.set_sensitive(True)
             self.widgets.hal_action_reload.emit("activate")
             self.widgets.ntb_info.set_current_page(0)
@@ -4954,9 +4971,9 @@ class gmoccapy(object):
                 self.notification.del_last()
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
-        if self.stat.state != 1:
-            self.command.abort()
-            self.command.wait_complete()
+#        if self.stat.state != 1:
+#            self.command.abort()
+#            self.command.wait_complete()
         if not pin.get():
             return
         btn_name = "rbt_{0}".format(buttonnumber)
@@ -5206,14 +5223,13 @@ if __name__ == "__main__":
     print ("**** GMOCCAPY INFO : inifile = {0} ****:".format(sys.argv[2]))
     postgui_halfile = app.get_ini_info.get_postgui_halfile()
     print ("**** GMOCCAPY INFO : postgui halfile = {0} ****:".format(postgui_halfile))
-
-    if postgui_halfile:
-        if postgui_halfile.lower().endswith('.tcl'):
-            res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, postgui_halfile])
-        else:
-            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", postgui_halfile])
-        if res:
-            raise SystemExit(res)
+    if postgui_halfile is not None:
+        for f in postgui_halfile:
+            if f.lower().endswith('.tcl'):
+                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
+            else:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
+            if res: raise SystemExit(res)
 
     gtk.main()
 

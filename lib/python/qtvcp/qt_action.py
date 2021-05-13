@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
@@ -109,12 +110,13 @@ class _Lcnc_Action(object):
     def TOGGLE_LIMITS_OVERRIDE(self):
         if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '''Can Not Reset Limits Override - Still On Hard Limits''')
+            # let calling function know we didn't release the limit override
+            return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            # make it temporary
-            STATUS.emit('error', 255, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -127,9 +129,9 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
-    def CALL_MDI_WAIT(self, code, time=5):
+    def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
         log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
-        self.ensure_mode(linuxcnc.MODE_MDI)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
             log.debug('MDI_COMMAND: {}'.format(l))
             self.cmd.mdi(l)
@@ -148,6 +150,8 @@ class _Lcnc_Action(object):
                 STATUS.emit('error', result[0], result[1])
                 log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
+        if mode_return:
+            self.ensure_mode(premode)
         return 0
 
     def CALL_INI_MDI(self, number):
@@ -223,22 +227,22 @@ class _Lcnc_Action(object):
             if old == fname:
                 STATUS.emit('file-loaded', fname)
 
-    def SAVE_PROGRAM(self, source, fname):
+    def SAVE_PROGRAM(self, source, fname, ending = '.ngc'):
         # no gcode - ignore
         if source == '':
-            return
+            return None
 
         npath = None
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
             if '.' not in path:
-                path += '.ngc'
+                path += ending
             if path.count('.') > 1:
                 e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
                 log.debug(e)
-                return
+                return None
             name, ext = path.rsplit('.')
             npath = name + '.' + ext.lower()
         except Exception as e:
@@ -256,11 +260,17 @@ class _Lcnc_Action(object):
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+            try:
+                outfile.close()
+            except:
+                pass
+            return None
         finally:
             try:
                 outfile.close()
             except:
                 pass
+            return npath
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
@@ -621,6 +631,29 @@ class _Lcnc_Action(object):
 
     def BEEP_START(self):
         self.PLAY_SOUND('BEEP_START')
+
+    def SET_LATHE_MIRROR_X(self):
+        if not INFO.MACHINE_IS_LATHE:
+            log.warning('Can not set mirror mode; Machine is not a lathe')
+            return
+        self.CALL_MDI("G10 L2 P0 R180")
+        self.RELOAD_DISPLAY()
+
+    def UNSET_LATHE_MIRROR_X(self):
+        if not INFO.MACHINE_IS_LATHE:
+            log.warning('Can not unset mirror mode; Machine is not a lathe')
+            return
+        self.CALL_MDI("G10 L2 P0 R0")
+        self.RELOAD_DISPLAY()
+
+    # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
+    def DISABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','116','117'}):
+        for k in keys:
+            subprocess.Popen('xset -r {}'.format(k), stdout = subprocess.PIPE, shell = True)
+
+    def ENABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','116','117'}):
+        for k in keys:
+            subprocess.Popen('xset r {}'.format(k), stdout = subprocess.PIPE, shell = True)
 
     ######################################
     # Action Helper functions

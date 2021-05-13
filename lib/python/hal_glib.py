@@ -701,6 +701,10 @@ class _GStat(GObject.GObject):
         or_limits_new = self.old['override-limits']
         or_limits_set_new = self.old['override-limits-set']
         self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
+        # hard limits tripped
+        t_list_new = self.old['hard-limits-list']
+        hard_limits_tripped_new = self.old['hard-limits-tripped']
+        self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # overrides
         feed_or_new = self.old['feed-or']
         self.emit('feed-override-changed',feed_or_new * 100)

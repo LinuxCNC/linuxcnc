@@ -624,6 +624,7 @@ int read_inputs(setup_pointer settings);
      ((m > 0) && (m < 100) &&				\
       !M_BUILTIN(m)) ||					\
      (m == 6) ||					\
+     (m == 9) ||					\
      (m == 61) ||					\
      (m == 0) ||					\
      (m == 1) ||					\

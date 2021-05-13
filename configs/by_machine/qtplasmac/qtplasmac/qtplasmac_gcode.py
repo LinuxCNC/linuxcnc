@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 '''
 plasmac_gcode.py
@@ -27,22 +27,23 @@ import math
 import shutil
 import time
 import hal
-from subprocess import Popen, PIPE
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
+h = hal.component('dummy')
 inCode = sys.argv[1]
-materialFile = ini.find('EMC', 'MACHINE').lower() + '_material.cfg'
-#tmpMaterialFile = ini.find('EMC', 'MACHINE').lower() + '_material.tmp'
-tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE').lower())
+materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
+tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
+tmpMatNum = 1000000
+tmpMatNam = ''
 prefsFile = 'qtplasmac.prefs'
-cutType = int(Popen('halcmd getp qtplasmac.cut_type', stdout = PIPE, shell = True).communicate()[0])
-currentMat = int(Popen('halcmd getp qtplasmac.material_change_number', stdout = PIPE, shell = True).communicate()[0])
-fgColor = str(hex(int(Popen('halcmd getp qtplasmac.color_fg', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
-bgColor = str(hex(int(Popen('halcmd getp qtplasmac.color_bg', stdout = PIPE, shell = True).communicate()[0])).replace('0x', '#'))
-zMaxOffset = float(Popen('halcmd getp plasmac.max-offset', stdout = PIPE, shell = True).communicate()[0])
+cutType = hal.get_value('qtplasmac.cut_type')
+currentMat = hal.get_value('qtplasmac.material_change_number')
+fgColor = str(hex(hal.get_value('qtplasmac.color_fg'))).replace('0x', '#')
+bgColor = str(hex(hal.get_value('qtplasmac.color_bg'))).replace('0x', '#')
+zMaxOffset = hal.get_value('plasmac.max-offset')
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -54,6 +55,7 @@ else:
     minDiameter = 1.26
     ocLength = 0.157
     unitsPerMm = 0.03937
+unitMultiplier = 1
 newMaterial = []
 firstMaterial = ''
 line = ''
@@ -314,21 +316,27 @@ def do_material_change():
         dialog_box('ERROR', dlg)
         print(line)
         quit()
-    Popen('halcmd setp qtplasmac.material_change_number {}'.format(material[0]), stdout = PIPE, shell = True)
+    hal.set_p('qtplasmac.material_change_number', '{}'.format(material[0]))
     if not firstMaterial:
         firstMaterial = material[0]
     print(line)
 
-# check if matarial edit required
+# check if material edit required
 def check_material_edit():
+    global tmpMatNum, tmpMatNam
+    tmpMaterial = False
     newMaterial = []
     th = 0
     kw = jh = jd = ca = cv = pe = gp = cm = 0.0
+    ca = 15
+    cv = 100
     # try:
     if 'ph=' in line and 'pd=' in line and 'ch=' in line and 'fr=' in line:
         if '(o=0' in line:
-            nu = 0
-            na = 'Temporary'
+            tmpMaterial = True
+            nu = tmpMatNum
+            na = 'Temporary {}'.format(tmpMatNum)
+            tmpMatNam = na
             newMaterial.append(0)
         elif '(o=1' in line and 'nu=' in line and 'na=' in line:
             newMaterial.append(1)
@@ -337,10 +345,12 @@ def check_material_edit():
         if newMaterial[0] in [0, 1, 2]:
             for item in line.split('(')[1].split(')')[0].split(','):
                 # mandatory items
-                if 'nu=' in item:
+                if 'nu=' in item and not tmpMaterial:
                     nu = int(item.split('=')[1])
                 elif 'na=' in item:
                     na = item.split('=')[1].strip()
+                    if tmpMaterial:
+                        tmpMatNam = na
                 elif 'ph=' in item:
                     ph = float(item.split('=')[1])
                 elif 'pd=' in item:
@@ -396,8 +406,9 @@ def check_material_edit():
 # write temporary materials file
 def write_temp_default_material(data):
     with open(tmpMaterialFile, 'w') as fWrite:
-        fWrite.write('#plasmac temp default material file, format is:\n')
-        fWrite.write('#name = value\n\n')
+        fWrite.write('#plasmac temporary material file\n')
+        fWrite.write('\nnumber={}\n'.format(tmpMatNum))
+        fWrite.write('name={}\n'.format(tmpMatNam))
         fWrite.write('kerf-width={}\n'.format(data[3]))
         fWrite.write('thc-enable={}\n'.format(data[4]))
         fWrite.write('pierce-height={}\n'.format(data[5]))
@@ -412,7 +423,7 @@ def write_temp_default_material(data):
         fWrite.write('gas-pressure={}\n'.format(data[14]))
         fWrite.write('cut-mode={}\n'.format(data[15]))
         fWrite.write('\n')
-    Popen('halcmd setp qtplasmac.material_temp 1', stdout = PIPE, shell = True)
+    hal.set_p('qtplasmac.material_temp', '{}'.format(tmpMatNum))
     matDelay = time.time()
     while 1:
         if time.time() > matDelay + 3:
@@ -421,7 +432,7 @@ def write_temp_default_material(data):
             dlg += '\nTry to reload the G-Code file.\n'
             dialog_box('WARNING', dlg)
             break
-        if Popen('halcmd getp qtplasmac.material_temp', stdout = PIPE, shell = True).communicate()[0].decode() == 'FALSE\n':
+        if not hal.get_value('qtplasmac.material_temp'):
             break
 
 # rewrite the material file
@@ -439,6 +450,9 @@ def rewrite_material_file(newMaterial):
         else:
             break
     while 1:
+        if not line:
+            add_edit_material(newMaterial, outFile)
+            break
         if line.strip().startswith('[MATERIAL_NUMBER_'):
             mNum = int(line.split('NUMBER_')[1].replace(']',''))
             if mNum == newMaterial[1]:
@@ -452,7 +466,7 @@ def rewrite_material_file(newMaterial):
         add_edit_material(newMaterial, outFile)
     inFile.close()
     outFile.close()
-    Popen('halcmd setp qtplasmac.material_reload 1', stdout = PIPE, shell = True)
+    hal.set_p('qtplasmac.material_reload', '1')
     get_materials()
     matDelay = time.time()
     while 1:
@@ -462,7 +476,7 @@ def rewrite_material_file(newMaterial):
             dlg += '\nTry a manual Reload or reload the G-Code file.\n'
             dialog_box('WARNING', dlg)
             break
-        if Popen('halcmd getp qtplasmac.material_reload', stdout = PIPE, shell = True).communicate()[0] == 'FALSE\n':
+        if not hal.get_value('qtplasmac.material_reload'):
             break
 
 # add a new material or or edit an existing material
@@ -566,6 +580,11 @@ with open(inCode, 'r') as fRead:
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
+            # add material change for temporay material
+            if line.startswith('(o=0'):
+                print('m190 p{} ({})'.format(tmpMatNum, tmpMatNam))
+                print('m66 p3 l3 q1')
+                tmpMatNum += 1
             continue
         # if line is a comment then print it and get next line
         if line.startswith(';') or line.startswith('('):
@@ -599,22 +618,31 @@ with open(inCode, 'r') as fRead:
                 zBypass = False
             print(line)
             continue
+        # remove any additional z max moves
+        if '[#<_ini[axis_z]max_limit>' in line and zSetup:
+            continue
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):
             if not '[#<_ini[axis_z]max_limit>' in line:
-                print('g53 g0 z[#<_ini[axis_z]max_limit> - {}] (Z just below max height)'.format(zMaxOffset * unitsPerMm))
+                print('g53 g0 z[#<_ini[axis_z]max_limit> * {} - {}] (Z just below max height)'.format(unitMultiplier, zMaxOffset * unitsPerMm * unitMultiplier))
+            else:
+                line = 'g53 g0 z[#<_ini[axis_z]max_limit> * {} - {}] (Z just below max height)'.format(unitMultiplier, zMaxOffset * unitsPerMm * unitMultiplier)
             zSetup = True
         # set default units
-        if 'g21' in line and units == 'in':
-            if not customDia:
-                minDiameter = 32
-            if not customLen:
-                ocLength = 4
-        elif 'g20' in line and units == 'mm':
-            if not customDia:
-                minDiameter = 1.26
-            if not customLen:
-                ocLength = 0.157
+        if 'g21' in line:
+            if units == 'in':
+                unitMultiplier = 25.4
+                if not customDia:
+                    minDiameter = 32
+                if not customLen:
+                    ocLength = 4
+        elif 'g20' in line:
+            if units == 'mm':
+                unitMultiplier = 0.03937
+                if not customDia:
+                    minDiameter = 1.26
+                if not customLen:
+                    ocLength = 0.157
         # check for g41 offset set
         if 'g41' in line:
             offsetG41 = True
@@ -785,7 +813,7 @@ with open(inCode, 'r') as fRead:
                     lineNum += 1
                     print('m68 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
-                # if torch off, allow torch on 
+                # if torch off, allow torch on
                 if not torchEnable:
                     lineNum += 1
                     print('m65 p3 (enable torch)')
@@ -800,7 +828,7 @@ with open(inCode, 'r') as fRead:
                 lineNum += 1
                 print('m68 e3 q0 (arc complete, velocity 100%)')
                 holeActive = False
-            # if torch off, allow torch on 
+            # if torch off, allow torch on
             if not torchEnable:
                 lineNum += 1
                 print('m65 p3 (enable torch)')
@@ -811,7 +839,7 @@ with open(inCode, 'r') as fRead:
                 print('(disable hole sensing)')
                 holeEnable = False
             if firstMaterial:
-                Popen('halcmd setp qtplasmac.material_change_number {}'.format(firstMaterial), stdout = PIPE, shell = True)
+                hal.set_p('qtplasmac.material_change_number', '{}'.format(firstMaterial))
             print(line)
             if codeError:
                 dlg  = '\nThis GCode file has one or more errors that will affect the quality of the process.\n'

@@ -112,18 +112,16 @@ static int match(char **patterns, char *value) {
 
 int do_lock_cmd(char *command)
 {
-    int retval=0;
+	int retval = 0;
 
-    /* if command is blank or "all", want to lock everything */
-    if ((command == NULL) || (strcmp(command, "all") == 0)) {
-	retval = hal_set_lock(HAL_LOCK_ALL);
-    } else if (strcmp(command, "none") == 0) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "tune") == 0) {
-	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
-    } else if (strcmp(command, "all") == 0) {
-	retval = hal_set_lock(HAL_LOCK_ALL);
-    }
+	/* if command is blank or "all", want to lock everything */
+	if ((command == NULL) || (strcmp(command, "all") == 0)) {
+		retval = hal_set_lock(HAL_LOCK_ALL);
+	} else if (strcmp(command, "none") == 0) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "tune") == 0) {
+		retval = hal_set_lock(HAL_LOCK_TUNE);
+	}
 
     if (retval == 0) {
 	/* print success message */
@@ -136,16 +134,16 @@ int do_lock_cmd(char *command)
 
 int do_unlock_cmd(char *command)
 {
-    int retval=0;
+	int retval = 0;
 
-    /* if command is blank or "all", want to unlock everything */
-    if ((command == NULL) || (strcmp(command, "all") == 0)) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "all") == 0) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "tune") == 0) {
-	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
-    }
+	/* if command is blank or "all", want to unlock everything */
+	if ((command == NULL) || (strcmp(command, "all") == 0)) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "none") == 0) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "tune") == 0) {
+		retval = hal_set_lock(hal_get_lock() & ~HAL_LOCK_TUNE);
+	}
 
     if (retval == 0) {
 	/* print success message */

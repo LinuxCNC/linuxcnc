@@ -32,6 +32,7 @@
 static int    ext_offset_teleop_limit = 0;
 static int    ext_offset_coord_limit  = 0;
 static double ext_offset_epsilon;
+static bool   coord_cubic_active = 0;
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -623,11 +624,10 @@ static void process_probe_inputs(void)
         int i;
         int aborted = 0;
 
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) &&
-           tpGetExecId(&emcmotDebug->coord_tp) <= 0) {
-            // running an MDI command
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp)) {
+            // running an command
             tpAbort(&emcmotDebug->coord_tp);
-            reportError(_("Probe tripped during non-probe MDI command."));
+            reportError(_("Probe tripped during non-probe move."));
 	    SET_MOTION_ERROR_FLAG(1);
         }
 
@@ -835,14 +835,20 @@ static void set_operating_mode(void)
 		if (joint_num < NO_OF_KINS_JOINTS) {
 		/* point to joint data */
 		    joint = &joints[joint_num];
+		if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
+		    //skip
+		} else {
 		    cubicDrain(&(joint->cubic));
+		}
 		    positions[joint_num] = joint->coarse_pos;
 		} else {
 		    positions[joint_num] = 0;
 		}
 	    }
+	    coord_cubic_active = 0;
 	    /* Initialize things to do when starting teleop mode. */
 	    SET_MOTION_TELEOP_FLAG(1);
+	    SET_MOTION_COORD_FLAG(0);
 	    SET_MOTION_ERROR_FLAG(0);
 
             kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
@@ -1308,6 +1314,7 @@ static void get_pos_cmds(long period)
         } // for(axis_num)
 
 	/* check joint 0 to see if the interpolators are empty */
+	coord_cubic_active = 1;
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
@@ -1332,7 +1339,7 @@ static void get_pos_cmds(long period)
 		    if(!isfinite(positions[joint_num]))
 		    {
                        reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
-                                  joint_num);
+                           joint_num);
                        SET_MOTION_ERROR_FLAG(1);
                        emcmotDebug->enabling = 0;
                        break;
@@ -1361,7 +1368,7 @@ static void get_pos_cmds(long period)
 	for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
-        /* interpolate to get new position and velocity */
+	    /* interpolate to get new position and velocity */
 	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
 	}
 	/* report motion status */
@@ -1418,7 +1425,7 @@ static void get_pos_cmds(long period)
 		if(!isfinite(positions[joint_num]))
 		{
 		   reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
-                                 joint_num);
+		         joint_num);
 		   SET_MOTION_ERROR_FLAG(1);
 		   emcmotDebug->enabling = 0;
 		   break;
@@ -1430,8 +1437,8 @@ static void get_pos_cmds(long period)
 		       that fail soft limits, but we'll abort at the end of
 		       this cycle so it doesn't really matter */
 		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-        /* interpolate to get new position and velocity */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
+		/* interpolate to get new position and velocity */
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
 	    }
 	}
 	else

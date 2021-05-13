@@ -521,6 +521,35 @@ Now we build the function to actually update out QProgressBar when STATUS update
         self.w.rpm_bar.setValue(abs(data))
 ----
 
+== Update/Read Objects Periodically
+
+Sometimes you need to update a widget or read a value regularly that isn't covered by normal libraries. +
+Here we update an LED based on a watched HAL pin every 100ms. +
+We assume there is an LED named 'led' in the designer .ui file. +
+
+[source,python]
+----
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        self.hal = halcomp
+        self.w = widgets
+        self.PATHS = paths
+
+        # register a function to be called at CYCLE_TIME period (usually every 100ms)
+        STATUS.connect('periodic', lambda w: self.update_periodic())
+
+    #####################
+    # general functions #
+    #####################
+    def update_periodic(self):
+        data = hal.get_value('spindle.0.is-oriented')
+        self.w.led.setState(data)
+----
+
 == external control with ZMQ messaging reading
 
 Sometimes you want to control the screen with a separate program. +

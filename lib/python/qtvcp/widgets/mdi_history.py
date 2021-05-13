@@ -131,19 +131,19 @@ class MDIHistory(QWidget, _HalWidgetBase):
         parent = QModelIndex()
         self.rows = self.model.rowCount(parent) - 1
         if style == 'last':
-            self.row = self.rows - 2
+            self.row = self.rows
         elif style == 'first':
             self.row = 0
         elif style == 'up':
             if self.row > 0:
                 self.row -= 1
             else:
-                self.row = self.rows
+                self.row = 0
         elif style == 'down':
             if self.row < self.rows:
                 self.row += 1
             else:
-                self.row = 0
+                self.row = self.rows
         else:
             return
         top = self.model.index(self.row, 0, parent)

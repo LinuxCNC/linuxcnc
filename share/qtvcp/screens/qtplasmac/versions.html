@@ -19,22 +19,320 @@ table th {
 </head>
 <body>
 
-<br><b><u>v0.9.40 2020 Feb 19</u></b>
+br><b><u>v1.0.32 2021 May 08</u></b>
+  <ul style="margin:0;">
+  <li>allow multiple temporary materials<li>
+</ul>
+
+br><b><u>v1.0.31 2021 May 05</u></b>
+  <ul style="margin:0;">
+  <li>inhibit m3 & m5 in mdi<li>
+</ul>
+
+<br><b><u>v1.0.30 2021 May 05</u></b>
+  <ul style="margin:0;">
+  <li>conversational rotate code enhancement<li>
+  <li>conversational scale add offset capability<li>
+  <li>conversational change auto preview<li>
+  <li>conversational add more error checking<li>
+  <li>fix Z height for metric/imperial cross loading<li>
+  <li>fix bounds checking for metric/imperial cross loading<li>
+  <li>change the plasmac wrenches<li>
+</ul>
+
+<br><b><u>v1.0.29 2021 May 01</u></b>
+  <ul style="margin:0;">
+  <li>reorder conversational shapes<li>
+</ul>
+
+<br><b><u>v1.0.28 2021 Apr 30</u></b>
+  <ul style="margin:0;">
+  <li>add scale shape to conversational<li>
+</ul>
+
+<br><b><u>v1.0.27 2021 Apr 28</u></b>
+  <ul style="margin:0;">
+  <li>more conversational entry checks<li>
+  <li>tidy a few more error messages<li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.26 2021 Apr 25</u></b>
+  <ul style="margin:0;">
+  <li>conversational interlock for unsaved/unsent shapes<li>
+  <li>change button text for all dialogs<li>
+  <li>tidy up messages<li>
+  <li>add more validity checks for custom user buttons<li>
+  <li>more conversational entry checks<li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.25 2021 Apr 21</u></b>
+  <ul style="margin:0;">
+  <li>validate all conversational entries<li>
+  <li>reset conversational when returning<li>
+  <li>fix conversational bolt circle leadin/leadout<li>
+</ul>
+
+<br><b><u>v1.0.24 2021 Apr 21</u></b>
+  <ul style="margin:0;">
+  <li>fix user button not executing multiple codes<li>
+</ul>
+
+<br><b><u>v1.0.23 2021 Apr 21</u></b>
+  <ul style="margin:0;">
+  <li>update bounds_check code to prevent errors due to language issues<li>
+  <li>doc updates to explain returning to the default styling and to fix typos</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.22 2021 Apr 20</u></b>
+  <ul style="margin:0;">
+  <li>validate leadins in conversational</li>
+  <li>fix user buttons gcode code validation</li>
+  <li>fix user buttons external code validation</li>
+  <li>fix typos and remove redundant code</li>
+</ul>
+
+<br><b><u>v1.0.21 2021 Apr 16</u></b>
+  <ul style="margin:0;">
+  <li>fix jog keys/buttons for any joint sequence</li>
+</ul>
+
+<br><b><u>v1.0.20 2021 Apr 17</u></b>
+  <ul style="margin:0;">
+  <li>conversational: prevent error if leading zero is omitted for lead in field</li>
+  <li>conversational: add material info to preview window</li>
+  <li>conversational: add kerf width to material info</li>
+  <li>align torch pulse code with probe test code<li>
+  <li>doc updates for clarity</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.19 2021 Apr 16</u></b>
+  <ul style="margin:0;">
+  <li>add keyboard jog keys for fifth axis</li>
+</ul>
+
+<br><b><u>v1.0.18 2021 Apr 15</u></b>
+  <ul style="margin:0;">
+  <li>add fifth axis</li>
+</ul>
+
+<br><b><u>v1.0.17 2021 Apr 14</u></b>
+  <ul style="margin:0;">
+  <li>fix a axis gui jogging</li>
+</ul>
+
+<br><b><u>v1.0.16 2021 Apr 14</u></b>
+  <ul style="margin:0;">
+  <li>fix jog stop error when manual cutting</li>
+</ul>
+
+<br><b><u>v1.0.15 2021 Apr 14</u></b>
+  <ul style="margin:0;">
+  <li>allow dro to move to top in 16:9 and 4:3 formats</li>
+  <li>validate user button code</li>
+  <li>use qtvcp autorepeat enable/disable</li>
+</ul>
+
+<br><b><u>v1.0.14 2021 Apr 12</u></b>
+  <ul style="margin:0;">
+  <li>bounding check now handles gcode that contains only X or only Y movements without error</li>
+  <li>added the distance outside of the limits to the bounds error message(s)</li>
+  <li>added exception handling to the m190 script to prevent erroneous errors in terminal</li>
+  <li>minor docs changes</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.13 2021 Apr 10</u></b>
+  <ul style="margin:0;">
+  <li>fix abort via escape key</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.12 2021 Apr 9</u></b>
+  <ul style="margin:0;">
+  <li>installation changes due to pncconf & step conf changes</li>
+  <li>remove autorepeat kludge, use key inhibit instead</li>
+  <li>add bounds test on program load</li>
+  <li>add time count to torch pulse</li>
+  <li>add some additional button interlocking</li>
+</ul>
+
+<br><b><u>v1.0.11 2021 Apr 7</u></b>
+  <ul style="margin:0;">
+  <li>fix keyboard losing focus when:</li>
+  <li>1. clicking cycle stop while a running program is rapiding</li>
+  <li>2. pressing escape while a running program is rapiding</li>
+  <li>3. exiting the gcode editor if the program did not load properly</li>
+  <li>4. canceling a file load if there was previously an error</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.10 2021 Apr 05</u></b>
+ <ul style="margin:0;">
+  <li>fix unused torch pulse button error</li>
+</ul>
+
+<br><b><u>v1.0.9 2021 Mar 27</u></b>
+ <ul style="margin:0;">
+  <li>fix offset calc in conversational shapes</li>
+</ul>
+
+<br><b><u>v1.0.8 2021 Mar 27</u></b>
+  <ul style="margin:0;">
+  <li>add arc on registry reads to pmx485.py</li>
+  <li>add pmx arc on panel to statistics tab</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v1.0.7 2021 Mar 26</u></b>
+ <ul style="margin:0;">
+  <li>fix button layout on 16x9 and 4x3</li>
+</ul>
+
+<br><b><u>v1.0.6 2021 Mar 25</u></b>
+ <ul style="margin:0;">
+  <li>add machine name to titlebar</li>
+  <li>make color picker modal and consistent</li>
+</ul>
+
+<br><b><u>v1.0.5 2021 Mar 23</u></b>
+ <ul style="margin:0;">
+  <li>add close dialog option</li>
+</ul>
+
+<br><b><u>v1.0.4 2021 Mar 22</u></b>
+ <ul style="margin:0;">
+  <li>fix missing THC feed rate</li>
+</ul>
+
+<br><b><u>v1.0.3 2021 Mar 20</u></b>
+ <ul style="margin:0;">
+  <li>fix mode 2 led signal names</li>
+</ul>
+
+<br><b><u>v1.0.2 2021 Mar 19</u></b>
+ <ul style="margin:0;">
+  <li>fix laser hal pin net error</li>
+</ul>
+
+<br><b><u>v1.0.1 2021 Mar 19</u></b>
+ <ul style="margin:0;">
+  <li>add laser hal pin to setup</li>
+  <li>fix pmx485 path</li>
+</ul>
+
+<br><b><u>v1.0 2021 Mar 15</u></b>
+ <ul style="margin:0;">
+  <li>tidy up conversational and docs</li>
+  <li>fix conversational error messages</li>
+  <li>add kerf offset lead in check to star</li>
+</ul>
+Changes submitted by snowgoer540 (Greg Carl)<br>
+
+<br><b><u>v0.9.54 2021 Mar 12</u></b>
+ <ul style="margin:0;">
+  <li>pre-release tidy up and conforming number 1</li>
+</ul>
+
+<br><b><u>v0.9.53 2021 Mar 12</u></b>
+ <ul style="margin:0;">
+  <li>additional user buttons</li>
+</ul>
+
+<br><b><u>v0.9.52 2021 Mar 10</u></b>
+ <ul style="margin:0;">
+  <li>put all helper scripts in bin directory</li>
+</ul>
+
+<br><b><u>v0.9.51 2021 Mar 09</u></b>
+ <ul style="margin:0;">
+  <li>clear plot after framing</li>
+  <li>fix migrator radiobutton height</li>
+  <li>make helper scripts more consistent</li>
+</ul>
+
+<br><b><u>v0.9.50 2021 Mar 09</u></b>
+ <ul style="margin:0;">
+  <li>add framing</li>
+  <li>add plasmac to qtplasmac migration tool</li>
+  <li>fix material file case sensitivity</li>
+</ul>
+
+<br><b><u>v0.9.49 2021 Mar 08</u></b>
+ <ul style="margin:0;">
+  <li>fix float and ohmic trip errors</li>
+  <li>fix esc for manual cut</li>
+  <li>more button interlocking</li>
+</ul>
+
+<br><b><u>v0.9.48 2021 Mar 06</u></b>
+ <ul style="margin:0;">
+  <li>add more keyboard shortcuts</li>
+</ul>
+
+<br><b><u>v0.9.47 2021 Mar 02</u></b>
+ <ul style="margin:0;">
+  <li>add plasmac to qtplasmac parameter converter</li>
+</ul>
+
+<br><b><u>v0.9.46 2021 Mar 01</u></b>
+ <ul style="margin:0;">
+  <li>fix paused motion speed</li>
+  <li>add configuration backup</li>
+</ul>
+
+<br><b><u>v0.9.45 2021 Feb 28</u></b>
+ <ul style="margin:0;">
+  <li>fix conversational circle gcode order</li>
+  <li>fix conversational bolt-circle gcode order</li>
+  <li>add warnings to component</li>
+</ul>
+
+<br><b><u>v0.9.44 2021 Feb 27</u></b>
+ <ul style="margin:0;">
+  <li>fix consumable change interlock</li>
+  <li>fix cut recovery feed rate</li>
+  <li>fix cut recovery sequencing</li>
+  <li>change debug-print to pin</li>
+</ul>
+
+<br><b><u>v0.9.43 2021 Feb 25</u></b>
+ <ul style="margin:0;">
+   <li>fix scaling block</li>
+</ul>
+
+   <li>fix cut recovery cancel feed rate</li>
+   <li>clear cut recovery offsets when cycle stop pressed</li>
+   <li>fix consumable change interlocks</li>
+   <li>pause consumable change when sensors tripped</li>
+   <li>don't accumulate statistics when torch disabled</li>
+   <li></li>
+</ul>
+
+<br><b><u>v0.9.41 2021 Feb 20</u></b>
+ <ul style="margin:0;">
+   <li>ensure offsets are correctly cleared</li>
+</ul>
+
+<br><b><u>v0.9.40 2021 Feb 19</u></b>
  <ul style="margin:0;">
    <li>add statistics tab</li>
 </ul>
 
-<br><b><u>v0.9.39 2020 Feb 16</u></b>
+<br><b><u>v0.9.39 2021 Feb 16</u></b>
  <ul style="margin:0;">
    <li>fix conversational material error</li>
 </ul>
 
-<br><b><u>v0.9.38 2020 Feb 15</u></b>
+<br><b><u>v0.9.38 2021 Feb 15</u></b>
  <ul style="margin:0;">
    <li>comment out commit #3368c01</li>
 </ul>
 
-<br><b><u>v0.9.37 2020 Feb 15</u></b>
+<br><b><u>v0.9.37 2021 Feb 15</u></b>
  <ul style="margin:0;">
    <li>don't allow jogs while run not complete</li>
    <li>stop run timer if powered off</li>
@@ -42,22 +340,22 @@ table th {
    <li>print #<keep-z-motion> if used</li>
 </ul>
 
-<br><b><u>v0.9.36 2020 Feb 14</u></b>
+<br><b><u>v0.9.36 2021 Feb 14</u></b>
  <ul style="margin:0;">
    <li>fix start error if no consumable change setting</li>
 </ul>
 
-<br><b><u>v0.9.35 2020 Feb 13</u></b>
+<br><b><u>v0.9.35 2021 Feb 13</u></b>
  <ul style="margin:0;">
    <li>fix keyboard handler for file dialogs</li>
 </ul>
 
-<br><b><u>v0.9.34 2020 Feb 13</u></b>
+<br><b><u>v0.9.34 2021 Feb 13</u></b>
  <ul style="margin:0;">
    <li>fix change-consumables</li>
 </ul>
 
-<br><b><u>v0.9.33 2020 Feb 13</u></b>
+<br><b><u>v0.9.33 2021 Feb 13</u></b>
  <ul style="margin:0;">
    <li>allow users custom styles</li>
 </ul>
@@ -68,12 +366,12 @@ table th {
    <li>match sim panel colors to gui colors</li>
 </ul>
 
-<br><b><u>v0.9.31 2020 Feb 12</u></b>
+<br><b><u>v0.9.31 2021 Feb 12</u></b>
  <ul style="margin:0;">
    <li>style the sim panel</li>
 </ul>
 
-<br><b><u>v0.9.30 2020 Feb 01</u></b>
+<br><b><u>v0.9.30 2021 Feb 01</u></b>
  <ul style="margin:0;">
   <li>fix sim hal file</li>
   <li>allow inhibit for gui button jog</li>
@@ -82,38 +380,38 @@ table th {
   <li>style the setup applivation</li>
 </ul>
 
-<br><b><u>v0.9.29 2020 Feb 01</u></b>
+<br><b><u>v0.9.29 2021 Feb 01</u></b>
  <ul style="margin:0;">
   <li>fix initial z move</li>
   <li>remove redundant folder/files</li>
 </ul>
 
-<br><b><u>v0.9.28 2020 Jan 31</u></b>
+<br><b><u>v0.9.28 2021 Jan 31</u></b>
  <ul style="margin:0;">
   <li>fix run from line scaling</li>
 </ul>
 
-<br><b><u>v0.9.27 2020 Jan 31</u></b>
+<br><b><u>v0.9.27 2021 Jan 31</u></b>
  <ul style="margin:0;">
   <li>disable start button if offsets active</li>
 </ul>
 
-<br><b><u>v0.9.26 2020 Jan 28</u></b>
+<br><b><u>v0.9.26 2021 Jan 28</u></b>
  <ul style="margin:0;">
   <li>fix power button size when no estop button</li>
 </ul>
 
-<br><b><u>v0.9.25 2020 Jan 28</u></b>
+<br><b><u>v0.9.25 2021 Jan 28</u></b>
  <ul style="margin:0;">
   <li>use thc threshold for torch height override change value</li>
 </ul>
 
-<br><b><u>v0.9.24 2020 Jan 26</u></b>
+<br><b><u>v0.9.24 2021 Jan 26</u></b>
  <ul style="margin:0;">
   <li>fix powermax comms for 9x16 and 4x3 guis</li>
 </ul>
 
-<br><b><u>v0.9.23 2020 Jan 26</u></b>
+<br><b><u>v0.9.23 2021 Jan 26</u></b>
  <ul style="margin:0;">
   <li>add dwell time for end of cut</li>
   <li>new sim tcl file</li>
@@ -124,79 +422,79 @@ table th {
   <li>add jog inhibit</li>
 </ul>
 
-<br><b><u>v0.9.22 2020 Jan 21</u></b>
+<br><b><u>v0.9.22 2021 Jan 21</u></b>
  <ul style="margin:0;">
   <li>keyboard jogging fixes</li>
 </ul>
 
-<br><b><u>v0.9.21 2020 Jan 16</u></b>
+<br><b><u>v0.9.21 2021 Jan 16</u></b>
  <ul style="margin:0;">
   <li>allow sims to keep up to date</li>
 </ul>
 
-<br><b><u>v0.9.20 2020 Jan 16</u></b>
+<br><b><u>v0.9.20 2021 Jan 16</u></b>
  <ul style="margin:0;">
   <li>accept mdi history keypresses</li>
 </ul>
 
-<br><b><u>v0.9.19 2020 Jan 14</u></b>
+<br><b><u>v0.9.19 2021 Jan 14</u></b>
  <ul style="margin:0;">
   <li>use new dialog keyboard</li>
 </ul>
 
-<br><b><u>v0.9.18 2020 Jan 3</u></b>
+<br><b><u>v0.9.18 2021 Jan 3</u></b>
  <ul style="margin:0;">
   <li>prevent editor enabling run from line</li>
 </ul>
 
-<br><b><u>v0.9.17 2020 Jan 12</u></b>
+<br><b><u>v0.9.17 2021 Jan 12</u></b>
  <ul style="margin:0;">
   <li>add run from line</li>
 </ul>
 
-<br><b><u>v0.9.16 2020 Jan 12</u></b>
+<br><b><u>v0.9.16 2021 Jan 12</u></b>
  <ul style="margin:0;">
   <li>fix material reload error</li>
 </ul>
 
-<br><b><u>v0.9.15 2020 Jan 7</u></b>
+<br><b><u>v0.9.15 2021 Jan 7</u></b>
  <ul style="margin:0;">
   <li>fix conversational error dialogs</li>
 </ul>
 
-<br><b><u>v0.9.14 2020 Jan 4</u></b>
+<br><b><u>v0.9.14 2021 Jan 4</u></b>
  <ul style="margin:0;">
   <li>fix reconfigure mode of qtplasmac-setup</li>
 </ul>
 
-<br><b><u>v0.9.13 2020 Jan 3</u></b>
+<br><b><u>v0.9.13 2021 Jan 3</u></b>
  <ul style="margin:0;">
   <li>fix conversational tab stops and focus</li>
 </ul>
 
-<br><b><u>v0.9.12 2020 Jan 3</u></b>
+<br><b><u>v0.9.12 2021 Jan 3</u></b>
  <ul style="margin:0;">
   <li>rename conversational folder for consistency</li>
   <li>change conversational send button for consistency</li>
   <li>fix height override hal pin name</li>
 </ul>
 
-<br><b><u>v0.9.11 2020 Jan 2</u></b>
+<br><b><u>v0.9.11 2021 Jan 2</u></b>
  <ul style="margin:0;">
   <li>fix send interlock for conversational rotate and array</li>
 </ul>
 
-<br><b><u>v0.9.10 2020 Jan 2</u></b>
+<br><b><u>v0.9.10 2021 Jan 2</u></b>
  <ul style="margin:0;">
   <li>add height override</li>
 </ul>
 
-<br><b><u>v0.9.9 2020 Jan 1</u></b>
+<br><b><u>v0.9.9 2021 Jan 1</u></b>
  <ul style="margin:0;">
   <li>keep retrying rs485 until disabled</li>
 </ul>
 
-<br><b><u>v0.9.8 2020 Jan 1</u></b>
+<br><b><u>v0.9.8 2021 Jan 1</u></b>
  <ul style="margin:0;">
   <li>fix material overlay display</li>
 </ul>

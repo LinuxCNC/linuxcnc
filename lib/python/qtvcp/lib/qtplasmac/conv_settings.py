@@ -19,19 +19,40 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
-from PyQt5.QtGui import * 
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 def save(P, W):
+    if P.dialogError: return
+    msg = ''
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
     P.origin = W.center.isChecked()
-    P.leadIn = float(W.liEntry.text())
-    P.leadOut = float(W.loEntry.text())
-    P.holeDiameter = float(W.hdEntry.text())
-    P.holeSpeed = int(W.hsEntry.text())
-    P.gridSize = float(W.gsEntry.text())
+    try:
+        P.leadIn = float(W.liEntry.text())
+    except:
+        msg += 'LEAD IN\n'
+    try:
+        P.leadOut = float(W.loEntry.text())
+    except:
+        msg += 'LEAD OUT\n'
+    try:
+        P.holeDiameter = float(W.hdEntry.text())
+    except:
+        msg += 'DIAMETER\n'
+    try:
+        P.holeSpeed = int(W.hsEntry.text())
+    except:
+        msg += 'SPEED %\n'
+    try:
+        P.gridSize = float(W.gsEntry.text())
+    except:
+        msg += 'GRID SIZE\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        error_set(P, W, errMsg)
+        return
     W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Origin', int(P.origin), int, 'CONVERSATIONAL')
@@ -42,6 +63,10 @@ def save(P, W):
     W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
     W[P.oldConvButton].click()
+
+def error_set(P, W, msg):
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
 
 #def reload(parent, ambles, unitCode):
 def reload(P, W):
@@ -78,24 +103,24 @@ def show(P, W):
         W.conv_preview.set_current_view()
 
 def widgets(P, W):
-    W.preLabel = QLabel('Preamble')
+    W.preLabel = QLabel('PREAMBLE')
     W.preLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     W.entries.addWidget(W.preLabel, 0, 0)
     W.preEntry = QLineEdit()
     W.entries.addWidget(W.preEntry, 0, 1, 1, 4)
-    W.pstLabel = QLabel('Postamble')
+    W.pstLabel = QLabel('POSTAMBLE')
     W.entries.addWidget(W.pstLabel, 1, 0)
     W.pstEntry = QLineEdit()
     W.entries.addWidget(W.pstEntry, 1, 1, 1, 4)
     W.oLabel = QLabel('ORIGIN')
     W.entries.addWidget(W.oLabel, 2, 1, 1, 3)
-    W.center = QRadioButton('     Centre')
+    W.center = QRadioButton('  CENTER')
     W.entries.addWidget(W.center, 3, 1)
-    W.btLeft = QRadioButton('Bottom Left')
+    W.btLeft = QRadioButton('BTM LEFT')
     W.entries.addWidget(W.btLeft, 3, 3)
     W.llLabel = QLabel('LEAD LENGTHS')
     W.entries.addWidget(W.llLabel, 4, 1, 1, 3)
-    W.liLabel = QLabel('Lead In')
+    W.liLabel = QLabel('LEAD IN')
     W.entries.addWidget(W.liLabel, 5, 0)
     W.liEntry = QLineEdit()
     W.liEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -103,11 +128,11 @@ def widgets(P, W):
     W.loEntry = QLineEdit()
     W.loEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.loEntry, 5, 3)
-    W.loLabel = QLabel('Lead Out')
+    W.loLabel = QLabel('LEAD OUT')
     W.entries.addWidget(W.loLabel, 5, 4)
     W.shLabel = QLabel('SMALL HOLES')
     W.entries.addWidget(W.shLabel, 6, 1, 1, 3)
-    W.hdLabel = QLabel('Diameter')
+    W.hdLabel = QLabel('DIAMETER')
     W.entries.addWidget(W.hdLabel, 7, 0)
     W.hdEntry = QLineEdit()
     W.hdEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -115,11 +140,11 @@ def widgets(P, W):
     W.hsEntry = QLineEdit()
     W.hsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.hsEntry, 7, 3)
-    W.hsLabel = QLabel('Speed %')
+    W.hsLabel = QLabel('SPEED %')
     W.entries.addWidget(W.hsLabel, 7, 4)
     W.pvLabel = QLabel('PREVIEW')
     W.entries.addWidget(W.pvLabel, 8, 1, 1, 3)
-    W.gsLabel = QLabel('Grid Size')
+    W.gsLabel = QLabel('GRID SIZE')
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.gsEntry = QLineEdit()
     W.gsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))

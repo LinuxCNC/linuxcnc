@@ -20,9 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from shutil import copy as COPY
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def cancel(P, W, widget):
     COPY(P.fNgcBkp, P.fNgc)
@@ -40,30 +40,35 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
+    msg = ''
     try:
         columns = int(W.cnEntry.text())
     except:
-        columns = 1
+        msg += 'COLUMNS NUMBER\n'
     try:
         rows = int(W.rnEntry.text())
     except:
-        rows = 1
+        msg += 'ROWS NUMBER\n'
     try:
         xOffset = float(W.coEntry.text())
     except:
-        xOffset = 0
+        msg += 'COLUMNS OFFSET\n'
     try:
         yOffset = float(W.roEntry.text())
     except:
-        yOffset = 0
+        msg += 'ROWS OFFSET\n'
     try:
         xOrgOffset = float(W.oxEntry.text())
     except:
-        xOrgOffset = 0
+        msg += 'X OFFSET ORIGIN\n'
     try:
         yOrgOffset = float(W.oyEntry.text())
     except:
-        yOrgOffset = 0
+        msg += 'Y OFFSET ORIGIN\n'
+    if msg:
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        error_set(P, W, errMsg)
+        return
     if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset != 0)) and (rows == 1 or (rows > 1 and yOffset != 0)):
         cancel(P, W, None)
         if P.arrayMode == 'conversational':
@@ -168,42 +173,38 @@ def preview(P, W):
     else:
         msg = ''
         if columns <= 0:
-            msg += 'Columns are required\n\n'
+            msg += 'COLUMNS entries are required.\n\n'
         if rows <= 0:
-            msg += 'Rows are required\n\n'
+            msg += 'ROWS entries are required.\n\n'
         if xOffset == 0 and columns > 1:
-            msg += 'Column Offset is required\n\n'
+            msg += 'COLUMNS OFFSET is required.\n\n'
         if yOffset == 0 and rows > 1:
-            msg += 'Row Offset is required'
-        P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'ARRAY', msg)
+            msg += 'ROWS OFFSET is required.\n'
+        error_set(P, W, msg)
         return
     W.add.setEnabled(True)
 
-def auto_preview(P, W):
-    try:
-        if (int(W.cnEntry.text()) == 1 or (int(W.cnEntry.text()) > 1 and float(W.coEntry.text()) > 0)) and \
-           (int(W.rnEntry.text()) == 1 or (int(W.rnEntry.text()) > 1 and float(W.roEntry.text()) > 0)): 
-            preview(P, W) 
-    except:
-        pass
+def error_set(P, W, msg):
+    cancel(P, W, 'dummy')
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
 
 def widgets(P, W):
     #widgets
     W.cLabel = QLabel('COLUMNS')
     W.cnLabel = QLabel('NUMBER')
-    W.cnEntry = QLineEdit()
-    W.coEntry = QLineEdit()
+    W.cnEntry = QLineEdit('1', objectName='cnEntry')
+    W.coEntry = QLineEdit('0.0')
     W.coLabel = QLabel('OFFSET')
     W.rLabel = QLabel('ROWS')
     W.rnLabel = QLabel('NUMBER')
-    W.rnEntry = QLineEdit()
-    W.roEntry = QLineEdit()
+    W.rnEntry = QLineEdit('1', objectName='rnEntry')
+    W.roEntry = QLineEdit('0.0')
     W.roLabel = QLabel('OFFSET')
     W.oLabel = QLabel('ORIGIN')
     W.oxLabel = QLabel('X OFFSET')
-    W.oxEntry = QLineEdit()
-    W.oyEntry = QLineEdit()
+    W.oxEntry = QLineEdit('0.0', objectName = 'xsEntry')
+    W.oyEntry = QLineEdit('0.0', objectName = 'ysEntry')
     W.oyLabel = QLabel('Y OFFSET')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
@@ -235,12 +236,6 @@ def widgets(P, W):
     W.conv_send.setEnabled(False)
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.cnEntry.setText('1')
-    W.coEntry.setText('0')
-    W.rnEntry.setText('1')
-    W.roEntry.setText('0')
-    W.oxEntry.setText('0')
-    W.oyEntry.setText('0')
     P.conv_undo_shape()
     #connections
     W.preview.pressed.connect(lambda:preview(P, W))
@@ -249,7 +244,7 @@ def widgets(P, W):
     entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry', 'oyEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.s0 = QLabel('')

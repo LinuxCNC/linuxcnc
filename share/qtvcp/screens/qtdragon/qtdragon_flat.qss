@@ -64,7 +64,7 @@ DROLabel {
     color: black;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 

@@ -1379,6 +1379,51 @@ static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s, timeout));
 }
 
+static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_ERROR operator_error_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_error_msg.id = 0;
+    strncpy(operator_error_msg.error, m, LINELEN);
+    operator_error_msg.error[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_error_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *text_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_TEXT operator_text_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_text_msg.id = 0;
+    strncpy(operator_text_msg.text, m, LINELEN);
+    operator_text_msg.text[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_text_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_DISPLAY operator_display_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_display_msg.id = 0;
+    strncpy(operator_display_msg.display, m, LINELEN);
+    operator_display_msg.display[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_display_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Command_members[] = {
     {(char*)"serial", T_INT, offsetof(pyCommandChannel, serial), READONLY},
     {NULL}
@@ -1432,6 +1477,9 @@ static PyMethodDef Command_methods[] = {
     {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
     {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
     {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
+    {"error_msg", (PyCFunction)error_msg, METH_VARARGS, "Send operator error message"},
+    {"text_msg", (PyCFunction)text_msg, METH_VARARGS, "Send operator text message"},
+    {"display_msg", (PyCFunction)display_msg, METH_VARARGS, "Send operator display message"},
     {NULL}
 };
 

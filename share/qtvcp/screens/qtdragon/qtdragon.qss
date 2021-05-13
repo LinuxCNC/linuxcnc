@@ -34,7 +34,7 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#action_machine_on:checked {
+ActionButton#action_machine_on[isStateOn=true] {
     color: #00FF00;
 }
 
@@ -82,7 +82,7 @@ DROLabel {
     color: #00FF00;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 

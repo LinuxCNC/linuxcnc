@@ -1,13 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 import sys
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, QEvent, pyqtSlot, pyqtProperty
 from PyQt5.QtGui import QPainter, QBrush, QPen, QFont, QColor, QPixmap, QConicalGradient, QRadialGradient
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
-#from qtvcp import logger
-
-#LOG = logger.getLogger(__name__)
 
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -18,6 +15,9 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._max_value = 100
         self._max_reading = 100
         self._gauge_label = "GAUGE"
+        self._dial_font_size = 10
+        self._value_font_size = 10
+        self._label_font_size = 10
         self._zone1_color = QColor("green")
         self._zone2_color = QColor("red")
         self._bezel_color = QColor("gray")
@@ -38,7 +38,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             self.hal_pin.value_changed.connect(lambda value: self.set_setpoint(value))
 
     def create_unit_array(self):
-        self.qpa = range(self._num_ticks)
+        self.qpa = list(range(self._num_ticks))
         inc = 270.0 / (self._num_ticks - 1)
         for i in range(self._num_ticks):
             angle = (inc * i) - 225
@@ -112,12 +112,14 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect = QRect()
         rect.setSize(QSize(40,18))
         qp.setPen(QPen(Qt.white, self.tick_width))
-        qp.setFont(QFont('Lato Heavy', 10))
+        qp.setFont(QFont('Lato Heavy', self._dial_font_size))
         rad = w/2
-        inc = 270 / (self._num_ticks - 1)
+        inc = 270.0 / (self._num_ticks - 1)
         for i in range(self._num_ticks):
-            angle = -225 + (inc * i)
-            text = str(i * self._max_reading / (self._num_ticks - 1))
+            angle = (inc * i) - 225
+            q, r = divmod(self._max_reading * i, self._num_ticks - 1)
+            text = str(q) if r == 0 else ""
+            if text == "": continue
             x = int(rad * math.cos(math.radians(angle)) + center.x())
             y = int(rad * math.sin(math.radians(angle)) + center.y())
             rect.moveCenter(QPoint(x, y))
@@ -149,7 +151,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def draw_needle(self, qp, event, w):
         w *= 0.6
         center = event.rect().center()
-        angle = ((self.value * 270) / self._max_value) - 225
+        angle = ((self.value * 270.0) / self._max_value) - 225
         rad = w/2
         x = int(rad * math.cos(math.radians(angle)) + center.x())
         y = int(rad * math.sin(math.radians(angle)) + center.y())
@@ -164,11 +166,11 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect.moveCenter(QPoint(center.x(), center.y() + w/4))
         text = "{}".format(self.value)
         qp.setPen(QPen(Qt.white, 4))
-        qp.setFont(QFont('Lato Heavy', 12))
+        qp.setFont(QFont('Lato Heavy', self._value_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
         rect.moveCenter(QPoint(center.x(), center.y() + w/3))
         text = self._gauge_label
-        qp.setFont(QFont('Lato Heavy', 10))
+        qp.setFont(QFont('Lato Heavy', self._label_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
 
     @pyqtSlot(float)
@@ -318,15 +320,18 @@ if __name__ == "__main__":
     w.setWindowTitle('Round Gauge')
     layout = QVBoxLayout(w)
     gauge = Gauge(w)
-    gauge.set_max_value(24000)
-    gauge.set_max_reading(24)
+    gauge.set_max_value(20000)
+    gauge.set_max_reading(20)
     gauge.set_threshold(7200)
     gauge.set_setpoint(14000)
-    gauge.set_num_ticks(13)
+    gauge.set_num_ticks(11)
     gauge.set_label("RPM")
+    gauge._value_font_size = 10
+    gauge._label_font_size = 10
+    gauge._dial_font_size = 10
     slider = QSlider(Qt.Horizontal)
     slider.setMinimum(0)
-    slider.setMaximum(24000)
+    slider.setMaximum(20000)
     slider.setSingleStep(10)
     slider.setPageStep(100)
     slider.valueChanged.connect(gauge.update_value)

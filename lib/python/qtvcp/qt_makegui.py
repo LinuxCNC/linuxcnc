@@ -124,6 +124,10 @@ class _VCPWindow(QtWidgets.QMainWindow):
             log.debug('Calling handler file Closing_cleanup__ function.')
             self.handler_instance.closing_cleanup__()
 
+    # resource files are compiled from the qrs file
+    # with an installed version of linuxcnc we can't save the resource
+    # file in the installed directory without being root,
+    # so we always make a directory in the config folder to put it in
     def load_resources(self):
         def qrccompile(qrcname, qrcpy):
             log.info('Compiling qrc: {} to \n {}'.format(qrcname, qrcpy))
@@ -147,12 +151,6 @@ class _VCPWindow(QtWidgets.QMainWindow):
                     log.critical("Canceled from qrc compiling Error Dialog\n")
                     raise SystemError('pyrcc5 compiling error: try: "sudo apt install pyqt5-dev-tools"')
 
-        if self.PATHS.IS_SCREEN:
-            DIR = self.PATHS.SCREENDIR
-            BNAME = self.PATHS.BASENAME
-        else:
-            DIR = self.PATHS.PANELDIR
-            BNAME = self.PATHS.BASENAME
         qrcname = self.PATHS.QRC
         qrcpy = self.PATHS.QRCPY
 
@@ -166,15 +164,21 @@ class _VCPWindow(QtWidgets.QMainWindow):
                     qrccompile(qrcname, qrcpy)
             # there is a qrc file but no resources.py file...compile it
             else:
+                if not os.path.isfile(qrcpy):
+                    # make the missing directory
+                    try:
+                        os.makedirs(os.path.split(qrcpy)[0])
+                    except Exception as e:
+                        log.warning('could not make directory {} resource file: {}'.format(os.path.split(qrcpy)[0], e))
                 qrccompile(qrcname, qrcpy)
 
         # is there a resource.py in the directory?
         # if so add a path to it so we can import it.
         if qrcpy is not None and os.path.isfile(qrcpy):
             try:
-                sys.path.insert(0, os.path.join(DIR, BNAME))
+                sys.path.insert(0, os.path.split(qrcpy)[0])
                 import importlib
-                importlib.import_module('resources', os.path.join(DIR, BNAME))
+                importlib.import_module('resources', os.path.split(qrcpy)[0])
                 log.info('Imported resources.py filed: {}'.format(qrcpy))
             except Exception as e:
                 log.warning('could not load {} resource file: {}'.format(qrcpy, e))

@@ -27,7 +27,7 @@ from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.machine_log import MachineLogger
-from qtvcp.core import Status, Info, Tool, Path
+from qtvcp.core import Status, Info, Tool, Path, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -46,6 +46,7 @@ TOOL = Tool()
 PATH = Path()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
+ACTION = Action()
 
 try:
     SOUND = Player()
@@ -89,7 +90,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
         self.shutdown_exit_sound_type = 'LOGOUT'
-        self.notify_start_greeting = True
+        self.notify_start_greeting = False
         self.notify_start_title = 'Welcome'
         self.notify_start_detail = 'This option can be changed in the preference file'
         self.notify_start_timeout = 5
@@ -131,6 +132,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolUseDesktopNotify = False
+        self._toolFrameless = False
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
@@ -253,6 +256,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.desktop_notify:
             self.notify_critical = NOTICE.new_critical()
             self.notify_normal = NOTICE.new_normal()
+            self.notify_hard_limits = NOTICE.new_hard_limits(callback = self._override_limits)
             if self.notify_start_greeting:
                 NOTICE.notify(self.notify_start_title, self.notify_start_detail, None,
                         self.notify_start_timeout, self. notify_start_timeout)
@@ -298,13 +302,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             vcpObject._NOTICE = NOTICE # Guve reference
 
     def on_periodic(self, w):
-        e = self.error.poll()
-        if e:
-            kind, text = e
-            STATUS.emit('error',kind,text)
+        try:
+            e = self.error.poll()
+            if e:
+                kind, text = e
+                STATUS.emit('error',kind,text)
+        except Exception as e:
+                LOG.error('Error channel reading error: {}'.format(e))
 
     def process_error(self, w, kind, text):
-            if kind == linuxcnc.OPERATOR_ERROR:
+            if 'on limit switch error' in text:
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text)
+            elif kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
             elif kind == linuxcnc.OPERATOR_TEXT:
@@ -324,10 +334,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
 
-            elif kind == 255: # temporary info
+            elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
-                                    title='Low Priority:',
+                                    title='Operator Info:',
                                      message=text,
                                     status_timeout=0,
                                     timeout=2)
@@ -344,7 +354,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
+            try:
+                answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
@@ -352,6 +363,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  focus_text='',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
+            except:
+                answer = True
             # system shutdown
             if answer == -1:
                 if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
@@ -459,6 +472,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.toolDialog_.setObjectName('toolDialog_')
         w.toolDialog_.hal_init(HAL_NAME='')
         w.toolDialog_.overlay_color = self._toolDialogColor
+        w.toolDialog_.setProperty('useDesktopNotify', self._toolUseDesktopNotify)
+        w.toolDialog_.setProperty('frameless', self._toolFrameless)
 
     def init_message_dialog(self):
         from qtvcp.widgets.dialog_widget import LcncDialog
@@ -628,6 +643,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         else:
             LOG.info('ZMQ Message not enabled. message:{} {}'.format(topic,args))
 
+    def _override_limits(self, n, signal_text):
+        if not STATUS.is_limits_override_set():
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
+        ACTION.SET_MACHINE_STATE(True)
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -792,6 +812,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_toolDialogColor(self, value):
         self._toolDialogColor = value
     tool_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
+    def setUseDesktopNotify(self, value):
+        self._toolUseDesktopNotify = value
+    def getUseDesktopNotify(self):
+        return self._toolUseDesktopNotify
+    def resetUseDesktopNotify(self):
+        self._toolUseDesktopNotify = False
+    ToolUseDesktopNotify = QtCore.pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
+    def setFrameless(self, value):
+        self._toolFrameless = value
+    def getFrameless(self):
+        return self._toolFrameless
+    def resetFrameless(self):
+        self._toolFrameless = False
+    ToolFrameless = QtCore.pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
 
     def set_fileDialog(self, data):
         self.add_file_dialog = data

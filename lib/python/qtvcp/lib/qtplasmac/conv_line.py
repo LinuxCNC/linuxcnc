@@ -21,9 +21,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 import numpy
 from shutil import copy as COPY
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -32,13 +32,17 @@ def preview(P, W):
             if not W.entry1.text():
                 W.entry1.setText('{:0.3f}'.format(P.xOrigin))
             W.xS = float(W.entry1.text())
+        except:
+            msg = 'Invalid X ORIGIN entry detected.\n'
+            error_set(P, msg)
+            return
+        try:
             if not W.entry2.text():
                 W.entry2.setText('{:0.3f}'.format(P.yOrigin))
             W.yS = float(W.entry2.text())
         except:
-            msg  = 'Invalid entry detected\n'
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+            msg = 'Invalid Y ORIGIN entry detected.\n'
+            error_set(P, msg)
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -70,7 +74,7 @@ def preview(P, W):
                     do_line_point_to_point(P, W, float(W.entry3.text()), float(W.entry4.text()))
             elif W.lType.currentText() == 'LINE BY ANGLE':
                 if not float(W.entry4.text()):
-                    raise Exception('length cannot be 0')
+                    raise Exception('Length cannot be zero.\n')
                 if P.landscape:
                     do_line_by_angle(P, W, float(W.entry4.text()), float(W.entry5.text()))
                 else:
@@ -90,25 +94,43 @@ def preview(P, W):
                 if P.landscape:
                     W.conv_savedX = W.entry4.text()
                     W.conv_savedY = W.entry5.text()
-                    do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
-                                                 float(W.entry7.text()))
+                    if float(W.entry7.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                                     float(W.entry7.text()))
                 else:
                     W.conv_savedX = W.entry3.text()
                     W.conv_savedY = W.entry4.text()
-                    do_arc_2_points_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
-                                                 float(W.entry5.text()))
+                    if float(W.entry5.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
+                                                     float(W.entry5.text()))
             elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
                 if P.landscape:
-                    do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
-                                                 float(W.entry7.text()))
+                    if float(W.entry7.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
+                                                     float(W.entry7.text()))
                 else:
-                    do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
-                                                 float(W.entry5.text()))
-        except Exception as e:
-            msg  = 'Last entry is not valid\n\n'
-            msg += str(e)
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+                    if float(W.entry5.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
+                                                     float(W.entry5.text()))
+        except:
+            msg = 'Invalid entry detected.\n'
+            error_set(P, msg)
             outNgc.close()
             outTmp.close()
             return
@@ -156,19 +178,32 @@ def preview(P, W):
                 W.conv_savedX = W.entry1.text()
                 W.conv_savedY = W.entry2.text()
                 if P.landscape:
-                    do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                                 float(W.entry4.text()))
+                    if float(W.entry4.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                     float(W.entry4.text()))
                 else:
-                    do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                                 float(W.entry3.text()))
+                    if float(W.entry3.text()) == 0:
+                        msg = 'Radius must be greater than zero.\n'
+                        error_set(P, msg)
+                        return
+                    else:
+                        do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                     float(W.entry3.text()))
             elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
-                do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
-                                             float(W.entry3.text()))
-        except Exception as e:
-            msg  = 'Last entry is not Invalid\n\n'
-            msg += str(e)
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'LINE', msg)
+                if float(W.entry3.text()) == 0:
+                    msg = 'Radius must be greater than zero.\n'
+                    error_set(P, msg)
+                    return
+                else:
+                    do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
+                                                 float(W.entry3.text()))
+        except:
+            msg = 'Invalid entry detected.\n'
+            error_set(P, msg)
             outNgc.close()
             outTmp.close()
             return
@@ -188,6 +223,11 @@ def preview(P, W):
     W.undo.setEnabled(True)
     if P.conv_add_segment == 1:
         P.conv_add_segment = 2
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
 
 def do_line_point_to_point(P, W, inX, inY):
     W.xE = inX
@@ -244,6 +284,7 @@ def do_arc_by_angle_radius(P, W, inL, inA, inR):
     do_arc_2_points_radius(P, W, xE, yE, inR)
 
 def set_line_point_to_point(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixLinePoint)
     if P.conv_add_segment > 0:
         W.label1.setText('END X')
@@ -306,6 +347,7 @@ def set_line_point_to_point(P, W):
             W.entry3.setFocus()
 
 def set_line_by_angle(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixLineAngle)
     if P.conv_add_segment > 0:
         W.label1.setText('LENGTH')
@@ -368,6 +410,7 @@ def set_line_by_angle(P, W):
             W.entry3.setFocus()
 
 def set_arc_3_points(P, W):
+    P.lType = None
     W.iLabel.setPixmap(W.pixArc3p)
     if P.conv_add_segment > 0:
         W.label1.setText('NEXT X')
@@ -460,6 +503,7 @@ def set_arc_3_points(P, W):
             W.entry3.setFocus()
 
 def set_arc_2_points_radius(P, W):
+    P.lType = 'a2pr'
     W.iLabel.setPixmap(W.pixArc2pr)
     if P.conv_add_segment > 0:
         W.label1.setText('END X')
@@ -556,6 +600,7 @@ def set_arc_2_points_radius(P, W):
             W.entry3.setFocus()
 
 def set_arc_by_angle_radius(P, W):
+    P.lType = 'abar'
     W.iLabel.setPixmap(W.pixArcAngle)
     if P.conv_add_segment > 0:
         W.label1.setText('LENGTH')
@@ -680,14 +725,14 @@ def auto_preview(P, W):
                   (W.lType.currentText() == 'ARC 3P' and W.entry4.text() and W.entry5.text()) or \
                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry4.text()) or \
                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
-                    preview(P, W) 
+                    preview(P, W)
             else:
                 if (W.lType.currentText() == 'LINE POINT ~ POINT') or \
                   (W.lType.currentText() == 'LINE BY ANGLE') or \
                   (W.lType.currentText() == 'ARC 3P' and W.entry3.text() and W.entry4.text()) or \
                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry3.text()) or \
                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
-                    preview(P, W) 
+                    preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_gcodeSave = P.conv_gcodeLine
@@ -712,6 +757,16 @@ def undo_shape(P, W):
         P.conv_gcodeLine = P.conv_gcodeSave
 
 def entry_changed(P, W, widget, entry):
+    if (P.lType == 'a2pr' and P.conv_add_segment >= 1 and P.landscape and widget == W.entry4) or \
+       (P.lType == 'a2pr' and P.conv_add_segment >= 1 and not P.landscape and widget == W.entry3) or \
+       (P.lType == 'a2pr' and P.conv_add_segment == 0 and P.landscape and widget == W.entry7) or \
+       (P.lType == 'a2pr' and P.conv_add_segment == 0 and not P.landscape and widget == W.entry5) or \
+       (P.lType == 'abar' and P.conv_add_segment >= 1 and widget == W.entry3) or \
+       (P.lType == 'abar' and P.conv_add_segment == 0 and P.landscape and widget == W.entry7) or \
+       (P.lType == 'abar' and P.conv_add_segment == 0 and not P.landscape and widget == W.entry5):
+        widget.setObjectName(None)
+    else:
+        widget.setObjectName('aEntry')
     P.conv_entry_changed(widget)
 
 def widgets(P, W):
@@ -738,8 +793,8 @@ def widgets(P, W):
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
     W.lDesc = QLabel('CREATING LINE OR ARC')
-    W.g2Arc = QRadioButton('CLOCK')
-    W.g3Arc = QRadioButton('COUNTER')
+    W.g2Arc = QRadioButton('      CW')
+    W.g3Arc = QRadioButton('     CCW')
     W.iLabel = QLabel()
     W.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
     W.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
@@ -792,11 +847,11 @@ def widgets(P, W):
     W.undo.pressed.connect(lambda:undo_shape(P, W))
     W.lType.currentTextChanged.connect(lambda:line_type_changed(P, W))
     W.g2Arc.toggled.connect(lambda:auto_preview(P, W))
-    entries = ['entry1', 'entry2', 'entry3', 'entry4', 
+    entries = ['entry1', 'entry2', 'entry3', 'entry4',
                'entry5', 'entry6', 'entry7', 'entry8']
     for entry in entries:
         W[entry].textChanged.connect(lambda w:entry_changed(P, W, W.sender(), w))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         for row in range (14):
@@ -818,7 +873,7 @@ def widgets(P, W):
         W.entries.addWidget(W.entry7, 7, 1)
         W.entries.addWidget(W.label8, 8, 0)
         W.entries.addWidget(W.entry8, 8, 1)
-        for r in range(8, 12):
+        for r in range(9, 12):
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)

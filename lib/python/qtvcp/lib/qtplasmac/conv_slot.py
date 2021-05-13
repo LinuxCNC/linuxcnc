@@ -20,57 +20,97 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
     length = width = 0
-    if W.lEntry.text():
-        length = float(W.lEntry.text())
-    if W.wEntry.text():
-        width = float(W.wEntry.text())
-        radius = width / 2
+    try:
+        if W.lEntry.text():
+            length = float(W.lEntry.text())
+    except:
+        msg = 'Invalid LENGTH entry detected.\n'
+        error_set(P, msg)
+        return
+    try:
+        if W.wEntry.text():
+            width = float(W.wEntry.text())
+            radius = width / 2
+    except:
+        msg = 'Invalid WIDTH entry detected.\n'
+        error_set(P, msg)
+        return
     if length > 0 and width > 0 and length >= width:
         blLength = math.sqrt((length / 2) ** 2 + width ** 2)
         blAngle = math.atan(width / (length / 2))
         length = length - width
-        if W.aEntry.text():
-            angle = math.radians(float(W.aEntry.text()))
-        else:
-            angle = 0.0
-        if W.liEntry.text():
-            leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-        else:
-            leadInOffset = 0
-        if W.loEntry.text():
-            leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-        else:
-            leadOutOffset = 0
+        try:
+            if W.aEntry.text():
+                angle = math.radians(float(W.aEntry.text()))
+            else:
+                angle = 0.0
+        except:
+            msg = 'Invalid ANGLE entry detected.\n'
+            error_set(P, msg)
+            return
+        try:
+            if W.liEntry.text():
+                leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+            else:
+                leadInOffset = 0
+        except:
+            msg = 'Invalid LEAD IN entry detected.\n'
+            error_set(P, msg)
+            return
+        try:
+            if W.loEntry.text():
+                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+            else:
+                leadOutOffset = 0
+        except:
+            msg = 'Invalid LEAD OUT entry detected.\n'
+            error_set(P, msg)
+            return
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)
         down = math.radians(270)
-        kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+        try:
+            kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+        except:
+            msg = 'Invalid Kerf Width entry in material detected.\n'
+            error_set(P, msg)
+            return
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-        if W.center.isChecked():
-            xS = float(W.xsEntry.text()) + (width / 2) * math.cos(angle + up)
-        else:
-            if W.cExt.isChecked():
-                xS = (float(W.xsEntry.text()) + kOffset) + blLength * math.cos(angle + right + blAngle)
+        try:
+            if W.center.isChecked():
+                xS = float(W.xsEntry.text()) + (width / 2) * math.cos(angle + up)
             else:
-                xS = (float(W.xsEntry.text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
+                if W.cExt.isChecked():
+                    xS = (float(W.xsEntry.text()) + kOffset) + blLength * math.cos(angle + right + blAngle)
+                else:
+                    xS = (float(W.xsEntry.text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
+        except:
+            msg = 'Invalid X ORIGIN entry detected.\n'
+            error_set(P, msg)
+            return
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-        if W.center.isChecked():
-            yS = float(W.ysEntry.text()) + (width / 2) * math.sin(angle + up)
-        else:
-            if W.cExt.isChecked():
-                yS = (float(W.ysEntry.text()) + kOffset) + blLength * math.sin(angle + right + blAngle)
+        try:
+            if W.center.isChecked():
+                yS = float(W.ysEntry.text()) + (width / 2) * math.sin(angle + up)
             else:
-                yS = (float(W.ysEntry.text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
+                if W.cExt.isChecked():
+                    yS = (float(W.ysEntry.text()) + kOffset) + blLength * math.sin(angle + right + blAngle)
+                else:
+                    yS = (float(W.ysEntry.text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
+        except:
+            msg = 'Invalid Y ORIGIN entry detected.\n'
+            error_set(P, msg)
+            return
         if W.cExt.isChecked():
             dir = [up, left, right]
         else:
@@ -163,26 +203,36 @@ def preview(P, W):
     else:
         msg = ''
         if length <= 0:
-            msg += 'A positive Length is required\n\n'
+            msg += 'A positive LENGTH is required.\n\n'
         if width <= 0:
-            msg += 'A positive Width is required\n\n'
+            msg += 'A positive WIDTH is required.\n\n'
         if length < width:
-            msg += 'Length must be greater than or equal to Width'
-        P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SLOT', msg)
+            msg += 'LENGTH must be greater than or equal to WIDTH'
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.lEntry.text() and W.wEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
-    P.conv_entry_changed(widget)
+    char = P.conv_entry_changed(widget)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        error_set(P, msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -198,8 +248,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
@@ -208,19 +258,19 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.lLabel = QLabel('LENGTH')
     W.lEntry = QLineEdit()
     W.wLabel = QLabel('WIDTH')
     W.wEntry = QLineEdit()
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit()
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -256,14 +306,9 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
-    W.aEntry.setText('0')
     P.conv_undo_shape()
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
@@ -277,7 +322,7 @@ def widgets(P, W):
                'lEntry', 'wEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

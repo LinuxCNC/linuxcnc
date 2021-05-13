@@ -288,6 +288,12 @@ static inline bool get_mist (Interp &interp)  {
 static inline void set_mist(Interp &interp, bool value)  {
     interp._setup.mist = value;
 }
+static inline bool get_flood (Interp &interp)  {
+    return interp._setup.flood;
+}
+static inline void set_flood(Interp &interp, bool value)  {
+    interp._setup.flood = value;
+}
 static inline bool get_percent_flag (Interp &interp)  {
     return interp._setup.percent_flag;
 }
@@ -881,6 +887,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("input_flag", &get_input_flag, &set_input_flag)
 	.add_property("mdi_interrupt", &get_mdi_interrupt, &set_mdi_interrupt)
 	.add_property("mist", &get_mist, &set_mist)
+	.add_property("flood", &get_flood, &set_flood)
 	.add_property("percent_flag", &get_percent_flag, &set_percent_flag)
 	.add_property("probe_flag", &get_probe_flag, &set_probe_flag)
 	.add_property("speed_override", &get_speed_override, &set_speed_override)

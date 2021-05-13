@@ -28,6 +28,7 @@ class Notify:
         self.alarmpage = []
         self.critical_message = None
         self.normal_message = None
+        self.hard_limits_message = None
         STATUS.connect('shutdown', self.cleanup)
 
     # This prints a message in the status bar (if available)
@@ -56,6 +57,17 @@ class Notify:
         except Exception as e:
             log.warning('New_critical error:', exc_info=e)
         return self.critical_message
+
+    # Screenoption uses this for hard limit errors
+    # they stay up till cleared
+    # self.critical_message gives reference for external controls
+    def new_hard_limits(self, icon="", callback=None):
+        messageid = None
+        try:
+            self.hard_limits_message = self.build_hard_limits_notification(icon, callback)
+        except Exception as e:
+            log.warning('New_critical error:', exc_info=e)
+        return self.hard_limits_message
 
     # Screenoption uses this for errors / operator messages
     # they stay up till cleared
@@ -93,7 +105,18 @@ class Notify:
         n.addAction("action_click", "Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
         n.addAction('destroy_clicked', 'Clear All', self.destroyClicked)
-        n.addAction('close_clicked', 'close', self.closeClicked)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
+        self.notify_list.append(n)
+        return n
+
+    def build_hard_limits_notification(self, icon=None, callback=None):
+        self._hardLimitsCallback = callback
+        n = sys_notify.Notification('', '', icon)
+        n.setUrgency(sys_notify.Urgency.CRITICAL)
+        n.setTimeout(0)
+        n.addAction("action_click", "Override Limits", self._hardLimitsCallback)
+        n.onClose(self.handle_closed)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
         self.notify_list.append(n)
         return n
 
@@ -102,8 +125,8 @@ class Notify:
         n.setUrgency(sys_notify.Urgency.NORMAL)
         n.setTimeout(int(timeout * 1000))
         n.addAction("action_click", "Show Last Five", self.last5_callback)
-        n.addAction('destroy_click', 'Clear all', self.destroyClicked)
-        n.addAction('close_clicked', 'close', self.closeClicked)
+        n.addAction('destroy_click', 'Clear All', self.destroyClicked)
+        n.addAction('close_clicked', 'Close', self.closeClicked)
         n.onClose(self.handle_closed)
         self.notify_list.append(n)
         return n
@@ -125,7 +148,18 @@ class Notify:
         n.setTimeout(timeout * 1000)
         n.addAction("Ok", "ok", self.okClicked, callback)
         n.onClose(self.handle_closed)
-        n.addAction('Canel', 'canel', self.cancelClicked, callback)
+        n.addAction('Canel', 'cancel', self.cancelClicked, callback)
+        n.show()
+        self.notify_list.append(n)
+
+    def show_toolchange_notification(self, title, message, icon, timeout, callback, jogpause=False):
+        n = sys_notify.Notification(title, message, icon)
+        n.setUrgency(sys_notify.Urgency.CRITICAL)
+        n.setTimeout(0)
+        n.addAction("action_click", "Ok", self.okClicked, callback)
+        n.onClose(lambda w:self.okClicked(w, None, callback))
+        if jogpause:
+            n.addAction('close_clicked', 'jogPause', self.jogPauseClicked)
         n.show()
         self.notify_list.append(n)
 
@@ -141,13 +175,14 @@ class Notify:
     def okClicked(self, n, action, callback):
         callback(True)
 
-    def cancelClicked(self, n, action, callack):
+    def cancelClicked(self, n, action, callback):
         callback(False)
+
+    def jogPauseClicked(self, n, action, callback):
+        callback(-1)
 
     def handle_closed(self, n):
         pass
-        # print self._n
-        # print n
 
     def closeClicked(self, n, text):
         n.close()
@@ -169,7 +204,7 @@ class Notify:
             num = len(self.alarmpage) - i
             if i > len(self.alarmpage): break
             n.body = '{}\nREVIEW #{} of {}\n{}'.format(n.body,
-                                                       i,
+                                                       num +1,
                                                        len(self.alarmpage),
                                                        self.alarmpage[num][1])
         n.show()
@@ -183,10 +218,22 @@ class Notify:
     #####################################################
     # update the critical message display
     # this adds the new message to the old
+    # show a max of 10 messages on screen
     def update(self, n, title='', message='', status_timeout=5, timeout=None):
         if title is not None:
             n.title = title
-        n.body = n.body + '\n' + title + '\n' + message
+        if self.alarmpage ==[]:
+            n.body = title + '\n' + message
+        elif len(self.alarmpage) <9:
+            n.body = ''
+            for i in range(len(self.alarmpage)):
+                n.body = n.body + '\n' +  self.alarmpage[i][1]
+            n.body = n.body + '\n' + title + '\n' + message
+        else:
+            n.body = ''
+            for i in range(len(self.alarmpage)-9,len(self.alarmpage)):
+                n.body = n.body + '\n' +  self.alarmpage[i][1]
+            n.body = n.body + '\n' + title + '\n' + message
         if timeout is not None:
             n.setTimeout(timeout * 1000)
         n.show()

@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -29,56 +29,55 @@ def preview(P, W):
     if W.xlEntry.text() and W.ylEntry.text():
         try:
             if float(W.xlEntry.text()) <= 0 or float(W.ylEntry.text()) <= 0:
-                msg  = 'A positive X Length is required\n\n'
-                msg += 'and\n\n'
-                msg += 'A positive Y Length is required\n'
-                P.dialogError = True
-                P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+                msg = 'A positive X LENGTH is required.\n\n' \
+                      '                    AND\n\n' \
+                      'A positive Y LENGTH is required.\n'
+                error_set(P, msg)
                 return
         except:
-            msg = 'Invalid X Length or Y Length\n'
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+            msg = 'Invalid X LENGTH or Y LENGTH entry detected.\n'
+            error_set(P, msg)
             return
-        if W.r1Entry.text():
-            radius1 = float(W.r1Entry.text())
-        else:
-            radius1 = 0.0
-        if W.r2Entry.text():
-            radius2 = float(W.r2Entry.text())
-        else:
-            radius2 = 0.0
-        if W.r3Entry.text():
-            radius3 = float(W.r3Entry.text())
-        else:
-            radius3 = 0.0
-        if W.r4Entry.text():
-            radius4 = float(W.r4Entry.text())
-        else:
-            radius4 = 0.0
+        try:
+            if W.r1Entry.text():
+                radius1 = float(W.r1Entry.text())
+            else:
+                radius1 = 0.0
+            if W.r2Entry.text():
+                radius2 = float(W.r2Entry.text())
+            else:
+                radius2 = 0.0
+            if W.r3Entry.text():
+                radius3 = float(W.r3Entry.text())
+            else:
+                radius3 = 0.0
+            if W.r4Entry.text():
+                radius4 = float(W.r4Entry.text())
+            else:
+                radius4 = 0.0
+        except:
+            msg = 'Invalid RADIUS entry detected.\n'
+            error_set(P, msg)
+            return
         if radius1 + radius2 > float(W.xlEntry.text()):
-            msg  = 'Radius 1 plus Radius 2 ({})\n\n'.format(radius1 + radius2)
-            msg += 'can not be greater than {}\n'.format(float(W.xlEntry.text()))
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+            msg = 'Radius 1 plus Radius 2 ({})\n\n' \
+                  'cannot be greater than {}\n'.format(radius1 + radius2, float(W.xlEntry.text()))
+            error_set(P, msg)
             return
         if radius1 + radius3 > float(W.ylEntry.text()):
-            msg  = 'Radius 1 plus Radius 3 ({})\n\n'.format(radius1 + radius3)
-            msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+            msg = 'Radius 1 plus Radius 3 ({})\n\n' \
+                  'cannot be greater than {}\n'.format(radius1 + radius3, float(W.ylEntry.text()))
+            error_set(P, msg)
             return
         if radius2 + radius4 > float(W.ylEntry.text()):
-            msg  = 'Radius 2 plus Radius 4 ({})\n\n'.format(radius2 + radius4)
-            msg += 'can not be greater than {}\n'.format(float(W.ylEntry.text()))
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+            msg = 'Radius 2 plus Radius 4 ({})\n\n' \
+                  'can not be greater than {}\n'.format(radius2 + radius4, float(W.ylEntry.text()))
+            error_set(P, msg)
             return
         if radius3 > float(W.xlEntry.text()) / 2 or radius4 > float(W.xlEntry.text()) / 2:
-            msg  = 'Neither Radius 3 nor Radius 4\n\n'
-            msg += 'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
-            P.dialogError = True
-            P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+            msg = 'Neither Radius 3 nor Radius 4\n\n' \
+                  'can be greater than {}\n'.format(float(W.xlEntry.text()) / 2)
+            error_set(P, msg)
             return
         if W.xlEntry.text():
             xLB = float(W.xlEntry.text()) - (radius3 + radius4)
@@ -91,48 +90,77 @@ def preview(P, W):
         if xLB >= 0 and yLR >= 0 and xLT >= 0 and yLL >= 0:
             blLength = math.sqrt(xC ** 2 + (yC * 2) ** 2)
             blAngle = math.atan((yC * 2) / xC)
-            if W.angEntry.text():
-                angle = math.radians(float(W.angEntry.text()))
-            else:
-                angle = 0.0
-            if W.liEntry.text():
-                leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
-            else:
-                leadInOffset = 0
-            if W.loEntry.text():
-                leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
-            else:
-                leadOutOffset = 0
+            try:
+                if W.angEntry.text():
+                    angle = math.radians(float(W.angEntry.text()))
+                else:
+                    angle = 0.0
+            except:
+                msg = 'Invalid ANGLE entry detected.\n'
+                error_set(P, msg)
+                return
+            try:
+                if W.liEntry.text():
+                    leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
+                else:
+                    leadInOffset = 0
+            except:
+                msg = 'Invalid LEAD IN entry detected.\n'
+                error_set(P, msg)
+                return
+            try:
+                if W.loEntry.text():
+                    leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
+                else:
+                    leadOutOffset = 0
+            except:
+                msg = 'Invalid LEAD OUT entry detected.\n'
+                error_set(P, msg)
+                return
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
-            kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+            try:
+                kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+            except:
+                msg = 'Invalid Kerf Width entry in material detected.\n'
+                error_set(P, msg)
+                return
             if not W.xsEntry.text():
                 W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
-            if W.center.isChecked():
-                if W.cExt.isChecked():
-                    xS = float(W.xsEntry.text()) + ((yC - radius2) * math.cos(angle + up)) + (xC * math.cos(angle + right))
+            try:
+                if W.center.isChecked():
+                    if W.cExt.isChecked():
+                        xS = float(W.xsEntry.text()) + ((yC - radius2) * math.cos(angle + up)) + (xC * math.cos(angle + right))
+                    else:
+                        xS = float(W.xsEntry.text()) + yC * math.cos(angle + up)
                 else:
-                    xS = float(W.xsEntry.text()) + yC * math.cos(angle + up)
-            else:
-                if W.cExt.isChecked():
-                    xS = (float(W.xsEntry.text()) + kOffset) + (float(W.xlEntry.text()) * math.cos(angle + up)) + (float(W.xlEntry.text()) * math.cos(angle + right))
-                else:
-                    xS = (float(W.xsEntry.text()) - kOffset) + (blLength * math.cos(angle + right + blAngle))
-
+                    if W.cExt.isChecked():
+                        xS = (float(W.xsEntry.text()) + kOffset) + (float(W.xlEntry.text()) * math.cos(angle + up)) + (float(W.xlEntry.text()) * math.cos(angle + right))
+                    else:
+                        xS = (float(W.xsEntry.text()) - kOffset) + (blLength * math.cos(angle + right + blAngle))
+            except:
+                msg = 'Invalid X ORIGIN entry detected.\n'
+                error_set(P, msg)
+                return
             if not W.ysEntry.text():
                 W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-            if W.center.isChecked():
-                if W.cExt.isChecked():
-                    yS = float(W.ysEntry.text()) + (yC - radius2 * math.sin(angle + up)) + (xC * math.sin(angle + right))
+            try:
+                if W.center.isChecked():
+                    if W.cExt.isChecked():
+                        yS = float(W.ysEntry.text()) + (yC - radius2 * math.sin(angle + up)) + (xC * math.sin(angle + right))
+                    else:
+                        yS = float(W.ysEntry.text()) + yC * math.sin(angle + up)
                 else:
-                    yS = float(W.ysEntry.text()) + yC * math.sin(angle + up)
-            else:
-                if W.cExt.isChecked():
-                    yS = (float(W.ysEntry.text()) + kOffset) + ((float(W.ylEntry.text()) - radius2) * math.sin(angle + up)) + (float(W.xlEntry.text()) * math.sin(angle + right))
-                else:
-                    yS = (float(W.ysEntry.text()) - kOffset) + (blLength * math.sin(angle + right + blAngle))
+                    if W.cExt.isChecked():
+                        yS = (float(W.ysEntry.text()) + kOffset) + ((float(W.ylEntry.text()) - radius2) * math.sin(angle + up)) + (float(W.xlEntry.text()) * math.sin(angle + right))
+                    else:
+                        yS = (float(W.ysEntry.text()) - kOffset) + (blLength * math.sin(angle + right + blAngle))
+            except:
+                msg = 'Invalid Y ORIGIN entry detected.\n'
+                error_set(P, msg)
+                return
             outTmp = open(P.fTmp, 'w')
             outNgc = open(P.fNgc, 'w')
             inWiz = open(P.fNgcBkp, 'r')
@@ -375,11 +403,15 @@ def preview(P, W):
             W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        msg  = 'A positive X Length is required\n\n'
-        msg += 'and\n\n'
-        msg += 'A positive Y Length is required\n'
-        P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'RECTANGLE', msg)
+        msg = 'A positive X LENGTH is required.\n\n' \
+              '                    AND\n\n' \
+              'A positive Y LENGTH is required.\n'
+        error_set(P, msg)
+
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Rectangle Error', msg)
 
 def rad_button_pressed(P, W, button, value):
     if button.text()[:3] == 'RAD':
@@ -391,17 +423,23 @@ def rad_button_pressed(P, W, button, value):
     auto_preview(P, W)
 
 def entry_changed(P, W, widget):
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-        W.kOffset.setChecked(False)
-        W.kOffset.setEnabled(False)
-    else:
-        W.kOffset.setEnabled(True)
-    P.conv_entry_changed(widget)
+    char = P.conv_entry_changed(widget)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        error_set(P, msg)
+        return
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.xlEntry.text() and W.ylEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -418,8 +456,8 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.spLabel = QLabel('START')
     W.spGroup = QButtonGroup(W)
@@ -428,20 +466,19 @@ def widgets(P, W):
     W.bLeft = QRadioButton('BTM LEFT')
     W.spGroup.addButton(W.bLeft)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.xlLabel = QLabel('X LENGTH')
     W.xlEntry = QLineEdit()
     W.ylLabel = QLabel('Y LENGTH')
     W.ylEntry = QLineEdit()
     W.angLabel = QLabel('ANGLE')
-    W.angEntry = QLineEdit()
-    W.angEntry.setText('0')
+    W.angEntry = QLineEdit('0.0', objectName='aEntry')
     W.r1Button = QPushButton('RADIUS 1')
     W.r1Entry = QLineEdit()
     W.r2Button = QPushButton('RADIUS 2')
@@ -487,11 +524,6 @@ def widgets(P, W):
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.angEntry.setText('0.0')
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
@@ -508,7 +540,7 @@ def widgets(P, W):
                'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '1'))
     W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '2'))
     W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '3'))

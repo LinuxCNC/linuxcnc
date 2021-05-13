@@ -29,6 +29,10 @@ class INI:
         # will try to update for joints_axes if no VERSION is set
         print("VERSION = 1.1", file=file)
 
+        # write the qtplasmac section
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.write_qtplasmac_section(file)
+
         print(file=file)
         print("[DISPLAY]", file=file)
         if self.d.frontend == _PD._AXIS:
@@ -41,6 +45,16 @@ class INI:
             print("DISPLAY = touchy", file=file)
         elif self.d.frontend == _PD._QTDRAGON:
             print("DISPLAY = qtvcp qtdragon", file=file)
+            print("PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref", file=file)
+        # qtplasmac has multiple screens
+        elif self.d.frontend == _PD._QTPLASMAC:
+            if self.d.qtplasmacscreen == 2:
+                screen = "qtplasmac_9x16"
+            elif self.d.qtplasmacscreen == 1:
+                screen = "qtplasmac_4x3"
+            else:
+                screen = "qtplasmac"
+            print("DISPLAY = qtvcp {}".format(screen), file=file)
         if self.d.gladevcp:
             theme = self.d.gladevcptheme
             if theme == "Follow System Theme":theme = ""
@@ -77,7 +91,8 @@ class INI:
             print("DEFAULT_SPINDLE_0_SPEED = 500", file=file)
             print("MIN_SPINDLE_0_SPEED = 100", file=file)
             print("MAX_SPINDLE_0_SPEED = 2500", file=file)
-        else:
+        # qtplasmac doesn't use spindle override
+        elif self.d.frontend != _PD._QTPLASMAC:
             print("MAX_SPINDLE_OVERRIDE = %f"% self.d.max_spindle_override, file=file)
             print("MIN_SPINDLE_OVERRIDE = %f"% self.d.min_spindle_override, file=file)
 
@@ -87,11 +102,17 @@ class INI:
                                     os.path.expanduser("~/linuxcnc/nc_files"), file=file)
         if self.d.pyvcp:
             print("PYVCP = pyvcp-panel.xml", file=file)
-        # these are for AXIS GUI only
+        # these are for AXIS GUI and QtPlasmaC
         if self.d.units == _PD._METRIC:
-            print("INCREMENTS = %s"% self.d.increments_metric, file=file)
+            if self.d.frontend == _PD._QTPLASMAC:
+                print("INCREMENTS = %s"% self.d.increments_metric_qtplasmac, file=file)
+            else:
+                print("INCREMENTS = %s"% self.d.increments_metric, file=file)
         else:
-            print("INCREMENTS = %s"% self.d.increments_imperial, file=file)
+            if self.d.frontend == _PD._QTPLASMAC:
+                print("INCREMENTS = %s"% self.d.increments_imperial_qtplasmac, file=file)
+            else:
+                print("INCREMENTS = %s"% self.d.increments_imperial, file=file)
         if self.d.axes == 2:
             print("LATHE = 1", file=file)
         print("POSITION_FEEDBACK = %s"% temp, file=file)
@@ -101,17 +122,27 @@ class INI:
         print("DEFAULT_ANGULAR_VELOCITY = %f"% self.d.default_angular_velocity, file=file)
         print("MAX_ANGULAR_VELOCITY = %f"% self.d.max_angular_velocity, file=file)
         print("MIN_ANGULAR_VELOCITY = %f"% self.d.min_angular_velocity, file=file)
-        print("EDITOR = %s"% self.d.editor, file=file)
+        # qtplasmac has internal editor
+        if self.d.frontend != _PD._QTPLASMAC:
+            print("EDITOR = %s"% self.d.editor, file=file)
         print("GEOMETRY = %s"% self.d.geometry, file=file) 
+        print("CYCLE_TIME = 100", file=file)
 
         print(file=file)
         print("[FILTER]", file=file)
-        print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
-        print("PROGRAM_EXTENSION = .py Python Script", file=file)
-        print("png = image-to-gcode", file=file)
-        print("gif = image-to-gcode", file=file)
-        print("jpg = image-to-gcode", file=file)
-        print("py = python", file=file)        
+        # qtplasmac has a different filter section
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("PROGRAM_EXTENSION = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)", file=file)
+            print("ngc = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("nc  = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("tap = ./qtplasmac/qtplasmac_gcode.py", file=file)
+        else:
+            print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
+            print("PROGRAM_EXTENSION = .py Python Script", file=file)
+            print("png = image-to-gcode", file=file)
+            print("gif = image-to-gcode", file=file)
+            print("jpg = image-to-gcode", file=file)
+            print("py = python", file=file)        
 
         print(file=file)
         print("[TASK]", file=file)
@@ -121,6 +152,16 @@ class INI:
         print(file=file)
         print("[RS274NGC]", file=file)
         print("PARAMETER_FILE = linuxcnc.var", file=file)
+        # qtplasmac has extra rs274ngc variables
+        if self.d.frontend == _PD._QTPLASMAC:
+            if self.d.units == _PD._METRIC:
+                units = "metric"
+            else:
+                units = "imperial"
+            print("RS274NGC_STARTUP_CODE = o<{}_startup> call".format(units), file=file)
+            print("SUBROUTINE_PATH = ./:./qtplasmac:../../nc_files/subroutines", file=file)
+            print("USER_M_PATH = ./:./qtplasmac", file=file)
+            print("", file=file)
 
         #base_period = self.d.ideal_period()
 
@@ -153,6 +194,8 @@ class INI:
         print("HALFILE = custom.hal", file=file)
         if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY, _PD._QTDRAGON):
             print("POSTGUI_HALFILE = postgui_call_list.hal", file=file)
+        elif self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
         print("[HALUI]", file=file)          
@@ -218,6 +261,9 @@ class INI:
             print("KINEMATICS = trivkins coordinates=%s"%coords.replace(" ",""), file=file)
         print(file=file)
         print("[TRAJ]", file=file)
+        # qtplasmac requires 3 spindles
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("SPINDLES = 3", file=file)
         print("COORDINATES = ",coords, file=file)
         if self.d.axes == 1:
             print("MAX_ANGULAR_VELOCITY = %.2f" % self.d.amaxvel, file=file)
@@ -245,12 +291,14 @@ class INI:
         print("EMCIO = io", file=file)
         print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
-        if self.d.allow_spindle_on_toolchange:
-            print("TOOL_CHANGE_WITH_SPINDLE_ON = 1", file=file)
-        if self.d.raise_z_on_toolchange:
-            print("TOOL_CHANGE_QUILL_UP = 1", file=file)
-        if self.d.random_toolchanger:
-            print("RANDOM_TOOLCHANGER = 1", file=file)
+        # qtplasmac doesn't require these
+        if self.d.frontend != _PD._QTPLASMAC:
+            if self.d.allow_spindle_on_toolchange:
+                print("TOOL_CHANGE_WITH_SPINDLE_ON = 1", file=file)
+            if self.d.raise_z_on_toolchange:
+                print("TOOL_CHANGE_QUILL_UP = 1", file=file)
+            if self.d.random_toolchanger:
+                print("RANDOM_TOOLCHANGER = 1", file=file)
         
         all_homes = bool(self.a.home_sig("x") and self.a.home_sig("z"))
         if self.d.axes in (0,1): all_homes = bool(all_homes and self.a.home_sig("y"))
@@ -309,8 +357,8 @@ class INI:
             jnum += 1
             print("#******************************************", file=file)
 
-        # usually add SPINDLE
-        if self.d.include_spindle:
+        # usually add SPINDLE except for qtplasmac
+        if self.d.include_spindle and self.d.frontend != _PD._QTPLASMAC:
             self.write_one_joint(file, 9, "s", "null", all_homes, False)
         file.close()
         self.d.add_md5sum(filename)
@@ -469,13 +517,49 @@ class INI:
             print(file=file)
             print("#******************************************", file=file)
             print("[AXIS_%s]" % axis_letter, file=file)
-            print("MAX_VELOCITY = %s" % get("maxvel"), file=file)
-            print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
+            # qtplasmac requires double vel & acc to use eoffsets correctly
+            if self.d.frontend == _PD._QTPLASMAC:
+                print("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value", file=file)
+                print("MAX_VELOCITY = %s" % (get("maxvel") * 2), file=file)
+                print("MAX_ACCELERATION = %s" % (get("maxacc") * 2), file=file)
+                print("OFFSET_AV_RATIO = 0.5", file=file)
+            else:
+                print("MAX_VELOCITY = %s" % get("maxvel"), file=file)
+                print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
             print("MIN_LIMIT = %s" % minlim, file=file)
             print("MAX_LIMIT = %s" % maxlim, file=file)
 
+    # write the qtplasmac section
+    def write_qtplasmac_section(self, file):
+        print(file=file)
+        print("[QTPLASMAC]", file=file)
+        print("# set the operating mode (default is 0)", file=file)
+        print("MODE = {}".format(self.d.qtplasmacmode), file=file)
+        print("# set the estop type (0=indicator, 1=hidden, 2=button)", file=file)
+        print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
+        print("# laser touchoff", file=file)
+        if self.d.qtplasmacxlaser or self.d.qtplasmacylaser:
+            print("LASER_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxlaser, self.d.qtplasmacylaser), file=file)
+        else:
+            print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
+        print("# camera touchoff", file=file)
+        if self.d.qtplasmacxcam or self.d.qtplasmacycam:
+            print("CAMERA_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxcam, self.d.qtplasmacycam), file=file)
+        else:
+            print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
+        print("# powermax communications", file=file)
+        if self.d.qtplasmacpmx:
+            print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
+        else:
+            print("#PM_PORT = /dev/ttyUSB0", file=file)
+        print("# user buttons", file=file)
+        for ub in range(1, 21):
+            if self.d.qtplasmac_bnames[ub-1]:
+                print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)
+                print("BUTTON_{}_CODE = {}".format(ub ,self.d.qtplasmac_bcodes[ub-1]), file=file)
+
     # linuxcnc doesn't like having home right on an end of travel,
-    # so extend the travel limit by up to .01in or .1mm
+    # so extend the travel limit by up to .001in or .01mm
     def find_limits(self, letter):
         def get(s): return self.d[letter + s]
         minlim = -abs(get("minlim"))
@@ -483,8 +567,8 @@ class INI:
         home = get("homepos")
         if self.d.units == _PD._METRIC: extend = .01
         else: extend = .001
-        minlim = min(minlim, home - extend)
-        maxlim = max(maxlim, home + extend)
+        minlim = min(minlim, home) - extend
+        maxlim = max(maxlim, home) + extend
         return (minlim, maxlim)
 
 # BOILER CODE

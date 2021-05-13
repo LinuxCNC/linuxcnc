@@ -19,7 +19,7 @@
 #motion_config, #probe_config, #safety_config,
 #scribe_config, #spotting_config, #utility_frame,
 #gui_frame, #materials_frame, #camview_frame,
-#conv_frame, #stats_frame {
+#conv_frame, #stats_frame, #pmx_stats_frame {
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -35,7 +35,7 @@
 #probe_conf_lbl, #safety_conf_lbl, #scribe_conf_lbl,
 #spotting_conf_lbl, #utility_label, #gui_label,
 #materials_label, #camview_label, #conv_label,
-#stats_label {
+#stats_label, #pmx_stats_label {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px;
@@ -65,31 +65,70 @@ QLineEdit {
     border-radius: 4px;
     height: 24px }
 
-/****** DIALOG ************/
+/****** DIALOGS ************/
 QDialog {
     border: 1px solid foregnd;
     border-radius: 4px;
-    margin: 4px
- }
+    margin: 4px }
+
+QDialog QHeaderView::section {
+    background: backgnd;
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font: italic;
+    margin: 1;
+    height: 20;
+    padding-top: 5 }
+
+QDialog QListView {
+    font: 11pt }
+
+QDialog QTreeView {
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font: 11pt;
+    alternate-background-color: backalt;
+    padding: 2px }
+
+QDialog QTreeView::item {
+    height: 36px }
+
+QDialog QTreeView::item:selected:active {
+    color: backgnd;
+    background-color: foregnd }
+
+QDialog QTreeView::item:selected:!active {
+    color: backgnd;
+    background-color: foregnd }
 
 QDialog QLabel {
-    font: 13pt }
+    font: 11pt }
 
 QDialog QPushButton {
-    font: 13pt;
-    height: 40px;
-    width: 80px }
+    font: 11pt;
+    height: 30px;
+    width: 80px;
+    margin: 4 }
+
+QDialog QLineEdit {
+    selection-color: foregnd;
+    selection-background-color: backgnd;
+    font: 11pt;
+    height: 30px }
+
+QDialog QComboBox {
+    font: 11pt;
+    height: 30px }
 
 QDialog QDoubleSpinBox {
- font: 13pt }
-
+    font: 11pt }
 
 /****** BUTTON ************/
 QPushButton, QToolButton {
     border: 1px solid foregnd;
     border-radius: 4px }
 
-QPushButton:pressed,    QToolButton:pressed {
+QPushButton:pressed, QToolButton:pressed {
     color: backgnd;
     background: highlight }
 
@@ -105,7 +144,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #feed_label, #rapid_label,
 #jogs_label, #height_reset {
     border: none }
-    
+
 #feed_label:pressed, #rapid_label:pressed,
 #jogs_label:pressed, #height_reset:pressed {
     color: foregnd;
@@ -127,30 +166,34 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-color: e-stop }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
-#touch_a, #touch_x, #touch_y, #touch_z    {
+#touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
     font: 20pt 'Lato' }
 
 /******    JOG BUTTON ************/
-#jog_a_minus, #jog_a_plus, #jog_x_minus, #jog_x_plus,
-#jog_y_minus, #jog_y_plus, #jog_z_minus, #jog_z_plus {
+#jog_x_minus, #jog_x_plus,
+#jog_y_minus, #jog_y_plus,
+#jog_z_minus, #jog_z_plus,
+#jog_a_minus, #jog_a_plus,
+#jog_b_minus, #jog_b_plus {
     background: backgnd;
     border: none }
 
 #jog_x_minus:pressed, #jog_x_plus:pressed,
 #jog_y_minus:pressed, #jog_y_plus:pressed,
 #jog_z_minus:pressed, #jog_z_plus:pressed,
-#jog_a_minus:pressed, #jog_a_plus:pressed {
+#jog_a_minus:pressed, #jog_a_plus:pressed,
+#jog_b_minus:pressed, #jog_b_plus:pressed {
     background: backalt }
 
 /******    CUT_RECOVERY BUTTON ************/
 #cut_rec_n, #cut_rec_s,
 #cut_rec_e, #cut_rec_w {
-    background: backgnd; 
+    background: backgnd;
     border: none }
 
 #cut_rec_ne, #cut_rec_nw,
 #cut_rec_se, #cut_rec_sw {
-    background: backgnd; 
+    background: backgnd;
     border: 2px solid backgnd }
 
 #cut_rec_n:pressed, #cut_rec_s:pressed,
@@ -191,20 +234,22 @@ DROLabel[homed=false] {
     border-color: inactive }
 
 /****** DRO LABEL ************/
-#dro_label_a,
 #dro_label_x,
 #dro_label_y,
-#dro_label_z {
+#dro_label_z,
+#dro_label_a,
+#dro_label_b {
     color: backgnd;
     background: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
     font: 20pt 'Lato' }
 
-#dro_label_a[homed=false],
 #dro_label_x[homed=false],
 #dro_label_y[homed=false],
-#dro_label_z[homed=false] {
+#dro_label_z[homed=false],
+#dro_label_a[homed=false],
+#dro_label_b[homed=false] {
     background: inactive;
     border-color: inactive }
 
@@ -228,25 +273,12 @@ QRadioButton:checked {
     color: backgnd;
     background: highlight }
 
-/*QRadioButton::indicator:checked {
-    background: highlight }*/
-
 QRadioButton:pressed {
     color: backgnd;
     background: highlight }
 
-/*QRadioButton::indicator:pressed {
-    background: highlight }*/
-
-QRadioButton:checked:pressed {
-    color: foregnd;
-    background: backgnd }
-
-/*QRadioButton::indicator:checked:pressed {
-    background: backgnd }*/
-
 /****** SETTINGS PUSHBUTTONS ************/
-#color_foregrnd, #color_foregalt, 
+#color_foregrnd, #color_foregalt,
 #color_led, #color_backgrnd,
 #color_backgalt, #color_frams,
 #color_estop, #color_disabled,
@@ -293,7 +325,7 @@ QCheckBox::indicator:checked:pressed {
     border: 1px solid foregnd;
     border-radius: 4px;
     width: 22px;
-    height: 22px;    }
+    height: 22px }
 
 #torch_enable::indicator:checked,
 #cornerlock_enable::indicator:checked,
@@ -349,13 +381,13 @@ QDoubleSpinBox {
     border-radius: 2px;
     height: 24px;
     width: 180px;
-    font: 12pt;
+    font: 11pt;
     selection-color: backgnd;
     selection-background-color: foregnd }
 
 QDoubleSpinBox::up-button {
     subcontrol-origin:padding;
-    subcontrol-position:right;     
+    subcontrol-position:right;
     width: 28px;
     height: 24px }
 
@@ -364,72 +396,6 @@ QDoubleSpinBox::down-button {
     subcontrol-position:left;
     width: 28px;
     height: 24px }
-
-
-/*
-QSpinBox,
-QDoubleSpinBox {
-    font: 12pt;
-    border: 1px solid foregnd;
-    border-radius: 4px;
-    height: 24px;
-    width: 180px;
-    selection-color: backgnd;
-    selection-background-color: foregnd }
-
-QSpinBox,::up-button
-QDoubleSpinBox::up-button {
-    background: foregnd;
-    width: 28px;
-    border-left: 1px solid foregnd;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    height: 28px;
-    subcontrol-origin: margin;
-    subcontrol-position: center right }
-
-QSpinBox::down-button,
-QDoubleSpinBox::down-button {
-    background: foregnd;
-    border: 1px solid foregnd;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    width: 28px;
-    height: 28px;
-    subcontrol-origin: margin;
-    subcontrol-position: center left }
-
-QSpinBox::up-arrow,
-QDoubleSpinBox::up-arrow {
-    width: 28px;
-    height: 28px;
-    margin-bottom: 2px;
-    margin-left: 1px;
-    image: url(qtplasmac/images/spin_plus.png) }
-
-QSpinBox::down-arrow,
-QDoubleSpinBox::down-arrow {
-    width: 28px;
-    height: 28px;
-    margin-bottom: 2px;
-    image: url(qtplasmac/images/spin_minus.png) }
-
-QSpinBox::down-arrow:pressed,
-QDoubleSpinBox::up-arrow:pressed {
-    margin-bottom: 4px }
-
-QSpinBox,::down-arrow:pressed
-QDoubleSpinBox::down-arrow:pressed {
-    margin-top: 1px }
-*/
-
-/*QSpinBox::up-arrow:disabled,
-QDoubleSpinBox::up-arrow:disabled {
-    image: url(qtplasmac/images/spin_plus_d.png) }
-
-QSpinBox::down-arrow:disabled,
-QDoubleSpinBox::down-arrow:disabled {
-    image: url(qtplasmac/images/spin_minus_d.png) }*/
 
 /****** VERTICAL SLIDER ************/
 QSlider::groove:vertical {
@@ -468,8 +434,7 @@ QSlider::groove:vertical:disabled {
 QComboBox {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 11pt 'Lato';
-    padding: 0px 0px 0px 12px;
+    padding: 0px 0px 0px 18px;
     selection-color: backgnd;
     selection-background-color: foregnd }
 
@@ -506,22 +471,26 @@ QComboBox QListView {
 #material_selector QListView {
     border-color: frames }
 
-/****** FILE DIALOGS************/
+/****** FILEMANAGER ************/
 QHeaderView::section {
-    background-color: backalt;
-    color: foregnd;
-    border: none }
+    background: backgnd;
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font-size: 11pt;
+    font: italic;
+    margin: 1;
+    height: 20;
+    padding-top: 5 }
 
 #filemanager QTableView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 13pt 'Lato';
+    font: 11pt 'Lato';
     alternate-background-color: backalt;
     padding: 2px }
 
 #filemanager QTableView::item {
-    height: 36px;
-}
+    height: 36px }
 
 #filemanager QTableView::item:selected:active {
     color: backgnd;
@@ -533,26 +502,22 @@ QHeaderView::section {
 
 #filemanager QComboBox {
     height: 40px;
-    font: 12pt;
- }
+    font: 11pt }
 
 #filemanager QLineEdit {
     height: 40px;
-    font: 12pt;
- }
+    font: 11pt }
 
 #filemanager QToolButton {
     font: 11pt;
     height: 40px;
-/*    width: 80px;*/
-    margin: 0px;
- }
+    margin: 0px }
 
 /****** MDI HISTORY************/
 #mdihistory QListView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 13pt 'Lato';
+    font: 11pt 'Lato';
     alternate-background-color: backalt;
     show-decoration-selected: 1;
     selection-background-color: foregnd;
@@ -560,14 +525,13 @@ QHeaderView::section {
     padding: 2 }
 
 #mdihistory QListView::item {
-    height: 36;
-}
+    height: 36 }
 
 #mdihistory QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;
     height: 30px;
-    font: 13pt }
+    font: 11pt }
 
 /****** SCROLL BAR ************/
 QScrollBar:horizontal {
@@ -613,7 +577,7 @@ QScrollBar::sub-line:vertical {
 /****** MENU ************/
 QMenu {
     background: foregnd;
-    font: 13pt;
+    font: 11pt;
     margin: 4px }
 
 QMenu::item {
@@ -625,9 +589,9 @@ QMenu::item {
 /****** TAB ************/
 QTabWidget::pane {
     border: none;
-    top:-2px; 
-    left:-2px; 
-    right:-2px; 
+    top:-2px;
+    left:-2px;
+    right:-2px;
     bottom:-2px }
 
 QTabWidget::tab-bar {
@@ -638,7 +602,7 @@ QTabBar::tab {
     border-radius: 4px;
     padding: 1px;
     margin-left: 1;
-    margin-right: 1 } 
+    margin-right: 1 }
 
 QTabBar::tab:selected {
     color: backgnd;
@@ -674,6 +638,15 @@ QPlainTextEdit {
     qproperty-background_color: prevu }
 
 /****** GCODE EDITOR & GCODE DISPLAY ************/
+
+EditorBase#lexer {
+height: 44;
+}
+
+/*QTableView::item{
+height: 44;
+}*/
+
 EditorBase {
     qproperty-styleColorBackground: backgnd;
     qproperty-styleColor0: foregnd;
@@ -683,12 +656,12 @@ EditorBase {
     qproperty-styleColor4: foregnd;
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
-    qproperty-styleFont0: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont1: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont2: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont3: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont4: 'Lato,12,-1,0,60,0,0,0,0,0';
-    qproperty-styleFontMargin: 'Lato,12,-1,0,20,00,0,0,0,0';
+    qproperty-styleFont0: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont1: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont2: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont3: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont4: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFontMargin: 'Lato,11,-1,0,20,00,0,0,0,0';
     qproperty-styleColorSelectionText: backgnd;
     qproperty-styleColorSelectionBackground: foregnd }
 
@@ -710,7 +683,6 @@ EditorBase {
     spacing: 4 }
 
 #gcode_editor QToolButton {
-/*    qproperty-icon: none;*/
     width: 40px;
     height: 37px }
 
@@ -726,12 +698,12 @@ QMessageBox{
     margin: 2 }
 
 QMessageBox QLabel{
-    font: 12pt }
+    font: 11pt }
 
 QMessageBox QPushButton {
     width: 120;
     height: 40;
-    font: 12pt }
+    font: 11pt }
 
 /****** INPUT DIALOG ************/
 QInputDialog{
@@ -740,17 +712,18 @@ QInputDialog{
     margin: 2 }
 
 QInputDialog QLabel{
-    font: 16pt }
+    font: 11pt }
 
 QInputDialog QLineEdit{
     background: backalt;
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 16pt }
+    font: 11pt }
 
 QInputDialog QPushButton {
+    width: 120;
     height: 40;
-    font: 16pt }
+    font: 11pt }
 
 /****** CALCULATOR ************/
 Calculator {
@@ -770,14 +743,3 @@ Calculator QLineEdit {
 KeyboardDialog QLineEdit{
     font: 20pt;
     height: 36px }
-
-/****** SOFT KEYBOARD ************/
-/*SoftInputWidget {
-margin: 0;
-border: 1px solid foregnd;
-border-radius: 4px }
-
-MyFlatPushButton {
-margin: 3 ;
-max-height: 30;
- } */

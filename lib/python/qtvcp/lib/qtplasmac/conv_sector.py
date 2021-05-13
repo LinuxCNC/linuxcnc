@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
-from PyQt5.QtGui import QPixmap 
+from PyQt5.QtGui import QPixmap
 
 def preview(P, W):
     if P.dialogError: return
@@ -30,49 +30,58 @@ def preview(P, W):
     try:
         leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
     except:
-        msg += 'Lead In\n'
+        msg += 'LEAD IN\n'
     try:
         leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
     except:
-        msg += 'Lead Out\n'
+        msg += 'LEAD OUT\n'
     try:
         radius = float(W.rEntry.text())
     except:
-        msg += 'Radius\n'
+        msg += 'RADIUS\n'
     try:
         sAngle = math.radians(float(W.sEntry.text()))
     except:
-        msg += 'Sector Angle\n'
+        msg += 'SEC ANGLE\n'
     try:
         angle = math.radians(float(W.aEntry.text()))
     except:
-        msg += 'Angle\n'
+        msg += 'ANGLE\n'
     if msg:
-        errMsg = 'Valid numerical entries required for:\n\n{}'.format(msg)
-        P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SECTOR', errMsg)
+        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
+        error_set(P, errMsg)
         return
     if radius == 0 or sAngle == 0:
-        P.conv_undo_shape()
+        msg = 'RADIUS or SEC ANGLE must be greater than zero.'.format(msg)
+        error_set(P, msg)
         return
     if W.kOffset.isChecked() and leadInOffset <= 0:
-        msg  = 'A Lead In is required if\n\n'
-        msg += 'kerf width offset is enabled\n'
-        P.dialogError = True
-        P.dialog_error(QMessageBox.Warning, 'SECTOR', msg)
+        msg  = 'LEAD IN is required if\n\n'
+        msg += 'KERF OFFSET is enabled.\n'
+        error_set(P, msg)
         return
 # set origin position
-    kOffset = float(W.kerf_width.text()) * W.kOffset.isChecked() / 2
+    try:
+        kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
+    except:
+        msg = 'Invalid Kerf Width entry in material detected.\n'
+        error_set(P, msg)
+        return
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():
         W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-    if W.cExt.isChecked():
-        xO = float(W.xsEntry.text()) + kOffset
-        yO = float(W.ysEntry.text()) + kOffset
-    else:
-        xO = float(W.xsEntry.text()) - kOffset
-        yO = float(W.ysEntry.text()) - kOffset
+    try:
+        if W.cExt.isChecked():
+            xO = float(W.xsEntry.text()) + kOffset
+            yO = float(W.ysEntry.text()) + kOffset
+        else:
+            xO = float(W.xsEntry.text()) - kOffset
+            yO = float(W.ysEntry.text()) - kOffset
+    except:
+        msg = 'Invalid X or Y ORIGIN entry detected.\n'
+        error_set(P, msg)
+        return
 # set start point
     xS = xO + (radius * 0.75) * math.cos(angle)
     yS = yO + (radius * 0.75) * math.sin(angle)
@@ -150,18 +159,29 @@ def preview(P, W):
     W.add.setEnabled(True)
     W.undo.setEnabled(True)
 
+def error_set(P, msg):
+    P.conv_undo_shape()
+    P.dialogError = True
+    P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
+
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.rEntry.text() and W.sEntry.text():
-        preview(P, W) 
+        preview(P, W)
 
 def entry_changed(P, W, widget):
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-        W.kOffset.setEnabled(False)
-        W.kOffset.setChecked(False)
-    else:
-        W.kOffset.setEnabled(True)
-    P.conv_entry_changed(widget)
+    char = P.conv_entry_changed(widget)
+    try:
+        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
+                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
+            W.kOffset.setEnabled(False)
+            W.kOffset.setChecked(False)
+        else:
+            W.kOffset.setEnabled(True)
+    except:
+        msg = 'Invalid LEAD IN entry detected.\n'
+        error_set(P, msg)
+        return
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -178,23 +198,23 @@ def widgets(P, W):
     W.ctGroup.addButton(W.cExt)
     W.cInt = QRadioButton('INTERNAL')
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('OFFSET')
-    W.kOffset = QPushButton('KERF WIDTH')
+    W.koLabel = QLabel('KERF')
+    W.kOffset = QPushButton('OFFSET')
     W.kOffset.setCheckable(True)
     W.xsLabel = QLabel('X ORIGIN')
-    W.xsEntry = QLineEdit(objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
     W.ysLabel = QLabel('Y ORIGIN')
-    W.ysEntry = QLineEdit(objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel('LEAD IN')
-    W.liEntry = QLineEdit(objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel('LEAD OUT')
-    W.loEntry = QLineEdit(objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.rLabel = QLabel('RADIUS')
     W.rEntry = QLineEdit()
-    W.sLabel = QLabel('SECT ANGLE')
+    W.sLabel = QLabel('SEC ANGLE')
     W.sEntry = QLineEdit()
     W.aLabel = QLabel('ANGLE')
-    W.aEntry = QLineEdit()
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.preview = QPushButton('PREVIEW')
     W.add = QPushButton('ADD')
     W.undo = QPushButton('UNDO')
@@ -226,11 +246,6 @@ def widgets(P, W):
     #starting parameters
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
-    W.xsEntry.setText('{}'.format(P.xSaved))
-    W.ysEntry.setText('{}'.format(P.ySaved))
-    W.aEntry.setText('0.0')
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
@@ -245,7 +260,7 @@ def widgets(P, W):
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'rEntry', 'sEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].editingFinished.connect(lambda:auto_preview(P, W))
+        W[entry].returnPressed.connect(lambda:preview(P, W))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

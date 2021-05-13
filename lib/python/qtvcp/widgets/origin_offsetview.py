@@ -54,7 +54,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.current_system = None
         self.current_tool = 0
         self.metric_display = False
-        self.mm_text_template = '%10.3f'
+        self.metric_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
         self.dialog_code = 'CALCULATOR'
@@ -240,7 +240,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # set the text style based on unit type
         if self.metric_display:
-            tmpl = self.mm_text_template
+            tmpl = self.metric_text_template
         else:
             tmpl = self.imperial_text_template
 
@@ -316,12 +316,6 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # dont evaluate text column
         if col ==9 :return
 
-        # set the text style based on unit type
-        if self.metric_display:
-            tmpl = lambda s: self.mm_text_template % s
-        else:
-            tmpl = lambda s: self.imperial_text_template % s
-
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
                 qualified = float(data)
@@ -379,6 +373,30 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_keyboard_code(self, data):
+        self.text_dialog_code = data
+    def get_keyboard_code(self):
+        return self.text_dialog_code
+    def reset_keyboard_code(self):
+        self.text_dialog_code = 'KEYBOARD'
+    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
+
+    def setmetrictemplate(self, data):
+        self.metric_text_template = data
+    def getmetrictemplate(self):
+        return self.metric_text_template
+    def resetmetrictemplate(self):
+        self.metric_text_template =  '%10.3f'
+    metric_template = pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+
+    def setimperialtexttemplate(self, data):
+        self.imperial_text_template = data
+    def getimperialtexttemplate(self):
+        return self.imperial_text_template
+    def resetimperialtexttemplate(self):
+        self.imperial_text_template =  '%9.4f'
+    imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
 #########################################
 # custom model

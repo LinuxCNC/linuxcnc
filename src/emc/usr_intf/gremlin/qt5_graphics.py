@@ -443,11 +443,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 )
  
             props['G0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
-            props['gG1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
+            props['G1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
             if gt > 120:
                 props['Run'] = _("%.1f Minutes") % (gt/60)
             else:
-                props['Run'] = _("%d Ceconds") % (int(gt))
+                props['Run'] = _("%d Seconds") % (int(gt))
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
@@ -570,6 +570,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             posstrs = []
             droposstrs = []
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
@@ -580,6 +581,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             droposstrs.append("")
 
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
@@ -593,6 +595,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             droposstrs.append("")
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     droposstrs.append(toolformat % ("TLO", a, tlo_offset[i]))
@@ -758,7 +761,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             GL.glFlush()                               # Tidy up
             GL.glPopMatrix()                   # Restore the matrix
 
-    # replaces glcanoon function
+    # override glcanon function
     def redraw_ortho(self):
         if not self.initialised: return
         w = self.winfo_width()
@@ -813,6 +816,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         finally:
             GL.glFlush()                               # Tidy up
             GL.glPopMatrix()                   # Restore the matrix
+
+    # override glcanon function
+    def basic_lighting(self):
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, (1, -1, 1, 0))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, self.colors['tool_ambient'] + (0,))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, (.6,.6,.6,0))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,0))
+        GL.glEnable(GL.GL_LIGHTING)
+        GL.glEnable(GL.GL_LIGHT0)
+        GL.glDepthFunc(GL.GL_LESS)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
 
     # resizes the view to fit the window
     def resizeGL(self, width, height):

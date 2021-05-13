@@ -622,21 +622,18 @@ static int release_HAL_mutex(void)
 
 static int doLock(char *command, connectionRecType *context)
 {
-    int retval=0;
-    const char *nakStr = "SET LOCK NAK";
+	int retval = 0;
+	const char *nakStr = "SET LOCK NAK";
 
-    /* if command is blank, want to lock everything */
-    if (*command == '\0')
-      retval = hal_set_lock(HAL_LOCK_ALL);
-    else 
-      if (strcmp(command, "none") == 0)
-        retval = hal_set_lock(HAL_LOCK_NONE);
-      else 
-        if (strcmp(command, "tune") == 0)
-          retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
-        else 
-	  if (strcmp(command, "all") == 0)
-            retval = hal_set_lock(HAL_LOCK_ALL);
+	/* if command is blank, want to lock everything */
+	if (*command == '\0')
+		retval = hal_set_lock(HAL_LOCK_ALL);
+	else if (strcmp(command, "none") == 0)
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	else if (strcmp(command, "tune") == 0)
+		retval = hal_set_lock(HAL_LOCK_TUNE);
+	else if (strcmp(command, "all") == 0)
+		retval = hal_set_lock(HAL_LOCK_ALL);
 
     if (retval != 0) {
       snprintf(errorStr, sizeof(errorStr), "HAL:%d: Locking failed", linenumber);
@@ -650,15 +647,15 @@ static int doUnlock(char *command, connectionRecType *context)
     int retval=0;
     const char *nakStr = "SET UNLOCK NAK";
 
-    /* if command is blank, want to lock everything */
-    if (*command == '\0')
-      retval = hal_set_lock(HAL_LOCK_NONE);
-    else 
-      if (strcmp(command, "all") == 0)
-        retval = hal_set_lock(HAL_LOCK_NONE);
-      else 
-        if (strcmp(command, "tune") == 0)
-          retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
+	/* if command is blank, want to unlock everything */
+	if (*command == '\0')
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	else if (strcmp(command, "none") == 0)
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	else if (strcmp(command, "tune") == 0)
+		retval = hal_set_lock(hal_get_lock() & ~HAL_LOCK_TUNE);
+	else if (strcmp(command, "all") == 0)
+		retval = hal_set_lock(HAL_LOCK_NONE);
 
     if (retval != 0) {
       snprintf(errorStr, sizeof(errorStr), "HAL:%d: Unlocking failed", linenumber);

@@ -361,5 +361,4 @@ int joint_is_lockable(int joint_num);
 #define HAVE_CPU_KHZ
 #endif
 
-#define EOFFSET_EPSILON  1e-8
 #endif /* MOT_PRIV_H */

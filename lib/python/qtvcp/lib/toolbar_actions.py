@@ -229,6 +229,10 @@ class ToolBarActions():
             function = (self.actOnInhibitSelection)
         elif action == 'show_dimensions':
             function = (self.actOnShowDimensions)
+        elif action == 'message_recall':
+            function = (self.actOnMessageRecall)
+        elif action == 'message_close':
+            function = (self.actOnMessageClose)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -461,6 +465,12 @@ class ToolBarActions():
             ACTION.SET_GRAPHICS_VIEW('dimensions-on')
         else:
             ACTION.SET_GRAPHICS_VIEW('dimensions-off')
+
+    def actOnMessageClose(self, widget, state=None):
+        WIDGETS._NOTICE.external_close()
+
+    def actOnMessageRecall(self, widget, state=None):
+        WIDGETS._NOTICE.show_last()
 
     #########################################################
     # Sub menus

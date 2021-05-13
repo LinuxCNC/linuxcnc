@@ -151,7 +151,10 @@ You can put these files in a arbitrary named folder - qtvcp will search all fold
 === Modifying Stock Screens
 
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
-
+There is a QtVCP panel to help with this. +
+Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and +
+destination folder. This will copy all the file - delete the ones you don't wish to modify so +
+that the original files will be used. +
 
 == VCP Panels
 Qtvcp can be used to create control panels that interface with HAL. +
@@ -359,12 +362,14 @@ will use to display our test screen.
 
 === HAL
 
-If your screen used widgets with HAL pins the you must connect then in a HAL file. +
-qtvcp looks under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>' +
+If your screen used widgets with HAL pins, then you must connect them in a HAL file. +
+Qtvcp looks in the INI file, under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>' +
 Typically '<filename>' would be the screens base name + '_postgui' + '.hal' +
-eg. 'qtvcp_postgui.hal' +
+eg. 'qtvcp_postgui.hal', but can be any legal filename. +
 These commands are executed after the screen is built, guaranteeing the widget HAL +
 pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+Each will be run one after the other in the order they appear. +
  +
 In our example there are no HAl pins to connect. +
 

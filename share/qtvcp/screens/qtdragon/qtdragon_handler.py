@@ -84,12 +84,12 @@ class HandlerClass:
         STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
         STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
         STATUS.connect('file-loaded', self.file_loaded)
-        STATUS.connect('homed', self.homed)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
         STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
+        STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
 
         self.html = """<html>
 <head>
@@ -120,12 +120,9 @@ class HandlerClass:
         self.w.stackedWidget_dro.setCurrentIndex(0)
         self.w.btn_spindle_pause.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
-        self.w.btn_touch_sensor.setEnabled(self.w.chk_use_tool_sensor.isChecked())
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
-        self.chk_run_from_line_checked(self.w.chk_run_from_line.isChecked())
-        self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
-        self.chk_alpha_mode_clicked(self.w.chk_alpha_mode.isChecked())
+
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
             for i in self.axis_a_list:
@@ -226,8 +223,9 @@ class HandlerClass:
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
-        self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
-        self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
+        if self.last_loaded_program is not None:
+            self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
+            self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
         self.w.PREFS_.putpref('Tool to load', STATUS.get_current_tool(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Laser X', self.w.lineEdit_laser_x.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Laser Y', self.w.lineEdit_laser_y.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
@@ -471,17 +469,6 @@ class HandlerClass:
         else:
             self.w.progressBar.setFormat('COMPLETE: {}%'.format(fraction))
 
-    def homed(self, obj, joint):
-        i = int(joint)
-        axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-        try:
-            widget = self.w["dro_axis_{}".format(axis)]
-            widget.setProperty('homed', True)
-            widget.style().unpolish(widget)
-            widget.style().polish(widget)
-        except:
-            pass
-
     def all_homed(self, obj):
         self.home_all = True
         self.w.btn_home_all.setText("ALL HOMED")
@@ -494,6 +481,7 @@ class HandlerClass:
                 if os.path.isfile(self.last_loaded_program):
                     self.w.cmb_gcode_history.addItem(self.last_loaded_program)
                     self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+                    self.w.cmb_gcode_history.setToolTip(fname)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
@@ -501,35 +489,35 @@ class HandlerClass:
     def not_all_homed(self, obj, list):
         self.home_all = False
         self.w.btn_home_all.setText("HOME ALL")
-        for i in INFO.AVAILABLE_JOINTS:
-            if str(i) in list:
-                axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-                try:
-                    widget = self.w["dro_axis_{}".format(axis)]
-                    widget.setProperty('homed', False)
-                    widget.style().unpolish(widget)
-                    widget.style().polish(widget)
-                except:
-                    pass
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.add_status("Hard limits tripped")
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
-    
+
+    # keep check button in synch of external changes
+    def _check_override_limits(self,state,data):
+        if 0 in data:
+            self.w.chk_override_limits.setChecked(False)
+        else:
+            self.w.chk_override_limits.setChecked(True)
+
     #######################
     # CALLBACKS FROM FORM #
     #######################
 
     # main button bar
     def main_tab_changed(self, btn):
-        if STATUS.is_auto_mode():
-            self.add_status("Cannot switch pages while in AUTO mode")
-            self.w.btn_main.setChecked(True)
-            return
         index = btn.property("index")
         if index is None: return
+        # if in automode still allow settings to show so override linits can be used
+        if STATUS.is_auto_mode() and index != 9:
+            self.add_status("Cannot switch pages while in AUTO mode")
+            # make sure main page is showing
+            self.w.main_tab_widget.setCurrentIndex(0)
+            self.w.btn_main.setChecked(True)
+            return
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
         if index == TAB_SETUP:
@@ -589,7 +577,7 @@ class HandlerClass:
     def btn_home_clicked(self):
         joint = self.w.sender().property('joint')
         axis = INFO.GET_NAME_FROM_JOINT.get(joint).lower()
-        if self.w["dro_axis_{}".format(axis)].property('homed') is True:
+        if self.w["dro_axis_{}".format(axis)].property('isHomed') is True:
             ACTION.SET_MACHINE_UNHOMED(joint)
         else:
             ACTION.SET_MACHINE_HOMING(joint)
@@ -772,18 +760,28 @@ class HandlerClass:
 
     # settings tab
     def chk_override_limits_checked(self, state):
-        if state:
+        # only toggle override if it's not in synch with the button
+        if state and not STATUS.is_limits_override_set():
             self.add_status("Override limits set")
-            ACTION.SET_LIMITS_OVERRIDE()
-        else:
-            self.add_status("Override limits not set")
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
+        elif not state and STATUS.is_limits_override_set():
+            error = ACTION.TOGGLE_LIMITS_OVERRIDE()
+            # if override can't be released set the check button to reflect this
+            if error == False:
+                self.w.chk_override_limits.blockSignals(True)
+                self.w.chk_override_limits.setChecked(True)
+                self.w.chk_override_limits.blockSignals(False)
+            else:
+                self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
-        self.w.gcodegraphics.set_inhibit_selection(not state)
         self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("START")
 
-    def chk_alpha_mode_clicked(self, state):
+    def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_selection_changed(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
 
     def chk_use_camera_changed(self, state):
         self.w.btn_ref_camera.setEnabled(state)
@@ -802,25 +800,36 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
-        if not fname.endswith(".html"):
+        if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
                 self.add_status("Unknown or invalid filename extension {}".format(file_extension))
                 return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+            self.w.cmb_gcode_history.setToolTip(fname)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
             self.w.filemanager.recordBookKeeping()
-            # adjust ending to check for related setup files
+
+            # adjust ending to check for related HTML setup files
             fname = filename+'.html'
             if os.path.exists(fname):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
             else:
                 self.w.web_view.setHtml(self.html)
+
+            # look for PDF setup files
+            # load it with system program
+            fname = filename+'.pdf'
+            if os.path.exists(fname):
+                url = QtCore.QUrl.fromLocalFile(fname)
+                QtGui.QDesktopServices.openUrl(url)
+                self.add_status("Loaded PDF file : {}".format(fname))
             return
-        else:
+
+        if file_extension == ".html":
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
                 self.add_status("Loaded HTML file : {}".format(fname))
@@ -830,7 +839,11 @@ class HandlerClass:
                 self.w.jogging_frame.hide()
             except Exception as e:
                 print("Error loading HTML file : {}".format(e))
-
+        else:
+            if os.path.exists(fname):
+                url = QtCore.QUrl.fromLocalFile(fname)
+                QtGui.QDesktopServices.openUrl(url)
+                self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
         self.h['eoffset_count'] = 0

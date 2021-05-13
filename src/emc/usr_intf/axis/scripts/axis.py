@@ -3295,7 +3295,7 @@ vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
-postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+postgui_halfile = inifile.findall("HAL", "POSTGUI_HALFILE") or None
 max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
@@ -3485,8 +3485,11 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
-
+ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or .020)
+if ct < 1:
+    update_ms = int(ct * 1000)
+else:
+    update_ms = int(ct)
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 s = linuxcnc.stat();
@@ -4015,12 +4018,13 @@ def check_dynamic_tabs():
                              (" ".join(cmd), r))
         raise SystemExit(r)
     else:
-        if postgui_halfile:
-            if postgui_halfile.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), postgui_halfile])
-            else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
-            if res: raise SystemExit(res)
+        if postgui_halfile is not None:
+            for f in postgui_halfile:
+                if f.lower().endswith('.tcl'):
+                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), f])
+                else:
+                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
+                if res: raise SystemExit(res)
         root_window.deiconify()
         destroy_splash()
         return
