@@ -634,6 +634,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `debug(int)`::
     set debug level via EMC_SET_DEBUG message.
 
+`display_msg(string)`::
+    sends a operator display message to the screen. (max 256 characters)
+
+`error_msg(string)`::
+    sends a operator error message to the screen. (max 256 characters)
+
 `feedrate(float)`::
     set the feedrate.
 
@@ -738,6 +744,10 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     set spindle direction. Argument one of SPINDLE_FORWARD,
     SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
     SPINDLE_DECREASE, or SPINDLE_CONSTANT.
+
+`text_msg(string)`::
+    sends a operator text message to the screen. (max 256 characters)
+
 [source, python]
 ---------------------------------------------------------------------
 #!/usr/bin/env python
