@@ -1,3 +1,14 @@
+ver 3.1.3.2
+- change og gmoccapy hal pin gmoccapy.jog.jog-inc-N leaded to an
+  aboart() command, so changing that pin i.e. in AUTO mode stops
+  Spindle and program execution. That is not the expected behavior.
+
+  I changed this to not throw any error, just change silently the
+  jog-increment to the selected one. Just not allowing this, would lead
+  to an unsynchronized system between hardware and GUI
+
+  Thanks to ZincBoy for reporting this misbehavior
+
 ver 3.1.3.1
 - when used trivkins together with kinstype=BOTH, there was no 
   joint jog buttons, as this way of using trivkins is not recommended 
