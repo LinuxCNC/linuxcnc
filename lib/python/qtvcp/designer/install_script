@@ -18,7 +18,7 @@ if [ $pyver -eq 2 ]; then
     sudo apt-get install -y python-opengl python-pyqt5 python-pyqt5.qsci python-pyqt5.qtsvg python-pyqt5.qtopengl python-opencv python-dbus python-dbus.mainloop.pyqt5 python-espeak python-pyqt5.qtwebkit python-xlib
 elif [ $pyver -eq 3 ]; then
     echo -e '\ninstalling base packages for python3'
-    sudo apt-get install -y python3-opengl python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-opencv python3-dbus python3-dbus.mainloop.pyqt5 python3-espeak python3-pyqt5.qtwebkit python3-xlib
+    sudo apt-get install -y python3-opengl python3-pyqt5 python3-pyqt5.qsci python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-opencv python3-dbus python3-dbus.mainloop.pyqt5 python3-espeak python3-pyqt5.qtwebkit python3-xlib python3-numpy python3-cairo python3-gi-cairo
 fi
 
 # prompt to install designer
