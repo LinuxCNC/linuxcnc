@@ -276,12 +276,10 @@ class Calculator( gtk.VBox ):
 
     def displayMmInch( self, widget ):
         self.eval_string = "("+ self.eval_string + ") / " + locale.format("%f", float(25.4))
-        print("Mn->Inch: {}".format(self.eval_string))
         self.compute()
 
     def displayInchMm( self, widget ):
         self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
-        print("Inch->Mm: {}".format(self.eval_string))
         self.compute()
 
     def do_get_property( self, property ):
