@@ -1036,24 +1036,25 @@ void Hal::toggleSpindleOnOff(bool enabled)
             {
                 *memory->out.spindleDoRunForward = true;
                 *memory->out.spindleDoIncrease = true;
+                *memory->out.spindleStart = true;
             }
             else
             {
                 *memory->out.spindleDoRunReverse = true;
                 *memory->out.spindleDoIncrease = true;
-
+                *memory->out.spindleStart = true;
+                
             }
-            *memory->out.spindleStart = true;
         }
     }
     else
     {
         // on button released
-        *memory->out.spindleStart        = false;
         *memory->out.spindleStop         = false;
         *memory->out.spindleDoRunForward = false;
         *memory->out.spindleDoRunReverse = false;
         *memory->out.spindleDoIncrease   = false;
+        *memory->out.spindleStart        = false;
     }
     setPin(enabled, KeyCodes::Buttons.spindle_on_off.text);
 }
