@@ -312,7 +312,7 @@ Use These To specify details rather then the value they hold.
 
 == System Information
 
-Read these to aquire information about the realtime system.
+Read these to acquire information about the realtime system.
 
 * is_kernelspace
 

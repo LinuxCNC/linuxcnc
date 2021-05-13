@@ -356,7 +356,7 @@ SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 
 Note the 'halcmd loadusr' way of starting the tab command - this
 assures that 'POSTGUI_HALFILE' will only be run after the HAL
-component is ready. In rare cases you might run a a command here which
+component is ready. In rare cases you might run a command here which
 uses a tab but does not have an associated HAL component. Such a
 command can be started without 'halcmd loadusr', and this signifies to
 Axis that it does not have to wait for a HAL component since there is
@@ -906,14 +906,14 @@ min::
 	The min allowed value
 	allowed values are 0.0 to 99999.0
 	default is 0.0
-        If you change this value, the increment will be reseted to default, so it might be necessary to set afterwards a new increment.
+        If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
 
 max::
 	float
 	The max allowed value
 	allowed values are 0.001 to 99999.0
 	default is 100.0
-        If you change this value, the increment will be reseted to default, so it might be necessary to set afterwards a new increment.
+        If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
 
 increment::
         float
@@ -965,7 +965,7 @@ Direct program control::
         [widget name].set_adjustment(gtk-adjustment)
         You can assign a existing adjustment to the control, that way it is easy to replace
         existing sliders without many code changes. Be aware, that after changing the adjustment
-        you may need to set a new increment, as it will be reseted to its default (100 steps from MIN to MAX)
+        you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX)
         [widget name].get_value()
         Will return the counts value as float
         [widget name].set_value(float(value))
@@ -1029,7 +1029,7 @@ You can combine them. It will always be insensitive at Estop. +
  +
 * HAL_Hbox is depreceiated - use HAL_Table. +
 If current panels use it it won't fail. You just won't find it in the GLADE editor anymore. +
-Future vesions of gladeVCP may remove this widget completely and then you will need to update the panel. +
+Future versions of gladeVCP may remove this widget completely and then you will need to update the panel. +
 
 [TIP]
 If you find some part of your GladeVCP application is 'grayed
@@ -1182,7 +1182,7 @@ text_template::
    values. Can be used to turn off value display.
 value::
     Sets the bar display to the value entered: used only for testing in
-    GLADE editor. The vaue will be set from A HAL pin.
+    GLADE editor. The value will be set from A HAL pin.
 target value::
     Sets the target line to the value entered: used only for testing in
     GLADE editor. The value will can be set in a Python function
@@ -1278,7 +1278,7 @@ show DTG::
     This selects the DRO to display the distance-to-go value. Defaults true
 show relative::
     This selects the DRO to show values relative to user system or machine 
-    cordinates. Defaults true
+    coordinates. Defaults true
 show live plot::
     This tells the plotter to draw or not. Defaults true
 show limits::
@@ -1317,7 +1317,7 @@ mouse_btn_mode ::
    5 =          left rotate, middle zoom,   right move
    6 =          left move,   middle zoom,   right zoom
 
-   mode 6 is reccomended for plasmas and lathes, as rotation is not needed for such machines
+   mode 6 is recommended for plasmas and lathes, as rotation is not needed for such machines
 
 Direct program control::
 
@@ -1418,7 +1418,7 @@ Hints::
     glade editor (eg scale is a good way to change the size of the text)
 
     - The background of the widget is actually see through - so if you place if over
-    an image the DRO numbers will show on top of it with no backgroud. There is a
+    an image the DRO numbers will show on top of it with no background. There is a
     special technique to do this. See the animated function diagrams below.
 
     - The DRO widget is a modified gtk label widget. As such much or what can be
@@ -2620,7 +2620,7 @@ make sure you use the 'destroy' event from the 'GtkObject' line.
 By default, the reaction of GladeVCP to a Ctrl-C event is to just exit
 - +without+ saving state. To make sure that this case is covered, add
 a handler call +on_unix_signal+ which will be automatically be called
-on Ctrl-C (actuall on the SIGINT and SIGTERM signals). Example
+on Ctrl-C (actually on the SIGINT and SIGTERM signals). Example
 
 
 [source,python]
@@ -2805,7 +2805,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
   this is due to a bug in the old   Gtk version distributed with Ubuntu
   8.04 and 10.04, and is likely to be the case for all widgets using
-  adjustment. The workaround mentione for instance in
+  adjustment. The workaround mentioned for instance in
   http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
   not reliably set the HAL pin value, it is better to set it
   explicitly in an `on_realize` signal handler during widget creation.

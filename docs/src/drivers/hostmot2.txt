@@ -782,7 +782,7 @@ loadrt hm2_pci config="num_encoders=6 num_pwmgens=6 sserial_port_0=0XXX"
 
 The 'sserial_port_0=0XXX' configuration string sets some options for the smart
 serial daughter card. These options are specific for each daughter card. See
-the Mesa manual for more information on the exact usuage. 
+the Mesa manual for more information on the exact usage. 
 
 === 7i77 Limits
 

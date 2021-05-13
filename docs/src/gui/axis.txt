@@ -383,7 +383,7 @@ image:images/axis-machineorigin.png[alt="cyan machine origin"] marker.
 
 If the position is 'Commanded', then the exact coordinate given in a G code
 command is displayed. If it is 'Actual', then it is the position the machine
-has actually moved to. These values can be different from commanded postition
+has actually moved to. These values can be different from commanded position
 due to following error, dead band, encoder resolution, or step size. For
 instance, if you command a movement to X 0.0033 on your mill, but one step of
 your stepper motor or one encoder count is 0.00125, then the 'Commanded'
@@ -686,7 +686,7 @@ Many of the shortcuts are unavailable when in MDI mode.
 .Feed Override Keys
 
 The Feed Override keys behave differently when in Manual Mode. The
-keys '12345678 will select an axis if it is programed. If you have 3
+keys '12345678 will select an axis if it is programmed. If you have 3
 axis then ' will select axis 0, 1 will select axis 1, and 2 will select
 axis 2. The remainder of the number keys will still set the Feed
 Override. When running a program '1234567890 will set the Feed Override
@@ -974,7 +974,7 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 === USER_COMMAND_FILE
 
 A configuration-specific python file may be specified with an ini file
-setting '[DISLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
+setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
 this file is sourced just before the AXIS GUI is displayed.  This file
 is specific to an ini file configuration not the user's home directory.
 When this file is specified, an existing `~/.axisrc` file is ignored.
@@ -1080,7 +1080,7 @@ bit   IN     axisui.notifications-clear-error
 bit   IN     axisui.notifications-clear-info
 ----
 
-Axis has a Hal input pin that disables/enables the 'Pause/Resume' funtion.
+Axis has a Hal input pin that disables/enables the 'Pause/Resume' function.
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit

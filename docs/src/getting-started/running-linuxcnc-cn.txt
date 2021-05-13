@@ -135,7 +135,7 @@ without showing the Configuration Selector screen.
 而不显示“配置选择器”屏幕。
 
 When you select a configuration from the Sample Configurations section, 
-it will automaticly place a copy of that config in the
+it will automatically place a copy of that config in the
 linuxcnc/configs directory.
 当从“示例配置”选择配置时，它将自动将该配置的副本放置在linuxcnc/configs目录下。
 
@@ -159,7 +159,7 @@ required and real-time support is not needed.
 Configurations/sim下列出的所有配置均可在任何计算机上运行。
 不需要特定的硬件，也不需要实时支持。
 
-These configurations are useful for studying indivdual
+These configurations are useful for studying individual
 capabilities or options.  The sim configurations are organized
 according to the graphical user interface used in the
 demonstration.  The directory for axis contains the most
@@ -180,7 +180,7 @@ that is used to describe a specific configuration.
 配置选择器将配置所需的所有文件复制到~/linuxcnc/configs的新子目录（等效于：/home/username/linuxcnc/configs）。
 每个创建的目录将至少包含一个ini文件（iniflename.ini），该文件用于描述特定的配置。
 
-File resources within the copied directroy will typically
+File resources within the copied directory will typically
 include one or more ini file (filename.ini) for related
 configurations and a tool table file (toolfilename.tbl).
 Additionally, resources may include halfiles (filename.hal,

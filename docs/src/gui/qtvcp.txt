@@ -74,7 +74,7 @@ DISPLAY = qtvcp <options> <screen_name>
     -t theme. Default is system theme
     -x embed into a X11 window that doesn't support embedding.
     --push_xid send qtvcp's X11 window id number to standard output; for embedding
-    -u file path of a substitude handler file
+    -u file path of a substitute handler file
     -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
 
     all <options> must be before <screen name>
@@ -607,7 +607,7 @@ The custom code is placed in a class so qtvcp can utilize it. +
 This is the definitions on the handler class. +
 
 === INITIALIZE section
-Like all python libraies the __init__ function is called when the library +
+Like all python libraries the __init__ function is called when the library +
 is first instantiated. You can set defaults and reference variables here. +
 The widget references are not available at this point. +
 The variables halcomp, widgets and paths give access to qtvcp's HAL component, +
@@ -654,7 +654,7 @@ At the point all widgets/libraries/initialization code has completed and the scr
 ==== system_shutdown_request__(self):
 If present, this function overrides the normal function called when a user selects a total system shutdown. +
 It could be used to do pre-shutdown housekeeping. The system will not shutdown if using this function, you will +
-have to do that yourself. qtvcp/linuxcnc will shutdown wihtout a prompt after this function returns +
+have to do that yourself. qtvcp/linuxcnc will shutdown without a prompt after this function returns +
  
 ==== closing_cleanup__(self):
 This function is called just before the screen closes. It can be used +
@@ -687,7 +687,7 @@ The function signature is: +
 === CLOSING EVENT section
 Putting the close event function here will catch closing events. +
 This replaces any predefined closeEvent function from qtvcp +
-It's usally better to use the special closing_cleanup__ function. +
+It's usually better to use the special closing_cleanup__ function. +
 [source,python]
 ----
     def closeEvent(self, event):

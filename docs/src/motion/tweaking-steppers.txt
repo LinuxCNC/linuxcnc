@@ -215,7 +215,7 @@ tweaking dirhold or other step generator parameters.
 === No Guessing!
 
 For a fast AND reliable software based stepper system, you cannot just
-guess at periods and other configuration paremeters. You need to make
+guess at periods and other configuration parameters. You need to make
 measurements on your computer, and do the math to ensure that your
 drives get the signals they need.
 

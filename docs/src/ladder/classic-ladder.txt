@@ -503,7 +503,7 @@ most math symbols:
    equal), <> (not equal)
 * (, ) separate into groups example %IF1=2,&%IF2<5 in pseudo code translates to
   if %IF1 is equal to 2 and %IF2 is less than 5 then the comparison is true.
-  Note the comma seperating the two groups of comparisions.
+  Note the comma separating the two groups of comparisons.
 * ^ (exponent),% (modulus),& (and),| (or),. - 
 * ABS (absolute), MOY (French for average) ,AVG (average)
 
@@ -950,7 +950,7 @@ Note in this image we have set the debug level to 1 so modbus messages are print
 We have mapped our read and written holding registers to classicladder's %W variables +
 so our returned data will be in %W2 as in the other image we mapped the data starting at the 2nd element +
  
-image::images/modbus_com_setting.png[align="center", alt="Comunication Setting"]
+image::images/modbus_com_setting.png[align="center", alt="Communication Setting"]
 
 === Request
 Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex) +

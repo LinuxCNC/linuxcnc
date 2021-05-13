@@ -194,7 +194,7 @@ G1 Z#901			(to new Z level)
 
 O390 DO				(radius iteration)
 
-#622 = [#911 + #1300]				(O-Q - dist orgin to current inner circle center)
+#622 = [#911 + #1300]				(O-Q - dist origin to current inner circle center)
 #623 = [ASIN[#1300 / #622]]			(gamma - angle cam edge to inner circle center)
 #624 = [#1272 - #623]				(delta - angle Y axis to inner circle center)
 #625 = [#622 * COS[#623]]			(O-C - dist origin to C tangent on cam edge)

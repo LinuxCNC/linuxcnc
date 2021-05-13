@@ -144,7 +144,7 @@ HALFILE = file_with_all_loads_for_postgui.hal
 POSTGUI_HALFILE = the_postgui_file.hal
 ----
 
-== Exluding .hal files
+== Excluding .hal files
 
 TWOPASS processing converts '.hal' files to equivalent '.tcl' files and uses
 haltcl to find loadrt and addf commands in order to accumulate and consolidate

@@ -58,7 +58,7 @@ Use the Page Up and Page Down keys to view the man page and the Q key
 to quit viewing.
 
 [NOTE]
-Viewing the man page from the terminal may not get the expeced man page.
+Viewing the man page from the terminal may not get the expected man page.
 For example if you type in man abs you will get the C abs not the LinuxCNC
 abs. It is best to view the LinuxCNC man pages in the HTML documents.
 
@@ -208,7 +208,7 @@ current directory and all the subdirectories below it, while
 ignoring the case. The -i is for ignore case and the -r is for
 recursive (include all subdirectories in the search). The -l option will
 return a list of the file names, if you leave the -l off you will also
-get the text where each occourance of the "text to search for" is found.
+get the text where each occurrence of the "text to search for" is found.
 The * is a wild card for search all files. See the grep man page for more
 information.
 

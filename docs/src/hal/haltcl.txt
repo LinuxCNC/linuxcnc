@@ -2,7 +2,7 @@
 
 = HALTCL Files
 
-The halcmd language excels in specifiying components and connections but
+The halcmd language excels in specifying components and connections but
 offers no computational capabilities.  As a result, ini files are limited in
 the clarity and brevity that is possible with higher level languages.
 
@@ -78,7 +78,7 @@ ITEM2 = value_2
 ...
 ----
 
-The ini file values are accessible by text substition in .hal files using the
+The ini file values are accessible by text substitution in .hal files using the
 form.
 
 ----

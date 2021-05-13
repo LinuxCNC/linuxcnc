@@ -123,7 +123,7 @@ around on the disk. Play some music. Run an OpenGL program such as
 glxgears. The idea is to put the PC through its paces while the latency
 test checks to see what the worst case numbers are.  Run the test at least a few
 minutes. The longer you run the test the
-better it will be at catching events that might occour at less frequent
+better it will be at catching events that might occur at less frequent
 intervals. This is a test for your computer only, so no hardware needs
 to be connected to run the test.
 
@@ -172,7 +172,7 @@ whether you use software stepping or not.
 .Parallel Port Setup Page
 
 image::images/stepconf-parallel-1_en.png[align="center", alt="Parallel Port 1 Setup Page"]
-You may specify the address as a hexidecimal (often 0x378) or as linux's default
+You may specify the address as a hexadecimal (often 0x378) or as linux's default
  port number (probably 0)
 
 For each pin, choose the signal which matches 
@@ -215,7 +215,7 @@ assigned on this page. +
 No step and direction signals can be selected. +
 You may select in or out to maximizes the number of input/output pins that
 are available. +
-You may specify the address as a hexidecimal (often 0x378) or as linux's default
+You may specify the address as a hexadecimal (often 0x378) or as linux's default
  port number (probably 1).
 
 == Axis Configuration

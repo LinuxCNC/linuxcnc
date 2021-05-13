@@ -550,7 +550,7 @@ confirm the directions on the axis is correct. Then test the system by running
 lose steps. While jogging, Keep in mind it can take a while for an axis with low
 acceleration to stop. Limit switches are not functional during this test. You 
 can set a pause time so each end of the test movement. This would allow you to 
-set up and read a dial indicator to see if you are loosing steps.
+set up and read a dial indicator to see if you are losing steps.
 
 *Stepper Timing*
 Stepper timing needs to be tailored to the step controller's requirements. 

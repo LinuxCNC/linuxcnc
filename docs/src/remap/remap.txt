@@ -109,13 +109,13 @@ somewhat cumbersome RS274NGC language at all.
 
 Many people are familiar with 'extending' the Python interpreter by
 'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
-HAL and and Interpreter internals from Python scripts. 'Extending
+HAL and Interpreter internals from Python scripts. 'Extending
 Python' basically means: your Python script executes as 'it is in the
 driver seat', and may access non-Python code by importing and using
 extension modules written in 'C/C\+\+'. Examples for this are the LinuxCNC
 `hal`, `gcode` and `emc` modules.
 
-Embedded Python is a bit different and and less commonly known: The
+Embedded Python is a bit different and less commonly known: The
 main program is written in C/C++ and may use Python like a
 subroutine. This is powerful extension mechanism and the basis for the
 'scripting extensions' found in many successful software
@@ -790,7 +790,7 @@ work'.
 So what our O-word procedure would do is to replace the steps
 <<remap:interpreter-action-on-m6,outlined here>>. Looking through
 these steps you'll find that NGC code can be used for most of them,
-but not all. So the stuff NGC cant handle will be done in Python prolog
+but not all. So the stuff NGC can't handle will be done in Python prolog
 and epilog functions.
 
 === Specifying the M6 replacement
@@ -899,7 +899,7 @@ except steps 3-5 need to be filled in with your NGC code.
 
 Again, most epilogs have a common scheme: first, determine whether
 things went right in the remap procedure, then do any commit and cleanup
-actions which cant be done in NGC code.
+actions which can't be done in NGC code.
 
 === Configuring iocontrol with a remapped M6
 
@@ -1720,7 +1720,7 @@ To add or redefine a named parameter:
 * add a `namedparams` module so it can be found by the interpreter
 * define new parameters by functions (see below). These functions
  receive `self` (the interpreter instance) as parameter and so can
- access aribtrary state. Arbitrary Python capabilities can be used to return a value.
+ access arbitrary state. Arbitrary Python capabilities can be used to return a value.
 * import that module from the `TOPLEVEL` script
 
 [source,python]
@@ -1747,7 +1747,7 @@ It is possible to redefine an existing predefined parameter by adding
 a Python function of the same name to the `namedparams` module. In
 this case, a warning is generated during startup.
 
-While the above example isnt terribly useful, note that pretty much
+While the above example isn't terribly useful, note that pretty much
 all of the interpreter internal state is accessible from Python, so
 arbitrary predicates may be defined this way. For a slightly more
 advanced example, see `tests/remap/predefined-named-params`.

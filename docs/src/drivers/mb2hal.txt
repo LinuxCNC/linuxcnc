@@ -3,7 +3,7 @@
 = MB2HAL
 
 MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
-So far, there are two options to comunicate with a Modbus device:
+So far, there are two options to communicate with a Modbus device:
 
 . One option is to create a HAL component as a driver see 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
@@ -173,7 +173,7 @@ MB_BYTE_TIMEOUT_MS=500
 #Example: mb2hal.00.01 could become mb2hal.plcin.01
 #The name must not exceed 28 characters.
 #NOTE: when using names be careful that you dont end up with two transactions
-#usign the same name.
+#using the same name.
 
 HAL_TX_NAME=remoteIOcfg
 
@@ -194,7 +194,7 @@ DEBUG=1
 #ILLEGAL_FUNCTION        -0x01 the FUNCTION code received in the query is not allowed or invalid.
 #ILLEGAL_DATA_ADDRESS    -0x02 the DATA ADDRESS received in the query is not an allowable address for the slave or is invalid.
 #ILLEGAL_DATA_VALUE      -0x03 a VALUE contained in the data query field is not an allowable value or is invalid.
-#SLAVE_DEVICE_FAILURE    -0x04 SLAVE (or MASTER) device unrecoverable FAILUER while attemping to perform the requested action.
+#SLAVE_DEVICE_FAILURE    -0x04 SLAVE (or MASTER) device unrecoverable FAILURE while attempting to perform the requested action.
 #SERVER_FAILURE          -0x04 (see above).
 #ACKNOWLEDGE             -0x05 This response is returned to PREVENT A TIMEOUT in the master.
 #                              A long duration of time is required to process the request in the slave.

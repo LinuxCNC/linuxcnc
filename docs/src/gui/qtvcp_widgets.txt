@@ -283,7 +283,7 @@ It is based on pyQT's QGridLayout
 This widget displays values sent to it from HAL pins, programically or a QtSignal. +
 The input pin can be selected as Bit, S32, Float or no pin selected. +
 There is a text Template property to set the rich text and/or to format the text. +
-Basic formatting might be, for bool: %r, for interger: %d, for float: %0.4f. +
+Basic formatting might be, for bool: %r, for integer: %d, for float: %0.4f. +
 A rich text example might be:
 
 [source,python]
@@ -354,7 +354,7 @@ Then add as many pages as there are views to switch to. +
 on each page add a layout widget. +
 After adding the layout you must right click the widget switcher again +
 and set the layout option. +
-click on the widgetswitcher widget and then scroll to the botton of the property editor. +
+click on the widgetswitcher widget and then scroll to the bottom of the property editor. +
 you are looking for the dynamic property 'widget_list'. +
 double click the to the right of the widget_list property. +
 A dialog will pop up allowing you to add the names of the widgets to move to the pages you added to the widgetswitcher. +
@@ -844,7 +844,7 @@ sets up the standard close screen prompt dialog
 sets up the numerical entry dialog
 
 * 'toolDialog_option':
-sets up the manual tool change dialog, incuding HAL pin.
+sets up the manual tool change dialog, including HAL pin.
 
 * 'fileDialog_option':
 sets up the file choosing dialog.
@@ -970,7 +970,7 @@ SUBROUTINE_PATH =
 ----
 The macros are Oword subroutine with special comments to work with the launcher. +
 The first three lines must have the keywords: (The forth is optional) +
-Here is a sample fr the forst four lines in an Oword file: +
+Here is a sample for the first four lines in an Oword file: +
 ----
 ; MACROCOMMAND=Entry1,Entry2
 ; MACRODEFAULTS=0,true
@@ -1178,13 +1178,13 @@ It has a the ability to scroll the names with hardware such as a MPG. +
 
 one can class patch the function 'load(self,fname):' to customize file loading. +
 
-the function 'getCurrentSelected()' will return a python touple, containing +
+the function 'getCurrentSelected()' will return a python tuple, containing +
 the file path and whether it's a file. +
 
 [source,python]
 ----
 temp = FILEMANAGER.getCurrentSelected()
-print 'filepath={}'.fomat(temp[0])
+print 'filepath={}'.format(temp[0])
 if temp[1]:
     print 'Is a file'
 ----

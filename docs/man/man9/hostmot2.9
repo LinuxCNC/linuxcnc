@@ -292,7 +292,7 @@ this may take some experimentation
 (float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.base\-freq\-khz
 This pin sets the base frequency of the phase-locked loop. by default it will 
 be set to the nominal frequency of the thread in which the PLL is running and
-wil not normally need to be changed. 
+will not normally need to be changed. 
 .TP
 (float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.phase\-error\-us
 Indicates the phase error of the DPLL. If the number cycles by a large amount 
@@ -1536,7 +1536,7 @@ bite.  Pet the watchdog by running the hm2 write() HAL function.
 When the watchdog bites, all the board's I/O pins are disconnected from
 their Module instances and become high-impedance inputs (pulled high),
 and all communication with the board stops.  The state of the HostMot2
-firwmare modules is not disturbed (except for the configuration of the
+firmware modules is not disturbed (except for the configuration of the
 IO Pins).  Encoder instances keep counting quadrature pulses, and pwm-
 and step-generators keep generating signals (which are *not* relayed to
 the motors, because the IO Pins have become inputs).
@@ -1652,7 +1652,7 @@ EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger\-encoders\fR
 This function will only appear if the firmware contains a BiSS, Fanuc or SSI 
-encoder module and if the firmare does not contain a hm2dpll 
+encoder module and if the firmware does not contain a hm2dpll 
 module (qv) or if the modparam contains num_dplls=0.
 This function should be inserted first in the thread so that the encoder data is
 ready when the main \fBhm2_XXXX.NN.read\fR function runs. An error message will

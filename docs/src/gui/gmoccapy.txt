@@ -128,7 +128,7 @@ The most important part is to tell LinuxCNC to use gmoccapy, editing the [DISPLA
 gmoccapy 3 does support the following command line options:
 
  * -user_mode : If set, the setup button will be disabled, so normal machine opperators are not able to edit the settings of the machine *
- * -logo <path to logo file> : If given, the logo will hide the jog button tab in manual mode, this is only usefull for machines with hardware button for jogging and increment selection + 
+ * -logo <path to logo file> : If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware button for jogging and increment selection + 
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
 In most cases this line will not be needed, it is used by gmoccapy to store your settings of the GUI, 
@@ -336,7 +336,7 @@ SUBROUTINE_PATH = macros
 ----
 
 Sets the path to search for macros and other subroutines. If you want to use
-several subroutine paths, just separate them wit ":"
+several subroutine paths, just separate them with ":"
 
 [[gmoccapy:macros]]
 
@@ -812,7 +812,7 @@ To use this pin, you need to activate it on the settings page.
  * gmoccapy.delete-message
 
 gmoccapy.error is an bit out pin, to indicate an error, so a light can lit or even the machine may
-be stopped. It will be reseted with the pin gmoccapy.delete-message. gmoccapy.delete-message will
+be stopped. It will be reset with the pin gmoccapy.delete-message. gmoccapy.delete-message will
 delete the first error and reset the gmoccapy.error pin to False after the last error has been cleared.
 
 NOTE: Messages or user infos will not affect the gmoccapy.error pin, but the gmoccapy.delete-message
@@ -970,7 +970,7 @@ Tool Measurement in gmoccapy is done a little bit different to many other GUI.
 You should follow these steps:
 
 * touch of you workpiece in X and Y
-* measure the hight of your block from the base where your tool switch is
+* measure the height of your block from the base where your tool switch is
   located, to the upper face of the block (including chuck etc.)
 * Push the button block height and enter the measured value
 * Go to auto mode and start your program
@@ -1232,7 +1232,7 @@ the distance to go will be shown in the preview window + +
 [NOTE] 
 *You can change through the DRO modes (absolute, relative, distance
 to go) by clicking on the DRO!*
-* if you click on the left side letter of the DRO a popup window will allow you to set the value of the axis, making it more easy to set the value, as you will not need to go over the touch off botton button. Clicking the numbers (right side of the DRO) will toggle trough the DRO modes as descibed above. *
+* if you click on the left side letter of the DRO a popup window will allow you to set the value of the axis, making it easier to set the value, as you will not need to go over the touch off bottom button. Clicking the numbers (right side of the DRO) will toggle through the DRO modes as described above. *
 
 'size' + 
 allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56. 
@@ -1430,7 +1430,7 @@ G43 will be executed after the change.
 
 .Probe Information
 
-The following informations are taken from your INI file and must be given
+The following information is taken from your INI file and must be given
 in absolute coordinates
 
  * X Pos. = The X position of the tool switch
@@ -1446,7 +1446,7 @@ in absolute coordinates
  * Probe Height = is the height of your probe switch, you can measure it.
  Just touch off the base where the probe switch is located and set that to
  zero. Then make a tool change and watch the tool_offset_z value, that is the
- hight you must enter here.
+ height you must enter here.
 
 .Probe velocities
 
