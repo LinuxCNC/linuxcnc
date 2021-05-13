@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.1"
+_RELEASE = " 3.1.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1034,8 +1034,9 @@ class gmoccapy(object):
     def _jog_increment_changed(self, widget,):
         # first cancel any joints jogging
         JOGMODE = self._get_jog_mode()
-        for jnum in range(self.stat.joints):
-            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
+        if self.stat.task_mode == linuxcnc.MODE_MANUAL:
+            for jnum in range(self.stat.joints):
+                self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
         self.distance = self._parse_increment(widget.name)
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
@@ -4970,9 +4971,9 @@ class gmoccapy(object):
                 self.notification.del_last()
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
-        if self.stat.state != 1:
-            self.command.abort()
-            self.command.wait_complete()
+#        if self.stat.state != 1:
+#            self.command.abort()
+#            self.command.wait_complete()
         if not pin.get():
             return
         btn_name = "rbt_{0}".format(buttonnumber)
