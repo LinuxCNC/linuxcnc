@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy_fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-07 18:02+0100\n"
+"POT-Creation-Date: 2021-05-14 10:21+0200\n"
 "PO-Revision-Date: 2015-03-05 21:41+0100\n"
 "Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
 "Language-Team: French Translation Team\n"
@@ -74,7 +74,7 @@ msgstr ""
 msgid "Press to return to main button list"
 msgstr "Revenir à la liste de boutons principale"
 
-#: gmoccapy.py:723 gmoccapy.py:1795 gmoccapy.py:2036
+#: gmoccapy.py:723 gmoccapy.py:1796 gmoccapy.py:2037
 #, fuzzy
 msgid "**** GMOCCAPY ERROR ****\n"
 msgstr "**** ERREUR GMOCCAPY ****"
@@ -146,9 +146,9 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr ""
 "régler le système de coordonnées sélectionné comme étant le système actif"
 
-#: gmoccapy.py:966 gmoccapy.py:982 gmoccapy.py:1126 gmoccapy.py:1699
-#: gmoccapy.py:1857 gmoccapy.py:1870 gmoccapy.py:1880 gmoccapy.py:1951
-#: gmoccapy.py:1958 gmoccapy.py:1961
+#: gmoccapy.py:966 gmoccapy.py:982 gmoccapy.py:1127 gmoccapy.py:1700
+#: gmoccapy.py:1858 gmoccapy.py:1871 gmoccapy.py:1881 gmoccapy.py:1952
+#: gmoccapy.py:1959 gmoccapy.py:1962
 msgid "**** GMOCCAPY INFO ****"
 msgstr "**** INFO GMOCCAPY ****"
 
@@ -187,378 +187,375 @@ msgstr "**** Seuls les 10 premiers seront accessibles depuis cet écran ****"
 msgid "Continuous"
 msgstr "Continu"
 
-#: gmoccapy.py:1127
+#: gmoccapy.py:1128
 #, python-brace-format
 msgid "unknown jog command {0}"
 msgstr ""
 
-#: gmoccapy.py:1154
+#: gmoccapy.py:1155
 #, python-brace-format
 msgid "Press to jog axis {0}"
 msgstr ""
 
-#: gmoccapy.py:1173
+#: gmoccapy.py:1174
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr ""
 
-#: gmoccapy.py:1196
+#: gmoccapy.py:1197
 #, fuzzy
 msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** INFO GMOCCAPY ****"
 
-#: gmoccapy.py:1197
+#: gmoccapy.py:1198
 #, fuzzy
 msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgstr ""
 "\n"
 "**** trouvé plus de 9 macros, seules les 9 premières seront utilisées ****"
 
-#: gmoccapy.py:1204
+#: gmoccapy.py:1205
 msgid "Press to display previous macro button"
 msgstr ""
 
-#: gmoccapy.py:1223
+#: gmoccapy.py:1224
 #, python-brace-format
 msgid "Press to run macro {0}"
 msgstr ""
 
-#: gmoccapy.py:1230
+#: gmoccapy.py:1231
 msgid "Press to display next macro button"
 msgstr ""
 
-#: gmoccapy.py:1250
+#: gmoccapy.py:1251
 #, fuzzy
 msgid "Press to display the virtual keyboard"
 msgstr "Voir ou cacher le clavier virtuel"
 
-#: gmoccapy.py:1349
+#: gmoccapy.py:1350
 #, fuzzy
 msgid "*****  GMOCCAPY ERROR  *****"
 msgstr "**** ERREUR GMOCCAPY : ****"
 
-#: gmoccapy.py:1350
+#: gmoccapy.py:1351
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr ""
 
-#: gmoccapy.py:1351
+#: gmoccapy.py:1352
 msgid "an X and an Z axis\n"
 msgstr ""
 
-#: gmoccapy.py:1352
+#: gmoccapy.py:1353
 msgid "Wrong lathe configuration, we will leave here"
 msgstr ""
 
-#: gmoccapy.py:1353 gmoccapy.py:1798 gmoccapy.py:2039
+#: gmoccapy.py:1354 gmoccapy.py:1799 gmoccapy.py:2040
 msgid "Very critical situation"
 msgstr ""
 
-#: gmoccapy.py:1503
+#: gmoccapy.py:1504
 #, fuzzy
 msgid "*****  GMOCCAPY INFO  *****"
 msgstr "**** GMOCCAPY INFO ****"
 
-#: gmoccapy.py:1504
+#: gmoccapy.py:1505
 msgid "this is not a usual config\n"
 msgstr ""
 
-#: gmoccapy.py:1505
+#: gmoccapy.py:1506
 msgid "we miss one of X , Y or Z axis\n"
 msgstr ""
 
-#: gmoccapy.py:1506
+#: gmoccapy.py:1507
 msgid "We will use by axisletter ordered jog button"
 msgstr ""
 
-#: gmoccapy.py:1672 gmoccapy.py:2704
+#: gmoccapy.py:1673 gmoccapy.py:2707
 msgid "mm/min"
 msgstr ""
 
-#: gmoccapy.py:1675 gmoccapy.py:2707
+#: gmoccapy.py:1676 gmoccapy.py:2710
 msgid "inch/min"
 msgstr ""
 
-#: gmoccapy.py:1700
+#: gmoccapy.py:1701
 #, fuzzy
 msgid "**** Invalid embedded tab configuration ****"
 msgstr "**** Configuration d’onglet embarqué invalide ****"
 
-#: gmoccapy.py:1701
+#: gmoccapy.py:1702
 msgid "**** No tabs will be added! ****"
 msgstr "**** Pas d'onglet ajouté! ****"
 
-#: gmoccapy.py:1714
+#: gmoccapy.py:1715
 #, fuzzy
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "ERREUR, en essayant d'initialiser les onglets ou panneaux personnalisés, "
 "vérifier les fautes de frappe"
 
-#: gmoccapy.py:1796
+#: gmoccapy.py:1797
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgstr ""
 "**** Pas de fichier d'outils défini dans la section [EMCIO] TOOL_TABLE du "
 "fichier ini ****"
 
-#: gmoccapy.py:1821
-msgid "Follow System Theme"
-msgstr ""
-
-#: gmoccapy.py:1858
+#: gmoccapy.py:1859
 msgid "**** audio available! ****"
 msgstr "**** audio disponible! ****"
 
-#: gmoccapy.py:1871
+#: gmoccapy.py:1872
 msgid "**** no audio available! ****"
 msgstr "**** audio indisponible! ****"
 
-#: gmoccapy.py:1872
+#: gmoccapy.py:1873
 msgid "**** PYGST libray not installed? ****"
 msgstr "**** librairie PYGST non installée? ****"
 
-#: gmoccapy.py:1873
+#: gmoccapy.py:1874
 #, fuzzy
 msgid "**** is python-gstX.XX installed? ****"
 msgstr "**** librairie PYGST non installée? ****"
 
-#: gmoccapy.py:1881
+#: gmoccapy.py:1882
 msgid "**** Entering init gremlin ****"
 msgstr ""
 
-#: gmoccapy.py:1901 gmoccapy.py:4796
+#: gmoccapy.py:1902 gmoccapy.py:4799
 msgid ""
 " Joint\n"
 "mode"
 msgstr ""
 
-#: gmoccapy.py:1952
+#: gmoccapy.py:1953
 msgid "**** virtual keyboard program found : <onboard>"
 msgstr "**** Programme de clavier virtuel trouvé: <embarqué>"
 
-#: gmoccapy.py:1959
+#: gmoccapy.py:1960
 msgid "**** virtual keyboard program found : <matchbox-keyboard>"
 msgstr "**** Programme de clavier virtuel trouvé: <matchbox-keyboard>"
 
-#: gmoccapy.py:1962
+#: gmoccapy.py:1963
 msgid ""
 "**** No virtual keyboard installed, we checked for <onboard> and <matchbox-"
 "keyboard>."
 msgstr ""
 "**** Clavier virtuel non installé, ni <embarqué> ni <matchbox-keyboard>."
 
-#: gmoccapy.py:1973 gmoccapy.py:3148 gmoccapy.py:3158
+#: gmoccapy.py:1974 gmoccapy.py:3151 gmoccapy.py:3161
 msgid "**** GMOCCAPY ERROR ****"
 msgstr "**** ERREUR GMOCCAPY ****"
 
-#: gmoccapy.py:1974
+#: gmoccapy.py:1975
 msgid "**** Error with launching virtual keyboard,"
 msgstr "**** Erreur au lancement du clavier virtuel,"
 
-#: gmoccapy.py:1975
+#: gmoccapy.py:1976
 msgid "**** is onboard or matchbox-keyboard installed? ****"
 msgstr "**** un clavier embarqué, ou matchbox-keyboard est il installé? ****"
 
-#: gmoccapy.py:2007 gmoccapy.py:2828
+#: gmoccapy.py:2008 gmoccapy.py:2831
 msgid "interrupt running macro"
 msgstr "interrompt exécution macro "
 
-#: gmoccapy.py:2037
+#: gmoccapy.py:2038
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgstr ""
 "**** Pas de fichier de paramètres défini dans la section [RS274NGC] "
 "PARAMETER_FILE du fichier ini ****"
 
-#: gmoccapy.py:2107
+#: gmoccapy.py:2108
 msgid "Select the file you want to be loaded at program start"
 msgstr "Sélectionner le fichier à charger au démarrage du programme"
 
-#: gmoccapy.py:2141 gmoccapy.py:2165
+#: gmoccapy.py:2142 gmoccapy.py:2166
 #, fuzzy, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgstr "**** ERREUR GMOCCAPY **** /n Message de type %s non supporté"
 
-#: gmoccapy.py:2278
+#: gmoccapy.py:2279
 msgid "Unknown error type and no error text given"
 msgstr "Erreur de type inconnu et pas de texte d'erreur donné"
 
-#: gmoccapy.py:2292
+#: gmoccapy.py:2293
 msgid "Important Warning"
 msgstr "Alerte importante"
 
-#: gmoccapy.py:2312
-msgid "ERROR : External ESTOP is set, could not change state!"
+#: gmoccapy.py:2313
+#, fuzzy
+msgid "External ESTOP is set, could not change state!"
 msgstr "ERREUR : Arrêt d'urgence externe activé, impossible de changer d'état!"
 
-#: gmoccapy.py:2325
+#: gmoccapy.py:2326
 #, fuzzy
-msgid "ERROR : Could not switch the machine on, is limit switch activated?"
+msgid "Could not switch the machine on, is limit switch activated?"
 msgstr ""
 "ERREUR : Impossible de valider la marche machine, un contact de limite est-"
 "il enfoncé?"
 
-#: gmoccapy.py:2405
+#: gmoccapy.py:2406
 msgid "No file loaded"
 msgstr "Pas de fichier chargé"
 
-#: gmoccapy.py:2594
+#: gmoccapy.py:2597
 msgid "It is not possible to change to MDI Mode at the moment"
 msgstr "Impossible de passer en mode MDI en ce moment"
 
-#: gmoccapy.py:2626
+#: gmoccapy.py:2629
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "impossible de passer en mode Auto en ce moment"
 
-#: gmoccapy.py:2787
+#: gmoccapy.py:2790
 msgid "Enter value:"
 msgstr "Entrer une valeur:"
 
-#: gmoccapy.py:2788
+#: gmoccapy.py:2791
 #, fuzzy, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Régler le paramètre %s à:"
 
-#: gmoccapy.py:2790
+#: gmoccapy.py:2793
 msgid "conversion error"
 msgstr "erreur de conversion"
 
-#: gmoccapy.py:2791 gmoccapy.py:4493 gmoccapy.py:4516
+#: gmoccapy.py:2794 gmoccapy.py:4496 gmoccapy.py:4519
 msgid "Conversion error !"
 msgstr "Erreur de conversion !"
 
-#: gmoccapy.py:2826
+#: gmoccapy.py:2829
 msgid "This button will show or hide the keyboard"
 msgstr "Ce bouton cache ou affiche le clavier"
 
-#: gmoccapy.py:2934
+#: gmoccapy.py:2937
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
 
-#: gmoccapy.py:3149
+#: gmoccapy.py:3152
 #, fuzzy, python-brace-format
 msgid "**** {0} ****"
 msgstr "**** %s ****"
 
-#: gmoccapy.py:3159
+#: gmoccapy.py:3162
 #, fuzzy, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr "**** Pas de widget nommé: %s ****"
 
-#: gmoccapy.py:3321 gmoccapy.glade.h:33
+#: gmoccapy.py:3324 gmoccapy.glade.h:33
 msgid "No tool description available"
 msgstr "Pas de description d'outil disponible"
 
-#: gmoccapy.py:3462
+#: gmoccapy.py:3465
 #, fuzzy, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Bonjour, bienvenue au message de test %d"
 
-#: gmoccapy.py:3558
+#: gmoccapy.py:3561
 msgid "Hal Pin is low, Access denied"
 msgstr "La pin de Hal est basse, Accès impossible "
 
-#: gmoccapy.py:3560
+#: gmoccapy.py:3563
 msgid "wrong code entered, Access denied"
 msgstr "Mauvais code saisi, Accès impossible"
 
-#: gmoccapy.py:3561
+#: gmoccapy.py:3564
 msgid "Just to warn you"
 msgstr "Juste pour vous avertir"
 
-#: gmoccapy.py:3701
+#: gmoccapy.py:3704
 msgid "INFO:"
 msgstr "INFO:"
 
-#: gmoccapy.py:3702
+#: gmoccapy.py:3705
 msgid "Classicladder real-time component not detected"
 msgstr "Composant temps réel Classicladder non trouvé"
 
-#: gmoccapy.py:3817
+#: gmoccapy.py:3820
 #, fuzzy, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr "Quelque chose c'est mal passé, nous avons un widget inconnu"
 
-#: gmoccapy.py:3928
+#: gmoccapy.py:3931
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Voulez vous réellement effacer l'historique du MDI?\n"
 
-#: gmoccapy.py:3929
+#: gmoccapy.py:3932
 msgid "this will not delete the MDI History file, but will\n"
 msgstr "cela n'effacera pas le fichier d'historique du MDI, mais va\n"
 
-#: gmoccapy.py:3930
+#: gmoccapy.py:3933
 msgid "delete the listbox entries for this session"
 msgstr "supprimer les entrées de listes déroulantes pour cette session"
 
-#: gmoccapy.py:3931 gmoccapy.py:3979
+#: gmoccapy.py:3934 gmoccapy.py:3982
 msgid "Attention!!"
 msgstr "Attention!!"
 
-#: gmoccapy.py:4056
+#: gmoccapy.py:4059
 #, fuzzy
 msgid "Enter value for diameter"
 msgstr "Entrer la valeur pour l'axe %s"
 
-#: gmoccapy.py:4057
+#: gmoccapy.py:4060
 #, fuzzy
 msgid "Set diameter to:"
 msgstr "Régler le paramètre %s à:"
 
-#: gmoccapy.py:4060
+#: gmoccapy.py:4063
 #, fuzzy
 msgid "Enter value for radius"
 msgstr "Entrer la valeur pour l'axe %s"
 
-#: gmoccapy.py:4061
+#: gmoccapy.py:4064
 #, fuzzy
 msgid "Set radius to:"
 msgstr "Règle l'axe %s à:"
 
-#: gmoccapy.py:4064
+#: gmoccapy.py:4067
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Entrer la valeur pour l'axe %s"
 
-#: gmoccapy.py:4065
+#: gmoccapy.py:4068
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Règle l'axe %s à:"
 
-#: gmoccapy.py:4069
+#: gmoccapy.py:4072
 msgid "Conversion error in btn_set_value"
 msgstr "Erreur de conversion dans btn_set_value"
 
-#: gmoccapy.py:4070
+#: gmoccapy.py:4073
 msgid "Conversion error in btn_set_value!"
 msgstr "Erreur de conversion dans btn_set_value!"
 
-#: gmoccapy.py:4071
+#: gmoccapy.py:4074
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr ""
 "Entrer seulement des valeurs numériques. Les valeurs n'ont pas été appliquées"
 
-#: gmoccapy.py:4085
+#: gmoccapy.py:4088
 msgid ""
 "you did not selected a system to be changed to, so nothing will be changed"
 msgstr "le système où aller n'a pas été sélectionné, rien ne sera modifié"
 
-#: gmoccapy.py:4086 gmoccapy.py:4522 gmoccapy.py:4536 gmoccapy.py:4540
-#: gmoccapy.py:4555
+#: gmoccapy.py:4089 gmoccapy.py:4525 gmoccapy.py:4539 gmoccapy.py:4543
+#: gmoccapy.py:4558
 msgid "Important Warning!"
 msgstr "Alerte importante!"
 
-#: gmoccapy.py:4136
+#: gmoccapy.py:4139
 msgid "Enter the block height"
 msgstr "Entrer la hauteur du bloc"
 
-#: gmoccapy.py:4137
+#: gmoccapy.py:4140
 msgid "Block height measured from base table"
 msgstr "Hauteur du bloc mesurée depuis la table"
 
-#: gmoccapy.py:4149
+#: gmoccapy.py:4152
 msgid "Conversion error in btn_block_height!"
 msgstr "Erreur de conversion dans btn_block_height!"
 
-#: gmoccapy.py:4150
+#: gmoccapy.py:4153
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -566,11 +563,11 @@ msgstr ""
 "N'entrer que des valeurs numériques\n"
 "Valeurs non appliquées"
 
-#: gmoccapy.py:4415
+#: gmoccapy.py:4418
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Enlever l'outil monté, puis presser OK quand c'est fait"
 
-#: gmoccapy.py:4418
+#: gmoccapy.py:4421
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -585,163 +582,163 @@ msgstr ""
 "\n"
 " puis cliquer OK."
 
-#: gmoccapy.py:4419
+#: gmoccapy.py:4422
 #, fuzzy
 msgid "Manual Tool change"
 msgstr "Changement d'outil manuel"
 
-#: gmoccapy.py:4428
+#: gmoccapy.py:4431
 msgid "Tool Change has been aborted!\n"
 msgstr "Changement d'outil abandonné!\n"
 
-#: gmoccapy.py:4429
+#: gmoccapy.py:4432
 msgid "The old tool will remain set!"
 msgstr "L'ancien outil reste réglé!"
 
-#: gmoccapy.py:4437
+#: gmoccapy.py:4440
 #, fuzzy
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "Toucher d'outil impossible, cet outil n'est pas monté dans la broche"
 
-#: gmoccapy.py:4438
+#: gmoccapy.py:4441
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr ""
 
-#: gmoccapy.py:4439
+#: gmoccapy.py:4442
 #, fuzzy
 msgid "Warning Tool can not be deleted!"
 msgstr "Attention, Toucher d'outil impossible!"
 
-#: gmoccapy.py:4458
+#: gmoccapy.py:4461
 msgid "No or more than one tool selected in tool table"
 msgstr "Aucun, ou plus d'un outil, sélectionnés dans la table d'outils"
 
-#: gmoccapy.py:4459
+#: gmoccapy.py:4462
 msgid "Please select only one tool in the table"
 msgstr "Sélectionner un seul outil dans la table"
 
-#: gmoccapy.py:4460 gmoccapy.py:4466 gmoccapy.py:4474
+#: gmoccapy.py:4463 gmoccapy.py:4469 gmoccapy.py:4477
 msgid "Warning Tool Touch off not possible!"
 msgstr "Attention, Toucher d'outil impossible!"
 
-#: gmoccapy.py:4464
+#: gmoccapy.py:4467
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
 msgstr "Toucher d'outil impossible, cet outil n'est pas monté dans la broche"
 
-#: gmoccapy.py:4465
+#: gmoccapy.py:4468
 msgid "your selection has been reseted to the tool in spindle"
 msgstr "La sélection a été ré-initialisée avec l'outil dans la broche"
 
-#: gmoccapy.py:4472
+#: gmoccapy.py:4475
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 "Toucher d'outil impossible avec la compensation de rayon d'outil activée!\n"
 
-#: gmoccapy.py:4473
+#: gmoccapy.py:4476
 msgid "Please emit an G40 before tool touch off"
 msgstr "Envoyer un G40 avant le toucher d'outil"
 
-#: gmoccapy.py:4482
+#: gmoccapy.py:4485
 msgid "Real big error!"
 msgstr "Erreur réellement grosse!"
 
-#: gmoccapy.py:4483
+#: gmoccapy.py:4486
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 "Vous avez réussi à venir à un emplacement impossible dans "
 "on_btn_tool_touchoff"
 
-#: gmoccapy.py:4487
+#: gmoccapy.py:4490
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Entrer la valeur de l'axe %s à régler:"
 
-#: gmoccapy.py:4488
+#: gmoccapy.py:4491
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Régler le paramètre de l'outil {0:d} est de l'axe {1} à:"
 
-#: gmoccapy.py:4492
+#: gmoccapy.py:4495
 #, fuzzy, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "Erreur de conversion, mauvaise entrée pour le Toucher de l'axe %s"
 
-#: gmoccapy.py:4511
+#: gmoccapy.py:4514
 msgid "Enter the tool number as integer "
 msgstr "Entrer le N° d'outil comme un entier"
 
-#: gmoccapy.py:4512
+#: gmoccapy.py:4515
 msgid "Select the tool to change"
 msgstr "Choisir l'outil à monter"
 
-#: gmoccapy.py:4514
+#: gmoccapy.py:4517
 msgid "Conversion error because of wrong entry for tool number\n"
 msgstr "Erreur de conversion, mauvaise entrée de N° d'outil\n"
 
-#: gmoccapy.py:4515
+#: gmoccapy.py:4518
 #, fuzzy
 msgid "enter only integer numbers"
 msgstr "entrer seulement des nombres entiers"
 
-#: gmoccapy.py:4521 gmoccapy.py:4539
+#: gmoccapy.py:4524 gmoccapy.py:4542
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "L'outil choisi est déjà monté dans la broche, rien à faire."
 
-#: gmoccapy.py:4535
+#: gmoccapy.py:4538
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr " Aucun, ou plus d'un outil sélectionnés alors qu'il doit être unique"
 
-#: gmoccapy.py:4554
+#: gmoccapy.py:4557
 msgid "Could not understand the entered tool number. Will not change anything"
 msgstr "Le N° d'outil entré est incompréhensible. Rien ne changera."
 
-#: gmoccapy.py:4801
+#: gmoccapy.py:4804
 msgid ""
 "World\n"
 "mode"
 msgstr ""
 
-#: gmoccapy.py:4987
+#: gmoccapy.py:4990
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: gmoccapy.py:5023
+#: gmoccapy.py:5026
 #, python-brace-format
 msgid "Recieved a not clasified signal from pin {0}"
 msgstr ""
 
-#: gmoccapy.py:5028
+#: gmoccapy.py:5031
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr ""
 
-#: gmoccapy.py:5033
+#: gmoccapy.py:5036
 msgid "no button here"
 msgstr ""
 
-#: gmoccapy.py:5036
+#: gmoccapy.py:5039
 msgid "the button is not sensitive"
 msgstr ""
 
-#: gmoccapy.py:5041
+#: gmoccapy.py:5044
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr ""
 
-#: gmoccapy.py:5045
+#: gmoccapy.py:5048
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr ""
 
-#: gmoccapy.py:5048
+#: gmoccapy.py:5051
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr ""
 
-#: gmoccapy.py:5061
+#: gmoccapy.py:5064
 msgid "got wrong location to locate the childs"
 msgstr ""
 
@@ -799,12 +796,12 @@ msgstr ""
 "**** gmoccapy ne démarre pas ****\n"
 "\n"
 
-#: getiniinfo.py:429
+#: getiniinfo.py:433
 #, fuzzy
 msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** INFO GMOCCAPY ****"
 
-#: getiniinfo.py:430
+#: getiniinfo.py:434
 #, fuzzy
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
@@ -1578,7 +1575,7 @@ msgid "make the preview as large as possible"
 msgstr "rendre le parcours le plus grand possible"
 
 #: gmoccapy.glade.h:198
-msgid "Close moccapy / leave the program"
+msgid "Close gmoccapy / leave the program"
 msgstr "Fermer gmoccapy / l quitter le programme"
 
 #: gmoccapy.glade.h:199
