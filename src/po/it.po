@@ -19944,8 +19944,8 @@ msgid "make the preview as large as possible"
 msgstr "rende la preview più larga possibile"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:6119
-msgid "Close moccapy / leave the program"
-msgstr "Chiude moccapy / lascia il programma"
+msgid "Close gmoccapy / leave the program"
+msgstr "Chiude gmoccapy / lascia il programma"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:6208
 msgid "Load a new program"
