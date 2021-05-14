@@ -279,7 +279,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:396
 #: src/emc/rs274ngc/interp_convert.cc:4692
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
-msgstr ""
+msgstr "kann nicht zustellen ohne Spindelgeschwindigkeit im Vorschub pro Umdrehung Modus"
 
 #: src/emc/rs274ngc/interp_convert.cc:407
 #: src/emc/rs274ngc/interp_convert.cc:413
@@ -469,6 +469,8 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Spindel ($) Nummer ausserhalb des Limits in M3 Befehl\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3361
 #, c-format
@@ -476,6 +478,8 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Spindel ($) Nummer ausserhalb des Limits in M4 Befehl\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3378
 #, c-format
@@ -483,14 +487,17 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Spindel ($) Nummer ausserhalb des Limits in M5 Befehl\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3397
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr ""
+"Spindel ($) Nummer ausserhalb des Limits in M19 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:3404
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Q Befehl mit M19 benötigt einen Wrt > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3433
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
@@ -516,7 +523,7 @@ msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3510
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Unbekannte Spindle Nummer ($) in M51 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:3667
 #: src/emc/rs274ngc/interp_convert.cc:3668
@@ -579,28 +586,28 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4752
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Ungültige Spindel Nummer in G33 Bewegung"
 
 #: src/emc/rs274ngc/interp_convert.cc:4757
 msgid "Spindle not turning in G33"
-msgstr ""
+msgstr "Spindel nicht eingeschaltet in M33 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4767
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Ungültige Spindel Nummer in G33.1 Bewegung"
 
 #: src/emc/rs274ngc/interp_convert.cc:4772
 msgid "Spindle not turning in G33.1"
-msgstr ""
+msgstr "Spindel nicht eingeschaltet in M33.1 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4787
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "Ungültige D Nummer in G76 Zyklus"
 
 #: src/emc/rs274ngc/interp_convert.cc:4792
 #, fuzzy, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr "G86, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "Gewählte Spindel (%i) ohne Bewegung in G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4830
 msgid "BUG: An axis incorrectly moved along with an indexer"
@@ -613,37 +620,35 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4938
 #, fuzzy
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr "G76 Zyklus kann nicht bei aktiver Werkzeugradiuskorrektur verwendet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:4941
 msgid "In G76, I must not be 0"
-msgstr ""
+msgstr "Bei G76 Befehl darf I nicht Null sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:4943
-#, fuzzy
 msgid "In G76, J must be greater than 0"
-msgstr "Zeilennummer größer als 99999"
+msgstr "Bei G76 Befehl muss J größer Null sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:4945
-#, fuzzy
 msgid "In G76, K must be greater than J"
-msgstr "Zeilennummer größer als 99999"
+msgstr "Bei G76 Befehl mus sK größer J sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:5088
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
-msgstr ""
+msgstr "Der Werkzeugeinlaufpfad ist nicht größer wie der Werkzeugradius"
 
 #: src/emc/rs274ngc/interp_convert.cc:5307
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr ""
+msgstr "Null Grad Innenecke ist bei Werkzeugradienkorrektur unzulässig"
 
 #: src/emc/rs274ngc/interp_convert.cc:5345
 #: src/emc/rs274ngc/interp_convert.cc:5353
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
-msgstr ""
+msgstr "Bogen zu linearer Bewegung bildet eine Ecke die der Fräser nicht ohne Kollision erreichen kann"
 
 #: src/emc/rs274ngc/interp_convert.cc:5437
 #, fuzzy
@@ -692,27 +697,24 @@ msgid ""
 msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
-#, fuzzy, c-format
+#, c-format
 msgid "Spindle not turning in %s"
-msgstr "G86, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "Spindel dreht nicht in %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
-#, fuzzy
 msgid "Spindle turning clockwise in G74"
-msgstr "G84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
+msgstr "G74, aber Werkzeug-Spindel dreht sich im Uhrzeigersinn"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
-#, fuzzy
 msgid "Spindle turning counterclockwise in G84"
-msgstr "G84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
+msgstr "G84, aber Werkzeug-Spindel dreht sich im Gegenuhrzeigersinn"
 
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "Unbekannter Spindel Status in %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
-#, fuzzy
 msgid "Cannot feed with zero feed rate"
 msgstr ""
 "G1 kann nicht mit einer Vorschubgeschwindigkeit von 0 ausgeführt werden"
@@ -745,7 +747,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Unbekannte Spindel Nummer ($) in G74/G84 Zyklus"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
@@ -773,15 +775,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_execute.cc:250
 msgid "Invalid spindle ($) number in Spindle Mode command"
-msgstr ""
+msgstr "Unbekannte Spindel ($) im Spindel Modus Befehl"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Unbekannte Spindel ($) im Spindel Vorschub Befehl"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
-msgstr ""
+msgstr "Unbekannte Spindel ($) im Spindel Geschwindigkeits Befehl"
 
 #: src/emc/rs274ngc/interp_find.cc:171
 #, fuzzy
@@ -1360,7 +1362,7 @@ msgstr "Radius- und IJK-Format durcheinandergewürfelt"
 #: src/emc/rs274ngc/rs274ngc_return.hh:94
 #, fuzzy
 msgid "Multiple spindle choice ($) words on one line"
-msgstr "Mehrere C-Wörter in einem Satz"
+msgstr "Mehrere Spindelauswahl Befehle ($) in einem Satz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
@@ -2498,28 +2500,26 @@ msgid "Probe tripped during homing motion."
 msgstr "Tastspitze bei Referenzfahrt ausgelöst."
 
 #: src/emc/motion/control.c:672
-#, fuzzy
 msgid "Probe tripped during a joint jog."
-msgstr "Tastspitze bei Eilfahrt ausgelöst."
+msgstr "Tastspitze bei Motorfahrt (joint) ausgelöst."
 
 #: src/emc/motion/control.c:675
-#, fuzzy
 msgid "Probe tripped during a coordinate jog."
-msgstr "Tastspitze bei Eilfahrt ausgelöst."
+msgstr "Tastspitze bei Koordinatenbewegung ausgelöst."
 
 #: src/emc/motion/control.c:691
 msgid "motion stopped by enable input"
 msgstr "Bewegung durch Enable-Eingabe angehalten."
 
 #: src/emc/motion/control.c:698
-#, fuzzy, c-format
+#, c-format
 msgid "spindle %d amplifier fault"
-msgstr "Verstärkerfehler an Achse/Gelenk %d"
+msgstr "Verstärkerfehler an Spindel %d"
 
 #: src/emc/motion/control.c:721
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr "Fehler: Achse/Gelenk %d am Endschalter"
+msgstr "Achsen- oder Gelenkfehler %d am Endschalter"
 
 #: src/emc/motion/control.c:733
 #, c-format
@@ -2529,7 +2529,7 @@ msgstr "Verstärkerfehler an Achse/Gelenk %d"
 #: src/emc/motion/control.c:742
 #, c-format
 msgid "joint %d following error"
-msgstr ""
+msgstr "Motor %d Positionssfehler"
 
 #: src/emc/motion/control.c:1333 src/emc/motion/control.c:1419
 #, c-format
@@ -2541,9 +2541,9 @@ msgid "kinematicsInverse failed"
 msgstr ""
 
 #: src/emc/motion/control.c:1515
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "Positiver Softanschlag bei Achse/Gelenk %d überschritten"
+msgstr "Negatives Softlimit bei (%.5f) Motor %d überschritten\n"
 
 #: src/emc/motion/control.c:1518 src/emc/motion/control.c:1527
 msgid "Joint must be unhomed, jogged into limits, rehomed"
@@ -2764,38 +2764,37 @@ msgstr "Kein Gewindebohren außerhalb der Grenzen"
 
 #: src/emc/motion/command.c:1759
 msgid "Attempt to start non-existent spindle"
-msgstr ""
+msgstr "Versuch eine nicht existierende Spindel einzuschalten"
 
 #: src/emc/motion/command.c:1807
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr ""
+msgstr "Versuch eine nicht existierende Spindel auszuschalten"
 
 #: src/emc/motion/command.c:1837
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr ""
+msgstr "Versuch eine nicht existierende Spindel zu orrientieren"
 
 #: src/emc/motion/command.c:1883
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
-msgstr ""
+msgstr "Versuche Geschwindigkeit einer nicht existierenden Spindel zu erhöhen"
 
 #: src/emc/motion/command.c:1906
 #, c-format
 msgid "Attempt to decreasenon-existent spindle <%d>"
-msgstr ""
+msgstr "Versuche Geschwindigkeit einer nicht existierenden Spindel zu verringern"
 
 #: src/emc/motion/command.c:1921
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Versuch Bremse einer nicht existierenden Spindel zu schalten"
 
 #: src/emc/motion/command.c:1943
-#, fuzzy, c-format
+#, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
-msgstr ""
-"Negative Zahl kann nicht mit einem nicht ganzzahligem Wert potenziert werden"
+msgstr "Versuch Bremse einer nicht existierenden Spindel zu lösen"
 
 #: src/emc/motion/command.c:1965
 #, c-format
@@ -2853,7 +2852,7 @@ msgstr ""
 #: src/emc/motion/motion.c:247
 #, fuzzy, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
+msgstr "MOTION: num_joints ist %d, muß zwischen 0 und %d liegen\n"
 
 #: src/emc/motion/motion.c:255
 #, c-format
@@ -2897,9 +2896,9 @@ msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:479
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: spindle %d pin export failed"
-msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
+msgstr "MOTION: Spindel %d Pinexport fehlgeschlagen"
 
 #: src/emc/motion/motion.c:490
 #, c-format
@@ -2907,19 +2906,18 @@ msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:502
-#, fuzzy
 msgid "MOTION: export_joint_home_pins failed\n"
-msgstr "MOTION: init_hal_io() fehlgeschlagen\n"
+msgstr "MOTION: export_joint_home_pins fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:510
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:546
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: axis %c pin/param export failed\n"
-msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
+msgstr "MOTION: Achse %c Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:163
 #, c-format
@@ -2932,9 +2930,8 @@ msgid "end of move in home state %d"
 msgstr "Bewegungsende im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:231
-#, fuzzy
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
-msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen\n"
+msgstr "MOTION: all_joints_home_data_t malloc fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:565
 #, c-format
@@ -5557,19 +5554,19 @@ msgstr "Vorschubübersteuerung:"
 
 #: tcl/tklinuxcnc.tcl:1349
 msgid "Set Spindle Override"
-msgstr "Spindelübersteuerung"
+msgstr "Spindelübersteuerung setzen"
 
 #: tcl/tklinuxcnc.tcl:1355
 msgid "Set spindle speed override:"
-msgstr "Spindelübersteuerung:"
+msgstr "Spindelübersteuerung setzen:"
 
 #: tcl/tklinuxcnc.tcl:1410
 msgid "Linear Jog Speed"
-msgstr "Lineare Schrittgeschwindigkeit"
+msgstr "Lineare Verfahrgeschwindigkeit"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
-msgstr "Winkel-Schrittgeschwindigkeit Grad/min:"
+msgstr "Winkelgeschwindigkeit Grad/min:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
@@ -8609,9 +8606,8 @@ msgid "Spindle CCW"
 msgstr "Spindel links"
 
 #: src/emc/usr_intf/touchy/mdi.py:50
-#, fuzzy
 msgid "Set tool number"
-msgstr "Anwenden"
+msgstr "Setze Werkzeugnummer"
 
 #: src/emc/usr_intf/touchy/mdi.py:51 src/emc/usr_intf/gscreen/mdi.py:50
 msgid "Input control"
@@ -8620,22 +8616,22 @@ msgstr ""
 #: src/emc/usr_intf/touchy/mdi.py:54 src/emc/usr_intf/touchy/mdi.py:55
 #: src/emc/usr_intf/gscreen/mdi.py:53 src/emc/usr_intf/gscreen/mdi.py:54
 msgid "Straight rapid"
-msgstr ""
+msgstr "Linearer Eilgang"
 
 #: src/emc/usr_intf/touchy/mdi.py:56 src/emc/usr_intf/touchy/mdi.py:57
 #: src/emc/usr_intf/gscreen/mdi.py:55 src/emc/usr_intf/gscreen/mdi.py:56
 msgid "Straight feed"
-msgstr ""
+msgstr "Linearer Vorschub"
 
 #: src/emc/usr_intf/touchy/mdi.py:58 src/emc/usr_intf/touchy/mdi.py:59
 #: src/emc/usr_intf/gscreen/mdi.py:57 src/emc/usr_intf/gscreen/mdi.py:58
 msgid "Arc CW"
-msgstr ""
+msgstr "Bogen rechts"
 
 #: src/emc/usr_intf/touchy/mdi.py:60 src/emc/usr_intf/touchy/mdi.py:61
 #: src/emc/usr_intf/gscreen/mdi.py:59 src/emc/usr_intf/gscreen/mdi.py:60
 msgid "Arc CCW"
-msgstr ""
+msgstr "Bogen links"
 
 #: src/emc/usr_intf/touchy/mdi.py:62 src/emc/usr_intf/touchy/mdi.py:63
 #: src/emc/usr_intf/gscreen/mdi.py:61 src/emc/usr_intf/gscreen/mdi.py:62
@@ -8648,7 +8644,7 @@ msgstr "Einrichtung"
 
 #: src/emc/usr_intf/touchy/mdi.py:65 src/emc/usr_intf/gscreen/mdi.py:64
 msgid "Spindle synchronized feed"
-msgstr ""
+msgstr "Syncrongeschwindigkeit Spindel"
 
 #: src/emc/usr_intf/touchy/mdi.py:66 src/emc/usr_intf/gscreen/mdi.py:65
 msgid "Rigid tap"
@@ -8664,34 +8660,31 @@ msgstr "Sensor"
 
 #: src/emc/usr_intf/touchy/mdi.py:71 src/emc/usr_intf/gscreen/mdi.py:70
 msgid "Radius compensation left"
-msgstr "Radiusausgleich links"
+msgstr "Werkzeugradienkorrektur links"
 
 #: src/emc/usr_intf/touchy/mdi.py:72 src/emc/usr_intf/gscreen/mdi.py:71
 msgid "Radius compensation right"
-msgstr "Radiusausgleich rechts"
+msgstr "Werkzeugradienkorrektur rechts"
 
 #: src/emc/usr_intf/touchy/mdi.py:73 src/emc/usr_intf/gscreen/mdi.py:72
 msgid "Radius compensation left, immediate"
-msgstr ""
+msgstr "sofortige Werkzeugradienkorrektur links"
 
 #: src/emc/usr_intf/touchy/mdi.py:74 src/emc/usr_intf/gscreen/mdi.py:73
 msgid "Radius compensation right, immediate"
-msgstr ""
+msgstr "sofortige Werkzeugradienkorrektur rechts"
 
 #: src/emc/usr_intf/touchy/mdi.py:75 src/emc/usr_intf/gscreen/mdi.py:74
-#, fuzzy
 msgid "Tool length offset"
-msgstr "Werkzeug-Längen-Index zu groß"
+msgstr "Werkzeug-Längen-Ausgleich"
 
 #: src/emc/usr_intf/touchy/mdi.py:76 src/emc/usr_intf/gscreen/mdi.py:75
-#, fuzzy
 msgid "Tool length offset immediate"
-msgstr "Werkzeug-Längen-Index zu groß"
+msgstr "sofortiger Werkzeug-Längen-Ausgleich"
 
 #: src/emc/usr_intf/touchy/mdi.py:77
-#, fuzzy
 msgid "Tool length offset additional"
-msgstr "Werkzeug-Längen-Index zu groß"
+msgstr "zusätzlicher Werkzeug-Längen-Ausgleich"
 
 #: src/emc/usr_intf/touchy/mdi.py:78 src/emc/usr_intf/gscreen/mdi.py:76
 msgid "Motion in unoffset coordinates"
@@ -10822,7 +10815,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:67
 msgid "Use Gmoccapy Screen"
-msgstr ""
+msgstr "Benutze Gmoccapy Benutzeroberfläche"
 
 #: src/emc/usr_intf/stepconf/options.glade:91
 #, fuzzy
@@ -15788,11 +15781,11 @@ msgstr "Standardwerte verwenden"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1836
 msgid "Force Gmoccapy to Maximize after positioning"
-msgstr ""
+msgstr "strtae gmoccapy maximiert"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2174
 msgid "Gmoccapy Defaults"
-msgstr ""
+msgstr "gmoccapy Grundeinstellungen"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:27
 msgid "<b>Virtual Control Panel</b>"
@@ -17548,7 +17541,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4273
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3676
 msgid "INFO:"
-msgstr ""
+msgstr "INFO"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1938
 #: src/emc/usr_intf/gscreen/gscreen.py:1957
@@ -17717,15 +17710,14 @@ msgstr "AXIS Manueller Werkzeugwechsel"
 #: src/emc/usr_intf/gmoccapy/dialogs.py:126
 #: src/emc/usr_intf/gmoccapy/dialogs.py:140
 msgid "Operator Message"
-msgstr ""
+msgstr "Anwender Nachricht"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 #: src/emc/usr_intf/gscreen/gscreen.py:3781
 #: src/emc/usr_intf/gmoccapy/dialogs.py:178
 #: src/emc/usr_intf/gmoccapy/dialogs.py:182
-#, fuzzy
 msgid "Restart Entry"
-msgstr "Anfang an"
+msgstr "Eingabe Neustart"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gmoccapy/dialogs.py:194
@@ -17735,7 +17727,7 @@ msgstr "Aufwärts"
 #: src/emc/usr_intf/gscreen/gscreen.py:3792
 #: src/emc/usr_intf/gmoccapy/dialogs.py:196
 msgid "Enter"
-msgstr ""
+msgstr "Eingabe"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3794
 #: src/emc/usr_intf/gmoccapy/dialogs.py:198
@@ -17969,40 +17961,43 @@ msgstr " <b>a)</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1715
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2789
-#, fuzzy
 msgid ""
 "Search\n"
 "  Text:"
-msgstr "Suchpfad"
+msgstr ""
+"Such-\n"
+"Text"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2719
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text:"
-msgstr "Ersetzen mit:"
+msgstr ""
+"Ersetzen\n"
+"  mit:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2729
-#, fuzzy
 msgid ""
 "Replace\n"
 "   All"
-msgstr "Alle ersetzen"
+msgstr ""
+" Alles\n"
+"ersetzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:2744
-#, fuzzy
 msgid ""
 "Ignore\n"
 " Case"
-msgstr "M1 ignorieren"
+msgstr ""
+"Groß-/Klein\n"
+"ignorieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid "<b>Mode</b>"
-msgstr "<b>Leistung</b>"
+msgstr "<b>Modus</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1817
 #, fuzzy
@@ -18011,7 +18006,6 @@ msgstr "Schwelle"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1858
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:4061
-#, fuzzy
 msgid "Themes"
 msgstr "Thema:"
 
@@ -18027,25 +18021,22 @@ msgstr "DTG-Textfarbe"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1951
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:4095
-#, fuzzy
 msgid "Warning Audio"
-msgstr "Warnung"
+msgstr "Warnung Töne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1961
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:4109
 msgid "Alert Audio"
-msgstr ""
+msgstr "Gefahren Töne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1982
-#, fuzzy
 msgid "Grid Size"
-msgstr "Größe"
+msgstr "Raster Größe"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2021
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:4546
-#, fuzzy
 msgid "Starting RPM"
-msgstr "Einstellungen"
+msgstr "Anfangsdrehzahl"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2050
 msgid "Metric\n"
@@ -18126,9 +18117,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2328
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:6665
-#, fuzzy
 msgid "Calibration"
-msgstr "_Kalibrierung"
+msgstr "Kalibrierung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2339
 #, fuzzy
@@ -18503,44 +18493,43 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:246
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
 msgid "**** GMOCCAPY INI Entry **** \n"
-msgstr ""
+msgstr "**** GMOCCAPY INI Eintrag **** \n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:247
-#, fuzzy
 msgid "user mode selected"
-msgstr "Aktive Achse verfahren"
+msgstr "Anwender Modus gewählt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "Logo Eintrag = {0} gefunden "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:257
 msgid "**** GMOCCAPY INI Entry Error **** \n"
-msgstr ""
+msgstr "**** GMOCCAPY Fehler in INI Eintrag **** \n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:258
 msgid "Logofile entry found, but could not be converted to path.\n"
-msgstr ""
+msgstr "Logodatei eintrag gefunden, konnte aber nicht in eine Pfad gewandelt werden\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:259
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Der Dateipfad darf keine Leerzeichen enthalten"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:640
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Drücken um alle Achsen zu referenzieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:649
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:899
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Drücken um vorherige Refernzbutton zu zeigen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:667
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Drücken um zu referenzieren {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:923
@@ -20725,7 +20714,7 @@ msgstr "Achse/Gelenk"
 
 #, fuzzy
 #~ msgid "Spindle Motor/Encoder Configuration"
-#~ msgstr "Konfiguration der X-Achse"
+#~ msgstr "Konfiguration Spindel/Motor/Encoder"
 
 #, fuzzy
 #~ msgid "%s Axis Motor/Encoder Configuration"
