@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.4"
+_RELEASE = " 3.1.3.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1819,7 +1819,7 @@ class gmoccapy(object):
         # If there are themes then add them to combo box
         model = self.widgets.theme_choice.get_model()
         model.clear()
-        model.append((_("Follow System Theme"),))
+        model.append(("Follow System Theme",))
         themes = []
         if os.path.exists(USERTHEMEDIR):
             names = os.listdir(USERTHEMEDIR)
