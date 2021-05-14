@@ -162,8 +162,6 @@ SUBDIRS := \
     ../docs/src ../docs/src/source-highlight \
     \
     ../tests \
-	\
-	../configs/by_machine/qtplasmac/qtplasmac \
 
 
 
@@ -798,7 +796,6 @@ install-python: install-dirs
 	$(TREE) ../share/qtvcp/panels/* $(DESTDIR)$(datadir)/qtvcp/panels
 	$(TREE) ../share/qtvcp/widgets_ui/* $(DESTDIR)$(datadir)/qtvcp/widgets_ui
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
-	$(FILE) ../share/qtvcp/screens/qtplasmac/qtplasmac_gcode.in $(DESTDIR)$(sampleconfsdir)/by_machine/qtplasmac/qtplasmac
 
 install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
