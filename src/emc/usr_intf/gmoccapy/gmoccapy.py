@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.3"
+_RELEASE = " 3.1.3.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2452,6 +2452,7 @@ class gmoccapy(object):
             self.macro_dic["keyboard"].set_sensitive(False)
 
         self.widgets.btn_run.set_sensitive(True)
+        self.widgets.btn_stop.set_sensitive(False)
 
         if self.tool_change:
             self.command.mode(linuxcnc.MODE_MANUAL)
@@ -2475,6 +2476,7 @@ class gmoccapy(object):
 
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
+        self.widgets.btn_stop.set_sensitive(True)
 
         self._change_kbd_image("stop")
         self.macro_dic["keyboard"].set_sensitive(True)
