@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.2"
+_RELEASE = " 3.1.3.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -4767,7 +4767,7 @@ class gmoccapy(object):
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
     def on_tbtn_pause_toggled(self, widget, data=None):
-        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop"]
+        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop", "ntb_jog"]
         self._sensitize_widgets(widgetlist, widget.get_active())
 
     def on_btn_stop_clicked(self, widget, data=None):
