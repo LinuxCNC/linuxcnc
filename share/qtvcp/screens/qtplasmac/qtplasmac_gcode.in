@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 '''
 plasmac_gcode.py
