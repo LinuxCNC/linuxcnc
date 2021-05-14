@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.5"
+_RELEASE = " 3.1.3.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2310,7 +2310,7 @@ class gmoccapy(object):
             self.stat.poll()
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 widget.set_active(True)
-                self._show_error((11, _("ERROR : External ESTOP is set, could not change state!")))
+                self._show_error((11, _("External ESTOP is set, could not change state!")))
 
     # toggle machine on / off button
     def on_tbtn_on_toggled(self, widget, data=None):
@@ -2323,7 +2323,7 @@ class gmoccapy(object):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active(False)
-                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch activated?")))
+                self._show_error((11, _("Could not switch the machine on, is limit switch activated?")))
                 self._update_widgets(False)
                 return
             self._update_widgets(True)
