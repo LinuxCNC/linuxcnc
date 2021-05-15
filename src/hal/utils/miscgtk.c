@@ -222,7 +222,7 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4)
 {
     dialog_generic_t dialog;
-    GtkWidget *button, *label;
+    GtkWidget *button, *label, *content_area;
     const gchar *button_name_array[4];
     void (*button_funct_array[4]) (GtkWidget *, dialog_generic_t *);
     gint n;
@@ -231,6 +231,7 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     /* create dialog window, disable resizing */
     dialog.window = gtk_dialog_new();
     gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
     /* set title */
     if (title != NULL) {
 	gtk_window_set_title(GTK_WINDOW(dialog.window), title);
@@ -239,9 +240,9 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     }
     if (msg != NULL) {
 	label = gtk_label_new(msg);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label,
-	    TRUE, TRUE, 0);
 	gtk_misc_set_padding(GTK_MISC(label), 15, 15);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, TRUE, TRUE, 0);
     }
     /* set up a callback function when the window is destroyed */
     g_signal_connect(dialog.window, "destroy",
@@ -260,11 +261,11 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     for (n = 0; n < 4; n++) {
 	if (button_name_array[n] != NULL) {
 	    /* make a button */
-	    button = gtk_button_new_with_label(button_name_array[n]);
-	    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->
-		    action_area), button, TRUE, TRUE, 4);
-	    g_signal_connect(button, "clicked",
-		G_CALLBACK(button_funct_array[n]), &dialog);
+            button = gtk_button_new_with_label(button_name_array[n]);
+            g_signal_connect(button, "clicked",
+                    G_CALLBACK(button_funct_array[n]), &dialog);
+            gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+                    button, n + 1);
 	}
     }
     if (parent != NULL) {

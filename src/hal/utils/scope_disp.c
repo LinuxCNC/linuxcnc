@@ -187,7 +187,7 @@ void refresh_display(void)
     vert = &(ctrl_usr->vert);
     horiz = &(ctrl_usr->horiz);
     /* get window pointer */
-    disp->win = disp->drawing->window;
+    disp->win = gtk_widget_get_window(disp->drawing);
     if (disp->win == NULL) {
 	/* window isn't visible yet, do nothing */
 	printf("refresh_display(): win = NULL, bailing!\n");
@@ -222,7 +222,7 @@ void refresh_display(void)
     {
         GdkRectangle rect = {0, 0, disp->width, disp->height};
         GdkRegion *region = gdk_region_rectangle(&rect);
-        gdk_window_begin_paint_region(disp->drawing->window, region);
+        gdk_window_begin_paint_region(gtk_widget_get_window(disp->drawing), region);
         gdk_region_destroy(region);
     }
 
@@ -268,7 +268,7 @@ void refresh_display(void)
 
     update_readout();
 
-    gdk_window_end_paint(disp->drawing->window);
+    gdk_window_end_paint(gtk_widget_get_window(disp->drawing));
 }
 
 /***********************************************************************
@@ -608,7 +608,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     GdkModifierType mod;
     int x, y;
 
-    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
+    gdk_window_get_pointer(gtk_widget_get_window(disp->drawing), &x, &y, &mod);
     if(mod & GDK_BUTTON1_MASK) {
         left_drag(y-motion_y, y, event->state);
         return TRUE;

@@ -586,7 +586,7 @@ static void init_chan_info_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
 	vert->source_name_button, FALSE, FALSE, 3);
 
-    vert->source_name_label = (GTK_BIN(vert->source_name_button))->child;
+    vert->source_name_label = gtk_bin_get_child(GTK_BIN(vert->source_name_button));
     gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
 	GTK_JUSTIFY_LEFT);
     /* longest source name we ever need to display */
@@ -653,7 +653,7 @@ static void init_vert_info_window(void)
 	0);
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
-    vert->offset_label = (GTK_BIN(vert->offset_button))->child;
+    vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
     g_signal_connect(vert->offset_button, "clicked",
@@ -671,12 +671,12 @@ static void init_vert_info_window(void)
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_vert_scale(adj->value);
+    set_vert_scale(gtk_adjustment_get_value(adj));
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_vert_pos(adj->value / VERT_POS_RESOLUTION);
+    set_vert_pos(gtk_adjustment_get_value(adj) / VERT_POS_RESOLUTION);
 }
 
 static void offset_button(GtkWidget * widget, gpointer gdata)
@@ -712,6 +712,7 @@ static gboolean dialog_set_offset(int chan_num)
     gchar *title, msg[BUFLEN], *cptr;
     struct offset_data data;
     GtkWidget *label, *button;
+    GtkWidget *content_area;
     double tmp;
 
     vert = &(ctrl_usr->vert);
@@ -725,26 +726,31 @@ static gboolean dialog_set_offset(int chan_num)
     dialog.app_data = &data;
     /* window should appear in center of screen */
     gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 0);
+
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_hseparator_new(), FALSE, FALSE, 0);
+
     /* a checkbox: AC coupled */
     vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-        vert->offset_ac, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            vert->offset_ac, FALSE, TRUE, 0);
+
     /* react to changes to the checkbox */
     g_signal_connect(vert->offset_ac, "toggled",
 	G_CALLBACK(offset_changed), &data);
     /* the entry */
     vert->offset_entry = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-	vert->offset_entry, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            vert->offset_entry, FALSE, TRUE, 0);
     snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
@@ -754,27 +760,26 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
-    gtk_widget_show(vert->offset_entry);
     /* capture entry data to the buffer whenever the user types */
-    g_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
+    g_signal_connect(vert->offset_entry, "changed",
 	G_CALLBACK(offset_changed), data.buf);
     /* set up a callback function when the window is destroyed */
-    g_signal_connect(GTK_OBJECT(dialog.window), "destroy",
+    g_signal_connect(dialog.window, "destroy",
 	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
     button = gtk_button_new_with_label(_("OK"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
     g_signal_connect(button, "clicked",
 	G_CALLBACK(dialog_generic_button1), &dialog);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+            button, 1);
     /* hit the "OK" button if the user hits enter */
     g_signal_connect(vert->offset_entry, "activate",
 	G_CALLBACK(offset_activated), button);
     button = gtk_button_new_with_label(_("Cancel"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
     g_signal_connect(button, "clicked",
 	G_CALLBACK(dialog_generic_button2), &dialog);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+            button, 2);
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));
@@ -927,6 +932,7 @@ static gboolean dialog_select_source(int chan_num)
     dialog_generic_t dialog;
 
     GtkWidget *label;
+    GtkWidget *content_area;
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
@@ -956,15 +962,17 @@ static gboolean dialog_select_source(int chan_num)
     gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
 
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 0);
 
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_hseparator_new(), FALSE, FALSE , 0);
 
     /*
     * create a notebook to hold pin, signal, and parameter list,
@@ -972,7 +980,7 @@ static gboolean dialog_select_source(int chan_num)
     * add the notebook to the window
     */
     vert->notebook = gtk_notebook_new();
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), vert->notebook,
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)), vert->notebook,
             TRUE, TRUE, 0);
 
     /* text for tab labels */
@@ -1004,18 +1012,14 @@ static gboolean dialog_select_source(int chan_num)
                 G_CALLBACK(selection_made), &dialog);
     }
 
-    /* cancel button */
-    gtk_dialog_add_button(GTK_DIALOG(dialog.window), _("Cancel"),
-            GTK_RESPONSE_CANCEL);
+    /* cancel button, assign return value of 2 to be identical with the
+     * rest of the cancel buttons */
+    gtk_dialog_add_button(GTK_DIALOG(dialog.window),
+            _("Cancel"), 2);
 
     /* signals */
     g_signal_connect(vert->notebook, "switch-page",
             G_CALLBACK(change_page), vert);
-
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-            GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
 
     /* populate the pin, signal, and parameter lists */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1139,9 +1143,9 @@ void channel_changed(void)
 	chan->position * VERT_POS_RESOLUTION);
     /* set scale slider based on new channel */
     adj = GTK_ADJUSTMENT(vert->scale_adj);
-    adj->lower = chan->min_index;
-    adj->upper = chan->max_index;
-    adj->value = chan->scale_index;
+    gtk_adjustment_set_lower(adj, chan->min_index);
+    gtk_adjustment_set_upper(adj, chan->max_index);
+    gtk_adjustment_set_value(adj, chan->scale_index);
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
     /* update the channel number and name display */

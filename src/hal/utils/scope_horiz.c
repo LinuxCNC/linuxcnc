@@ -143,7 +143,7 @@ static void init_horiz_window(void)
     gtk_scale_set_draw_value(GTK_SCALE(horiz->zoom_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), horiz->zoom_slider, FALSE, FALSE, 0);
     /* store the current value of the slider */
-    horiz->zoom_setting = GTK_ADJUSTMENT(horiz->zoom_adj)->value;
+    horiz->zoom_setting = gtk_adjustment_get_value(GTK_ADJUSTMENT(horiz->zoom_adj));
     /* connect the slider to a function that re-calcs horizontal scaling */
     g_signal_connect(horiz->zoom_adj, "value_changed",
 	G_CALLBACK(zoom_changed), NULL);
@@ -155,7 +155,7 @@ static void init_horiz_window(void)
     gtk_scale_set_draw_value(GTK_SCALE(horiz->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), horiz->pos_slider, FALSE, FALSE, 0);
     /* store the current value of the slider */
-    horiz->pos_setting = GTK_ADJUSTMENT(horiz->pos_adj)->value / 1000.0;
+    horiz->pos_setting = gtk_adjustment_get_value(GTK_ADJUSTMENT(horiz->pos_adj)) / 1000.0;
     /* connect the slider to a function that re-calcs horizontal position */
     g_signal_connect(horiz->pos_adj, "value_changed",
 	G_CALLBACK(pos_changed), NULL);
@@ -167,7 +167,7 @@ static void init_horiz_window(void)
     /* fourth column - record length and sample rate button */
     horiz->record_button =
 	gtk_button_new_with_label(_("----- Samples\nat ---- KHz"));
-    horiz->record_label = (GTK_BIN(horiz->record_button))->child;
+    horiz->record_label = gtk_bin_get_child(GTK_BIN(horiz->record_button));
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
     gtk_box_pack_start(GTK_BOX(hbox), horiz->record_button, FALSE, FALSE, 0);
@@ -489,6 +489,7 @@ static void dialog_realtime_not_linked(void)
     gchar *strs[2];
     gchar buf[BUFLEN + 1];
     GtkWidget *hbox, *label;
+    GtkWidget *content_area;
     GtkWidget *button;
     GtkWidget *buttons[5];
     GtkWidget *scrolled_window;
@@ -516,47 +517,50 @@ static void dialog_realtime_not_linked(void)
     dialog.window = gtk_dialog_new();
     gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
 
     /* display message */
     label = gtk_label_new(msg);
     gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 0);
 
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_hseparator_new(), FALSE, FALSE , 0);
 
     /* thread name display */
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
+    hbox = gtk_hbox_new(TRUE, 5);
     gtk_label_new_in_box(_("Thread:"), hbox, TRUE, TRUE, 0);
     horiz->thread_name_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            hbox, FALSE, TRUE, 0);
 
     /* sample period display */
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
+    hbox = gtk_hbox_new(TRUE, 5);
     gtk_label_new_in_box(_("Sample Period:"), hbox, TRUE, TRUE, 0);
     horiz->sample_period_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            hbox, FALSE, TRUE, 0);
 
     /* sample rate display */
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
+    hbox = gtk_hbox_new(TRUE, 5);
     gtk_label_new_in_box(_("Sample Rate:"), hbox, TRUE, TRUE, 0);
     horiz->sample_rate_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            hbox, FALSE, TRUE, 0);
 
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_hseparator_new(), FALSE, FALSE , 0);
 
     /* Create a scrolled window to display the thread list */
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-	scrolled_window, TRUE, TRUE, 5);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+                    scrolled_window, TRUE, TRUE, 5);
 
     /* create a list to hold the threads */
     titles[0] = _("Thread");
@@ -601,13 +605,11 @@ static void dialog_realtime_not_linked(void)
 	n++;
 	next = thread->next_ptr;
     }
-    
+
     rtapi_mutex_give(&(hal_data->mutex));
 
     /* set up the the layout for the multiplier spinbutton */
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
+    hbox = gtk_hbox_new(TRUE, 5);
     gtk_label_new_in_box(_("Multiplier:"), hbox, FALSE, FALSE, 0);
     /* set up the multiplier spinbutton - ranges from every run of the
        thread, to every 1000th run */
@@ -616,17 +618,22 @@ static void dialog_realtime_not_linked(void)
     horiz->mult_spinbutton =
 	gtk_spin_button_new(GTK_ADJUSTMENT(horiz->mult_adj), 1, 0);
     gtk_box_pack_start(GTK_BOX(hbox), horiz->mult_spinbutton, FALSE, TRUE, 0);
-    gtk_widget_show(horiz->mult_spinbutton);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+                    hbox, FALSE, TRUE, 0);
+
     /* connect the multiplier spinbutton to a function */
     g_signal_connect(horiz->mult_adj, "value_changed",
 	G_CALLBACK(mult_changed), NULL);
 
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_hseparator_new(), FALSE, FALSE , 0);
 
     /* box for record length buttons */
-    gtk_label_new_in_box(_("Record Length"),
-	GTK_DIALOG(dialog.window)->vbox, TRUE, TRUE, 0);
+    label = gtk_label_new(_("Record Length"));
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, TRUE, TRUE, 0);
+
     /* now define the radio buttons */
     snprintf(buf, BUFLEN, _("%5d samples (1 channel)"), ctrl_shm->buf_len);
     buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
@@ -649,9 +656,8 @@ static void dialog_realtime_not_linked(void)
 	    [0]), buf);
     /* now put them into the box and make visible */
     for (n = 0; n < 5; n++) {
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-	    buttons[n], FALSE, FALSE, 0);
-	gtk_widget_show(buttons[n]);
+        gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+                buttons[n], FALSE, FALSE, 0);
     }
     /* determine which button should be pressed by default */
     if (ctrl_shm->sample_len == 1) {
@@ -691,17 +697,17 @@ static void dialog_realtime_not_linked(void)
     /* set up a callback function when the window is destroyed */
     g_signal_connect(dialog.window, "destroy",
 	G_CALLBACK(dialog_generic_destroyed), &dialog);
-    /* make OK and Cancel buttons */
+
+    /* make OK and Quit buttons */
     button = gtk_button_new_with_label(_("OK"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 1);
     g_signal_connect(button, "clicked",
-	G_CALLBACK(dialog_generic_button1), &dialog);
+            G_CALLBACK(dialog_generic_button1), &dialog);
     button = gtk_button_new_with_label(_("Quit"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 2);
     g_signal_connect(button, "clicked",
-	G_CALLBACK(dialog_generic_button2), &dialog);
+            G_CALLBACK(dialog_generic_button2), &dialog);
+
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));
@@ -884,7 +890,7 @@ static void mult_changed(GtkAdjustment * adj, gpointer gdata)
 {
     scope_horiz_t *horiz;
     int value;
-    
+
     /* point to GUI widgets */
     horiz = &(ctrl_usr->horiz);
     /* get value from spinbutton */
@@ -897,12 +903,12 @@ static void mult_changed(GtkAdjustment * adj, gpointer gdata)
 
 static void zoom_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_horiz_zoom(adj->value);
+    set_horiz_zoom(gtk_adjustment_get_value(adj));
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_horiz_pos(adj->value / 1000.0);
+    set_horiz_pos(gtk_adjustment_get_value(adj) / 1000.0);
 }
 
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
@@ -1047,7 +1053,7 @@ static void refresh_pos_disp(void)
 
     horiz = &(ctrl_usr->horiz);
     /* get window to local var */
-    w = horiz->disp_area->window;
+    w = gtk_widget_get_window(horiz->disp_area);
     if (w == NULL) {
 	/* window isn't visible yet, do nothing */
 	return;
@@ -1226,10 +1232,10 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     span = max - min;
     scale = (width - 1) / span;
 
-    newpos = GTK_ADJUSTMENT(horiz->pos_adj)->value
-        + motion * 100 / scale;
+    newpos = gtk_adjustment_get_value(
+            GTK_ADJUSTMENT(horiz->pos_adj)) + motion * 100 / scale;
     gtk_adjustment_set_value(GTK_ADJUSTMENT(horiz->pos_adj), newpos);
-    
+
     horiz->x0 = event->x;
     return TRUE;
 }
