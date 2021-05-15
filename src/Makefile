@@ -162,6 +162,8 @@ SUBDIRS := \
     ../docs/src ../docs/src/source-highlight \
     \
     ../tests \
+	\
+	../share/qtvcp/screens/qtplasmac \
 
 
 
