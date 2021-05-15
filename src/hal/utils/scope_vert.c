@@ -102,6 +102,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
+static void style_with_css(GtkWidget *widget, int (*color_arr)[3]);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -517,46 +518,28 @@ void write_vert_config(FILE *fp)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-void set_color(GdkColor *color, unsigned char red,
-		unsigned char green, unsigned char blue) {
-    color->red = ((unsigned long) red) << 8;
-    color->green = ((unsigned long) green) << 8;
-    color->blue = ((unsigned long) blue) << 8;
-    color->pixel =
-	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
-	((unsigned long) blue);
-}
-
 extern int normal_colors[16][3], selected_colors[16][3];
 static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
     long n;
+    int j;
+    int color_array[2][3];
     gchar buf[5];
-    GdkColor c;
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
+        /* fill array with color values */
+        for (j = 0; j < 3; j++) {
+            color_array[0][j] = normal_colors[n][j];
+            color_array[1][j] = selected_colors[n][j];
+        }
 	snprintf(buf, 4, "%ld", n + 1);
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
 
-	/* set up colors of the label */
-	set_color(&c, normal_colors[n][0],
-			normal_colors[n][1], normal_colors[n][2]);
-	gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &c);
-	gtk_widget_modify_bg(button, GTK_STATE_SELECTED, &c);
-
-	set_color(&c, selected_colors[n][0],
-			selected_colors[n][1], selected_colors[n][2]);
-	gtk_widget_modify_bg(button, GTK_STATE_PRELIGHT, &c);
-
-	set_color(&c, 0, 0, 0);
-	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
-	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
-	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
-
+        style_with_css(button, color_array);
 	/* put it in the window */
 	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
 	    TRUE, 0);
@@ -1209,3 +1192,31 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
         fprintf(fp, "VOFF %e\n", chan->vert_offset);
     }
 }
+
+/*
+ * Inline css, set color to  channel select buttons.
+ */
+static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
+{
+    GtkStyleContext *context;
+    GtkCssProvider *provider;
+
+    char buf[180];
+
+    snprintf(buf, sizeof(buf), "* {background: none;}\n"
+                               "*:checked {background: rgb(%d,%d,%d);}\n"
+                               "*:hover {background: rgb(%d,%d,%d);}\n"
+                               "*:active {background: rgb(%d,%d,%d);}",
+                               color_arr[0][0], color_arr[0][1], color_arr[0][2],
+                               color_arr[1][0], color_arr[1][1], color_arr[1][2],
+                               color_arr[0][0], color_arr[0][1], color_arr[0][2]);
+
+    provider = gtk_css_provider_new ();
+    context = gtk_widget_get_style_context(widget);
+    gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_css_provider_load_from_data(provider, buf, -1, NULL);
+
+    g_object_unref(provider);
+}
+
