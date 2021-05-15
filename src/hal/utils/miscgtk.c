@@ -106,7 +106,7 @@ void gtk_vseparator_new_in_box(GtkWidget * box, guint padding)
 {
     GtkWidget *bar;
 
-    bar = gtk_vseparator_new();
+    bar = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start(GTK_BOX(box), bar, FALSE, FALSE, padding);
     gtk_widget_show(bar);
 }
@@ -115,7 +115,7 @@ void gtk_hseparator_new_in_box(GtkWidget * box, guint padding)
 {
     GtkWidget *bar;
 
-    bar = gtk_hseparator_new();
+    bar = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(box), bar, FALSE, FALSE, padding);
     gtk_widget_show(bar);
 }
@@ -126,7 +126,8 @@ GtkWidget *gtk_vbox_new_in_box(gboolean homogeneous, guint spacing,
 {
     GtkWidget *vbox;
 
-    vbox = gtk_vbox_new(homogeneous, spacing);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(vbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), border);
     gtk_box_pack_start(GTK_BOX(box), vbox, expand, fill, padding);
     gtk_widget_show(vbox);
@@ -139,7 +140,8 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
 {
     GtkWidget *hbox;
 
-    hbox = gtk_hbox_new(homogeneous, spacing);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), border);
     gtk_box_pack_start(GTK_BOX(box), hbox, expand, fill, padding);
     gtk_widget_show(hbox);
@@ -155,7 +157,8 @@ GtkWidget *gtk_vbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     frame = gtk_frame_new(name);
     gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
     gtk_widget_show(frame);
-    vbox = gtk_vbox_new(homogeneous, spacing);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(vbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), border);
     gtk_container_add(GTK_CONTAINER(frame), vbox);
     gtk_widget_show(vbox);
@@ -171,7 +174,8 @@ GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     frame = gtk_frame_new(name);
     gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
     gtk_widget_show(frame);
-    hbox = gtk_hbox_new(homogeneous, spacing);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), border);
     gtk_container_add(GTK_CONTAINER(frame), hbox);
     gtk_widget_show(hbox);
@@ -240,7 +244,10 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     }
     if (msg != NULL) {
 	label = gtk_label_new(msg);
-	gtk_misc_set_padding(GTK_MISC(label), 15, 15);
+	gtk_widget_set_margin_top(label, 15);
+	gtk_widget_set_margin_bottom(label, 15);
+	gtk_widget_set_margin_start(label, 15);
+	gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             label, TRUE, TRUE, 0);
     }

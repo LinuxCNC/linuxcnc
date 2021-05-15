@@ -573,7 +573,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_widget_show(help_rootmenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(help_rootmenu),helpmenu);
 
-    vbox = gtk_vbox_new(FALSE, 0);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(vboxtop), vbox);
     gtk_widget_show(vbox);
 
@@ -627,7 +627,7 @@ static void define_scope_windows(void)
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */
-    vbox = gtk_vbox_new(FALSE, 0);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 0);
     gtk_container_add(GTK_CONTAINER(ctrl_usr->main_win), vbox);
     gtk_widget_show(vbox);
@@ -636,7 +636,7 @@ static void define_scope_windows(void)
     vboxbottom = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, TRUE, TRUE, 0);
 
     /* one big hbox for everything under the menu */
-    hbox = gtk_hbox_new(FALSE, 0);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
     /* add the hbox to the main window */
     gtk_container_add(GTK_CONTAINER(vboxbottom), hbox);
@@ -657,6 +657,8 @@ static void define_scope_windows(void)
     /* horizontal row of select buttons */
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);
+    gtk_widget_set_vexpand(ctrl_usr->waveform_win, TRUE);
+    gtk_widget_set_hexpand(ctrl_usr->waveform_win, TRUE);
     ctrl_usr->chan_sel_win =
 	gtk_hbox_new_in_box(TRUE, 0, 0, vboxleft, FALSE, FALSE, 0);
     ctrl_usr->chan_info_win =

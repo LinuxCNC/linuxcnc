@@ -141,7 +141,8 @@ static void init_horiz_window(void)
     vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 3);
     /* add a slider for zoom level */
     horiz->zoom_adj = gtk_adjustment_new(1, 1, 9, 1, 1, 0);
-    horiz->zoom_slider = gtk_hscale_new(GTK_ADJUSTMENT(horiz->zoom_adj));
+    horiz->zoom_slider = gtk_scale_new(
+            GTK_ORIENTATION_HORIZONTAL, GTK_ADJUSTMENT(horiz->zoom_adj));
     gtk_scale_set_digits(GTK_SCALE(horiz->zoom_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(horiz->zoom_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), horiz->zoom_slider, FALSE, FALSE, 0);
@@ -153,7 +154,8 @@ static void init_horiz_window(void)
     gtk_widget_show(horiz->zoom_slider);
     /* add a slider for position control */
     horiz->pos_adj = gtk_adjustment_new(500, 0, 1000, 1, 1, 0);
-    horiz->pos_slider = gtk_hscale_new(GTK_ADJUSTMENT(horiz->pos_adj));
+    horiz->pos_slider = gtk_scale_new(
+            GTK_ORIENTATION_HORIZONTAL, GTK_ADJUSTMENT(horiz->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(horiz->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(horiz->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), horiz->pos_slider, FALSE, FALSE, 0);
@@ -203,7 +205,7 @@ static void init_horiz_window(void)
     gtk_widget_show(horiz->disp_area);
     /* label for state */
     gtk_vseparator_new_in_box(hbox, 3);
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
+    vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, FALSE, TRUE, 3);
     horiz->state_label =
 	gtk_label_new_in_box(" ---- ", vbox, FALSE, FALSE, 3);
     gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
@@ -524,16 +526,20 @@ static void dialog_realtime_not_linked(void)
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
+    gtk_widget_set_margin_top(label, 5);
+    gtk_widget_set_margin_bottom(label, 5);
+    gtk_widget_set_margin_start(label, 15);
+    gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             label, FALSE, TRUE, 0);
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_hseparator_new(), FALSE, FALSE , 0);
+            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE , 0);
 
     /* thread name display */
-    hbox = gtk_hbox_new(TRUE, 5);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
     gtk_label_new_in_box(_("Thread:"), hbox, TRUE, TRUE, 0);
     horiz->thread_name_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
@@ -541,7 +547,8 @@ static void dialog_realtime_not_linked(void)
             hbox, FALSE, TRUE, 0);
 
     /* sample period display */
-    hbox = gtk_hbox_new(TRUE, 5);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
     gtk_label_new_in_box(_("Sample Period:"), hbox, TRUE, TRUE, 0);
     horiz->sample_period_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
@@ -549,7 +556,8 @@ static void dialog_realtime_not_linked(void)
             hbox, FALSE, TRUE, 0);
 
     /* sample rate display */
-    hbox = gtk_hbox_new(TRUE, 5);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
     gtk_label_new_in_box(_("Sample Rate:"), hbox, TRUE, TRUE, 0);
     horiz->sample_rate_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
@@ -558,7 +566,7 @@ static void dialog_realtime_not_linked(void)
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_hseparator_new(), FALSE, FALSE , 0);
+            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE , 0);
 
     /* Create a scrolled window to display the thread list */
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -612,7 +620,8 @@ static void dialog_realtime_not_linked(void)
     rtapi_mutex_give(&(hal_data->mutex));
 
     /* set up the the layout for the multiplier spinbutton */
-    hbox = gtk_hbox_new(TRUE, 5);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
     gtk_label_new_in_box(_("Multiplier:"), hbox, FALSE, FALSE, 0);
     /* set up the multiplier spinbutton - ranges from every run of the
        thread, to every 1000th run */
@@ -630,7 +639,7 @@ static void dialog_realtime_not_linked(void)
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_hseparator_new(), FALSE, FALSE , 0);
+            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE , 0);
 
     /* box for record length buttons */
     label = gtk_label_new(_("Record Length"));

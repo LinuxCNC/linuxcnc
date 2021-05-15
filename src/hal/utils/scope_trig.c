@@ -240,7 +240,8 @@ static void init_trigger_info_window(void)
     trig->level_adj =
 	gtk_adjustment_new(TRIG_LEVEL_RESOLUTION / 2, 0,
 	TRIG_LEVEL_RESOLUTION, 1, 1, 0);
-    trig->level_slider = gtk_vscale_new(GTK_ADJUSTMENT(trig->level_adj));
+    trig->level_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(trig->level_adj));
     gtk_scale_set_digits(GTK_SCALE(trig->level_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(trig->level_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), trig->level_slider, TRUE, TRUE, 0);
@@ -257,7 +258,8 @@ static void init_trigger_info_window(void)
     trig->pos_adj =
 	gtk_adjustment_new(TRIG_POS_RESOLUTION / 2, 0, TRIG_POS_RESOLUTION, 1,
 	1, 0);
-    trig->pos_slider = gtk_vscale_new(GTK_ADJUSTMENT(trig->pos_adj));
+    trig->pos_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(trig->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(trig->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(trig->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), trig->pos_slider, TRUE, TRUE, 0);
@@ -317,7 +319,10 @@ static void dialog_select_trigger_source(void)
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
+    gtk_widget_set_margin_top(label, 5);
+    gtk_widget_set_margin_bottom(label, 5);
+    gtk_widget_set_margin_start(label, 15);
+    gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             label, FALSE, TRUE, 0);
 

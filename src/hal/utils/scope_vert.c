@@ -606,7 +606,8 @@ static void init_vert_info_window(void)
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
-    vert->scale_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->scale_adj));
+    vert->scale_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->scale_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->scale_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->scale_slider, TRUE, TRUE, 0);
@@ -620,7 +621,8 @@ static void init_vert_info_window(void)
     vert->pos_adj =
 	gtk_adjustment_new(VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1,
 	1, 0);
-    vert->pos_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->pos_adj));
+    vert->pos_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->pos_slider, TRUE, TRUE, 0);
@@ -714,13 +716,16 @@ static gboolean dialog_set_offset(int chan_num)
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
+    gtk_widget_set_margin_top(label, 5);
+    gtk_widget_set_margin_bottom(label, 5);
+    gtk_widget_set_margin_start(label, 15);
+    gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             label, FALSE, TRUE, 0);
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_hseparator_new(), FALSE, FALSE, 0);
+            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
 
     /* a checkbox: AC coupled */
     vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
