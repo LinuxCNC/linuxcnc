@@ -90,7 +90,7 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata);
 static void calc_horiz_scaling(void);
 
 static void refresh_horiz_info(void);
-static void refresh_pos_disp(void);
+static gboolean refresh_pos_disp(void);
 
 /* helper functions */
 static void format_time_value(char *buf, int buflen, double timeval);
@@ -100,6 +100,9 @@ static void format_freq_value(char *buf, int buflen, double freqval);
 static gint horiz_press(GtkWidget *widget, GdkEventButton *event);
 static gint horiz_release(GtkWidget *widget, GdkEventButton *event);
 static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event);
+
+static gboolean configure_window(GtkWidget *widget, GdkEventConfigure *event,
+                                 gpointer data);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -181,11 +184,12 @@ static void init_horiz_window(void)
 	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE,
 	TRUE, 0);
     /* graphic horizontal display */
-#ifdef HAVE_GNOMECANVS
-    horiz->disp_area = gnome_canvas_new_aa();
-#else
     horiz->disp_area = gtk_drawing_area_new();
-#endif
+
+    g_signal_connect(horiz->disp_area, "configure_event",
+            G_CALLBACK(configure_window), NULL);
+    g_signal_connect(horiz->disp_area, "draw",
+            G_CALLBACK(refresh_pos_disp), NULL);
     g_signal_connect(horiz->disp_area, "button_press_event",
         G_CALLBACK(horiz_press), 0);
     g_signal_connect(horiz->disp_area, "button_release_event",
@@ -298,7 +302,6 @@ void refresh_state_info(void)
 	ctrl_shm->state = IDLE;
     }
     gtk_label_set_text_if(horiz->state_label, state_names[ctrl_shm->state]);
-    refresh_pos_disp();
 }
 
 void write_horiz_config(FILE *fp)
@@ -1036,12 +1039,14 @@ static void refresh_horiz_info(void)
     refresh_state_info();
 }
 
-static void refresh_pos_disp(void)
+/*
+ * Draws the boxes and trigger line in the horiz_info_win
+ */
+static gboolean refresh_pos_disp(void)
 {
     scope_horiz_t *horiz;
-    GdkDrawable *w;
-    int width, height, depth;
-    GdkGC *c;
+    horiz = &(ctrl_usr->horiz);
+
     double disp_center, disp_start, disp_end;
     double rec_start, rec_curr, rec_end;
     double min, max, span, scale;
@@ -1051,24 +1056,8 @@ static void refresh_pos_disp(void)
     int trig_y_off, trig_line_top, trig_line_bot, trig_line_x;
     int rec_curr_x;
 
-    horiz = &(ctrl_usr->horiz);
-    /* get window to local var */
-    w = gtk_widget_get_window(horiz->disp_area);
-    if (w == NULL) {
-	/* window isn't visible yet, do nothing */
-	return;
-    }
-    /* create drawing context if needed */
-    if (horiz->disp_context == NULL) {
-	horiz->disp_context = gdk_gc_new(w);
-    }
-    /* get context to local var */
-    c = horiz->disp_context;
-    /* get window dimensions */
-    gdk_window_get_geometry(w, NULL, NULL, &width, &height, &depth);
-
-    /* these are based only on window dims */
-    rec_line_y = (height - 1) / 2;
+    /* these are based on widget dimensions */
+    rec_line_y = (horiz->height - 1)/ 2;
     box_y_off = rec_line_y / 2;
     trig_y_off = rec_line_y;
     trig_line_top = rec_line_y - trig_y_off;
@@ -1096,7 +1085,7 @@ static void refresh_pos_disp(void)
 	max = disp_end;
     }
     span = max - min;
-    scale = (width - 1) / span;
+    scale = (horiz->width - 1) / span;
 
     trig_line_x = scale * (0 - min);
     rec_line_left = scale * (rec_start - min);
@@ -1105,23 +1094,37 @@ static void refresh_pos_disp(void)
     box_left = scale * (disp_start - min);
     box_right = scale * (disp_end - min);
 
-    /* draw stuff */
-    gdk_window_clear(w);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y + 1, rec_line_left,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_right, rec_line_y + 1, rec_line_right,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y + 1, rec_line_right,
-	rec_line_y + 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y - 1, rec_line_right,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y, rec_curr_x, rec_line_y);
-    gdk_draw_line(w, c, trig_line_x, trig_line_top, trig_line_x,
-	trig_line_bot);
-    gdk_draw_line(w, c, box_left, box_top, box_right, box_top);
-    gdk_draw_line(w, c, box_left, box_bot, box_right, box_bot);
-    gdk_draw_line(w, c, box_left, box_top, box_left, box_bot);
-    gdk_draw_line(w, c, box_right, box_top, box_right, box_bot);
+    /* set color to black */
+    cairo_set_source_rgb(horiz->disp_context, 0.0, 0.0, 0.0);
+
+    /* small box */
+    cairo_move_to(horiz->disp_context, rec_line_left, rec_line_y + 2);
+    cairo_line_to(horiz->disp_context, rec_line_right, rec_line_y + 2);
+    cairo_line_to(horiz->disp_context, rec_line_right, rec_line_y - 2);
+    cairo_line_to(horiz->disp_context, rec_line_left, rec_line_y - 2);
+    cairo_line_to(horiz->disp_context, rec_line_left, rec_line_y + 2);
+    cairo_stroke(horiz->disp_context);
+
+    /* fill small box */
+    cairo_move_to(horiz->disp_context, rec_line_left, rec_line_y);
+    cairo_line_to(horiz->disp_context, rec_curr_x, rec_line_y);
+    cairo_stroke(horiz->disp_context);
+
+    /* vertical trigger line */
+    cairo_move_to(horiz->disp_context, trig_line_x, trig_line_top);
+    cairo_line_to(horiz->disp_context, trig_line_x, trig_line_bot);
+    cairo_stroke(horiz->disp_context);
+
+    /* large positional box */
+    cairo_move_to(horiz->disp_context, box_left, box_top);
+    cairo_line_to(horiz->disp_context, box_right, box_top);
+    cairo_line_to(horiz->disp_context, box_right, box_bot);
+    cairo_line_to(horiz->disp_context, box_left, box_bot);
+    cairo_line_to(horiz->disp_context, box_left, box_top);
+    cairo_stroke(horiz->disp_context);
+
+    gtk_widget_queue_draw(horiz->disp_area);
+    return FALSE;
 }
 
 static void format_time_value(char *buf, int buflen, double timeval)
@@ -1241,5 +1244,26 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 }
 
 static gint horiz_release(GtkWidget *widget, GdkEventButton *event) {
+    return TRUE;
+}
+
+static gboolean configure_window(GtkWidget *widget, GdkEventConfigure *event,
+                                 gpointer data)
+{
+    scope_horiz_t *horiz;
+    horiz = &(ctrl_usr->horiz);
+
+    if (horiz->surface) {
+        cairo_surface_destroy(horiz->surface);
+    }
+
+    horiz->width = gtk_widget_get_allocated_width(widget);
+    horiz->height = gtk_widget_get_allocated_height(widget);
+    horiz->surface = gdk_window_create_similar_image_surface(gtk_widget_get_window(widget),
+            CAIRO_FORMAT_A1, horiz->width, horiz->height, 0);
+
+    horiz->disp_context = cairo_create(horiz->surface);
+    cairo_destroy(horiz->disp_context);
+
     return TRUE;
 }

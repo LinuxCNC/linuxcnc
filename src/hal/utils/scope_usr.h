@@ -56,9 +56,12 @@ typedef struct {
     int zoom_setting;		/* setting of zoom slider (1-9) */
     double pos_setting;		/* setting of position slider (0.0-1.0) */
     long x0;
+    int width;			/* width in pixels */
+    int height;			/* height in pixels */
     /* widgets for main window */
     GtkWidget *disp_area;
-    GdkGC *disp_context;
+    cairo_t *disp_context;
+    cairo_surface_t *surface;
     GtkWidget *state_label;
     GtkWidget *record_button;
     GtkWidget *record_label;
