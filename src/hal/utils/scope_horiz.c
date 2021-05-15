@@ -1191,7 +1191,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 
     int motion;
 
-    int pre_trig, width;
+    int pre_trig;
     double disp_center, disp_start, disp_end;
     double rec_start, rec_end;
     double min, max, span, scale;
@@ -1200,10 +1200,9 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     int x, y;
     GdkModifierType state;
 
-    if (event->is_hint)
-        gdk_window_get_pointer (event->window, &x, &y, &state);
-    else
-    {
+    if (event->is_hint) {
+        gdk_window_get_device_position(event->window, event->device, &x, &y, &state);
+    } else {
         x = event->x;
         y = event->y;
         state = event->state;
@@ -1212,8 +1211,6 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     if(!(state & GDK_BUTTON1_MASK)) return TRUE;
 
     motion = x - horiz->x0;
-
-    gdk_window_get_geometry(GDK_WINDOW(horiz->disp_area), 0, 0, &width, 0, 0);
 
     pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     rec_start = -pre_trig * horiz->sample_period;
@@ -1233,7 +1230,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 	max = disp_end;
     }
     span = max - min;
-    scale = (width - 1) / span;
+    scale = (horiz->width - 1) / span;
 
     newpos = gtk_adjustment_get_value(
             GTK_ADJUSTMENT(horiz->pos_adj)) + motion * 100 / scale;

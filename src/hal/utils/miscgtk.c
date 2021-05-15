@@ -207,7 +207,7 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
     /* set the label to display the new text */
     gtk_label_set_text(label, str);
     /* how big is the label with the new text? */
-    gtk_widget_size_request(GTK_WIDGET(label), &req);
+    gtk_widget_get_preferred_size(GTK_WIDGET(label), NULL, &req);
     /* freeze it at this size */
     gtk_widget_set_size_request(GTK_WIDGET(label), req.width, req.height);
     /* restore the old text */

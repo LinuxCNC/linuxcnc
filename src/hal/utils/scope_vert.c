@@ -602,7 +602,6 @@ static void init_chan_info_window(void)
 
     vert->readout_label = gtk_label_new_in_box("",
 		    ctrl_usr->chan_info_win, FALSE, FALSE, 0);
-    gtk_misc_set_alignment(GTK_MISC(vert->readout_label), 0, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
 		    "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
@@ -1140,8 +1139,6 @@ void channel_changed(void)
     gtk_adjustment_set_lower(adj, chan->min_index);
     gtk_adjustment_set_upper(adj, chan->max_index);
     gtk_adjustment_set_value(adj, chan->scale_index);
-    gtk_adjustment_changed(adj);
-    gtk_adjustment_value_changed(adj);
     /* update the channel number and name display */
     snprintf(buf1, BUFLEN, "%2d", vert->selected);
     name = chan->name;

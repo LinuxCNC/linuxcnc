@@ -587,7 +587,8 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     GdkModifierType mod;
     int x, y;
 
-    gdk_window_get_pointer(gtk_widget_get_window(disp->drawing), &x, &y, &mod);
+    gdk_window_get_device_position(gtk_widget_get_window(disp->drawing),
+            event->device, &x, &y, &mod);
     if(mod & GDK_BUTTON1_MASK) {
         left_drag(y-motion_y, y, event->state);
         return TRUE;
@@ -605,10 +606,7 @@ void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     char tip[512];
-    GdkRectangle r = {vert->readout_label->allocation.x,
-            vert->readout_label->allocation.y,
-            vert->readout_label->allocation.width,
-            vert->readout_label->allocation.height};
+
     if(vert->selected != -1) {
         double t=0, p=0, v=0;
         int result = get_cursor_info(&t, &p, &v);
@@ -622,9 +620,6 @@ void update_readout(void) {
     }
 
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip);
-
-    gtk_widget_draw(vert->readout_label, &r);
-
 }
 
 struct pt { double x, y; };

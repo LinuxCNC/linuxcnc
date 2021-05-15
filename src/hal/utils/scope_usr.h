@@ -66,16 +66,16 @@ typedef struct {
     GtkWidget *record_button;
     GtkWidget *record_label;
     GtkWidget *zoom_slider;
-    GtkObject *zoom_adj;
+    GtkAdjustment *zoom_adj;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
     GtkWidget *scale_label;
     /* widgets for thread selection dialog */
     GtkWidget *thread_list;
     GtkWidget *thread_name_label;
     GtkWidget *sample_rate_label;
     GtkWidget *sample_period_label;
-    GtkObject *mult_adj;
+    GtkAdjustment *mult_adj;
     GtkWidget *mult_spinbutton;
 } scope_horiz_t;
 
@@ -116,10 +116,10 @@ typedef struct {
     GtkWidget *source_name_button;
     /* widgets for vert info window */
     GtkWidget *scale_slider;
-    GtkObject *scale_adj;
+    GtkAdjustment *scale_adj;
     GtkWidget *scale_label;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
     GtkWidget *offset_button;
     GtkWidget *offset_label;
     GtkWidget *readout_label;
@@ -148,10 +148,10 @@ typedef struct {
     GtkWidget *edge_button;
     GtkWidget *edge_label;
     GtkWidget *level_slider;
-    GtkObject *level_adj;
+    GtkAdjustment *level_adj;
     GtkWidget *level_label;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
 } scope_trig_t;
 
 
@@ -299,4 +299,4 @@ int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
 void log_popup(GtkWindow *parent);
-#endif /* HALSC_USR_H */
+#endif /* SCOPE_USR_H */
