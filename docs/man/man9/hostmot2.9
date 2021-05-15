@@ -1440,8 +1440,8 @@ make them act like a closed switch.
 .SH xy2mod
 
 The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18 bit 
-data modes and includes interpolation to provide position updates between
-servo thread invocations. 
+data modes and includes parabolic interpolation to provide position updates 
+between servo thread invocations. 
 
 .TP
 Pins:
@@ -1481,7 +1481,7 @@ and overflow flags are cleared. Must be True for normal operation.
 
 .TP 
 (u32 in) controlx, controly
-These set the galavanometer control bits. There 3 bits per channel in 16 bit mode but just 1
+These set the galvanometer control bits. There 3 bits per channel in 16 bit mode but just 1
 control bit in 18 bit mode, so values from 0..7 are valid in 16 bit mode but only 0 and 4
 are valid in 18 bit mode
 
@@ -1507,7 +1507,7 @@ When True, these indicate an attempted velocity update move beyond the full scal
 
 .TP 
 (u32 out) status
-Raw 16 bit return status from galavanometer.
+Raw 16 bit return status from galvanometer.
 
 .TP
 Parameters:
