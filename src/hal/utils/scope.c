@@ -246,7 +246,7 @@ static int heartbeat(gpointer data)
 	/* decrement timer, did it time out? */
 	if (--ctrl_usr->display_refresh_timer == 0) {
 	    /* yes, refresh the display */
-	    refresh_display();
+	    redraw_window();
 	}
     }
     if (ctrl_shm->state == DONE) {
@@ -371,7 +371,7 @@ void capture_copy_data(void) {
 void capture_cont()
 {
     capture_copy_data();
-    refresh_display();
+    redraw_window();
 }
 
 void capture_complete(void)
@@ -396,7 +396,7 @@ void capture_complete(void)
 	
 	//uncomment me to write log files
 	//write_log_file("scope.log");
-    refresh_display();
+    redraw_window();
 }
 
 /***********************************************************************
@@ -457,7 +457,7 @@ static void do_open_configuration(char *filename)
     }
     read_config_file(filename);
     channel_changed();
-    refresh_display();
+    redraw_window();
 }
 
 static void open_configuration(GtkWindow *parent)

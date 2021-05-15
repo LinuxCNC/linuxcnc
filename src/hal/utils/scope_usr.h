@@ -161,8 +161,8 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    int width;			/* height in pixels */
-    int height;			/* width in pixels */
+    int width;                  /* width in pixels */
+    int height;                 /* height in pixels */
     double pixels_per_sample;	/* horizontal scaling */
     double horiz_offset;		/* offset in pixels */
     int start_sample;		/* first displayable sample */
@@ -171,15 +171,14 @@ typedef struct {
     GtkWidget *drawing;		/* drawing area for display */
     GtkTooltip *tip;		/* drawing area for display */
     /* drawing objects (GDK) */
-    GdkDrawable *win;		/* the window */
-    GdkColormap *map;		/* the colormap for the window */
-    GdkColor color_bg;		/* background color */
-    GdkColor color_grid;	/* the grid color */
-    GdkColor color_normal[16];	/* the color for normal waveforms */
-    GdkColor color_selected[16];	/* the color for selected waveforms */
-    GdkColor color_baseline;    /* The baseline color */
+    GdkRGBA color_bg;           /* background color */
+    GdkRGBA color_grid;         /* the grid color */
+    GdkRGBA color_normal[16];   /* the color for normal waveforms */
+    GdkRGBA color_selected[16]; /* the color for selected waveforms */
+    GdkRGBA color_baseline;     /* The baseline color */
 
-    GdkGC *context;		/* graphics context for drawing */
+    cairo_surface_t *surface;
+    cairo_t *context;
     int selected_part;
 } scope_disp_t;
 
@@ -263,7 +262,7 @@ void refresh_trigger(void);
 void invalidate_channel(int chan);
 void invalidate_all_channels(void);
 void channel_changed(void);
-
+void redraw_window(void);
 
 void format_signal_value(char *buf, int buflen, double value);
 

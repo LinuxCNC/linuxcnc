@@ -168,7 +168,7 @@ void refresh_trigger(void)
         gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 1);
     }
     gtk_label_set_text_if(trig->level_label, buf);
-    refresh_display();
+    redraw_window();
 }
 
 void write_trig_config(FILE *fp)
