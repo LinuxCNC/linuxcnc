@@ -386,7 +386,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def emit_percent(self, percent):
         self.percentLoaded.emit(percent)
 
-    def from_internal_linear_unit(v, unit=None):
+    def from_internal_linear_unit(self, v, unit=None):
         if unit is None:
             unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
