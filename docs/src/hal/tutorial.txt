@@ -806,19 +806,19 @@ Fortunately HAL has one, called halscope.
 Halscope has two parts - a realtime part that is loaded as a kernel
 module, and a user part that supplies the GUI and display. However, you
 don't need to worry about this, because the userspace portion will
-automatically request that the realtime part be loaded. Also notice
-the first time you run halscope in a directory it gives a benign
-message that the file 'autosave.halscope' could not be opened.
+automatically request that the realtime part be loaded. With LinuxCNC
+running in a terminal you can start halscope with the following command.
 
 .Starting Halscope
 ----
-halcmd: loadusr halscope
-halcmd: halscope: config file 'autosave.halscope' could not be opened
+halcmd loadusr halscope
 ----
 
-The scope GUI window will open, immediately followed by a
-'Realtime function not linked' dialog that looks like the following
-figure.
+If LinuxCNC is not running or the autosave.halscope file does not match
+the pins avaiable in the current running LinuxCNC the scope GUI window
+will open, immediately followed by a 'Realtime function not linked'
+dialog that looks like the following figure. To change the sample rate
+left click on the samples box.
 
 .Realtime function not linked dialog
 
