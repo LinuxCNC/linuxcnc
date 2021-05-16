@@ -70,6 +70,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 3: return "Index";
                 case 4: return "IndexMask";
                 case 5: return "Probe";
+                case 6: return "Shared Index";
             }
             break;
         case HM2_GTAG_SSI:
@@ -433,6 +434,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 3: return "phase-Z";
                 case 4: return "phase-Z-mask";
                 case 5: return "probe-latch";
+                case 6: return "shared-Z";
             }
             break;
         case HM2_GTAG_SSI:
