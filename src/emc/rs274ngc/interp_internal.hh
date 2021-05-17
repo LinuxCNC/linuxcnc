@@ -13,6 +13,7 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include <locale.h>
 #include <algorithm>
 #include "config.h"
 #include <limits.h>
@@ -990,5 +991,14 @@ macros totally crash-proof. If the function call stack is deeper than
        CHP(call); \
      }
 
+;
 
+struct scoped_locale {
+    scoped_locale(int category_, const char *locale_) : category(category_), oldlocale(setlocale(category, NULL)) { setlocale(category, locale_); }
+    ~scoped_locale() { setlocale(category, oldlocale); }
+    int category;
+    const char *oldlocale;
+};
+
+#define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
 #endif // INTERP_INTERNAL_HH
