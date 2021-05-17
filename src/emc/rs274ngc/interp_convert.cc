@@ -1271,6 +1271,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
+    FORCE_LC_NUMERIC_C;
     int i;
     char param[LINELEN+1];
     int paramNumber;
@@ -2737,6 +2738,7 @@ int Interp::gen_settings(
     double *float_current, double *float_saved,  // S, F, other
     std::string &cmd)                            // command buffer
 {
+    FORCE_LC_NUMERIC_C;
     int i, val;
     int g64_changed = 0;
     char buf[LINELEN];
@@ -2864,6 +2866,7 @@ int Interp::gen_settings(
  */
 int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 {
+    FORCE_LC_NUMERIC_C;
     int i,val;
     char buf[LINELEN];
     for (i = 0; i < ACTIVE_M_CODES; i++) {

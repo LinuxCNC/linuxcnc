@@ -1821,6 +1821,7 @@ has its value set to zero.
 */
 int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
 {
+  FORCE_LC_NUMERIC_C;
   FILE *infile;
   char line[256];
   int variable;
@@ -1914,6 +1915,7 @@ complain, but does write it in the output file.
 int Interp::save_parameters(const char *filename,      //!< name of file to write
                              const double parameters[]) //!< parameters to save   
 {
+  FORCE_LC_NUMERIC_C;
   FILE *infile;
   FILE *outfile;
   char line[PATH_MAX];
