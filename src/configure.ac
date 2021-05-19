@@ -874,7 +874,7 @@ if test "$BUILD_GTK" = "yes"; then
     fi
   else
     AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK3 missing.  Install it or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
+    AC_MSG_ERROR([GTK3 missing.  Install with "sudo apt install libgtk-3-dev" or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
   fi
 fi
 
