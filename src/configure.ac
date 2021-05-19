@@ -856,12 +856,12 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK_VER=`pkg-config gtk+-2.0 --modversion`
+  AC_MSG_CHECKING([for GTK 3.22.4 or above])
+  if pkg-config gtk+-3.0 --atleast-version 3.22.4 >/dev/null 2>&1; then
+    GTK_VER=`pkg-config gtk+-3.0 --modversion`
     AC_MSG_RESULT(yes - $GTK_VER)
-    GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK_LIBS=`pkg-config gtk+-2.0 --libs`
+    GTK_CFLAGS=`pkg-config gtk+-3.0 --cflags`
+    GTK_LIBS=`pkg-config gtk+-3.0 --libs`
     AC_MSG_CHECKING(for libgnomeprintui-2.2)
     if pkg-config --exists libgnomeprintui-2.2; then
       AC_MSG_RESULT(yes)
@@ -874,7 +874,7 @@ if test "$BUILD_GTK" = "yes"; then
     fi
   else
     AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install it or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
+    AC_MSG_ERROR([GTK3 missing.  Install with "sudo apt install libgtk-3-dev" or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
   fi
 fi
 

@@ -139,4 +139,21 @@ void dialog_generic_button3(GtkWidget * widget, dialog_generic_t * dptr);
 void dialog_generic_button4(GtkWidget * widget, dialog_generic_t * dptr);
 void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr);
 
+/* Initialize a TreeView. */
+void init_list(GtkWidget *list, char *titles[], const int num_cols);
+
+/* Add new row to a TreeView. */
+void add_to_list(GtkWidget *list, char *strs[], const int num);
+
+/* Clears all elements from a TreeView list. */
+void clear_list(GtkWidget *list);
+
+/** If a row has  previously been selected, this function ensures that it
+    will be selected again.
+*/
+void mark_selected_row(GtkWidget *list, const int row);
+
+/* Set a file filter for the open and save dialog boxes. */
+void set_file_filter(GtkFileChooser *chooser, const char *str, const char *ext);
+
 #endif /* MISCGTK_H */

@@ -106,7 +106,7 @@ void gtk_vseparator_new_in_box(GtkWidget * box, guint padding)
 {
     GtkWidget *bar;
 
-    bar = gtk_vseparator_new();
+    bar = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start(GTK_BOX(box), bar, FALSE, FALSE, padding);
     gtk_widget_show(bar);
 }
@@ -115,7 +115,7 @@ void gtk_hseparator_new_in_box(GtkWidget * box, guint padding)
 {
     GtkWidget *bar;
 
-    bar = gtk_hseparator_new();
+    bar = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(box), bar, FALSE, FALSE, padding);
     gtk_widget_show(bar);
 }
@@ -126,7 +126,8 @@ GtkWidget *gtk_vbox_new_in_box(gboolean homogeneous, guint spacing,
 {
     GtkWidget *vbox;
 
-    vbox = gtk_vbox_new(homogeneous, spacing);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(vbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), border);
     gtk_box_pack_start(GTK_BOX(box), vbox, expand, fill, padding);
     gtk_widget_show(vbox);
@@ -139,7 +140,8 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
 {
     GtkWidget *hbox;
 
-    hbox = gtk_hbox_new(homogeneous, spacing);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), border);
     gtk_box_pack_start(GTK_BOX(box), hbox, expand, fill, padding);
     gtk_widget_show(hbox);
@@ -155,7 +157,8 @@ GtkWidget *gtk_vbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     frame = gtk_frame_new(name);
     gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
     gtk_widget_show(frame);
-    vbox = gtk_vbox_new(homogeneous, spacing);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(vbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), border);
     gtk_container_add(GTK_CONTAINER(frame), vbox);
     gtk_widget_show(vbox);
@@ -171,7 +174,8 @@ GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     frame = gtk_frame_new(name);
     gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
     gtk_widget_show(frame);
-    hbox = gtk_hbox_new(homogeneous, spacing);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), homogeneous);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), border);
     gtk_container_add(GTK_CONTAINER(frame), hbox);
     gtk_widget_show(hbox);
@@ -188,12 +192,12 @@ void gtk_label_set_text_if(GtkWidget * label, const gchar * text)
 void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
 {
     GtkRequisition req;
-    gchar *current_text;
+    const gchar *current_text;
     gint text_len;
     gchar *text_buf;
 
     /* get a pointer to the current text */
-    gtk_label_get(label, &current_text);
+    current_text = gtk_label_get_text(label);
     /* how long is it */
     text_len = strlen(current_text);
     /* allocate memory to save it */
@@ -207,9 +211,9 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
     /* set the label to display the new text */
     gtk_label_set_text(label, str);
     /* how big is the label with the new text? */
-    gtk_widget_size_request(GTK_WIDGET(label), &req);
+    gtk_widget_get_preferred_size(GTK_WIDGET(label), NULL, &req);
     /* freeze it at this size */
-    gtk_widget_set_usize(GTK_WIDGET(label), req.width, req.height);
+    gtk_widget_set_size_request(GTK_WIDGET(label), req.width, req.height);
     /* restore the old text */
     gtk_label_set_text(label, text_buf);
     /* free the buffer */
@@ -222,7 +226,7 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4)
 {
     dialog_generic_t dialog;
-    GtkWidget *button, *label;
+    GtkWidget *button, *label, *content_area;
     const gchar *button_name_array[4];
     void (*button_funct_array[4]) (GtkWidget *, dialog_generic_t *);
     gint n;
@@ -230,7 +234,8 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     dialog.retval = 0;
     /* create dialog window, disable resizing */
     dialog.window = gtk_dialog_new();
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, FALSE, FALSE);
+    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
     /* set title */
     if (title != NULL) {
 	gtk_window_set_title(GTK_WINDOW(dialog.window), title);
@@ -239,13 +244,16 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     }
     if (msg != NULL) {
 	label = gtk_label_new(msg);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label,
-	    TRUE, TRUE, 0);
-	gtk_misc_set_padding(GTK_MISC(label), 15, 15);
+	gtk_widget_set_margin_top(label, 15);
+	gtk_widget_set_margin_bottom(label, 15);
+	gtk_widget_set_margin_start(label, 15);
+	gtk_widget_set_margin_end(label, 15);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, TRUE, TRUE, 0);
     }
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(dialog.window, "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* transfer button name pointers to an array for looping */
     button_name_array[0] = button1;
     button_name_array[1] = button2;
@@ -260,11 +268,11 @@ int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * ms
     for (n = 0; n < 4; n++) {
 	if (button_name_array[n] != NULL) {
 	    /* make a button */
-	    button = gtk_button_new_with_label(button_name_array[n]);
-	    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->
-		    action_area), button, TRUE, TRUE, 4);
-	    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		GTK_SIGNAL_FUNC(button_funct_array[n]), &dialog);
+            button = gtk_button_new_with_label(button_name_array[n]);
+            g_signal_connect(button, "clicked",
+                    G_CALLBACK(button_funct_array[n]), &dialog);
+            gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+                    button, n + 1);
 	}
     }
     if (parent != NULL) {
@@ -308,6 +316,90 @@ void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr)
     /* this will drop out of the gtk_main call and allow dialog_generic() to
        return */
     gtk_main_quit();
+}
+
+void add_to_list(GtkWidget *list, char *strs[], const int num_cols)
+{
+    GtkListStore *store;
+    GtkTreeIter iter;
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+
+    /* Hardcoded to only support one and two columns. */
+    gtk_list_store_append(store, &iter);
+    if (num_cols == 1) {
+        gtk_list_store_set(store, &iter, 0, strs[0], -1);
+    } else if (num_cols == 2) {
+        gtk_list_store_set(store, &iter, 0, strs[0], 1, strs[1], -1);
+    } else {
+        printf("Failed to add item, to TreeView list\n");
+    }
+}
+
+void init_list(GtkWidget *list, char *titles[], const int len)
+{
+    GtkCellRenderer *renderer;
+    GtkListStore *store;
+
+    int i;
+
+    for (i = 0; i < len; i++) {
+        renderer = gtk_cell_renderer_text_new ();
+        gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(list),
+                -1, titles[i], renderer, "text", i, NULL);
+    }
+
+    store = gtk_list_store_new(len, G_TYPE_STRING, G_TYPE_STRING);
+
+    gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(store));
+
+    g_object_unref(store);
+}
+
+void clear_list(GtkWidget *list)
+{
+    GtkListStore *store;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+
+    if (gtk_tree_model_get_iter_first(model, &iter) == FALSE) {
+        return;
+    }
+
+    gtk_list_store_clear(store);
+}
+
+void mark_selected_row(GtkWidget *list, const int row)
+{
+    GtkTreePath *path;
+    GtkTreeSelection *selection;
+
+    path = gtk_tree_path_new_from_indices(row, -1);
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    gtk_tree_selection_select_path(selection, path);
+
+    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(list), path, NULL, TRUE, 0.5, 0.5);
+}
+
+void set_file_filter(GtkFileChooser *chooser, const char *str, const char *ext)
+{
+    GtkFileFilter *filter_all;
+    GtkFileFilter *filter_spes;
+
+    filter_all = gtk_file_filter_new();
+    filter_spes = gtk_file_filter_new();
+
+    gtk_file_filter_set_name(filter_all, "All files");
+    gtk_file_filter_add_pattern(filter_all, "*");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), filter_all);
+
+    gtk_file_filter_set_name(filter_spes, str);
+    gtk_file_filter_add_pattern(filter_spes, ext);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(chooser), filter_spes);
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(chooser), filter_spes);
 }
 
 /***********************************************************************
