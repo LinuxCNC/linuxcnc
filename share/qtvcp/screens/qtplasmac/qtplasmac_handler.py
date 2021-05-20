@@ -1,4 +1,4 @@
-VERSION = '1.0.33'
+VERSION = '1.0.34'
 
 import os, sys
 from shutil import copy as COPY
@@ -2480,6 +2480,10 @@ class HandlerClass:
             hal.set_p('plasmac.ohmic-test','0')
         elif 'torch-pulse' in commands.lower() and not 'toggle-halpin' in commands.lower():
             hal.set_p('plasmac.torch-pulse-start','0')
+            if self.torchTime == 0:
+                hal.set_p('plasmac.torch-pulse-time', '0')
+                self.w[self.tpButton].setText(self.tpText)
+                self.button_normal(self.tpButton)
 
     def torch_enable_changed(self, state):
         if self.tpButton:
@@ -2508,16 +2512,21 @@ class HandlerClass:
             self.button_normal(self.ptButton)
 
     def torch_timeout(self):
-        if self.torchTime > 0.1:
+        if self.torchTime:
             self.torchTime -= 0.1
             self.torchTimer.start(100)
             self.w[self.tpButton].setText('{:.1f}'.format(self.torchTime))
-        else:
+        if self.torchTime <= 0:
             self.torchTimer.stop()
             self.torchTime = 0
-            hal.set_p('plasmac.torch-pulse-time', '0')
-            self.w[self.tpButton].setText(self.tpText)
-            self.button_normal(self.tpButton)
+            if not self.w[self.tpButton].isDown():
+                hal.set_p('plasmac.torch-pulse-time', '0')
+                self.w[self.tpButton].setText(self.tpText)
+                self.button_normal(self.tpButton)
+            else:
+                self.w[self.tpButton].setText('TORCH\nON')
+        else:
+            self.torchTimer.start(100)
 
     def consumable_change_setup(self):
         self.ccXpos = self.ccYpos = self.ccFeed = 'None'

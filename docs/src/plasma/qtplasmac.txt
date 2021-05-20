@@ -2766,6 +2766,10 @@ BUTTON_n_CODE = load <path>G-Code.ngc
 
 Pulse the torch on for a predetermined time. The time must be specified in seconds and the maximum allowable time is 3 seconds, anything specified above that will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second.
 
+Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the PARAMETERS tab.
+
+If the button is released before the countdown is complete then the torch will turn off at countdown completion, holding the button on until after the countdown has completed will cause the torch to remain on until the button has been released.
+
 ----
 BUTTON_n_CODE = torch-pulse 0.5
 ----
