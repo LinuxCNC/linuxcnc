@@ -31,7 +31,7 @@ static char *license = \
 \n\
 \n\
     This code was written as part of the EMC HAL project.  For more\n\
-    information, go to www.linuxcnc.org.\n\
+    information, go to https://linuxcnc.org\n\
 ";
 
 #include <locale.h>
@@ -443,7 +443,7 @@ static void about(int junk) {
     gtk_show_about_dialog(GTK_WINDOW(ctrl_usr->main_win),
             "copyright", "Copyright (C) 2003 John Kasunich",
             "license", license,
-            "website", "http://www.linuxcnc.org/",
+            "website", "https://linuxcnc.org/",
             NULL);
 }
 
