@@ -321,7 +321,7 @@ void write_horiz_config(FILE *fp)
 int set_sample_thread(char *name)
 {
     int rv;
-    
+
     /* This is broken into two parts.  When called directly
        while reading config file commands, both execute in
        order.  however, when the dialog is running, it calls
@@ -375,7 +375,7 @@ int set_horiz_mult(int setting)
 {
     scope_horiz_t *horiz;
     long period_ns, max_mult;
-    
+
     /* validate setting */
     if ( setting < 1 ) {
 	return -1;
@@ -395,10 +395,10 @@ int set_horiz_mult(int setting)
     /* make sure we aren't too high */
     if ( setting > max_mult ) {
 	setting = max_mult;
-    }    
+    }
     /* save new value */
     ctrl_shm->mult = setting;
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     return 0;
@@ -420,7 +420,7 @@ int set_horiz_zoom(int setting)
     /* set zoom slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->zoom_adj);
     gtk_adjustment_set_value(adj, setting);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     request_display_refresh(1);
@@ -443,7 +443,7 @@ int set_horiz_pos(double setting)
     /* set position slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->pos_adj);
     gtk_adjustment_set_value(adj, setting * 1000);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     refresh_horiz_info();
     request_display_refresh(1);
     return 0;
@@ -842,7 +842,7 @@ static int set_sample_thread_name(char *name)
     }
     /* shut down any prior thread */
     deactivate_sample_thread();
-    /* save info about the thread */ 
+    /* save info about the thread */
     horiz->thread_name = thread->name;
     horiz->thread_period_ns = thread->period;
     /* calc max possible mult (to keep sample period <= 1 sec */
@@ -873,7 +873,7 @@ static int activate_sample_thread(void)
 {
     scope_horiz_t *horiz;
     int rv;
- 
+
     /* get a pointer to the horiz data structure */
     horiz = &(ctrl_usr->horiz);
     /* has a thread name been specified? */
@@ -1204,7 +1204,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     double disp_center, disp_start, disp_end;
     double rec_start, rec_end;
     double min, max, span, scale;
-    double newpos; 
+    double newpos;
 
     int x, y;
     GdkModifierType state;
@@ -1216,7 +1216,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
         y = event->y;
         state = event->state;
     }
-      
+
     if(!(state & GDK_BUTTON1_MASK)) return TRUE;
 
     motion = x - horiz->x0;

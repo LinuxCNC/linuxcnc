@@ -393,7 +393,7 @@ void capture_complete(void)
     default:
 	break;
     }
-	
+
 	//uncomment me to write log files
 	//write_log_file("scope.log");
     redraw_window();
@@ -413,7 +413,7 @@ static void init_usr_control_struct(void *shmem)
     for (n = 0; n < sizeof(scope_usr_control_t); n++) {
 	cp[n] = 0;
     }
-     
+
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
@@ -510,8 +510,8 @@ static void save_configuration(GtkWindow *parent)
 
 static void define_menubar(GtkWidget *vboxtop) {
     GtkWidget *file_rootmenu, *help_rootmenu;
-    GtkWidget *menubar, *filemenu, 
-              *fileopenconfiguration, *filesaveconfiguration, 
+    GtkWidget *menubar, *filemenu,
+              *fileopenconfiguration, *filesaveconfiguration,
               *fileopendatafile, *filesavedatafile,
               *filequit, *sep1, *sep2;
     GtkWidget *helpmenu, *helpabout;
@@ -527,7 +527,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     g_signal_connect_swapped(fileopenconfiguration, "activate",
             G_CALLBACK(open_configuration), 0);
     gtk_widget_show(fileopenconfiguration);
-    
+
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesaveconfiguration);
     g_signal_connect_swapped(filesaveconfiguration, "activate",
@@ -536,20 +536,20 @@ static void define_menubar(GtkWidget *vboxtop) {
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
     gtk_widget_show(sep1);
-    
+
     fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Data File..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
     g_signal_connect_swapped(fileopendatafile, "activate",
             G_CALLBACK(menuitem_response), "file/open datafile");
     gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
     gtk_widget_show(fileopendatafile);
-    
+
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Data File..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
     g_signal_connect_swapped(filesavedatafile, "activate",
             G_CALLBACK(log_popup), 0);
     gtk_widget_show(filesavedatafile);
-    
+
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);
     gtk_widget_show(sep2);
 

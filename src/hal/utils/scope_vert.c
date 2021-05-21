@@ -373,7 +373,7 @@ int set_vert_pos(double setting)
     /* set position slider based on new setting */
     adj = GTK_ADJUSTMENT(vert->pos_adj);
     gtk_adjustment_set_value(adj, chan->position * VERT_POS_RESOLUTION);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
@@ -395,7 +395,7 @@ int set_vert_offset(double setting, int ac_coupled)
 	return -1;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    /* set the new offset */ 
+    /* set the new offset */
     chan->vert_offset = setting;
     chan->ac_offset = ac_coupled;
     /* update the offset display */
@@ -410,7 +410,7 @@ int set_vert_offset(double setting, int ac_coupled)
     }
     snprintf(buf2, BUFLEN, _("Offset\n%s"), buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
@@ -883,7 +883,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
-    set_channel_off(chan_num);    
+    set_channel_off(chan_num);
 }
 
 static void change_source_button(GtkWidget * widget, gpointer gdata)

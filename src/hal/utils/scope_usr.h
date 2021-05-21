@@ -182,7 +182,7 @@ typedef struct {
     int selected_part;
 } scope_disp_t;
 
-/* this struct holds data relating to logging */ 
+/* this struct holds data relating to logging */
 
 typedef enum { INTERLACED, NOT_INTERLACED } log_order_t;
 typedef enum { OVERWRITE, APPEND } log_append_t;
