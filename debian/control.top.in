@@ -38,7 +38,7 @@ Build-Depends: debhelper (>= 6),
     libtirpc-dev,
     libepoxy-dev,
     python3-xlib
-Standards-Version: @STANDARDS_VERSION@
+Standards-Version: 3.9.8
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
 
