@@ -20,10 +20,15 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import print_function
 import os
+import sys
 import errno
 import hashlib
-import subprocess
 import xml.dom.minidom
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
 
 def md5sum(filename):
     try:
@@ -304,6 +309,29 @@ class Data:
         self.touchyrelcolor = "default"
         self.touchydtgcolor = "default"
         self.touchyerrcolor = "default"
+
+        # QtPlasmaC
+        self.qtplasmacmode = 0
+        self.qtplasmacscreen = 0
+        self.qtplasmacestop = 0
+        self.qtplasmacxcam = 0.0
+        self.qtplasmacycam = 0.0
+        self.qtplasmacxlaser = 0.0
+        self.qtplasmacylaser = 0.0
+        self.qtplasmacpmx = ""
+        self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
+        self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
+        self.qtplasmac_bnames = ["PROBE\TEST","OHMIC\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE", \
+                                 "","","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["probe-test 10","ohmic-test","single-cut","cut-type","torch-pulse 0.5", \
+                                 "","","","","","","","","","","","","","",""]
+        self.thcadenc = 0
+        self.voltsmodel = "10"
+        self.voltsfjumper = "32"
+        self.voltszerof = 100.0
+        self.voltsfullf = 999.
+        self.voltsrdiv = 20
+        self.voltsenc = "ENCA"
 
         # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True
@@ -630,6 +658,7 @@ class Data:
             self[temp+"dirsetup"]= 10000
             self[temp+"homepos"]= 0
             self[temp+"homesw"]=  0
+            self[temp+"hometandemsw"]=  0
             self[temp+"homefinalvel"]= 0
             self[temp+"latchdir"]= 0
             self[temp+"searchdir"]= 0

@@ -1,98 +1,47 @@
-.TH IOCONTROL "1" "2007-08-25" "LinuxCNC Documentation" "HAL Component" 
-.de TQ
-.br
-.ns
-.TP \\$1
-..
+.TH IOCONTROL "1" "2021-04" "LinuxCNC Documentation" "HAL Component" 
 
 .SH NAME
-iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
+iocontrol \- interacts with HAL or G-code in userspace 
 
 .SH SYNOPSIS
-\fBloadusr io [\-ini \fIinifile\fB]
 
+
+.B [EMCIO] 
+.br
+.B EMCIO = io
+.br
+or
+.br
+.B EMCIO = iov2
 
 .SH DESCRIPTION
-These pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
-.P
-The signals are turned on and off in userspace - if you have strict timing requirements or simply need more i/o, consider using the realtime synchronized i/o provided by \fBmotion\fR(9) instead.
-.P
-The inifile is searched for in the directory from which halcmd was run, unless an absolute path is specified.
 
-.SH PINS
+I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+.br
+I/O Control V2 (iov2) adds more toolchager support for communication with the toolchanger.
 
-.TP
-\fBiocontrol.0.coolant\-flood
-(Bit, Out) TRUE when flood coolant is requested
+Whether \fBio\fR or \fBiov2\fR is used can be chosen in the [EMCIO] section of the INI file.
 
-.TP
-\fBiocontrol.0.coolant\-mist 
-(Bit, Out) TRUE when mist coolant is requested
-
-.TP
-\fBiocontrol.0.emc\-enable\-in 
-(Bit, In) Should be driven FALSE when an external estop condition exists.
-
-.TP
-\fBiocontrol.0.lube 
-(Bit, Out) TRUE when lube is requested.  This pin gets driven True when
-the controller comes out of E-stop, and when the "Lube On" command gets
-sent to the controller.  It gets driven False when the controller goes
-into E-stop, and when the "Lube Off" command gets sent to the controller.
-
-.TP
-\fBiocontrol.0.lube_level 
-(Bit, In) Should be driven FALSE when lubrication tank is empty.
-
-.TP
-\fBiocontrol.0.tool\-change 
-(Bit, Out) TRUE when a tool change is requested
-
-.TP
-\fBiocontrol.0.tool\-changed 
-(Bit, In) Should be driven TRUE when a tool change is completed.
-
-.TP
-\fBiocontrol.0.tool\-number
-(s32, Out) Current tool number
-
-.TP
-\fBiocontrol.0.tool\-prep\-number 
-(s32, Out) The number of the next tool, from the RS274NGC T-word
-
-.TP
-\fBiocontrol.0.tool\-prep\-pocket
-(s32, Out) This is the pocket number (location in the tool storage
-mechanism) of the tool requested by the most recent T-word.
-
-.TP
-\fBiocontrol.0.tool\-prepare 
-(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
-
-.TP
-\fBiocontrol.0.tool\-prepared 
-(Bit, In) Should be driven TRUE when a tool prepare is completed.
-
-.TP
-\fBiocontrol.0.user\-enable\-out 
-(Bit, Out) FALSE when an internal estop condition exists
-
-.TP
-\fBiocontrol.0.user\-request\-enable 
-(Bit, Out) TRUE when the user has requested that estop be cleared
-
-.SH PARAMETERS
-
-.TP
-\fBiocontrol.0.tool\-prep\-index
-(s32, RO) IO's internal array index of the prepped tool requested
-by the most recent T-word.  0 if no tool is prepped.  On Random
-toolchanger machines this is tool's pocket number (ie, the same as the
-tool\-prep\-pocket pin), on Non-random toolchanger machines this is
-a small integer corresponding to the tool's location in the internal
-representation of the tool table.  This parameter returns to 0 after a
-successful tool change (M6).
-
+See also 
+.UR http://linuxcnc.org/docs/html/config/iov2.html
+.UE
 .SH SEE ALSO
-\fBmotion\fR(9)
+
+.ie '\*[.T]'html' \{\
+
+.UR io.1.html
+\fBio\fR(1),
+.UE
+.UR iov2.1.html 
+\fBiov2\fR(1)
+.UE
+\}
+.el \{\
+
+\fBio\fR(1)
+\fBiov2\fR(1)
+
+\}
+
+
 

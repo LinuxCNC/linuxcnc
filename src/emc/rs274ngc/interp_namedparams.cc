@@ -1,3 +1,8 @@
+/*misnomer: _setup.current_pocket,selected_pocket
+**          These are indexes to sequential tooldata entries
+**          but the names are not changed due to frequent
+**          legacy usage in py files used for remapping
+*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *
@@ -44,7 +49,6 @@ namespace bp = boost::python;
 
 // for HAL pin variables
 #include "hal.h"
-#include "hal/hal_priv.h"
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -232,13 +236,14 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
     int retval;
-    int type = 0;
+    hal_type_t type = HAL_TYPE_UNINITIALIZED;
     hal_data_u* ptr;
-    char hal_name[LINELEN];
+    bool conn;
+    char hal_name[HAL_NAME_LEN];
 
     *status = 0;
     if (!comp_id) {
-	char hal_comp[LINELEN];
+	char hal_comp[HAL_NAME_LEN];
 	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
 	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
 	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
@@ -250,9 +255,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
 	int closeBracket = s - nameBuf;
-	hal_pin_t *pin;
-	hal_sig_t *sig;
-	hal_param_t *param;
 
 	strncpy(hal_name, &nameBuf[5], closeBracket);
 	hal_name[closeBracket - 5] = '\0';
@@ -268,29 +270,17 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	// rtapi_mutex_get(&(hal_data->mutex)); 
         // rtapi_mutex_give(&(hal_data->mutex));
 
-	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
-            if (pin && !pin->signal) {
+        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+            if (!conn)
 		logOword("%s: no signal connected", hal_name);
-	    } 
-	    type = pin->type;
-	    if (pin->signal != 0) {
-		sig = (hal_sig_t *) SHMPTR(pin->signal);
-		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
-	    } else {
-		ptr = (hal_data_u *) &(pin->dummysig);
-	    }
 	    goto assign;
 	}
-	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
-	    if (!sig->writers) 
+        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+	    if (!conn)
 		logOword("%s: signal has no writer", hal_name);
-	    type = sig->type;
-	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
 	    goto assign;
 	}
-	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
-	    type = param->type;
-	    ptr = (hal_data_u *) SHMPTR(param->data_ptr);
+        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
 	    goto assign;
 	}
 	*status = 0;
@@ -304,6 +294,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     case HAL_U32: *value = (double) (ptr->u); break;
     case HAL_S32: *value = (double) (ptr->s); break;
     case HAL_FLOAT: *value = (double) (ptr->f); break;
+    default: return -1;
     }
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;
@@ -745,7 +736,6 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _task;
 	break;
 
-
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
 	      nameBuf,index);
@@ -782,11 +772,15 @@ int Interp::init_named_parameters()
   const char *pkgversion = PACKAGE_VERSION;  //examples: 2.4.6, 2.5.0~pre
   const char *version_major = "_vmajor";// named_parameter name (use lower case)
   const char *version_minor = "_vminor";// named_parameter name (use lower case)
-  double vmajor=0.0, vminor=0.0;
+  const char *metric_machine = "_metric_machine";// named_parameter name (use lower case)
+  double vmajor=0.0, vminor=0.0, munits = 1.0;
   sscanf(pkgversion, "%lf%lf", &vmajor, &vminor);
 
   init_readonly_param(version_major,vmajor,0);
   init_readonly_param(version_minor,vminor,0);
+
+  munits = inicheck();
+  init_readonly_param(metric_machine,munits,0);
 
   // params tagged with PA_USE_LOOKUP will call the lookup_named_param()
   // method. The value is used as a index for the switch() statement.
@@ -906,4 +900,33 @@ int Interp::init_named_parameters()
   init_readonly_param("_remap_level", NP_REMAP_LEVEL, PA_USE_LOOKUP);
 
   return INTERP_OK;
+}
+
+double Interp::inicheck()
+{
+    IniFile inifile;
+    const char *filename;
+    const char *inistring;
+    double result = -1.0;
+
+	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
+	    return -1.0;
+    }
+
+    // open it
+    if (inifile.Open(filename) == false) {
+	    return -1.0;
+    }
+
+    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(inistring, "inch")) {
+             result = 0.0;
+        } else {
+            result = 1.0;
+        }
+    }
+    // close it
+    inifile.Close();
+
+    return result;
 }

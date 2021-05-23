@@ -141,7 +141,7 @@ This driver features:
 * 'DNx' - The 'down' (up/down mode) or 'direction' (pwm+direction mode) signal
     from PWM generator X. May be used as a digital output if the
     corresponding PWM channel is unused, or the output on the channel is
-    never negative. The corresponding digital ouput invert may be set to
+    never negative. The corresponding digital output invert may be set to
     TRUE to make DNx active low rather than active high. 
 
 * 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a digital

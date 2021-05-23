@@ -6,226 +6,644 @@
 <TITLE>LinuxCNC</TITLE>
 <link rel="stylesheet" type="text/css" href="index.css">
 <script type="text/javascript">
-function toggle(a){
-var e=document.getElementById(a);
-var i = document.getElementById(a + '_image');
-if(!e)return true;
-if(e.style.display=="none"){
-e.style.display="block"
-i.src = 'minus.png';
-} else {
-e.style.display="none"
-i.src = 'plus.png';
-}
-return false;
+//<![CDATA[
+var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',
+   'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14', 'sec15'],
+   ['man_1', 'man_9','man_3hal', 'man_3rtapi', 'man_3hm2', 'man_3']];
+
+function storeOK() { // Check for HTML5 Local Storage
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
 }
 
-function change(el)
-{
-  if ( el.value === "Expand All" ){
-    el.value = "Collapse All";
-    for (var i=0;i<13;i++){
-      document.getElementById("sec" + i).style.display = '';
-      document.getElementById("sec" + i + '_image').src = 'minus.png';
-    }
+function toggle(sec){
+  var e = document.getElementById(sec);
+  var i = document.getElementById(sec + '_image');
+  if(!e)return true;
+  if(e.style.display=="none"){
+    e.style.display="block"
+    i.src = 'minus.png';
+    if (storeOK()){localStorage.setItem(sec, "block");}
   }
   else {
-    el.value = "Expand All";
-    for (var i=0;i<13;i++){
-      document.getElementById("sec" + i).style.display = 'none';
-      document.getElementById("sec" + i + '_image').src = 'plus.png';
+    e.style.display="none"
+    i.src = 'plus.png';
+    if (storeOK()){localStorage.setItem(sec, "none");}
+  }
+  return false;
+}
+
+function toggle_section(a){
+  if (a.id.substring(0,3) === "doc"){var s = 0;}
+  if (a.id.substring(0,3) === "man"){var s = 1;}
+  if (a.value.substring(0,6) === "Expand"){
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'block';
+      document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "block");}
+    }
+  }
+  else{
+    for (var i in sections[s]){
+      document.getElementById(sections[s][i]).style.display = 'none';
+      document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      if (storeOK()){localStorage.setItem(sections[s][i], "none");}
     }
   }
 }
+
+function setup_page(){
+  for (var s in sections){
+    for (var i in sections[s]){
+      if (localStorage.getItem(sections[s][i]) != null){
+        if (localStorage.getItem(sections[s][i]) === "block"){
+          document.getElementById(sections[s][i]).style.display = 'block';
+          document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+        }
+        else{
+          document.getElementById(sections[s][i]).style.display = 'none';
+          document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+        }
+      }
+      else{
+        document.getElementById(sections[s][i]).style.display = 'none';
+        document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      }
+    }
+  }
+}
+//]]>
 </script>
-</HEAD>
-<BODY>
+</head>
+<body onload="return setup_page()">
 
 <!-- Even though this template file will open in a browser do not open it in a browser it to test changes
      open the /html/index.html file in your browser after building the documents
      If this is the .html file do not edit it, edit the .tmpl file then build the documents -->
 <div style="text-align: center"><img src="linuxcnc-logo-chips.png" width="175" /></div>
 
-<p>Esta documentaci&oacute;n hace referencia a la versi&oacute;n LinuxCNC <strong>@VERSION@</strong>.<A HREF="index.html">English</A> <A HREF="index_fr.html">Fran&ccedil;ais</A></p>
-<input type="button" value="Expand All" onclick="return change(this);" />
-<UL>
-<LI><a href="http://linuxcnc.org">Home Page</a>  *  
-<A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</A>  *  
-<A HREF="gcode.html">G Code Quick Reference</A>
-<p></p>
-<LI><A HREF="common/overleaf.html">LinuxCNC Document Overview</A>
-<p></p>
-<li><a onclick="return toggle('sec0')"><img id="sec0_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Primeros pasos LinuxCNC</a>
+<h3>LinuxCNC versión <strong>@VERSION@</strong></h3>
+
+<div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
+<p>Otros idiomas: <A HREF="index.html">Inglés</A> * <A HREF="index_fr.html">Francés</A></p>
+<a href="index_cn.html">中文</a>
+
+<p><a href="http://linuxcnc.org">Pagina web LinuxCNC</a>  *  
+<A href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Comunidad Wiki</A>  *  
+<A HREF="gcode_es.html">Referencia Rápida de Código G</A></p>
+</div>
+<p><input type="button" id="docExpand" value="Expandir Todo" onclick="return toggle_section(this);"/>
+   <input type="button" id="docCollapse" value="Contraer Todo" onclick="return toggle_section(this);"/></p>
+
+<LI><a onclick="return toggle('sec0')"><img id="sec0_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Primeros pasos en LinuxCNC</a>
 	<div id="sec0" style="display:none;">
 		<UL>
-			<LI><A HREF="getting-started/about-linuxcnc-es.html">Sobre LinuxCNC</A>
-			<LI><A HREF="getting-started/system-requirements-es.html">Requerimientos del sistema</A>
-			<LI><A HREF="getting-started/getting-linuxcnc-es.html">Obteniendo LinuxCNC</A>
-			<LI><A HREF="getting-started/running-linuxcnc-es.html">Ejecutando LinuxCNC</A>
-			<LI><A HREF="getting-started/updating-linuxcnc.html">Updating LinuxCNC</A>
-			<LI><A HREF="common/linux-faq-es.html">Linux FAQ</A> 
+			<LI><A HREF="getting-started/about-linuxcnc_es.html">Acerca de LinuxCNC</A>
+			<LI><A HREF="getting-started/system-requirements_es.html">Requerimientos del Sistema</A>
+			<LI><A HREF="getting-started/getting-linuxcnc_es.html">Obtener LinuxCNC</A>
+			<LI><A HREF="getting-started/running-linuxcnc_es.html">Corriendo LinuxCNC; Lanzador de Configuraciones</A>
+			<LI><A HREF="getting-started/updating-linuxcnc_es.html">Actualizar LinuxCNC</A>
+			<LI><A HREF="common/linux-faq_es.html">FAQ sobre Linux</A> 
 		</UL>
 	</div>
 
-<li><a onclick="return toggle('sec1')"><img id="sec1_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration Wizards</a>
+<li><a onclick="return toggle('sec1')"><img id="sec1_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Asistentes de Configuración</a>
 	<div id="sec1" style="display:none;">
 		<UL>
-			<LI><A class="tooltips" HREF="config/stepconf-es.html">Stepper Configuration Wizard<span>For Parallel Port Stepper Machine</span></A>
-			<LI><A class="tooltips" HREF="config/pncconf.html">Mesa Configuration Wizard<span>For Mesa Servo &amp; Stepper Machines</span></A>
+			<LI><A class="tooltips" HREF="config/stepconf_es.html">Asistente Stepconf <span>para Máquinas de Pasos por Puerto Paralelo</span></A>
+			<LI><A class="tooltips" HREF="config/pncconf_es.html">Asistente Pncconf, <span>Configurador de Hardware Mesa</span></A>
 		</UL>
 	</div>
 
 
-	<li><a onclick="return toggle('sec2')"><img id="sec2_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />General User Information</a>
+	<li><a onclick="return toggle('sec2')"><img id="sec2_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Información General para el Usuario</a>
 	<div id="sec2" style="display:none;">
 		<UL>
-			<LI><A HREF="user/user-foreword.html">User Foreword</A>
-			<LI><A HREF="user/user-intro.html">LinuxCNC User Introduction</A>
-			<LI><A HREF="user/user-concepts.html">Important User Concepts</A>
-			<LI><A HREF="gcode/machining-center.html">CNC Machine Overview</A>
-			<LI><A HREF="lathe/lathe-user.html">Lathe User Information</A>
+			<LI><A HREF="user/user-foreword_es.html">Prólogo para el Usuario</A>
+			<LI><A HREF="user/user-intro_es.html">Introducción a LinuxCNC</A>
+			<LI><A HREF="user/user-concepts_es.html">Conceptos Importantes</A>
+			<li><a href="user/starting-linuxcnc_es.html">Arrancando LinuxCNC</a></li>
+			<LI><A HREF="gcode/machining-center_es.html">Descripción de una Máquina CNC</A>
+			<LI><A HREF="lathe/lathe-user_es.html">Información para Usuarios de Torno</A>
+			<li><a href="plasma/plasma-cnc-primer_es.html">El ABC sobre Plasma CNC</a></li>
 		</UL>
 	</div>
-	<li><a onclick="return toggle('sec3')"><img id="sec3_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />User Interfaces</a>
+	<li><a onclick="return toggle('sec3')"><img id="sec3_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Interfaces de Usuario</a>
 	<div id="sec3" style="display:none;">
 		<UL>
-			<LI><A HREF="gui/axis.html">Axis GUI</A>
-			<LI><A HREF="gui/gmoccapy.html">gmoccapy</A>
-			<LI><A HREF="gui/touchy.html">Touchy GUI</A>
-			<LI><A HREF="gui/ngcgui.html">NGCGUI</A>
-			<LI><A HREF="gui/tklinuxcnc.html">TkLinuxCNC GUI</A>
-			<LI><A HREF="gui/mini.html">Mini GUI</A>
+			<LI><A HREF="gui/axis_es.html">Axis, GUI para Teclado</A>
+			<LI><A HREF="gui/gmoccapy_es.html">Gmoccapy, GUI para Pantalla Táctil</A>
+			<LI><A HREF="gui/touchy_es.html">Touchy, GUI para Pantalla Táctil</A>
+			<li><a href="gui/gscreen_es.html">Gscreen, GUI para Pantalla Táctil Personalizable</a></li>
+			<li><a href="gui/qtdragon_es.html">SilverDragon, GUI Personalizable basada en QT</a></li>
+			<LI><A HREF="gui/ngcgui_es.html">NGCGUI, GUI de Subrutinas</A>
+			<LI><A HREF="gui/tklinuxcnc_es.html">TkLinuxCNC, GUI sin Opengl</A>
+			<li><a href="plasma/plasmac-user-guide_es.html">PlasmaC, Configuración Completa para Cortador de Plasma</a></li>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec4')"><img id="sec4_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />G code Programming</a>
+		<li><a onclick="return toggle('sec4')"><img id="sec4_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Programación en Código G</a>
 	<div id="sec4" style="display:none;">
 		<UL>
-			<LI><A HREF="gcode/coordinates.html">Coordinate System</A>
-			<LI><A HREF="gcode/tool-compensation.html">Tool Compensation</A>
-			<LI><A HREF="gui/tooledit.html">Tool Table Editor</A>
-			<LI><A HREF="gcode/overview.html">G Code Overview</A>
-			<LI><A HREF="gcode/g-code.html">G Codes</A>
-			<LI><A HREF="gcode/m-code.html">M Codes</A>
-			<LI><A HREF="gcode/o-code.html">O Codes</A>
-			<LI><A HREF="gcode/other-code.html">Other Codes</A>
-			<LI><A HREF="examples/gcode.html">G Code Examples</A>
-			<LI><A HREF="gui/image-to-gcode.html">Image to G Code</A>
-			<LI><A HREF="gcode/rs274ngc.html">RS274/NGC Differences</A>
+			<LI><A HREF="gcode/coordinates_es.html">Sistemas de Coordenadas</A>
+			<LI><A HREF="gcode/tool-compensation_es.html">Compensación de Herramientas</A>
+			<LI><A HREF="gui/tooledit_es.html">Editor de la Tabla de Herramientas</A>
+			<LI><A HREF="gcode/overview_es.html">Introducción al Código G</A>
+			<LI><A HREF="gcode/g-code_es.html">Códigos G</A>
+			<LI><A HREF="gcode/m-code_es.html">Códigos M</A>
+			<LI><A HREF="gcode/o-code_es.html">Códigos O</A>
+			<LI><A HREF="gcode/other-code_es.html">Otros Códigos</A>
+			<LI><A HREF="examples/gcode_es.html">Ejemplos en Código G</A>
+			<LI><A HREF="gui/image-to-gcode.html">Utilidad -Image-to-G-Code-</A>
+			<LI><A HREF="gcode/rs274ngc_es.html">Diferencias en el Dialecto RS274/NGC</A>
 		</UL>
 	</div>
 
-		<li><a onclick="return toggle('sec5')"><img id="sec5_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuration</a>
+		<li><a onclick="return toggle('sec5')"><img id="sec5_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Configuración</a>
 	<div id="sec5" style="display:none;">
 		<UL>
-			<LI><A HREF="config/integrator-concepts.html">Integrator Concepts</A>
-			<LI><A HREF="install/latency-test.html">Latency Test</A>
-			<LI><A HREF="user/starting-linuxcnc.html">Starting LinuxCNC</A>
-			<LI><A HREF="motion/tweaking-steppers.html">Stepper Tuning</A>
-			<LI><A HREF="config/ini-config.html">INI Configuration</A>
-			<LI><A HREF="config/ini-homing.html">Homing Configuration</A>
-			<LI><A HREF="config/lathe-config.html">Lathe Configuration</A>
-			<LI><A HREF="config/stepper-quickstart-es.html">Stepper Quick Start</A>
-			<LI><A HREF="config/stepper.html">Stepper Configuration</A>
-			<LI><A HREF="config/stepper-diagnostics.html">Stepper Diagnostics</A>
+			<LI><A HREF="config/integrator-concepts_es.html">Conceptos para el Integrador</A>
+			<LI><A HREF="install/latency-test_es.html">Test de Latencia</A>
+			<LI><A HREF="motion/tweaking-steppers_es.html">Sintonizando Steppers</A>
+			<LI><A HREF="config/ini-config_es.html">Configuración INI</A>
+			<LI><A HREF="config/ini-homing_es.html">Configuración Homing</A>
+			<LI><A HREF="config/lathe-config_es.html">Configuración de Torno</A>
+			<LI><A HREF="config/stepper-quickstart_es.html">Inicio Rapido para Steppers</A>
+			<LI><A HREF="config/stepper_es.html">Configuración de Steppers</A>
+			<LI><A HREF="config/stepper-diagnostics_es.html">Diagnosticos para Steppers</A>
 		</UL>
-		<li><a onclick="return toggle('sec6')"><img id="sec6_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Virtual Control Panels</a>
+		<li><a onclick="return toggle('sec6')"><img id="sec6_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Paneles Virtuales de Control</a>
 	<div id="sec6" style="display:none;">
 		<UL>
-			<LI><A HREF="gui/pyvcp.html">Python Virtual Control Panel</A>
-			<LI><A HREF="gui/pyvcp-examples.html">PyVCP Examples</A>
-			<LI><A HREF="gui/gladevcp.html">Glade Virtual Control Panel</A>
+			<LI><A HREF="gui/pyvcp.html">Paneles Virtuales de Control y Python</A>
+			<LI><A HREF="gui/pyvcp-examples.html">Ejemplos PyVCP</A>
+			<LI><A HREF="gui/gladevcp.html">Paneles Virtuales de Control Glade</A>
 			<LI><A HREF="gui/gscreen.html">Gscreen</A>
+			<li><a href="gui/qtvcp_es.html">QTvcp</a></li>
+			<li><a href="gui/qtvcp_widgets.html">QTvcp -Widgets</a></li>
+			<li><a href="gui/qtvcp_libraries.html">QTvcp -Librerias</a></li>
+			<li><a href="gui/qtvcp_custom_widgets.html">QTvcp -Widgets Personalizados</a></li>
+			<li><a href="gui/qtvcp_code_snippets.html">QTvcp -Fragmentos de Código</a></li>
+			<li><a href="gui/qtvcp_development.html">QTvcp -Desarrollo</a></li>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec7')"><img id="sec7_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />User Interface Programming</a>
+		<li><a onclick="return toggle('sec7')"><img id="sec7_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Interfaces de Programación del Usuario</a>
 	<div id="sec7" style="display:none;">
 		<UL>
-			<LI><A class="tooltips" HREF="gui/halui.html">HALUI<span>HAL User Interface</span></A>
-			<LI><A HREF="hal/halui-examples.html">HALUI examples</A>
-			<LI><A HREF="config/python-interface.html">Python Interface</A>
+		<li><a href="gui/panelui.html">Panelui, Componente para Paneles de Usuario</a></li>
+		<li><a class="tooltips" href="gui/halui.html">HALUI, Interface de Usuario con HAL (Hardware Abstract Layer)</a></li>
+		<li><a href="hal/halui-examples_es.html">Ejemplos con HALUI</a></li>
+		<li><a href="config/python-interface_es.html">Interface Python</a></li>
+		<li><a href="gui/GStat.html">Modulo GStat</a></li>
+		<li><a href="gui/vismach.html">Máquinas Virtuales Vismach</a></li>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec8')"><img id="sec8_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Hardware Drivers</a>
+		<li><a onclick="return toggle('sec8')"><img id="sec8_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Controladores Hardware</a>
 	<div id="sec8" style="display:none;">
 		<UL>
-			<LI><A HREF="hal/parallel-port.html">Parallel Port Driver</A>
-			<LI><A HREF="drivers/ax5214h.html">AX5214H Driver</A>
-			<LI><A HREF="drivers/gm.html">General Mechatronics GM6-PCI Driver</A>
-			<LI><A HREF="drivers/gs2.html">GS2 Driver</A>
-			<LI><A HREF="drivers/hostmot2.html">Mesa HostMot2 Driver</A>
-			<LI><A HREF="drivers/motenc.html">Motenc Driver</A>
-			<li><a href="drivers/mb2hal.html">Modbus to HAL Driver</a></li>
-			<LI><A HREF="drivers/opto22.html">Opto22 Driver</A>
-			<LI><A HREF="drivers/pico-ppmc.html">Pico Drivers</A>
-			<LI><A HREF="drivers/pluto-p.html">Pluto P Driver</A>
-			<li><a href="drivers/pmx485.html">Powermax Modbus Driver</a></li>
-			<LI><A HREF="drivers/servo-to-go.html">Servo To Go Driver</A>
-			<LI><A HREF="drivers/shuttle.html">ShuttleXpress and ShuttlePRO Driver</A>
-			<LI><A HREF="drivers/vfs11.html">VFS11 Driver</A>
+			<LI><A HREF="hal/parallel-port_es.html">Controlador de Puerto Paralelo</A>
+			<LI><A HREF="drivers/ax5214h.html">     "      AX5214H</A>
+			<LI><A HREF="drivers/gm.html">     "      General Mechatronics GM6-PCI</A>
+			<LI><A HREF="drivers/gs2.html">     "      GS2</A>
+			<LI><A HREF="drivers/hostmot2.html">     "      Mesa HostMot2</A>
+			<LI><A HREF="drivers/motenc.html">     "      Motenc</A>
+			<li><a href="drivers/mb2hal.html">     "      Modbus a HAL</a></li>
+			<LI><A HREF="drivers/opto22.html">     "      Opto22</A>
+			<LI><A HREF="drivers/pico-ppmc.html">     "      Pico</A>
+			<LI><A HREF="drivers/pluto-p.html">     "      Pluto P</A>
+			<li><a href="drivers/pmx485.html">     "      Modbus Powermax</a></li>
+			<LI><A HREF="drivers/servo-to-go.html">     "      Servo To Go</A>
+			<LI><A HREF="drivers/shuttle.html">     "      ShuttleXpress y ShuttlePRO</A>
+			<LI><A HREF="drivers/vfs11.html">     "      VFS11</A>
+			<li><a href="drivers/mitsub_vfd.html">     "      VFD Mitsubishi</a></li>
 		</UL>
 	</div>
 		<li><a onclick="return toggle('sec9')"><img id="sec9_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Classicladder</a>
 	<div id="sec9" style="display:none;">
-	Classicladder is a software PLC (Programmable Logic Controller) built
-	into LinuxCNC.
+	Classicladder es un PLC (Programmable Logic Controller) por software construido
+	dentro de LinuxCNC.
 		<UL>
-			<LI><A HREF="ladder/ladder-intro.html">Classicladder Introduction</A>
-			<LI><A HREF="ladder/classic-ladder.html">ClassicLadder Programming</A>
-			<LI><A HREF="ladder/ladder-examples.html">ClassicLadder Examples</A>
+			<LI><A HREF="ladder/ladder-intro.html">Introducción</A>
+			<LI><A HREF="ladder/classic-ladder.html">Programación</A>
+			<LI><A HREF="ladder/ladder-examples.html">Ejemplos</A>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec10')"><img id="sec10_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Hardware Examples</a>
+		<li><a onclick="return toggle('sec10')"><img id="sec10_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Ejemplos de Hardware</a>
 	<div id="sec10" style="display:none;">
 		<UL>
-			<LI><A HREF="examples/pci-parallel-port.html">PCI Parallel Port Example</A>
-			<LI><A HREF="examples/spindle.html">Spindle Control Example</A>
-			<LI><A HREF="examples/mpg.html">MPG Example</A>
-			<LI><A HREF="examples/gs2-example.html">GS2 Example</A>
+			<LI><A HREF="examples/pci-parallel-port_es.html">Ejemplo de Puerto Paralelo PCI</A>
+			<LI><A HREF="examples/spindle_es.html">Ejemplos de Control de Husillo (0-10v, PWM)</A>
+			<LI><A HREF="examples/mpg.html">Ejemplo de volante MPG en Puerto Paralelo</A>
+			<LI><A HREF="examples/gs2-example_es.html">Ejemplo de VFD GS2</A>
 		</UL>
 	</div>
 		<li><a onclick="return toggle('sec11')"><img id="sec11_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />HAL (Hardware Abstraction Layer)</a>
 	<div id="sec11" style="display:none;">
 		<UL>
-			<LI><A HREF="hal/intro.html">HAL Introduction</A>
-			<LI><A HREF="hal/basic-hal.html">Basic HAL Tutorial</A>
-			<LI><A HREF="hal/tutorial.html">Advanced HAL Tutorial</A>
-			<LI><A HREF="config/core-components.html">Core HAL Components</A>
-			<LI><A HREF="hal/components.html">HAL Component List</A>
-			<LI><A HREF="hal/rtcomps.html">HAL Component Descriptions</A>
-			<LI><A HREF="hal/halshow.html">Halshow</A>
-			<LI><A HREF="hal/hal-examples.html">HAL Examples</A>
-			<LI><A HREF="hal/comp.html">HAL Component Generator</A>
-			<LI><A HREF="hal/haltcl.html">HAL TCL Files</A>
-			<LI><A HREF="hal/halmodule.html">Creating Userspace Python Components</A>
-			<LI><A HREF="hal/canonical-devices.html">Canonical Device Interfaces</A>
-			<LI><A HREF="hal/tools.html">HAL Tools</A>
+			<LI><A HREF="hal/intro_es.html">Introducción a HAL</A>
+			<LI><A HREF="hal/basic-hal_es.html">Tutorial Basico de HAL</A>
+			<li><a href="hal/twopass_es.html">Twopass, HAL en dos pasos</a></li>
+			<LI><A HREF="hal/tutorial_es.html">Tutorial Avanzado</A>
+			<LI><A HREF="config/core-components_es.html">Componentes centrales de HAL</A>
+			<LI><A HREF="hal/components_es.html">Lista de Componentes HAL</A>
+			<LI><A HREF="hal/rtcomps_es.html">Descripciones de Componentes Realtime HAL</A>
+			<LI><A HREF="hal/halshow_es.html">Utilidad Halshow</A>
+			<LI><A HREF="hal/hal-examples_es.html">Ejemplos HAL</A>
+			<LI><A HREF="hal/comp_es.html">Generador de Componentes HAL</A>
+			<LI><A HREF="hal/haltcl_es.html">Archivos HAL TCL</A>
+			<LI><A HREF="hal/halmodule_es.html">Creando Componentes de Usuario con Python</A>
+			<LI><A HREF="hal/canonical-devices_es.html">Interfaces Canónicas de Dispositivos</A>
+			<LI><A HREF="hal/tools_es.html">Otras Utilidades HAL</A>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec12')"><img id="sec12_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Advanced Topics</a>
+		<li><a onclick="return toggle('sec12')"><img id="sec12_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Temas Avanzados</a>
 	<div id="sec12" style="display:none;">
 		<UL>
-			<LI><A HREF="motion/kinematics.html">Kinematics</A>
-			<LI><A HREF="motion/pid-theory.html">PID theory</A>
-			<LI><A HREF="remap/remap.html">Remap: Extending LinuxCNC</A>
-			<LI><A HREF="config/moveoff.html">Moveoff Component</A>
+		<li><a href="motion/kinematics_es.html">Cinemática</a></li>
+		<li><a href="motion/dh-parameters_es.html">Parámetros DH (Denavit-Hartenberg)</a></li>
+		<li><a href="motion/5-axis-kinematics_es.html">Cinemática de 5 Ejes (con modelado matematico)</a></li>
+		<li><a href="motion/pid-theory_es.html">Teoría PID</a></li>
+		<li><a href="remap/remap_es.html">Remapeo: Extendiendo LinuxCNC</a></li>
+		<li><a href="config/moveoff_es.html">Componente Moveoff</a></li>
+		<li><a href="code/rs274_es.html">Intérprete rs274 autónomo</a></li>
+		<li><a href="motion/external-offsets_es.html">Offsets Externos</a></li>
 		</UL>
 	</div>
-		<li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Developer Information</a>
+        <li><a onclick="return toggle('sec13')"><img id="sec13_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Información para el Integrador</a>
 	<div id="sec13" style="display:none;">
-	<UL>
-	<LI><A HREF="hal/general-ref.html">General Reference</A>
-	<LI><A HREF="code/code-notes.html">Code Notes</A>
-	<LI><A HREF="code/nml-messages.html">NML Messages</A>
-	<LI><A HREF="code/style-guide.html">Style Guide</A>
-	<LI><A HREF="code/contributing-to-linuxcnc.html">Contributing to LinuxCNC</A>
-	<LI><A HREF="code/building-linuxcnc.html">Building LinuxCNC</A>
-	</UL>
+		<ul>
+		<li><a href="integrator/steppers.html">Información sobre Steppers</a></li>
+		<li><a href="integrator/stepper-timing.html">Temporización del Controlador de Stepper</a></li>
+		<li><a href="integrator/wiring.html">Buenas Prácticas de Cableado</a></li>
+	    </ul>
 	</div>
-		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Glossary, Copyright</a>
+		<li><a onclick="return toggle('sec14')"><img id="sec14_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Información para el Desarrollador</a>
 	<div id="sec14" style="display:none;">
 	<UL>
-	<LI><A HREF="common/emc-history.html">LinuxCNC History</A>
-	<LI><A HREF="common/glossary.html">Glossary</A>
-	<LI><A HREF="common/gpld-copyright.html">Copyright and Documentation License</A>
+	<LI><A HREF="hal/general-ref_es.html">Referencia General HAL</A></li>
+	<LI><A HREF="code/code-notes_es.html">Notas sobre el Código</A></li>
+	<LI><A HREF="code/nml-messages_es.html">Mensajes NML</A></li>
+	<LI><A HREF="code/style-guide_es.html">Guía de Estilo</A></li>
+	<li><a href="code/adding-configs_es.html">Añadir Configuraciónes al Selector</a></li>
+	<LI><A HREF="code/contributing-to-linuxcnc_es.html">Contribuir con LinuxCNC</A></li>
+	<LI><A HREF="code/building-linuxcnc_es.html">Construyendo LinuxCNC</A></li>
 	</UL>
 	</div>
+		<li><a onclick="return toggle('sec15')"><img id="sec15_image" src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" />Glosario, Copyright, Historia y Visión General</a>
+	<div id="sec15" style="display:none;">
+	<UL>
+		<li><a href="common/overleaf_es.html">Visión General sobre la Documentación de LinuxCNC</a></li>
+		<li><a href="common/emc-history_es.html">Historia de LinuxCNC</a></li>
+		<li><a href="common/glossary_es.html">Glosario</a></li>
+		<li><a href="common/gpld-copyright_es.html">Copyright y Licencia de la Documentación</a></li>
+	</UL>
+	</div>
+
+<h3>Páginas Man</h3>
+<div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
+<p>Para mas Información sobre Páginas man, vea las <a href="common/linux-faq_es.html">FAQ sobre Linux</a></p>
+</div>
+<p><input type="button" id="manExpand" value="Expandir Páginas Man" onclick="return toggle_section(this);"/>
+   <input type="button" id="manCollapse" value="Contraer Páginas Man" onclick="return toggle_section(this);"/></p>
+<p><a onclick="return toggle('man_1')"><img id="man_1_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Comandos y componentes de espacio de usuario</a></p>
+<div id="man_1" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/es/man1/axis-remote.1.html">axis-remote</a></li>
+<li><a href="man/es/man1/axis.1.html">axis</a></li>
+<li><a href="man/es/man1/elbpcom.1.html">elbpcom</a></li>
+<li><a href="man/es/man1/gladevcp.1.html">gladevcp</a></li>
+<li><a href="man/es/man1/gs2.1.html">gs2(en)</a></li>
+<li><a href="man/es/man1/hal_input.1.html">hal_input</a></li>
+<li><a href="man/es/man1/hal_manualtoolchange.1.html">hal_manualtoolchange</a></li>
+<li><a href="man/es/man1/hal_parport.1.html">hal_parport</a></li>
+<li><a href="man/es/man1/halcmd.1.html">halcmd</a></li>
+<li><a href="man/es/man1/halcompile.1.html">halcompile</a></li>
+<li><a href="man/es/man1/halmeter.1.html">halmeter</a></li>
+<li><a href="man/es/man1/halrun.1.html">halrun</a></li>
+<li><a href="man/es/man1/halsampler.1.html">halsampler</a>(en)</li>
+<li><a href="man/es/man1/halstreamer.1.html">halstreamer</a></li>
+<li><a href="man/es/man1/haltcl.1.html">haltcl</a></li>
+<li><a href="man/es/man1/halui.1.html">halui</a></li>
+<li><a href="man/es/man1/hy_gt_vfd.1.html">hy_gt_vfd(en)</a></li>
+<li><a href="man/es/man1/hy_vfd.1.html">hy_vfd(en)</a></li>
+<li><a href="man/es/man1/io.1.html">io</a></li>
+<li><a href="man/es/man1/iocontrol.1.html">iocontrol</a></li>
+<li><a href="man/es/man1/linuxcnc.1.html">linuxcnc(en)</a></li>
+<li><a href="man/es/man1/linuxcncrsh.1.html">linuxcncrsh</a></li>
+<li><a href="man/es/man1/mb2hal.1.html">mb2hal(en)</a></li>
+<li><a href="man/es/man1/milltask.1.html">milltask</a></li>
+<li><a href="man/es/man1/mitsub_vfd.1.html">mitsub_vfd(en)</a></li>
+<li><a href="man/es/man1/moveoff_gui.1.html">moveoff_gui</a></li>
+<li><a href="man/es/man1/pmx485.1.html">pmx485(en)</a></li>
+<li><a href="man/es/man1/pyvcp.1.html">pyvcp</a></li>
+<li><a href="man/es/man1/shuttle.1.html">shuttle(en)</a></li>
+<li><a href="man/es/man1/sim_pin.1.html">sim_pin</a></li>
+<li><a href="man/es/man1/thermistor.1.html">thermistor(en)</a></li>
+<li><a href="man/es/man1/vfdb_vfd.1.html">vfdb_vfd(en)</a></li>
+<li><a href="man/es/man1/vfs11_vfd.1.html">vfs11_vfd</a></li>
+<li><a href="man/es/man9/wj200_vfd.1.html">wj200_vfd(en)</a></li>
+<li><a href="man/es/man1/xhc-hb04.1.html">xhc-hb04</a></li>
+<li><a href="man/es/man1/xhc-whb04b-6.1.html">xhc-whb04b-6(en)</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_9')"><img id="man_9_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Componentes Realtime y modulos de kernel</a></p>
+<div id="man_9" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/es/man9/abs.9.html">abs</a></li>
+<li><a href="man/es/man9/abs_s32.9.html">abs_s32(en)</a></li>
+<li><a href="man/es/man9/and2.9.html">and2(en)</a></li>
+<li><a href="man/es/man9/at_pid.9.html">at_pid</a></li>
+<li><a href="man/es/man9/axis.9.html">axis</a></li>
+<li><a href="man/es/man9/axistest.9.html">axistest(en)</a></li>
+<li><a href="man/es/man9/bin2gray.9.html">bin2gray(en)</a></li>
+<li><a href="man/es/man9/biquad.9.html">biquad(en)</a></li>
+<li><a href="man/es/man9/bitslice.9.html">bitslice(en)</a></li>
+<li><a href="man/es/man9/bitwise.9.html">bitwise(en)</a></li>
+<li><a href="man/es/man9/bldc.9.html">bldc(en)</a></li>
+<li><a href="man/es/man9/blend.9.html">blend(en)</a></li>
+<li><a href="man/es/man9/carousel.9.html">carousel(en)</a></li>
+<li><a href="man/es/man9/charge_pump.9.html">charge_pump(en)</a></li>
+<li><a href="man/es/man9/clarke2.9.html">clarke2(en)</a></li>
+<li><a href="man/es/man9/clarke3.9.html">clarke3(en)</a></li>
+<li><a href="man/es/man9/clarkeinv.9.html">clarkeinv(en)</a></li>
+<li><a href="man/es/man9/classicladder.9.html">classicladder</a></li>
+<li><a href="man/es/man9/comp.9.html">comp(en)</a></li>
+<li><a href="man/es/man9/constant.9.html">constant(en)</a></li>
+<li><a href="man/es/man9/conv_bit_float.9.html">conv_bit_float(en)</a></li>
+<li><a href="man/es/man9/conv_bit_s32.9.html">conv_bit_s32(en)</a></li>
+<li><a href="man/es/man9/conv_bit_u32.9.html">conv_bit_u32(en)</a></li>
+<li><a href="man/es/man9/conv_float_s32.9.html">conv_float_s32(en)</a></li>
+<li><a href="man/es/man9/conv_float_u32.9.html">conv_float_u32(en)</a></li>
+<li><a href="man/es/man9/conv_s32_bit.9.html">conv_s32_bit(en)</a></li>
+<li><a href="man/es/man9/conv_s32_float.9.html">conv_s32_float(en)</a></li>
+<li><a href="man/es/man9/conv_s32_u32.9.html">conv_s32_u32(en)</a></li>
+<li><a href="man/es/man9/conv_u32_bit.9.html">conv_u32_bit(en)</a></li>
+<li><a href="man/es/man9/conv_u32_float.9.html">conv_u32_float(en)</a></li>
+<li><a href="man/es/man9/conv_u32_s32.9.html">conv_u32_s32(en)</a></li>
+<li><a href="man/es/man9/corexy_by_hal.9.html">corexy_by_hal(en)</a></li>
+<li><a href="man/es/man9/counter.9.html">counter</a></li>
+<li><a href="man/es/man9/ddt.9.html">ddt(en)</a></li>
+<li><a href="man/es/man9/deadzone.9.html">deadzone(en)</a></li>
+<li><a href="man/es/man9/debounce.9.html">debounce(en)</a></li>
+<li><a href="man/es/man9/demux.9.html">demux(en)</a></li>
+<li><a href="man/es/man9/differential.9.html">differential(en)</a></li>
+<li><a href="man/es/man9/edge.9.html">edge(en)</a></li>
+<li><a href="man/es/man9/encoder.9.html">encoder</a></li>
+<li><a href="man/es/man9/encoder_ratio.9.html">encoder_ratio</a></li>
+<li><a href="man/es/man9/eoffset_per_angle.9.html">eoffset_per_angle(en)</a></li>
+<li><a href="man/es/man9/estop_latch.9.html">estop_latch</a></li>
+<li><a href="man/es/man9/feedcomp.9.html">feedcomp(en)</a></li>
+<li><a href="man/es/man9/flipflop.9.html">flipflop(en)</a></li>
+<li><a href="man/es/man9/gantry.9.html">gantry(en)</a></li>
+<li><a href="man/es/man9/gantrykins.9.html">gantrykins</a></li>
+<li><a href="man/es/man9/gearchange.9.html">gearchange(en)</a></li>
+<li><a href="man/es/man9/genhexkins.9.html">genhexkins(en)</a></li>
+<li><a href="man/es/man9/genserkins.9.html">genserkins(en)</a></li>
+<li><a href="man/es/man9/gentrivkins.9.html">gentrivkins</a></li>
+<li><a href="man/es/man9/gladevcp.9.html">gladevcp</a></li>
+<li><a href="man/es/man9/gray2bin.9.html">gray2bin(en)</a></li>
+<li><a href="man/es/man9/hal_bb_gpio.9.html">hal_bb_gpio</a></li>
+<li><a href="man/es/man9/histobins.9.html">histobins(en)</a></li>
+<li><a href="man/es/man9/hm2_7i43.9.html">hm2_7i43</a></li>
+<li><a href="man/es/man9/hm2_7i90.9.html">hm2_7i90</a></li>
+<li><a href="man/es/man9/hm2_eth.9.html">hm2_eth</a></li>
+<li><a href="man/es/man9/hm2_pci.9.html">hm2_pci</a></li>
+<li><a href="man/es/man9/hm2_rpspi.9.html">hm2_rpspi</a></li>
+<li><a href="man/es/man9/hm2_spi.9.html">hm2_spi</a></li>
+<li><a href="man/es/man9/hostmot2.9.html">hostmot2</a></li>
+<li><a href="man/es/man9/hypot.9.html">hypot(en)</a></li>
+<li><a href="man/es/man9/ilowpass.9.html">ilowpass(en)</a></li>
+<li><a href="man/es/man9/integ.9.html">integ(en)</a></li>
+<li><a href="man/es/man9/invert.9.html">invert(en)</a></li>
+<li><a href="man/es/man9/joyhandle.9.html">joyhandle(en)</a></li>
+<li><a href="man/es/man9/kins.9.html">kins(en)</a></li>
+<li><a href="man/es/man9/knob2float.9.html">knob2float(en)</a></li>
+<li><a href="man/es/man9/latencybins.9.html">latencybins(en)</a></li>
+<li><a href="man/es/man9/lcd.9.html">lcd</a></li>
+<li><a href="man/es/man9/limit1.9.html">limit1(en)</a></li>
+<li><a href="man/es/man9/limit2.9.html">limit2(en)</a></li>
+<li><a href="man/es/man9/limit3.9.html">limit3(en)</a></li>
+<li><a href="man/es/man9/lincurve.9.html">lincurve(en)</a></li>
+<li><a href="man/es/man9/lineardeltakins.9.html">lineardeltakins(en)</a></li>
+<li><a href="man/es/man9/logic.9.html">logic(en)</a></li>
+<li><a href="man/es/man9/lowpass.9.html">lowpass(en)</a></li>
+<li><a href="man/es/man9/lut5.9.html">lut5(en)</a></li>
+<li><a href="man/es/man9/maj3.9.html">maj3(en)</a></li>
+<li><a href="man/es/man9/match8.9.html">match8(en)</a></li>
+<li><a href="man/es/man9/matrix_kb.9.html">matrix_kb(en)</a></li>
+<li><a href="man/es/man9/max31855.9.html">max31855(en)</a></li>
+<li><a href="man/es/man9/maxkins.9.html">maxkins(en)</a></li>
+<li><a href="man/es/man9/mesa_7i65.9.html">mesa_7i65</a></li>
+<li><a href="man/es/man9/mesa_pktgyro_test.9.html">mesa_pktgyro_test(en)</a></li>
+<li><a href="man/es/man9/message.9.html">message(en)</a></li>
+<li><a href="man/es/man9/minmax.9.html">minmax(en)</a></li>
+<li><a href="man/es/man9/motion.9.html">motion</a></li>
+<li><a href="man/es/man9/moveoff.9.html">moveoff(en)</a></li>
+<li><a href="man/es/man9/mult2.9.html">mult2(en)</a></li>
+<li><a href="man/es/man9/multiclick.9.html">multiclick(en)</a></li>
+<li><a href="man/es/man9/multiswitch.9.html">multiswitch(en)</a></li>
+<li><a href="man/es/man9/mux16.9.html">mux16(en)</a></li>
+<li><a href="man/es/man9/mux2.9.html">mux2(en)</a></li>
+<li><a href="man/es/man9/mux4.9.html">mux4(en)</a></li>
+<li><a href="man/es/man9/mux8.9.html">mux8(en)</a></li>
+<li><a href="man/es/man9/mux_generic.9.html">mux_generic</a></li>
+<li><a href="man/es/man9/near.9.html">near(en)</a></li>
+<li><a href="man/es/man9/not.9.html">not(en)</a></li>
+<li><a href="man/es/man9/offset.9.html">offset(en)</a></li>
+<li><a href="man/es/man9/ohmic.9.html">ohmic(en)</a></li>
+<li><a href="man/es/man9/oneshot.9.html">oneshot(en)</a></li>
+<li><a href="man/es/man9/opto_ac5.9.html">opto_ac5</a></li>
+<li><a href="man/es/man9/or2.9.html">or2(en)</a></li>
+<li><a href="man/es/man9/orient.9.html">orient(en)</a></li>
+<li><a href="man/es/man9/pentakins.9.html">pentakins(en)</a></li>
+<li><a href="man/es/man9/pid.9.html">pid</a></li>
+<li><a href="man/es/man9/plasmac.9.html">plasmac(en)</a></li>
+<li><a href="man/es/man9/pumakins.9.html">pumakins</a></li>
+<li><a href="man/es/man9/pwmgen.9.html">pwmgen</a></li>
+<li><a href="man/es/man9/rosekins.9.html">rosekins</a></li>
+<li><a href="man/es/man9/rotatekins.9.html">rotatekins</a></li>
+<li><a href="man/es/man9/sample_hold.9.html">sample_hold(en)</a></li>
+<li><a href="man/es/man9/sampler.9.html">sampler</a></li>
+<li><a href="man/es/man9/scale.9.html">scale(en)</a></li>
+<li><a href="man/es/man9/scarakins.9.html">scarakins(en)</a></li>
+<li><a href="man/es/man9/select8.9.html">select8(en)</a></li>
+<li><a href="man/es/man9/serport.9.html">serport(en)</a></li>
+<li><a href="man/es/man9/setsserial.9.html">setsserial</a></li>
+<li><a href="man/es/man9/siggen.9.html">siggen</a></li>
+<li><a href="man/es/man9/sim_axis_hardware.9.html">sim_axis_hardware(en)</a></li>
+<li><a href="man/es/man9/sim_encoder.9.html">sim_encoder</a></li>
+<li><a href="man/es/man9/sim_home_switch.9.html">sim_home_switch(en)</a></li>
+<li><a href="man/es/man9/sim_matrix_kb.9.html">sim_matrix_kb(en)</a></li>
+<li><a href="man/es/man9/sim_parport.9.html">sim_parport(en)</a></li>
+<li><a href="man/es/man9/sim_spindle.9.html">sim_spindle(en)</a></li>
+<li><a href="man/es/man9/simple_tp.9.html">simple_tp(en)</a></li>
+<li><a href="man/es/man9/sphereprobe.9.html">sphereprobe(en)</a></li>
+<li><a href="man/es/man9/spindle.9.html">spindle</a></li>
+<li><a href="man/es/man9/spindle_monitor.9.html">spindle_monitor</a></li>
+<li><a href="man/es/man9/sserial.9.html">sserial</a></li>
+<li><a href="man/es/man9/stepgen.9.html">stepgen</a></li>
+<li><a href="man/es/man9/steptest.9.html">steptest</a></li>
+<li><a href="man/es/man9/streamer.9.html">streamer</a></li>
+<li><a href="man/es/man9/sum2.9.html">sum2(en)</a></li>
+<li><a href="man/es/man9/supply.9.html">supply(en)</a></li>
+<li><a href="man/es/man9/thc.9.html">thc(en)</a></li>
+<li><a href="man/es/man9/thcud.9.html">thcud(en)</a></li>
+<li><a href="man/es/man9/threads.9.html">threads</a></li>
+<li><a href="man/es/man9/threadtest.9.html">threadtest(en)</a></li>
+<li><a href="man/es/man9/time.9.html">time(en)</a></li>
+<li><a href="man/es/man9/timedelay.9.html">timedelay(en)</a></li>
+<li><a href="man/es/man9/timedelta.9.html">timedelta(en)</a></li>
+<li><a href="man/es/man9/toggle.9.html">toggle(en)</a></li>
+<li><a href="man/es/man9/toggle2nist.9.html">vkins(en)</a></li>
+<li><a href="man/es/man9/updown.9.html">updown(en)</a></li>
+<li><a href="man/es/man9/watchdog.9.html">watchdog</a></li>
+<li><a href="man/es/man9/wcomp.9.html">wcomp(en)</a></li>
+<li><a href="man/es/man9/weighted_sum.9.html">weighted_sum</a></li>
+<li><a href="man/es/man9/xhc_hb04_util.9.html">xhc_hb04_util(en)</a></li>
+<li><a href="man/es/man9/xor2.9.html">xor2</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3hal')"><img id="man_3hal_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: HAL</a></p>
+<div id="man_3hal" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>*
+<li><a href="man/es/man3/hal_add_funct_to_thread.3hal.html">hal_add_funct_to_thread</a></li>
+<li><a href="man/es/man3/hal_bit_t.3hal.html">hal_bit_t</a></li>
+<li><a href="man/es/man3/hal_bool.3hal.html">hal_bool</a></li>
+<li><a href="man/es/man3/hal_create_thread.3hal.html">hal_create_thread</a></li>
+<li><a href="man/es/man3/hal_del_funct_from_thread.3hal.html">hal_del_funct_from_thread</a></li>
+<li><a href="man/es/man3/hal_exit.3hal.html">hal_exit</a></li>
+<li><a href="man/es/man3/hal_export_funct.3hal.html">hal_export_funct</a></li>
+<li><a href="man/es/man3/hal_float_t.3hal.html">hal_float_t</a></li>
+<li><a href="man/es/man3/hal_get_lock.3hal.html">hal_get_lock</a></li>
+<li><a href="man/es/man3/hal_init.3hal.html">hal_init</a></li>
+<li><a href="man/es/man3/hal_link.3hal.html">hal_link</a></li>
+<li><a href="man/es/man3/hal_malloc.3hal.html">hal_malloc</a></li>
+<li><a href="man/es/man3/hal_param_alias.3hal.html">hal_param_alias</a></li>
+<li><a href="man/es/man3/hal_param_bit_new.3hal.html">hal_param_bit_new</a></li>
+<li><a href="man/es/man3/hal_param_bit_newf.3hal.html">hal_param_bit_newf</a></li>
+<li><a href="man/es/man3/hal_param_float_new.3hal.html">hal_param_float_new</a></li>
+<li><a href="man/es/man3/hal_param_float_newf.3hal.html">hal_param_float_newf</a></li>
+<li><a href="man/es/man3/hal_param_new.3hal.html">hal_param_new</a></li>
+<li><a href="man/es/man3/hal_param_s32_new.3hal.html">hal_param_s32_new</a></li>
+<li><a href="man/es/man3/hal_param_s32_newf.3hal.html">hal_param_s32_newf</a></li>
+<li><a href="man/es/man3/hal_param_u32_new.3hal.html">hal_param_u32_new</a></li>
+<li><a href="man/es/man3/hal_param_u32_newf.3hal.html">hal_param_u32_newf</a></li>
+<li><a href="man/es/man3/hal_parport.3hal.html">hal_parport</a></li>
+<li><a href="man/es/man3/hal_pin_alias.3hal.html">hal_pin_alias</a></li>
+<li><a href="man/es/man3/hal_pin_bit_new.3hal.html">hal_pin_bit_new</a></li>
+<li><a href="man/es/man3/hal_pin_bit_newf.3hal.html">hal_pin_bit_newf</a></li>
+<li><a href="man/es/man3/hal_pin_float_new.3hal.html">hal_pin_float_new</a></li>
+<li><a href="man/es/man3/hal_pin_float_newf.3hal.html">hal_pin_float_newf</a></li>
+<li><a href="man/es/man3/hal_pin_new.3hal.html">hal_pin_new</a></li>
+<li><a href="man/es/man3/hal_pin_s32_new.3hal.html">hal_pin_s32_new</a></li>
+<li><a href="man/es/man3/hal_pin_s32_newf.3hal.html">hal_pin_s32_newf</a></li>
+<li><a href="man/es/man3/hal_pin_u32_new.3hal.html">hal_pin_u32_new</a></li>
+<li><a href="man/es/man3/hal_pin_u32_newf.3hal.html">hal_pin_u32_newf</a></li>
+<li><a href="man/es/man3/hal_ready.3hal.html">hal_ready</a></li>
+<li><a href="man/es/man3/hal_s32_t.3hal.html">hal_s32_t</a></li>
+<li><a href="man/es/man3/hal_set_constructor.3hal.html">hal_set_constructor</a></li>
+<li><a href="man/es/man3/hal_set_lock.3hal.html">hal_set_lock</a></li>
+<li><a href="man/es/man3/hal_signal_delete.3hal.html">hal_signal_delete</a></li>
+<li><a href="man/es/man3/hal_signal_new.3hal.html">hal_signal_new</a></li>
+<li><a href="man/es/man3/hal_start_threads.3hal.html">hal_start_threads</a></li>
+<li><a href="man/es/man3/hal_stream.3hal.html">hal_stream</a></li>
+<li><a href="man/es/man3/hal_type_t.3hal.html">hal_type_t</a></li>
+<li><a href="man/es/man3/hal_u32_t.3hal.html">hal_u32_t</a></li>
+<li><a href="man/es/man3/hal_unlink.3hal.html">hal_unlink</a></li>
+<li><a href="man/es/man3/intro.3hal.html">intro</a></li>
+<li><a href="man/es/man3/undocumented.3hal.html">undocumented</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3rtapi')"><img id="man_3rtapi_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: RTAPI</a></p>
+<div id="man_3rtapi" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/es/man3/EXPORT_FUNCTION.3rtapi.html">EXPORT_FUNCTION</a></li>
+<li><a href="man/es/man3/MODULE_AUTHOR.3rtapi.html">MODULE_AUTHOR</a></li>
+<li><a href="man/es/man3/MODULE_DESCRIPTION.3rtapi.html">MODULE_DESCRIPTION</a></li>
+<li><a href="man/es/man3/MODULE_LICENSE.3rtapi.html">MODULE_LICENSE</a></li>
+<li><a href="man/es/man3/RTAPI_MP_ARRAY_INT.3rtapi.html">RTAPI_MP_ARRAY_INT</a></li>
+<li><a href="man/es/man3/RTAPI_MP_ARRAY_LONG.3rtapi.html">RTAPI_MP_ARRAY_LONG</a></li>
+<li><a href="man/es/man3/RTAPI_MP_ARRAY_STRING.3rtapi.html">RTAPI_MP_ARRAY_STRING</a></li>
+<li><a href="man/es/man3/RTAPI_MP_INT.3rtapi.html">RTAPI_MP_INT</a></li>
+<li><a href="man/es/man3/RTAPI_MP_LONG.3rtapi.html">RTAPI_MP_LONG</a></li>
+<li><a href="man/es/man3/RTAPI_MP_STRING.3rtapi.html">RTAPI_MP_STRING</a></li>
+<li><a href="man/es/man3/intro.3rtapi.html">intro</a></li>
+<li><a href="man/es/man3/rtapi_app_exit.3rtapi.html">rtapi_app_exit</a></li>
+<li><a href="man/es/man3/rtapi_app_main.3rtapi.html">rtapi_app_main</a></li>
+<li><a href="man/es/man3/rtapi_atomic.3rtapi.html">rtapi_atomic</a></li>
+<li><a href="man/es/man3/rtapi_bool.3rtapi.html">rtapi_bool</a></li>
+<li><a href="man/es/man3/rtapi_byteorder.3rtapi.html">rtapi_byteorder</a></li>
+<li><a href="man/es/man3/rtapi_clock_set_period.3rtapi.html">rtapi_clock_set_period</a></li>
+<li><a href="man/es/man3/rtapi_delay.3rtapi.html">rtapi_delay</a></li>
+<li><a href="man/es/man3/rtapi_delay_max.3rtapi.html">rtapi_delay_max</a></li>
+<li><a href="man/es/man3/rtapi_device.3rtapi.html">rtapi_device</a></li>
+<li><a href="man/es/man3/rtapi_div_u64.3rtapi.html">rtapi_div_u64</a></li>
+<li><a href="man/es/man3/rtapi_div_u64_rem.3rtapi.html">rtapi_div_u64_rem</a></li>
+<li><a href="man/es/man3/rtapi_exit.3rtapi.html">rtapi_exit</a></li>
+<li><a href="man/es/man3/rtapi_firmware.3rtapi.html">rtapi_firmware</a></li>
+<li><a href="man/es/man3/rtapi_get_clocks.3rtapi.html">rtapi_get_clocks</a></li>
+<li><a href="man/es/man3/rtapi_get_msg_level.3rtapi.html">rtapi_get_msg_level</a></li>
+<li><a href="man/es/man3/rtapi_get_time.3rtapi.html">rtapi_get_time</a></li>
+<li><a href="man/es/man3/rtapi_gfp.3rtapi.html">rtapi_gfp</a></li>
+<li><a href="man/es/man3/rtapi_inb.3rtapi.html">rtapi_inb</a></li>
+<li><a href="man/es/man3/rtapi_init.3rtapi.html">rtapi_init</a></li>
+<li><a href="man/es/man3/rtapi_io.3rtapi.html">rtapi_io</a></li>
+<li><a href="man/es/man3/rtapi_is.3rtapi.html">rtapi_is</a></li>
+<li><a href="man/es/man3/rtapi_list.3rtapi.html">rtapi_list</a></li>
+<li><a href="man/es/man3/rtapi_module_param.3rtapi.html">rtapi_module_param</a></li>
+<li><a href="man/es/man3/rtapi_mutex.3rtapi.html">rtapi_mutex</a></li>
+<li><a href="man/es/man3/rtapi_open_as_root.3rtapi.html">rtapi_open_as_root</a></li>
+<li><a href="man/es/man3/rtapi_outb.3rtapi.html">rtapi_outb</a></li>
+<li><a href="man/es/man3/rtapi_parport.3rtapi.html">rtapi_parport</a></li>
+<li><a href="man/es/man3/rtapi_pci.3rtapi.html">rtapi_pci</a></li>
+<li><a href="man/es/man3/rtapi_print.3rtapi.html">rtapi_print</a></li>
+<li><a href="man/es/man3/rtapi_prio.3rtapi.html">rtapi_prio</a></li>
+<li><a href="man/es/man3/rtapi_prio_highest.3rtapi.html">rtapi_prio_highest</a></li>
+<li><a href="man/es/man3/rtapi_prio_lowest.3rtapi.html">rtapi_prio_lowest</a></li>
+<li><a href="man/es/man3/rtapi_prio_next_higher.3rtapi.html">rtapi_prio_next_higher</a></li>
+<li><a href="man/es/man3/rtapi_prio_next_lower.3rtapi.html">rtapi_prio_next_lower</a></li>
+<li><a href="man/es/man3/rtapi_region.3rtapi.html">rtapi_region</a></li>
+<li><a href="man/es/man3/rtapi_release_region.3rtapi.html">rtapi_release_region</a></li>
+<li><a href="man/es/man3/rtapi_request_region.3rtapi.html">rtapi_request_region</a></li>
+<li><a href="man/es/man3/rtapi_set_msg_level.3rtapi.html">rtapi_set_msg_level</a></li>
+<li><a href="man/es/man3/rtapi_shmem.3rtapi.html">rtapi_shmem</a></li>
+<li><a href="man/es/man3/rtapi_shmem_delete.3rtapi.html">rtapi_shmem_delete</a></li>
+<li><a href="man/es/man3/rtapi_shmem_getptr.3rtapi.html">rtapi_shmem_getptr</a></li>
+<li><a href="man/es/man3/rtapi_shmem_new.3rtapi.html">rtapi_shmem_new</a></li>
+<li><a href="man/es/man3/rtapi_slab.3rtapi.html">rtapi_slab</a></li>
+<li><a href="man/es/man3/rtapi_snprintf.3rtapi.html">rtapi_snprintf</a></li>
+<li><a href="man/es/man3/rtapi_stdint.3rtapi.html">rtapi_stdint</a></li>
+<li><a href="man/es/man3/rtapi_string.3rtapi.html">rtapi_string</a></li>
+<li><a href="man/es/man3/rtapi_strlcpy.3rtapi.html">rtapi_strlcpy</a></li>
+<li><a href="man/es/man3/rtapi_task_delete.3rtapi.html">rtapi_task_delete</a></li>
+<li><a href="man/es/man3/rtapi_task_new.3rtapi.html">rtapi_task_new</a></li>
+<li><a href="man/es/man3/rtapi_task_pause.3rtapi.html">rtapi_task_pause</a></li>
+<li><a href="man/es/man3/rtapi_task_resume.3rtapi.html">rtapi_task_resume</a></li>
+<li><a href="man/es/man3/rtapi_task_self.3rtapi.html">rtapi_task_self</a></li>
+<li><a href="man/es/man3/rtapi_task_start.3rtapi.html">rtapi_task_start</a></li>
+<li><a href="man/es/man3/rtapi_task_wait.3rtapi.html">rtapi_task_wait</a></li>
+<li><a href="man/es/man3/undocumented.3rtapi.html">undocumented</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3hm2')"><img id="man_3hm2_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: Hostmot2</a></p>
+<div id="man_3hm2" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/es/man3/hm2_allocate_bspi_tram.3hm2.html">hm2_allocate_bspi_tram</a></li>
+<li><a href="man/es/man3/hm2_bspi_set_read_function.3hm2.html">hm2_bspi_set_read_function</a></li>
+<li><a href="man/es/man3/hm2_bspi_set_write_function.3hm2.html">hm2_bspi_set_write_function</a></li>
+<li><a href="man/es/man3/hm2_bspi_setup_chan.3hm2.html">hm2_bspi_setup_chan</a></li>
+<li><a href="man/es/man3/hm2_bspi_write_chan.3hm2.html">hm2_bspi_write_chan</a></li>
+<li><a href="man/es/man3/hm2_pktuart_read.3hm2.html">hm2_pktuart_read</a></li>
+<li><a href="man/es/man3/hm2_pktuart_send.3hm2.html">hm2_pktuart_send</a></li>
+<li><a href="man/es/man3/hm2_pktuart_setup.3hm2.html">hm2_pktuart_setup</a></li>
+<li><a href="man/es/man3/hm2_tram_add_bspi_frame.3hm2.html">hm2_tram_add_bspi_frame</a></li>
+<li><a href="man/es/man3/hm2_uart_read.3hm2.html">hm2_uart_read</a></li>
+<li><a href="man/es/man3/hm2_uart_send.3hm2.html">hm2_uart_send</a></li>
+<li><a href="man/es/man3/hm2_uart_setup.3hm2.html">hm2_uart_setup</a></li>
+</ul></div>
+<p><a onclick="return toggle('man_3')"><img id="man_3_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle"/>Llamadas API: General</a></p>
+<div id="man_3" style="-moz-column-width: 25ex; -moz-column-gap: 4ex; -webkit-column-width: 25ex; -webkit-column-gap: 4ex;">
+<ul>
+<li><a href="man/es/man3/PM_ROTATION_VECTOR.3.html">PM_ROTATION_VECTOR</a></li>
+</ul></div>
+</body>
+</html>
+

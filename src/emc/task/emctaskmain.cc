@@ -60,6 +60,7 @@
 #include <locale.h>
 #include "usrmotintf.h"
 #include <rtapi_string.h>
+#include "tooldata.hh"
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -769,6 +770,15 @@ static int emcTaskPlan(void)
 	type = 0;
     }
 
+    // Always display messages
+	switch (type) {
+        case EMC_OPERATOR_ERROR_TYPE:
+        case EMC_OPERATOR_TEXT_TYPE:
+        case EMC_OPERATOR_DISPLAY_TYPE:
+		retval = emcTaskIssueCommand(emcCommand);
+		return retval;
+    }
+
     // handle any new command
     switch (emcStatus->task.state) {
     case EMC_TASK_STATE_OFF:
@@ -1063,7 +1073,7 @@ static int emcTaskPlan(void)
 
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    // handles case where first action is to step the program
-		    taskPlanRunCmd.line = 1;	// run from start
+		    taskPlanRunCmd.line = 0;	// run from start
 		    /*! \todo FIXME-- can have GUI set this; send a run instead of a 
 		       step */
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
@@ -2562,6 +2572,7 @@ static int emcTaskExecute(void)
 	{
 	    int was_open = taskplanopen;
 	    emcTaskPlanClose();
+            emcTaskPlanReset();  // Flush any unflushed segments
 	    if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 			  __LINE__);
@@ -3321,6 +3332,12 @@ int main(int argc, char *argv[])
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
+#ifdef TOOL_NML //{
+    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+    // initialize database tool finder:
+#endif //}
     // get the Python plugin going
 
     // inistantiate task methods object, too
@@ -3483,6 +3500,7 @@ int main(int argc, char *argv[])
 	    {
 		int was_open = taskplanopen;
 		emcTaskPlanClose();
+                emcTaskPlanReset();  // Flush any unflushed segments
 		if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 		    rcs_print("emcTaskPlanClose() called at %s:%d\n",
 			      __FILE__, __LINE__);
@@ -3558,11 +3576,13 @@ int main(int argc, char *argv[])
         else if (deltaTime > maxTime)
             maxTime = deltaTime;
         startTime = endTime;
-        if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
-            if (num_latency_warnings < 10) {
-                rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+        if (!getenv( (char*)"QUIET_TASK") ) {
+            if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
+                if (num_latency_warnings < 10) {
+                    rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+                }
+                num_latency_warnings ++;
             }
-            num_latency_warnings ++;
         }
 
 	if ((emcTaskNoDelay) || (emcTaskEager)) {

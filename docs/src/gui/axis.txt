@@ -22,6 +22,19 @@ section '[DISPLAY]' change the 'DISPLAY' line to read
 The sample configuration
 'sim/axis.ini' is already configured to use AXIS as its front-end.
 
+
+=== INI settings
+For more information on ini file settings that can change how AXIS
+works see the <<sec:display-section,Display Section>> of the INI 
+Configuration Chapter.
+
+Adjust the response rate of the GUI in milli seconds. Typical 100, useable range 50 - 200 +
+(will accept time in seconds (.05 -.2) for legacy reasons - milli seconds preferred to match other screens)
+----
+[DISPLAY]
+CYCLE_TIME = 100
+----
+
 === A Typical Session
 
  . Start LinuxCNC.
@@ -310,43 +323,43 @@ So be familiar with your machine's design and interpret the display as needed.
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
-* image:images/tool_estop.gif[alt="Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
+* image:images/tool_estop.png[alt="Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
 
-* image:images/tool_power.gif[alt="Toggle Machine Power"] Toggle Machine Power [F2]
+* image:images/tool_power.png[alt="Toggle Machine Power"] Toggle Machine Power [F2]
 
-* image:images/tool_open.gif[alt="Open G Code file"] Open G Code file [O]
+* image:images/tool_open.png[alt="Open G Code file"] Open G Code file [O]
 
-* image:images/tool_reload.gif[alt="Reload current file"] Reload current file [Ctrl-R]
+* image:images/tool_reload.png[alt="Reload current file"] Reload current file [Ctrl-R]
 
-* image:images/tool_run.gif[alt="Begin executing the current file"] Begin executing the current file [R]
+* image:images/tool_run.png[alt="Begin executing the current file"] Begin executing the current file [R]
 
-* image:images/tool_step.gif[alt="Execute next line"] Execute next line [T]
+* image:images/tool_step.png[alt="Execute next line"] Execute next line [T]
 
-* image:images/tool_pause.gif[alt="Pause Execution - Resume Execution"] Pause Execution [P] Resume Execution [S]
+* image:images/tool_pause.png[alt="Pause Execution - Resume Execution"] Pause Execution [P] Resume Execution [S]
 
-* image:images/tool_stop.gif[alt="Stop Program Execution"] Stop Program Execution [ESC]
+* image:images/tool_stop.png[alt="Stop Program Execution"] Stop Program Execution [ESC]
 
-* image:images/tool_blockdelete.gif[alt="Toggle Skip lines"] Toggle Skip lines with "/" [Alt-M-/]
+* image:images/tool_blockdelete.png[alt="Toggle Skip lines"] Toggle Skip lines with "/" [Alt-M-/]
 
-* image:images/tool_optpause.gif[alt="Toggle Optional Pause"] Toggle Optional Pause [Alt-M-1]
+* image:images/tool_optpause.png[alt="Toggle Optional Pause"] Toggle Optional Pause [Alt-M-1]
 
-* image:images/tool_zoomin.gif[alt="Zoom In"] Zoom In
+* image:images/tool_zoomin.png[alt="Zoom In"] Zoom In
 
-* image:images/tool_zoomout.gif[alt="Zoom Out"] Zoom Out
+* image:images/tool_zoomout.png[alt="Zoom Out"] Zoom Out
 
-* image:images/tool_axis_z.gif[alt="Top view"] Top view
+* image:images/tool_axis_z.png[alt="Top view"] Top view
 
-* image:images/tool_axis_z2.gif[alt="Rotated Top view"] Rotated Top view
+* image:images/tool_axis_z2.png[alt="Rotated Top view"] Rotated Top view
 
-* image:images/tool_axis_x.gif[alt="Side view"] Side view
+* image:images/tool_axis_x.png[alt="Side view"] Side view
 
-* image:images/tool_axis_y.gif[alt="Front view"] Front view
+* image:images/tool_axis_y.png[alt="Front view"] Front view
 
-* image:images/tool_axis_p.gif[alt="Perspective view"] Perspective view
+* image:images/tool_axis_p.png[alt="Perspective view"] Perspective view
 
-* image:images/tool_rotate.gif[alt="Toggle between Drag and Rotate Mode"] Toggle between Drag and Rotate Mode [D]
+* image:images/tool_rotate.png[alt="Toggle between Drag and Rotate Mode"] Toggle between Drag and Rotate Mode [D]
 
-* image:images/tool_clear.gif[alt="Clear live backplot"] Clear live backplot [Ctrl-K]
+* image:images/tool_clear.png[alt="Clear live backplot"] Clear live backplot [Ctrl-K]
 
 
 === Graphical Display Area
@@ -365,12 +378,12 @@ indicator in the status bar. If the position is 'Machine Actual', then the
 displayed number is in the machine coordinate system. If it is
 'Relative Actual', then the displayed number is in the offset coordinate
 system. When the coordinates displayed are relative and an offset has been set,
-the display will include a cyan <<sec.machine-corrdinate-system,'machine origin'>>
+the display will include a cyan <<sec.machine-coordinate-system,'machine origin'>>
 image:images/axis-machineorigin.png[alt="cyan machine origin"] marker.
 
 If the position is 'Commanded', then the exact coordinate given in a G code
 command is displayed. If it is 'Actual', then it is the position the machine
-has actually moved to. These values can be different from commanded postition
+has actually moved to. These values can be different from commanded position
 due to following error, dead band, encoder resolution, or step size. For
 instance, if you command a movement to X 0.0033 on your mill, but one step of
 your stepper motor or one encoder count is 0.00125, then the 'Commanded'
@@ -571,6 +584,16 @@ resulting value is shown as a number.
 
 image::images/touchoff.png[align="center", alt="Touch Off"]
 
+.Tool Touch Off
+
+By pressing the 'Tool Touch Off' button the tool length and offsets of
+the currently loaded tool will be changed so that the current tool tip
+position matches the entered coordinate.
+
+.Tool Touch Off
+
+image::images/tooltouchoff.png[align="center", alt="Touch Off"]
+
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture' 
 options in the Machine menu.
 
@@ -663,7 +686,7 @@ Many of the shortcuts are unavailable when in MDI mode.
 .Feed Override Keys
 
 The Feed Override keys behave differently when in Manual Mode. The
-keys '12345678 will select an axis if it is programed. If you have 3
+keys '12345678 will select an axis if it is programmed. If you have 3
 axis then ' will select axis 0, 1 will select axis 1, and 2 will select
 axis 2. The remainder of the number keys will still set the Feed
 Override. When running a program '1234567890 will set the Feed Override
@@ -838,13 +861,13 @@ image::images/axis-foam.png[align="center", alt="Foam cutting mode"]
 == Advanced Configuration
 
 When AXIS is started it creates the HAL pins for the GUI then it executes
-the HAL file named in '[HAL]POSTGUI_HALFILE' in the ini file. Only one post
-GUI file may be used. Place all HAL commands that connect to the GUI HAL pins
-in the post gui HAL file.
-
-For more information on ini file settings that can change how AXIS
-works see the <<sec:display-section,Display Section>> of the INI 
-Configuration Chapter.
+the HAL file named in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
+Typically '<filename>' would be the configs base name + '_postgui' + '.hal' +
+eg. 'lathe_postgui.hal', but can be any legal filename. +
+These commands are executed after the screen is built, 
+guaranteeing the widget's HAL pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+Each will be run one after the other in the order they appear. +
 
 === Program Filters
 
@@ -951,7 +974,7 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 === USER_COMMAND_FILE
 
 A configuration-specific python file may be specified with an ini file
-setting '[DISLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
+setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
 this file is sourced just before the AXIS GUI is displayed.  This file
 is specific to an ini file configuration not the user's home directory.
 When this file is specified, an existing `~/.axisrc` file is ignored.
@@ -1057,7 +1080,7 @@ bit   IN     axisui.notifications-clear-error
 bit   IN     axisui.notifications-clear-info
 ----
 
-Axis has a Hal input pin that disables/enables the 'Pause/Resume' funtion.
+Axis has a Hal input pin that disables/enables the 'Pause/Resume' function.
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit
@@ -1455,4 +1478,22 @@ root_window.tk.call('.toolbar.view_y','configure','-image','','-text','Front','-
 root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
+----
+
+=== Change Plotter Colors
+In RGBA format, in this order:
+jog, rapid, feed, arc, toolchange, probe
+
+[source,python]
+----
+# change plotter colors
+try:
+    live_plotter.logger.set_colors((255,0,0,255),
+                                    (0,255,0,255),
+                                    (0,0,255,255),
+                                    (255,255,0,255),
+                                    (255,255,255,255),
+                                    (0,255,255,255))
+except Exception as e:
+    print (e)
 ----

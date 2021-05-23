@@ -418,6 +418,12 @@ MDI_COMMAND=(debug,macro16)
  True as long pendant is not in sleep mode (turned on), false otherwise.
 
 == HAL Configuration Example
+
+Exercise caution if using copy and paste of this example code from the
+online web docs. Certain characters are incompatibly encoded by the web
+site (minus becomes em-dash). It is safer to copy and paste from
+https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
+
 ----
 #
 ### Hal File xhc_whb04b_6.hal Example
@@ -458,6 +464,10 @@ net pdnt.mode.is-mdi                      halui.mode.is-mdi                     
 net pdnt.mode.is-joint                    halui.mode.is-joint                   whb.halui.mode.is-joint
 net pdnt.mode.is-teleop                   halui.mode.is-teleop                  whb.halui.mode.is-teleop
 
+# "is-homed" axis signal for allowing pendant when machine is not homed
+net pdnt.axis.X.is-homed                  halui.joint.0.is-homed                whb.halui.joint.x.is-homed
+net pdnt.axis.Y.is-homed                  halui.joint.1.is-homed                whb.halui.joint.y.is-homed
+net pdnt.axis.Z.is-homed                  halui.joint.2.is-homed                whb.halui.joint.z.is-homed
 
 # "selected axis" signals
 net pdnt.axis.X.select                    whb.halui.axis.x.select               halui.axis.x.select

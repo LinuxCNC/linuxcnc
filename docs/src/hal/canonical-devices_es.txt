@@ -1,0 +1,122 @@
+:lang: es
+
+[[cha:canonical-device-interfaces]]
+
+= Interfaces de dispositivos canónicos
+
+== Introducción
+
+Las siguientes secciones muestran los pines, parámetros y funciones
+suministrados por "dispositivos canónicos". Todos los controladores de dispositivo HAL deben
+suministrar los mismos pines y parámetros, e implementar el mismo comportamiento.
+
+Tenga en cuenta que solo los campos `<io-type>` y `<specific-name>` estan
+definido para un dispositivo canónico. Los campos `<device-name>`, `<device-num>`,
+y `<chan-num>` se establecen en función de las características del
+dispositivo real.
+
+== Entrada digital
+
+La entrada digital canónica (campo tipo E/S:`digin`) es bastante simple.
+
+=== Pines
+
+ - (bit) *in* -- Estado de la entrada hardware.
+ - (bit) *in-not* -- Estado invertido de la entrada.
+
+=== Parámetros
+
+ - Ninguno
+
+=== Funciones
+
+ - (funct) *read* -- Lee el hardware y configura los pines HAL 'in' y 'in-not`.
+
+== Salida digital
+
+La salida digital canónica (campo de tipo E/S: `digout`) también es muy
+sencilla.
+
+=== Pines
+
+ - (bit) * out * -- Valor a escribir (posiblemente invertido) en la salida hardware.
+
+=== Parámetros
+
+ - (bit) *invert* -- Si es TRUE, *out* se invierte antes de escribir en el hardware.
+
+=== Funciones
+
+ - (funct) *write* -- Lee *out* e *invert* y establece la salida hardware
+   en consecuencia.
+
+== Entrada Analógica
+
+La entrada analógica canónica (tipo E/S: `adcin`) se espera que
+sea utilizada para convertidores analógico a digital que, por ejemplo,
+conviertan voltaje a un rango continuo de valores.
+
+=== Pines
+
+ - (float) *value* -- La lectura del hardware, escalada según los parámetros
+   *scale* y *offset*. *Value* = ((lectura de entrada, en
+   unidades dependientes del hardware) * *scale*) - *offset*
+
+=== Parámetros
+
+ - (float) *scale* -- El voltaje de entrada (o corriente) se multiplicará
+   por *scale* antes de salir a *value*.
+ - (float) *offset* -- Se restará de la entrada de voltaje (o corriente) hardware
+   después de que se haya aplicado el multiplicador de escala.
+ - (float) *bit_weight* -- El valor del bit menos significativo(LSB).
+   Es efectivamente la granularidad de la lectura de entrada.
+ - (float) *hw_offset* -- El valor presente en la entrada cuando se aplican 0 voltios
+   al pin(es) de entrada.
+
+=== Funciones
+
+ - (funct) *read* -- Lee los valores de este canal de entrada analógica. Se
+   puede usar para leer un canal individual, o puede hacer que se lean todos los canales
+
+== Salida analógica
+
+La salida analógica canónica (tipo E/S: *adcout*). Esto esta pensado
+para cualquier tipo de hardware que pueda generar un
+rango de valores más o menos continuo. Los ejemplos son convertidores de digital a analógico
+o generadores PWM.
+
+=== Pines
+
+ - (float) *value* -- El valor que se escribirá. El valor real de salida
+   para el hardware dependerá de la escala y los parámetros de offset.
+ - (bit) *enable* -- Si es falso, entonces salida al hardware es 0, independientemente
+   del pin *value*.
+
+=== Parámetros
+
+ - (float) *offset* -- Esto se agregará a *value* antes de la
+   actualizacion del hardware.
+ - (float) *scale* -- Se debe configurar de modo que una entrada de 1 en el
+   pin *value*  causará que en el pin de salida analógica se lea 1 voltio.
+ - (float) *high_limit* (opcional) -- Cuando se calcula el valor para
+   salida al hardware, si *value* + *offset* es mayor que
+   *high_limit*, se usará *high_limit* .
+ - (float) *low_limit* (opcional) -- Cuando se calcula el valor de salida
+   para el hardware, si *value* + *offset* es menor que *low_limit*,
+   se usará *low_limit*.
+ - (float) *bit_weight* (opcional) -- El valor del bit menos significativo
+   (LSB), en voltios (o mA, para salidas de corriente)
+ - (float) *hw_offset* (opcional) -- El voltaje (o corriente) real
+   que saldrá si se escribe 0 en el hardware.
+
+=== Funciones
+
+(funct) *write* -- Hace que el valor calculado sea enviado al
+hardware. Si el pin enable es falso, la salida será 0,
+independientemente de *value*, *scale* y *offset*.
+El significado de "0" depende del hardware. Por ejemplo, un
+A/D bipolar de 12 bits puede necesitar escribir 0x1FF (escala intermedia) para obtener D/A 0
+voltios desde el pin de hardware. Si el pin enable es verdadero, lee scale, offset y
+value y pone a la salida del ADC (*scale* * *value*) + *offset*.
+
+

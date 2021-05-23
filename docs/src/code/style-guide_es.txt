@@ -1,0 +1,267 @@
+:lang: es
+
+= Estilo de codificación
+
+Este capítulo describe el estilo de código fuente preferido por el equipo LinuxCNC.
+
+== No provoque daños
+
+Al realizar pequeñas ediciones en el código en un estilo diferente al
+descrito a continuación, observe el estilo de codificación local. Cambios rápidos de un
+estilo de codificación a otro disminuye la legibilidad del código.
+
+Nunca verifique el código después de ejecutar "sangría" en él. Los cambios de espacios en blanco
+introducidos por la sangría hacen que sea más difícil seguir el
+historial de revisión del archivo.
+
+No use un editor que realice cambios innecesarios en los espacios en blanco (por ejemplo,
+reemplaza 8 espacios con un tabulador en una línea no modificada,
+o ajuste de texto en líneas no modificadas de otra manera)
+
+== Tabulaciones
+
+Una tabulación siempre corresponde a 8 espacios. No escriba código que
+se muestra correctamente solo con una configuración de tabulación diferente.
+
+== Sangría
+
+Use 4 espacios por nivel de sangría. Combinando 8 espacios en un tabulador
+es aceptable pero no requerido.
+
+== Colocación de llaves
+
+Ponga la llave de apertura al final de la línea y la llave de cierre al principio:
+
+
+[source,c]
+----
+if (x) {
+    // hacer algo apropiado
+}
+----
+
+La llave de cierre está en una línea propia, excepto en los casos en que
+sea seguida por una continuación de la misma declaración, es decir, un 'while'
+en una declaración do o un 'else' en una declaración if, así:
+
+[source,c]
+----
+do {
+    // algo importante
+} while (x > 0);
+----
+
+y
+
+[source,c]
+----
+if (x == y) {
+    // Haz una cosa
+} else if (x < y) {
+    // haz otra cosa
+} else {
+    // hacer una tercera cosa
+}
+----
+
+Esta colocación de llaves también minimiza el número de 
+líneas vacías (o casi vacias), lo que permite una mayor cantidad de código o comentarios
+visible a la vez en un terminal de un tamaño fijo.
+
+== Nombrado
+
+C es un lenguaje espartano, y así debería ser tu nombrado. A diferencia de Modula-2
+y Pascal, los programadores C no usan nombres pomposos como
+ThisVariableIsATemporaryCounter. Un programador de C llamaría eso
+variable 'tmp', que es mucho más fácil de escribir y no mas
+difícil de comprender.
+
+Sin embargo, los nombres descriptivos para las variables globales son imprescindibles. Llamar a una
+función global 'foo' es un crimen.
+
+Las variables GLOBALES (para usarlas solo si *realmente* se precisan) necesitan
+tener nombres descriptivos, al igual que las funciones globales. Si
+tiene una función que cuenta el número de usuarios activos, debe
+ llame a eso 'count_active_users()' o similar, *no* debe llamarla
+'cntusr()'.
+
+Codificar el tipo de una función en el nombre (llamada notación húngara)
+no tiene sentido; el compilador conoce los tipos de todos modos y
+puede verificarlos, y solo confunde al programador. No es de extrañar que
+Microsoft haga programas con errores.
+
+Los nombres de variables LOCALES deben ser cortos y escuetos. Si usted tiene
+algún contador entero de bucles aleatorio, probablemente debería llamarse 'i'.
+Llamarlo 'loop_counter' no es productivo, si no hay posibilidad de
+ser mal entendido. Del mismo modo, 'tmp' puede ser casi cualquier tipo de
+variable que se utiliza para mantener un valor temporal.
+
+Si tiene miedo de mezclar sus nombres de variables locales, tiene
+otro problema, que se llama síndrome de desequilibrio de la hormona del crecimiento funcional.
+Ver el siguiente capítulo.
+
+== Funciones
+
+Las funciones deben ser cortas y fáciles, y hacer una sola cosa.
+Deben caber en una o dos pantallas de texto (el tamaño de pantalla ISO/ANSI
+es 80x24, como todos sabemos), hacer una cosa y hacerla bien.
+
+La longitud máxima de una función es inversamente proporcional a la
+complejidad y nivel de sangría de esa función. Por tanto, si tiene una
+función conceptualmente simple que es solo un largo (pero simple)
+switch-case, donde tienes que hacer muchas cosas pequeñas para muchos casos
+diferentes, está bien tener una función más larga.
+
+Sin embargo, si tiene una función compleja y sospecha que un
+estudiante de primer año de secundaria no superdotado no podría siquiera
+entender de qué se trata la función, debe respetar los
+límites máximos más de cerca. Use funciones de ayuda con
+nombres descriptivos (puede pedirle al compilador que los incorpore si
+piensa que es crítico para el rendimiento, y probablemente hará un mejor trabajo
+que el suyo).
+
+Otra medida de la función es el número de variables locales.
+No deben exceder de 5-10, o algo estás haciendo mal. Repensar la
+función, y dividirla en pedazos más pequeños. Un cerebro humano generalmente puede
+realizar un seguimiento de aproximadamente 7 cosas diferentes, cualquier cosa más y
+se confunde. Sabes que eres brillante, pero tal vez te gustaría
+entender lo que hiciste dentro de 2 semanas.
+
+== Comentarios
+
+Los comentarios son buenos, pero también existe el peligro de comentar en exceso.
+NUNCA intente explicar CÓMO funciona su código en un comentario; es mucho mejor
+escribir el código para que el *funcionamiento* sea obvio, y es un desperdicio de
+tiempo explicar un código mal escrito.
+
+En general, busque que sus comentarios digan QUÉ hace su código, no
+CÓMO. Un comentario en recuadro que describe la función, el valor de retorno y quién
+lo llama colocado encima del cuerpo es bueno. Además, trate de evitar poner
+comentarios dentro del cuerpo de una función; si la función es tan compleja que
+necesita comentar partes por separado, probablemente debería volver a leer la
+sección de funciones de nuevo. Puede hacer pequeños comentarios para anotar o advertir
+sobre algo particularmente inteligente (o feo), pero trate de evitar el exceso.
+En su lugar, coloque los comentarios al frente de la función, diciéndoles a las personas
+lo que hace, y posiblemente POR QUÉ lo hace.
+
+Si se utilizan comentarios /* Fix me */ en la línea, por favor, por favor,
+decir por qué algo necesita ser reparado. Cuando se ha realizado un cambio en la
+parte afectada del código, elimine el comentario o modifíquelo para
+indicar que se ha realizado un cambio y necesita pruebas.
+
+== Scripts de Shell y Makefiles
+
+No todos tienen las mismas herramientas y paquetes instalados. Algunas personas
+usan vi, otros emacs: algunos incluso evitan tener cualquiera de estos paquetes
+instalados, prefiriendo un editor de texto liviano como nano o el
+construido en Midnight Commander.
+
+gawk versus mawk - Nuevamente, no todos tendrán gawk instalado, mawk
+es casi una décima parte del tamaño y, sin embargo, se ajusta al Posix AWK
+estándar. Si se necesita algún comando específico de gawk oscuro que mawk
+no proporciona, el script se romperá para algunos usuarios. Lo mismo
+se aplicaría a mawk. En resumen, use la invocación genérica awk en
+preferencia a gawk o mawk.
+
+== Convenciones de C++
+
+Los estilos de codificación de C++ siempre terminan en acalorados debates (un poco
+como los argumentos de emacs versus vi). Una cosa es cierta, sin embargo;
+el estilo común utilizado por todos los que trabajan en un proyecto conduce a la uniformidad y
+a código legible
+
+Convenciones de nomenclatura: las constantes #define o enumeraciones
+debe estar en mayúscula. Justificación: hace que sea más fácil detectar
+constantes de tiempo de compilación en el código fuente. p.ej. EMC_MESSAGE_TYPE
+
+Las clases y los espacios de nombres deben poner en mayúscula la primera letra de cada palabra
+y evitar guiones bajos. Justificación: identifica clases, constructores y
+destructores. p.ej. GtkWidget
+
+Los métodos (o nombres de funciones) deben seguir las recomendaciones C anteriores
+y no debe incluir el nombre de la clase. Justificación: mantiene un
+estilo común en fuentes C y C++. p.ej. get_foo_bar()
+
+Sin embargo, los métodos booleanos son más fáciles de leer si evita los guiones bajos
+y use un prefijo 'is' (no debe confundirse con los métodos que manipulan
+un booleano). Justificación: identifica el valor de retorno como VERDADERO o FALSO y
+nada más. p.ej. isOpen, isHomed
+
+NO use 'Not' en un nombre booleano, solo conduce a confusión
+al hacer pruebas lógicas. p.ej. isNotOnLimit o is_not_on_limit son MALOS.
+
+Los nombres de las variables deben evitar el uso de mayúsculas y guiones bajos
+a excepción de nombres locales o privados. El uso de variables globales debería
+evitarse tanto como sea posible. Justificación: aclara cuáles son
+variables y cuales son métodos. Ej. Público: axislimit. Ej. Privado: maxvelocity_
+
+Convenciones de nomenclatura de métodos específicos
+
+Los términos get y set deben usarse donde se accede a un atributo
+directamente. Justificación: indica el propósito de la función o método.
+p.ej. get_foo set_bar
+
+Para los métodos que involucran atributos booleanos, se prefiere set y reset.
+Justificación: como arriba. p.ej. set_amp_enable reset_amp_fault
+
+Los métodos intensivos en matemáticas deben usar el cálculo como prefijo. Razón fundamental:
+mostrar que es computacionalmente intensivo y acaparará la CPU. p.ej.
+compute_PID
+
+Las abreviaturas en los nombres deben evitarse siempre que sea posible.
+la excepción es para nombres de variables locales. Justificación: claridad del código. p.ej.
+se prefiere pointer a ptr, compute a cmp, o compare a  (de nuevo) cmp.
+
+Las enumeraciones y otras constantes pueden tener como prefijo un nombre de tipo común
+p.ej. enum COLOR{COLOR_RED, COLOR_BLUE};
+
+Se debe evitar el uso excesivo de macros y defines.
+Se prefieren métodos o funciones. Justificación: mejora el proceso de depuración.
+
+Los declaraciones include de archivos de encabezado deben incluirse en la parte superior de un
+archivo fuente y no disperso por todo el cuerpo. Deberían estar
+ordenados y agrupados por su posición jerárquica dentro del sistema
+con los archivos de bajo nivel incluidos primero. Las rutas de archivos include
+NUNCA deben ser absolutas; use el flag del compilador -I en su lugar. Razón fundamental:
+Los encabezados pueden no estar en el mismo lugar en todos los sistemas.
+
+Los punteros y las referencias deben tener su símbolo de referencia junto al
+nombre de la variable y no junto al nombre del tipo. Justificación: Reduce la confusión.
+p.ej. float *x o int &i
+
+Las pruebas implícitas para cero no deben usarse excepto para variables booleanas.
+p.ej. if (spindle_speed != 0) NO if (spindle_speed)
+
+Solo las declaraciones de control de bucle deben incluirse en una construcción for().
+p.ej. sum = 0; for (i = 0; i < 10; i++) { sum += value[i]; }
+
+NO for (i = 0, sum =0; i < 10; i++) sum += value[i];
+
+Del mismo modo, deben evitarse las declaraciones ejecutables en condicionales. p.ej.
+if (fd = open(nombre_archivo) es malo.
+
+Deben evitarse las declaraciones condicionales complejas - Introducir 
+variables booleanas temporales en su lugar.
+
+Los paréntesis deben usarse en abundancia en las expresiones matemáticas.
+No confíe en la precedencia del operador cuando un paréntesis adicional aclararía las
+cosas.
+
+Nombres de archivo: las fuentes y los encabezados de C++ usan la extensión .cc y .hh. El uso
+de .c y .h están reservados para C. Los encabezados son para clases, métodos,
+y declaraciones de estructuras, no para código (a menos que se declaren las funciones
+inline).
+
+== Estándares de codificación de Python
+
+Utilice el estilo http://www.python.org/dev/peps/pep-0008/[PEP 8] para
+Código de Python
+
+== Estándares de codificación comp
+
+En la parte de declaración de un archivo .comp, comience cada declaración en
+la primera columna. Insertar líneas en blanco adicionales cuando ayuden a agrupar items relacionados.
+
+En la parte del código de un archivo .comp, siga el estilo de codificación C normal.
+
+

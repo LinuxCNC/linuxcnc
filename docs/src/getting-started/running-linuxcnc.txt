@@ -119,7 +119,7 @@ to directly launch this configuration
 without showing the Configuration Selector screen. 
 
 When you select a configuration from the Sample Configurations section, 
-it will automaticly place a copy of that config in the
+it will automatically place a copy of that config in the
 linuxcnc/configs directory.
 
 == Next steps in configuration
@@ -136,7 +136,7 @@ All configurations listed under Sample Configurations/sim
 are intended to run on any computer.  No specific hardware is
 required and real-time support is not needed.
 
-These configurations are useful for studying indivdual
+These configurations are useful for studying individual
 capabilities or options.  The sim configurations are organized
 according to the graphical user interface used in the
 demonstration.  The directory for axis contains the most
@@ -152,7 +152,7 @@ a configuration to a new subdirectory of ~/linuxcnc/configs
 created directory will include at least one ini file (iniflename.ini)
 that is used to describe a specific configuration.
 
-File resources within the copied directroy will typically
+File resources within the copied directory will typically
 include one or more ini file (filename.ini) for related
 configurations and a tool table file (toolfilename.tbl).
 Additionally, resources may include halfiles (filename.hal,

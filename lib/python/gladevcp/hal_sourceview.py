@@ -38,6 +38,10 @@ from .hal_filechooser import _EMC_FileChooser
 
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
+    __gsignals__ = {
+        'changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+    }
+
     __gproperties__ = {
         'idle_line_reset' : ( GObject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
@@ -106,7 +110,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
             self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
 
     def set_language(self, lang, path = None):
-        # path = the search path for the langauage file
+        # path = the search path for the language file
         # if none, set to default
         # lang = the lang file to set
         if path == None:
@@ -127,8 +131,8 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     # This load the file while not allowing undo buttons to unload the program.
     # It updates the iter because iters become invalid when anything changes.
     # We set the buffer-unmodified flag false after loading the file.
-    # Set the hilight line to the line linuxcnc is looking at.
-    # if one calls load_file without a filenname, We reload the exisiting file.
+    # Set the highlight line to the line linuxcnc is looking at.
+    # if one calls load_file without a filename, We reload the existing file.
     def load_file(self, fn=None):
         self.buf.begin_not_undoable_action()
         if fn == None:
@@ -212,6 +216,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
+        self.emit("changed")
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
@@ -232,7 +237,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
                 self.current_iter = self.end_iter.copy()
             found = gtksourceview.iter_backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
-            # erase any existing hilighting tags
+            # erase any existing highlighting tags
             try:
                 self.buf.remove_tag(self.found_text_tag, self.match_start, self.match_end)
             except:

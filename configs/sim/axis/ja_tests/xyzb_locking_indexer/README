@@ -16,8 +16,8 @@ The configs start additional applications:
      Signal j:b is jog-counts for  axis b AND joint 3
  2) halshow app to show relevant hal pins
 
-xyzb.ini   trivkins with ommitted axis letter (a)
-xyyzb.ini  trivkins with ommitted axis letter (a)
+xyzb.ini   trivkins with omitted axis letter (a)
+xyyzb.ini  trivkins with omitted axis letter (a)
                                    and  duplicated axis letter (y)
                                    and  auto teleop after homing
 

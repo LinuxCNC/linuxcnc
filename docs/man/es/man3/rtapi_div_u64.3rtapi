@@ -1,0 +1,56 @@
+\" Copyright (C) 2013 Jeff Epler <jepler@unpythonic.net>
+\"
+\" This program is free software; you can redistribute it and/or
+\" modify it under the terms of the GNU General Public License
+\" as published by the Free Software Foundation; either version 2
+\" of the License, or (at your option) any later version.
+\"
+\" This program is distributed in the hope that it will be useful,
+\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\" GNU General Public License for more details.
+\"
+\" You should have received a copy of the GNU General Public License
+\" along with this program; if not, write to the Free Software
+\" Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+.TH rtapi_div_u64 "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_div_u64 \- división sin signo de un número de 64 bits por un número de 32 bits
+
+.SH SINTAXIS
+.HP
+__u64 rtapi_div_u64_rem(__u64 \fIdividend\fR, __u32 \fIdivisor\fR, __u32 *\fIremainder\fR)
+.HP
+__u64 rtapi_div_u64(__u64 \fIdividend\fR, __u32 \fIdivisor\fR)
+.HP
+__s64 rtapi_div_s64(__s64 \fIdividend\fR, __s32 \fIdivisor\fR)
+.HP
+__s64 rtapi_div_s64_rem(__s64 \fIdividend\fR, __s32 \fIdivisor\fR, __s32 *\fIremainder\fR)
+
+.SH ARGUMENTOS
+.IP \fIdividend\fR
+El valor a dividir
+.IP \fIdivisor\fR
+El valor entre el que dividir
+.IP \fIremainder\fR
+Puntero a la ubicación para almacenar el resto. Esto no puede ser un puntero NULL.
+Si no desea el resto, llame a \fBrtapi_div_u64\fR o \fBrtapi_div_s64\fR.
+
+.SH DESCRIPCIÓN
+Realiza la división de enteros (y opcionalmente calcula el resto) con un dividendo de 64 bits y un divisor de 32 bits.
+
+.SH VALOR DEVUELTO
+El resultado de la división entera de \fIdividendo / divisor\fR. En versiones con el argumento \fIremainder\fR, el resto se almacena en la ubicación señalada.
+
+.SH NOTAS
+Si el resultado de la división no cabe en el tipo de retorno, el resultado es
+indefinido
+
+Esta función existe porque en el espacio del núcleo el uso del operador de división
+en un tipo de 64 bits puede conducir a un símbolo indefinido como __umoddi3 cuando el módulo es cargado.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Se puede llamar desde el código de inicio/limpieza y desde las tareas en tiempo real. Disponible en componentes de espacio de usuario.
+
+

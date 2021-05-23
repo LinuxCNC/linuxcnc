@@ -1,0 +1,75 @@
+.TH LATENCYBINS "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+latencybins \- comp utility for scripts/latency-histogram
+.SH SYNOPSIS
+
+Usage:
+  Read availablebins pin for the number of bins available.
+  Set the maxbinnumber pin for the number of \(+- bins.
+    Ensure maxbinnumber <= availablebins
+    For maxbinnumber = N, the bins are numbered:
+       \-N ... 0 ... + N bins
+    (the \-0 bin is not populated)
+    (total effective bins = 2*maxbinnumber +1)
+  Set nsbinsize pin for the binsize (ns)
+  Iterate:
+    Set index pin to a bin number: 0 <= index <= maxbinnumber.
+    Read check pin and verify that check pin == index pin.
+    Read output pins:
+         pbinvalue is count for bin = +index
+         nbinvalue is count for bin = \-index
+         pextra    is count for all bins > maxbinnumber
+         nextra    is count for all bins < maxbinnumber
+         latency-min is max negative latency
+         latency-max is max positive latency
+
+   If index is out of range ( index < 0 or index > maxbinnumber)
+   then pbinvalue = nbinvalue = \-1.
+   The reset pin may be used to restart.
+   The latency pin outputs the instantaneous latency.
+
+Maintainers note: hardcoded for MAXBINNUMBER==1000
+
+.SH FUNCTIONS
+.TP
+\fBlatencybins.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B latencybins.\fIN\fB.maxbinnumber\fR s32 in \fR(default: \fI1000\fR)
+.TQ
+.B latencybins.\fIN\fB.index\fR s32 in \fR
+.TQ
+.B latencybins.\fIN\fB.reset\fR bit in \fR
+.TQ
+.B latencybins.\fIN\fB.nsbinsize\fR s32 in \fR
+.TQ
+.B latencybins.\fIN\fB.check\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.latency\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.latency-max\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.latency-min\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.pbinvalue\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.nbinvalue\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.pextra\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.nextra\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.variance\fR s32 out \fR
+.TQ
+.B latencybins.\fIN\fB.availablebins\fR s32 out \fR(default: \fI1000\fR)
+.SH LICENSE
+
+GPL

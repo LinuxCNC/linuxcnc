@@ -453,6 +453,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 
 	    // file at this level was marked as closed, so dont reopen.
 	    if (previous_frame->position == -1) {
+		if (settings->file_pointer) fclose(settings->file_pointer);
 		settings->file_pointer = NULL;
 		rtapi_strxcpy(settings->filename, "");
 	    } else {

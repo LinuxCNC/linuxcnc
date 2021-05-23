@@ -206,7 +206,13 @@ int main(int argc, char **argv)
 
     /* import the python module and get references for needed function */
     PyObject *pModule, *pFunc, *pPeriodicFunc, *pClass;
-    Py_SetProgramName("panelui");  /* optional but recommended */
+    char name[] = "panelui";
+    #if PY_MAJOR_VERSION >=3    
+        wchar_t *wname = Py_DecodeLocale(name, NULL);
+        Py_SetProgramName(wname);
+    #else
+        Py_SetProgramName(name);
+    #endif
     Py_Initialize();
     PyRun_SimpleString("import pyui\n"
                      "pyui.instance = pyui.master.keyboard()\n"

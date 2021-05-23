@@ -1,0 +1,70 @@
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+.TH MUX_GENERIC "9" "2013-05-27" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+
+mux_generic \- elige uno de entre varios valores de entrada
+.SH SINOPSIS
+.HP
+.B loadrt mux_generic config = "bb8,fu12 ...."
+.SH FUNCIONES
+.TP
+\fBmux\-gen.\fINN\fB\fR Dependiendo de los tipos de datos pueden ejecutarse en un hilo de punto flotante o no flotante.
+
+.SH PINES
+.TP
+.B mux\-gen.\fINN\fB.suppress\-no\-input\fR bit in \fR
+Esto suprime el cambio de salida si todas las líneas de selección son falsas.
+Esto detiene los saltos no deseados en la salida entre las transiciones de entrada pero hace que in00 no esté disponible.
+
+.TP
+.B mux\-gen.\fINN\fB.debounce\-us\fR u32 in \fR
+establece el tiempo de debouce en microsegundos. p.ej. 100000 = una décima de segundo.
+Las entradas de selección deben ser estables ese tiempo antes de que cambie la salida. Esto ayuda a ignorar los interruptores 'ruidosos'.
+
+.TP
+.B mux\-gen.\fINN\fB.sel\-bit\fIMM\fB\fR bit in (M = 0..N) \fR
+.TP
+.B mux\-gen.\fINN\fB.sel\-int\fI\fB\fR u32 in \ fR
+Juntos, determinan qué valor \fBin\fIN\fR se copia en \fBoutput\fR.
+Los pines de bits se interpretan como bits binarios, y el resultado simplemente se agrega a la entrada del pin entero. Se espera que normalmente se use uno u otro. Sin embargo, existe la posibilidad de utilizar un bit de orden superior para "cambiar" los valores establecidos por el pin entero.
+Los pines sel\-bit solo se crean cuando el tamaño del componente mux_gen es una potencia entera de dos.
+Este componente (a diferencia de mux16) no ofrece la opción de decodificar código gray; sin embargo, se puede lograr el mismo efecto organizando el orden de los valores de entrada para que se adapten.
+
+.TP
+.B mux\-gen.\fINN\fB.out\-[bit/float/s32/u32]\fR out de tipo variable \fR
+Sigue el valor de uno de los valores \fBin\fIN\fR de acuerdo con los bits de selección y/o el número de selección.
+Los valores se convertirán/truncarán de acuerdo con las reglas estándar de C. Esto significa, por ejemplo, que una entrada float mayor que 2147483647 dará una salida S32 de \-2147483648.
+
+.TP
+.B mux\-gen.\fINN\fB.in\-[bit/float/s32/u32]\-\fIMM\fB\fR in tipo variable \fR
+Los posibles valores de salida son seleccionados por los pines de selección.
+
+.SH PARÁMETROS
+.TP
+.B mux\-gen.\fIN\fB.elapsed\fR float r \fR
+Valor actual del temporizador antirrebote interno para la depuración.
+.TP
+.B mux\-gen.\fIN\fB.selected\fR s32 r \fR
+Valor actual de la variable de selección interna después de la conversión para la depuración. Posiblemente útil para configurar interruptores de código gray.
+ 
+.SH DESCRIPCIÓN
+Este componente es una versión más general de los otros componentes de multiplexación.
+Permite la creación de multiplexores de tamaño arbitrario (hasta 1024 entradas) y también admite diferentes tipos de datos en los pines de entrada y salida.
+La cadena de configuración es una lista, separada por comas, de letras y números de código, como "bb4,fu12". Esto crearía un mux bit-a-bit de 4 elementos y un mux float-a-unsigned de 12 elementos. Las letras de código son b=bit, f=float, s=entero con signo, u=entero sin signo. El primer código de letra es el tipo de entrada, el segundo es el tipo de salida. Los códigos no distinguen entre mayúsculas y minúsculas. El orden de las letras es significativo, pero la posición en la cadena no lo es. No inserte ningún espacio en la cadena de configuración.
+Cualquier valor float distinto de cero se convertirá en una salida "verdadera" en forma de bit. Tenga cuidado de que los tipos de datos floats pueden ser muy, muy cercanos a cero y en realidad no pueden ser iguales a cero.
+
+Cada mux tiene su propia función HAL y debe agregarse a un hilo por separado.
+Si ni la entrada ni la salida son de tipo float, la función es segura para hilos básicos (sin punto flotante). Cualquier mux_generic con una entrada o salida de punto flotante solo se puede agregar a un hilo de punto flotante.
+
+.SH LICENCIA
+GPL
+
+.SH AUTOR
+Andy Pugh

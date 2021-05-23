@@ -73,12 +73,16 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(header,
                    caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        label = Gtk.Label(label)
-        label.modify_font(Pango.FontDescription("sans 20"))
+                  (gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                   gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+        label = gtk.Label(label)
+        label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label, False, False, 0)
+        # add label to control the height of the action_area
+        label_h = gtk.Label("\n\n\n")
+        dialog.action_area.pack_start(label_h)
+        dialog.action_area.reorder_child(label_h, 0)
+        dialog.vbox.pack_start(label)
         dialog.vbox.add(calc)
         if data != None:
             calc.set_value(data)
@@ -87,7 +91,7 @@ class Dialogs(GObject.GObject):
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
         calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
-        dialog.parse_geometry("400x400")
+        dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
         self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button

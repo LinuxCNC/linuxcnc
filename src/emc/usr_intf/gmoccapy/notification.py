@@ -208,7 +208,7 @@ class Notification(Gtk.Window):
             self._refill_messages()
             return True
         elif messagenumber > len(self.messages) or messagenumber < 0:
-            self.add_message(_('Error trying to delet the message with number %s' % messagenumber), None)
+            self.add_message(_('Error trying to delet the message with number {0}'.format(messagenumber), None))
             return False
         try:
             del self.messages[int(messagenumber)]

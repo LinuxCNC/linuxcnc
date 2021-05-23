@@ -79,12 +79,12 @@ c.wait_complete()
 start_time = time.time()
 s.poll()
 all_homed = s.homed[0]+s.homed[1]+s.homed[2]
-while (all_homed is not 3) and (time.time() - start_time < 5):
+while (all_homed != 3) and (time.time() - start_time < 5):
     time.sleep(0.100)
     s.poll()
     all_homed = s.homed[0]+s.homed[1]+s.homed[2]
 
-if all_homed is not 3:
+if all_homed != 3:
     print("failed to home")
     print("s.homed: {}".format(s.homed))
     sys.exit(1)
@@ -181,7 +181,7 @@ s.poll()
 print_status(s)
 print("command.serial: {}".format(c.serial))
 # this fails in 2.6.12 due to the stat RCS message having a status of
-# RCS_EXEC...  as if though the override_limits command didnt set status
+# RCS_EXEC...  as if though the override_limits command didn't set status
 # back to RCS_DONE when it finished.
 # assert_wait_complete(c)
 

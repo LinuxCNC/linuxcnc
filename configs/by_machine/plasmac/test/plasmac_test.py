@@ -90,6 +90,14 @@ class plasmacTest:
             self.B.get_object('arc').set_sensitive(1)
             self.B.get_object('moves').set_sensitive(1)
 
+    def on_arcOk_toggled(self, widget):
+        if widget.get_active():
+            print('on')
+            sp.Popen(['halcmd setp plasmac.arc-ok-in 1'], shell=True)
+        else:
+            print('off')
+            sp.Popen(['halcmd setp plasmac.arc-ok-in 0'], shell=True)
+
     def setmode(self, mode):
         sp.Popen(['halcmd setp plasmac.mode ' + str(mode)], shell=True)
 
@@ -103,15 +111,24 @@ class plasmacTest:
         return gtk.TRUE
 
     def torch_changed(self, halpin):
-        if not halpin.get():
+        if halpin.get():
+            time.sleep(0.1)
+            if hal.get_value('plasmac.mode') == 0 or hal.get_value('plasmac.mode') == 1:
+                self.B.get_object('arcVoltage').set_value(100.0)
+                self.B.get_object('arcVoltageAdj').set_lower(90.0)
+            if hal.get_value('plasmac.mode') == 1 or hal.get_value('plasmac.mode') == 2:
+                self.B.get_object('arcOk').set_active(True)
+        else:
             self.B.get_object('arcVoltage').set_sensitive(0)
-            self.B.get_object('arcVoltage').set_value(50.0)
+            self.B.get_object('arcVoltageAdj').set_lower(0.0)
+            self.B.get_object('arcVoltage').set_value(0.0)
             time.sleep(.1)
             self.B.get_object('arcVoltage').set_sensitive(1)
+            self.B.get_object('arcOk').set_active(False)
 
     def __init__(self):
         self.lcnc = linuxCNC()
-        gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.iniFile.find('PLASMAC', 'THEME'))
+#        gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.iniFile.find('PLASMAC', 'THEME'))
         self.gui = "./test/plasmac_test.glade"
         self.B = gtk.Builder()
         self.B.add_from_file(self.gui)
@@ -123,16 +140,27 @@ class plasmacTest:
         self.halcomp.ready()
         sp.Popen(['halcmd net plasmac:torch-on plasmactest.torch-on'], shell=True)
         self.torch.connect('value-changed', self.torch_changed)
-        if not hal.pin_has_writer('plasmac.arc-ok-in'):
-            sp.Popen(['halcmd net p_test:arc-ok-in plasmactest.arcOk plasmac.arc-ok-in'], shell=True)
+        # test if using debounce on arc ok input (configs prior to 4 Sep 2020)
+        arcDb = int(self.lcnc.iniFile.find('PLASMAC', 'DBOUNCE') or '0')
+        if arcDb:
+            if not hal.pin_has_writer('db_arc-ok.in'):
+                sp.Popen(['halcmd net p_test:arc-ok-in plasmactest.arcOk db_arc-ok.in'], shell=True)
+            if not hal.pin_has_writer('db_float.in'):
+                sp.Popen(['halcmd net p_test:float-switch plasmactest.floatSwitch db_float.in'], shell=True)
+            if not hal.pin_has_writer('db_breakaway.in'):
+                sp.Popen(['halcmd net p_test:breakaway-switch plasmactest.breakawaySwitch db_breakaway.in'], shell=True)
+            if not hal.pin_has_writer('db_ohmic.in'):
+                sp.Popen(['halcmd net p_test:ohmic-probe plasmactest.ohmicProbe db_ohmic.in'], shell=True)
+        else:
+            if not hal.pin_has_writer('debounce.0.0.in'):
+                sp.Popen(['halcmd net p_test:float-switch plasmactest.floatSwitch debounce.0.0.in'], shell=True)
+            if not hal.pin_has_writer('debounce.0.1.in'):
+                sp.Popen(['halcmd net p_test:breakaway-switch plasmactest.breakawaySwitch debounce.0.1.in'], shell=True)
+            if not hal.pin_has_writer('debounce.0.2.in'):
+                sp.Popen(['halcmd net p_test:ohmic-probe plasmactest.ohmicProbe debounce.0.2.in'], shell=True)
+
         if not hal.pin_has_writer('plasmac.arc-voltage-in'):
             sp.Popen(['halcmd net p_test:arc-voltage-in plasmactest.arcVoltage plasmac.arc-voltage-in'], shell=True)
-        if not hal.pin_has_writer('debounce.0.0.in'):
-            sp.Popen(['halcmd net p_test:float-switch plasmactest.floatSwitch debounce.0.0.in'], shell=True)
-        if not hal.pin_has_writer('debounce.0.1.in'):
-            sp.Popen(['halcmd net p_test:breakaway-switch plasmactest.breakawaySwitch debounce.0.1.in'], shell=True)
-        if not hal.pin_has_writer('debounce.0.2.in'):
-            sp.Popen(['halcmd net p_test:ohmic-probe plasmactest.ohmicProbe debounce.0.2.in'], shell=True)
         if not hal.pin_has_writer('plasmac.move-down'):
             sp.Popen(['halcmd net p_test:move-down plasmactest.moveDown plasmac.move-down'], shell=True)
         if not hal.pin_has_writer('plasmac.move-up'):

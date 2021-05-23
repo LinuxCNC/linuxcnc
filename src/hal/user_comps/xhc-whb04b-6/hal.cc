@@ -118,6 +118,15 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->in.isModeMdi));
     freeSimulatedPin((void**)(&memory->in.isModeTeleop));
 
+    // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+    // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
+    freeSimulatedPin((void**)(&memory->in.JointXisHomed));
+    freeSimulatedPin((void**)(&memory->in.JointYisHomed));
+    freeSimulatedPin((void**)(&memory->in.JointZisHomed));
+    freeSimulatedPin((void**)(&memory->in.JointAisHomed));
+    freeSimulatedPin((void**)(&memory->in.JointBisHomed));
+    freeSimulatedPin((void**)(&memory->in.JointCisHomed));
+
     freeSimulatedPin((void**)(&memory->in.isMachineOn));
 
     constexpr size_t pinsCount = sizeof(memory->out.button_pin) / sizeof(hal_bit_t * );
@@ -543,6 +552,18 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_IN, &(memory->in.isModeManual), mHalCompId, "%s.halui.mode.is-manual", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.isModeMdi), mHalCompId, "%s.halui.mode.is-mdi", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.isModeTeleop), mHalCompId, "%s.halui.mode.is-teleop", mComponentPrefix);
+
+
+    // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+    // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
+    newHalBit(HAL_IN, &(memory->in.JointXisHomed), mHalCompId, "%s.halui.joint.x.is-homed", mComponentPrefix);
+    newHalBit(HAL_IN, &(memory->in.JointYisHomed), mHalCompId, "%s.halui.joint.y.is-homed", mComponentPrefix);
+    newHalBit(HAL_IN, &(memory->in.JointZisHomed), mHalCompId, "%s.halui.joint.z.is-homed", mComponentPrefix);
+    newHalBit(HAL_IN, &(memory->in.JointAisHomed), mHalCompId, "%s.halui.joint.a.is-homed", mComponentPrefix);
+    newHalBit(HAL_IN, &(memory->in.JointBisHomed), mHalCompId, "%s.halui.joint.b.is-homed", mComponentPrefix);
+    newHalBit(HAL_IN, &(memory->in.JointCisHomed), mHalCompId, "%s.halui.joint.c.is-homed", mComponentPrefix);
+
+
     newHalBit(HAL_OUT, &(memory->out.doModeAuto), mHalCompId, "%s.halui.mode.auto", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.doModeJoint), mHalCompId, "%s.halui.mode.joint", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.doModeManual), mHalCompId, "%s.halui.mode.manual", mComponentPrefix);
@@ -986,7 +1007,7 @@ void Hal::toggleSpindleDirection(bool enabled)
             }
             else
             {
-                *memory->out.spindleDoRunReverse = true;               
+                *memory->out.spindleDoRunReverse = true;
                 *memory->out.spindleDoIncrease = true;
             }
         }
@@ -1015,24 +1036,25 @@ void Hal::toggleSpindleOnOff(bool enabled)
             {
                 *memory->out.spindleDoRunForward = true;
                 *memory->out.spindleDoIncrease = true;
+                *memory->out.spindleStart = true;
             }
             else
             {
                 *memory->out.spindleDoRunReverse = true;
                 *memory->out.spindleDoIncrease = true;
+                *memory->out.spindleStart = true;
                 
             }
-            *memory->out.spindleStart = true;
         }
     }
     else
     {
         // on button released
-        *memory->out.spindleStart        = false;
         *memory->out.spindleStop         = false;
         *memory->out.spindleDoRunForward = false;
         *memory->out.spindleDoRunReverse = false;
         *memory->out.spindleDoIncrease   = false;
+        *memory->out.spindleStart        = false;
     }
     setPin(enabled, KeyCodes::Buttons.spindle_on_off.text);
 }
@@ -1297,8 +1319,16 @@ void Hal::setPin(bool enabled, const char* pinName)
 // ----------------------------------------------------------------------
 void Hal::setJogCounts(const HandWheelCounters& counters)
 {
-        requestManualMode(true);
-        requestTeleopMode(true);
+    // If axis is not homed we need to ask Teleop mode but we need to bypass that if machine is homed
+    // https://forum.linuxcnc.org/49-basic-configuration/40581-how-to-configure-a-xhc-whb04b-pendant
+    if      (*memory->out.axisXSelect && false == *memory->in.JointXisHomed) {requestTeleopMode(true);}
+    else if (*memory->out.axisYSelect && false == *memory->in.JointYisHomed) {requestTeleopMode(true);}
+    else if (*memory->out.axisZSelect && false == *memory->in.JointZisHomed) {requestTeleopMode(true);}
+    else if (*memory->out.axisASelect && false == *memory->in.JointAisHomed) {requestTeleopMode(true);}
+    else if (*memory->out.axisBSelect && false == *memory->in.JointBisHomed) {requestTeleopMode(true);}
+    else if (*memory->out.axisCSelect && false == *memory->in.JointCisHomed) {requestTeleopMode(true);}
+    {requestManualMode(true);}
+
     *memory->out.axisXJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_X);
     *memory->out.axisYJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Y);
     *memory->out.axisZJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_Z);

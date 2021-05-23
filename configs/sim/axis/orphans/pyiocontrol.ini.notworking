@@ -120,7 +120,7 @@ PARAMETER_FILE =        sim_mm.var
 # M:currently supported modal groups: 5,6,7,8,9,10
 # for T,S,F remaps the modal group is fixed and any modalgroup= option is ignored
 # An argument specification (keyword 'argspec') describes required and  permitted words,
-# and precondtions for that code to execute.
+# and preconditions for that code to execute.
 #
 
 # It consists of 0-n characters of the class [@A-KMNP-Za-kmnp-z^>] .

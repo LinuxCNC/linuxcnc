@@ -62,11 +62,23 @@ INFO is a library to collect and filters data from the INI file. +
 
 The available data and defaults: +
 ----
-inifile = linuxcnc.ini(INIPATH)
+LINUXCNC_IS_RUNNING
+LINUXCNC_VERSION
+INIPATH
+INI = linuxcnc.ini(INIPATH)
 MDI_HISTORY_PATH = '~/.axis_mdi_history'
+QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
 MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
 PREFERENCE_PATH = '~/.Preferences'
 SUB_PATH = None
+SUB_PATH_LIST = []
+self.MACRO_PATH = None
+MACRO_PATH_LIST = []
+INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
+
+IMAGE_PATH = IMAGEDIR
+LIB_PATH = os.path.join(HOME, "share","qtvcp")
+
 PROGRAM_FILTERS = None
 PARAMETER_FILE = None
 MACHINE_IS_LATHE = False
@@ -74,15 +86,20 @@ MACHINE_IS_METRIC = False
 MACHINE_UNIT_CONVERSION = 1
 MACHINE_UNIT_CONVERSION_9 = [1]*9
 TRAJ_COORDINATES = 
-JOINT_COUNT =
+JOINT_COUNT = int(self.INI.find("KINS","JOINTS")or 0)
 AVAILABLE_AXES = ['X','Y','Z']
 AVAILABLE_JOINTS = [0,1,2]
 GET_NAME_FROM_JOINT = {0:'X',1:'Y',2:'Z'}
 GET_JOG_FROM_NAME = {'X':0,'Y':1,'Z':2}
 NO_HOME_REQUIRED = False
+HOME_ALL_FLAG
+JOINT_TYPE = self.INI.find(section, "TYPE") or "LINEAR"
+JOINT_SEQUENCE_LIST
+JOINT_SYNC_LIST
 
 JOG_INCREMENTS = None
 ANGULAR_INCREMENTS = None
+GRID_INCREMENTS
 
 DEFAULT_LINEAR_JOG_VEL = 15 units per minute
 MIN_LINEAR_JOG_VEL = 60 units per minute
@@ -95,24 +112,30 @@ MAX_ANGULAR_JOG_VEL =
 MAX_FEED_OVERRIDE = 
 MAX_TRAJ_VELOCITY = 
 
-DEFAULT_SPINDLE_SPEED = 200
+AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
+DEFAULT_SPINDLE_0_SPEED = 200
+MAX_SPINDLE_0_SPEED = 2500
+MAX_SPINDLE_0_OVERRIDE = 100
+MIN_SPINDLE_0_OVERRIDE = 50
+
 MAX_FEED_OVERRIDE = 1.5
-MAX_SPINDLE_OVERRIDE = 1.5
-MIN_SPINDLE_OVERRIDE = 0.5
+MAX_TRAJ_VELOCITY
 
 # user message dialog info
-USRMESS_BOLDTEXT =
-USRMESS_TEXT =
-USRMESS_TYPE =
-USRMESS_PINNAME =
-USRMESS_DETAILS =
-USRMESS_ICON =
+USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
+USRMESS_TEXT = self.INI.findall("DISPLAY", "MESSAGE_TEXT")
+USRMESS_TYPE = self.INI.findall("DISPLAY", "MESSAGE_TYPE")
+USRMESS_PINNAME = self.INI.findall("DISPLAY", "MESSAGE_PINNAME")
+USRMESS_DETAILS = self.INI.findall("DISPLAY", "MESSAGE_DETAILS")
+USRMESS_ICON = self.INI.findall("DISPLAY", "MESSAGE_ICON")
 ZIPPED_USRMESS =
 
-# embeded program info
-TAB_NAMES =
-TAB_LOCATION =
-TAB_CMD =
+self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
+
+# embedded program info
+TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
+TAB_LOCATION = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
+TAB_CMD = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
 ZIPPED_TABS = 
 
 MDI_COMMAND_LIST =      (heading: [MDI_COMMAND_LIST], title: MDI_COMMAND")
@@ -121,6 +144,7 @@ POSTGUI_HALFILE_PATH =  (heading: [HAL], title: POSTGUI_HALFILE)
 ----
 There are some 'helper functions' - mostly used for widget support +
 ----
+get_error_safe_setting(self, heading, detail, default=None)
 convert_metric_to_machine(data)
 convert_imperial_to_machine(data)
 convert_9_metric_to_machine(data)
@@ -714,6 +738,9 @@ system_shutdown
 tooloffsetdialog
 originoffsetdialog
 calculatordialog
+alphamode
+inhibit_selection
+show_dimensions
 ----
 
 Submenus:
@@ -722,6 +749,7 @@ recent_submenu
 home_submenu
 unhome_submenu
 zero_systems_submenu
+grid_size_submenu
 ----
 
 === Importing and Initiating
@@ -762,7 +790,7 @@ TOOLBAR = ToolBarActions()
         # Add a custom function
         TOOLBAR.configure_action(self.w.actionMyFunction, 'my_Function', self.my_function)
 ----
-=== Add any custom function:
+=== Add a custom toolbar function:
 
 In the 'GENERAL FUNCTIONS SECTION' ADD: +
 [source,python]

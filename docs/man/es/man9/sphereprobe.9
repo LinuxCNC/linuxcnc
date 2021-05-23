@@ -1,0 +1,43 @@
+.TH SPHEREPROBE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sphereprobe \- Probe a pretend hemisphere
+.SH SYNOPSIS
+.HP
+.B loadrt sphereprobe [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBsphereprobe.\fIN\fB\fR
+update probe-out based on inputs
+.SH PINS
+.TP
+.B sphereprobe.\fIN\fB.px\fR s32 in \fR
+.TQ
+.B sphereprobe.\fIN\fB.py\fR s32 in \fR
+.TQ
+.B sphereprobe.\fIN\fB.pz\fR s32 in \fR
+\fBrawcounts\fR position from software encoder
+.TP
+.B sphereprobe.\fIN\fB.cx\fR s32 in \fR
+.TQ
+.B sphereprobe.\fIN\fB.cy\fR s32 in \fR
+.TQ
+.B sphereprobe.\fIN\fB.cz\fR s32 in \fR
+Center of sphere in counts
+.TP
+.B sphereprobe.\fIN\fB.r\fR s32 in \fR
+Radius of hemisphere in counts
+.TP
+.B sphereprobe.\fIN\fB.probe-out\fR bit out \fR
+.SH AUTHOR
+
+Jeff Epler
+.SH LICENSE
+
+GPL

@@ -854,7 +854,7 @@ class touchy:
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
         def postgui(self):
-                postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
+                postgui_halfile = self.ini.findall("HAL", "POSTGUI_HALFILE") or None
                 return postgui_halfile,sys.argv[2]
  
         def trivkins(self):
@@ -878,14 +878,12 @@ if __name__ == "__main__":
         # load a postgui file if one is present in the INI file
         postgui_halfile,inifile = touchy.postgui(hwg)
         print("TOUCHY postgui filename:",postgui_halfile)
-        if postgui_halfile:
-                #the touchy example config starts glade panels via HAL,HALCMD, and not via DISPLAY,GLADEVCP
-                #HALCMD doesnt wait for glade to create the pins, so sometimes it tries to link pins from the
-                #postgui before they are created. proper fix would be to add a DISPLAY,GLADEVCP ini section to touchy
-                time.sleep(1)
-                if postgui_halfile.lower().endswith('.tcl'):
-                        res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",inifile, postgui_halfile])
+        if postgui_halfile is not None:
+            time.sleep(1)
+            for f in postgui_halfile:
+                if f.lower().endswith('.tcl'):
+                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
                 else:
-                        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
                 if res: raise SystemExit(res)
         Gtk.main()

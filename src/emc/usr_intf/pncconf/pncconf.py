@@ -62,7 +62,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'UNAVAILABLE'
+    LINUXCNCVERSION = 'Master (2.9)'
 
 def get_value(w):
     try:
@@ -107,7 +107,10 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, str=True)
+if sys.version_info[0] == 3:
+    gettext.install(domain, localedir=LOCALEDIR)
+else:
+    gettext.install(domain, localedir=LOCALEDIR, unicode=True)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -315,9 +318,46 @@ class App:
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
+        # link to qtplasmac common directory
+        if self.d.frontend == _PD._QTPLASMAC:
+            if BASE == "/usr":
+                commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
+            else:
+                commonPath = '{}/configs/by_machine/qtplasmac/qtplasmac/'.format(BASE)
+            oldDir = '{}/qtplasmac'.format(base)
+            if os.path.islink(oldDir):
+                os.unlink(oldDir)
+            elif os.path.exists(oldDir):
+                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
+            os.symlink(commonPath, '{}/qtplasmac'.format(base))
+            # different tool table for plasmac
+            filename = os.path.join(base, "tool.tbl")
+            file = open(filename, "w")
+            print("T0 P1 X0 Y0 ;torch", file=file)
+            print("T1 P2 X0 Y0 ;scribe", file=file)
+            file.close()
+            # if using thcad for arc voltage
+            if self.d.thcadenc == 1:
+                if self.d.voltsrdiv < 150:
+                    dratio = self.d.voltsrdiv
+                else:
+                    dratio = (self.d.voltsrdiv + 100000) / 100000
+                vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+                voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
+                prefsfile = os.path.join(base, "qtplasmac.prefs")
+                if not os.path.exists(prefsfile):
+                    f1 = open(prefsfile, "w")
+                    print(("[PLASMA_PARAMETERS]"), file=f1)
+                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+                    f1.close()
         self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
+        if self.warning_dialog(self._p.MESS_FINISH_QUIT,False):
             gtk.main_quit()
+
+    def save(self):
+        base = self.build_base()
+        self.d.save(base)
 
 # helper functions
 
@@ -334,8 +374,10 @@ class App:
             itr = self.widgets.discovery_interface_combobox.get_active_iter()
             d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
             a = self.widgets.discovery_address_entry.get_text()
-        print('discovery:',n,d,a)
-        return n,d,a
+            r =  self.widgets.discovery_read_option.get_active()
+            print ('discovery:',n,d,a,r)
+            return n,d,a,r
+        return None,None,None,None
 
     def discovery_interface_combobox_changed(self,w):
         itr = w.get_active_iter()
@@ -450,6 +492,21 @@ class App:
             else:
                 return False
 
+    def quit_dialog(self):
+        dialog = self.widgets.quitdialog
+        dialog.show_all()
+        result = dialog.run()
+        dialog.hide()
+        if result == gtk.RESPONSE_YES:
+            return True
+        elif result == gtk.RESPONSE_CANCEL:
+            return False
+        # save data then quit
+        else:
+            self.p.on_button_fwd_clicked(None)
+            self.save()
+            return True
+
     def show_help(self):
         helpfilename = os.path.join(self._p.HELPDIR, "%s"% self.d.help)
         textbuffer = self.widgets.helpview.get_buffer()
@@ -465,10 +522,6 @@ class App:
         self.widgets.help_window.set_title(_("Help Pages") )
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
-        if self.debugstate:
-            self.widgets.input_tab.set_visible(True)
-        else:
-            self.widgets.input_tab.set_visible(False)
         self.widgets.help_window.present()
 
     def print_page(self,print_dialog, context, n, imagename):
@@ -1016,14 +1069,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 "PWM /A":_PD.TPPWMAN,"PWM /B":_PD.TPPWMBN,"PWM /C":_PD.TPPWMCN,
                 "FAULT":_PD.TPPWMF,"ENABLE":_PD.TPPWME}
             pinconvertsserial = {"RXDATA0":_PD.RXDATA0,"TXDATA0":_PD.TXDATA0,"TXE0":_PD.TXEN0,"TXEN0":_PD.TXEN0,
-                                "RXDATA1":_PD.RXDATA0,"TXDATA1":_PD.TXDATA0,"TXE1":_PD.TXEN0,"TXEN1":_PD.TXEN0,
-                                "RXDATA2":_PD.RXDATA1,"TXDATA2":_PD.TXDATA1,"TXE2":_PD.TXEN1,"TXEN2":_PD.TXEN1,
-                                "RXDATA3":_PD.RXDATA2,"TXDATA3":_PD.TXDATA2,"TXE3":_PD.TXEN2,"TXEN3":_PD.TXEN2,
-                                "RXDATA4":_PD.RXDATA3,"TXDATA4":_PD.TXDATA3,"TXE4":_PD.TXEN3,"TXEN4":_PD.TXEN3,
-                                "RXDATA5":_PD.RXDATA4,"TXDATA5":_PD.TXDATA4,"TXE5":_PD.TXEN4,"TXEN4":_PD.TXEN4,
-                                "RXDATA6":_PD.RXDATA5,"TXDATA6":_PD.TXDATA5,"TXE6":_PD.TXEN5,"TXEN6":_PD.TXEN5,
-                                "RXDATA7":_PD.RXDATA6,"TXDATA7":_PD.TXDATA6,"TXE7":_PD.TXEN6,"TXEN7":_PD.TXEN6,
-                                "RXDATA8":_PD.RXDATA7,"TXDATA8":_PD.TXDATA7,"TXE8":_PD.TXEN7,"TXEN8":_PD.TXEN7}
+                                "RXDATA1":_PD.RXDATA1,"TXDATA1":_PD.TXDATA1,"TXE1":_PD.TXEN1,"TXEN1":_PD.TXEN1,
+                                "RXDATA2":_PD.RXDATA2,"TXDATA2":_PD.TXDATA2,"TXE2":_PD.TXEN2,"TXEN2":_PD.TXEN2,
+                                "RXDATA3":_PD.RXDATA3,"TXDATA3":_PD.TXDATA3,"TXE3":_PD.TXEN3,"TXEN3":_PD.TXEN3,
+                                "RXDATA4":_PD.RXDATA4,"TXDATA4":_PD.TXDATA4,"TXE4":_PD.TXEN4,"TXEN4":_PD.TXEN4,
+                                "RXDATA5":_PD.RXDATA5,"TXDATA5":_PD.TXDATA5,"TXE5":_PD.TXEN5,"TXEN4":_PD.TXEN5,
+                                "RXDATA6":_PD.RXDATA6,"TXDATA6":_PD.TXDATA6,"TXE6":_PD.TXEN6,"TXEN6":_PD.TXEN6,
+                                "RXDATA7":_PD.RXDATA7,"TXDATA7":_PD.TXDATA7,"TXE7":_PD.TXEN7,"TXEN7":_PD.TXEN7}
             pinconvertnone = {"NOT USED":_PD.GPIOI}
 
             count = 0
@@ -1151,8 +1203,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     #dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firmraw")
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
-                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA1","TXDATA2","TXDATA3",
-                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
+                    if tempmod in("SSerial","SSERIAL") and tempfunc in ("TXDATA0", "TXDATA1","TXDATA2","TXDATA3",
+                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7"):
                         sserialchannels +=1
                 #dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firmraw")
                 if not tempcon in tempconlist:
@@ -1168,8 +1220,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         for k in range(0,placeholders):
                             #print "%d fill here with %d parts"% (k,placeholders)
                             temppinlist.append((_PD.NUSED,0))
-            if not sserialchannels == 0:
-                sserialchannels +=1
             # 7i96 doesn't number the connectors with P numbers so we fake it
             # TODO
             # probably should move the connector numbers to board data rather then firmware
@@ -1190,18 +1240,28 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return temp
 
     def discover_mesacards(self):
-        name, interface, address = self.get_discovery_meta()
-        if name is None: return
+        name, interface, address, readoption = self.get_discovery_meta()
+        if name is None: return None
 
         if not name:
             name = '5i25'
 
-        if self.debugstate:
+        if self.debugstate or readoption:
             print('try to discover board by reading help text input:',name)
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),
                         buf.get_end_iter(),
                         True)
+
+            # This is a HACK to pass info about the interface forward
+            # otherwise thw driver info is blank in the discovered firmware
+            if interface == '--addr':
+                inter = 'ETH'
+            elif interface == '--epp':
+                inter = 'EPP'
+            else:
+                inter = 'PCI'
+            info = info + "\n {}".format(inter)
         else:
             info = self.call_mesaflash(name,interface,address)
         print('INFO:',info,'<-')
@@ -1210,17 +1270,19 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         try:
             if 'ERROR' in lines[0]:
                 raise ValueError('Mesaflash Error')
+            elif 'root' in info:
+                raise ValueError('Mesaflash Error')
         except ValueError as err:
             text = err.args
             self.warning_dialog(text[0],True)
-            return
-        except:
-            self.warning_dialog('Unspecified Error with Mesaflash',True)
+            return None
+        except Exception as e:
+            print(e)
+            self.warning_dialog('Unspecified Error with Discovery option',True)
             return
         if 'No' in lines[0] and 'board found' in lines[0] :
             text = _("No board was found\n")
             self.warning_dialog(text,True)
-            print('OOPS no board found!')
             return None
         return info
 
@@ -1248,11 +1310,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         else:
             board_command = '--device %s' %(devicename)
 
-        #cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
-        cmd =""" mesaflash -%s;mesaflash %s --sserial;mesaflash %s --readhmid  """%(board_command, board_command, board_command)
+        # PCI boards require sudo
+        cmd ="""pkexec sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
+        print('cmd=',cmd)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
+        if error:
+            print ('mesaflash error',error)
         if output == '':
             text = _("Discovery is  got an error\n\n Is mesaflash installed?\n\n %s"%error)
             self.warning_dialog(text,True)
@@ -1270,8 +1335,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         except:
             text = _("Discovery is  unavailable\n")
             self.warning_dialog(text,True)
-
-        print('cmd=',cmd)
         return output
 
     def parse_discovery(self,info,boardnum=0):
@@ -1307,13 +1370,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             i = i.lstrip()
             temp2 = i.split(" ")
             #print i,temp2
-            if 'ETH' in i:
-                DRIVER = 'hm2_eth'
-            if 'PCI' in i:
-                DRIVER = 'hm2_pci'
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
+            if 'ETH' in i:
+                DRIVER = 'hm2_eth'
+            elif 'PCI' in i:
+                DRIVER = 'hm2_pci'
+            elif 'EPP' in i:
+                if '7i43' in BOARDNAME.lower():
+                    DRIVER = 'hm2_7i43'
+                else:
+                    DRIVER = 'hm2_7i90'
             if 'DEVICE AT' in i:
                 if ssflag:
                     n1 = add_element(ELEMENT,'SSERIALDEVICES')
@@ -1454,6 +1522,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        print(driver, boardname, firmname, path) 
         boardname = 'Discovered:%s'% boardname
         firmdata = self.parse_xml( driver,boardname,firmname,path)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
@@ -2263,7 +2332,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                    _PD.TXEN2,_PD.TXDATA3,_PD.RXDATA3,_PD.TXEN3,_PD.TXDATA4,_PD.RXDATA4,_PD.TXEN4,
                                   _PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5,_PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6,_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7 ):
                     index2 = 0
-                #print index,index2,signaltocheck[index+index2]
+                #print(index,index2,signaltocheck[index+index2])
                 self.d[p] = signaltocheck[index+index2]
                 self.d[ptype] = widgetptype
                 self.d[pinv] = self.widgets[pinv].get_active()
@@ -2852,7 +2921,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                                 self.d[p] = _PD.I7I64_T
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
-                                                self.d[p] = _PD.I7I73_M0_T
+                                                self.d[p] = _PD.I7I73_M1_T
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
@@ -3380,6 +3449,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     relatedsearch = [_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM]
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = len(humansignallist)-1
+                    # check for a thcad encoder
+                    if "Arc Voltage" in pinchanged:
+                        self.p.page_set_state('thcad', True)
+                        self.d.thcadenc = 1
+                    else:
+                        self.p.page_set_state('thcad', False)
+                        self.d.thcadenc = 0
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1): 
                     #print"\nptype encoder"
@@ -4024,6 +4100,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             set_text("minlim")
             set_text("maxlim")
             set_text("homesw")
+            set_text("hometandemsw")
             w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
             w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
             w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
@@ -4037,6 +4114,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 test = self.findsignal(i)
                 if test: homes = True
             w[axis + "homesw"].set_sensitive(homes)
+            w[axis + "hometandemsw"].set_sensitive(homes)
+            w[axis + "hometandemsw"].set_visible(self.tandem_check(axis))
+            w[axis + "labelhometandemsw"].set_visible(self.tandem_check(axis))
             w[axis + "homesearchvel"].set_sensitive(homes)
             w[axis + "searchdir"].set_sensitive(homes)
             w[axis + "latchdir"].set_sensitive(homes)
@@ -4211,6 +4291,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             get_text("minlim")
             get_text("maxlim")
             get_text("homesw")
+            get_text("hometandemsw")
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
@@ -4768,14 +4849,14 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = int(pinnumber[4:5])
         channel = None
         pinlist = self.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
-        #print pinlist
+        #print ('step gen pinlist:',pinlist)
         for num,i in enumerate(pinlist):
+            #print (i[0],self.d[i[0]], ' is inverted? ', self.d[i[0]+"inv"])
             if self.d[i[0]+"inv"]:
                 gpioname = self.make_pinname(self.findsignal( self.d[i[0]] ),True)
-                #print gpioname
-                if num:
+                if self.d[i[0]+'type'] == _PD.STEPB:
                     signallist_b.append(gpioname)
-                else:
+                elif self.d[i[0]+'type'] == _PD.STEPA:
                     signallist_a.append(gpioname)
         return [signallist_a, signallist_b]
 

@@ -1,0 +1,353 @@
+:lang: es
+:toc:
+
+[[cha:cnc-machine-overview]]
+
+= Descripcion general de una máquina CNC
+
+Esta sección proporciona una breve descripción de una máquina CNC
+desde los puntos de vista de entrada y salida del intérprete.
+
+== Componentes mecanicos
+
+Una máquina CNC tiene muchos componentes mecánicos que pueden ser controlados o
+que pueden afectar a la forma en que se ejerce el control. Esta sección
+describe el subconjunto de aquellos componentes que interactúan con el
+interprete. Los componentes mecánicos que no interactúan directamente con
+el intérprete, como los botones de jog, no se describen aquí, incluso
+si afectan al control.
+
+=== Ejes
+
+Cualquier máquina CNC tiene uno o más ejes. Diferentes tipos de máquinas CNC
+pueden tener diferentes combinaciones. Por ejemplo, una 'fresadora de 4 ejes'
+puede tener ejes XYZA o XYZB. Un torno normalmente tiene los ejes XZ. Una
+máquina de corte de espuma puede tener ejes XYUV. En LinuxCNC, el caso de una 
+máquina 'pórtico' XYYZ, con dos motores para un eje, se maneja mejor
+con la cinemática en lugar de con un segundo eje lineal. footnote:[si el
+el movimiento de los componentes mecánicos no es independiente, como en
+máquinas hexapod, el lenguaje RS274/NGC y las funciones de mecanizado canónicas
+seguirán siendo utilizables, siempre que los niveles inferiores de control
+sepan cómo controlar los mecanismos reales para producir el mismo
+movimiento relativo de herramienta y pieza de trabajo como el que se produciría por ejes independientes.
+Esto se llama 'cinemática'.]
+
+.Ejes lineales primarios (((ejes, primarios lineales)))
+
+Los ejes X, Y y Z producen movimiento lineal en tres
+direcciones mutuamente ortogonales.
+
+.Ejes lineales secundarios (((ejes, secundarios lineales)))
+
+Los ejes U, V y W producen movimiento lineal en tres
+direcciones ortogonales. Típicamente, X y U son paralelos, Y y V son
+paralelo, y Z y W son paralelos.
+
+.Ejes Rotacionales (((ejes, rotacionales)))
+
+Los ejes A, B y C producen movimiento angular (rotación). Normalmente, A
+gira alrededor de una línea paralela a X, B gira alrededor de una línea paralela
+a Y, y C gira alrededor de una línea paralela a Z.
+
+=== Husillo (((husillo)))
+
+Una máquina CNC tiene generalmente un husillo que contiene una herramienta de corte,
+una sonda, o el material en el caso de un torno. El husillo puede 
+ser controlado por el software CNC.
+
+=== Refrigerante (((refrigerante)))
+
+Una máquina CNC puede tener componentes para proporcionar refrigerante por niebla  y/o inundación.
+El refrigerante puede ser controlado por códigos G.
+
+=== Controles de velocidad y alimentacion
+
+Una máquina CNC puede tener controles separados de velocidades rapida y de avance,
+que permite al operador especificar la velocidad de avance real, o la 
+velocidad utilizada en el husillo, en porcentaje de la velocidad programada.
+
+=== Interruptor de borrado de bloque
+
+Una máquina CNC puede tener un interruptor de eliminación de bloques de codigo G marcados para ello. Vea la
+seccion <<sub:block-delete-switch,Eliminar Bloques>>.
+
+=== Interruptor de parada de programa opcional
+
+Una máquina CNC puede tener un interruptor de parada opcional de programa. Ver la
+seccion <<sub:optional-program-stop, parada opcional de programa>>.
+
+== Componentes de control y datos
+
+=== Ejes lineales
+
+Los ejes X, Y y Z forman un sistema de coordenadas estándar de mano derecha de
+ejes lineales ortogonales. Las posiciones de los tres mecanismos de movimiento lineal
+se expresan usando coordenadas en estos ejes.
+
+Los ejes U, V y W también forman un sistema de coordenada a derechas estándar. 
+X y U son paralelos, Y y V son paralelos, y Z y W son
+paralelo (cuando el giro en A, B y C es cero).
+
+=== Ejes de rotacion
+
+Los ejes de rotación se miden en grados como ejes lineales de revolucion en
+los que la dirección de la rotación positiva es en sentido antihorario cuando
+se ven desde el extremo positivo del eje X, Y o Z correspondiente. Por
+"eje lineal de revolucion", nos referimos a uno en el que la posición angular puede
+aumentar sin límite (va hacia más-infinito) a medida que el eje gira
+en sentido antihorario y decrece sin límite (va hacia menos-infinito) 
+a medida que el eje gira en el sentido de las agujas del reloj. Se utilizan ejes lineales de revolucion
+independientemente de si hay o no un límite mecánico en la rotación.
+
+El sentido horario o antihorario se toma desde el punto de vista de la
+pieza de trabajo. Si la pieza de trabajo está sujeta a un plato giratorio que gira en un
+eje de rotación, un giro en sentido antihorario desde el punto de vista de
+la pieza de trabajo se logra girando el plato giratorio en una dirección que
+(para la mayoría de las configuraciones de máquina comunes) se ve en el sentido de las agujas del reloj desde el punto
+de vista de alguien parado al lado de la máquina. footnote:[si
+se viola el requisito de paralelismo, el creador del sistema
+tiene que decir cómo distinguir entre sentido horario y antihorario.]
+
+=== Punto controlado
+
+El punto controlado es el punto cuya posición y velocidad de movimiento
+están controlados. Cuando el offset de la longitud de la herramienta es cero (el valor predeterminado), este
+es un punto en el eje del husillo (a menudo llamado punto calibrado) que es una distancia fija más allá del final del husillo,
+generalmente cerca del extremo del portaherramientas que encaja en el husillo.
+La ubicación del punto controlado se puede mover a lo largo del eje del husillo
+especificando una cantidad positiva para el offset de la longitud de la herramienta.
+Esta cantidad es normalmente la longitud de la herramienta de corte en uso, por lo que
+el punto controlado está al final de la herramienta de corte. En un torno,
+los offsets de longitud de herramienta se pueden especificar para los ejes X y Z, y el
+punto controlado esta en la punta de la herramienta o ligeramente fuera de ella
+(donde las líneas perpendiculares, alineadas a los ejes, tocadas por el 'frente' y
+'flanco' de la herramienta se cruzan).
+
+=== Movimiento lineal coordinado
+
+Para manejar una herramienta a lo largo de una ruta especifica, un centro de mecanizado debe
+coordinar el movimiento de varios ejes. Usamos el término 
+'movimiento lineal coordinado' para describir la situación en la que, nominalmente, cada eje
+se mueve a velocidad constante y todos los ejes se mueven desde sus posiciones iniciales
+a sus posiciones finales al mismo tiempo. Si solo los ejes X, Y y Z
+(o uno o dos de ellos) se mueven, se produce movimiento en una línea recta,
+de ahí la palabra 'lineal' en el término. En movimientos reales,
+a menudo no es posible mantener la velocidad constante por la aceleración o
+desaceleración al comienzo y/o al final del movimiento.
+Sin embargo, es factible controlar los ejes para que, en todo momento, cada
+eje haya completado la misma fracción del movimiento requerido que los
+otros ejes. Esto mueve la herramienta a lo largo de la misma ruta, y también llamamos a este
+tipo de movimiento 'movimiento lineal coordinado'.
+
+El movimiento lineal coordinado se puede realizar a la
+velocidad de avance, o a la velocidad rapida, o puede estar sincronizado con la
+rotación del husillo. Si los límites físicos en la velocidad del eje hacen que la tasa deseada
+sea inalcanzable, todos los ejes se ralentizan para mantener el camino deseado.
+
+[[sub:feed-rate]](((velocidad de avance)))
+
+=== Velocidad de avance
+
+La velocidad a la que se mueve el punto controlado es, nominalmente, la
+velocidad estable que puede establecer el usuario. En el intérprete, la tasa de alimentación
+se interpreta de la siguiente manera (a menos que los modos 'alimentacion inversa al tiempo' o 'alimentacion
+por revolución' se esten utilizando, en cuyo caso, consulte la Sección
+<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
+
+ . Si X,Y o Z se mueven, F está en unidades por minuto en el
+   sistema cartesiano XYZ, y todos los demás ejes (ABCUVW) se mueven para arrancar y
+   parar de manera coordinada.
+ . De lo contrario, si U,V o W se mueven, F está en unidades por minuto en el
+   sistema cartesiano UVW y todos los demás ejes (ABC) se mueven para arrancar y
+   parar de manera coordinada.
+ . De lo contrario, el movimiento es puro movimiento giratorio y la palabra F está en
+   unidades de rotación en el sistema ABC 'pseudo-cartesiano'.
+
+=== Refrigerante (((refrigerante)))
+
+El refrigerante de inundación y el refrigerante de niebla pueden encenderse independientemente.
+El lenguaje RS274/NGC los apaga juntos con un solo codigo M. Ver Sección <<mcode:m7-m8-m9,M7 M8 M9>>.
+
+=== Dwell (((dwell)))
+
+Se puede ordenar que un centro de mecanizado haga dwell (es decir, mantenga todos los ejes
+inmóviles) durante una cantidad específica de tiempo. El uso más común de dwell
+es romper y despejar las virutas, por lo que el husillo suele girar durante un
+dwell. Independientemente del modo de control de ruta (ver la sección 
+<<sec:path-control-mode,control de ruta>>) la máquina se detendrá exactamente al final del
+movimiento programado anterior, como si estuviera en modo de ruta exacta.
+
+=== Unidades (((unidades)))
+
+Las unidades utilizadas para distancias a lo largo de los ejes X, Y y Z pueden medirse en
+milímetros o pulgadas. Las unidades para todas las demás cantidades involucradas en
+el control de la máquina no puede ser cambiadas. Diferentes cantidades usan diferentes
+unidades específicas. La velocidad del husillo se mide en revoluciones por minuto.
+Las posiciones de los ejes de rotación se miden en grados. La velocidad de alimentación
+se expresan en unidades de longitud actual por minuto, o grados por
+minuto, o unidades de longitud por revolución del husillo, como se describe en la Sección
+<<gcode:g93-g94-g95, G93 G94 G95>>.
+
+=== Posicion actual
+
+El lugar donde en cualquier momento se encuentra el punto controlado se llama 'posición actual', 
+y el controlador siempre conoce dónde está ese punto. Los números que
+representan la posición actual deben ajustarse si, en ausencia de
+cualquier movimiento del eje, ocurre alguno de estos eventos:
+
+ . Se cambian las unidades de longitud.
+ . El offset de la longitud de la herramienta ha cambiado.
+ . Se modifican los offsets del sistema de coordenadas.
+
+=== Plano seleccionado
+
+Siempre hay un "plano seleccionado", que debe ser el plano XY, el
+YZ, o el XZ del centro de mecanizado. El eje Z es,
+por supuesto, perpendicular al plano XY, el eje X al plano YZ, y
+el eje Y al plano XZ.
+
+=== Carrusel de herramientas
+
+Se asigna cero o una herramienta a cada ranura en el carrusel de herramientas.
+
+=== Cambio de herramienta
+
+Se puede ordenar a un centro de mecanizado que cambie las herramientas.
+
+=== Pallet Shuttle
+
+Hasta dos palets pueden intercambiarse por comando.
+
+[[sec:path-control-mode]](((modo de control de ruta)))
+
+=== Modo de control de ruta
+
+El centro de mecanizado puede colocarse en cualquier modo de control de ruta entre estos tres;
+(1) modo de parada exacta, (2) modo de ruta exacta, o (3) modo continuo
+con tolerancia opcional. En el modo de parada exacta, la máquina se detiene brevemente
+al final de cada movimiento programado. En modo de ruta exacta, la máquina
+sigue la ruta programada lo más exactamente posible, ralentizandose o deteniendose,
+si es necesario en las esquinas agudas del camino. En modo continuo,
+las esquinas de la ruta pueden ser redondeadas ligeramente para que la velocidad de alimentación pueda
+mantenerse actualizada (pero no más que la tolerancia, si se ha especificado). Ver las
+secciones <<gcode:g61>>,G61/G61.1>> y <<gcode:g64,G64>>.
+
+== Interaccion del interprete con los interruptores
+
+El intérprete interactúa con varios conmutadores. Esta sección
+describe las interacciones con más detalle. En ningún caso el
+intérprete sabe cuál es la configuración de cualquiera de estos interruptores.
+
+=== Interruptores de porcentaje de alimentacion y velocidad
+
+Los comandos RS274/NGC 'M48' y 'M49' del intérprete permiten o deshabilitan los
+controles de porcentaje de alimentación y velocidad. Para ciertos
+movimientos, como la salida al final de un hilo durante un ciclo de roscado,
+los interruptores se deshabilitan automáticamente.
+
+LinuxCNC reacciona a la configuración de porcentaje de alimentación y velocidad cuando estos
+interruptores están habilitados.
+
+Consulte la sección <<mcode:m48-m49,Interruptores M48-M49>> para obtener más información.
+
+[[sub:block-delete-switch]]
+
+=== Interruptor de borrado de bloque
+
+Si el interruptor de borrado de bloque está activado, las líneas de código G que comienzan
+con una barra inclinada (el carácter de 'borrar bloque') no se interpretan. Si el
+interruptor está apagado, tales líneas si son interpretadas. Normalmente, este
+interruptor debe activarse antes de iniciar el programa NGC.
+
+[[sub:optional-program-stop]]
+
+=== Interruptor de parada opcional de programa
+
+Si este interruptor está activado y se encuentra un código M1, la ejecución del programa
+entra en pausa.
+
+== Tabla de herramientas
+
+Para usar el intérprete se requiere una tabla de herramientas. El archivo dice que
+herramientas están en qué ranuras de un cambiador de herramientas y cuál es el tamaño y tipo de
+cada herramienta. El nombre de la tabla de herramientas se define en el archivo ini:
+
+----
+[EMCIO]
+
+# archivo de tabla de herramientas
+TOOL_TABLE = tooltable.tbl
+----
+
+El nombre de archivo predeterminado probablemente se parezca a lo anterior, pero
+es posible que prefiera darle a su máquina su propia tabla de herramientas, utilizando el
+mismo nombre en su archivo ini, pero siempre con extensión tbl. Por ejemplo:
+
+----
+TOOL_TABLE = acme_300.tbl
+----
+
+o
+
+----
+TOOL_TABLE = EMC-AXIS-SIM.tbl
+----
+
+Para obtener más información sobre los detalles del formato de la tabla de herramientas,
+vea la sección <<sec:tool-table,Formato de la tabla de herramientas>>.
+
+== Parametros
+
+Bajo el punto de vista del lenguaje RS274/NGC, un centro de mecanizado mantiene una matriz
+de parámetros numéricos definida por el valor de sistema (RS274NGC_MAX_PARAMETERS). 
+Muchos de ellos tienen usos específicos, especialmente
+en la definición de sistemas de coordenadas. La cantidad de parámetros numéricos puede
+aumentar a medida que el desarrollo agrege soporte para nuevos parámetros. La
+matriz persiste con el tiempo, incluso si el centro de mecanizado está apagado.
+LinuxCNC usa un archivo de parámetros para asegurar la persistencia y le da
+al intérprete la responsabilidad de mantener el archivo.
+El intérprete lee el archivo cuando se inicia y lo escribe cuando se cierra.
+
+Todos los parámetros están disponibles para su uso en programas de código G.
+
+El formato de un archivo de parámetros se muestra en la siguiente tabla.
+El archivo consiste en cualquier cantidad de
+líneas de encabezado, seguidas por una línea en blanco, seguidas por cualquier cantidad de
+líneas de datos. El intérprete omite las líneas de encabezado. Es
+importante que haya exactamente una línea en blanco (sin espacios ni tabuladores)
+antes de los datos. La línea de encabezado que se muestra en la siguiente tabla
+describe las columnas de datos, por lo que se
+sugiere (pero no es obligatorio) que esa línea siempre se incluya en el
+encabezamiento.
+
+El intérprete solo lee las dos primeras columnas de la tabla.
+La tercera columna, "Comentario", no es leída por el intérprete.
+
+Cada línea del archivo contiene el número de índice del parámetro en la
+primera columna y, en la segunda columna, el valor al que ese parámetro debe establecerse.
+El valor se representa como un numero flotante de doble precisión
+dentro del intérprete, pero el punto decimal no es
+obligatorio en el archivo. Todos los parámetros que se muestran en la siguiente tabla
+son parámetros requeridos y deben ser
+incluidos en cualquier archivo de parámetros, excepto cualquier parámetro que represente
+un valor de eje de rotación para un eje no utilizado, que puede omitirse. Se señalara un error
+si falta algún parámetro requerido.
+El archivo puede incluir cualquier otro parámetro, siempre que su número esté en el
+rango de 1 a 5400. Los números de los parámetros se deben organizar en orden ascendente; si no lo
+estan, se señalara un error. Cualquier parámetro incluido en 
+el archivo leído por el intérprete se incluirá en el archivo que se escriba cuando se cierre.
+El archivo original se guarda como un archivo de copia de seguridad cuando se escribe el nuevo archivo.
+Los comentarios no se conservan cuando se escribe el archivo.
+
+Formato de archivo de parámetros
+
+[width="75%", options="header", cols="^,^,<"]
+|=====================================
+|Número de parámetro|Valor Parámetro|Comentario
+| 5161 | 0.0 | G28 Home X
+| 5162 | 0.0 | G28 Home Y
+|=====================================
+
+Vea la sección <<gcode:parameters,Parametros para más información.
+
+

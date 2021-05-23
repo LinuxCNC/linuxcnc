@@ -106,10 +106,11 @@ class AxisPreferences(cp):
 
     def getpref(self, option, default=False, type=bool):
         m = self.types.get(type)
+        if type == repr and len(default) == 0: default=""
         try:
             o = m(self, "DEFAULT", option)
         except Exception as detail:
-            print(detail)
+            if default != "": print(detail)
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
             o = default
@@ -802,7 +803,7 @@ class LivePlotter:
         limits = soft_limits()
 
         if (   self.stat.tool_offset   != o.last_tool_offset
-            or self.stat.tool_table[0] != o.last_tool):
+            or self.stat.tool_in_spindle != o.last_tool):
             o.redraw_dro()
         if (self.logger.npts != self.lastpts
                 or limits != o.last_limits
@@ -815,7 +816,7 @@ class LivePlotter:
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_offset != o.last_tool_offset
-                or self.stat.tool_table[0] != o.last_tool
+                or self.stat.tool_in_spindle != o.last_tool
                 or self.stat.motion_mode != self.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
@@ -828,7 +829,7 @@ class LivePlotter:
             o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
             self.last_motion_mode = self.stat.motion_mode
-            o.last_tool = self.stat.tool_table[0]
+            o.last_tool = self.stat.tool_in_spindle
             o.last_tool_offset = self.stat.tool_offset
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
@@ -1124,6 +1125,7 @@ def update_recent_menu():
 
 def add_recent_file(f):
     recent = ap.getpref('recentfiles', [], repr)
+    if len(recent) == 0: recent=[]
     if f in recent: recent.remove(f)
     recent.insert(0, f)
     recent = recent[:10]
@@ -1369,7 +1371,15 @@ widgets = nf.Widgets(root_window,*widget_list)
 # context in Tcl's typeless value system.
 # https://github.com/LinuxCNC/linuxcnc/issues/146
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=834783
+widgets.axis_x.configure(value="x")
 widgets.axis_y.configure(value="y")
+widgets.axis_z.configure(value="z")
+widgets.axis_a.configure(value="a")
+widgets.axis_b.configure(value="b")
+widgets.axis_c.configure(value="c")
+widgets.axis_u.configure(value="u")
+widgets.axis_v.configure(value="v")
+widgets.axis_w.configure(value="w")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
@@ -1864,7 +1874,7 @@ def ja_from_rbutton():
     ja = vars.ja_rbutton.get()
     if not all_homed() and lathe and not lathe_historical_config():
         axes = "xzabcuvw"
-    else:       
+    else:
         axes = "xyzabcuvw"
 
     try: # ja may be a joint number or an axis coordinate letter
@@ -2271,6 +2281,9 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def edit_tooltable(*event):
+        if db_program is not None and tooleditor is not None:
+            root_window.tk.call("exec",tooleditor)
+            return
         if tooltable is None:
             pass
         else:
@@ -2519,7 +2532,7 @@ class TclCommands(nf.TclCommands):
         else:
             ensure_mode(linuxcnc.MODE_MANUAL)
             set_motion_teleop(0)
-   
+
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
@@ -2711,7 +2724,7 @@ class TclCommands(nf.TclCommands):
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
 
@@ -2753,7 +2766,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         lnum = 10 + vars.tto_g11.get()
-        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
+        offset_command = "G10 L%d P%d %c[[%s]*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
         c.mdi("G43")
@@ -2915,8 +2928,16 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-        items = tuple(inifile.findall(section, item))
-        return root_window.tk.merge(*items)
+        # used by TKPKG=Ngcgui
+        if sys.version_info[0] == 3:
+            return inifile.findall(section,item) # list
+        else:
+            items = tuple(inifile.findall(section, item))
+            return root_window.tk.merge(*items)  # str
+
+    def clear_recent_files():
+        ap.putpref('recentfiles', [], repr)
+        update_recent_menu()
 
 commands = TclCommands(root_window)
 
@@ -2941,19 +2962,19 @@ vars = nf.Variables(root_window,
     ("spindledir", IntVar),
     ("running_line", IntVar),
     ("highlight_line", IntVar),
-    ("show_program", IntVar),
-    ("program_alpha", IntVar),
-    ("show_live_plot", IntVar),
-    ("show_tool", IntVar),
-    ("show_extents", IntVar),
-    ("show_offsets", IntVar),
+    ("show_program", BooleanVar),
+    ("program_alpha", BooleanVar),
+    ("show_live_plot", BooleanVar),
+    ("show_tool", BooleanVar),
+    ("show_extents", BooleanVar),
+    ("show_offsets", BooleanVar),
     ("grid_size", DoubleVar),
-    ("show_machine_limits", IntVar),
-    ("show_machine_speed", IntVar),
-    ("show_distance_to_go", IntVar),
-    ("dro_large_font", IntVar),
-    ("show_pyvcppanel", IntVar),
-    ("show_rapids", IntVar),
+    ("show_machine_limits", BooleanVar),
+    ("show_machine_speed", BooleanVar),
+    ("show_distance_to_go", BooleanVar),
+    ("dro_large_font", BooleanVar),
+    ("show_pyvcppanel", BooleanVar),
+    ("show_rapids", BooleanVar),
     ("feedrate", IntVar),
     ("rapidrate", IntVar),
     ("spindlerate", IntVar),
@@ -2986,22 +3007,22 @@ vars = nf.Variables(root_window,
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
-vars.tto_g11.set(ap.getpref("tto_g11", False))
-vars.show_program.set(ap.getpref("show_program", True))
-vars.show_rapids.set(ap.getpref("show_rapids", True))
-vars.program_alpha.set(ap.getpref("program_alpha", False))
-vars.show_live_plot.set(ap.getpref("show_live_plot", True))
-vars.show_tool.set(ap.getpref("show_tool", True))
-vars.show_extents.set(ap.getpref("show_extents", True))
-vars.show_offsets.set(ap.getpref("show_offsets", True))
-vars.grid_size.set(ap.getpref("grid_size", 0.0, type=float))
-vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
-vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
-vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
-vars.dro_large_font.set(ap.getpref("dro_large_font", False))
-vars.show_pyvcppanel.set(True)
-vars.block_delete.set(ap.getpref("block_delete", True))
-vars.optional_stop.set(ap.getpref("optional_stop", True))
+vars.tto_g11.set(ap.getpref("tto_g11", "False"))
+vars.show_program.set(ap.getpref("show_program", "True"))
+vars.show_rapids.set(ap.getpref("show_rapids", "True"))
+vars.program_alpha.set(ap.getpref("program_alpha", "False"))
+vars.show_live_plot.set(ap.getpref("show_live_plot", "True"))
+vars.show_tool.set(ap.getpref("show_tool", "True"))
+vars.show_extents.set(ap.getpref("show_extents", "True"))
+vars.show_offsets.set(ap.getpref("show_offsets", "True"))
+vars.grid_size.set(ap.getpref("grid_size", str(0.0), type=float))
+vars.show_machine_limits.set(ap.getpref("show_machine_limits", "True"))
+vars.show_machine_speed.set(ap.getpref("show_machine_speed", "True"))
+vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", "False"))
+vars.dro_large_font.set(ap.getpref("dro_large_font", "False"))
+vars.show_pyvcppanel.set("True")
+vars.block_delete.set(ap.getpref("block_delete", "True"))
+vars.optional_stop.set(ap.getpref("optional_stop", "True"))
 
 # placeholder function for LivePlotter.update():
 def user_live_update():
@@ -3274,13 +3295,13 @@ vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
-postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+postgui_halfile = inifile.findall("HAL", "POSTGUI_HALFILE") or None
 max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
 default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
-geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
+geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZABCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 
@@ -3422,8 +3443,18 @@ lathe_backtool = bool(inifile.find("DISPLAY", "BACK_TOOL_LATHE"))
 foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
-tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
-tooltable = inifile.find("EMCIO", "TOOL_TABLE")
+
+tooltable  = inifile.find("EMCIO", "TOOL_TABLE")
+db_program = inifile.find("EMCIO", "DB_PROGRAM")
+if (db_program is not None and tooltable is not None):
+    print("%s:DB_PROGRAM specified: TOOL_TABLE=%s is not used"%
+         (sys.argv[0],tooltable))
+
+default_tooleditor = "tooledit"
+if db_program is not None: default_tooleditor = None
+
+tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
+
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
     raise SystemExit("Missing ini file setting for [RS274NGC]PARAMETER_FILE")
 try:
@@ -3454,8 +3485,11 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
-
+ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or .020)
+if ct < 1:
+    update_ms = int(ct * 1000)
+else:
+    update_ms = int(ct)
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
 s = linuxcnc.stat();
@@ -3610,10 +3644,10 @@ for a in range(linuxcnc.MAX_AXIS):
         pass
     else:
         if f != 0:
-            step_size_tmp = min(step_size, 1. / f)
-            #TODO: not working, see https://github.com/LinuxCNC/linuxcnc/issues/812
-            #if a < 3: step_size = astep_size = step_size_tmp
-            #else: astep_size = step_size_tmp
+           step_size_tmp = min(step_size, 1. / f)
+           if a in 'XYZ': step_size = astep_size = step_size_tmp
+           elif a in 'ABC': astep_size = step_size_tmp
+           else: step_size = step_size_tmp
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
@@ -3984,12 +4018,13 @@ def check_dynamic_tabs():
                              (" ".join(cmd), r))
         raise SystemExit(r)
     else:
-        if postgui_halfile:
-            if postgui_halfile.lower().endswith('.tcl'):
-                res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), postgui_halfile])
-            else:
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
-            if res: raise SystemExit(res)
+        if postgui_halfile is not None:
+            for f in postgui_halfile:
+                if f.lower().endswith('.tcl'):
+                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), f])
+                else:
+                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
+                if res: raise SystemExit(res)
         root_window.deiconify()
         destroy_splash()
         return

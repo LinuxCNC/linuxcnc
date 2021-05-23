@@ -1,0 +1,54 @@
+﻿:lang: es
+:toc:
+
+[[cha:user-foreword]]
+
+= Prefacio para el usuario
+
+LinuxCNC es modular y flexible. Estos atributos llevan a muchas personas a verlo como un revoltijo confuso de pequeñas cosas y se preguntan por qué es así.
+Esta página intenta responder esa pregunta antes de entrar en las profundidades del asunto.
+
+LinuxCNC comenzó en el Instituto Nacional de Estándares y Tecnología (NIST) en
+EE.UU. Creció usando Unix como su sistema operativo. Unix lo hizo diferente.
+Entre los primeros desarrolladores de Unix creció un conjunto de ideas de
+escritura de código que algunos llaman "la manera Unix". Estos primeros autores de LinuxCNC siguieron esas maneras.
+
+Eric S. Raymond, en su libro The Art of Unix Programming, resume la filosofía Unix como una filosofía de ingeniería ampliamente utilizada, "Mantenlo simple, estúpido "("Keep it Simple, Stupid" o Principio KISS). Luego describe cómo cree que esta filosofía general se aplica como una norma cultural en Unix aunque, como era de esperar, no es difícil encontrar violaciones graves de la mayoría de las siguientes prácticas en la realidad de Unix:
+
+* Regla de modularidad: escribir partes simples conectadas por interfaces claras.
+
+* Regla de claridad: la claridad es mejor que el ingenio.
+
+* Regla de composición: diseñar programas para conectarse a otros programas.
+
+* Regla de separación: Separar las políticas de los mecanismos; separar
+    interfaces de motores.footnote:[Encontrado en
+    http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
+
+El Sr. Raymond ofreció varias reglas más, pero estas cuatro describen las
+características esenciales del sistema de control de movimiento LinuxCNC.
+
+La regla de *modularidad* es crítica. A lo largo de estos manuales encontrará grandes parrafos sobre el intérprete o el planificador de tareas o el de movimiento o sobre HAL. Cada uno de estos es un módulo o colección de módulos. Es esta modularidad la que permite conectar solo las partes que usted necesita para hacer funcionar su máquina (n.t. sin llenar su pantalla de florituras, ocupar su CPU en mantenerlas en funcionamiento ni darle mas oportunidades que las precisas a Murphy y sus reglas).
+
+La regla *Claridad* tambien es esencial. LinuxCNC es un trabajo en progreso, esta
+sin terminar ni lo estara jamás. Es lo suficientemente completo como para manejar la mayoría de tipos de máquinas a las que va destinado. Gran parte de ese progreso se logra porque muchos usuarios y desarrolladores de código pueden ver el trabajo de otros y construir cosas nuevas sobre lo ya hecho.
+
+La regla *Composicion* nos permite construir un sistema de control predecible
+con muchos de los módulos disponibles, que son conectables. La conectividad se logra configurando interfaces estándar para conjuntos de módulos y siguiendo
+esos estándares.
+
+La regla *Separación* requiere que se construyan partes distintas que hagan
+cosas pequeñas. Separando funciones, la depuración es mucho más fácil y los reemplazos de módulos se pueden introducir en el sistema y hacer comparaciones fácilmente.
+
+¿Qué significa "la manera Unix" para usted como usuario de LinuxCNC?. Significa que
+usted puede tomar decisiones sobre cómo usará el sistema. Muchas de estas elecciones se haran durante la integración de la máquina, pero muchas también afectaran a la forma en que se usará la máquina. Durante la lectura de la documentacion, encontrará muchos lugares donde tendrán que hacer comparaciones. Eventualmente se deberan tomar decisiones, "Usaré esta interfaz en 
+lugar de esa otra" o "Voy a escribir offsets de piezas de esta manera en lugar de hacerlo de esa otra". A lo largo de estos manuales describimos el rango de posibilidades disponibles actualmente.
+
+Al comenzar su viaje hacia el uso de LinuxCNC, le ofrecemos dos consideraciones:footnote:[Encontrado en http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
+
+ - Parafraseando las palabras de Doug Gwyn en UNIX: "LinuxCNC no fue diseñado para
+   evitar que sus usuarios hagan cosas estúpidas, ya que eso también les impediria
+   hacer cosas ingeniosas".
+ - Tambien las palabras de Steven King: "LinuxCNC es fácil de usar. Simplemente no     se descuida con respecto a qué tipo de usuarios es amigable".
+
+

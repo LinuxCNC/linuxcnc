@@ -32,6 +32,7 @@
 static int    ext_offset_teleop_limit = 0;
 static int    ext_offset_coord_limit  = 0;
 static double ext_offset_epsilon;
+static bool   coord_cubic_active = 0;
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -623,11 +624,10 @@ static void process_probe_inputs(void)
         int i;
         int aborted = 0;
 
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) &&
-           tpGetExecId(&emcmotDebug->coord_tp) <= 0) {
-            // running an MDI command
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp)) {
+            // running an command
             tpAbort(&emcmotDebug->coord_tp);
-            reportError(_("Probe tripped during non-probe MDI command."));
+            reportError(_("Probe tripped during non-probe move."));
 	    SET_MOTION_ERROR_FLAG(1);
         }
 
@@ -795,7 +795,8 @@ static void set_operating_mode(void)
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
         if (*(emcmot_hal_data->eoffset_limited)) {
-            reportError("Starting beyond Soft Limits");
+            reportError("Note: Motion enabled after reaching a coordinate "
+                        "soft limit with active external offsets");
             *(emcmot_hal_data->eoffset_limited) = 0;
         }
         initialize_external_offsets();
@@ -834,14 +835,20 @@ static void set_operating_mode(void)
 		if (joint_num < NO_OF_KINS_JOINTS) {
 		/* point to joint data */
 		    joint = &joints[joint_num];
+		if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
+		    //skip
+		} else {
 		    cubicDrain(&(joint->cubic));
+		}
 		    positions[joint_num] = joint->coarse_pos;
 		} else {
 		    positions[joint_num] = 0;
 		}
 	    }
+	    coord_cubic_active = 0;
 	    /* Initialize things to do when starting teleop mode. */
 	    SET_MOTION_TELEOP_FLAG(1);
+	    SET_MOTION_COORD_FLAG(0);
 	    SET_MOTION_ERROR_FLAG(0);
 
             kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
@@ -1189,7 +1196,8 @@ static void get_pos_cmds(long period)
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
 	    /* compute joint velocity limit */
-            if ( get_home_is_idle(joint_num) ) {
+            if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+                && get_home_is_idle(joint_num) ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
@@ -1306,6 +1314,7 @@ static void get_pos_cmds(long period)
         } // for(axis_num)
 
 	/* check joint 0 to see if the interpolators are empty */
+	coord_cubic_active = 1;
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
@@ -1330,7 +1339,7 @@ static void get_pos_cmds(long period)
 		    if(!isfinite(positions[joint_num]))
 		    {
                        reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
-                                  joint_num);
+                           joint_num);
                        SET_MOTION_ERROR_FLAG(1);
                        emcmotDebug->enabling = 0;
                        break;
@@ -1359,7 +1368,7 @@ static void get_pos_cmds(long period)
 	for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
-        /* interpolate to get new position and velocity */
+	    /* interpolate to get new position and velocity */
 	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
 	}
 	/* report motion status */
@@ -1416,7 +1425,7 @@ static void get_pos_cmds(long period)
 		if(!isfinite(positions[joint_num]))
 		{
 		   reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
-                                 joint_num);
+		         joint_num);
 		   SET_MOTION_ERROR_FLAG(1);
 		   emcmotDebug->enabling = 0;
 		   break;
@@ -1428,8 +1437,8 @@ static void get_pos_cmds(long period)
 		       that fail soft limits, but we'll abort at the end of
 		       this cycle so it doesn't really matter */
 		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-        /* interpolate to get new position and velocity */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
+		/* interpolate to get new position and velocity */
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
 	    }
 	}
 	else
@@ -1492,14 +1501,29 @@ static void get_pos_cmds(long period)
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
-	    /* just hit the limit */
-	    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+        /* Unexpectedly hit a joint soft limit.
+        ** Possibile causes:
+        **  1) a joint positional limit was reduced by an ini halpin
+        **     (like ini.N.max_limit) -- undetected by trajectory planning
+        **     including simple_tp
+        **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
+        **  3) kins module misbehavior
+        **  4) poorly tuned servo motion (not detected by ferror settings)
+        **
+        ** Non-identity kins can often be switched to joint mode to recover
+        ** using the '$' shortcut provided by the gui.
+        ** Guis may not provide a means to recover for identity kins except
+        ** by unhoming/jogging/rehoming.  (For trivkins, using kinstype=both
+        ** can be used as a workaround).
+        ** 
+        */
+	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0] == 1) {
                     joint = &joints[joint_num];
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1508,7 +1532,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1836,6 +1860,16 @@ static void output_to_hal(void)
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
 
+    switch (emcmotStatus->motionType) {
+        case EMC_MOTION_TYPE_FEED: //fall thru
+        case EMC_MOTION_TYPE_ARC:
+            *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
+                                         * emcmotStatus->net_feed_scale;
+            break;
+        default:
+            *(emcmot_hal_data->feed_upm) = 0;
+    }
+
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
@@ -1870,7 +1904,7 @@ static void output_to_hal(void)
 		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
 				emcmotStatus->spindle_status[spindle_num].speed / 60.;
 		*(emcmot_hal_data->spindle[spindle_num].spindle_on) =
-				((emcmotStatus->spindle_status[spindle_num].speed *
+				((emcmotStatus->spindle_status[spindle_num].state *
 						emcmotStatus->spindle_status[spindle_num].net_scale) != 0) ? 1 : 0;
 		*(emcmot_hal_data->spindle[spindle_num].spindle_forward) =
 				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out > 0) ? 1 : 0;

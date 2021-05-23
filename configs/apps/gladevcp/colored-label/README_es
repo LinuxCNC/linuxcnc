@@ -1,0 +1,22 @@
+Cómo colorear un widget HAL_Label dependiendo del valor del pin
+-------------------------------------------------- ------------
+
+Configurar el color de fondo de un widget GtkLabel (HAL_Label está
+derivado de GtkLabel) es un poco complicado. Por razones de rendimiento
+el widget GtkLabel no tiene objeto ventana propio, y solo los objetos ventana
+pueden tener color de fondo. La solución es encerrar Labl en un contenedor 
+EventBox, que tiene una ventana pero invisible - ver el archivo coloredlabel.ui.
+
+Para ayudar a esto, el método colorize() intenta detectar esta
+situación y da una advertencia si el widget es un GtkLabel y
+el widget principal no es un GtkEventBox. Se puede utilizar para configurar los colores
+de widgets arbitrarios, no solo de GtkLabel.
+
+Además, este ejemplo muestra cómo configurar un texto custom y una etiqueta de color
+dependiendo del valor del pin HAL.
+
+------------------------------------------
+Para ejecutar de forma independiente:
+
+$ gladevcp -u coloredlabel.py -H coloredlabel.hal coloredlabel.ui
+

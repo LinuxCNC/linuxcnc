@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp versa probe
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -105,7 +105,7 @@ class VersaSubprog(QObject):
                 if not self.check_pid(self.PID):
                     sys.exit(0)
 
-    # check for an error messsage was sent to us or
+    # check for an error message was sent to us or
     # check that the command is actually a method in our class else
     # this message isn't for us - ignore it
     def process_command(self, cmd):

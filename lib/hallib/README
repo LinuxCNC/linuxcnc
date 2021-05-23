@@ -43,8 +43,8 @@ Haltcl Files (*.tcl)       Notes
 -----------------------    ---------------------------------------------
 basic_sim.tcl              set up a sim config (arbitrary no. of axes)
 var_show.tcl               show ini variables and context
-
 hookup_moveoff.tcl         make connections for a moveoff component
+plasmac.tcl                common connections for the plasmac component
 
 xhc-hb04.tcl               Configuration builder for xhc-hb04 pendant
 xhc-hb04-layout1.cfg         button layout 1 for xhc-hb04.tcl

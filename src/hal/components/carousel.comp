@@ -69,7 +69,7 @@ velocity value will be sent to the motor-vel pin.
 """;
 
 pin in  signed pocket-number """The pocket to move to when the .enable pin goes high. If the value
-passed is gigher than the number of pockests specified in the "pockets" modparam then modulo arithmetic
+passed is higher than the number of pockets specified in the "pockets" modparam then modulo arithmetic
 is used. This is intended to allow the use of multiple tools in the same holder, as is sometimes
 useful with lathes.""";
 pin in  bit    enable "Set this pin high to start movement. Setting it low will stop movement";
@@ -259,7 +259,7 @@ FUNCTION(_){
         state = 1;
         ready = 0;
     case 1: // choose direction
-        if (pocket_number < 1 || pocket_number > inst_pockets) {
+        if (mod_pocket < 1 || mod_pocket > inst_pockets) {
             state = 0;
             return;
         }

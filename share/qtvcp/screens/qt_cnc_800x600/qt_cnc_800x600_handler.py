@@ -78,7 +78,7 @@ class HandlerClass:
         self.w.feed_slider.setValue(100)
         self.w.rapid_slider.setValue(100)
 
-        # add a backgrund image
+        # add a background image
 
         bgpath = self.IMAGE_PATH+'/bg_800x600.png'
         self.w.setStyleSheet("#centralwidget { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
@@ -101,11 +101,14 @@ class HandlerClass:
                 self.w.mdi_line.keyPressEvent(event)
                 event.accept()
             return True
+
+        if event.isAutoRepeat():return True
+
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
         except AttributeError:
-            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print('no function %s in handler file for-%s'%(KEYBIND.convert(event),key))
             #print 'from %s'% receiver
             return False
 
@@ -113,15 +116,15 @@ class HandlerClass:
     # callbacks from STATUS #
     ########################
     def say_estop(self,w):
-        print 'saying estop'
+        print('saying estop')
 
     def on_state_on(self,w):
-        print 'on'
+        print('on')
         if not self.w.button_machineon.isChecked():
             self.w.button_machineon.click()
 
     def on_state_off(self,w):
-        print 'off'
+        print('off')
         if self.w.button_machineon.isChecked():
             self.w.button_machineon.click()
 
@@ -154,7 +157,7 @@ class HandlerClass:
 
     def zero_axis(self):
         name = self.w.sender().text()
-        print name
+        print(name)
         if 'X' in name:
             STATUS.set_axis_origin('x',0)
         elif 'Y' in name:
@@ -178,7 +181,7 @@ class HandlerClass:
         self.cmnd.rapidrate(rate/100.0)
 
     def estop_toggled(self,pressed):
-        print 'estop click',pressed
+        print('estop click',pressed)
         if pressed:
             self.cmnd.state(linuxcnc.STATE_ESTOP_RESET)
         else:
@@ -188,7 +191,7 @@ class HandlerClass:
             self.w.overlay.show()
 
     def machineon_toggled(self,pressed):
-        print 'machine on click',pressed
+        print('machine on click',pressed)
         if pressed:
             self.cmnd.state(linuxcnc.STATE_ON)
             self.w.button_frame.setEnabled(True)
@@ -199,7 +202,7 @@ class HandlerClass:
     def jog_pressed(self):
         d = 1
         source = self.w.sender()
-        print source.objectName(), 'pressed'
+        print(source.objectName(), 'pressed')
         if '-' in source.text():
             d = -1
         if 'X' in source.text():
@@ -220,12 +223,12 @@ class HandlerClass:
             self.continous_jog(2, 0)
 
     def home_clicked(self):
-        print 'home click'
+        print('home click')
         self.cmnd.mode(linuxcnc.MODE_MANUAL)
         self.cmnd.home(-1)
 
     def loadfile_clicked(self):
-        print 'load'
+        print('load')
         self.w.overlay.text='Open File'
         self.w.overlay.bg_color = QtGui.QColor(0, 0, 0,200)
         self.w.overlay.show()
@@ -233,7 +236,7 @@ class HandlerClass:
         fname = QtWidgets.QFileDialog.getOpenFileName(None, 'Open file',
                 os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
         fname =fname[0]
-        print fname
+        print(fname)
         if fname:
             NOTE.notify('Loaded',str(fname),None,10)
             f = open(str(fname), 'r')
@@ -244,22 +247,22 @@ class HandlerClass:
         self.w.overlay.hide()
 
     def runfile_clicked(self):
-        print 'run file'
+        print('run file')
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         self.cmnd.auto(linuxcnc.AUTO_RUN,0)
 
     def stopfile_clicked(self):
-        print 'stop file'
+        print('stop file')
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         self.cmnd.abort()
 
     def pausefile_clicked(self):
-        print 'pause file',STATUS.stat.paused
+        print('pause file',STATUS.stat.paused)
         if not STATUS.stat.paused:
             #self.cmnd.mode(linuxcnc.MODE_AUTO)
             self.cmnd.auto(linuxcnc.AUTO_PAUSE)
         else:
-            print 'resume'
+            print('resume')
             self.cmnd.auto(linuxcnc.AUTO_RESUME)
 
     #####################
@@ -346,7 +349,7 @@ class HandlerClass:
         if self.shutdown_check:
             answer = MSG.showdialog('Do you want to shutdown now?',
                 details='You can set a preference to not see this message',
-                 display_type=MSG.YN_TYPE)
+                 display_type='YESNO')
             if not answer:
                 self.w.overlay.hide()
                 event.ignore()

@@ -1,0 +1,87 @@
+:lang: es
+
+[[cha:halui-examples]]
+
+= Ejemplos Halui
+
+Para que funcionen los ejemplos de Halui, debe agregar la siguiente línea a la
+sección [HAL] del archivo ini.
+
+----
+HALUI = halui
+----
+
+[[sec:halui-remote-start]]
+
+== Arranque remoto
+
+Para conectar un botón de inicio de programa remoto a LinuxCNC, utilice los
+pines `halui.program.run` y `halui.mode.auto`.
+Debe asegurarse de que se puede ejecutar utilizando el
+pin `halui.mode.is-auto`. Esto se hace con un componente `and2`.
+La siguiente figura muestra cómo son las conexiones.
+Cuando se presiona el botón de ejecución remota, se conecta tanto a
+`halui.mode.auto` como a `and2.0.in0`. Si está habilitado el
+modo automático, el pin `halui.mode.is-auto` será true.
+Si ambas entradas al componente `and2.0` son true,
+`and2.0.out` se activara e iniciará el programa a traves de `halui.program.run`.
+
+.Ejemplo de arranque remoto
+image::images/remote-start.png[alt="Ejemplo de arranque remoto"]
+
+Los comandos hal necesarios para lograr lo anterior son:
+
+    net program-start-btn halui.mode.auto and2.0.in0 <= <su pin de entrada>
+    net program-run-ok and2.0.in1 <= halui.mode.is-auto
+    net remote-program-run halui.program.run <= and2.0.out
+
+Observe que en la primera línea hay dos pines de lectura; esto se puede dividir
+en dos líneas como estas:
+
+    net program-start-btn halui.mode.auto <= <su pin de entrada>
+    net program-start-btn and2.0.in0
+
+== Pausar y Reanudar
+
+Este ejemplo fue desarrollado para permitir que LinuxCNC mueva un
+eje rotativo a una señal de una máquina externa.
+La coordinación entre los dos sistemas será
+proporcionada por dos componentes de Halui:
+
+ - halui.program.is-paused
+ - halui.program.resume
+
+En su archivo hal personalizado, agregue las
+dos líneas siguientes, que se conectarán a su E/S para activar
+la pausa del programa o para reanudar cuando el 
+sistema externo requiera que LinuxCNC continúe.
+
+    net ispaused halui.program.is-paused => "su pin de salida"
+    net resume halui.program.resume <= "su pin de entrada"
+
+Sus pines de entrada y salida están conectados a los pines
+del otro controlador. Pueden ser pines de puerto paralelo
+o cualquier otro pin de E/S al que tenga acceso.
+
+Este sistema funciona de la siguiente manera. Cuando se
+encuentra un M0 en el código G, la señal `halui.program.is-paused`
+se hace true. Esto activa su pin de salida para que
+el controlador externo sepa que LinuxCNC está en pausa.
+
+Para reanudar el programa gcode en LinuxCNC, cuando el controlador externo
+esté listo, hará que su salida sea true. Esto indicará
+LinuxCNC que debería reanudar la ejecución de Gcode.
+
+Dificultades en el tiempo
+
+ - La señal de retorno de entrada "resume" no debe ser
+   más larga que el tiempo requerido para obtener el código g
+   corriendo de nuevo.
+
+ - La salida "is-paused" ya no debería estar activa
+   para cuando termina la señal de "resume".
+
+Estos problemas de tiempo podrían evitarse utilizando
+ClassicLadder para activar la salida "is-paused" a través de un
+temporizador monoestable para entregar un pulso de salida estrecho.
+El pulso "reanudar" también podría recibirse a través de un temporizador monoestable.

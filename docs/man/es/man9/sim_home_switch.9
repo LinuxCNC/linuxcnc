@@ -1,0 +1,38 @@
+.TH SIM_HOME_SWITCH "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+sim_home_switch \- Simple home switch simulator
+.SH SYNOPSIS
+.HP
+.B loadrt sim_home_switch [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+After tripping home switch, travel in opposite direction is required (amount set by the hysteresis pin)
+
+.SH FUNCTIONS
+.TP
+\fBsim-home-switch.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B sim-home-switch.\fIN\fB.cur-pos\fR float in \fR
+Current position (typically: joint.n.motor-pos-fb)
+.TP
+.B sim-home-switch.\fIN\fB.home-pos\fR float in \fR(default: \fI1\fR)
+Home switch position
+.TP
+.B sim-home-switch.\fIN\fB.hysteresis\fR float in \fR(default: \fI0.1\fR)
+Travel required to backoff (hysteresis)
+.TP
+.B sim-home-switch.\fIN\fB.home-sw\fR bit out \fR
+Home switch activated
+.SH LICENSE
+
+GPL

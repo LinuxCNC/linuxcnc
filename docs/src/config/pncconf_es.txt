@@ -1,0 +1,788 @@
+﻿:lang: es
+:toc:
+
+[[cha:pncconf-wizard]]
+
+= Asistente de configuracion Mesa
+
+PNCconf está hecho para ayudar a construir configuraciones que utilizan productos específicos Mesa 'Anything I/O'.
+
+Puede configurar sistemas servo de bucle cerrado o sistemas de hardware paso a paso. Utiliza un enfoque de 'asistente' similar a Stepconf (utilizado para sistemas accionados por pasos software, por puerto paralelo).
+
+PNCconf aún se encuentra en una etapa de desarrollo (Beta), por lo que hay algunos errores y carece de algunas características.
+Informe de los errores y sugerencias a la página del foro de LinuxCNC o a la lista de correo.
+
+Hay dos líneas accion cuando se utiliza PNCconf:
+
+Una es usar PNCconf para configurar siempre su sistema; si decide cambiar
+algunas opciones, vuelva a cargar PNCconf y permita que configure las nuevas opciones. Esta actitud funciona bien si su máquina es bastante estándar y puede usar archivos personalizados para agregar características no estándar. PNCconf intenta trabajar con usted en este aspecto.
+
+La otra es usar PNCconf para construir una configuración que esté cerca de lo deseado y luego editar a mano para adaptarlo a sus necesidades. Esta sería la elección si necesita modificaciones extensas más allá del alcance de PNCconf o solo quiere jugar con el o aprender LinuxCNC
+
+Navege por las páginas del asistente con los botones de avanzar, retroceder y cancelar. Hay también un botón de ayuda que brinda información sobre las páginas, diagramas y una página de salida.
+
+SUGERENCIA: la página de ayuda de PNCconf debe tener la información más actualizada e informaciónde detalles adicional.
+
+== Instrucciones punto por punto
+
+.Ventana Splash PnCConf 
+
+image::images/pncconf-splash.png[alt="Asistente de configuración de PnCConf"]
+
+== Crear o editar
+
+Se permite seleccionar una configuración previamente guardada o crear una nueva.
+Si elige 'Modificar una configuración' y luego presiona siguiente, se mostrara un cuadro de selección de archivos. Pncconf preselecciona su último archivo guardado. Elija la configuración que usted desea editar. Si realizó algún cambio en los archivos principales hal o ini *Pncconf sobre-escribira* esos archivos y los cambios se perderán. Algunos archivos no serán sobre-escritos y Pncconf colocara una nota en esos archivos. También le permite seleccionar las opciones de atajo de escritorio/lanzador. Un atajo de escritorio colocará un icono de carpeta en el escritorio que apunta a sus nuevos archivos de configuración. De lo contrario, tendría que buscar en su carpeta home bajo linuxcnc/configs.
+
+Un lanzador de escritorio agregará un icono al escritorio para iniciar su configuración directamente. También puede iniciarlo desde el menú principal utilizando el Selector de Configuración 'LinuxCNC' encontrado en el menú CNC y seleccionando su nombre de configuración.
+
+== Informacion basica de la maquina
+
+.PnCConf Basico
+
+image::images/pncconf-basic.png[alt="Información básica PnCConf de la máquina"]
+
+Conceptos básicos de la máquina::
+Si usa un nombre con espacios, PNCconf reemplazará los espacios con guiones bajos
+(como regla general, a Linux no le gustan los espacios en los nombres). Elija una configuración de ejes; esto selecciona qué tipo de máquina está construyendo y qué ejes están disponibles. El selector de unidades de máquina permite la entrada de datos de unidades métricas o imperiales en las siguientes páginas.
+
+SUGERENCIA: los valores predeterminados no se convierten cuando se usa métrica, así que asegúrese de que sean valores correctos.
+
+Tiempo de respuesta del equipo::
+
+El período servo configura el latido del corazón del sistema. La latencia se refiere a la cantidad de tiempo de computadora que puede ser más largo que ese período. Como un ferrocarril, LinuxCNC requiere todo en una línea de tiempo muy estrecha y consistente o pasaran cosas malas. LinuxCNC requiere y usa un sistema operativo 'en tiempo real', que solo significa que tiene un tiempo de respuesta de baja latencia (retraso) cuando LinuxCNC requiere sus cálculos y, cuando los esta haciendo, no puede ser interrumpido por solicitudes de menor prioridad (como la entrada del usuario a botones de pantalla, dibujo, etc).
++
+Probar la latencia es muy importante y una cosa clave a verificar en primer lugar. Afortunadamente, usando las tarjetas Mesa para hacer el trabajo que requiere el tiempo de respuesta más rápido (conteo de encoders y generación de PWM) podemos soportar mucha más latencia, y entonces podemos usar el puerto paralelo para otras cosas. La prueba estándar en LinuxCNC es verificar la latencia del período BASE (aunque no estemos utilizando un período base). Si se presiona el botón de prueba de jitter de periodo base, se inicia la ventana de la prueba de latencia
+(también puede cargar esto directamente desde el panel de aplicaciones/cnc).
+La prueba debe ejecutarse durante unos minutos, cuantos más, mejor. Considerar 15
+minutos mínimo, o una noche entera aún mejor. En este momento use la computadora
+para cargar cosas, usar la red, usar USB, etc. Queremos saber el peor caso de
+latencia y para averiguar si alguna actividad particular perjudica nuestra latencia. Necesitamos mirar el jitter de período base. Cualquier cosa por debajo de 20000 es excelente, incluso podrías hacer pasos software rápidos con la máquina.
+De 20000 a 50000 sigue siendo bueno para pasos software y está bien para nosotros.
+De 50000 a 100000 ya no es tan bueno, pero aún se puede usar con tarjetas hardware
+que se encargen de las cosas de respuesta rápida. Cualquier cosa por debajo de 100000 es útil para nosotros. Si la latencia es decepcionante o si tiene un mal jitter periódicamente, todavía es posible mejorarlo.
+
+SUGERENCIA: hay una lista de equipos compilada por los usuarios con la latencia obtenida en la wiki de LinuxCNC:
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test
+Considere agregar su información a la lista. También en esa página hay enlaces a
+información sobre cómo solucionar algunos problemas de latencia.
+
+Una vez conformes con la latencia se debe elegir un período servo. En la mayoría de los casos, un período servo de 1000000 ns esta bien (eso da una tasa de cálculo del servo de 1 kHz - 1000 cálculos por segundo). Si está construyendo un servosistema de lazo cerrado que controla el par (corriente) en lugar de velocidad (voltaje), una tasa más rápida sería mejor; algo así como 200000 (velocidad de cálculo de 5 kHz). El problema con la velocidad del servo es que deja menos tiempo disponible para que la computadora haga otras cosas además de cálculos de LinuxCNC. Normalmente, la pantalla (GUI) se vuelve menos receptiva. Usted debe decidir sobre el equilibrio. Tenga en cuenta que si sintoniza su servosistema de lazo cerrado
+y luego cambia el período del servo, probablemente necesite volver a sintonizarlo.
+ 
+Puertos/tarjetas de control de E/S::
+PNCconf es capaz de configurar máquinas que tienen hasta dos placas Mesa y
+tres puertos paralelos. Los puertos paralelos solo se pueden usar para E/S de baja velocidad (velocidad servo).
+
+Mesa::
+Debe elegir al menos una placa Mesa ya que PNCconf no configurará los
+puertos paralelos para contar encoders o pasos de salida o PWM.
+Las tarjetas Mesa disponibles en el cuadro de selección se basan en lo que PNCconf encuentra en el firmware del sistema. Hay opciones para agregar firmware personalizado y/o 'blacklist' (ignorar) algun firmware o tarjetas usando un archivo de preferencias.
+Si no se encuentra firmware, PNCconf mostrará una advertencia y usará un ejemplo interno de firmware - no se podrán realizar pruebas. Un punto a tener en cuenta es que si se eligen dos tarjetas PCI Mesa, actualmente no hay manera de predecir qué tarjeta es 0 y cual es 1 - se debe probar - mover las tarjetas podría cambiar su orden. Si se configuran dos tarjetas, ambas deben instalarse para que las pruebas funcionen.
+
+Puerto paralelo::
+Se pueden usar hasta 3 puertos paralelos (denominados parports) como E/S simple. Usted debe establecer la dirección del parport. Puede ingresar el puerto paralelo de Linux segun su sistema de numeración de puertos (0, 1 o 2) o ingresar la dirección real. La dirección de un parport en placa base es a menudo 0x0278 o 0x0378 (escrito en hexadecimal) pero puede ser encontrado en la página de BIOS. La página del BIOS se encuentra cuando usted arranca su computadora. Debe presionar una tecla para entrar en ella (como F2). En la página BIOS puede encontrar la dirección del puerto paralelo y configurarlo en el modo SPP, EPP, etc. en algunas
+computadoras esta información se muestra durante unos segundos durante el inicio. Para tarjetas de puerto paralelo PCI, la dirección se puede encontrar presionando el boton 'buscar dirección de parport'. Aparece la página de salida de ayuda con una lista de todos los dispositivos PCI que se pueden encontrar. Debe haber una referencia a un dispositivos puerto paralelo con una lista de direcciones. Una de esas direcciones debería funcionar. No todos los puertos paralelos PCI funcionan correctamente. Cualquiera de los tipos se puede seleccionar como 'in' (máximo
+cantidad de pines de entrada) o 'out' (cantidad máxima de pines de salida)
+
+Lista de interfaz de usuario GUI::
+Esto especifica las pantallas gráficas que usará LinuxCNC.
+Cada una tiene unas opciones diferentes.
+
+AXIS
+
+* totalmente compatible con tornos.
+* es el front-end más desarrollado y utilizado
+* está diseñado para ser utilizado con mouse y teclado
+* está basado en tkinter, por lo que integra PYVCP (control virtual basado en python) de forma natural.
+* tiene una ventana gráfica 3D.
+* permite VCP integrado en el lateral o en la pestaña central
+
+TOUCHY
+
+* Touchy fue diseñado para ser utilizado con una pantalla táctil, con los mínimos
+  interruptores físicos y un volante MPG.
+* Requiere botones para ciclo de inicio, aborto y señales de un solo paso
+* También requiere que se seleccione jogging MPG de eje compartido.
+* está basado en GTK por lo que integra GLADE VCP (paneles de control virtual) de forma natural.
+* permite paneles VCP integrados en la pestaña central
+* no tiene ventana gráfica
+* el aspecto se puede cambiar con temas personalizados
+
+TkLinuxCNC
+
+* pantalla azul de alto contraste 
+* ventana de gráficos separada
+* sin integración de VCP
+
+== Configuracion externa
+
+Esta página le permite seleccionar controles externos como jogging o mando manual de velocidades.
+
+.GUI Externo
+
+image::images/pncconf-external.png[alt="GUI Externo"]
+
+Si selecciona un Joystick para jogging, lo necesitará siempre conectado para que LinuxCNC lo cargue. Para usar los sticks analógicos para un jogging útil probablemente necesite agregar algún código HAL personalizado. El jogging MPG requiere un generador de impulsos conectado a un contador de encoder MESA.
+Los controles de mando manual pueden usar un generador de impulsos (MPG) o
+interruptores (como un dial giratorio). Los botones externos se pueden usar con los interruptores de un joystick OEM.
+
+Joystick para jogging::
+Requiere instalar una 'regla de dispositivo' (devive rule) personalizada en el sistema. Este es un archivo que LinuxCNC usa para conectarse a la lista de dispositivos de LINUX. PNCconf le ayudará a hacer ese archivo.
++
+'Buscar regla de dispositivo' buscará reglas en el sistema, puede usar esto para
+encontrar el nombre de los dispositivos que ya ha construido con PNCconf.
++
+'Agregar una regla de dispositivo' le permitirá configurar un nuevo dispositivo siguiendo las indicaciones. Necesitará que su dispositivo este disponible.
++
+'prueba de dispositivo' le permite cargar un dispositivo, ver los nombres de sus pines y verificar su funciones con halmeter
++
+El jogging con joystick usa componentes HALUI y hal_input.
+
+Botones externos::
+permite el jog de eje con botones simples a una velocidad de jog específica. Probablemente lo mejor para jogging rápido.
+
+MPG Jogging ::
+Le permite usar un generador manual de impulsos para mover ejes de la máquina.
++
+Los MPG a menudo se encuentran en máquinas de grado comercial. La salida de pulsos en cuadratura se pueden contar con un contador de encoder MESA. PNCconf permite un
+MPG por eje o un MPG compartido con todos los ejes. Permite la selección de velocidades de jogging usando interruptores o una sola velocidad.
++
+La opción de incrementos seleccionables usa el componente mux16. Este componente
+tiene opciones como debounce y codigo Gray para ayudar a filtrar la entrada del interruptor.
+
+Ajuste manual::
+PNCconf permite mando manual de velocidades de avance y/o velocidad del husillo con un generador de pulsos (MPG) o interruptores (por ejemplo, rotativos).
+ 
+== Configuracion de GUI
+
+Aquí puede establecer valores predeterminados para las pantallas de visualización, agregar paneles de control virtual (VCP), y establecer algunas opciones de LinuxCNC ..
+
+.Configuración de GUI
+
+image::images/pncconf-gui.png[alt="Configuración de la GUI"]
+
+Opciones de GUIs::
+
+Las opciones predeterminadas permiten elegir los valores predeterminados generales para cualquier pantalla de visualización.
++
+Los valores predeterminados de AXIS son opciones específicas de AXIS. Si elige las opciones de tamaño, posición o forzar maximizar, PNCconf le preguntará si es correcto sobrescribir el archivo de preferencias (.axisrc). A menos que haya agregado comandos manualmente a este archivo, sera correcto permitirlo. La posición y forzar máximizar se pueden usar para mover AXIS a un segundo monitor si el sistema es capaz.
++
+Los valores predeterminados de Touchy son opciones específicas de Touchy. La mayoría de las opciones de Touchy pueden ser cambiadas mientras Touchy se está ejecutando usando la página de preferencias. Touchy usa GTK para dibujar su pantalla, y soporta temas. Temas controla el aspecto básico y la 'sensación' de un programa. Puede descargar temas de la red o editarlos usted mismo.
+Hay una lista de los temas actuales en la computadora entre los que puede elegir.
+Para ayudar a que parte del texto se destacara, PNCconf le permite anular los valores predeterminados de los temas. Las opciones de posición y forzar máximizar se pueden usar para mover Touchy a un segundo monitor si el sistema es capaz.
+
+Opciones de VCP::
+
+Los paneles de control virtuales permiten agregar controles y pantallas personalizadas. AXIS y Touchy pueden integrar estos controles dentro de la pantalla en posiciones designadas. Hay dos tipos de VCP:
+PyVCP que usa 'Tkinter' para dibujar la pantalla y GLADE VCP que usa 'GTK' para
+dibuja la pantalla.
+
+PyVCP::
+El archivo XML de las pantallas PyVCP solo se puede construir a mano. PyVCPs encajan naturalmente con AXIS ya que ambos usan TKinter.
++
+Los pines HAL se crean para que el usuario se conecte dentro de su archivo HAL personalizado. Hay un panel de visualización de husillo de ejemplo para que el usuario lo use tal como está o lo use como base. Puede seleccionar un archivo en blanco en el que luego puede agregar los controles 'widgets' o seleccionar un ejemplo de visualización del husillo que mostrará su velocidad e indicará si está a la velocidad requerida.
++
+PNCconf conectará los pines HAL de visualización del husillo adecuados para usted.
+Si está utilizando AXIS, entonces el panel se integrará en el lado derecho.
+Si no utiliza AXIS, el panel se separará de la pantalla de interfaz.
++
+Puede usar las opciones de geometría para ajustar el tamaño y mover el panel, por ejemplo para moverlo a una segunda pantalla si el sistema es capaz. Si presiona el
+botón 'Display sample panel', se respetarán las opciones de tamaño y ubicación.
+
+GLADE VCP::
+GLADE VCPs encaja naturalmente dentro de la pantalla TOUCHY ya que ambos usan GTK para dibujar, pero al cambiar el tema de GLADE VCP se puede hacer que combine bastante bien con AXIS (pruebe Redmond).
++
+Utilize un editor gráfico para construir sus archivos XML. Los pines HAL se crean para que el usuario se conecte, dentro de su archivo HAL personalizado.
++
+GLADE VCP también permite una interacción de programación mucho más sofisticada (y complicada) que PNCconf actualmente no aprovecha (ver GLADE VCP en el manual).
++
+PNCconf tiene paneles de muestra para que el usuario los utilice tal como están o compilados. Con GLADE VCP, PNCconf le permitirá seleccionar diferentes opciones en su muestra.
++
+En "Opciones de muestra", seleccione cuáles le gustaría. Los botones cero usan comandos HALUI que puede editar más adelante en la sección HALUI.
++
+Auto Z touch-off también requiere el programa  touch-off de classic ladder y una entrada de sonda seleccionada. Requiere una placa conductora de toque y una herramienta conductora puesta a tierra. Para obtener una idea de cómo funciona, consulte:
++
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff
++
+En 'Opciones de visualización', el tamaño, la posición y forzar máximizar se pueden usar en un panel 'autónomo' para cosas tales como colocar la pantalla en un segundo monitor si el sistema es capaz
++
+Puede seleccionar un tema GTK que establezca la apariencia básica del panel.
+Por lo general, deseara que esto coincida con la pantalla de la interfaz.
+Estas opciones se usarán si presiona el botón 'Mostrar muestra'.
+Con GLADE VCP dependiendo de la pantalla frontal, puede seleccionar dónde se mostrará el panel.
++
+Puede forzarlo a que sea independiente o, con AXIS, puede estar en el centro o en
+el lado derecho. Con Touchy puede estar en el centro.
+
+Valores predeterminados y opciones::
+
+* Requiere homing antes de MDI/Running
+** Si desea poder mover la máquina antes del homing, desmarque
+                esta casilla de verificación.
+
+* Indicación emergente de herramienta 
+** Para cambios de herramienta, elija entre un aviso en pantalla o exportación de nombres de señal estándar
+   para un archivo Hal de cambiador de herramientas personalizado proporcionado por el usuario.
+
+* Dejar el husillo encendido durante el cambio de herramienta:
+** Utilizado para tornos
+
+* Forzar homing manual individual
+
+* Mover el husillo hacia arriba antes de cambiar la herramienta
+
+* Restaurar la posición de la articulación después del cierre
+** Utilizado para máquinas con cinemáticas no triviales
+
+* Cambiadores de herramienta de posición aleatoria
+** Se usa para cambiadores de herramientas que no devuelven la herramienta a la misma
+  ranura. Necesitará agregar código HAL personalizado para admitir cambiadores de herramientas.
+
+== Configuracion de tarjetas Mesa
+Las páginas de configuración de Mesa le permiten utilizar diferentes firmwares.
+En la página básica seleccione una tarjeta Mesa, elija el firmware disponible
+y seleccione qué y cuántos componentes están disponibles.
+
+.Configuración Mesa
+
+image::images/pncconf-mesa-config.png[alt="Configuración de Mesa"]
+
+La dirección de parport se usa solo con la tarjeta parport de Mesa, la 7i43. Los parport en placa base generalmente usan 0x278 o 0x378, aunque debería poder encontrar la dirección desde la página de BIOS. La 7i43 requiere que el puerto paralelo use el modo EPP, de nuevo establecido en la página de BIOS. Si usa un puerto paralelo PCI, la dirección puede ser buscada utilizando el botón de búsqueda en la página básica.
+
+[NOTE]
+Muchas tarjetas PCI no son compatibles con el protocolo EPP correcto.
+
+La frecuencia base PDM PWM y 3PWM establece el equilibrio entre rizado y linealidad. Si usa tarjetas hijas Mesa, los documentos para la placa deben dar recomendaciones.
+
+[IMPORTANT]
+Es importante seguir esto para evitar daños y obtener el mejor rendimiento.
+
+....
+La 7i33 requiere PDM y una frecuencia base PDM de 6 mHz
+La 7i29 requiere PWM y una frecuencia base PWM de 20 Khz
+La 7i30 requiere PWM y una frecuencia base PWM de 20 Khz
+La 7i40 requiere PWM y una frecuencia base PWM de 50 Khz
+La 7i48 requiere UDM y una frecuencia base PWM de 24 Khz
+....
+
+El tiempo de espera de Watchdog se usa para establecer cuánto tiempo esperará la placa MESA antes de matar las salidas si la comunicación se interrumpe desde la computadora. Por favor, recuerde que Mesa usa salidas "activas bajas" lo que significa que cuando el pin de salida está activado, sera bajo (aproximadamente 0 voltios) y si la salida es alta (aproximadamente 5 voltios), está apagado.
+Asegúrese de que su equipo es seguro cuando esté apagado (watchdog activado).
+
+Puede elegir la cantidad de componentes disponibles anulando la selección de los no utilizados. No todos los tipos de componentes están disponibles con todos los firmware.
+
+Elegir por debajo de la cantidad máxima de componentes permite ganar más pines GPIO. Si usa tarjetas hijas, tenga en cuenta que no debe deseleccionar los pines que usa la tarjeta. Por ejemplo, algunos firmware admiten dos tarjetas 7i33; si solo tiene  una puede anular la selección de suficientes componentes para utilizar el conector que admite la segunda 7i33. Los componentes son deseleccionados numéricamente por el número más alto primero y siguiendo sin saltar números. Si lo hace, los componentes estaran no donde los quiere, y entonces debe usar un firmware diferente. El firmware dicta dónde, qué y las cantidades máximas de los componentes. Es posible un firmware personalizado. Pregunte al contactar a los desarrolladores de LinuxCNC y Mesa. Usar firmware personalizado en PNCconf requiere procedimientos especiales y no siempre es posible, aunque se intenta hacer que 
+PNCconf sea lo más flexible posible.
+
+Después de elegir todas estas opciones, presione el botón 'Aceptar cambios de componentes' y  PNCconf actualizará las páginas de configuración de E/S. Solo se mostrarán las pestañas de E/S para los conectores disponibles, dependiendo de la placa Mesa.
+
+
+== Configuracion de E/S Mesa
+Las pestañas se utilizan para configurar los pines de entrada y salida de las placas Mesa. PNCconf le permite crear nombres de señal personalizados para usar en archivos HAL personalizados.
+
+.Mesa I/O C2
+
+image::images/pncconf-mesa-io2.png[alt="Mesa I/O C2"]
+
+En esta pestaña con este firmware, los componentes están configurados para una tarjeta hija 7i33, generalmente utilizada con servos de lazo cerrado. Tenga en cuenta que los números de componente de los contadores de encoder y los controladores PWM no están en orden numérico. Siguen los requisitos de la tarjeta hija.
+
+.Mesa I/O C3
+
+image::images/pncconf-mesa-io3.png[alt="Mesa I/O C3"]
+
+En esta pestaña, todos los pines son GPIO. Tenga en cuenta los números de 3 dígitos; coincidirán con el número de pin HAL. Los pines GPIO se pueden seleccionar como entrada o salida y se pueden invertir.
+
+.Mesa I/O C4
+
+image::images/pncconf-mesa-io4.png[alt="Mesa I/O C4"]
+
+En esta pestaña hay una mezcla de generadores de pasos y GPIO.
+Los generadores de paso y los pines de dirección se pueden invertir. Tenga en cuenta que invertir un pin Step Gen-A (el pin de salida de paso) cambia el tiempo del paso. Debería coincidir con lo que espera su controlador
+
+== Configuracion de Puerto Paralelo
+
+image::images/pncconf-parport.png[alt="Configuración de Parport"]
+
+El puerto paralelo se puede usar para E/S simple, similar a los pines GPIO de Mesa.
+
+== Configuración de eje
+
+.Ajuste del drive del eje
+
+image::images/pncconf-axis-drive.png[alt="Configuración del drive del eje"]
+
+Esta página permite configurar y probar la combinación de motor y/o encoder.
+Si usa un servomotor, hay disponible una prueba de lazo abierto. Si usa un paso a paso, hay disponible una prueba de afinación.
+
+Prueba de lazo abierto::
+La prueba de lazo abierto es importante ya que confirma la dirección del motor y
+encoder. El motor debe mover el eje en la dirección positiva cuando
+se presiona el botón positivo y también el encoder debe contar en positivo.
+El movimiento del eje debe seguir el estandar del manual de maquinaria
+footnote:["nomenclatura de los ejes" en el capítulo "Control Numérico" en
+"Machinery's Handbook" publicado por Industrial Press.] o la pantalla gráfica AXIS no tendrá mucho sentido. Esperemos que la página de ayuda y los diagramas le ayudan a resolver esto. Tenga en cuenta que las direcciones de los ejes se basan en movimiento de la HERRAMIENTA, no en movimiento de la mesa. No hay rampa de aceleración con lazo abierto; pruebe comenzando con números de DAC bajos. Al mover el eje una distancia conocida, se puede confirmar la escala del encoder. El encoder debe contar incluso sin el amplificador habilitado dependiendo de cómo se suministra energía al mismo.
++
+ADVERTENCIA: Si el motor y el codificador no están de acuerdo con la dirección de conteo, entonces el el servo se descontrolara cuando use el control PID.
++
+Dado que en este momento no se puede probar la configuración PID en PNCconf, la configuración sera real cuando reedite/ingrese una configuración PID probada.
++
+Escalado DAC, salida máxima y offset se utilizan para adaptar la salida DAC.
+
+Compute DAC::
+Estos dos valores son los factores de escala y compensación para la salida del eje al amplificadores de motor. El segundo valor (compensación) se resta del cálculo
+de salida (en voltios), y dividido por el primer valor (factor de escala), antes de ser escrito a los convertidores D/A. Las unidades en el valor de la escala están en voltios verdaderos
+por voltios de salida DAC. Las unidades en el valor de compensación están en voltios. Estos pueden ser
+utilizado para linearizar un DAC.
++
+Específicamente, al escribir salidas, LinuxCNC primero convierte el deseado
+salida en unidades cuasi-SI a valores de actuador crudos, por ejemplo, voltios para un amplificador
+ DAC. Esta escala se ve así: El valor de la escala se puede obtener analíticamente
+haciendo un análisis de unidad, es decir, las unidades son [unidades SI de salida] / [unidades de actuador].
+Por ejemplo, en una máquina con un amplificador de modo de velocidad tal que 1 voltio
+da como resultado una velocidad de 250 mm / seg, tenga en cuenta que las unidades del desplazamiento están en la máquina
+ unidades, por ejemplo, mm / seg, y se restan de las lecturas del sensor. los
+el valor de este desplazamiento se obtiene al encontrar el valor de su salida que
+rinde 0.0 para la salida del actuador. Si el DAC está linealizado, este desplazamiento es
+normalmente 0.0.
++
+La escala y el offset se pueden usar también para linealizar el DAC, lo que da como resultado
+valores que reflejan los efectos combinados de la ganancia del amplificador, la no linealidad del DAC,
+unidades DAC, etc. Para ello, siga este procedimiento:
+
+* Construya una tabla de calibración para la salida, indicando al DAC el
+            voltaje deseado y midiendo el resultado:
+
+Mediciones de tensión de salida
+
+[cols = "^, ^", width = "50%"]
+| ==================
+| * Raw * | *Mesurado*
+| -10 | * -9.93 *
+| -9 | * -8.83 *
+| 0 | * -0.96 *
+| 1 | * -0.03 *
+| 9 | * 9.87 *
+| 10 | * 10.07 *
+| ==================
+
+
+* Haz un ajuste lineal de mínimos cuadrados para obtener los coeficientes a, b de modo que meas = a * raw + b
+* Tenga en cuenta que queremos una salida bruta tal que nuestro resultado medido sea
+            Idéntico a la salida ordenada. Esto significa
+** cmd = a * raw + b
+** crudo = (cmd-b) / a
+* Como resultado, se pueden usar los coeficientes ayb del ajuste lineal
+            como la escala y el offset para el controlador directamente.
+
+MAX SALIDA:
+El valor máximo para la salida de la compensación PID que se escribe en el
+Amplificador motor, en voltios. El valor de salida calculado se fija a este límite.
+El límite se aplica antes de escalar a unidades de salida sin procesar. Se aplica el valor.
+simétricamente tanto para el lado positivo como para el negativo.
+
+* Prueba de sintonía *
+La prueba de afinación desafortunadamente solo funciona con sistemas basados ​​en pasos. Otra vez
+Confirmar que las direcciones en el eje son correctas. Luego prueba el sistema ejecutando
+ el eje de ida y vuelta, si la aceleración o la velocidad máxima es demasiado alta,
+perder pasos Mientras trota, tenga en cuenta que puede tomar un tiempo para un eje con baja
+aceleración para detener. Los interruptores de límite no funcionan durante esta prueba. Tú
+Puede establecer un tiempo de pausa para cada final del movimiento de prueba. Esto te permitiría
+configure y lea un indicador de cuadrante para ver si está perdiendo pasos.
+
+* Cronometraje *
+La sincronización paso a paso debe adaptarse a los requisitos del controlador de pasos.
+Pncconf proporciona algunos tiempos predeterminados del controlador o permite configuraciones de tiempo personalizadas
+. Consulte http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing para
+algunos números de tiempo más conocidos (siéntase libre de agregar los que haya descubierto). Si
+en caso de duda, utilice números grandes como 5000, esto solo limitará la velocidad máxima.
+
+* Control de motor sin escobillas *
+Estas opciones se utilizan para permitir un control de bajo nivel de motores sin escobillas utilizando
+Firmas especiales y pizarras hijas. También permite la conversión de sensores HALL.
+de un fabricante a otro. Sólo está parcialmente apoyado y lo hará
+requiere uno para terminar las conexiones HAL. Póngase en contacto con la lista de correo o foro para
+más ayuda.
+
+Cálculo de la Escala de Axis
+
+image :: images / pncconf-scale-calc.png [alt = "Cálculo de la escala del eje"]
+
+La configuración de la escala se puede ingresar directamente o se puede usar la "escala de cálculo"
+botón para ayudar. Use las casillas de verificación para seleccionar los cálculos apropiados. Nota
+que los 'dientes de polea' requieren el número de dientes no la relación de engranaje. Gusano a su vez
+La relación es justo lo contrario, requiere la relación de transmisión. Si estas feliz con el
+escala presionar aplicar de lo contrario presionar cancelar e ingresar la escala directamente.
+ 
+
+.Axis de configuración
+
+image::images/pncconf-axis-config.png[alt="Configuración del eje"]
+
+Consulte también la pestaña del diagrama para ver dos ejemplos de
+Inicio y finales de carrera. Estos son dos ejemplos de
+Muchas formas diferentes de establecer homing y límites.
+
+IMPORTANTE: Es muy importante comenzar con el eje moviéndose hacia la derecha.
+¡La dirección o, de lo contrario, llegar a casa bien es muy difícil!
+
+Recuerda direcciones positivas y negativas.
+Consulte la HERRAMIENTA, no la tabla según el manual de Maquinistas.
+
+.En un típico molino de rodilla o cama
+* cuando la TABLA se mueve hacia fuera, es la dirección positiva de Y
+* cuando la TABLA se mueve a la izquierda, esa es la dirección X positiva
+* cuando la TABLA se mueve hacia abajo, esa es la dirección Z positiva
+* cuando la CABEZA se mueve hacia arriba, esa es la dirección Z positiva
+
+.En un torno tipico
+* cuando la HERRAMIENTA se mueve hacia la derecha, lejos del mandril
+* Esa es la dirección positiva de Z
+* cuando la HERRAMIENTA se mueve hacia el operador
+* Esa es la dirección X positiva. Algunos tornos tienen X
+* opuesto (p. ej., herramienta en la parte posterior), que funcionará bien pero
+* La pantalla gráfica AXIS no se puede hacer para reflejar esto.
+
+Cuando se utilizan mandos de retorno y / o limitadores
+LinuxCNC espera que las señales HAL sean verdaderas cuando
+El interruptor está siendo presionado / disparado.
+Si la señal es incorrecta para un interruptor de límite entonces
+LinuxCNC pensará que la máquina está al final del límite
+todo el tiempo. Si la lógica de búsqueda del interruptor de casa es incorrecta
+LinuxCNC parecerá a casa en la dirección equivocada.
+Lo que realmente está haciendo es intentar retroceder
+El interruptor de la casa.
+
+
+Decidir sobre la ubicación del interruptor de límite.
+
+Los interruptores de límite son la copia de seguridad de los límites de software en el caso
+algo eléctrico va mal por ejemplo. Servo Runaway.
+Los interruptores de límite deben colocarse de manera que la máquina no
+Golpea el extremo físico del movimiento del eje. Recuerda el eje
+pasará por el punto de contacto si se mueve rápido. Finales de carrera
+Debe estar 'bajo activo' en la máquina. p.ej. el poder corre a través
+los interruptores todo el tiempo - se dispara una pérdida de potencia (interruptor abierto).
+Si bien uno podría conectarlos a la otra forma, esto es a prueba de fallas.
+Es posible que deba invertirse para que la señal HAL en LinuxCNC
+en 'alto activo' - una VERDADERA significa que el interruptor se disparó. Cuando
+iniciando LinuxCNC si recibe una advertencia de límite y el eje NO está
+accionando el interruptor, invirtiendo la señal es probablemente el
+solución. (use HALMETER para verificar la señal HAL correspondiente
+p.ej. joint.0.pos-lim-sw-in interruptor de límite positivo del eje X)
+
+Decida la ubicación del interruptor de la casa.
+
+Si está utilizando interruptores de límite, también puede utilizar uno como
+interruptor de la casa. Un interruptor de inicio separado es útil si tiene un largo
+eje que en uso es generalmente un largo camino desde los finales de carrera o
+Mover el eje hacia los extremos presenta problemas de interferencia.
+con material.
+por ejemplo, un eje largo en un torno hace que sea difícil llegar a los límites sin tener que
+La herramienta golpea el eje, por lo que un interruptor de inicio separado más cerca de la
+medio puede ser mejor
+Si tiene un codificador con índice, el interruptor de inicio actúa como un
+Por supuesto el hogar y el índice será la ubicación real de la casa.
+
+Decidir sobre la posición de la máquina ORIGEN.
+
+ORIGEN DE LA MÁQUINA es lo que utiliza LinuxCNC para hacer referencia a todas las coordenadas del usuario
+sistemas desde.
+Se me ocurre una pequeña razón por la que tendría que estar en cualquier
+lugar. Sólo hay unos pocos códigos G que pueden acceder al
+Sistema COORDINADO A MÁQUINA (G53, G30 y G28)
+Si utiliza la opción de cambio de herramienta en G30, tener el origen en la herramienta
+Cambiar de posición puede ser conveniente. Por convención, puede ser más fácil
+Para tener el ORIGEN en el interruptor de la casa.
+
+Decidir sobre la (final) POSICIÓN DEL HOGAR.
+
+esto solo coloca el carro en una posición consistente y conveniente
+después de que LinuxCNC descubre dónde está ORIGEN.
+
+Medir / calcular las distancias de desplazamiento del eje positivo / negativo.
+
+Mueve el eje al origen. Marca una referencia en el móvil.
+Deslice y el soporte no móvil (para que estén en línea) se mueva.
+La máquina hasta el final de los límites. Medir entre las marcas que es una.
+de las distancias de viaje. Mueva la mesa al otro extremo del recorrido.
+Medir las marcas de nuevo. Esa es la otra distancia de viaje. Si el origen
+está en uno de los límites entonces la distancia de viaje será cero.
+
+(máquina) ORIGEN ::
+    El Origen es el punto cero de la MÁQUINA. (no
+    el punto cero en el que colocó el cortador / material en).
+    LinuxCNC usa este punto para referenciar todo lo demás
+    desde. Debe estar dentro de los límites del software.
+    LinuxCNC usa la ubicación del interruptor de inicio para calcular
+    la posición de origen (cuando se utilizan interruptores de casa
+    o debe configurarse manualmente si no se utilizan los interruptores de inicio.
+
+Distancia de viaje::
+    Esta es la distancia máxima que el eje puede
+    viajar en cada direccion Esto puede
+    o no se puede medir directamente
+    desde el origen hasta el interruptor de límite. Lo positivo y
+    distancias de viaje negativas deben sumar a la
+    Distancia total de viaje.
+  
+DISTANCIA POSITIVA DE VIAJE ::
+    Esta es la distancia desde la cual viaja el Eje.
+    El origen a la distancia de viaje positivo o
+    El viaje total menos el viaje negativo.
+    distancia. Lo pondrías a cero si el
+    El origen se posiciona en el límite positivo.
+    Siempre será cero o un número positivo.
+
+DISTANCIA DE VIAJE NEGATIVO ::
+    Esta es la distancia desde la cual viaja el Eje.
+    El origen a la distancia de viaje negativa.
+    o el viaje total menos el viaje positivo
+    distancia. Lo pondrías a cero si el
+    El origen se posiciona en el límite negativo.
+    Esto siempre será cero o un número negativo.
+    Si te olvidas de hacer este PNCconf negativo.
+    Lo haré internamente.
+
+(Final) POSICIÓN DE CASA ::
+    Esta es la posición que tendrá la secuencia de inicio.
+    terminar en Se hace referencia desde el origen.
+    por lo que puede ser negativo o positivo dependiendo de
+    En qué lado del Origen se encuentra.
+    Cuando en la posición de inicio (final) si
+    debes moverte en la dirección positiva para
+    llegar al Origen, entonces el número será
+    negativo.
+
+UBICACIÓN DEL INTERRUPTOR DE HOGAR ::
+    Esta es la distancia desde el interruptor de la casa a
+    el origen. Podría ser negativo o positivo.
+    Dependiendo de qué lado del Origen es
+    situado. Cuando en la ubicación de cambio de casa si
+    debes moverte en la dirección positiva para
+    llegar al Origen, entonces el número será
+    negativo. Si configura esto a cero entonces el
+    El origen estará en la ubicación del límite.
+    interruptor (más la distancia para encontrar el índice si se usa)
+    
+Home Search Velocity ::
+    Curso de velocidad de búsqueda en el hogar en unidades por minuto.
+   
+Inicio Buscar Dirección ::
+    Establece la dirección de búsqueda del interruptor de inicio
+    ya sea negativo (es decir, hacia el final de carrera negativo)
+    o positivo (es decir, hacia un final de carrera positivo)
+
+Inicio Latch Velocity ::
+    Fina velocidad de búsqueda de casa en unidades por minuto.
+
+Inicio Final Velocity ::
+    Velocidad utilizada desde la posición de cierre hasta la posición inicial (final)
+    en unidades por minuto. Se establece en 0 para la velocidad rápida máxima
+
+Dirección del pestillo de la casa ::
+    Permite ajustar la dirección del pestillo a la misma.
+    o al contrario de la dirección de búsqueda.
+
+Utilice el índice del codificador para el hogar ::
+    LinuxCNC buscará un pulso de índice de codificador mientras esté en
+    La etapa de cierre de homing.
+
+Utilizar archivo de compensación ::
+    Permite especificar un nombre de archivo Comp y el tipo.
+    Permite una compensación sofisticada. Ver << sec: sección del eje, Sección AXIS >>
+    del Capítulo INI.
+
+Utilice la compensación de contragolpe ::
+    Permite el ajuste de la compensación de retroceso simple. Poder
+    No se puede utilizar con el archivo de compensación. Ver << sec: sección del eje, Sección AXIS >>
+    del Capítulo INI.
+
+Diagrama de ayuda .AXIS
+
+image::images/pncconf-diagram-lathe.png[alt="AXIS Help Diagram"]
+
+Los diagramas deberían ayudar a demostrar un ejemplo de interruptores de límite y
+Direcciones de movimiento del eje estándar.
+En este ejemplo, el eje Z era dos interruptores de límite, el interruptor positivo se comparte
+ como un interruptor de la casa.
+El ORIGEN DE LA MÁQUINA (punto cero) se encuentra en el límite negativo.
+El borde izquierdo del carro es el pasador de disparo negativo y la derecha el
+pin de viaje positivo.
+Deseamos que la POSICIÓN FINAL DEL HOGAR esté a 4 pulgadas del ORIGEN en el
+lado positivo.
+Si el carro se moviera al límite positivo, mediríamos 10 pulgadas
+entre el límite negativo y el pin de disparo negativo.
+
+== Configuración del eje
+
+Si selecciona señales de eje, esta página está disponible para configurar el eje.
+controlar.
+
+CONSEJO: Muchas de las opciones en esta página no se mostrarán a menos que la opción correcta sea
+Seleccionado en páginas anteriores!
+
+.Configuración del husillo
+
+image :: images / pncconf-spindle-config.png [alt = "Configuración del eje"]
+
+Esta página es similar a la página de configuración del motor del eje.
+
+Hay algunas diferencias:
+
+* A menos que uno haya elegido un eje accionado por pasos, no hay aceleración o
+limitación de velocidad.
+* No hay soporte para cambios de engranajes o rangos.
+* Si seleccionó una opción de visualización de husillo VCP, entonces la escala de husillo a velocidad y
+Se pueden mostrar las configuraciones del filtro.
+* Spindle-at-speed permite a LinuxCNC esperar hasta que el husillo esté a la velocidad solicitada
+Antes de mover el eje. Esto es particularmente útil en tornos con constante
+Alimentación superficial y grandes cambios de diámetro de velocidad. Requiere cualquiera de los codificadores.
+retroalimentación o una señal digital de velocidad de giro típicamente conectada a un VFD
+conducir.
+* Si utiliza retroalimentación de codificador, puede seleccionar un ajuste de escala de velocidad de huso que
+Especifica qué tan cerca debe estar la velocidad real de la velocidad solicitada para ser
+considerado a la velocidad.
+* Si se utiliza retroalimentación de codificador, la visualización de velocidad VCP puede ser errática - la
+La configuración del filtro se puede utilizar para suavizar la pantalla. La escala del codificador debe ser
+configurado para el codificador cuenta / engranaje utilizado.
+* Si está utilizando una sola entrada para un codificador de husillo, debe agregar la línea:
+setp hm2_7i43.0.encoder.00.counter-mode 1
+(cambiando el nombre de la placa y el número de codificador a sus requisitos) en una costumbre
+Archivo HAL. Para más información, consulte la << sec: hm2-encoder, Sección de codificadores >> en Hostmot2
+Información sobre el modo de contador.
+
+ 
+
+== Opciones avanzadas
+
+Esto permite configurar los comandos HALUI y cargar la escalera clásica y la muestra.
+programas de escalera
+Si seleccionó las opciones de GLADE VCP, como para el eje de puesta a cero, habrá
+comandos que muestran.
+Consulte la sección << cha: hal-user-interface, HALUI Chapter >> para obtener más información sobre el uso personalizado
+Halcmds.
+Hay varias opciones de programa de escalera.
+El programa Estop permite que un interruptor ESTOP externo o la interfaz gráfica de usuario lancen
+un estop. También tiene una señal de bomba de lubricación temporizada.
+El Z-touch-off automático es con una placa de touch-off, el botón de apagado GLADE VCP
+y comandos especiales HALUI para establecer el origen del usuario actual en cero y rápido
+claro.
+El programa modbus serie es básicamente un programa de plantilla en blanco que configura
+Escalera clasica para modbus serie. Ver el
+<< cha: classicladder, Classicladder Chapter >> en el manual.
+  
+.Opciones avanzadas
+
+image :: images / pncconf-advanced.png [alt = "Opciones avanzadas"]
+
+== componentes HAL
+
+En esta página puede agregar componentes HAL adicionales que pueda necesitar para personalizarlos.
+Archivos HAL.
+De esta manera, uno no debería tener que editar manualmente el archivo HAL principal, mientras aún está
+permitiendo los componentes necesarios para el usuario.
+
+.HAL Componentes
+
+image :: images / pncconf-hal.png [alt = "HAL Components"]
+
+La primera selección es componentes que pncconf utiliza internamente.
+Puede configurar pncconf para cargar instancias adicionales de los componentes para su
+archivo HAL personalizado.
+
+Seleccione el número de instancias que necesitará su archivo personalizado, pncconf agregará
+Lo que necesita después de ellos.
+
+Esto significa que si necesita 2 y pncconf necesita 1 pncconf cargará 3 instancias y utilizará
+el último.
+
+Comandos de componentes personalizados ::
+
+Esta selección le permitirá cargar componentes HAL que pncconf no usa.
+Agregue el comando loadrt o loadusr, bajo el encabezado 'comando de carga'
+Agregue el comando addf bajo el encabezado 'Comando Thread'.
+Los componentes se agregarán al hilo entre la lectura de entradas y la escritura.
+de salidas, en el orden en que se escriben en el 'comando de hilo'.
+
+== Uso avanzado de PNCconf
+
+PNCconf hace todo lo posible para permitir una personalización flexible por parte del usuario.
+PNCconf es compatible con nombres de señal personalizados, carga personalizada de componentes,
+Archivos HAL personalizados y firmware personalizado.
+
+También hay nombres de señales que PNCconf siempre proporciona independientemente de las opciones
+seleccionado, para archivos HAL personalizados del usuario
+Pensando que la mayoría de las personalizaciones deberían funcionar independientemente de si posteriormente seleccionas
+Diferentes opciones en PNCConf.
+
+Eventualmente, si las personalizaciones están fuera del alcance del marco de trabajo de PNCconf
+puede usar PNCconf para construir una configuración base o usar uno de los ejemplos de LinuxCNC
+Configuraciones y solo edita a mano lo que quieras.
+
+Nombres de señales personalizadas ::
+
+Si desea conectar un componente a algo en un archivo HAL personalizado, escriba un
+Nombre de la señal única en el cuadro de entrada de combo. Ciertos componentes agregarán terminaciones
+a su nombre de señal personalizado:
+
+Los codificadores agregarán <nombre personalizado> +:
+
+* posición
+* cuenta
+* velocidad
+* habilitar índice
+* Reiniciar
+
+Steppers añadir:
+
+* habilitar
+* cuenta
+* posicion-cmd
+* posición-fb
+* velocidad-fb
+
+PWM añadir:
+
+* habilitar
+* valor
+
+Los pines GPIO solo tendrán conectado el nombre de la señal ingresada
+
+De esta manera, uno puede conectarse a estas señales en los archivos HAL personalizados y aún así
+Tienes la opción de moverlos más tarde.
+
+Nombres de señales personalizadas ::
+
+La página de Componentes de Hal se puede usar para cargar los componentes que necesita un usuario para
+personalizacion
+
+Cargando Custom Firmware ::
+
+PNCconf busca el firmware en el sistema y luego busca el archivo XML que
+Se puede convertir a lo que entiende. Estos archivos XML solo se suministran para
+Firmware lanzado oficialmente por el equipo de LinuxCNC. Para utilizar un firmware personalizado
+debe convertirlo en una matriz que PNCconf entienda y agregar su ruta de archivo
+al archivo de preferencias de PNCconf. Por defecto esta ruta busca en el escritorio
+una carpeta llamada custom_firmware y un archivo llamado firmware.py.
+
+El archivo de preferencias oculto está en el archivo de inicio del usuario, es
+llamado .pncconf-preferences y requiere uno para seleccionar 'mostrar archivos ocultos' para ver
+y editarlo. El contenido de este archivo se puede ver cuando carga por primera vez PNCconf -
+presione el botón de ayuda y mire la página de salida.
+
+Pregunte en la lista de correo o foro de LinuxCNC para obtener información sobre la conversión de firmware personalizado.
+No todo el firmware se puede utilizar con PNCconf.
+
+Archivos HAL personalizados ::
+
+Hay cuatro archivos personalizados que puede usar para agregar comandos HAL a:
+
+* custom.hal es para comandos HAL que no tienen que ejecutarse después de la interfaz GUI
+cargas Se ejecuta después del archivo de configuración HAL.
+* custom_postgui.hal es para comandos que deben ejecutarse después de que se cargue AXIS o
+Standalone PYVCP muestra cargas.
+* custom_gvcp.hal es para comandos que deben ejecutarse después de cargar glade VCP.
+* shutdown.hal es para que los comandos se ejecuten cuando LinuxCNC se apaga de manera controlada.
+
+// vim: establece la sintaxis = asciidoc:
+

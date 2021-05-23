@@ -40,7 +40,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         if self.w.PREFS_:
-            print 'Using preference file:',self.w.PREFS_.fn
+            print('Using preference file:',self.w.PREFS_.fn)
 
     ########################
     # callbacks from STATUS #

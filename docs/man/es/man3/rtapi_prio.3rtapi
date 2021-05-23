@@ -1,0 +1,47 @@
+.TH rtapi_prio "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_prio \- funciones de prioridad de hilo
+
+.SH SINTAXIS
+.HP
+int rtapi_prio_highest()
+.HP
+int rtapi_prio_lowest()
+.HP
+int rtapi_prio_next_higher(int \fIprio\fR)
+.HP
+int rtapi_prio_next_lower(int \fIprio\fR)
+
+.SH ARGUMENTOS
+.IP \fIprio\fR
+Un valor devuelto por una llamada previa \fBrtapi_prio_xxx\fR
+
+.SH DESCRIPCIÓN
+Las funciones \fBrtapi_prio_xxxx\fR proporcionan una forma portátil de configurar
+prioridad de tareas. La asignación de la prioridad real al número de prioridad depende del
+RTOS. Las prioridades varían de \fBrtapi_prio_lowest\fR a
+\fBrtapi_prio_highest\fR, inclusive. Para usar esta API, use uno de dos métodos:
+
+.IP 1)
+Establezca su tarea de menor prioridad en \fBrtapi_prio_lowest\fR, y para
+cada tarea de la siguiente prioridad más baja, establezca sus prioridades en
+\fBrtapi_prio_next_higher(anterior)\fR.
+
+.IP 2)
+Establezca su tarea de mayor prioridad en \fBrtapi_prio_highest\fR, y
+para cada tarea de la siguiente prioridad más alta, establezca sus prioridades
+a \fBrtapi_prio_next_lower(anterior)\fR.
+
+.PP
+nótese que una tarea de alta prioridad se adelantará o interrumpirá una tarea de prioridad menor.
+¡Linux es siempre la prioridad más baja!
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame a estas funciones solo desde el código de inicio/limpieza, no desde tiempo real.
+
+.SH VALOR DEVUELTO
+Devuelve un número de prioridad opaco en tiempo real.
+
+.SH VER TAMBIÉN
+\fBrtapi_task_new(3rtapi)\fR

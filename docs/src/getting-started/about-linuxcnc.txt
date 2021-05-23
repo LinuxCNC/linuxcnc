@@ -50,7 +50,7 @@ It is a live connection to other LinuxCNC users.
 The LinuxCNC IRC channel is #linuxcnc on freenode.
 
 The simplest way to get on the IRC is to use 
-the embedded java client on this 
+the embedded client on this 
 https://webchat.freenode.net/?channels=%23linuxcnc[page].
 
 .Some IRC etiquette

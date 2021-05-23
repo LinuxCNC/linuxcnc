@@ -561,7 +561,7 @@
                         <child>
                           <object class="GtkLabel" id="lbl_treshold">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Treshold %</property>
+                            <property name="label" translatable="yes">Threshold %</property>
                           </object>
                           <packing>
                             <property name="right_attach">2</property>

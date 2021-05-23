@@ -1,0 +1,48 @@
+# Keep your PlasmaC I/O connections here to prevent them from
+# being overwritten by updates or pncconf/stepconf changes
+
+# Other customisations may be placed here as well
+# This file is built by the configurator in your configuration directory
+
+#***** DEBOUNCE FOR THE INPUTS *****
+loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
+addf db_float     servo-thread
+addf db_ohmic     servo-thread
+addf db_breakaway servo-thread
+addf db_arc-ok    servo-thread
+# for the float and ohmic inputs
+# each increment in delay is a 0.001mm (0.00004") increase in any probed height result
+setp db_float.delay     5
+setp db_ohmic.delay     5
+setp db_breakaway.delay 5
+setp db_arc-ok.delay    5
+
+#***** ARC VOLTAGE LOWPASS FILTER *****
+#***** set to the cutoff frequency only if required *****
+setp plasmac.lowpass-frequency 0
+
+#***** THE JOINT ASSOCIATED WITH THE Z AXIS *****
+net plasmac:axis-position   joint.3.pos-fb                 =>  plasmac.axis-z-position
+
+#***** MODE 0 CONNECTIONS ****
+#net plasmac:arc-voltage-in  ***YOUR_PLASMA_ARC_VOLTAGE***  =>  plasmac.arc-voltage-in
+
+#***** MODE 1 CONNECTIONS ****
+#net plasmac:arc-voltage-in  ***YOUR_PLASMA_ARC_VOLTAGE***  =>  plasmac.arc-voltage-in
+#net plasmac:arc-ok-in       ***YOUR_PLASMA_ARC_OK***       =>  db_arc-ok.in
+
+#***** MODE 2 CONNECTIONS ****
+#net plasmac:arc-ok-in       ***YOUR_PLASMA_ARC_OK***       =>  db_arc-ok.in
+#net plasmac:move-down       ***YOUR_MOVE_DOWN_SIGNAL***    =>  plasmac.move-down
+#net plasmac:move-up         ***YOUR_MOVE_UP_SIGNAL***      =>  plasmac.move-up
+
+#***** COMMON CONNECTIONS *****
+#net plasmac:float-switch    ***YOUR_FLOAT_SWITCH***        =>  db_float.in
+#net plasmac:breakaway       ***YOUR_BREAKAWAY_SWITCH***    =>  db_breakaway.in
+#net plasmac:ohmic-probe     ***YOUR_OHMIC_PROBE***         =>  db_ohmic.in
+#net plasmac:torch-on                                       =>  ***YOUR_TORCH_ON***
+#net plasmac:ohmic-enable    plasmac.ohmic-enable           =>  ***YOUR_OHMIC_PROBE_ENABLING_CIRCUIT***
+
+#***** SCRIBE CONNECTIONS *****
+#net plasmac:scribe-arm plasmac.scribe-arm => ***YOUR_SCRIBE_ARMING_OUTPUT***
+#net plasmac:scribe-on  plasmac.scribe-on  => ***YOUR_SCRIBE_ON_OUTPUT***

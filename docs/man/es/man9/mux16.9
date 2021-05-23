@@ -1,0 +1,73 @@
+.TH MUX16 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+mux16 \- Select from one of sixteen input values
+.SH SYNOPSIS
+.HP
+.B loadrt mux16 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmux16.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B mux16.\fIN\fB.use-graycode\fR bit in \fR
+This signifies the input will use Gray code instead of binary.
+Gray code is a good choice when using physical switches because
+for each increment only one select input changes at a time.
+
+.TP
+.B mux16.\fIN\fB.suppress-no-input\fR bit in \fR
+This suppresses changing the output if all select lines are false.
+This stops unwanted jumps in output between transitions of input.
+but make in00 unavaliable.
+
+.TP
+.B mux16.\fIN\fB.debounce-time\fR float in \fR
+sets debouce time in seconds.  eg. .10 = a tenth of a second
+input must be stable this long before outputs changes. This
+helps to ignore 'noisy' switches.
+
+.TP
+.B mux16.\fIN\fB.sel\fIM\fB\fR bit in  (M=0..3) \fR
+Together, these determine which \fBin\fIN\fR value is copied to \fBout\fR.
+
+.TP
+.B mux16.\fIN\fB.out-f\fR float out \fR
+.TQ
+.B mux16.\fIN\fB.out-s\fR s32 out \fR
+Follows the value of one of the \fBin\fIN\fR values according to the four \fBsel\fR values
+and whether use-graycode is active.
+The s32 value will be trunuated and limited to the max and min values of signed values. 
+.RS
+.TP
+\fBsel3=FALSE\fR, \fBsel2=FALSE\fR, \fBsel1=FALSE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin0\fR
+.TP
+\fBsel3=FALSE\fR, \fBsel2=FALSE\fR, \fBsel1=FALSE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin1\fR
+.TP
+etc.
+.RE
+
+.TP
+.B mux16.\fIN\fB.in\fIMM\fB\fR float in  (MM=00..15) \fR
+array of selectable outputs
+.SH PARAMETERS
+.TP
+.B mux16.\fIN\fB.elapsed\fR float r \fR
+Current value of the internal debounce timer
+ for debugging.
+.TP
+.B mux16.\fIN\fB.selected\fR s32 r \fR
+Current value of the internal selection variable after conversion
+ for debugging
+.SH LICENSE
+
+GPL

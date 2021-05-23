@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # qtvcp
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -29,7 +29,7 @@ from qtvcp import logger
 # LOG is for running code logging
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
@@ -70,7 +70,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             if i.indexOf(widget) > -1:
                 #print i.layout(), widget.objectName(), i.objectName()
                 return i.layout(), i.indexOf(widget)
-        print widget.parent()
+        print(widget.parent())
         LOG.error('No layout found for {}'.format(widget))
         return widget.parent(),None
 
@@ -86,8 +86,12 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             num = n+1
             if num == number:
                 #print 'switch to ',obj[0],' tp ',self.widget(num).layout().objectName()
-                #print num, self.widget(num).objectName()
-                self.widget(num).layout().addWidget(obj[0])
+                #print num, self.widget(num).objectName(),self.widget(num).layout()
+                if self.widget(num).layout() is None:
+                    LOG.error('''Cannot move widget '{}' to widget '{}', No layout found in '{}'
+'''.format( obj[0].objectName(),self.widget(num).objectName(), self.widget(num).objectName()))
+                else:
+                    self.widget(num).layout().addWidget(obj[0])
                 self.setCurrentIndex(num)
                 self._current_object = obj
                 self._current_number = num
@@ -115,8 +119,8 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
                     obj[0].setParent(obj[1])
                 obj[0].show()
 
-    # show the stacked widget as orignally layed out (hopefully)
-    # This will set the stacked widget to diplay the first page
+    # show the stacked widget as originally laid out (hopefully)
+    # This will set the stacked widget to display the first page
     # which is index 0
     def show_default(self):
         for i in self._widgetNames:

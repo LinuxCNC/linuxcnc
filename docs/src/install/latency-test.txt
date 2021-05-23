@@ -95,7 +95,7 @@ LinuxCNC does not require bleeding edge hardware.
 For more information on stepper tuning see the 
 <<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
 
-Additional command line tools are availalbe for examining latency
+Additional command line tools are available for examining latency
 when LinuxCNC is not running.
 
 latency-plot makes a strip chart recording for a base and a servo

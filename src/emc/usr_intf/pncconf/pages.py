@@ -46,6 +46,8 @@ class Pages:
         debug = self.a.debugstate
         global dbg
         dbg = self.a.dbg
+        # can only save data after selecting a config name
+        self.savable_flag = False
 
 #********************
 # Notebook Controls
@@ -60,9 +62,17 @@ class Pages:
         self.a.print_image('map_7i76')
     def on_print_7i77_button_clicked(self,widget):
         self.a.print_image('map_7i77')
+    def on_button_save_clicked(self, widget):
+        self.a.save()
 
     def on_window1_destroy(self, *args):
-        if self.a.warning_dialog (self._p.MESS_ABORT,False):
+        if self.savable_flag:
+            if self.a.quit_dialog():
+                gtk.main_quit()
+                return True
+            else:
+                return True
+        elif self.a.warning_dialog(self._p.MESS_QUIT,False):
             gtk.main_quit()
             return True
         else:
@@ -197,6 +207,7 @@ class Pages:
         self.w.xencoderscale.realize()
         self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
         self.w.window1.set_geometry_hints(min_width=750)
+        self.w.button_save.set_visible(False)
 
 #************
 # INTRO PAGE
@@ -212,6 +223,7 @@ class Pages:
     def start_prepare(self):
         self.d.help = "help-load.txt"
         # search for firmware packages
+        self.w.button_save.set_visible(False)
 
     def start_finish(self):
 
@@ -221,6 +233,7 @@ class Pages:
             state = True
         else:
             state = False
+        self.w.input_tab.set_visible(state)
         self.d.advanced_option = state
         self.page_set_state(['options','external','realtime'],state)
         self.d.createsymlink = self.w.createsymlink.get_active()
@@ -271,6 +284,8 @@ class Pages:
         self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
         self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
         self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
+        #self.w.button_save.set_visible(True)
+        self.savable_flag = True
 
     def base_finish(self):
         machinename = self.w.machinename.get_text()
@@ -418,18 +433,47 @@ class Pages:
         self.w.editor.set_text(self.d.editor)
         if self.d.units == self._p._IMPERIAL :
             temp = self.d.increments_imperial
+            temp1 = self.d.increments_imperial_qtplasmac
             tempunits = _("in / min")
         else:
             temp = self.d.increments_metric
+            temp1 = self.d.increments_metric_qtplasmac
             tempunits = _("mm / min")
         self.w.increments.set_text(temp)
-        for i in (0,1,2):
+        # qtplasmc has its different increments
+        self.w.increments_qtplasmac.set_text(temp1)
+        for i in (0,1,2,3,4,5):
             self.w["velunits"+str(i)].set_text(tempunits)
         self.w.position_offset.set_active(self.d.position_offset)
         self.w.position_feedback.set_active(self.d.position_feedback)
         self.w.geometry.set_text(self.d.geometry)
         self.a.read_touchy_preferences()
         self.w.axisforcemax.set_active(self.d.axisforcemax)
+        # set the qtplasmac radiobuttons
+        if self.d.qtplasmacmode == 2:
+            self.w.qtplasmac_mode_2.set_active(True)
+        elif self.d.qtplasmacmode == 1:
+            self.w.qtplasmac_mode_1.set_active(True)
+        else:
+            self.w.qtplasmac_mode.set_active(True)
+        if self.d.qtplasmacscreen == 2:
+            self.w.qtplasmac_screen_2.set_active(True)
+        elif self.d.qtplasmacscreen == 1:
+            self.w.qtplasmac_screen_1.set_active(True)
+        else:
+            self.w.qtplasmac_screen.set_active(True)
+        if self.d.qtplasmacestop == 2:
+            self.w.qtplasmac_estop_2.set_active(True)
+        elif self.d.qtplasmacestop == 1:
+            self.w.qtplasmac_estop_1.set_active(True)
+        else:
+            self.w.qtplasmac_estop.set_active(True)
+        # set the qtplasmac spinboxes
+        self.w.qtplasmac_cam_x.set_value(self.d.qtplasmacxcam)
+        self.w.qtplasmac_cam_y.set_value(self.d.qtplasmacycam)
+        self.w.qtplasmac_laser_x.set_value(self.d.qtplasmacxlaser)
+        self.w.qtplasmac_laser_y.set_value(self.d.qtplasmacylaser)
+        self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
         for i in ("touchy","axis"):
             self.w[i+"size"].set_active(self.d[i+"size"][0])
@@ -466,6 +510,19 @@ class Pages:
         self.d.touchytheme = self.w.touchytheme.get_active_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
         self.d.axisforcemax = self.w.axisforcemax.get_active()
+        # set the qtplasmac variables
+        self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
+        self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
+        self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacxcam = self.w.qtplasmac_cam_x.get_value()
+        self.d.qtplasmacycam = self.w.qtplasmac_cam_y.get_value()
+        self.d.qtplasmacxlaser = self.w.qtplasmac_laser_x.get_value()
+        self.d.qtplasmacylaser = self.w.qtplasmac_laser_y.get_value()
+        self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
+        if self.d.units == self._p._IMPERIAL:
+            self.d.increments_imperial_qtplasmac = self.w.increments_qtplasmac.get_text()
+        else:
+            self.d.increments_metric_qtplasmac = self.w.increments_qtplasmac.get_text()
 
         for i in ("touchy","axis"):
             self.d[i+"size"][0] = self.w[i+"size"].get_active()
@@ -485,24 +542,57 @@ class Pages:
 
     def on_combo_screentype_changed(self,w):
         if w.get_active()+1 == self._p._AXIS:
+            self.w.Options1.show()
             self.w.axis_info.set_expanded(True)
             self.w.axis_info.show()
             self.w.gmcpy_info.hide()
             self.w.touchy_info.hide()
+            self.w.qtplasmac_info.hide()
+            self.page_set_state('vcp', True)
+            self.page_set_state('ubuttons', False)
         elif w.get_active()+1 == self._p._TOUCHY:
+            self.w.Options1.show()
             self.w.touchy_info.set_expanded(True)
             self.w.touchy_info.show()
             self.w.gmcpy_info.hide()
             self.w.axis_info.hide()
+            self.w.qtplasmac_info.hide()
+            self.page_set_state('vcp', True)
+            self.page_set_state('ubuttons', False)
         elif w.get_active()+1 == self._p._TKLINUXCNC:
+            self.w.Options1.show()
             self.w.axis_info.hide()
             self.w.gmcpy_info.hide()
             self.w.touchy_info.hide()
+            self.w.qtplasmac_info.hide()
+            self.page_set_state('vcp', True)
+            self.page_set_state('ubuttons', False)
         elif w.get_active()+1 == self._p._GMOCCAPY:
+            self.w.Options1.show()
             self.w.gmcpy_info.set_expanded(True)
             self.w.gmcpy_info.show()
             self.w.axis_info.hide()
             self.w.touchy_info.hide()
+            self.w.qtplasmac_info.hide()
+            self.page_set_state('vcp', True)
+            self.page_set_state('ubuttons', False)
+        elif w.get_active()+1 == self._p._QTDRAGON:
+            self.w.Options1.show()
+            self.w.gmcpy_info.hide()
+            self.w.axis_info.hide()
+            self.w.touchy_info.hide()
+            self.w.qtplasmac_info.hide()
+            self.page_set_state('vcp', True)
+            self.page_set_state('ubuttons', False)
+        elif w.get_active()+1 == self._p._QTPLASMAC:
+            self.w.Options1.hide()
+            self.w.qtplasmac_info.set_expanded(True)
+            self.w.qtplasmac_info.show()
+            self.w.axis_info.hide()
+            self.w.gmcpy_info.hide()
+            self.w.touchy_info.hide()
+            self.page_set_state('vcp', False)
+            self.page_set_state('ubuttons', True)
 
     def on_halui_toggled(self, *args):
         i= self.w.halui.get_active()
@@ -650,7 +740,21 @@ class Pages:
         self.t.display_gladevcp_panel()
 
 #************
-# EXTERAL PAGE
+# UBUTTONS (QtPlasmaC User Buttons)
+#************
+    def ubuttons_prepare(self):
+        self.d.help = "help-ubuttons.txt"
+        for ub in range(1, 21):
+            self.w["bname_{}".format(ub)].set_text(self.d.qtplasmac_bnames[ub-1])
+            self.w["bcode_{}".format(ub)].set_text(self.d.qtplasmac_bcodes[ub-1])
+
+    def ubuttons_finish(self):
+        for ub in range(1, 21):
+            self.d.qtplasmac_bnames[ub-1] = self.w["bname_{}".format(ub)].get_text()
+            self.d.qtplasmac_bcodes[ub-1] = self.w["bcode_{}".format(ub)].get_text()
+
+#************
+# EXTERNAL PAGE
 #************
     def external_prepare(self):
         self.d.help = "help-extcontrols.txt"
@@ -1131,6 +1235,27 @@ class Pages:
             self.w['pp2_Opin%s_out_box'%i].set_visible(state)
 
     def on_parportpanel_clicked(self, *args):self.t.parporttest(self)
+
+#************
+# THCAD (QtPlasmaC THCAD)
+#************
+    def thcad_prepare(self):
+        self.d.help = "help-thcad.txt"
+        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
+        self.w.voltszerof.set_value(self.d.voltszerof)
+        self.w.voltsfullf.set_value(self.d.voltsfullf)
+        self.w.voltsrdiv.set_value(self.d.voltsrdiv)
+        self.w.voltsenc.set_active(["ENCA", "ENCB", "IDX"].index(self.d.voltsenc))
+
+    def thcad_finish(self):
+        self.d.voltsmodel = self.w.voltsmodel.get_active_text()
+        self.d.voltsfjumper = self.w.voltsfjumper.get_active_text()
+        self.d.voltszerof = self.w.voltszerof.get_value()
+        self.d.voltsfullf = self.w.voltsfullf.get_value()
+        self.d.voltsrdiv = self.w.voltsrdiv.get_value()
+        self.d.voltsenc = self.w.voltsenc.get_active_text()
+
 #************
 # X_MOTOR PAGE
 #************
@@ -1202,6 +1327,7 @@ class Pages:
 #************
     def z_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def z_axis_finish(self):
         self.a.axis_done('z')
 #************
@@ -1226,6 +1352,7 @@ class Pages:
 #************
     def a_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        self.savable_flag = True
     def a_axis_finish(self):
         self.a.axis_done('a')
 #************
@@ -1356,6 +1483,7 @@ different program to copy to your configuration file.\nThe edited program will b
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
             self.d._components_is_prepared = True
+        self.savable_flag = True
 
     def realtime_finish(self):
         self.d.userneededpid = int(self.w.userneededpid.get_value())
@@ -1396,6 +1524,8 @@ different program to copy to your configuration file.\nThe edited program will b
     def finished_finish(self):
         self.a.clean_unused_ports()
         self.a.buid_config()
+        self.savable_flag = False
+
 #**************
 # tune test
 #**************
@@ -1437,6 +1567,7 @@ different program to copy to your configuration file.\nThe edited program will b
 ######################
     def on_discovery_interface_combobox_changed(self,w):
         self.a.discovery_interface_combobox_changed(w)
+
 # BOILER CODE
     def __getitem__(self, item):
         return getattr(self, item)

@@ -50,7 +50,7 @@ import sys
 
 Hal pins are created with the normal Python "hal" library, and are not
 specific to Vismach. Further details can be found in the <<cha:halmodule,
-Creating Userpace Components in Python>> section.
+Creating Userspace Components in Python>> section.
 A component should be created with a name that matches the script file name and
 then the HAL pins are added to that component. They will be referenced by their
 component handle and short name when used to animate the Vismach model.
@@ -147,7 +147,7 @@ Rotate the part by angle theta about an axis between the origin and x, y, z.
 To animate the model (controlled by the values of HAL pins) there are two
 functions 'HalTranslate' and 'HalRotate'. For parts to move inside an assembly
 they need to have their HAL motions defined before being assembled with the
-"Collection" command. The rotation axis and and translation vector move with the
+"Collection" command. The rotation axis and translation vector move with the
 part as it is moved by the vismach script during model assembly, or as it moves
 in response to the HAL pins as the model is animated.
 

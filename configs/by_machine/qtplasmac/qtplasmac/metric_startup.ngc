@@ -1,0 +1,12 @@
+o<metric_startup> sub
+G21
+G40
+G49
+G64P0.1
+G80
+G90
+G92.1
+G94
+G97
+M52P1
+o<metric_startup> endsub

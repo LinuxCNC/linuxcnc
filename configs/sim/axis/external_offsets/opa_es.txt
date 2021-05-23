@@ -1,0 +1,45 @@
+opa.ini Offset por Ángulo
+
+Demuestra offsets externos utilizando
+el componente hal: eoffset_per_angle.
+
+Una simulación para una máquina XZC 
+desplaza la coordenada transversal 
+(X) basada en el ángulo de la 
+coordenada giratoria (C).
+
+($ man eoffset_per_angle)
+
+Uso:
+  1) Estop OFF (F1)
+  2) Máquina ON (F2)
+  3) HOME Todo (Ctrl-Inicio)
+  4) Ejecutar (R)
+  5) Activar/Desactivar offsets usando
+     los botones de encendido/apagado
+     del panel pyvcp
+  6) Seleccionar parámetros:
+       Ainicio --- ángulo de inicio
+       fmult ----- multiplicador de frecuencia
+       rfracción - amplitud (fracción de radio)
+       func ------ función
+                   0 polígono (dentro)
+                   1 polígono (exterior)
+                   2 ondas sinusoidales
+                   Onda cuadrada 3
+
+Notas:
+
+1) El radio efectivo utilizado para 
+   calcular los offsets externos se 
+   establece utilizando el pin de 
+   movimiento motion.analog-out-00
+   y controlado por el programa de 
+   muestra o por MDI (M68 E0 Q valor_radio)
+
+2) La fidelidad del offset depende de 
+   la configuración de archivos para 
+   los elementos de [AXIS_X]:
+     MAX_VELOCITY
+     MAX_ACCELERATION
+     OFFSET_AV_RATIO

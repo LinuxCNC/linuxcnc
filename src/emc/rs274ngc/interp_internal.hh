@@ -13,6 +13,7 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include <locale.h>
 #include <algorithm>
 #include "config.h"
 #include <limits.h>
@@ -28,6 +29,7 @@
 #include "interp_parameter_def.hh"
 #include "interp_fwd.hh"
 #include "interp_base.hh"
+#include "tooldata.hh"
 
 
 #define _(s) gettext(s)
@@ -684,7 +686,7 @@ struct setup
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
     double tolerance;           // G64 blending tolerance
     double naivecam_tolerance;  // G64 naive cam tolerance
-  int current_pocket;             // carousel slot number of current tool
+  int current_pocket;             // carousel slot (index) number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position
   double current_z;             // current Z-axis position
@@ -741,7 +743,7 @@ struct setup
   double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int random_toolchanger;       // tool changer swaps pockets, and pocket 0 is the spindle instead of "no tool"
-  int selected_pocket;          // tool slot selected but not active
+  int selected_pocket;          // tool slot (index) selected but not active
     int selected_tool;          // start switchover to pocket-agnostic interp
   int sequence_number;          // sequence number of line last read
   int num_spindles;				// number of spindles available
@@ -754,7 +756,6 @@ struct setup
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset
-  int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
   double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET
@@ -990,5 +991,14 @@ macros totally crash-proof. If the function call stack is deeper than
        CHP(call); \
      }
 
+;
 
+struct scoped_locale {
+    scoped_locale(int category_, const char *locale_) : category(category_), oldlocale(setlocale(category, NULL)) { setlocale(category, locale_); }
+    ~scoped_locale() { setlocale(category, oldlocale); }
+    int category;
+    const char *oldlocale;
+};
+
+#define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
 #endif // INTERP_INTERNAL_HH

@@ -28,6 +28,7 @@ import linuxcnc
 import hal, hal_glib
 from   gladevcp.persistence import widget_defaults,select_widgets
 import gladevcp
+import tarfile
 
 class HandlerClass:
 
@@ -37,16 +38,45 @@ class HandlerClass:
     def on_reload_clicked(self,widget,data=None):
         self.load_settings()
 
+    def on_backup_clicked(self,widget):
+            outPath = '{}'.format(os.path.expanduser('~'))
+            outName = '{}_v{}.tar.gz'.format(self.i.find('EMC', 'MACHINE'), self.plasmacVersion.split('v')[1])
+            configDir = os.path.realpath(os.path.dirname(os.environ['INI_FILE_NAME']))
+            with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
+                archive.add('{}'.format(configDir), filter=self.tar_filter)
+            msg  = 'A compressed backup of the machine configuration\n'
+            msg += 'has been saved in your home directory.\n\n'
+            msg += 'The file name is: {}\n\n'.format(outName)
+            msg += 'This file may be attached to a post on the\n'
+            msg += 'LinuxCNC forum to aid in problem solving.\n\n'
+            md = gtk.MessageDialog(self.W, 
+                                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                                   gtk.MESSAGE_INFO, 
+                                   gtk.BUTTONS_CLOSE,
+                                   msg)
+            md.set_title('Config Backup')
+            md.set_keep_above(True)
+            md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+            md.run()
+            md.destroy()
+
+    def tar_filter(self, tarinfo):
+         if os.path.splitext(tarinfo.name)[1] in ['.pyc']:
+              return None
+         else:
+              return tarinfo
+
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
 
     def configure_widgets(self):
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
+        self.builder.get_object('version-label').set_text(self.plasmacVersion.strip('PlasmaC '))
         self.builder.get_object('arc-fail-delay').set_digits(1)
         self.builder.get_object('arc-fail-delay-adj').configure(3,0.1,60,0.1,0,0)
         self.builder.get_object('arc-ok-low').set_digits(0)
-        self.builder.get_object('arc-ok-low-adj').configure(30,0,100,1,0,0)
+        self.builder.get_object('arc-ok-low-adj').configure(60,0,100,1,0,0)
         self.builder.get_object('arc-ok-high').set_digits(0)
         self.builder.get_object('arc-ok-high-adj').configure(99999,0,99999,1,0,0)
         self.builder.get_object('arc-max-starts').set_digits(0)
@@ -57,8 +87,8 @@ class HandlerClass:
         self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.001,0,0)
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
-        self.builder.get_object('spotting-threshold').set_digits(1)
-        self.builder.get_object('spotting-threshold-adj').configure(0,0,199,0.1,0,0)
+        self.builder.get_object('spotting-threshold').set_digits(0)
+        self.builder.get_object('spotting-threshold-adj').configure(0,0,199,1,0,0)
         self.builder.get_object('spotting-threshold').set_value(0.0)
         self.builder.get_object('spotting-time').set_digits(0)
         self.builder.get_object('spotting-time-adj').configure(0,0,9999,1,0,0)
@@ -89,11 +119,11 @@ class HandlerClass:
         self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('float-switch-travel').set_digits(2)
-            self.builder.get_object('float-switch-travel-adj').configure(1.5,0,25,0.01,0,0)
+            self.builder.get_object('float-switch-travel-adj').configure(1.5,-25,25,0.01,0,0)
             self.builder.get_object('height-per-volt').set_digits(3)
             self.builder.get_object('height-per-volt-adj').configure(0.1,0.025,0.2,0.01,0,0)
             self.builder.get_object('ohmic-probe-offset').set_digits(2)
-            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-25,0,0.01,0,0)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-25,+25,0.01,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(0)
             self.builder.get_object('probe-feed-rate-adj').configure(300,1,self.thcFeedRate,1,0,0)
             self.builder.get_object('probe-start-height').set_digits(0)
@@ -107,11 +137,11 @@ class HandlerClass:
             self.builder.get_object('skip-ihs-distance').set_value(0)
         elif self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
             self.builder.get_object('float-switch-travel').set_digits(3)
-            self.builder.get_object('float-switch-travel-adj').configure(0.06,0,1,0.001,0,0)
+            self.builder.get_object('float-switch-travel-adj').configure(0.06,-1,1,0.001,0,0)
             self.builder.get_object('height-per-volt').set_digits(4)
             self.builder.get_object('height-per-volt-adj').configure(0.004,0.001,0.008,0.001,0,0)
             self.builder.get_object('ohmic-probe-offset').set_digits(3)
-            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-1,0,0.001,0,0)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-1,1,0.001,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(1)
             self.builder.get_object('probe-feed-rate-adj').configure(12,0.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('probe-start-height').set_digits(2)
@@ -213,7 +243,8 @@ class HandlerClass:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
             fSize = int(font.split()[1])
-            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+#            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+            font = '{} {}'.format(font.split()[0],fSize - 1)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
@@ -268,7 +299,7 @@ class HandlerClass:
         try:
             with open(self.configFile, 'w') as f_out:
                 f_out.write('# plasmac config tab configuration file\n# format is: name = value\n\n')
-                f_out.write('version=0.1\n\n')
+                f_out.write('version={}\n\n'.format(self.plasmacVersion))
                 for key in sorted(self.configDict.iterkeys()):
                     if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                         self.builder.get_object(key).update()
@@ -286,7 +317,7 @@ class HandlerClass:
     def upgrade_check(self):
         with open(self.configFile, 'r') as f_in:
             for line in f_in:
-                if line.startswith('version=0.1'):
+                if line.startswith('version='):
                     return
                 elif line.startswith('arc-fail-delay'):
                     break
@@ -319,6 +350,8 @@ class HandlerClass:
                     self.builder.get_object(key).update()
 
     def __init__(self, halcomp,builder,useropts):
+        self.plasmacVersion = 'PlasmaC v0.191'
+        self.W = gtk.Window()
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])

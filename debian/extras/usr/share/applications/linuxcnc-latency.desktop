@@ -6,7 +6,8 @@ Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
 Name=Latency Test
-Comment=Test your computers's latency
+Comment=Determine your machine's latency
 StartupNotify=false
-Categories=X-CNC;
-Keywords=cnc;linuxcnc;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;
+

@@ -177,7 +177,7 @@ int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion * const q)
     double sh;
 
     a *= 0.5;
-    sincos(a, &sh, &(q->s));
+    pm_sincos(a, &sh, &(q->s));
 
     switch (axis) {
     case PM_X:
@@ -239,7 +239,7 @@ int pmRotQuatConvert(PmRotationVector const * const r, PmQuaternion * const q)
 	return pmErrno = 0;
     }
 
-    sincos(r->s / 2.0, &sh, &(q->s));
+    pm_sincos(r->s / 2.0, &sh, &(q->s));
 
     if (q->s >= 0.0) {
 	q->x = r->x * sh;
@@ -268,7 +268,7 @@ int pmRotMatConvert(PmRotationVector const * const r, PmRotationMatrix * const m
     }
 #endif
 
-    sincos(r->s, &s, &c);
+    pm_sincos(r->s, &s, &c);
 
     /* from space book */
     m->x.x = c + pmSq(r->x) * (omc = 1 - c);	/* omc = One Minus Cos */
@@ -1087,7 +1087,7 @@ int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
 #endif
 
     angle *= 0.5;
-    sincos(angle, &sh, &ch);
+    pm_sincos(angle, &sh, &ch);
 
     switch (axis) {
     case PM_X:

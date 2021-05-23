@@ -208,6 +208,8 @@ typedef struct {
 
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
+
+    hal_float_t *feed_upm; /* feed units per minute*/
 } emcmot_hal_data_t;
 
 /***********************************************************************
@@ -359,5 +361,4 @@ int joint_is_lockable(int joint_num);
 #define HAVE_CPU_KHZ
 #endif
 
-#define EOFFSET_EPSILON  1e-8
 #endif /* MOT_PRIV_H */

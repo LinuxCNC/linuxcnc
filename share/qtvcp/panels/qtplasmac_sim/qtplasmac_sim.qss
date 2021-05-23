@@ -1,0 +1,39 @@
+/****** DEFAULT ************/
+* {
+    color: #ffee06;
+    background: #16160e;
+    font: 10pt Lato }
+
+/****** BUTTONS ************/
+QPushButton {
+    color: #ffee06;
+    background: #16160e;
+    border: 1px solid #ffee06;
+    border-radius: 4px;
+}
+
+/****** SLIDER ************/
+QSlider::groove:horizontal {
+    background: gray;
+    border-radius: 4px;
+    height: 20px }
+
+QSlider::handle:horizontal {
+    background: #ffee06;
+    border: 0px solid #ffee06;
+    border-radius: 4px;
+    width: 24px }
+
+QSlider::add-page:horizontal {
+    background: #36362e;
+    border: 1px solid #36362e;
+    border-radius: 4px }
+
+QSlider::sub-page:horizontal {
+    background: #36362e;
+    border: 1px solid #36362e;
+    border-radius: 4px }
+
+Line {
+    background: red;
+}

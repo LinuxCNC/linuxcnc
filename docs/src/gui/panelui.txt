@@ -55,7 +55,7 @@ loadusr -W panelui -d
 # so we load the sim_matrix_kb component to convert HAL pins to keyscan codes
 loadrt sim_matrix_kb
 
-# connect the compnents together.
+# connect the components together.
 # sampler talks to panelui internally
 net key-scan    sim-matrix-kb.0.out
 net key-scan    sampler.0.pin.0
@@ -86,7 +86,7 @@ ROW number and column number eg R1C2. A row and column can only be used once.
 [HAL_PREFIX]
     NAME= Yourname 
 ----
-This allows one to change the prefix of the HAL pins from 'panelui' to an arbritary name.
+This allows one to change the prefix of the HAL pins from 'panelui' to an arbitrary name.
 
 .*Radio Buttons*
 Radiobutons allow only one button in the group to be active at a time. +

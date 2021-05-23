@@ -188,7 +188,7 @@ if \fIsigname\fR does not exist.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
 (OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIs\fRignal)
-Establishs a link between a HAL component pin \fIpinname\fR and
+Establishes a link between a HAL component pin \fIpinname\fR and
 a HAL signal \fIsigname\fR.  Any previous link to \fIpinname\fR will be
 broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
 or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
@@ -381,6 +381,9 @@ Removes any alias from the pin or parameter alias.
   Prints status info about HAL.
   'type' is '\fBlock\fR', '\fBmem\fR', or '\fBall\fR'.
   If 'type' is omitted, it assumes '\fBall\fR'.
+.TP
+\fBdebug\fR [\fIlevel\fR]
+  Sets the rtapi messaging level (see man3 rtapi_set_msg_level)
 .TP
 \fBhelp\fR [\fIcommand\fR]
   Give help information for command.

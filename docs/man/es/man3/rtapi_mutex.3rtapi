@@ -1,0 +1,38 @@
+.TH rtapi_mutex "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_mutex \- Funciones relacionadas con Mutex
+
+.SH SINTAXIS
+.B #include <rtapi_mutex.h>
+.sp
+.BI "int rtapi_mutex_try(unsigned long *" mutex ");"
+.br
+.BI "int rtapi_mutex_get(unsigned long *" mutex ");"
+.br
+.BI "int rtapi_mutex_give(unsigned long *" mutex ");"
+
+.SH ARGUMENTOS
+.IP \ fImutex\fR
+Un puntero al mutex.
+
+.SH DESCRIPCIÓN
+\fBrtapi_mutex_try\fR realiza un intento sin bloqueo para obtener el mutex.
+Si el mutex está disponible, devuelve 0 y el mutex ya no está disponible.
+De lo contrario, devuelve un valor distinto de cero.
+
+\fBrtapi_mutex_get\fR bloquea hasta que el mutex esté disponible.
+
+\fBrtapi_mutex_give\fR libera un mutex adquirido por \fBrtapi_mutex_try\fR o
+\fBrtapi_mutex_get\fR.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+\fBrtapi_mutex_give\fR y \fBrtapi_mutex_try\fR pueden usarse en código inicio/limpieza, de usuario, y en tiempo real.
+
+\fBrtapi_mutex_get\fR no se puede usar desde el código en tiempo real.
+
+.SH VALOR DEVUELTO
+\fBrtapi_mutex_try\fR devuelve 0 si se reclamó el mutex y no cero
+en otro caso.
+
+\fBrtapi_mutex_get\fR y \fBrtapi_mutex_gif\fR no tienen valor de retorno.

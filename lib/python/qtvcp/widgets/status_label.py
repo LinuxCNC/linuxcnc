@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # QTVcp Widget
 #
 # Copyright (c) 2017 Chris Morley
@@ -38,10 +38,12 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         super(StatusLabel, self).__init__(parent)
         self.display_units_mm = False
         self._textTemplate = '%s'
-        self._alt_textTemplate = 'None'
+        self._alt_textTemplate = '%s'
         self._actual_RPM = 0
         self._diameter = 1
         self._index = 0
+        self._tool_dia = 0
+        self._tool_offset = 0
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
 
         self.feed_override = True
@@ -59,6 +61,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.actual_spindle_speed = False
         self.actual_surface_speed = False
         self.user_system = False
+        self.blendcode = False
+        self.fcode = False
         self.gcodes = False
         self.mcodes = False
         self.tool_diameter = False
@@ -68,6 +72,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.machine_state = False
         self.time_stamp = False
         self.tool_offset = False
+        self.gcode_selected = False
 
     def _hal_init(self):
         super(StatusLabel, self)._hal_init()
@@ -79,11 +84,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.rapid_override:
             STATUS.connect('rapid-override-changed', lambda w, data: _f(data))
         elif self.max_velocity_override:
-            STATUS.connect('max-velocity-override-changed', lambda w, data: _f(data))
+            STATUS.connect('max-velocity-override-changed', lambda w, data: self._set_max_velocity(data))
+            STATUS.connect('metric-mode-changed', self._switch_max_velocity_units)
         elif self.spindle_override:
             STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
-            STATUS.connect('jograte-changed', lambda w, data: _f(data))
+            STATUS.connect('jograte-changed', lambda w, data: self._set_jograte(data))
+            STATUS.connect('metric-mode-changed', self._switch_jog_units)
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: _f(data))
         elif self.jogincr:
@@ -105,12 +112,17 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: _f(data))
         elif self.user_system:
             STATUS.connect('user-system-changed', self._set_user_system_text)
+        elif self.blendcode:
+            STATUS.connect('blend-code-changed', lambda w, blend, cam: self._set_blend_text(blend, cam))
+        elif self.fcode:
+            STATUS.connect('f-code-changed', lambda w, data: self._set_fcode_text(data))
         elif self.gcodes:
             STATUS.connect('g-code-changed', lambda w, data: _f(data))
         elif self.mcodes:
             STATUS.connect('m-code-changed', lambda w, data: _f(data))
         elif self.tool_diameter:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data, 'diameter'))
+            STATUS.connect('metric-mode-changed', lambda w, data: self._switch_tool_diam_units(data))
         elif self.tool_comment:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
@@ -135,7 +147,9 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('periodic', self._set_timestamp)
         elif self.tool_offset:
             STATUS.connect('current-tool-offset', self._set_tool_offset_text)
-
+            STATUS.connect('metric-mode-changed', lambda w, data: self._switch_tool_offsets_units(data))
+        elif self.gcode_selected:
+            STATUS.connect('gcode-line-selected', lambda w, line: _f(int(line)+1))
         else:
             LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -146,17 +160,31 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             tmpl = lambda s: str(self._alt_textTemplate) % s
             self.setText(tmpl(data))
 
+    def _set_blend_text(self, blend, cam):
+        tmpl = lambda s: str(self._textTemplate) % s
+        alttmpl = lambda s: str(self._alt_textTemplate) % s
+        self.setText(tmpl(blend) + alttmpl(cam))
+
+    def _set_fcode_text(self, data):
+        self._set_text(data)
+
     def _set_feedrate_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
-        self._set_text(data)
+        if self.display_units_mm:
+            self._set_alt_text(data)
+        else:
+            self._set_text(data)
 
     def _set_feedunit_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
         try:
             data = (data/self._actual_RPM)
-            self._set_text(data)
+            if self.display_units_mm:
+                self._set_alt_text(data)
+            else:
+                self._set_text(data)
         except:
             self.setText('')
             return
@@ -175,10 +203,39 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _switch_units(self, widget, data):
         self.display_units_mm = data
 
+    def _switch_jog_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_jograte(STATUS.get_jograte())
+
+    def _switch_tool_diam_units(self, units):
+        self.display_units_mm = units
+        data = self.conversion(self._tool_dia)
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
+
+    def _switch_tool_offsets_units(self, units):
+        self.display_units_mm = units
+        data = self.conversion(self._tool_offset)
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
+
+    def _switch_max_velocity_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_max_velocity(STATUS.get_max_velocity())
+
     def _tool_info(self, data, field):
         if data.id is not -1:
             if field == 'diameter':
-                self._set_text(data.diameter)
+                data = self.conversion(data.diameter)
+                self._tool_dia = data
+                if self.display_units_mm:
+                    self._set_alt_text(data)
+                else:
+                    self._set_text(data)
                 return
         self._set_text(0)
 
@@ -209,7 +266,12 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             self._set_text('')
 
     def _set_tool_offset_text(self, w, offsets):
-        self._set_text(offsets[self._index])
+        data = self.conversion(offsets[self._index])
+        self._tool_offset = offsets[self._index]
+        if self.display_units_mm:
+           self._set_alt_text(data)
+        else:
+           self._set_text(data)
 
     def _ss_tool_diam(self, data):
         if data.id is not -1:
@@ -250,6 +312,20 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _set_timestamp(self, w):
         self.setText(time.strftime(self._textTemplate))
 
+    def _set_jograte(self, data):
+        rate = self.conversion(data)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
+
+    def _set_max_velocity(self, data):
+        rate = self.conversion(data)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -265,7 +341,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
-                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset')
+                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset',
+                'gcode_selected', 'fcode', 'blendcode')
 
         for i in data:
             if not i == picked:
@@ -454,6 +531,26 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_user_system(self):
         self.user_system = False
 
+    # fcode status
+    def set_fcode(self, data):
+        self.fcode = data
+        if data:
+            self._toggle_properties('fcode')
+    def get_fcode(self):
+        return self.fcode
+    def reset_fcode(self):
+        self.fcode = False
+
+    # blendcode status
+    def set_blendcode(self, data):
+        self.blendcode = data
+        if data:
+            self._toggle_properties('blendcode')
+    def get_blendcode(self):
+        return self.blendcode
+    def reset_blendcode(self):
+        self.blendcode = False
+
     # gcodes status
     def set_gcodes(self, data):
         self.gcodes = data
@@ -561,6 +658,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_state_label_l(self):
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
 
+    # gcode line selected
+    def set_gcode_selected(self, data):
+        self.gcode_selected = data
+        if data:
+            self._toggle_properties('gcode_selected')
+    def get_gcode_selected(self):
+        return self.gcode_selected
+    def reset_gcode_selected(self):
+        self.gcode_selected = False
 
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
@@ -583,13 +689,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed,
                                                       reset_actual_spindle_speed)
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
+    blendcode_status = QtCore.pyqtProperty(bool, get_blendcode, set_blendcode, reset_blendcode)
+    fcode_status = QtCore.pyqtProperty(bool, get_fcode, set_fcode, reset_fcode)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
     tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
     tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
     tool_offset_status = QtCore.pyqtProperty(bool, get_tool_offset, set_tool_offset, reset_tool_offset)
-
+    gcode_selected_status = QtCore.pyqtProperty(bool, get_gcode_selected, set_gcode_selected, reset_gcode_selected)
     actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
     filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,

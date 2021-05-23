@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # qtvcp
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -29,7 +29,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -39,7 +39,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         self.linear = True
         self._block_signal = False
 
-    # Default to continous jogging
+    # Default to continuous jogging
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):
@@ -74,7 +74,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
                 else:
                     machn_incr = self.parse_angular_increment(label)
             #print count,self.itemText(count), machn_incr,value
-            if round(machn_incr,6) == round(value,6):
+            if machn_incr is not None and round(machn_incr,6) == round(value,6):
                 self._block_signal = True
                 self.setCurrentIndex(count)
                 self._block_signal = False
@@ -95,8 +95,11 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
                     inc = self.parse_angular_increment(text)
 
         except Exception as e:
-            LOG.debug('Exception parsing increment - setting increment at 0', exc_info=e)
-            inc = 0
+            LOG.debug('Exception parsing increment - setting increment to None', exc_info=e)
+            inc = None
+        if inc is None:
+            LOG.warning("parceed: text not recognized : {} Increment: {}".format(text, inc))
+            return
         if self.linear:
             LOG.debug("Linear Current index: {} Increment: {} , selection changed {}".format(i, inc, text))
             STATUS.set_jog_increments(inc, text)
@@ -127,12 +130,15 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         else:
             scale = 1
         incr = jogincr.rstrip(" inchmuil")
-        if "/" in incr:
-            p, q = incr.split("/")
-            incr = float(p) / float(q)
-        else:
-            incr = float(incr)
-        LOG.debug("parceed: text: {} Increment: {} scaled: {}".format(jogincr, incr, (incr * scale)))
+        try:
+            if "/" in incr:
+                p, q = incr.split("/")
+                incr = float(p) / float(q)
+            else:
+                incr = float(incr)
+        except:
+            return None
+        LOG.debug("parced: text: {} Increment: {} scaled: {}".format(jogincr, incr, (incr * scale)))
         return incr * scale
 
     # This does the conversion

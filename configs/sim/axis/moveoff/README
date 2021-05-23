@@ -2,7 +2,7 @@ moveoff.comp is a 'Hal-only' method for providing offsets for up to nine axes (x
 
 The moveoff.comp component provides min, max, velocity, and acceleration limits for each axis (similar to the limit3 component).
 
-See the manpage for more informaion:
+See the manpage for more information:
 
   $ man moveoff
 

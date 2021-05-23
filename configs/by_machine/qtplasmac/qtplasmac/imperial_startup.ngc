@@ -1,0 +1,12 @@
+o<imperial_startup> sub
+G20
+G40
+G49
+G64P0.004
+G80
+G90
+G92.1
+G94
+G97
+M52P1
+o<imperial_startup> endsub

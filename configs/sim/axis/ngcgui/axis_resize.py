@@ -5,7 +5,7 @@
 
 maxgeo=root_window.tk.call("wm","maxsize",".")
 
-# custom size (to accomodate bigger gladevcp panels)
+# custom size (to accommodate bigger gladevcp panels)
 newsize = '800' + 'x' + '680'
 # for fullsize: uncomment this
 # newsize=fullsize

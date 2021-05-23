@@ -56,7 +56,7 @@ addf ddt.0 servo-thread
 ----
 
 More information on 'loadrt' and 'addf' can be found in the
-<<cha:basic-hal-reference,Hal Basic Referece>>.
+<<cha:basic-hal-reference,Hal Basics>>.
 
 To test your component you can follow the examples in the
 <<cha:hal-tutorial,HAL Tutorial>>.
@@ -503,7 +503,7 @@ loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
 If a loadrt line specifies more instances than personalities, the
 instances with unspecified personalities are assigned a
 personality of 0.  If the requested number of instances
-excedes the number of allowed personalities, personalities are
+exceeds the number of allowed personalities, personalities are
 assigned by indexing modulo the number of allowed personalities.
 A message is printed denoting such assignments.
 
@@ -791,6 +791,49 @@ which creates the following pins:
  - 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00,
    logic.2.in-01, logic.2.in-02
 
+=== general functions
+
+This example shows how to call functions from the main function. +
+it also shows how to pass reference of HAL pins to those functions. +
+
+[source,c]
+----
+component example;
+pin in s32 in;
+pin out bit out1;
+pin out bit out2;
+
+function _;
+license "GPL";
+;;
+
+// general pin set true function
+void set(hal_bit_t *p){
+    *p = 1;
+}
+
+// general pin set false function
+void unset(hal_bit_t *p){
+    *p = 0;
+}
+
+//main function
+FUNCTION(_) {
+    if (in < 0){
+        set(&out1);
+        unset(&out2);
+    }else if (in >0){
+        unset(&out2);
+        set(&out2);
+    }else{
+        unset(&out1);
+        unset(&out2);
+    }
+    
+}
+----
+
+This component uses two general function to manipulate a HAL bit pin referenced to it. +
 
 == Command Line Usage
 

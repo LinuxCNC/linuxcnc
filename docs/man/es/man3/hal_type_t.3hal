@@ -1,0 +1,82 @@
+.TH hal_type_t "3hal" "2006-10-12" "Documentación LinuxCNC" "HAL"
+.SH NOMBRE
+hal_type_t \- typedefs para tipos de datos HAL
+.SH DESCRIPCION
+.TP
+typedef ... \fBhal_bool;
+Un tipo que puede tener un valor 0 o distinto de cero.
+.TP
+typedef ... \fBhal_bit_t;
+Un tipo volátil que puede tener un valor 0 o distinto de cero.
+.TP
+typedef ... \fBhal_s32_t\fR;
+Un tipo volátil que puede tener un valor de \-2147483648 a 2147483647.
+.TP
+typedef ... \fBhal_u32_t\fR;
+Un tipo volátil que puede tener un valor de 0 a 4294967295.
+.TP
+typedef ... \fBhal_port_t\fR;
+Un identificador volátil para un objeto puerto. Usado con las funciones hal_port*.
+.TP
+typedef ... \fBhal_float_t\fR;
+Un tipo de punto flotante volátil, que generalmente tiene la misma precisión y rango como el tipo C \fBdouble\fR.
+.TP
+typedef ... \fBreal_t\fR;
+Un tipo de punto flotante no volátil con al menos tanta precisión como
+\fBhal_float_t\fR.
+.TP
+typedef ... \fBireal_t\fR;
+Un tipo entero sin signo no volátil del mismo tamaño que \fBhal_float_t\fR.
+.TP
+typedef enum \fBhal_type_t\fR;
+.RS
+.TP
+\fBHAL_BIT\fR
+Corresponde al tipo \fBhal_bit_t\fR.
+.TP
+\fBHAL_FLOAT\fR
+Corresponde al tipo \fBhal_float_t\fR.
+.TP
+\fBHAL_S32\fR
+Corresponde al tipo \fBhal_s32_t\fR.
+.TP
+\fBHAL_U32\fR
+Corresponde al tipo \fBhal_u32_t\fR.
+.RE
+.SH NOTAS
+\fBhal_bit_t\fR es típicamente un typedef a un tipo entero cuyo rango es mayor
+que solo 0 y 1. Al probar el valor de a \fBhal_bit_t\fR, nunca lo compare con 1. Prefiera uno de los siguientes:
+.RS
+.IP \(bu 4
+if (b)
+.IP \(bu 4
+if (b != 0)
+.RE
+
+A menudo es útil referirse a un tipo que puede representar todos los valores como un tipo hal, pero sin el calificador volátil. Los siguientes tipos se corresponden
+con los tipos hal:
+.RS
+.IP hal_bit_t 16
+int
+
+.IP hal_s32_t 16
+__s32
+
+.IP hal_u32_t 16
+__u32
+
+.IP hal_float_t 16
+hal_real_t
+
+.IP hal_port_t 16
+int
+.RE
+
+Tenga cuidado de no usar los tipos \fBs32\fR y \fBu32\fR. Estos se compilarán en
+módulos de kernel pero no en el espacio de usuario, y no para "componentes en tiempo real" cuando utilize tiempo real simulado (espacio de usuario).
+
+.SH VER TAMBIÉN
+\fBhal_pin_new (3hal)\fR, \fBhal_param_new (3hal)\fR
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+

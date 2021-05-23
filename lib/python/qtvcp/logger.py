@@ -25,8 +25,20 @@ from linuxcnc import ini
 # logging to set the log level within other modules.
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# add a new verbose level
+VERBOSE = 5
+logging.addLevelName(VERBOSE, "VERBOSe")
+
+
+def verbose(self, message, *args, **kws):
+    if self.isEnabledFor(VERBOSE):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log('VERBOSE', message, args, **kws)
+
+logging.Logger.verbose = verbose
+
 # Our custom colorizing formatter for the terminal handler
-from lib.colored_formatter import ColoredFormatter
+from .lib.colored_formatter import ColoredFormatter
 
 
 # Global name of the base logger

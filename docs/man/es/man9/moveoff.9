@@ -1,0 +1,193 @@
+.TH MOVEOFF "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+moveoff \- Component for Hal-only offsets
+.SH SYNOPSIS
+.HP
+.B loadrt moveoff [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+
+The moveoff component is used to offset joint positions using custom Hal
+connections.  Implementing an offset-while-program-is-paused functionality is
+supported with appropriate connections for the input pins.  Nine joints are
+supported.
+
+The axis offset pin values (offset-in-M) are continuously applied (respecting
+limits on value, velocity, and acceleration) to the output pins
+(offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
+pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
+anded internally.   A \fBwarning\fR pin is set and a message issued if the
+apply-offsets pin is deasserted while offsets are applied.  The warning pin
+remains TRUE until the offsets are removed or the apply-offsets pin is set.
+
+Typically, the move-enable pin is connected to external controls and the
+apply-offsets pin is connected to halui.program.is-paused (for offsets only
+while paused) or set to TRUE (for continuously applied offsets).
+
+Applied offsets are \fBautomatically returned\fR to zero (respecting limits)
+when either of the enabling inputs is deactivated.  The zero value
+tolerance is specified by the epsilon input pin value.
+
+Waypoints are recorded when the moveoff componenent is enabled.  Waypoints are
+managed with the waypoint-sample-secs and waypoint-threshold pins.  When the
+backtrack-enable pin is TRUE, the auto-return path follows the recorded
+waypoints.  When the memory available for waypoints is exhausted, offsets are
+frozen and the waypoint-limit pin is asserted.  This restriction applies
+regardless of the state of the backtrack-enable pin.  An enabling pin must be
+deasserted to allow a return to the original (non-offset position).
+
+Backtracking through waypoints results in \fBslower\fR movement rates as the
+moves are point-to-point respecting velocity and acceleration settings.  The
+velocity and acceleration limit pins can be managed dynamically to control
+offsets at all times.
+
+When backtrack-enable is FALSE, the auto-return move is \fBNOT\fR
+coordinated, each axis returns to zero at its own rate.  If a controlled path
+is wanted in this condition, each axis should be manually returned to zero
+before deasserting an enabling pin.
+
+The waypoint-sample-secs, waypoint-threshold, and epsilon pins are evaluated
+only when the component is idle.
+
+The offsets-applied output pin is provided to indicate the current state to a
+GUI so that program resumption can be managed.  If the offset(s) are non-zero
+when the apply-offsets pin is deasserted (for example when resuming a program
+when offsetting during a pause), offsets are returned to zero (respecting
+limits) and an \fBError\fR message is issued.
+
+\fBCaution:\fR If offsets are enabled and applied and the machine is turned off
+for any reason, any \fBexternal\fR Hal logic that manages the enabling pins
+and the offset-in-M inputs is responsible for their state when the
+machine is subsequently turned on again.
+
+This Hal-only means of offsetting is typically not known to LinuxCNC
+nor available in GUI preview displays.  \fBNo protection is provided\fR for
+offset moves that exceed soft limits managed by LinuxCNC.  Since soft limits
+are not honored, an offset move may encounter hard limits (or \fBCRASH\fR if
+there are no limit switches).  Use of the offset-min-M and offset-max-M inputs
+to limit travel is recommended.  Triggering a hard limit will turn off
+the machine -- see \fBCaution\fR above.
+
+The offset-in-M values may be set with inifile settings, controlled by a GUI,
+or managed by other Hal components and connections.  Fixed values may be
+appropriate in simple cases where the direction and amount of offset is
+well-defined but a control method is required to deactivate an enabling
+pin in order to return offsets to zero.  GUIs may provide means for users to
+set, increment, decrement, and accumulate offset values for each axis and may
+set offset-in-M values to zero before deasserting an enabling pin.
+
+The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
+waypoint-threshold may not be suitable for any particular application.  This
+Hal component is unaware of limits enforced elsewhere by LinuxCNC.
+Users should test usage in a simulator application and understand all
+hazards \fBbefore\fR use on hardware.
+
+The module personality item sets the number of joints supported (default==3,
+maximum is 9).
+
+Use of the names= option for naming is \fBrequired\fR for compatibility
+with the gui provided as scripts/moveoff_gui:
+  loadrt moveoff names=\fBmv\fR personality=number_of_joints
+
+\fBman moveoff_gui\fR for more information
+
+.SH EXAMPLES
+Example simulator configs that demonstrate the moveoff component and a simple gui
+(scripts/moveoff_gui) are located in configs/sim/axis/moveoff. The axis gui is
+used for the demonstrations and the configs can be adapted for other guis like
+touchy and gscreen.  An example with the touchy gui is provided in
+configs/sim/touchy/ngcgui/.
+
+
+.SH FUNCTIONS
+.TP
+\fBmoveoff.\fIN\fB.read-inputs\fR (requires a floating-point thread)
+Read all inputs
+.TP
+\fBmoveoff.\fIN\fB.write-outputs\fR (requires a floating-point thread)
+Write computed offset outputs
+(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).
+All other outputs are updated by read-inputs()
+.SH PINS
+.TP
+.B moveoff.\fIN\fB.power-on\fR bit in \fR
+Connect to motion.motion-enabled
+.TP
+.B moveoff.\fIN\fB.move-enable\fR bit in \fR
+Enable offsets (Enabling requires apply-offset TRUE also)
+.TP
+.B moveoff.\fIN\fB.apply-offsets\fR bit in \fR
+Enable offsets (Enabling requires move-enable TRUE also)
+.TP
+.B moveoff.\fIN\fB.backtrack-enable\fR bit in \fR(default: \fI1\fR)
+Enable backtrack on auto-return
+.TP
+.B moveoff.\fIN\fB.epsilon\fR float in \fR(default: \fI0.0005\fR)
+When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \fBsilently enforced\fR
+.TP
+.B moveoff.\fIN\fB.waypoint-threshold\fR float in \fR(default: \fI0.02\fR)
+Minimum distance (in a single axis) for a new waypoint
+.TP
+.B moveoff.\fIN\fB.waypoint-sample-secs\fR float in \fR(default: \fI0.02\fR)
+Minimum sample interval (in seconds) for a new waypoint
+.TP
+.B moveoff.\fIN\fB.warning\fR bit out \fR
+Set TRUE if apply-offsets is deasserted while offset-applied is TRUE
+.TP
+.B moveoff.\fIN\fB.offset-applied\fR bit out \fR
+TRUE if one or more offsets are applied
+.TP
+.B moveoff.\fIN\fB.waypoint-limit\fR bit out \fR(default: \fI0\fR)
+Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position
+.TP
+.B moveoff.\fIN\fB.waypoint-ct\fR s32 out \fR
+Waypoint count (for debugging)
+.TP
+.B moveoff.\fIN\fB.waypoint-percent-used\fR s32 out \fR
+Percent of available waypoints used
+.TP
+.B moveoff.\fIN\fB.offset-in-\fIM\fB\fR float in  (M=0..personality) \fR
+Joint offset input value
+.TP
+.B moveoff.\fIN\fB.pos-\fIM\fB\fR float in  (M=0..personality) \fR
+Joint position (typ: axis.0.motor-pos-cmd)
+.TP
+.B moveoff.\fIN\fB.fb-\fIM\fB\fR float in  (M=0..personality) \fR
+Joint feedback (typ from encoder and input to pid controller (pid.feedback))
+.TP
+.B moveoff.\fIN\fB.offset-current-\fIM\fB\fR float out  (M=0..personality) \fR
+Joint offset current value
+.TP
+.B moveoff.\fIN\fB.pos-plusoffset-\fIM\fB\fR float out  (M=0..personality) \fR
+Computed joint position plus offset (typically connect to pid command input)
+.TP
+.B moveoff.\fIN\fB.fb-minusoffset-\fIM\fB\fR float out  (M=0..personality) \fR
+Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb
+.TP
+.B moveoff.\fIN\fB.offset-vel-\fIM\fB\fR float in  (M=0..personality) \fR(default: \fI10\fR)
+Joint offset velocity limit
+.TP
+.B moveoff.\fIN\fB.offset-accel-\fIM\fB\fR float in  (M=0..personality) \fR(default: \fI100\fR)
+Joint offset acceleration limit
+.TP
+.B moveoff.\fIN\fB.offset-min-\fIM\fB\fR float in  (M=0..personality) \fR(default: \fI-1e20\fR)
+Minimum limit for applied joint offset (typ negative)
+.TP
+.B moveoff.\fIN\fB.offset-max-\fIM\fB\fR float in  (M=0..personality) \fR(default: \fI1e20\fR)
+Maximum limit for applied offset (typ positive)
+.TP
+.B moveoff.\fIN\fB.dbg-waypoint-limit-test\fR bit in \fR
+Debug input to test with limited number of waypoints
+.TP
+.B moveoff.\fIN\fB.dbg-state\fR s32 out \fR
+Debug output for current state of state machine
+.SH LICENSE
+
+GPL

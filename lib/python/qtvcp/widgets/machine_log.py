@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget - MDI edit line widget
 # Copyright (c) 2017 Chris Morley
@@ -15,6 +15,7 @@
 ###############################################################################
 
 import os
+import sys
 import hashlib
 
 from PyQt5.QtWidgets import QTextEdit
@@ -76,12 +77,12 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         file = QFile(self.machineLogPath)
         file.open(QFile.ReadOnly)
         logText = file.readAll()
-        try:
-            # Python v2.
-            logText = unicode(logText, encoding='utf8')
-        except NameError:
+        if sys.version_info.major > 2:
             # Python v3.
             logText = str(logText, encoding='utf8')
+        else:
+            # Python v2.
+            logText = str(logText)
         file.close()
         self.setPlainText(logText)
 
@@ -89,12 +90,13 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         file = QFile(self.integratorPath)
         file.open(QFile.ReadOnly)
         logText = file.readAll()
-        try:
-            # Python v2.
-            logText = unicode(logText, encoding='utf8')
-        except NameError:
+        if sys.version_info.major > 2:
             # Python v3.
             logText = str(logText, encoding='utf8')
+        else:
+            # Python v2.
+            logText = str(logText)
+
         file.close()
         self.setPlainText(logText)
 

@@ -55,7 +55,7 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
 
 * '<n>.acceleration-pattern' (bit, in) when true, set acceleration and
             deceleration times as defined in registers F500 and F501
-            respecitvely.  Used in PID loops to choose shorter ramp
+            respectively.  Used in PID loops to choose shorter ramp
             times to avoid oscillation.
 
 * '<n>.alarm-code' (s32, out) non-zero if drive is in alarmed
@@ -175,7 +175,7 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
               do-not-exceed soft limit for motor RPM (defaults to nameplate-RPM ).
 
 * '<n>.tolerance' (float, RW)
-               speed tolerance (default 0.01) for determining wether spindle is at speed (0.01 meaning: output frequency is
+               speed tolerance (default 0.01) for determining whether spindle is at speed (0.01 meaning: output frequency is
               within 1% of target frequency)
 
 == INI file configuration

@@ -1,0 +1,71 @@
+loadrt and2 count=1
+loadrt near
+addf and2.0 servo-thread
+addf near.0 servo-thread
+setp near.0.scale 1.01
+
+loadrt abs names=abs_spindle_feedback
+addf abs_spindle_feedback servo-thread
+
+#net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net spindle-pause   woodpecker.spindle_pause <= spindle.0.inhibit
+
+# ---setup spindle control signals---
+
+
+net spindle-vel-cmd        =>  spindle.0.speed-out
+#net spindle-at-speed       =>  spindle.0.at-speed  
+net spindle-brake          <=  spindle.0.brake
+net spindle-index-enable  <=>  spindle.0.index-enable
+
+# ---Setup spindle at speed signals---
+net spindle-rpm      spindle.0.speed-out-rps => spindle.0.speed-in
+net spindle-cmd      spindle.0.speed-out-abs near.0.in1
+net spindle-cmd      near.0.in2
+net at_speed         near.0.out => and2.0.in1
+net forward          spindle.0.forward => and2.0.in0
+net at_speed_fwd     spindle.0.at-speed <= and2.0.out
+net at_speed_fwd     woodpecker.led_at_speed
+
+net spindle-vel-cmd        =>  spindle.0.speed-out
+net spindle-vel-cmd => woodpecker.lcdnumber   
+
+# external offset stuff
+net eoffset_enable   woodpecker.eoffset_enable => axis.z.eoffset-enable
+net eoffset_clear    woodpecker.eoffset_clear => axis.z.eoffset-clear
+net eoffset_count    woodpecker.eoffset_count => axis.z.eoffset-counts
+net eoffset        woodpecker.eoffset_value <= axis.z.eoffset
+net limited          woodpecker.led_eoffset_limit <= motion.eoffset-limited
+setp axis.z.eoffset-scale 1.0
+
+
+
+net mpg-sig           axis.x.jog-counts       axis.y.jog-counts  axis.z.jog-counts   axis.a.jog-counts  woodpecker.mpg-in  woodpecker.MPG-s  
+
+net jogSelectx        axis.x.jog-enable      woodpecker.jog.wheel.x
+net jogSelecty        axis.y.jog-enable      woodpecker.jog.wheel.y
+net jogSelectz        axis.z.jog-enable      woodpecker.jog.wheel.z
+net jogSelecta        axis.a.jog-enable     woodpecker.jog.wheel.a
+
+net jogIncrement      woodpecker.jog.wheel.incement
+net jogIncrement      axis.x.jog-scale       axis.y.jog-scale      axis.z.jog-scale    axis.a.jog-scale 
+
+net btn_probesim     motion.probe-input      woodpecker.probesim_button  woodpecker.hal_led_probe
+
+
+
+
+
+
+
+

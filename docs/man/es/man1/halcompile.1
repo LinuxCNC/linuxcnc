@@ -1,0 +1,84 @@
+.\" Copyright (c) 2007 Jeff Epler
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH halcompile "1" "2007-10-17" "Documentación de LinuxCNC" "The Enhanced Machine Controller"
+.SH NOMBRE
+halcompile \- Construye, compila e instala componentes HAL de LinuxCNC
+.SH SINOPSIS
+.PD 0
+.RS 5
+.PP
+\fBhalcompile\fR [\fB\-\-compile\fR | \fB\-\-preprocess\fR | \fB\-\-document\fR | \fB\-\-view\-doc\fR] archivo.comp...
+.RE
+.PP
+\fIsudo\fR \fBhalcompile\fR [\fB\-\-install\fR|\fB\-\-install\-doc\fR] archivo.comp...
+.RS 5
+.PP
+\fBhalcompile\fR \fB\-\-compile\fR \fB\-\-userspace\fR archivo.c...
+.RE
+.PP
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR archivo.c...
+.PP
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR archivo.py...
+
+.PP
+
+Cuando se utilizan personalidades en un archivo de compilación, las instancias de hal se exportan
+secuencialmente (por lo general, por los parámetros count= o names= mutuamente excluyentes).
+Si el número de exportaciones excede el número máximo de personalidades, a las personalidades posteriores se
+les asigna módulo al número máximo de personalidades permitido.
+
+De forma predeterminada, el número máximo de personalidades es 64. Para modificar este límite,
+use la opción \fB--personalities=\fR con halcompile. Por ejemplo, para establecer el máximo de elementos
+de personalidad en 4:
+   [sudo] \fBhalcompile --personalities=4\fR --install ...
+
+.SH DESCRIPCION
+\fBhalcompile\fR realiza muchas funciones diferentes:
+.IP \(bu 4
+Compila los archivos \fB.comp\fR y \fB.c\fR en \fB.so\fR o \fB.ko\fR como componentes HAL en tiempo real (la bandera \fB\-\-compile\fR)
+.IP \(bu 4
+Compila los archivos \fB.comp\fR y \fB.c\fR en componentes de espacio de usuario HAL (bandera \fB\-\-compile \-\-userspace\fR)
+.IP \(bu 4
+Preprocesa archivos \fB.comp\fR en archivos \fB.c\fR  (bandera \fB \-\-preprocess\fR)
+.IP \(bu 4
+Extrae la documentacion de los archivos \fB.comp\fR en archivos de paginas de manual de \fB.9\fR (bandera \fB \-\-document\fR)
+.IP \(bu 4
+Muestra la documentacion de los archivos \fB.comp\fR en pantalla (bandera \fB\-\-view\-doc\fR)
+.IP \(bu 4
+Compila e instala los archivos \fB.comp\fR y \fB.c\fR en el directorio adecuado para los componentes HAL en tiempo real 
+(bandera \fB\-\-install\fR), lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
+.IP \(bu 4
+Instala los archivos \fB.c\fR y \fB.py\fR en el directorio adecuado para los componentes HAL de espacio de usuario
+(bandera \fB\-\-install \-\-userspace\fR),lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
+.IP \(bu 4
+Extrae documentacion de los archivos \fB.comp\fR en los archivos de paginas de manual de \fB.9\fR en el directorio del sistema adecuado
+(bandera \fB\-\-install \fR), lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
+.SH "VER TAMBIEN"
+\fIHalcompile Generador de Componentes HAL\fR en la documentacion de LinuxCNC para obtener una descripcion completa de la sintaxis de
+archivos \fB.comp\fR, junto con ejemplos.
+\fBpydoc hal\fR y \fICreando Componentes Python de Espacio de Usuario\fR en la documentacion de LinuxCNC para obtener documentacion 
+sobre la interfaz de Python para los componentes HAL
+
+

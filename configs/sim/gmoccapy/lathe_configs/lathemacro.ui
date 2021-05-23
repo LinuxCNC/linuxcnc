@@ -8277,6 +8277,7 @@
                     <property name="secondary_icon_sensitive">True</property>
                     <property name="adjustment">TurnFeedAdj</property>
                     <property name="digits">3</property>
+                    <signal name="button-press-event" handler="show_keyb" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">5</property>

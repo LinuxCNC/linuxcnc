@@ -56,6 +56,7 @@ Rapid moves also obey the current trajectory control. With moves long
 enough to reach maximum velocity on a machine with low acceleration and
 no path tolerance specified, you can get a fairly round corner.
 
+[[programming-the-planner]]
 === Programming the Planner(((Programming the Planner)))
 
 The trajectory control commands are as follows:
@@ -260,7 +261,7 @@ G54 coordinate system.
 
 Normally you use the G54 Coordinate System. When an offset is applied to a
 current user coordinate system a small blue ball with lines will be at the
-<<sec.machine-corrdinate-system, machine origin>> when your DRO is displaying
+<<sec.machine-coordinate-system, machine origin>> when your DRO is displaying
 'Position: Relative Actual' in Axis. If your offsets are temporary use the Zero
 Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
 at the end of your G Code file. Change the 'P' number to suit the

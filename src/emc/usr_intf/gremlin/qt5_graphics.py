@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 import sys
 import math
@@ -16,18 +18,25 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
 try:
     from PyQt5.QtOpenGL import QGLWidget
 except ImportError:
-    LOG.critical("Qtvcp error with qt5_graphics - is package python-pyqt5.qtopengl installed?")
+    LOG.critical("Qtvcp error with qt5_graphics - is package python3-pyqt5.qtopengl installed?")
 
 LIB_GOOD = True
 try:
     from OpenGL import GL
     from OpenGL import GLU
 except ImportError:
-    LOG.error('Qtvcp Error with graphics - is python-openGL installed?')
+    LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
     LIB_GOOD = False
 
-import gi
-from gi.repository import Pango as pango
+if sys.version_info.major > 2:
+    import gi
+    gi.require_version('Pango', '1.0')
+    from gi.repository import Pango
+    import _thread
+else:
+    import pango
+    import thread as _thread
+    
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
@@ -40,7 +49,6 @@ import tempfile
 import shutil
 import os
 
-import _thread
 from qtvcp.widgets.fake_status import fakeStatus
 
 ###################################
@@ -108,12 +116,50 @@ class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
 
+class Progress:
+    def __init__(self, phases, total):
+        self.num_phases = phases
+        self.phase = 0
+        self.total = total or 1
+        self.lastcount = 0
+        self.text = None
+
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
+            fraction = (self.phase + count * 1. / self.total) / self.num_phases
+            self.lastcount = count
+            self.emit_percent(int(fraction *100))
+
+    # this is class patched
+    def emit_percent(self, percent):
+        pass
+
+    def nextphase(self, total):
+        self.phase += 1
+        self.total = total or 1
+        self.lastcount = -100
+        self.update(0, True)
+
+    def done(self):
+        self.emit_percent(-1)
+
+    # not sure if this is used - copied from AXIS code
+    def set_text(self, text):
+        if self.text is None:
+            self.text = ".info.progress"
+        else:
+            print(".info.progress", text)
+
 class StatCanon(glcanon.GLCanon, interpret.StatMixin):
-    def __init__(self, colors, geometry, lathe_view_option, stat, random):
-        glcanon.GLCanon.__init__(self, colors, geometry)
+    def __init__(self, colors, geometry, is_foam, lathe_view_option, stat, random, text, linecount, progress, arcdivision):
+        glcanon.GLCanon.__init__(self, colors, geometry, is_foam)
         interpret.StatMixin.__init__(self, stat, random)
-        self.progress = DummyProgress()
         self.lathe_view_option = lathe_view_option
+        self.text = text
+        self.linecount = linecount
+        self.progress = progress
+        self.aborted = False
+        self.arcdivision = arcdivision
 
     def is_lathe(self): return self.lathe_view_option
 
@@ -121,17 +167,35 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
         glcanon.GLCanon.change_tool(self,pocket)
         interpret.StatMixin.change_tool(self,pocket)
 
+    # not sure if this is used - copied from AXIS code
+    def do_cancel(self, event):
+        self.aborted = True
+
+    # not sure if this is used - copied from AXIS code
+    def check_abort(self):
+        #root_window.update()
+        if self.aborted: raise KeyboardInterrupt
+
+    def next_line(self, st):
+        glcanon.GLCanon.next_line(self, st)
+        self.progress.update(self.lineno)
+        # not sure if this is used - copied from AXIS code
+        if self.notify:
+            print("info",self.notify_message)
+            self.notify = 0
+
 ###############################
 # widget for graphics plotting
 ###############################
 class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
+    percentLoaded = pyqtSignal(int)
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
     zRotationChanged = pyqtSignal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None):
-        super(Lcnc_3dGraphics, self).__init__(parent)
+        super(Lcnc_3dGraphics,self).__init__(parent)
         glnav.GlNavBase.__init__(self)
 
         def C(s):
@@ -151,6 +215,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             stat = fakeStatus()
 
         self.inifile = linuxcnc.ini(inifile)
+        self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
@@ -158,7 +223,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             C('backplotarc'),
             C('backplottoolchange'),
             C('backplotprobing'),
-            self.get_geometry()
+            self.get_geometry(), self.foam_option
         )
         # start tracking linuxcnc position so we can plot it
         _thread.start_new_thread(self.logger.start, (.01,))
@@ -187,11 +252,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.show_rapids = True
         self.use_relative = True
         self.show_tool = True
+        self.show_lathe_radius = False
         self.show_dtg = True
         self.grid_size = 0.0
         temp = self.inifile.find("DISPLAY", "LATHE")
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
-        self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
+
         self.show_offsets = False
         self.show_overlay = False
         self.enable_dro = False
@@ -215,14 +281,22 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.xRot = 0
         self.yRot = 0
         self.zRot = 0
-  
-        # add a 100ms timer to poll linuxcnc stats
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.poll)
-        self.timer.start(100)
 
         self.Green = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.inhibit_selection = True
+
+        self.dro_in = "% 9.4f"
+        self.dro_mm = "% 9.3f"
+        self.dro_deg = "% 9.2f"
+        self.dro_vel = "   Vel:% 9.2F"
+        self.addTimer()
+
+    # add a 100ms timer to poll linuxcnc stats
+    # this may be overriden in sub widgets
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(100)
 
     def poll(self):
         s = self.stat
@@ -253,11 +327,36 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         elif not filename and not s.file:
             return
 
+
+        lines = open(filename).readlines()
+        progress = Progress(2, len(lines))
+        progress.emit_percent = self.emit_percent
+
+        code = []
+        i = 0
+        for i, l in enumerate(lines):
+            l = l.expandtabs().replace("\r", "")
+            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            if i % 1000 == 0:
+                del code[:]
+                progress.update(i)
+        if code:
+            pass
+        progress.nextphase(len(lines))
+
+
         td = tempfile.mkdtemp()
         self._current_file = filename
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-            canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
+            arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
+            text = ''
+            canon = StatCanon(self.colors,
+                                self.get_geometry(),
+                                self.foam_option,
+                                self.lathe_option,
+                                s, text, random, i,
+                                progress, arcdivision)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
             temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
@@ -268,13 +367,30 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
+            self.logger.set_depth(self.from_internal_linear_unit(self.get_foam_z()),
+                       self.from_internal_linear_unit(self.get_foam_w()))
             self.calculate_gcode_properties(canon)
-        except:
+        except Exception as e:
+            print (e)
             self.gcode_properties = None
         finally:
             shutil.rmtree(td)
-
+            if canon:
+                canon.progress = DummyProgress()
+            try:
+                progress.done()
+            except UnboundLocalError:
+                pass
         self._redraw()
+
+    def emit_percent(self, percent):
+        self.percentLoaded.emit(percent)
+
+    def from_internal_linear_unit(self, v, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+        return v*lu
 
     def calculate_gcode_properties(self, canon):
         def dist(xxx_todo_changeme, xxx_todo_changeme1):
@@ -288,11 +404,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
             return [a*b for a, b in zip(pos, lus)]
-        def from_internal_linear_unit(v, unit=None):
-            if unit is None:
-                unit = self.stat.linear_units
-            lu = (unit or 1) * 25.4
-            return v*lu
 
         props = {}
         loaded_file = self._current_file
@@ -340,12 +451,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 canon.dwell_time
                 )
  
-            props['G0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
-            props['gG1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
+            props['G0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
+            props['G1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
             if gt > 120:
                 props['Run'] = _("%.1f Minutes") % (gt/60)
             else:
-                props['Run'] = _("%d Ceconds") % (int(gt))
+                props['Run'] = _("%d Seconds") % (int(gt))
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
@@ -367,8 +478,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             return
         self._current_file = None
 
-        self.font_base, width, linespace = \
-		glnav.use_pango_font('courier bold 16', 0, 128)
+        self.font_base, width, linespace = glnav.use_pango_font('courier bold 16', 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
@@ -397,12 +507,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
     def get_geometry(self):
-        temp = self.inifile.find("DISPLAY", "GEOMETRY")
+        temp = self.inifile.find("DISPLAY", "GEOMETRY") or 'XYZABCUVW'
         if temp:
             _geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
             self._geometry = "".join(reversed(_geometry))
         else:
-            self._geometry = 'XYZ'
+            self._geometry = 'XYZABCUVW'
         return self._geometry
     def is_lathe(self): return self.lathe_option
     def is_foam(self): return self.foam_option
@@ -446,26 +556,30 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 return limit, homed, [''], ['']
 
             if self.metric_units:
-                format = "% 6s:% 9.3f"
+                format = "% 6s:" + self.dro_mm
                 if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.3f"
+                    droformat = " " + format + "  DTG %1s:" + self.dro_mm
                 else:
                     droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
-                rotformat = "% 5s %1s:% 9.3f"
+                offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
+                toolformat = "% 5s %1s:" + self.dro_mm
+                rotformat = "% 5s %1s:" + self.dro_deg
+
             else:
-                format = "% 6s:% 9.4f"
+                format = "% 6s:" + self.dro_in
                 if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.4f"
+                    droformat = " " + format + "  DTG %1s:" + self.dro_in
                 else:
                     droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
-                rotformat = "% 5s %1s:% 9.4f"
+                offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
+                toolformat = "% 5s %1s:" + self.dro_in
+                rotformat = "% 5s %1s:" + self.dro_deg
             diaformat = " " + format
 
             posstrs = []
             droposstrs = []
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
@@ -476,6 +590,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             droposstrs.append("")
 
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
@@ -489,9 +604,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             droposstrs.append("")
             for i in range(9):
+                if self.is_lathe() and i ==1: continue
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
-                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+                    droposstrs.append(toolformat % ("TLO", a, tlo_offset[i]))
 
             # if its a lathe only show radius or diameter as per property
             if self.is_lathe():
@@ -513,17 +629,18 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                         droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
-                posstrs.append(format % ("Vel", spd))
+                posstrs.append(self.dro_vel % ( spd))
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
                 if self.is_lathe:
                     pos +=1
-                droposstrs.insert(pos, " " + format % ("Vel", spd))
+                droposstrs.insert(pos, " " + self.dro_vel % (spd))
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
             return limit, homed, posstrs, droposstrs
+
 
     def minimumSizeHint(self):
         return QSize(50, 50)
@@ -653,7 +770,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             GL.glFlush()                               # Tidy up
             GL.glPopMatrix()                   # Restore the matrix
 
-    # replaces glcanoon function
+    # override glcanon function
     def redraw_ortho(self):
         if not self.initialised: return
         w = self.winfo_width()
@@ -709,6 +826,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             GL.glFlush()                               # Tidy up
             GL.glPopMatrix()                   # Restore the matrix
 
+    # override glcanon function
+    def basic_lighting(self):
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, (1, -1, 1, 0))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, self.colors['tool_ambient'] + (0,))
+        GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, (.6,.6,.6,0))
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, (1,1,1,0))
+        GL.glEnable(GL.GL_LIGHTING)
+        GL.glEnable(GL.GL_LIGHT0)
+        GL.glDepthFunc(GL.GL_LESS)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
+
     # resizes the view to fit the window
     def resizeGL(self, width, height):
         side = min(width, height)
@@ -730,6 +861,37 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def set_inhibit_selection(self, state):
         self.inhibit_selection = state
 
+    # sets plotter colors to default if arguments left out
+    def set_plot_colors(self, jog=None,traverse=None,feed=None,
+                    arc=None,toolchange=None,probe=None):
+        def C(s):
+            a = self.colors[s + "_alpha"]
+            s = self.colors[s]
+            return [int(x * 255) for x in s + (a,)]
+
+        if jog is None:
+            jog = C('backplotjog')
+        if traverse is None:
+            traverse = C('backplottraverse')
+        if feed is None:
+           feed = C('backplotfeed')
+        if arc is None:
+            arc = C('backplotarc')
+        if toolchange is None:
+            toolchange = C('backplottoolchange')
+        if probe is None:
+            probe = C('backplotprobing')
+        try:
+            self.logger.set_colors(
+                jog,
+                traverse,
+                feed,
+                arc,
+                toolchange,
+                probe)
+        except Exception as e:
+            print(e)
+
     ####################################
     # view controls
     ####################################
@@ -746,7 +908,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # Also stop the display from pausing plotting update while searching
     # probably needs a thread - strange that Tkinter and GTK don't suffer...
     def select_fire(self):
-        if self.inhibt_selection: return
+        if self.inhibit_selection: return
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
@@ -779,7 +941,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & Qt.RightButton:
-            self.clear_live_plotter()
+            self.logger.clear()
 
     def mouseMoveEvent(self, event):
         # move
@@ -824,20 +986,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         y4 = +0.22 * factor
 
         # cross
-        self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
+        self.quad(x1, y1, x2, y2, y2, x2, y1, x1, z= .05, color = self.Green)
         # vertical line
-        self.quad(x3, y3, x4, y4, y4, x4, y3, x3)
+        self.quad(x3, y3, x4, y4, y4, x4, y3, x3, z= .05, color = self.Green)
 
         # cross depth
-        self.extrude(x1, y1, x2, y2)
-        self.extrude(x2, y2, y2, x2)
-        self.extrude(y2, x2, y1, x1)
-        self.extrude(y1, x1, x1, y1)
+        self.extrude(x1, y1, x2, y2, z= .05, color = self.Green)
+        self.extrude(x2, y2, y2, x2, z= .05, color = self.Green)
+        self.extrude(y2, x2, y1, x1, z= .05, color = self.Green)
+        self.extrude(y1, x1, x1, y1, z= .05, color = self.Green)
 
         # vertical depth
-        self.extrude(x3, y3, x4, y4)
-        self.extrude(x4, y4, y4, x4)
-        self.extrude(y4, x4, y3, x3)
+        self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
+        self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
+        self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
   
         NumSectors = 200
   
@@ -855,36 +1017,50 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             x8 = 0.30 * math.sin(angle2) * factor
             y8 = 0.30 * math.cos(angle2) * factor
   
-            self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
+            self.quad(x5, y5, x6, y6, x7, y7, x8, y8, z= .05, color = self.Green)
   
-            self.extrude(x6, y6, x7, y7)
-            self.extrude(x8, y8, x5, y5)
+            self.extrude(x6, y6, x7, y7, z= .05, color = self.Green)
+            self.extrude(x8, y8, x5, y5, z= .05, color = self.Green)
   
         GL.glEnd()
         GL.glEndList()
   
         return genList
   
-    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        self.qglColor(self.Green)
+    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, -0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x3, y3, -0.05)
-        GL.glVertex3d(x4, y4, -0.05)
+        GL.glVertex3d(x1, y1, -z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x3, y3, -z)
+        GL.glVertex3d(x4, y4, -z)
   
-        GL.glVertex3d(x4, y4, +0.05)
-        GL.glVertex3d(x3, y3, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x1, y1, +0.05)
+        GL.glVertex3d(x4, y4, +z)
+        GL.glVertex3d(x3, y3, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x1, y1, +z)
+
+    def lathe_quad(self, x1, x2, x3, x4, z1, z2, z3, z4, color):
+        self.qglColor(color)
   
-    def extrude(self, x1, y1, x2, y2):
-        self.qglColor(self.Green.darker(250 + int(100 * x1)))
+        GL.glVertex3d(x1, 0, z1)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x4, 0, z4)
+
+        # defeat back face cull
+        GL.glVertex3d(x4, 0, z4)
+        GL.glVertex3d(x3, 0, z3)
+        GL.glVertex3d(x2, 0, z2)
+        GL.glVertex3d(x1, 0, z1)
+
+    def extrude(self, x1, y1, x2, y2, z, color):
+        self.qglColor(color)
   
-        GL.glVertex3d(x1, y1, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x1, y1, -0.05)
+        GL.glVertex3d(x1, y1, +z)
+        GL.glVertex3d(x2, y2, +z)
+        GL.glVertex3d(x2, y2, -z)
+        GL.glVertex3d(x1, y1, -z)
 
 ###########
 # Testing

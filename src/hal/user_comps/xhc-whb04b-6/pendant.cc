@@ -332,7 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""),
+    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
@@ -891,6 +892,7 @@ void Pendant::processEvent(uint8_t keyCode,
                            uint8_t rotaryButtonFeedKeyCode,
                            int8_t handWheelStepCount)
 {
+
     shiftButtonState();
 
     auto key      = KeyCodes::Buttons.codeMap.find(keyCode);
@@ -901,18 +903,22 @@ void Pendant::processEvent(uint8_t keyCode,
     if (key == KeyCodes::Buttons.codeMap.end())
     {
         *mPendantCout << mPrefix << "failed to interpret key code keyCode={" << keyCode << "}" << endl;
+        modifier = KeyCodes::Buttons.codeMap.find(0);
     }
     if (modifier == KeyCodes::Buttons.codeMap.end())
     {
         *mPendantCout << mPrefix << "failed to interpret modifier code keyCode={" << modifierCode << "}" << endl;
+        modifier = KeyCodes::Buttons.codeMap.find(0);
     }
     if (axis == KeyCodes::Axis.codeMap.end())
     {
-        *mPendantCout << mPrefix << "failed to interpret axis code axisCode={" << modifierCode << "}" << endl;
+        *mPendantCout << mPrefix << "failed to interpret axis code axisCode={" << rotaryButtonAxisKeyCode << "}" << endl;
+        axis = KeyCodes::Axis.codeMap.find(0);
     }
     if (feed == KeyCodes::Feed.codeMap.end())
     {
-        *mPendantCout << mPrefix << "failed to interpret axis code axisCode={" << modifierCode << "}" << endl;
+        *mPendantCout << mPrefix << "failed to interpret axis code feed axisCode={" << rotaryButtonFeedKeyCode << "}" << endl;
+        feed = KeyCodes::Feed.codeMap.find(0);
     }
 
     processEvent(*key->second, *modifier->second, *axis->second, *feed->second, handWheelStepCount);
@@ -1350,7 +1356,7 @@ void Pendant::onFeedActiveEvent(const KeyCode& feed)
 // ----------------------------------------------------------------------
 void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.lead.code)
+    if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHandWheel.counters().enableLeadCounter(isActive);
     }
@@ -1382,7 +1388,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected100(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.lead.code)
+    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
@@ -1417,7 +1423,7 @@ void Pendant::dispatchFeedValueToHal()
             mHal.setMpgMode(false);
             mHal.setConMode(true);
             mHal.setFeedOverrideScale(0);
-            axisJogStepSize = feedButton.stepSize() * 0.001 * mHal.getFeedOverrideMaxVel();
+            axisJogStepSize = feedButton.stepSize() * 0.0001 * mHal.getFeedOverrideMaxVel();
         }
         else
         {

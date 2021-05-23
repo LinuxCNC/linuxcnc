@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -265,7 +266,7 @@ class MainWindow(QMainWindow):
 
     def update_format(self):
         """
-        Update the font format toolbar/actions when a new text selection is made. This is neccessary to keep
+        Update the font format toolbar/actions when a new text selection is made. This is necessary to keep
         toolbars/etc. in sync with the current edit state.
         :return:
         """
@@ -344,7 +345,7 @@ class MainWindow(QMainWindow):
             self.update_title()
 
     def file_print(self):
-        print self.editor.toHtml()
+        print(self.editor.toHtml())
 
     def update_title(self):
         self.setWindowTitle("%s - Megasolid Idiom" % (os.path.basename(self.path) if self.path else "Untitled"))
@@ -386,7 +387,7 @@ class RichTextEditorDialog(QDialog):
 if __name__ == '__main__':
 
     def p():
-        print window.editor.toHtml()
+        print(window.editor.toHtml())
         app.exit()
 
     app = QApplication(sys.argv)

@@ -1,11 +1,11 @@
-#ifndef HALSC_SHM_H
-#define HALSC_SHM_H
-/** This file, 'halsc_shm.h', contains declarations used by both
-    'halscope.c' and 'halscope_rt.c' to implement an oscilloscope.
+#ifndef SCOPE_SHM_H
+#define SCOPE_SHM_H
+/** This file, 'scope_shm.h', contains declarations used by both
+    'scope.c' and 'scope_rt.c' to implement an oscilloscope.
     The declarations in this file are used by both the realtime
     and user space components of the scope.  Those used only in
-    realtime are in 'halsc_rt.h', and those used only in user
-    space are in 'halsc_usr.h'.
+    realtime are in 'scope_rt.h', and those used only in user
+    space are in 'scope_usr.h'.
 */
 
 /** Copyright (C) 2003 John Kasunich

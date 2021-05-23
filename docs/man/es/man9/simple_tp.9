@@ -1,0 +1,41 @@
+.TH SIMPLE_TP "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+simple_tp \- This component is a single axis simple trajectory planner, same as used for jogging in linuxcnc.
+.SH SYNOPSIS
+Used by PNCconf to allow testing of acceleration and velocity values for an axis.
+.SH FUNCTIONS
+.TP
+\fBsimple-tp.\fIN\fB.update\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B simple-tp.\fIN\fB.target-pos\fR float in \fR
+target position to plan for.
+.TP
+.B simple-tp.\fIN\fB.maxvel\fR float in \fR
+Maximum velocity
+.TP
+.B simple-tp.\fIN\fB.maxaccel\fR float in \fR
+Acceleration rate
+.TP
+.B simple-tp.\fIN\fB.enable\fR bit in \fR
+If disabled, planner sets velocity to zero immedately.
+.TP
+.B simple-tp.\fIN\fB.current-pos\fR float out \fR
+position commanded at this point in time.
+.TP
+.B simple-tp.\fIN\fB.current-vel\fR float out \fR
+velocity commanded at this moment in time.
+.TP
+.B simple-tp.\fIN\fB.active\fR bit out \fR
+if active is true, the planner is requesting movement.
+.SH LICENSE
+
+GPL

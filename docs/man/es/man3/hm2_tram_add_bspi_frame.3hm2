@@ -1,0 +1,41 @@
+\# Autor Andy Pugh
+\# Publicado bajo los términos de la licencia GPL v2 o cualquier versión posterior
+.TH hm2_tram_add_bspi_frame "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_tram_add_bspi_frame \- agrega una escritura de registro al TRAM de Hostmot2
+
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
+
+.SH DESCRIPCIÓN
+\fBhm2_tram_add_bspi_frame\fR Agrega un evento de escritura regular (cada hilo) al tram Hostmot2 
+para la instancia bspi "name". "name" es una cadena única dada a cada
+canal bspi durante la configuración de hostmot2. Los nombres de los canales disponibles se imprimen 
+a la salida estándar durante el proceso de carga del controlador y toman la forma:
+hm2_<nombre de placa>.<índice de placa>.bspi.<índice> .
+Por ejemplo hm2_5i23.0.bspi.0
+
+Esta función se utiliza para agregar una transacción regular, en cada hilo,de escritura o escritura-lectura 
+al sistema Translation RAM. Una escritura no necesita tener una lectura (use 0 para **rbuff) pero es un 
+error tener una lectura sin escritura. Tenga en cuenta que la lista TRAM no se activa hasta que se llama a 
+la función hm2_allocate_bspi_tram.
+Los parámetros de lectura y escritura deben ser punteros a punteros, ya que TRAM vuelve a mapear el buffer en memoria contigua.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+Llame solo desde el código de inicio de tiempo real, no desde el espacio de usuario o el código de tiempo real.
+
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito y \-1 en caso de error.
+
+.SH VER TAMBIÉN
+\fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_set_write_function(3hm2)\fR,
+\fBhm2_bspi_write_chan(3hm2)\fR,
+Consulte src/hal/drivers mesa_7i65.comp para ver un ejemplo de uso.
+

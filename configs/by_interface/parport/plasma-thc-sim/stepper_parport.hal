@@ -2,7 +2,7 @@
 
 # Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
 
-# Connect both Paralell Ports to Threads for Read / Write
+# Connect both Parallel Ports to Threads for Read / Write
 
 # Invert pins to make motors move in right direction
 

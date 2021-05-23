@@ -1,0 +1,229 @@
+:lang: es
+
+= Afinación de Steppers
+
+[[cha:Stepper-Tuning]]
+
+== Obtener el máximo rendimiento del Software de Stepping
+
+Generar pulsos de paso en el software tiene una gran ventaja: es gratis. 
+Casi todas las PC tienen un puerto paralelo que es capaz de
+generar pulsos de paso por el software. Sin embargo,
+los pulsos de paso de software también tienen algunas desventajas:
+
+* velocidad de paso máxima limitada
+* inestabilidad en los pulsos generados
+* carga la CPU
+
+Este capítulo tiene algunos pasos que pueden ayudarlo a obtener los mejores resultados
+a partir de pasos generados por software.
+
+=== Ejecutar una prueba de latencia
+
+Ejecute la prueba de latencia como se describe en el capítulo <<cha:latency-test,Test de Latencia>>.
+
+Mientras se ejecuta la prueba, debe 'abusar' de la computadora. Mueva
+ventanas alrededor de la pantalla. Navegue por la web. Copie algunos archivos grandes
+en el disco. Ponga musica. Ejecute un programa OpenGL como
+Glxgears. La idea es poner a la PC a un fuerte ritmo mientras el test de latencia
+verifica los resultados para ver cuáles son los peores números.
+
+El último número en la columna etiquetada 'Max Jitter' es el más importante.
+Reservelo; lo necesitarás más tarde. Contiene la peor latencia
+medida durante toda la ejecución de la prueba. En el ejemplo anterior,
+eso es 10636 nanosegundos, o 10.6 microsegundos, que es excelente.
+Sin embargo, el ejemplo solo se ejecutó durante unos segundos (imprime una línea
+cada segundo). Debe ejecutar la prueba durante al menos varios minutos;
+a veces, la peor latencia no ocurre muy a menudo, o solo
+sucede cuando se hace alguna acción particular. Cierta placa base Intel
+funcionó bastante bien la mayor parte del tiempo, pero cada 64 segundos tenía una
+muy mala latencia de 300 us. Afortunadamente, eso es reparable, ver
+FixingDapperSMIIssues en la wiki que se encuentra en wiki.linuxcnc.org.
+
+Entonces, ¿qué significan los resultados? Si su número 'ovl max' es menor que
+aproximadamente 15-20 microsegundos (15000-20000 nanosegundos), la computadora debería
+da buenos resultados con pasos por software. Si la latencia máxima esta entre
+30-50 microsegundos, todavía puede obtener buenos resultados, pero su
+la velocidad máxima de paso puede ser un poco decepcionante, especialmente si
+utiliza microstepping o tiene tornillos de paso muy finos. Si los números
+son 100 us o más (100,000 nanosegundos), entonces ese PC no es buen
+candidato para pasos por software. Números de más de 1 milisegundo (1,000,000
+nanosegundos) significa que la PC no es un buen candidato para EMC, independientemente de
+que use pasos por software o no.
+
+Tenga en cuenta que si obtiene números altos, puede haber formas de mejorarlos.
+Por ejemplo, una PC tenía una latencia muy mala (varios milisegundos)
+usando el video integrado. Pero una tarjeta de video Matrox usada de $5 resolvió el problema
+problema: EMC no requiere hardware de última generación.
+
+=== Descubra lo que esperan sus drivers
+
+Las diferentes marcas de unidades paso a paso tienen diferentes requisitos de temporización
+en sus pasos y entradas de dirección. Necesita la hoja de datos que tiene las especificaciones de su unidad.
+
+Del manual de Gecko G202:
+....
+Frecuencia de pasos: 0 a 200 kHz
+Step Pulse "0" Time: 0.5 us min (Paso en el flanco descendente)
+Step Pulse "1" Time: 4.5 us min
+Configuración de dirección: 1 us min (20 us min tiempo de retencion despues del flanco de paso)
+....
+
+Del manual de Gecko G203V:
+....
+Frecuencia de paso: 0 a 333 kHz
+Step Pulse "0" Time: 2.0 us min (paso en flanco ascendente)
+Step Pulse "1" Time: 1.0 us min
+
+Configuración de dirección:
+    200 ns (0.2 us) antes del flanco ascendente del pulso del paso
+    200 ns (0.2 us) se mantienen después del paso del pulso flanco ascendente
+....
+
+De la hoja de datos de Xylotex:
+....
+Tiempo de configuración de DIR mínimo antes del flanco ascendente de STEP Pulse 200 ns Mínimo
+Tiempo de retención DIR después del flanco ascendente del impulso STEP 200 ns
+Pulso STEP mínimo tiempo alto 2.0 us
+Minimum STEP pulso bajo tiempo 1.0 us
+El paso sucede en el flanco ascendente
+....
+
+Una vez que encuentre los números, anótelos también; los necesita en el
+próximo paso.
+
+=== Eligir su BASE_PERIOD
+
+BASE_PERIOD es el "latido" de su computadora EMC. En cada período, el
+generador de pasos de software decide si es el momento de otro impulso de pasos. Un
+período más corto le permitirá generar más pulsos por segundo,
+dentro de los limites. Pero si se queda demasiado corto, su computadora gastará
+mucho tiempo generando pulsos de paso que todo lo demás se ralentizará, o tal vez incluso se bloqueara. 
+Los requisitos de latencia y del driver afectan el período más corto que se puede usar, como veremos en un minuto.
+
+Veamos primero el ejemplo de Gecko. El G202 puede manejar pulsos de pasos
+que estan en bajo 0.5 us y y en alto 4.5 us. Necesita el pin de dirección estable 
+durante 1us antes del flanco descendente y permanecer estable 20us después
+del flanco descendente. El requisito de tiempo más largo es el tiempo de espera de 20 us.
+Un enfoque simple sería establecer el período en 20 us. Eso significa que
+todos los cambios en las líneas STEP y DIR están separados por 20 us. Todo bien; de acuedo?
+
+¡Incorrecto! Si hubiera latencia CERO, entonces todos los flancos estarían separados por
+20 us, y todo estaría bien. Pero todas las computadoras tienen alguna latencia
+Latencia significa retraso. Si la computadora tiene 11 us de latencia,
+eso significa que a veces el software corre 11 us más tarde de lo que se suponía. Si una 
+ejecución del software se hace 11 us tarde, y la siguiente se hace en su momento, el retraso 
+de la primera a la segunda es solo 9 us. Si el primero generó un impulso de paso, y el segundo cambia el
+bit de dirección, acaba de violar el requisito de tiempo de espera de 20 us del G202.
+Eso significa que su unidad podría haber dado un paso en la dirección incorrecta, y su pieza será de tamaño incorrecto.
+
+La parte realmente desagradable de este problema es que puede ser muy esporadico. 
+Las peores latencias pueden ocurrir solo unas pocas veces por minuto, y
+las probabilidades de mala latencia justo cuando el motor está cambiando
+la dirección es baja. Así que se obtienes errores muy extraños que arruinan una pieza
+de vez en cuando y parecen imposibles de solucionar.
+
+La forma más sencilla de evitar este problema es elegir un BASE_PERIOD que
+sea la suma de los requisitos de tiempo más largos de su driver, y el
+el peor caso de latencia de su computadora. Si está ejecutando un Gecko con
+20 us como requisito de tiempo de mantenimimiento, y su prueba de latencia dice que tiene una
+latencia máxima de 11 us, si configura BASE_PERIOD a 20+11=31 us (31000 nano-segundos en el 
+archivo ini), tiene la garantía de cumplir los requisitos de tiempo del driver.
+
+Pero queda un compromiso. Hacer un pulso de paso requiere al menos dos
+períodos. Uno para comenzar el pulso y otro para finalizarlo. Como el período es
+31 us, se necesita 2x31 = 62 us para crear un pulso de paso. Eso significa que
+la velocidad máxima de paso es de solo 16129 pasos por segundo. No muy buena. Pero
+no se rindas todavía, todavía tenemos algunos ajustes que hacer en la próxima
+sección.
+
+Para Xylotex, los tiempos de activacion y mantenimiento son muy cortos, 200 ns cada uno
+(0.2 us). El tiempo más largo es el tiempo 2 us. Si tienes 11 us
+latencia, entonces puede establecer BASE_PERIOD como 11+2=13 us. Conseguir
+deshacerse del largo tiempo de espera de 20 us realmente ayuda! 
+Con un período de 13 us, un paso completo tarda 2x13=26 us, y la velocidad máxima de paso es 38461
+pasos por segundo!
+
+Pero no puede celebrar nada todavía. Tenga en cuenta que 13 us es un período muy corto.
+Si intenta correr el generador de pasos cada 13 us, podría suceder
+no le quedará tiempo suficiente para ejecutar cualquier otra cosa, y su computadora
+podria bloquearse. Si su objetivo son períodos de menos de 25 us, debe
+comenzar con 25 us o más, ejecute EMC y vea cómo responden las cosas. Si todo esta
+bien, puedes disminuir gradualmente el período. Si el puntero del mouse
+comienza a ser lento, o cualquier otra cosa en el PC se ralentiza, su
+el período es un poco corto. Regrese al valor anterior que deje ala computadora 
+funcionar sin problemas.
+
+En este caso, supongamos que se comenzó en 25 us, tratando de llegar a 13 us, pero
+usted encuentra que el límite esta alrededor de 16 us; un valor menor menor y la computadora
+deja de responde bien. Entonces usa 16 us. Con un período de 16 us y 11 us
+latencia, el tiempo de salida más corto será 16-11=5 us. El dirver solo
+necesita 2 us, así que tiene un margen. El margen es bueno; no se quiere
+perder pasos por haber usado un tiempo demasiado corto.
+
+¿Cuál es la tasa de paso máxima? Recuerde, dos períodos para dar un paso.
+Se estableció en 16 us para el período, por lo que un paso consume 32 us. Funcionariamos
+a unos no  malos 31250 pasos por segundo.
+
+=== Uso de steplen, stepspace, dirsetup y/o dirhold
+
+En la última sección, obtuvimos para el driver Xylotex un período de 16 us y una
+velocidad máxima de 31250 pasos por segundo. Pero el Gecko estaba atascado en 31 us
+y unos no tan buenos 16129 pasos por segundo. El ejemplo de Xylotex es lo mejor
+que podemos hacer con el. Pero el Gecko se puede mejorar.
+
+El problema con el G202 es el requisito de tiempo de espera de 20 us. Esto, y la
+latencia de 11 us es lo que nos obliga a usar un período lento de 31 us. Pero el
+El generador de pasos software LinuxCNC tiene algunos parámetros que le permiten aumentar
+diferentes tiempos en uno o varios períodos. Por ejemplo, si steplen es
+cambiado de 1 a 2, entonces habrá dos períodos entre el
+comienzo y final del impulso de paso. Del mismo modo, si se cambia dirhold
+de 1 a 3, habrá al menos tres períodos entre el pulso de paso
+y un cambio del pin de dirección.
+
+Si podemos usar dirhold para cumplir con el requisito de 20 us "hold time", entonces
+el siguiente tiempo más largo es el de 4.5 us high time. Agregue la latencia de 11 us a
+4.5 us alta hora, y obtienes un período mínimo de 15.5 us. Cuando intentas
+15.5 us, usted encuentra que la computadora es lenta, por lo que se acomoda en 16 nosotros.
+Si dejamos dirhold en 1 (valor predeterminado), entonces el tiempo mínimo entre
+paso y dirección es el período de 16 us menos latencia de 11 us = 5 us,
+que no es suficiente Necesitamos otros 15 nosotros. Como el período es 16 us, nosotros
+necesita un período más. Entonces cambiamos dirhold de 1 a 2. Ahora el mínimo
+el tiempo desde el final del impulso de paso hasta el pin de dirección cambiante es
+5 + 16 = 21 us, y no tenemos que preocuparnos de que Gecko ponga
+dirección incorrecta debido a la latencia.
+
+Si la computadora tiene una latencia de 11 us, entonces una combinación de 16 us
+período base, y un valor dirhold de 2 asegura que siempre nos reuniremos
+los requisitos de tiempo del Gecko. Para caminar normal (sin dirección
+cambio), el valor aumentado de dirhold no tiene ningún efecto. Hacen falta dos
+períodos que totalizan 32 us para hacer cada paso, y tenemos el mismo 31.250
+paso por segundo que obtuvimos con el Xylotex.
+
+El número de latencia 11 us utilizado en este ejemplo es muy bueno. Si trabajas
+a través de estos ejemplos con mayor latencia, como 20 o 25 us, la parte superior
+la velocidad de paso tanto para Xylotex como para Gecko será menor. Pero el
+se aplican las mismas fórmulas para calcular el BASE_PERIOD óptimo, y para
+retocando dirhold u otros parámetros del generador de pasos.
+
+=== ¡No hacer suposiciones!
+
+Para un sistema de pasos basado en software, rápido y confiable, no puede simplemente
+suponer períodos y otros parámetros de configuración. Necesita
+mediciones en su computadora, y hacer cálculos para asegurarse de que sus
+drivers obtienen las señales que necesitan.
+
+Para facilitar las matemáticas, se he creado una hoja de cálculo de Open Office
+http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods
+Usted ingresa el resultado de la prueba de latencia y los requisitos de tiempo de su driver paso a paso 
+y la hoja de cálculo calcula el BASE_PERIOD óptimo.
+A continuación, pruebe el período para asegurarse de que no se ralentizará o bloqueará
+tu computador. Finalmente, ingrese el período real y la hoja de cálculo
+le dirá la configuración de parámetros de stepgen que se necesitan para cumplir con su
+requisitos de tiempo de la unidad. También calcula la velocidad máxima de paso
+que podrá generar
+
+Se han agregado mas cosas a la hoja de cálculo para calcular la velocidad máxima y
+cálculos eléctricos paso a paso.
+
+

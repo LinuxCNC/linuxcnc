@@ -1,3 +1,9 @@
+/* misnomer: _setup.current_pocket,selected_pocket
+** These variables are actually indexes to sequential tool
+** data structs (not real pockets).
+** Future renaming will affect current usage in python remaps.
+*/
+
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -281,6 +287,12 @@ static inline bool get_mist (Interp &interp)  {
 }
 static inline void set_mist(Interp &interp, bool value)  {
     interp._setup.mist = value;
+}
+static inline bool get_flood (Interp &interp)  {
+    return interp._setup.flood;
+}
+static inline void set_flood(Interp &interp, bool value)  {
+    interp._setup.flood = value;
 }
 static inline bool get_percent_flag (Interp &interp)  {
     return interp._setup.percent_flag;
@@ -702,12 +714,6 @@ static inline int get_plane (Interp &interp)  {
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);
 }
-static inline int get_pockets_max (Interp &interp)  {
-    return interp._setup.pockets_max;
-}
-static inline void set_pockets_max(Interp &interp, int value)  {
-    interp._setup.pockets_max = value;
-}
 static inline int get_random_toolchanger (Interp &interp)  {
     return interp._setup.random_toolchanger;
 }
@@ -783,7 +789,6 @@ static inline void set_current_tool(Interp &interp, int value)  {
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
-    using namespace boost;
 
     scope().attr("__doc__") =
         "Interpreter introspection\n"
@@ -837,7 +842,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     export_ParamClass();
     export_Internals();
     export_Block();
-    class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
+    bp::class_<InterpreterException>InterpreterExceptionClass("InterpreterException",	bp::init<std::string, int, std::string>());
     InterpreterExceptionClass
 	.add_property("error_message", &InterpreterException::get_error_message)
 	.add_property("line_number", &InterpreterException::get_line_number)
@@ -849,7 +854,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    class_< Interp, noncopyable >("Interp",no_init) 
+    bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
@@ -882,6 +887,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("input_flag", &get_input_flag, &set_input_flag)
 	.add_property("mdi_interrupt", &get_mdi_interrupt, &set_mdi_interrupt)
 	.add_property("mist", &get_mist, &set_mist)
+	.add_property("flood", &get_flood, &set_flood)
 	.add_property("percent_flag", &get_percent_flag, &set_percent_flag)
 	.add_property("probe_flag", &get_probe_flag, &set_probe_flag)
 	.add_property("speed_override", &get_speed_override, &set_speed_override)
@@ -953,7 +959,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("motion_mode", &get_motion_mode, &set_motion_mode)
 	.add_property("origin_index", &get_origin_index, &set_origin_index)
 	.add_property("plane", &get_plane, &set_plane)
-	.add_property("pockets_max", &get_pockets_max, &set_pockets_max)
 	.add_property("random_toolchanger", &get_random_toolchanger, &set_random_toolchanger)
 	.add_property("remap_level", &get_remap_level, &set_remap_level)
 	.add_property("retract_mode", &get_retract_mode, &set_retract_mode)

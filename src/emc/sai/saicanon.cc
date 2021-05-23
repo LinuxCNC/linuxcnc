@@ -32,6 +32,7 @@
 ********************************************************************/
 
 #include <saicanon.hh>
+#include "tooldata.hh"
 
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
@@ -41,6 +42,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <rtapi_string.h>
+
+#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
@@ -501,16 +504,34 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-    _sai._tools[pocket].toolno = toolno;
-    _sai._tools[pocket].offset = offset;
-    _sai._tools[pocket].diameter = diameter;
-    _sai._tools[pocket].frontangle = frontangle;
-    _sai._tools[pocket].backangle = backangle;
-    _sai._tools[pocket].orientation = orientation;
+
+#ifdef TOOL_NML //{
+    _sai._tools[idx].toolno = toolno;
+    _sai._tools[idx].offset = offset;
+    _sai._tools[idx].diameter = diameter;
+    _sai._tools[idx].frontangle = frontangle;
+    _sai._tools[idx].backangle = backangle;
+    _sai._tools[idx].orientation = orientation;
+#else //}{
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG; 
+    }
+    tdata.toolno = toolno;
+    tdata.offset = offset;
+    tdata.diameter = diameter;
+    tdata.frontangle = frontangle;
+    tdata.backangle = backangle;
+    tdata.orientation = orientation;
+    if (tooldata_put(tdata,idx) == IDX_FAIL) {
+        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+    }
+#endif //}
+
     ECHO_WITH_ARGS("%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d",
-            pocket, toolno,
+            idx, toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
 }
@@ -526,7 +547,18 @@ void CHANGE_TOOL(int slot)
 {
   PRINT("CHANGE_TOOL(%d)\n", slot);
   _sai._active_slot = slot;
+#ifdef TOOL_NML //{
   _sai._tools[0] = _sai._tools[slot];
+#else //}{
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,slot) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+    _sai._tools[0] = tdata;
+    if (tooldata_put(tdata,0) == IDX_FAIL) {
+        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+    }
+#endif //}
 }
 
 void SELECT_TOOL(int tool)//TODO: fix slot number
@@ -907,17 +939,19 @@ extern int GET_EXTERNAL_TOOL_SLOT()
   return _sai._active_slot;
 }
 
-/* Returns maximum number of pockets */
-int GET_EXTERNAL_POCKETS_MAX()
-{
-  return _sai._pockets_max;
-}
-
 /* Returns the CANON_TOOL_TABLE structure associated with the tool
    in the given pocket */
-extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
+extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
 {
-  return _sai._tools[pocket];
+#ifdef TOOL_NML //{
+  return _sai._tools[idx];
+#else //}{
+    CANON_TOOL_TABLE tdata;
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        UNEXPECTED_MSG;
+    }
+  return tdata;
+#endif //}
 }
 
 /* Returns the system traverse rate */

@@ -1,6 +1,6 @@
 Source: linuxcnc
 Section: misc
-Priority: extra
+Priority: optional
 Maintainer: Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends: debhelper (>= 6),
     @PYTHON_PACKAGING_DEPENDS@,
@@ -10,6 +10,9 @@ Build-Depends: debhelper (>= 6),
     @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev,
     tk@TCLTK_VERSION@-dev,
+    libtk-img,
+    bwidget (>= 1.7),
+    tclx,
     @LIBREADLINE_DEV@,
     @DOC_DEPENDS@,
     python3,
@@ -19,6 +22,7 @@ Build-Depends: debhelper (>= 6),
     libglu1-mesa-dev,
     libgl1-mesa-dev | libgl1-mesa-swx11-dev,
     libgtk2.0-dev,
+    libgtk-3-dev,
     gettext,
     intltool,
     autoconf,
@@ -30,10 +34,11 @@ Build-Depends: debhelper (>= 6),
     psmisc,
     desktop-file-utils,
     yapps2,
+    libtirpc-dev,
     python3-yapps,
     libtirpc-dev,
-    libepoxy-dev,
-Standards-Version: 3.9.2
+    libepoxy-dev
+Standards-Version: @STANDARDS_VERSION@
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
 
@@ -45,6 +50,7 @@ Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
     @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+    udev,
     @YAPPS_RUNTIME@
 Section: libs
 Description: PC based motion controller for real-time Linux

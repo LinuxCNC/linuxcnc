@@ -69,7 +69,7 @@ import hashlib
 import glob
 import shutil
 import popupkeyboard
-#import exceptions  # for debug printing TODO: not found!
+if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
@@ -96,6 +96,12 @@ if sys.version_info[0] == 3:
 else:
     gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
+try:
+    import pygtk
+    pygtk.require('2.0')
+except ImportError as msg:
+    print('import pygtk failed: %s',msg)
+    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
@@ -1253,7 +1259,7 @@ class SubFile():
         self.inputlines = []
 
     def flagerror(self,e):
-        # accumulate erors from read() so entire file can be processed
+        # accumulate errors from read() so entire file can be processed
         self.errlist.append(e)
 
     def specialcomments_ngc(self,s):
@@ -1421,7 +1427,7 @@ class SubFile():
                 dvalue = ''
 
             if name:
-                if comment is '':
+                if comment == '':
                     comment = name
                 pnum += 1
                 self.ndict[pnum] = (name,dvalue,comment)
@@ -1632,7 +1638,7 @@ class EntryFields():
 
     def make_entryfields(self,nparms):
         self.no_of_entries = nparms
-        # make VBoxes as required to accomodate entries
+        # make VBoxes as required to accommodate entries
         # destroy them when starting over -- this occurs
         # when a OnePg is reused for a different subfile
         try:

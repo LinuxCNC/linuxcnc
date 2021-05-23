@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp Widget - DRO label widget
 # This widgets displays linuxcnc axis position information.
 #
@@ -33,7 +33,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -51,28 +51,52 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.angular_text_template = '%9.2f'
         self.setText('--------------')
         self.allow_reference_change_requests = True
+        self.follow_m7m8_mode = True
+        self.force_diameter = False
+        self.force_radius = False
         self._scale = 1
+        self._user = 0
+
+        # for stylesheet reading
+        self._isHomed = False
 
     def _hal_init(self):
         super(DROLabel, self)._hal_init()
+        STATUS.connect('homed', lambda w,d: self._home_status_polish(int(d), True))
+        STATUS.connect('unhomed', lambda w,d: self._home_status_polish(int(d), False))
         # get position update from STATUS every 100 ms
         if self.joint_number == 10:
             STATUS.connect('current-z-rotation', self.update_rotation)
         else:
+            self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(self.joint_number)
+            if self._jointNum is None:
+                LOG.debug('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.joint_number, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
+                self._jointNum = 0
+
             STATUS.connect('motion-mode-changed',self.motion_mode)
             STATUS.connect('current-position', self.update)
             STATUS.connect('metric-mode-changed', self._switch_units)
-            STATUS.connect('diameter-mode', self._switch_modes)
+            if self.follow_m7m8_mode:
+                STATUS.connect('diameter-mode', self._switch_modes)
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
-            self._joint_type  = STATUS.stat.joint[self.joint_number]['jointType']
 
+            self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
         if self._joint_type == linuxcnc.ANGULAR:
             self._current_text_template =  self.angular_text_template
         elif self.display_units_mm:
             self._current_text_template = self.metric_text_template
         else:
             self._current_text_template = self.imperial_text_template
+
+    # update ishomed property
+    # polish widget so stylesheet sees the property change
+    # some stylessheets color the text on home/unhome
+    def _home_status_polish(self, d, state):
+        if d == self.joint_number or (self.joint_number==10 and d==1):
+            self.setProperty('isHomed', state)
+            self.style().unpolish(self)
+            self.style().polish(self)
 
     def motion_mode(self, w, mode):
         if mode == linuxcnc.TRAJ_MODE_COORD:
@@ -83,6 +107,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         # axis 
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
             self._mode = True
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(float)
+    def update_user(self, data):
+        self._user = data
 
     def update_rotation(self, widget, rotation):
         degtmpl = lambda s: self.angular_text_template % s
@@ -99,13 +128,16 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         try:
             if self.reference_type == 0:
                 if not self._mode and STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                    self.setText(tmpl(joint[self.joint_number]))
+                    self.setText(tmpl(joint[self._jointNum]))
                 else:
                     self.setText(tmpl(absolute[self.joint_number]*self._scale))
             elif self.reference_type == 1:
                 self.setText(tmpl(relative[self.joint_number]*self._scale))
             elif self.reference_type == 2:
                 self.setText(tmpl(dtg[self.joint_number]*self._scale))
+
+            elif self.reference_type == 10:
+                self.setText(tmpl(self._user*self._scale))
         except:
             pass
 
@@ -155,7 +187,55 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.diameter = False
         self._scale = 1.0
 
-# property getter/setters
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+ 
+    def _toggle_properties(self, picked):
+        data = ('always_display_diameter','always_display_radius',
+        'display_as_per_m7m8')
+
+        for i in data:
+            if not i == picked:
+                self[i] = False
+
+    # property getter/setters
+    def set_force_diameter(self, data):
+        self.force_diameter = data
+        if data:
+            self.set_to_diameter()
+            self._toggle_properties('always_display_diameter')
+    def get_force_diameter(self):
+        return self.force_diameter
+    def reset_force_diameter(self):
+        self.force_diameter = False
+    always_display_diameter = QtCore.pyqtProperty(bool, get_force_diameter, set_force_diameter, reset_force_diameter)
+
+    def set_force_radius(self, data):
+        self.force_radius = data
+        if data:
+            self.set_to_radius()
+            self._toggle_properties('always_display_radius')
+    def get_force_radius(self):
+        return self.force_radius
+    def reset_force_radius(self):
+        self.force_radius = False
+    always_display_radius = QtCore.pyqtProperty(bool, get_force_radius, set_force_radius, reset_force_radius)
+
+    def set_follow_m7m8_mode(self, data):
+        self.follow_m7m8_mode = data
+        if data:
+            self._toggle_properties('display_as_per_m7m8')
+    def get_follow_m7m8_mode(self):
+        return self.follow_m7m8_mode
+    def reset_follow_m7m8_mode(self):
+        self.follow_m7m8_mode = True
+    display_as_per_m7m8 = QtCore.pyqtProperty(bool, get_follow_m7m8_mode, set_follow_m7m8_mode, reset_follow_m7m8_mode)
 
     # JOINT Number
     def setjoint_number(self, data):
@@ -201,10 +281,25 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.angular_text_template =  '%9.2f'
     angular_template = QtCore.pyqtProperty(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
 
+    def setisHomed(self, data):
+        self._isHomed = data
+    def getisHomed(self):
+        return self._isHomed
+
+    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 # for testing without editor:
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = DROLabel()

@@ -34,6 +34,10 @@
 #include "nml_oi.hh"
 #include "rcs_print.hh"
 #include <rtapi_string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "tooldata.hh"
 
 #include <cmath>
 
@@ -284,7 +288,27 @@ static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
     return true;
 }
 
+static bool initialized=0;
+
 static PyObject *poll(pyStatChannel *s, PyObject *o) {
+#ifdef TOOL_NML //{
+    if (!initialized) {
+      //fprintf(stderr,"%8d tool_nml_register\n",getpid());
+      tool_nml_register( (CANON_TOOL_TABLE*)&s->status.io.tool.toolTable);
+      initialized=1;
+    }
+#else //}{
+    static bool mmap_available = 1;
+    if (!mmap_available) return NULL;
+    if (!initialized) {
+        initialized=1;
+        if (tool_mmap_user()) {
+          mmap_available = 0;
+          fprintf(stderr,"mmap tool data not available, continuing %s\n",
+                  __FILE__);
+        }
+    }
+#endif //}
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
@@ -659,21 +683,34 @@ static PyStructSequence_Desc tool_result_desc = {
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(CANON_POCKETS_MAX);
-    int j=0;
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
+    PyObject *res;
+    int j = 0;
+
+    if (!initialized) {
+        // invalid until initialized (by poll())
+        res = PyTuple_New(0);
+        return res;
+    }
+
+    int idxmax = tooldata_last_index_get() + 1;
+    res = PyTuple_New(idxmax);
+    for(int idx=0; idx < idxmax; idx++) {
+        struct CANON_TOOL_TABLE tdata;
+        if (tooldata_get(&tdata,idx) != IDX_OK) {
+            fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        }
+        struct CANON_TOOL_TABLE &t = tdata;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.offset.tran.y));
-        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.offset.tran.z));
-        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.offset.a));
-        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.offset.b));
-        PyStructSequence_SET_ITEM(tool, 6, PyFloat_FromDouble(t.offset.c));
-        PyStructSequence_SET_ITEM(tool, 7, PyFloat_FromDouble(t.offset.u));
-        PyStructSequence_SET_ITEM(tool, 8, PyFloat_FromDouble(t.offset.v));
-        PyStructSequence_SET_ITEM(tool, 9, PyFloat_FromDouble(t.offset.w));
+        PyStructSequence_SET_ITEM(tool,  0, PyInt_FromLong(t.toolno));
+        PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
+        PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
+        PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
+        PyStructSequence_SET_ITEM(tool,  4, PyFloat_FromDouble(t.offset.a));
+        PyStructSequence_SET_ITEM(tool,  5, PyFloat_FromDouble(t.offset.b));
+        PyStructSequence_SET_ITEM(tool,  6, PyFloat_FromDouble(t.offset.c));
+        PyStructSequence_SET_ITEM(tool,  7, PyFloat_FromDouble(t.offset.u));
+        PyStructSequence_SET_ITEM(tool,  8, PyFloat_FromDouble(t.offset.v));
+        PyStructSequence_SET_ITEM(tool,  9, PyFloat_FromDouble(t.offset.w));
         PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
         PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
@@ -1342,6 +1379,51 @@ static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s, timeout));
 }
 
+static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_ERROR operator_error_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_error_msg.id = 0;
+    strncpy(operator_error_msg.error, m, LINELEN);
+    operator_error_msg.error[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_error_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *text_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_TEXT operator_text_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_text_msg.id = 0;
+    strncpy(operator_text_msg.text, m, LINELEN);
+    operator_text_msg.text[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_text_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
+    char *m;
+    EMC_OPERATOR_DISPLAY operator_display_msg;
+
+    if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
+
+    operator_display_msg.id = 0;
+    strncpy(operator_display_msg.display, m, LINELEN);
+    operator_display_msg.display[LINELEN - 1] = 0;
+    emcSendCommand(s, operator_display_msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Command_members[] = {
     {(char*)"serial", T_INT, offsetof(pyCommandChannel, serial), READONLY},
     {NULL}
@@ -1395,6 +1477,9 @@ static PyMethodDef Command_methods[] = {
     {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
     {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
     {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
+    {"error_msg", (PyCFunction)error_msg, METH_VARARGS, "Send operator error message"},
+    {"text_msg", (PyCFunction)text_msg, METH_VARARGS, "Send operator text message"},
+    {"display_msg", (PyCFunction)display_msg, METH_VARARGS, "Send operator display message"},
     {NULL}
 };
 
@@ -1552,12 +1637,28 @@ static PyTypeObject Error_Type = {
 
 #include <GL/gl.h>
 
+#define AXIS_MASK_A 0x08
+#define AXIS_MASK_B 0x10
+#define AXIS_MASK_C 0x20
+static struct rotation_offsets {
+    double x;
+    double y;
+    double z;
+    unsigned int axis_mask;
+    unsigned int respect_offsets;
+} roffsets;
+
 static void rotate_z(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, ty;
-    tx = pt[0] * c - pt[1] * s;
-    ty = pt[0] * s + pt[1] * c;
+    if (roffsets.respect_offsets) {
+        tx = (pt[0]-roffsets.x) * c - (pt[1]-roffsets.y) * s;
+        ty = (pt[0]-roffsets.x) * s + (pt[1]-roffsets.y) * c;
+    } else {
+        tx = pt[0] * c - pt[1] * s;
+        ty = pt[0] * s + pt[1] * c;
+    }
 
     pt[0] = tx; pt[1] = ty;
 }
@@ -1566,8 +1667,13 @@ static void rotate_y(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
     double tx, tz;
-    tx = pt[0] * c - pt[2] * s;
-    tz = pt[0] * s + pt[2] * c;
+    if (roffsets.respect_offsets) {
+        tx = (pt[0]-roffsets.x) * c - (pt[2]-roffsets.z) * s;
+        tz = (pt[0]-roffsets.x) * s + (pt[2]-roffsets.z) * c;
+    } else {
+        tx = pt[0] * c - pt[2] * s;
+        tz = pt[0] * s + pt[2] * c;
+    }
 
     pt[0] = tx; pt[2] = tz;
 }
@@ -1575,11 +1681,16 @@ static void rotate_y(double pt[3], double a) {
 static void rotate_x(double pt[3], double a) {
     double theta = a * M_PI / 180;
     double c = cos(theta), s = sin(theta);
-    double tx, tz;
-    tx = pt[1] * c - pt[2] * s;
-    tz = pt[1] * s + pt[2] * c;
+    double ty, tz;
+    if (roffsets.respect_offsets) {
+        ty = (pt[1]-roffsets.y) * c - (pt[2]-roffsets.z) * s;
+        tz = (pt[1]-roffsets.y) * s + (pt[2]-roffsets.z) * c;
+    } else {
+        ty = pt[1] * c - pt[2] * s;
+        tz = pt[1] * s + pt[2] * c;
+    }
 
-    pt[1] = tx; pt[2] = tz;
+    pt[1] = ty; pt[2] = tz;
 }
 
 static void translate(double pt[3], double ox, double oy, double oz) {
@@ -1604,9 +1715,19 @@ static void vertex9(const double pt[9], double p[3], const char *geometry) {
             case 'U': translate(p, pt[6] * sign, 0, 0); sign=1; break;
             case 'V': translate(p, 0, pt[7] * sign, 0); sign=1; break;
             case 'W': translate(p, 0, 0, pt[8] * sign); sign=1; break;
-            case 'A': rotate_x(p, pt[3] * sign); sign=1; break;
-            case 'B': rotate_y(p, pt[4] * sign); sign=1; break;
-            case 'C': rotate_z(p, pt[5] * sign); sign=1; break;
+            case 'A': if (roffsets.axis_mask & AXIS_MASK_A) {
+                          rotate_x(p, pt[3] * sign);
+                      }
+                      sign=1; break;
+            case 'B': if (roffsets.axis_mask & AXIS_MASK_B) {
+                          rotate_y(p, pt[4] * sign);
+                      }
+                      sign=1; break;
+            case 'C': if (roffsets.axis_mask & AXIS_MASK_C) {
+                          rotate_z(p, pt[5] * sign);
+                      }
+                      sign=1; break;
+
         }
     }
 }
@@ -1696,6 +1817,29 @@ static PyObject *pyvertex9(PyObject *s, PyObject *o) {
 
     vertex9(pt, pt1, geometry);
     return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
+}
+
+static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
+    char* coords;
+
+    if(!PyArg_ParseTuple(o, "si",&coords, &roffsets.respect_offsets)) {
+        return NULL;
+    }
+    // GEOMETRY rotations only if letters (ABC) included in [TRAJ]COORDINATES
+    if (strchr(coords,'A')) roffsets.axis_mask |= AXIS_MASK_A;
+    if (strchr(coords,'B')) roffsets.axis_mask |= AXIS_MASK_B;
+    if (strchr(coords,'C')) roffsets.axis_mask |= AXIS_MASK_C;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *pygui_rot_offsets(PyObject *s, PyObject *o) {
+    if(!PyArg_ParseTuple(o, "ddd", &roffsets.x,&roffsets.y,&roffsets.z)) {
+        return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
@@ -1907,6 +2051,22 @@ static PyObject *Logger_set_depth(pyPositionLogger *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "dd:logger.set_depth", &z, &w)) return NULL;
     s->foam_z = z;
     s->foam_w = w;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
+    struct color *c = s->colors;
+    if(!PyArg_ParseTuple(a, "(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+            &c[0].r,&c[0].g, &c[0].b, &c[0].a,
+            &c[1].r,&c[1].g, &c[1].b, &c[1].a,
+            &c[2].r,&c[2].g, &c[2].b, &c[2].a,
+            &c[3].r,&c[3].g, &c[3].b, &c[3].a,
+            &c[4].r,&c[4].g, &c[4].b, &c[4].a,
+            &c[5].r,&c[5].g, &c[5].b, &c[5].a
+            ))
+        return NULL;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2130,6 +2290,8 @@ static PyMethodDef Logger_methods[] = {
         "Plot the backplot now"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
+    {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
+        "set the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},
@@ -2185,6 +2347,8 @@ METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
 METH(draw_dwells, "Draw a bunch of dwell positions in the 'rs274.glcanon' format"),
 METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
 METH(vertex9, "Get the 3d location for a 9d point"),
+METH(gui_rot_offsets, "Set x,y,z offsets for A,B,C rotations"),
+METH(gui_respect_offsets, "Enable rotations about g5x,g92 offsets"),
     {NULL}
 #undef METH
 };

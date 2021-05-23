@@ -1,0 +1,89 @@
+'\" t
+.\"     Title: halstreamer
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
+.\"      Date: 08/11/2020
+.\"    Manual: LinuxCNC Documentation
+.\"    Source: LinuxCNC
+.\"  Language: English
+.\"
+.TH "HALSTREAMER" "1" "08/11/2020" "LinuxCNC" "LinuxCNC Documentation"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+halstreamer \- stream file data into HAL in real time
+.SH "SYNOPSIS"
+.sp
+\fBhalstreamer\fR [\fIoptions\fR]
+.SH "DESCRIPTION"
+.sp
+\fBstreamer\fR(9) and \fBhalstreamer\fR are used together to stream data from a file into the HAL in real time\&. \fBstreamer\fR is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory\&. \fBhal_streamer\fR is a user space program that copies data from stdin into the FIFO, so that \fBstreamer\fR can write it to the HAL pins\&.
+.SH "OPTIONS"
+.PP
+\fB\-c\fR \fICHAN\fR
+.RS 4
+Instructs
+\fBhalstreamer\fR
+to write to FIFO
+\fICHAN\fR\&. FIFOs are numbered from zero, and the default value is zero, so this option is not needed unless multiple FIFOs have been created\&.
+.RE
+.PP
+\fIFILENAME\fR
+.RS 4
+Instructs
+\fBhalsampler\fR
+to read from
+\fIFILENAME\fR
+instead of from stdin\&.
+.RE
+.SH "USAGE"
+.sp
+A FIFO must first be created by loading \fBstreamer\fR(9) with \fBhalcmd loadrt\fR or a \fBloadrt\fR command in a \&.hal file\&. Then \fBhalstreamer\fR can be invoked to begin writing data into the FIFO\&.
+.sp
+Data is read from stdin, and is almost always either redirected from a file or piped from some other program, since keyboard input would be unable to keep up with even slow streaming rates\&.
+.sp
+Each line of input must match the pins that are attached to the FIFO, for example, if the \fBstreamer\fR config string was "ffbs" then each line of input must consist of two floats, a bit, and a signed integer, in that order and separated by whitespace\&. Floats must be formatted as required by \fBstrtod\fR(3), signed and unsigned integers must be formated as required by \fBstrtol\fR(3) and \fBstrtoul\fR(3), and bits must be either \fI0\fR or \fI1\fR\&.
+.sp
+Input lines that begin with \fI#\fR will be treated as comments and silently skipped\&.
+.sp
+\fBhalstreamer\fR transfers data to the FIFO as fast as possible until the FIFO is full, then it retries at regular intervals, until it is either killed or reads EOF from stdin\&. Data can be redirected from a file or piped from some other program\&.
+.sp
+The FIFO size should be chosen to ride through any momentary disruptions in the flow of data, such as disk seeks\&. If the FIFO is big enough, \fBhalstreamer\fR can be restarted with the same or a new file before the FIFO empties, resulting in a continuous stream of data\&.
+.sp
+The data format for \fBhalstreamer\fR input is the same as for \fBhalsampler\fR(1) output, so \fIwaveforms\fR captured with \fBhalsampler\fR can be replayed using \fBhalstreamer\fR\&.
+.SH "EXIT STATUS"
+.sp
+If a problem is encountered during initialization, \fBhalstreamer\fR prints a message to stderr and returns failure\&.
+.sp
+If a badly formatted line is encountered while writing to the FIFO, it prints a message to stderr, skips the line, and continues (this behavior may be revised in the future)\&.
+.sp
+Upon reading EOF from the input, it returns success\&. If it is terminated before the input ends, it returns failure\&.
+.SH "SEE ALSO"
+.sp
+\fBstreamer\fR(9) \fBsampler\fR(9) \fBhalsampler\fR(1)
+.SH "AUTHOR"
+.sp
+Original version by John Kasunich, as part of the LinuxCNC project\&. Improvements by several other members of the LinuxCNC development team\&.
+.SH "REPORTING BUGS"
+.sp
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH "COPYRIGHT"
+.sp
+Copyright \(co 2006 John Kasunich\&. This is free software; see the source for copying conditions\&. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&.

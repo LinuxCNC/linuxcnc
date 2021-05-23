@@ -102,7 +102,7 @@ a configuration ini file, it will:
 . Disconnect the original joint.N.motor-pos-cmd and joint.N.motor-pos-fb pin
   connections
 . Load (loadrt) the moveoff component (using the name mv) with a personality
-  set to accomodate all axes identified in the ini file
+  set to accommodate all axes identified in the ini file
 . Add (addf) the moveoff component functions in the required sequence
 . Reconnect the joint.N.motor-pos-cmd and joint.N.motor-pos-fb pins to use
   the moveoff component

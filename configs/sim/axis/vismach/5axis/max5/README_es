@@ -1,0 +1,10 @@
+Configuracion Max5 5 ejes XYZBC
+
+
+max5triv.ini - implementado con trivkins
+
+max5kins.ini - implementado con cinemática max5
+                 cinemática sin identidad
+                 teleop automático después de homing
+
+max5_base.inc - configuraciónes compartidas

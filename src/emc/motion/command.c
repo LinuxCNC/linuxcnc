@@ -205,13 +205,13 @@ static int check_axis_constraint(double target, int id, char *move_type,
          && (fabs(axes[axis_no].min_pos_limit) < eps)
          && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
 
-    if(target < nl) {
+    if(target < (nl - 0.000000000001)) { // see pull request #1047
         in_range = 0;
         reportError(_("%s move on line %d would exceed %c's %s limit"),
                     move_type, id, axis_name, _("negative"));
     }
 
-    if(target > pl) {
+    if(target > (pl + 0.000000000001)) { // see pull request #1047
         in_range = 0;
         reportError(_("%s move on line %d would exceed %c's %s limit"),
                     move_type, id, axis_name, _("positive"));
@@ -404,7 +404,7 @@ STATIC int is_feed_type(int motion_type)
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
   */
-void emcmotCommandHandler(void *arg, long period)
+void emcmotCommandHandler(void *arg, long servo_period)
 {
     int joint_num, axis_num, spindle_num;
     int n,s0,s1; 
@@ -825,10 +825,6 @@ void emcmotCommandHandler(void *arg, long period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (emcmotStatus->net_feed_scale < 0.0001) {
-		/* don't jog if feedhold is on or if feed override is zero */
-		break;
-	    }
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jjog_active) {
 		    /* can't do two kinds of jog at once */
@@ -872,16 +868,14 @@ void emcmotCommandHandler(void *arg, long period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP  JOG_CONT
+                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
                 axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
                 if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
                     /* here: set pos_cmd to a big number so that with combined
                     *        teleop jog plus external offsets the soft limits
                     *        can always be reached
-                    *  a fixed epsilon is used here for convenience
-                    *  it is not the same as the epsilon used as a stopping 
-                    *  criterion in control.c
                     */
                     if (emcmotCommand->vel > 0.0) {
                         axis->teleop_tp.pos_cmd =  1e12; // 1T halscope limit
@@ -919,10 +913,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-	    if (emcmotStatus->net_feed_scale < 0.0001 ) {
-		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
             if (!GET_MOTION_TELEOP_FLAG()) {
@@ -976,6 +966,7 @@ void emcmotCommandHandler(void *arg, long period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP JOG_INCR
+                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
 	        if (emcmotCommand->vel > 0.0) {
 		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
@@ -987,7 +978,7 @@ void emcmotCommandHandler(void *arg, long period)
                 // it is not the same as the epsilon used as a stopping 
                 // criterion in control.c
                 if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
                     // external_offsets: soft limit enforcement is in control.c
                 } else {
                     if (tmp1 > axis->max_pos_limit) { break; }
@@ -1027,10 +1018,6 @@ void emcmotCommandHandler(void *arg, long period)
                 // FREE JOG_ABS
                 if (joint->wheel_jjog_active) {
                     /* can't do two kinds of jog at once */
-                    break;
-                }
-                if (emcmotStatus->net_feed_scale < 0.0001 ) {
-                    /* don't jog if feedhold is on or if feed override is zero */
                     break;
                 }
                 /* don't jog further onto limits */
@@ -1782,6 +1769,8 @@ void emcmotCommandHandler(void *arg, long period)
 	        /* 	tpAbort(&emcmotDebug->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
 	        /* } else {...} */
+	        rtapi_print_msg(RTAPI_MSG_DBG, "command state %d\n", emcmotCommand->state);
+	        emcmotStatus->spindle_status[n].state = emcmotCommand->state;
 	        emcmotStatus->spindle_status[n].speed = emcmotCommand->vel;
 	        emcmotStatus->spindle_status[n].css_factor = emcmotCommand->ini_maxvel;
 	        emcmotStatus->spindle_status[n].xoffset = emcmotCommand->acc;
@@ -1816,6 +1805,7 @@ void emcmotCommandHandler(void *arg, long period)
         }
         for (n = s0; n<=s1; n++){
 
+	        emcmotStatus->spindle_status[n].state = 0;
 	        emcmotStatus->spindle_status[n].speed = 0;
 	        emcmotStatus->spindle_status[n].direction = 0;
 	        emcmotStatus->spindle_status[n].brake = 1; // engage brake

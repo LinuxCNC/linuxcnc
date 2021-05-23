@@ -1,0 +1,341 @@
+:lang: es
+
+[[cha:hal-tools]]
+
+=Herramientas HAL
+
+[[sec:halcmd]]
+
+==Halcmd
+
+Halcmd es una herramienta de línea de comandos para manipular HAL. Hay una
+página del manual bastante completa para halcmd, que se instalará si
+ha instalado LinuxCNC desde una fuente o un paquete. La página de manual
+proporciona información de uso:
+
+----
+man halcmd
+----
+
+Si ha compilado LinuxCNC para "ejecutar en el lugar (RIP)", debe correr
+el script rip-environment para hacer que la página man esté disponible:
+
+----
+cd toplevel_directory_for_rip_build
+. scripts/rip-environment
+man halcmd
+----
+
+El capitulo <<cha:hal-tutorial,Tutorial HAL>> es un buen tutorial para halcmd y 
+tiene varios ejemplos de uso.
+
+[[sec:halmeter]] (((Halmeter)))
+
+==Halmeter
+
+Halmeter es un 'voltímetro' para HAL. Le permite ver el valor actual de un pin,
+señal, o parámetro. Es bastante simple de usar. Comience escribiendo *halmeter* en una
+ventana de shell. Halmeter es una aplicación GUI. Aparecerá
+una ventana pequeña, con dos botones etiquetados 'Seleccionar' y 'Salir'. La salida es
+obvia - apaga el programa. Con Seleccionar aparece una ventana más grande, con
+tres pestañas. Una pestaña muestra todos los pines actualmente definidos en HAL,
+la siguiente enumera todas las señales, y la última pestaña lista todos los
+parámetros. Haga clic en una pestaña, luego haga clic en un pin/señal/parámetro. Entonces
+haga clic en 'OK'. Las listas desaparecerán, y la ventana pequeña
+mostrará el nombre y el valor del elemento seleccionado. La pantalla se actualiza
+aproximadamente 10 veces por segundo. Si hace clic en "Aceptar" en lugar de
+'OK', la ventana pequeña mostrará el nombre y el valor del elemento seleccionado, 
+pero la ventana grande permanecerá en la pantalla. Esto es
+conveniente si desea ver una serie de elementos diferentes rápidamente.
+
+Puede tener muchos halmeters funcionando al mismo tiempo, si desea
+controlar varios elementos. Si quiere lanzar un halmeter sin depender
+de una ventana de shell, escriba 'halmeter &' para ejecutarlo en segundo plano.
+También puedes hacer que halmeter comience
+mostrando un elemento específico inmediatamente, agregando 'pin|sig|par[am]<nombre>'
+a la línea de comando. Mostrará el pin, la señal o el parámetro
+<nombre> tan pronto como comienze. (Si no hay tal elemento,
+comienza normalmente). Y, finalmente, si especifica un elemento a mostrar, usted
+puede agregar '-s' antes de pin|sig|param para indicar a halmeter que use una pequeña
+ventana. El nombre del elemento se mostrará en la barra de título en lugar de
+debajo del valor, y no habrá botones. Útil cuando quiere
+muchos halmeter en una pequeña cantidad de espacio en la pantalla.
+
+Consulte la sección <<sec:tutorial-halmeter,Tutorial Halmeter>> para obtener más información.
+
+Halmeter se puede cargar desde una terminal o desde Axis y es
+más rápido que Halshow en la visualización de valores. Halmeter tiene dos ventanas, una
+para seleccionar el pin, señal o parámetro para monitorear y una que muestra
+el valor. Pueden abrirse multiples Halmeter al mismo tiempo. Si utiliza
+una secuencia de comandos para abrir múltiples Halmeters, puede establecer la posición de cada
+uno con -g X Y en relación con la esquina superior izquierda de la pantalla.
+Por ejemplo:
+
+----
+loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
+----
+
+Vea la página man para más opciones. Vea tambien la sección <<sec:halmeter,Halmeter>>.
+  
+.Halmeter
+
+image::images/hal-meter01.png[alt="Halmeter"]
+
+image::images/hal-meter02.png[alt="Halmeter"]
+
+== Halshow
+
+Halshow (ver sección separada para descripción completa de uso)
+se puede iniciar desde la línea de comando para mostrar los detalles de los componentes
+seleccionados, pines, parámetros, señales, funciones e hilos de un HAL en ejecución.
+La pestaña WATCH proporciona una visualización continua de pines, parámetros y
+elementos de señal. El menú Archivo proporciona botones para 1) guardar los elementos observados en
+una lista de vigilancia y para cargar una lista de vigilancia existente. Los elementos de la lista de observación pueden
+también cargarse automáticamente al inicio. Para su uso, en línea de comandos:
+
+----
+Usage:
+  halshow [Options] [watchfile]
+  Options:
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
+
+Notes:
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
+
+LinuxCNC debe estar ejecutanse para uso independiente de Halshow.
+
+El archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación'
+está formateado como una sola línea con tokens "pin+", "param+", "sig=+"
+seguido del nombre de pin, param o señal apropiado.
+Los pares token-nombre están separados por un carácter de espacio.
+
+Ejemplo:
+   pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
+
+Un archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación (multilínea)'
+está formateado con líneas separadas para cada elemento identificado con pares token-nombre
+como se describe arriba.
+
+Ejemplo:
+   pin+joint.0.pos-hard-limit
+   pin+joint.1.pos-hard-limit
+   sig+estop-loop
+
+Al cargar un archivo watchfile con el elemento de menú 'Archivo/cargar lista de observación',
+los pares de nombres de tokens pueden aparecer como líneas simples o múltiples. Líneas en blanco y
+líneas que comienzan con un caracter # son ignoradas.
+
+
+[[sec:halscope]]
+
+== Halscope
+
+Halscope es un "osciloscopio" para HAL. Le permite capturar el
+valor de pines, señales y parámetros como una función del tiempo.
+Las instrucciones de operación deben ubicarse aquí eventualmente. Por ahora,
+consulte la sección <<sec:tutorial-halscope>> en el capítulo tutorial,
+que explica los conceptos básicos.
+
+El selector del menú Archivo de halscope proporciona botones para guardar una configuración
+o abrir una configuración previamente guardada. Cuando halscope termina,
+la última configuración se guarda en un archivo llamado autosave.halscope.
+
+Los archivos de configuración también se pueden especificar al iniciar halscope desde
+la línea de comando. Ayuda de uso en linea de comandos (-h):
+----
+halscope -h
+Uso:
+  halscope [-h] [-i infile] [-o archivo de salida] [num_samples]
+----
+
+== Sim Pin
+
+sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de
+Pines, parámetros o señales editables. Uso:
+----
+  Uso:
+         sim_pin [Opciones] nombre1 [nombre2 ...] &
+
+  Opciones:
+         --ayuda (este texto)
+         --title title_string (título de la ventana, predeterminado: sim_pin)
+
+  Nota: LinuxCNC (o una aplicación Hal independiente) debe estar ejecutándose
+         Un elemento con nombre puede especificar un pin, param o señal
+         El elemento debe ser escribible, por ejemplo:
+            pin: IN o I/O (y no conectado a una señal con un escritor)
+            param: RW
+            señal: conectado a un pin de escritura
+
+         Se admiten los tipos Hal de elementos bit, s32, u32 y float
+
+         Cuando se especifica un elemento de bit, se crea un botón
+         para administrar el item de una de las tres maneras especificadas
+         por botones de radio:
+             alternar: alternar el valor cuando se presiona el botón
+             pulso: Pulse el elemento a 1 una vez cuando se presiona el botón
+             mantener: se establece en 1 con el botón presionado
+         El modo de botón de bit se puede especificar en la
+         línea de comandos formateando el nombre del elemento:
+             namei/mode=[toggle | pulse | hold]
+         Si el modo comienza con una letra mayúscula,
+         no se muestran los botones radio para seleccionar otros modos
+----
+Para obtener información completa, consulte la página man:
+----
+man sim_pin
+----
+Ejemplo (con LinuxCNC ejecutándose):
+----
+halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
+sim_pin example.sel example.in1 sig_example &
+----
+image::images/sim_pin.png[alt="sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de pines, parámetros o señales que se puedan escribir"]
+
+== Sonda simulada
+
+simulate_probe es una gui simple para simular la activación del pin
+motion.probe-input. Uso:
+----
+simulate_probe &
+----
+
+image::images/simulate_probe.png[alt="simulate_probe es una gui simple para simular la activación del pin motion.probe-input"]
+
+== Hal Histogram
+
+hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines hal.
+----
+Uso:
+   hal-histograma --help | -?
+o
+   hal-histogram [Opciones] [pinname]
+
+Opciones:
+  --minvalue minvalue  (bin mínimo, por defecto: 0)
+  --binsize binsize    (binsize, por defecto: 100)
+  --nbins nbins        (número de contenedores, por defecto: 50)
+
+  --logscale  0|1      (escala logaritmica del eje y, valor predeterminado: 1)
+  --text      note     (visualización de texto, por defecto: "")
+  --show               (muestra el conteo de nbins no mostradas, desactivado por defecto)
+  --verbose            (progreso y depuración, desactivado por defecto)
+
+Notas:
+  1) LinuxCNC (u otra aplicación Hal) debe estar ejecutándose
+  2) Si no se especifica ningún nombre pin, el valor predeterminado es: motion-command-handler.time
+  3) Esta aplicación se puede abrir para hasta 5 pines
+  4) Los tipos float, s32, u32, bit son compatibles
+  5) El pin debe estar asociado con un hilo que soporte punto flotante
+     Para un hilo base, esto puede requerir el uso de:
+     loadrt motmod ... base_thread_fp=1
+----
+image::images/hal-histogram.png[alt="hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines de hal"]
+
+== Halreport
+
+halreport es una utilidad de línea de comandos que genera un informe sobre
+conexiones Hal para una aplicación LinuxCNC (u otra hal) en ejecución.
+El informe muestra todas las conexiones de señal y desvela posibles problemas.
+Información incluida:
+
+. Descripción del sistema y versión del kernel.
+. Señales y todos los pines de salida, io y entrada conectados.
+. De cada pin, component_function, hilo y orden en addf.
+. Pines de componentes de espacio de usuario que tienen funciones no ordenadas.
+. Identificación de funciones desconocidas para componentes no manejados.
+. Señales sin salida.
+. Señales sin entradas.
+. Funciones sin addf.
+. Etiquetas de advertencia para componentes marcados como desaconsejados/obsoletos en los documentos.
+. Nombres reales para pines que usan nombres de alias.
+
+El informe puede generarse desde la línea de comando y dirigirse a
+un archivo de salida (o stdout si no se especifica archivo de salida):
+
+----
+Uso:
+  halreport -h | --help (this help)
+o
+  halreport [outfilename]
+----
+
+Para generar el informe para cada inicio de LinuxCNC, incluya halreport
+y un nombre de archivo de salida como una entrada de [APPLICATIONS]APP en el archivo ini.
+Ejemplo:
+
+----
+[APPLICATIONS]
+APP = halreport /tmp/halreport.txt
+----
+
+El ordén addf de funciones puede ser importante para bucles servo donde
+la secuencia de las funciones calculadas en cada período servo es
+importante. Por lo general, el orden es: leer los pines de entrada, hacer las
+funciones del manejador de comandos y controlador de movimiento, realizar
+los cálculos pid y, finalmente, escribir los pines de salida.
+
+Para cada señal en una ruta crítica, el orden addf del pin de salida
+debe ser numéricamente más bajo que el orden addf de los
+pines de entrada críticos a los que se conecta.
+
+Para rutas de señal de rutinas que manejan entradas de interruptores, pines de 
+espacio de usuario, etc., el ordenamiento addf a menudo no es crítico. Además,
+el momento de los cambios de valor de pin de espacio de usuario no se puede controlar
+o garantizar en los intervalos típicamente empleados para hilos hal.
+
+Ejemplo de archivo de informe que muestran un bucle pid para hostmot2
+stepgen operado en modo de velocidad en una máquina Trivkins con
+joint.0 correspondiente a la coordenada del eje X:
+
+----
+SIG:    pos-fb-0
+  OUT:    h.00.position-fb                     hm2_7i92.0.read        servo-thread 001
+          (=hm2_7i92.0.stepgen.00.position-fb)
+    IN:     X_pid.feedback                     X_pid.do-pid-calcs     servo-thread 004
+    IN:     joint.0.motor-pos-fb               motion-command-handler servo-thread 002
+            ....................               motion-controller      servo-thread 003
+...
+SIG:    pos-cmd-0
+  OUT:    joint.0.motor-pos-cmd                motion-command-handler servo-thread 002
+          .....................                motion-controller      servo-thread 003
+    IN:     X_pid.command                      X_pid.do-pid-calcs     servo-thread 004
+...
+SIG:    motor-cmd-0
+  OUT:    X_pid.output                         X_pid.do-pid-calcs     servo-thread 004
+    IN:     h.00.velocity-cmd                  hm2_7i92.0.write       servo-thread 008
+            (=hm2_7i92.0.stepgen.00.velocity-cmd)
+----
+
+En el ejemplo anterior, el HALFILE usa alias halcmd para simplificar los nombres de los pines
+para una placa hostmot2 fpga con comandos como:
+----
+alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
+----
+
+[NOTE]
+La detección de funciones de componentes cuestionables puede ocurrir para 1)
+componentes no compatibles (obsoletos), 2) componentes creados por el usuario
+que usan múltiples funciones o nombres de funciones no convencionales, o
+3) componentes de espacio de usuario creados por GUI que carecen de 
+características de distinción como un prefijo basado en el nombre del programa gui.
+Las funciones cuestionables están etiquetadas con un signo de interrogación "?".
+
+[NOTE]
+Los pines de componentes que no pueden asociarse con una función en un
+hilo conocido informan la función como "Desconocida".
+
+[NOTE]
+halreport genera un informe de conexiones para una aplicación hal en ejecución
+para ayudar en el diseño y verificación de conexiones. No se muestran
+tipos y valores actuales de pines. Para esta información use
+aplicaciones como halshow, halmeter, halscope o el comando 'show'
+disponible con el programa halcmd.
+
+
+
+

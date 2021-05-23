@@ -42,3 +42,5 @@ class Widgets:
             raise IndexError("No widget %s" % attr)
         return widget
 
+    def __iter__(self):
+        return self._builder.get_objects().__iter__()

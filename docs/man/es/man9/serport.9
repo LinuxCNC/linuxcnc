@@ -1,0 +1,80 @@
+.TH SERPORT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+serport \- Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
+.SH SYNOPSIS
+
+.B loadrt serport io=\fIaddr[,addr...]\fR
+.PP
+The pin numbers refer to the 9-pin serial pinout.  Keep in mind that these ports generally use rs232 voltages, not 0/5V signals.
+
+Specify the I/O address of the serial ports using the module parameter
+\fBio=\fIaddr[,addr...]\fR.  These ports must not be in use by the kernel.
+To free up the I/O ports after bootup, install setserial and execute a command
+like:
+.RS 
+sudo setserial /dev/ttyS0 uart none
+.RE
+but it is best to ensure that the serial port is never used or configured by
+the Linux kernel by setting a kernel commandline parameter or not loading
+the serial kernel module if it is a modularized driver.
+
+.SH FUNCTIONS
+.TP
+\fBserport.\fIN\fB.read\fR
+
+.TP
+\fBserport.\fIN\fB.write\fR
+
+.SH PINS
+.TP
+.B serport.\fIN\fB.pin-1-in\fR bit out \fR
+Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-6-in\fR bit out \fR
+Also called DSR (data set ready); pin 6 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-8-in\fR bit out \fR
+Also called CTS (clear to send); pin 5 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-9-in\fR bit out \fR
+Also called RI (ring indicator); pin 22 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-1-in-not\fR bit out \fR
+Inverted version of pin-1-in
+.TP
+.B serport.\fIN\fB.pin-6-in-not\fR bit out \fR
+Inverted version of pin-6-in
+.TP
+.B serport.\fIN\fB.pin-8-in-not\fR bit out \fR
+Inverted version of pin-8-in
+.TP
+.B serport.\fIN\fB.pin-9-in-not\fR bit out \fR
+Inverted version of pin-9-in
+.TP
+.B serport.\fIN\fB.pin-3-out\fR bit in \fR
+Also called TX (transmit data); pin 2 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-4-out\fR bit in \fR
+Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout
+.TP
+.B serport.\fIN\fB.pin-7-out\fR bit in \fR
+Also called RTS (request to send); pin 4 on the 25-pin serial pinout
+.SH PARAMETERS
+.TP
+.B serport.\fIN\fB.pin-3-out-invert\fR bit rw \fR
+.TQ
+.B serport.\fIN\fB.pin-4-out-invert\fR bit rw \fR
+.TQ
+.B serport.\fIN\fB.pin-7-out-invert\fR bit rw \fR
+.TQ
+.B serport.\fIN\fB.ioaddr\fR u32 r \fR
+.SH LICENSE
+
+GPL

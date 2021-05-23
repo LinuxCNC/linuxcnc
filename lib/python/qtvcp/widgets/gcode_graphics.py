@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2016 Chris Morley
@@ -23,7 +23,7 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, QTimer
 from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
@@ -39,7 +39,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -66,6 +66,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self._view_incr = 20
         self.inhibit_selection = False
+        self._block_line_selected = False
+
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(INFO.GRAPHICS_CYCLE_TIME)
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
@@ -73,11 +79,19 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
         STATUS.connect('graphics-view-changed', self.set_view_signal)
+        STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+
+    # external source asked for hightlight,
+    # make sure we block the propagation
+    def highlight_graphics(self, line):
+        if self._current_file is None: return
+        self._block_line_selected = True
+        self.set_highlight_line(line)
 
     def set_view_signal(self, w, view, args):
         v = view.lower()
         if v == 'clear':
-            self.clear_live_plotter()
+            self.logger.clear()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
@@ -129,6 +143,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.inhibit_selection = True
         elif v == 'inhibit-selection-off':
             self.inhibit_selection = False
+        elif v == 'dimensions-on':
+            self.show_extents_option = True
+            self.updateGL()
+        elif v == 'dimensions-off':
+            self.show_extents_option = False
+            self.updateGL()
         else:
             self.set_view(v)
 
@@ -165,7 +185,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
-            print 'error', self._reload_filename
+            print('error', self._reload_filename)
             pass
 
 
@@ -177,12 +197,17 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         error_str = gcode.strerror(result)
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
-        print(errortext)
         STATUS.emit("graphics-gcode-error", errortext)
 
     # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
+    # block sending out signal if the highlight request
+    # came from an external source - we only send it out
+    # if someone clicked on us
     def update_highlight_variable(self, line):
         self.highlight_line = line
+        if self._block_line_selected:
+            self._block_line_selected = False
+            return
         if line is None:
             line = -1
         STATUS.emit('graphics-line-selected', line)
@@ -198,6 +223,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # override user plot -One could add gl commands to plot static objects here
     def user_plot(self):
         return
+
+    def emit_percent(self, f):
+        super( GCodeGraphics, self).emit_percent(f)
+        STATUS.emit('graphics-loading-progress',f)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -301,5 +330,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget =  GCodeGraphics()
+    widget.use_gradient_background = True
+    widget.enable_dro = True
     widget.show()
     sys.exit(app.exec_())

@@ -160,7 +160,7 @@ char LoadProjectFiles( char * FileProject )
 	return Result;
 }
 
-char FileName[500];
+static char FileName[500];
 char LoadGeneralParamsOnlyFromProject( char * FileProject )
 {
 	char Result = FALSE;

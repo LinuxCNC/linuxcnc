@@ -1,0 +1,995 @@
+:lang: es
+
+[[cha:hal-tutorial]]
+
+= Tutorial HAL
+
+== Introducción
+
+La configuración va de la teoría al dispositivo, es decir, al dispositivo HAL. Para
+aquellos que saben algo de programación informática, esta sección es
+el 'Hola mundo' de HAL. 
+
+Halrun se puede usar para crear un sistema de trabajo.
+Es una línea de comando o herramienta de archivo de texto para configuración y
+sintonización. Los siguientes ejemplos ilustran su configuración y funcionamiento.
+
+=== Notación
+
+Los comandos del terminal se muestran sin la indicación del sistema, excepto cuando se
+esta corriendo 'HAL'. La ventana del terminal está en el Menu de Aplicacione en Debian, o en
+'Applications/Accessories' desde la barra de menú principal de Ubuntu.
+
+.Ejemplo de comando de terminal
+----
+mi@computer:~linuxcnc$ halrun
+(se mostrará la siguiente línea)
+halcmd:
+(el indicador halcmd: se mostrará cuando se ejecuta HAL)
+halcmd: loadrt debounce
+halcmd: show pin
+----
+
+=== Completado por tabulador
+
+Su versión de halcmd puede incluir el completado por tabulador. En lugar de
+completar los nombres de archivo como lo hace un shell, completa los comandos con
+identificadores HAL. Tendrá que escribir suficientes letras para una coincidencia única.
+Intente presionar el tabulador después de iniciar un comando HAL (las lineas con > son entradas):
+
+.Completado por tabulador
+----
+>halcmd: loa<TAB>
+halcmd: load
+>halcmd: loadrt
+>halcmd: loadrt deb<TAB>
+halcmd: loadrt debounce
+----
+
+=== El entorno RTAPI
+
+RTAPI significa Interfaz de programación de Aplicaciones de Tiempo Real. Muchos
+componentes HAL funcionan en tiempo real, y todos los componentes HAL almacenan datos en
+memoria compartida para que los componentes en tiempo real puedan acceder a ella. Un nucleo Linux "normal" no
+no es compatible con la programación en tiempo real o el tipo de memoria compartida que HAL
+necesita. Afortunadamente, hay sistemas operativos en tiempo real (RTOS) que
+proporcionar las extensiones necesarias para Linux. Lamentablemente, cada RTOS
+hace las cosas de manera un poco diferente.
+
+Para abordar estas diferencias, el equipo de LinuxCNC ideó RTAPI, que
+proporciona una forma consistente para que los programas hablen con los RTOS. Si usted es
+un programador que quiere trabajar en el interior de LinuxCNC, es posible que desee
+estudiar 'linuxcnc/src/rtapi/rtapi.h' para comprender la API. Pero si es un
+usuario normal, todo lo que necesita saber acerca de RTAPI es que  debe ser cargado (tambien el RTOS) en la
+memoria de su computadora antes de hacer algo con HAL.
+
+== Un ejemplo simple
+
+=== Cargando un componente
+
+Para este tutorial, vamos a suponer que ha tenido éxito
+instalado el Live CD o, si usa RIP, footnote:[Ejecutar en el lugar, cuando
+los archivos fuente se han descargado a un directorio de usuario y se han compilado alli.] invocó el
+script 'rip-environment' para preparar su shell.
+En ese caso, todo lo que necesita hacer es
+cargar los módulos RTOS y RTAPI necesarios en la memoria. Simplemente ejecute el
+siguiente comando desde una ventana de terminal:
+
+// ¡NOTA! agregar enlace a la explicación de rip-environment
+
+.Cargando HAL
+----
+cd linuxcnc
+halrun
+halcmd:
+----
+
+Con el sistema operativo en tiempo real y RTAPI cargados, podemos pasar al primer
+ejemplo. Observe que el mensaje ahora se muestra como 'halcmd:'.
+Esto se debe a que los comandos posteriores se interpretarán como comandos HAL,
+no como comandos shell.
+
+Para el primer ejemplo, usaremos un componente HAL llamado 'siggen',
+que es un generador de señal simple. Una descripción completa del
+componente 'siggen' se puede encontrar en la sección <<sec:siggen,Siggen>> de
+este manual. Es un componente en tiempo real, implementado como un módulo kernel de Linux. Para
+cargar 'siggen' use el comando HAL 'loadrt'.
+
+.Loading siggen
+----
+halcmd: loadrt siggen
+----
+
+=== Examinando el HAL
+
+Ahora que el módulo está cargado, es hora de ver 'halcmd', la
+herramienta de línea de comandos utilizada para configurar HAL. Este tutorial
+introduce algunas características halcmd. Para una descripción más completa pruebe
+'man halcmd', o vea la referencia en la sección <<sec:hal-commands,Hal Commands>>
+de este documento. La primera función halcmd a ver es el comando 'show'. Este comando muestra información
+sobre el estado actual de HAL. Para mostrar todos los componentes instalados:
+
+.Mostrar componentes
+----
+halcmd: show comp
+
+Loaded HAL Components:  
+ID     Type  Name                                PID   State
+    3  RT    siggen                                    ready
+    2  User  halcmd2177                          2177  ready
+----
+
+Como 'halcmd' es un componente HAL, siempre aparecerá en
+la lista. El número después de halcmd en la lista de componentes es el ID del proceso.
+Es posible ejecutar más de una copia de halcmd al mismo tiempo (en
+diferentes ventanas, por ejemplo), por lo que el PID se agrega al final del
+nombre para hacerlos únicos. La lista también muestra el componente 'siggen'
+que instalamos en el paso anterior. La 'RT' en 'Type' indica que
+ese 'siggen' es un componente en tiempo real. El 'User' en 'Type' indica
+es un componente de espacio de usuario.
+
+A continuación, veamos qué pines pone 'siggen' a nuestra disposición:
+
+.Mostrar los pines
+----
+halcmd: show pin
+
+Component Pins: 
+Owner   Type   Dir        Value  Name 
+     3  float  IN             1  siggen.0.amplitude
+     3  bit    OUT        FALSE  siggen.0.clock
+     3  float  OUT            0  siggen.0.cosine
+     3  float  IN             1  siggen.0.frequency
+     3  float  IN             0  siggen.0.offset
+     3  float  OUT            0  siggen.0.sawtooth
+     3  float  OUT            0  siggen.0.sine
+     3  float  OUT            0  siggen.0.square
+     3  float  OUT            0  siggen.0.triangle
+----
+
+Este comando muestra todos los pines en el HAL actual. Un sistema complejo
+podría tener docenas o cientos de pines. Pero en este momento solo hay
+nueve pines. De estos pines, ocho son de punto flotante y uno es de tipo bit (booleano).
+De ellos, seis llevan datos fuera del componente 'siggen' (OUT) y tres se usan para transferir
+configuraciones al componente (IN). Como aún no hemos ejecutado el código
+contenido dentro del componente, algunos de los pines tienen un valor cero.
+
+El siguiente paso es mirar los parámetros:
+
+. Mostrar parámetros
+----
+halcmd: show param
+
+Parameters: 
+Owner   Type  Dir        Value   Name 
+     3  s32   RO             0   siggen.0.update.time
+     3  s32   RW             0   siggen.0.update.tmax
+----
+
+El comando 'show param' muestra todos los parámetros en HAL. Ahora mismo
+cada parámetro tiene el valor predeterminado que se le dio cuando el componente
+fue cargado. Tenga en cuenta la columna etiquetada 'Dir'. Los parámetros etiquetados '-W'
+son grabables; nunca cambian por el componente en sí mismo.
+Por contra, están destinados a ser cambiados por el usuario para controlar el
+componente. Veremos cómo hacerlo más tarde. Los parámetros etiquetados 'R-' (RO)
+son parámetros de solo lectura. Solo pueden ser cambiados por el propio componente.
+Finalmente, los parámetros etiquetados 'RW' son parámetros de lectura-escritura. Eso significa
+que son cambiados por el componente, pero también puede ser cambiados por el usuario.
+Nota: los parámetros 'siggen.0.update.time' y 'siggen.0.update.tmax' son para propositos de depuración
+y no serán cubiertos en esta sección.
+
+La mayoría de los componentes en tiempo real exportan una o más funciones para hacer correr realmente
+el código en tiempo real que contienen. Veamos qué función(es) a exportado 'siggen':
+
+.Mostrar funciones
+----
+halcmd: show funct
+
+Exported Functions:
+Owner   CodeAddr  Arg       FP   Users  Name 
+ 00003  f801b000  fae820b8  YES      0   siggen.0.update
+----
+
+El componente siggen exportó una sola función. Requiere
+punto flotante. Actualmente no está vinculado a ningún subproceso, por lo que 'users' es
+cero.
+
+=== Hacer correr el código en tiempo real
+
+Para ejecutar realmente el código contenido en la función 'siggen.0.update',
+necesitamos un hilo en tiempo real El componente llamado 'threads' se usa
+para crear un nuevo hilo. Vamos a crear un hilo llamado 'test-thread' con
+un período de 1 ms (1,000 us o 1,000,000 ns):
+
+----
+halcmd: loadrt threads name1=test-thread period1=1000000
+----
+
+Veamos si funcionó:
+
+.Mostrar hilos
+----
+halcmd: show thread
+
+Realtime Threads: 
+     Period  FP     Name               (     Time, Max-Time )
+     999855  YES           test-thread (        0,        0 )
+----
+
+Correcto. El período no es exactamente 1,000,000 ns debido a limitaciones del hardware,
+pero tenemos un hilo que se ejecuta aproximadamente a la
+velocidad correcta, y que puede manejar funciones de coma flotante. El siguiente
+paso es conectar la función al hilo:
+
+.Agregar función
+----
+halcmd: addf siggen.0.update test-thread
+----
+
+Hasta ahora, hemos estado usando 'halcmd' solo para ver el HAL.
+Sin embargo, esta vez usamos el comando 'addf' (añadir función) para
+cambiar algo en HAL. Hemos dicho a 'halcmd' que agregue la función 'siggen.0.update' al hilo
+'test-thread', y si miramos de nuevo la lista de hilos, vemos que ha
+tenido éxito:
+
+----
+halcmd: show thread
+
+Realtime Threads: 
+     Period  FP     Name                (     Time, Max-Time )
+     999855  YES          test-thread   (        0,        0 )
+                  1 siggen.0.update
+----
+
+Se necesita un paso más antes de que el componente 'siggen' comience 
+a generar señales. Cuando se inicia HAL por primera vez,
+el(los) hilo(s) no se están ejecutando realmente. Esto es para permitirle
+configurar completamente el sistema antes de que comience el código en tiempo real. Una vez que
+usted está contento con la configuración, puede iniciar el código en tiempo real asi:
+
+----
+halcmd: start
+----
+
+Ahora el generador de señal está funcionando. Veamos sus pines de salida:
+
+----
+halcmd: show pin
+
+Component Pins:
+Owner   Type  Dir         Value  Name 
+     3  float IN              1  siggen.0.amplitude
+     3  bit   OUT         FALSE  siggen.0.clock
+     3  float OUT    -0.1640929  siggen.0.cosine
+     3  float IN              1  siggen.0.frequency
+     3  float IN              0  siggen.0.offset
+     3  float OUT    -0.4475303  siggen.0.sawtooth
+     3  float OUT     0.9864449  siggen.0.sine
+     3  float OUT            -1  siggen.0.square
+     3  float OUT    -0.1049393  siggen.0.triangle
+----
+
+Si volvamos a mirar:
+
+----
+halcmd: show pin
+
+Component Pins:
+Owner   Type  Dir         Value  Name
+     3  float IN              1  siggen.0.amplitude
+     3  bit   OUT         FALSE  siggen.0.clock
+     3  float OUT     0.0507619  siggen.0.cosine
+     3  float IN              1  siggen.0.frequency
+     3  float IN              0  siggen.0.offset
+     3  float OUT     -0.516165  siggen.0.sawtooth
+     3  float OUT     0.9987108  siggen.0.sine
+     3  float OUT            -1  siggen.0.square
+     3  float OUT    0.03232994  siggen.0.triangle
+----
+
+Las salidas de seno, coseno, diente de sierra y triángulo estan
+cambiando constantemente. La salida cuadrada también está funcionando, sin embargo
+simplemente cambia de +1.0 a -1.0 en cada ciclo.
+
+=== Cambiar los parámetros
+
+El verdadero poder de HAL es que puede cambiar cosas. Por ejemplo, nosotros
+podemos usar el comando 'setp' para establecer el valor de un parámetro. Vamos a
+cambiar la amplitud del generador de señal de 1.0 a 5.0:
+
+.Set Pin
+----
+halcmd: setp siggen.0.amplitude 5
+----
+
+.Verifique nuevamente los parámetros y los pines
+----
+halcmd: show param
+
+Parameters: 
+Owner   Type  Dir         Value  Name
+     3  s32   RO           1754  siggen.0.update.time
+     3  s32   RW          16997  siggen.0.update.tmax
+
+halcmd: show pin
+
+Component Pins:
+Owner   Type  Dir         Value  Name
+     3  float IN              5  siggen.0.amplitude
+     3  bit   OUT         FALSE  siggen.0.clock
+     3  float OUT     0.8515425  siggen.0.cosine
+     3  float IN              1  siggen.0.frequency
+     3  float IN              0  siggen.0.offset
+     3  float OUT      2.772382  siggen.0.sawtooth
+     3  float OUT     -4.926954  siggen.0.sine
+     3  float OUT             5  siggen.0.square
+     3  float OUT      0.544764  siggen.0.triangle
+----
+
+Observe que el valor del parámetro 'siggen.0.amplitude' ha cambiado a
+5, y que los pines tienen ahora valores más grandes.
+
+=== Guardar la configuración HAL
+
+La mayor parte de lo que hasta ahora hemos hecho con 'halcmd' es simplemente ver
+cosas con el comando 'show'. Sin embargo, dos de los comandos realmente han
+cambiado cosas. Cuando se diseñan sistemas más complejos con HAL, utilizaremos muchos comandos para
+configurar las cosas tal como las queremos. HAL retendrá esa configuración 
+hasta que lo apaguemos. Pero ¿que hay sobre la próxima vez?. No queremos ingresar manualmente un grupo de
+comandos cada vez que queremos usar el sistema. Podemos salvar la
+configuración de todo el HAL con un solo comando:
+
+.Salvar
+----
+halcmd: save
+# components 
+loadrt threads name1=test-thread period1=1000000 
+loadrt siggen 
+# pin aliases 
+# signals 
+# nets 
+# parameter values 
+setp siggen.0.update.tmax 14687 
+# realtime thread/function links 
+addf siggen.0.update test-thread 
+----
+
+La salida del comando 'save' es una secuencia de comandos HAL. Si se comienza con un HAL 'vacío'
+y se ejecutan todos estos comandos, obtendrá la configuración que
+existía antes de emitir el comando 'save'. Para guardar estos comandos
+para un uso posterior, simplemente redirija la salida a un archivo:
+
+.Guardar en un archivo
+----
+halcmd: save all saved.hal
+----
+
+=== Saliendo de halrun
+
+Cuando haya terminado con su sesión HAL, escriba 'exit' en 'halcmd:'.
+Esto lo devolverá al prompt del sistema y cerrará la sesion HAL.
+No cierre simplemente la ventana de la terminal sin apagar adecuadamente
+la sesión HAL.
+
+.Salir de HAL
+----
+halcmd: exit
+----
+
+=== Restaurando la configuración HAL
+
+Para restaurar la configuración HAL almacenada en 'saved.hal' necesitamos
+ejecuta todos esos comandos HAL. Para hacer eso, usaremos la opción '-f <nombre de archivo>'
+que lee comandos de un archivo, e '-I' que muestra
+el indicador halcmd después de ejecutar los comandos:
+
+.Ejecutar un archivo guardado
+----
+halrun -I -f saved.hal
+----
+
+Observe que no hay un comando 'start' en saved.hal. Es
+necesario emitirlo nuevamente (o editar saved.hal para agregarlo).
+
+=== Eliminando HAL de la memoria
+
+Si se produce un cierre inesperado de una sesión HAL, es posible que tenga que
+descartar HAL completamente antes de que pueda comenzar otra sesión. Para hacer esto, escriba
+el siguiente comando en una ventana de terminal.
+
+.Eliminando HAL
+----
+halrun -U
+----
+
+[[sec:tutorial-halmeter]] (((Halmeter, Halmeter Tutorial)))
+
+== Halmeter
+
+Puede construir sistemas HAL muy complejos sin tener que utilizar un interfaz gráfico.
+Sin embargo, es muy satisfactorio ver graficamente el resultado de su trabajo. La primera y más simple herramienta GUI para HAL es
+halmeter. Es un programa muy simple, que es el equivalente HAL de un práctico multímetro.
+
+Usaremos el componente siggen nuevamente para verificar halmeter. Si
+acaba de terminar el ejemplo anterior, puede cargar 'siggen' usando el
+archivo guardado. Si no, podemos cargarlo como lo hicimos antes:
+
+----
+halrun
+halcmd: loadrt siggen
+halcmd: loadrt threads name1=test-thread period1=1000000
+halcmd: addf siggen.0.update test-thread
+halcmd: start
+halcmd: setp siggen.0.amplitude 5
+----
+
+En este punto, tenemos el componente siggen cargado y en ejecución.
+Es momento de comenzar con halmeter.
+
+.Arrancar Halmeter
+----
+halcmd: loadusr halmeter
+----
+
+La primera ventana que verá es la ventana 'Seleccionar elemento a sondear'.
+
+.Ventana de selección de Halmeter
+
+image::images/halmeter-select.png[align="center",alt="Ventana de selección de halmeter"]
+
+Este diálogo tiene tres pestañas. La primera pestaña muestra todos los pines HAL
+en el sistema. La segunda muestra todas las señales, y la tercera
+muestra todos los parámetros. Nos gustaría mirar primero el pin
+'siggen.0.cosine'. Haga clic en él y luego haga clic en el botón 'Close'.
+El cuadro de diálogo de selección se cerrará, y el medidor se vera como en la
+siguiente figura.
+
+.Halmeter
+
+image::images/halmeter-1.png[align="center",alt="Halmeter"]
+
+Para cambiar lo que muestra el medidor presione el botón 'Select' que
+devuelve la ventana de seleccion del elemento a sondear.
+
+Debería ver el cambio de valor a medida que siggen genera su onda de coseno.
+Halmeter refresca su pantalla (su valor) aproximadamente 5 veces por segundo.
+
+Para apagar halmeter, simplemente haga clic en el botón de salida.
+
+Si desea ver más de un pin, señal o parámetro a la vez,
+puede lanzar más halmeters. La ventana de halmeter es intencionalmente
+muy pequeña para que se pueda tener muchas de ellas a la vez en la pantalla.
+
+== Ejemplo Stepgen (((stepgen)))
+
+Hasta ahora solo hemos cargado un componente HAL. Pero toda la idea
+detrás de HAL es permitir cargar y conectar una serie de componentes simples
+para formar un sistema complejo. El siguiente ejemplo usará dos componentes.
+
+Antes de que podamos comenzar a construir este nuevo ejemplo, queremos comenzar con una instancia limpia.
+Si se acaba de terminar uno de los ejemplos anteriores, necesitamos
+eliminar todos los componentes cargados y volver a cargar las bibliotecas RTAPI y HAL.
+Para la eliminacion, basta salir de HAL con el comando:
+
+----
+halcmd: exit
+----
+
+=== Instalación de los componentes
+
+Ahora vamos a cargar el componente generador de impulsos de pasos. Para
+la descripción detallada de este componente, vease la sección del
+Manual del integrador. En este ejemplo usaremos el tipo de control de 'velocidad'
+de stepgen. Por ahora, podemos omitir los detalles, y solo ejecutar los
+siguientes comandos.
+
+----
+halrun 
+halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
+halcmd: loadrt siggen
+halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
+----
+
+El primer comando, despues de halrun, carga dos generadores de pasos, ambos configurados para
+generar pasos tipo 0. El segundo comando carga a nuestro viejo amigo
+siggen, y el tercero crea dos hilos, uno rápido (que llamaremos 'fast') con un período
+de 50 microsegundos y uno lento (que llamaremos 'slow') con un período de 1 milisegundo. El rápido
+no admite (fp1=0) funciones de punto flotante.
+
+Como antes, podemos usar 'halcmd show' para echar un vistazo a HAL.
+Ahora tendremos muchos más pines y parámetros que antes:
+
+----
+halcmd: show pin
+
+Component Pins:
+Owner   Type  Dir         Value  Name
+     4  float IN              1  siggen.0.amplitude
+     4  bit   OUT         FALSE  siggen.0.clock
+     4  float OUT             0  siggen.0.cosine
+     4  float IN              1  siggen.0.frequency
+     4  float IN              0  siggen.0.offset
+     4  float OUT             0  siggen.0.sawtooth
+     4  float OUT             0  siggen.0.sine
+     4  float OUT             0  siggen.0.square
+     4  float OUT             0  siggen.0.triangle
+     3  s32   OUT             0  stepgen.0.counts
+     3  bit   OUT         FALSE  stepgen.0.dir
+     3  bit   IN          FALSE  stepgen.0.enable
+     3  float OUT             0  stepgen.0.position-fb
+     3  bit   OUT         FALSE  stepgen.0.step
+     3  float IN              0  stepgen.0.velocity-cmd
+     3  s32   OUT             0  stepgen.1.counts
+     3  bit   OUT         FALSE  stepgen.1.dir
+     3  bit   IN          FALSE  stepgen.1.enable
+     3  float OUT             0  stepgen.1.position-fb
+     3  bit   OUT         FALSE  stepgen.1.step
+     3  float IN              0  stepgen.1.velocity-cmd
+
+
+halcmd: show param
+
+Parameters:
+Owner   Type  Dir         Value  Name
+     4  s32   RO              0  siggen.0.update.time
+     4  s32   RW              0  siggen.0.update.tmax
+     3  u32   RW     0x00000001  stepgen.0.dirhold
+     3  u32   RW     0x00000001  stepgen.0.dirsetup
+     3  float RO              0  stepgen.0.frequency
+     3  float RW              0  stepgen.0.maxaccel
+     3  float RW              0  stepgen.0.maxvel
+     3  float RW              1  stepgen.0.position-scale
+     3  s32   RO              0  stepgen.0.rawcounts
+     3  u32   RW     0x00000001  stepgen.0.steplen
+     3  u32   RW     0x00000001  stepgen.0.stepspace
+     3  u32   RW     0x00000001  stepgen.1.dirhold
+     3  u32   RW     0x00000001  stepgen.1.dirsetup
+     3  float RO              0  stepgen.1.frequency
+     3  float RW              0  stepgen.1.maxaccel
+     3  float RW              0  stepgen.1.maxvel
+     3  float RW              1  stepgen.1.position-scale
+     3  s32   RO              0  stepgen.1.rawcounts
+     3  u32   RW     0x00000001  stepgen.1.steplen
+     3  u32   RW     0x00000001  stepgen.1.stepspace
+     3  s32   RO              0  stepgen.capture-position.time
+     3  s32   RW              0  stepgen.capture-position.tmax
+     3  s32   RO              0  stepgen.make-pulses.time
+     3  s32   RW              0  stepgen.make-pulses.tmax
+     3  s32   RO              0  stepgen.update-freq.time
+     3  s32   RW              0  stepgen.update-freq.tmax
+----
+
+=== Conexión de pines con señales
+
+Lo que tenemos, de momento, son dos generadores de impulsos de pasos y un generador de señal.
+Es hora de crear algunas señales HAL para conectar los dos componentes.
+Se pretende que los dos generadores de impulsos de pasos conduzcan los
+ejes X e Y de una máquina. Queremos mover la mesa en círculos. Para hacer
+esto, enviaremos una señal coseno al eje X y una señal seno al
+eje Y. El módulo siggen crea las señales seno y coseno, pero necesitamos
+'cables' para conectar los módulos entre sí, de forma de los generadores creen los pasos al
+ritmo de los valores seno y coseno.
+En HAL, los 'cables' se llaman 'señales'. Necesitamos crear dos de ellas. Podemos llamarlos de cualquier forma,
+pero para este ejemplo serán 'X-vel' y 'Y-vel'. La señal
+'X-vel' está destinado a ejecutarse desde la salida coseno del generador de señales
+a la entrada de velocidad del primer generador de impulsos de paso.
+El primer paso es conectar la señal a la salida del generador de señales.
+Para conectar una señal a un pin usamos el comando net.
+
+.Comando net
+----
+halcmd: net X-vel <= siggen.0.cosine
+----
+
+Para ver el efecto del comando 'net', mostramos las señales nuevamente.
+
+----
+halcmd: show sig
+
+Signals:
+Type          Value  Name     (linked to)
+float             0  X-vel <== siggen.0.cosine
+----
+
+Cuando una señal está conectada a uno o más pines, el comandos show lista 
+pines inmediatamente después del nombre de la señal. La 'flecha' muestra la
+dirección del flujo de datos; en este caso, los datos fluyen desde el pin
+'siggen.0.cosine' hasta la señal 'X-vel'. Ahora conectemos 'X-vel' a
+la entrada de velocidad de un generador de impulsos por pasos.
+
+----
+halcmd: net X-vel => stepgen.0.velocity-cmd
+----
+
+También podemos conectar la señal 'Y-vel' del eje Y. Esta señal ira
+desde la salida seno del generador de señales
+a la entrada del segundo generador de impulsos de paso. El siguiente comando
+logra en una sola línea lo que dos comandos 'net' lograron con 'X-vel'.
+
+----
+halcmd: net Y-vel siggen.0.sine => stepgen.1.velocity-cmd
+----
+
+Ahora echemos un vistazo final a las señales y pines conectados a
+ellos.
+
+----
+halcmd: show sig
+
+Signals:
+Type          Value  Name     (linked to)
+float             0  X-vel <== siggen.0.cosine
+                           ==> stepgen.0.velocity-cmd
+float             0  Y-vel <== siggen.0.sine
+                           ==> stepgen.1.velocity-cmd
+----
+
+El comando 'show sig' deja en claro exactamente cómo fluyen los datos
+en HAL. Por ejemplo, la señal 'X-vel' proviene del pin
+'siggen.0.cosine', y va al pin 'stepgen.0.velocity-cmd'.
+
+=== Configuración de la ejecución en tiempo real: hilos y funciones
+
+Con la idea de que los datos fluyen a través de 'cables' es
+bastante fácil de entender los pines y señales. Los hilos y las funciones son conceptos un poco más
+difíciles. Las funciones contienen las instrucciones de la computadora que en realidad
+hacen las cosas. El hilo es el método utilizado para hacer correr esas instrucciones
+cuando sea necesario. Primero veamos las funciones disponibles.
+
+----
+halcmd: show funct
+
+Exported Functions:
+Owner   CodeAddr  Arg       FP   Users  Name
+ 00004  f9992000  fc731278  YES      0   siggen.0.update
+ 00003  f998b20f  fc7310b8  YES      0   stepgen.capture-position
+ 00003  f998b000  fc7310b8  NO       0   stepgen.make-pulses
+ 00003  f998b307  fc7310b8  YES      0   stepgen.update-freq
+----
+
+En general, deberá consultar la documentación de cada
+componente para ver lo que hacen sus funciones. En este caso, la función
+'siggen.0.update' se usa para actualizar las salidas del generador de señales.
+Cada vez que se ejecuta, calcula los valores de
+las salidas seno, coseno, triángulo y cuadrado. Para sacar
+señales limpias, necesita ejecutarse a intervalos específicos.
+
+Las otras tres funciones están relacionadas con los generadores de impulsos de pasos.
+
+la primera, 'stepgen.capture_position', se usa para la realimentación de posición.
+Captura el valor de un contador interno que cuenta los pulsos de paso a medida que se generan. Suponiendo que no
+no se pierden pasos en sus motores, este contador podria indicar la posición.
+
+La función principal del generador de impulsos de pasos es
+'stepgen.make_pulses'. Cada vez que se ejecuta 'make_pulses', decide si
+es hora de dar un nuevo paso y, si es así, establece las
+salidas en consecuencia. Para pulsos de paso suaves, debe ejecutarse con
+la mayor frecuencia posible. Debido a que necesita correr rápido, 'make_pulses'
+está altamente optimizada y realiza solo unos pocos cálculos. A diferencia de las
+otras funciones, no necesita matemáticas de coma flotante.
+
+La última función, 'stepgen.update-freq', es responsable de hacer el
+escalado y algunos otros cálculos que deben realizarse
+solo cuando el comando de frecuencia cambia.
+
+Para nuestro ejemplo, esto significa que queremos ejecutar
+'siggen.0.update' a una velocidad moderada para calcular los valores de seno y coseno.
+Inmediatamente después de ejecutar 'siggen.0.update', queremos ejecutar
+'stepgen.update_freq' para cargar los nuevos valores en el generador de impulsos de paso.
+Finalmente necesitamos ejecutar 'stepgen.make_pulses' lo más rápido posible para pulsos suaves.
+Puesto que no usamos retroalimentacion de posición, no necesitamos ejecutar 'stepgen.capture_position' en absoluto.
+
+Ejecutamos las funciones agregándolas a hilos. Cada hilo se ejecuta a una
+tasa específica. Veamos qué hilos tenemos disponibles.
+
+----
+halcmd: show thread
+
+Realtime Threads:
+     Period  FP     Name               (     Time, Max-Time )
+     996980  YES                  slow (        0,        0 )
+      49849  NO                   fast (        0,        0 )
+----
+
+Los dos hilos se crearon cuando cargamos 'threads'. El primero,
+'slow', se ejecuta cada milisegundo y es capaz de ejecutar funciones en modo  de punto flotante.
+Lo usaremos para 'siggen.0.update' y 'stepgen.update_freq'. 
+El segundo hilo es 'fast', que se ejecuta cada 50 microsegundos, y no es compatible con punto flotante.
+Lo usaremos para 'stepgen.make_pulses'. Para conectar las funciones al hilo apropiado, usamos el comando 'addf'.
+Especificamos la función primero y el hilo despues.
+
+----
+halcmd: addf siggen.0.update slow
+halcmd: addf stepgen.update-freq slow
+halcmd: addf stepgen.make-pulses fast
+----
+
+Después de dar estos comandos, podemos ejecutar el comando 'show thread' de nuevo para ver que ha pasado.
+
+----
+halcmd: show thread
+
+Realtime Threads:
+     Period  FP     Name               (     Time, Max-Time )
+     996980  YES                  slow (        0,        0 )
+                  1 siggen.0.update
+                  2 stepgen.update-freq
+      49849  NO                   fast (        0,        0 )
+                  1 stepgen.make-pulses
+----
+
+Ahora cada hilo es seguido por los nombres de las funciones en el orden en que se ejecutarán.
+
+=== Parámetros de configuración
+
+Estamos casi listos para arrancar nuestro sistema HAL. Sin embargo, todavía tenemos que
+ajustar algunos parámetros. Por defecto, el componente siggen genera
+señales que oscilan desde ​+1 a -1.
+Para nuestro ejemplo, eso está bien, queremos que
+la velocidad de la mesa varíe de ​+1 a -1
+pulgada por segundo. Sin embargo,
+la escala del generador de impulsos de pasos no esta del todo correcta. Por defecto,
+genera una frecuencia de salida de 1 paso por segundo para una entrada de
+1.000. Es poco probable que un paso por segundo nos dé una pulgada
+por segundo de movimiento de la mesa. Supongamos que tenemos un husillo con 5 vueltas
+por pulgada de avance, conectado a un stepper de 200 pasos por revolucion, con
+microstepping 10x. Por tanto, se necesitan 2000 pasos para una revolución del
+tornillo, y 5 revoluciones para moverse una pulgada. Eso significa que la escala general
+es 10000 pasos por pulgada. Necesitamos multiplicar la entrada de velocidad
+al generador de impulsos de paso por 10000 para obtener la salida adecuada. Es
+exactamente para lo qué sirve el parámetro 'stepgen.n.velocity-scale'. En este
+caso, tanto el eje X como el eje Y tienen la misma escala, por lo que
+establecemos los parámetros de escala para ambos en 10000. Tambien debemos "encender"
+los generadores. Esa es la mision de stepgen.X.enable.
+
+----
+halcmd: setp stepgen.0.position-scale 10000
+halcmd: setp stepgen.1.position-scale 10000
+halcmd: setp stepgen.0.enable 1
+halcmd: setp stepgen.1.enable 1
+----
+
+Esta escala de velocidad significa que cuando el pin 'stepgen.0.velocity-cmd'
+sea 1.000, el generador de pasos generará 10000 pulsos por segundo
+(10KHz). Con el motor y el tornillo de avance descritos anteriormente, eso dará como resultado
+que el eje se movera a exactamente 1,000 pulgada por segundo. Esto ilustra
+un concepto HAL clave: cosas como el escalado se hacen al menor nivel posible
+, en este caso en el generador de impulsos de pasos. La señal interna
+'X-vel' es la velocidad de la mesa en pulgadas por segundo, y otros
+componentes, como 'siggen', no saben (ni se preocupan) acerca de la escala.
+Si cambiamos el husillo, o el motor, cambiaríamos solo el
+parámetro de escala del generador de impulsos de pasos.
+
+=== ¡Ejecutando!
+
+Ahora tenemos todo configurado y estamos listos para ponerlo en marcha.
+Como en el primer ejemplo, usamos el comando 'start'.
+
+----
+halcmd: start
+----
+
+Aunque parece no suceder nada, dentro de la computadora los generadores de pulsos de paso
+están generando impulsos, variando entre ​+10 KHz y -10 KHz cada segundo. Más adelante en este tutorial vamos a
+ver cómo sacar esas señales internas para mover motores en la realidad,
+pero primero queremos ver los pulsos y comprobar lo qué está sucediendo.
+
+[[sec:tutorial-halscope]](((Tutorial Halscope)))
+
+== Halscope
+
+El ejemplo anterior genera algunas señales muy interesantes. Pero mucho de
+lo que sucede es demasiado rápido para verlo con 'halmeter'. Para
+ver lo que está sucediendo dentro de HAL, necesitamos un osciloscopio.
+Afortunadamente HAL tiene uno, llamado 'halscope'.
+
+Halscope tiene dos partes: una parte en tiempo real, que se carga como modulo kernel,
+y una parte de usuario que proporciona la GUI y la pantalla. Sin embargo, usted 
+no necesita preocuparse por esto, porque la porción de espacio de usuario
+solicita automáticamente que se cargue la parte en tiempo real.
+La primera vez que se ejecuta halscope en un directorio da como resultado un mensaje
+de que el archivo 'autosave.halscope' no se pudo abrir. Ello se debe a que aun no existe; puede ignorarlo esta primera vez.
+
+.Arranque de Halscope
+----
+halcmd: loadusr halscope
+halcmd: halscope: config file 'autosave.halscope' could not be opened
+----
+
+Se abrirá la ventana GUI, seguida inmediatamente por
+el cuadro de diálogo 'Realtime function not linked' que se aparece a la siguiente
+figura.
+
+.diálogo Función Realtime no vinculada
+
+image::images/halscope-01.png[align="center", alt="Diálogo de función de tiempo real no vinculada"]
+
+Este diálogo es donde se establece la frecuencia de muestreo para el osciloscopio.
+Por ahora, queremos muestrear una vez por milisegundo, así que haga clic en el hilo 'slow'
+y deje el multiplicador en 1. También dejaremos la
+longitud de registro a 4000 muestras, para que podamos usar hasta cuatro canales
+a la vez. Cuando selecciona un hilo y luego hace clic en 'Ok', el diálogo
+desaparece, y la ventana del osciloscopio aparece como en la siguiente figura.
+
+.Vista inicial de halscope
+
+image::images/halscope-02.png[align="center", alt="Ventana inicial de halscope"]
+
+=== Conectando las sondas
+
+En este punto, Halscope está listo para usarse. Ya hemos seleccionado una
+frecuencia de muestreo y longitud de registro, por lo que el siguiente paso es decidir qué
+observar. Esto es equivalente a conectar 'sondas virtuales' a
+HAL. Halscope tiene 16 canales, pero el número que puede usar en cualquier
+momento depende de la duración del registro; más canales significan menos
+registros, ya que la memoria disponible para el registro es fija, de
+aproximadamente 16,000 muestras.
+
+Los botones de canal estan en la parte inferior de la pantalla de halscope.
+Haga clic en el botón '1' y verá el diálogo 'Seleccionar fuente de canal',
+como se muestra en la siguiente figura. Este diálogo es muy similar al
+utilizado por halmeter. Nos gustaría ver las señales que definimos
+antes. Hacemos clic en la pestaña "Señales" y el cuadro de diálogo muestra todas
+las señales en HAL (solo dos para este ejemplo).
+
+.Seleccione Origen del canal
+
+image::images/halscope-03.png[align="center", alt="Seleccionar fuente de canal"]
+
+Para elegir una señal, simplemente haga clic en ella. En este caso, queremos que el canal 1
+muestre la señal 'X-vel'. Haga clic en la pestaña Señales y luego haga clic en
+'X-vel' y el diálogo se cerrara. El canal está ahora seleccionado.
+
+.Seleccion de señal
+
+image::images/halscope-04.png[align="center", alt="Seleccionar señal"]
+
+El botón del canal 1 se ve "presionado", y el canal número 1 y el nombre
+'X-vel' aparece debajo de la fila de botones. Esa pantalla siempre indica
+el canal seleccionado; puede tener muchos canales en la pantalla, pero
+el seleccionado se resalta, y los diversos controles, como posicion vertical
+y escala, siempre funcionan en el canal seleccionado.
+
+.Halscope
+
+image::images/halscope-05.png[align="center", alt="Halscope"]
+
+Para agregar una señal al canal 2, haga clic en el botón '2'. Cuando el diálogo
+aparezca, haga clic en la pestaña 'Señales', luego haga clic en 'Y-vel'. También queremos
+mirar las salidas de onda cuadradas y triangulares. No hay señales
+conectadas a esos pines, por lo que usamos la pestaña 'Pins' en su lugar. Para el canal
+3, seleccione 'siggen.0.triangle' y para el canal 4, seleccione
+'siggen.0.square'.
+
+=== Capturando nuestras primeras formas de onda
+
+Ahora que tenemos varias sondas enganchadas a HAL, es hora de
+capturar algunas formas de onda. Para iniciar el osciloscopio, haga clic en el botón 'Normal'
+en la sección 'Run Mode' de la pantalla (arriba a la derecha). Como tenemos
+4000 muestras de longitud de registro, y están adquiriendo 1000 muestras por segundo,
+Halscope tardara unos 2 segundos en llenar la mitad de su buffer.
+Durante ese tiempo, se mostrará una barra de progreso, justo encima de la pantalla principal,
+conforme se rellena el buffer. Una vez que el buffer está medio lleno, el osciloscopio espera un
+disparo. Como aún no hemos configurado uno, esperará indefinidamente. Para
+accionar el disparo manualmente, haga clic en el botón 'Force' en la sección 'Trigger'
+en la parte superior derecha. Debería ver el resto del relleno del buffer, y luego
+la pantalla mostrará las formas de onda capturadas. El resultado se verá
+como en la siguiente figura.
+
+.Capturando formas de onda
+
+image::images/halscope-06.png[align="center", alt="Formas de onda capturadas"]
+
+El cuadro "Selected Channel", en la parte inferior, le dice que la señal de color púrpura
+es el canal actualmente seleccionado, canal 4, que muestra el
+valor del pin 'siggen.0.square'. Intente hacer clic en los botones de canal 1
+hasta 3 para resaltar las otras tres señales.
+
+=== Ajustes verticales
+
+Las ondas son bastante difíciles de distinguir ya que las cuatro están una sobre otra.
+Para solucionar esto, usamos los controles 'Vertical' en el cuadro derecho de la pantalla.
+Estos controles actúan en el canal actualmente seleccionado.
+Al ajustar la ganancia, observe que cubre un amplio rango.
+A diferencia de un osciloscopio real, este puede mostrar señales que van desde muy
+pequeñas (pico-unidades) a muy grandes (unidades Tera). El control de posición
+mueve el trazo mostrado arriba y abajo sobre la altura de la pantalla
+solamente. Para ajustes más grandes, se debe usar el botón 'offset'.
+
+.Ajuste vertical
+
+image::images/halscope-07.png[align="center", alt="Ajuste vertical"]
+
+=== Disparando
+
+Usar el botón 'Forzar' es una forma bastante burda de activar el
+osciloscopio. Para configurar un disparo real, haga clic en el botón 'Source',
+abajo a la derecha. Se abrirá el cuadro de diálogo 'Trigger Source', que es
+simplemente una lista de todas las sondas que están actualmente conectadas. Seleccione una
+sonda para usarla como disparador haciendo clic en ella. Para este ejemplo lo haremos
+con el canal 3, la onda triangular, como se muestra en la siguiente figura.
+
+.Diálogo de Fuente de Disparo 
+
+image::images/halscope-08.png[align="center", alt="Diálogo de origen del disparador"]
+
+Después de configurar la fuente de activación, puede ajustar el nivel de activación y
+posición del gatillo usando los controles deslizantes en la casilla 'Trigger' a lo largo del borde derecho.
+El nivel se puede ajustar desde la parte superior a la inferior de la
+pantalla, y se muestra debajo de los controles deslizantes. La posicion es la
+ubicación del punto de disparo dentro del registro general. Con el
+deslizador completamente hacia abajo, el punto de disparo está al final del registro,
+y halscope muestra lo que sucedió antes de ese punto. Cuando
+el control deslizante está arriba, el punto de disparo está al comienzo de la captura de
+muestras, mostrando lo que sucedió después de que se activó. El punto del gatillo
+es visible como una línea vertical en el cuadro de progreso sobre la 
+pantalla. La polaridad del gatillo se puede cambiar haciendo clic en el botón
+justo debajo del nivel de disparo.
+
+Ahora que hemos ajustado los controles verticales y el disparo,
+la pantalla del osciloscopio se parecerá a la siguiente figura.
+
+.Formas de onda con Triggering
+
+image::images/halscope-09.png[align="center", alt="Formas de onda con disparador"]
+
+=== Ajustes horizontales
+
+Para observar detenidamente parte de una forma de onda, puede usar el deslizador de zoom en
+la parte superior de la pantalla, para expandir las formas de onda horizontalmente, y
+el control deslizante de posición para determinar qué parte de la forma de onda ampliada
+sera visible. Sin embargo, a veces simplemente expandir las formas de onda no es suficiente
+y necesita aumentar la tasa de muestreo. Por ejemplo, nos gustaría
+para ver los pulsos de pasos reales que se generan en nuestro
+ejemplo. Dado que los pulsos de paso pueden tener solo 50 us. de largo, muestrear a 1 KHz
+no es lo suficientemente rápido para capturarlos. Para cambiar la frecuencia de muestreo, haga clic en el botón que
+indica el número de muestras y la frecuencia de muestreo, que mostrara el dialogo 'Seleccionar
+Frecuencia de muestreo'. Para este ejemplo, haremos clic en el hilo 'fast' de
+50 us, que nos da una velocidad de muestra de aproximadamente 20KHz. Ahora
+en lugar de mostrar aproximadamente 4 segundos de datos, un registro es 4000
+muestras a 20 kHz, o aproximadamente 0,20 segundos.
+
+.Diálogo de frecuencia de muestreo
+
+image::images/halscope-10.png[align="center",alt="Diálogo de frecuencia de muestreo"]
+
+=== Más canales
+
+Ahora veamos los pulsos de paso. Halscope tiene 16 canales, pero para
+este ejemplo estamos usando solo 4 a la vez. Antes de seleccionar más
+canales, tenemos que apagar un par. Haga clic en el botón del canal 2,
+luego haz clic en el botón "Chan Off" en la parte inferior del cuadro "Vertical".
+A continuación, haga clic en el canal 3, apaguelo, y haga lo mismo para el canal 4.
+Aunque los canales están apagados, todavía recuerdan a que
+están conectados y, de hecho, vamos a seguir utilizando el canal 3 como
+fuente de disparo. Para agregar nuevos canales, seleccione el canal 5 y elija el pin
+'stepgen.0.dir', luego el canal 6, y seleccione 'stepgen.0.step'. Entonces
+haga clic en el modo de ejecución 'Normal' para iniciar el osciloscopio y ajuste el zoom horizontal
+a 5 ms por división. Debería ver que los pulsos de paso disminuyen a medida que
+el comando de velocidad (canal 1) se acerca a cero, luego el pin de dirección
+cambia de estado y los pulsos de paso se aceleran nuevamente. Usted podría querer
+aumentar la ganancia en el canal 1 a alrededor de 20 ms por división para ver mejor
+el cambio en el comando de velocidad. El resultado debería verse como la
+siguiente figura.
+
+.Pasos de paso
+
+image::images/halscope-11.png[align="center", alt="Impulsos de paso"]
+
+=== Más muestras
+
+Si desea grabar más muestras a la vez, reinicie el tiempo real y cargue
+halscope con un argumento numérico que indique el número de muestras que
+quiere capturar
+
+----
+halcmd: loadusr halscope 80000
+----
+
+Si el componente 'scope_rt' no estaba cargado, halscope
+lo carga y solicita 80000 muestras en total, de modo que al tomar muestras en
+4 canales a la vez habrá 20000 muestras por canal.
+(Si 'scope_rt' ya estaba cargado, el argumento numérico para
+halscope no tendrá ningún efecto).
+
+

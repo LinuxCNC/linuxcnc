@@ -1,0 +1,66 @@
+.TH rtapi_shmem "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_shmem \- Funciones para administrar bloques de memoria compartida
+
+.SH SINTAXIS
+.HP
+ int rtapi_shmem_new(int \fIkey\fR, int \fImodule_id\fR, unsigned long int \fIsize\fR)
+
+.HP
+ int rtapi_shmem_delete(int \fIshmem_id\fR, int \fImodule_id\fR)
+
+.HP
+ int rtapi_shmem_getptr(int \fIshmem_id\fR, void **\fIptr\fR)
+
+.SH ARGUMENTOS
+.IP \fIkey\fB
+Identifica el bloque de memoria. La clave debe ser distinta de cero. Todos los módulos que deseen usar 
+la misma memoria deben usar la misma clave.
+
+.IP \fImodule_id\fB
+Identificador del módulo devuelto por una llamada previa a \fBrtapi_init\fR.
+
+.IP \fIsize\fB
+El tamaño deseado del bloque de memoria compartida, en bytes.
+
+.IP \fIptr\fB
+El puntero al bloque de memoria compartida. Tenga en cuenta que el bloque puede estar mapeado
+en una dirección diferente para diferentes módulos.
+
+.SH DESCRIPCIÓN
+
+\fBrtapi_shmem_new\fR asigna un bloque de memoria compartida. \fIkey\fR
+identifica el bloque de memoria y no debe ser cero. Todos los módulos
+que deseen acceder a la misma memoria debe usar la misma clave.
+\fImodule_id\fR es la ID del módulo que está realizando la llamada (consulte
+rtapi_init). El bloque tendrá al menos \fIsize\fR bytes, y puede
+ser redondeado. Asignar muchos bloques pequeños puede ser muy derrochador.
+Cuando un bloque particular se asigna por primera vez, los primeros
+4 bytes están a cero. Asignaciones posteriores del mismo bloque
+por otros módulos o procesos no tocarán el contenido del
+bloque. Las aplicaciones pueden usar esos bytes para ver si necesitan
+que se inicialice el bloque, o si otro módulo ya lo hizo.
+En caso de éxito, devuelve una ID entera positiva, que se utiliza para
+todas las llamadas subsiguientes relacionadas con el bloque. En caso de fracaso
+devuelve un código de error negativo
+
+\fBrtapi_shmem_delete\fR libera el bloque de memoria compartida asociado
+con \fIshmem_id\fR. \fImodule_id\fR es la ID del módulo de llamada.
+Devuelve un código de estado.
+
+\fBrtapi_shmem_getptr\fR establece \fI*ptr\fR para que apunte al bloque de memoria compartida
+asociado con \fIshmem_id\fR.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+
+\fBrtapi_shmem_getptr\fR puede llamarse desde el código de usuario, código de inicio/limpieza,
+o tareas en tiempo real.
+
+\fBrtapi_shmem_new\fR y \fBrtapi_shmem_dete\fR no pueden llamarse desde
+tareas en tiempo real
+
+.SH VALOR DEVUELTO
+
+
+

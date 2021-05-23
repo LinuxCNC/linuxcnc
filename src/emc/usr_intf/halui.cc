@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <signal.h>
 #include <math.h>
 
@@ -35,6 +37,7 @@
 #include "nml_oi.hh"
 #include "timer.hh"
 #include <rtapi_string.h>
+#include "tooldata.hh"
 
 /* Using halui: see the man page */
 
@@ -258,7 +261,7 @@ static NML *emcErrorBuffer = 0;
 static int emcCommandSerialNumber = 0;
 
 // how long to wait for Task to report that it has received our command
-static double receiveTimeout = 5.0;
+static double receiveTimeout = 10.0;
 
 // how long to wait for Task to finish running our command
 static double doneTimeout = 60.;
@@ -2183,14 +2186,18 @@ static void modify_hal_pins()
     if (emcStatus->io.tool.toolInSpindle == 0) {
         *(halui_data->tool_diameter) = 0.0;
     } else {
-        int pocket;
-        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket ++) {
-            if (emcStatus->io.tool.toolTable[pocket].toolno == emcStatus->io.tool.toolInSpindle) {
-                *(halui_data->tool_diameter) = emcStatus->io.tool.toolTable[pocket].diameter;
+        int idx;
+        for (idx = 0; idx <= tooldata_last_index_get(); idx ++) { // note <=
+            CANON_TOOL_TABLE tdata;
+            if (tooldata_get(&tdata,idx) != IDX_OK) {
+                fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+            }
+            if (tdata.toolno == emcStatus->io.tool.toolInSpindle) {
+                *(halui_data->tool_diameter) = tdata.diameter;
                 break;
             }
         }
-        if (pocket == CANON_POCKETS_MAX) {
+        if (idx == CANON_POCKETS_MAX) {
             // didn't find the tool
             *(halui_data->tool_diameter) = 0.0;
         }
@@ -2215,15 +2222,21 @@ static void modify_hal_pins()
     }
 
     if (axis_mask & 0x0001) {
-      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
-      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
-      *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;
+      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      x = x * cos(-emcStatus->task.rotation_xy * TO_RAD) - y * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[0]) = x - emcStatus->task.g92_offset.tran.x;
     }
 
     if (axis_mask & 0x0002) {
-      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
-      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
-      *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;
+      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      y = y * cos(-emcStatus->task.rotation_xy * TO_RAD) + x * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[1]) = y - emcStatus->task.g92_offset.tran.y;
     }
 
     if (axis_mask & 0x0004) {
@@ -2309,6 +2322,13 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
+
+#ifdef TOOL_NML //{
+    //fprintf(stderr,"%8d HALUI REGISTER %p\n",getpid(),
+    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+#endif //}
 
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface

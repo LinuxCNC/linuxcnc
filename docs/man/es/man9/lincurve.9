@@ -1,0 +1,65 @@
+.TH LINCURVE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+lincurve \- one-dimensional lookup table
+.SH SYNOPSIS
+.HP
+.B loadrt lincurve [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]] [personality=\fIP,P,...\fB]
+.SH DESCRIPTION
+
+This component can be used to map any floating-point input to a
+floating-point output. Typical uses would include linearisation of
+thermocouples, defining PID gains that vary with external factors or to
+substitute for any mathematical function where absolute accuracy is not
+required.
+
+The component can be thought of as a 2-dimensional graph of points in (x,y)
+space joined by straight lines. The input value is located on the x axis,
+followed up until it touches the line, and the output of the component is set
+to the corresponding y-value.
+
+The (x,y) points are defined by the x-val-NN and y-val-NN parameters which need
+to be set in the HAL file using "setp" commands.
+
+The maximum number if (x,y) points supported is 16.
+
+For input values less than the x-val-00 breakpoint the y-val-00 is returned. 
+For x greater than the largest x-val-NN the yval corresponding to x-max is
+returned (ie, no extrapolation is performed.)
+
+Sample usage: loadrt lincurve count=3 personality=4,4,4 
+for a set of three 4-element graphs.
+ 
+.SH FUNCTIONS
+.TP
+\fBlincurve.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B lincurve.\fIN\fB.in\fR float in \fR
+The input value
+.TP
+.B lincurve.\fIN\fB.out\fR float out \fR
+The output value
+.TP
+.B lincurve.\fIN\fB.out-io\fR float io \fR
+The output value, compatible with PID gains
+.SH PARAMETERS
+.TP
+.B lincurve.\fIN\fB.x-val-\fIMM\fB\fR float rw  (MM=00..personality) \fR
+axis breakpoints
+.TP
+.B lincurve.\fIN\fB.y-val-\fIMM\fB\fR float rw  (MM=00..personality) \fR
+output values to be interpolated
+.SH AUTHOR
+
+Andy Pugh
+.SH LICENSE
+
+GPL

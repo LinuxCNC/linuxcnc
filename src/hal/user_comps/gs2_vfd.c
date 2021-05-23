@@ -529,7 +529,7 @@ int main(int argc, char **argv)
     slavedata.read_reg_start = START_REGISTER_R;
     slavedata.read_reg_count = NUM_REGISTERS_R;
     slavedata.write_reg_start = START_REGISTER_W;
-    slavedata.write_reg_count = NUM_REGISTERS_R;
+    slavedata.write_reg_count = NUM_REGISTERS_W;
 
     // process command line options
     while ((opt=getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {

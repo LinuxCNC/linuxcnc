@@ -1,0 +1,61 @@
+.TH GEARCHANGE "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+gearchange \- Select from one two speed ranges
+.SH SYNOPSIS
+The output will be a value scaled for the selected gear, and clamped to
+the min/max values for that gear.
+The scale of gear 1 is assumed to be 1, so the output device scale
+should be chosen accordingly.
+The scale of gear 2 is relative to gear 1, so if gear 2 runs the spindle
+2.5 times as fast as gear 1, scale2 should be set to 2.5.
+.SH FUNCTIONS
+.TP
+\fBgearchange.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B gearchange.\fIN\fB.sel\fR bit in \fR
+Gear selection input
+.TP
+.B gearchange.\fIN\fB.speed-in\fR float in \fR
+Speed command input
+.TP
+.B gearchange.\fIN\fB.speed-out\fR float out \fR
+Speed command to DAC/PWM
+.TP
+.B gearchange.\fIN\fB.dir-in\fR bit in \fR
+Direction command input
+.TP
+.B gearchange.\fIN\fB.dir-out\fR bit out \fR
+Direction output - possibly inverted for second gear
+.SH PARAMETERS
+.TP
+.B gearchange.\fIN\fB.min1\fR float rw \fR(default: \fI0\fR)
+Minimum allowed speed in gear range 1
+.TP
+.B gearchange.\fIN\fB.max1\fR float rw \fR(default: \fI100000\fR)
+Maximum allowed speed in gear range 1
+.TP
+.B gearchange.\fIN\fB.min2\fR float rw \fR(default: \fI0\fR)
+Minimum allowed speed in gear range 2
+.TP
+.B gearchange.\fIN\fB.max2\fR float rw \fR(default: \fI100000\fR)
+Maximum allowed speed in gear range 2
+.TP
+.B gearchange.\fIN\fB.scale2\fR float rw \fR(default: \fI1.0\fR)
+Relative scale of gear 2 vs. gear 1
+Since it is assumed that gear 2 is "high gear", \fBscale2\fR must be
+greater than 1, and will be reset to 1 if set lower.
+.TP
+.B gearchange.\fIN\fB.reverse\fR bit rw \fR(default: \fI0\fR)
+Set to 1 to reverse the spindle in second gear
+.SH LICENSE
+
+GPL

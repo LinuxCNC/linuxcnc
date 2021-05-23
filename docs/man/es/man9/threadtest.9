@@ -1,0 +1,26 @@
+.TH THREADTEST "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+threadtest \- LinuxCNC HAL component for testing thread behavior
+.SH SYNOPSIS
+.HP
+.B loadrt threadtest [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBthreadtest.\fIN\fB.increment\fR
+
+.TP
+\fBthreadtest.\fIN\fB.reset\fR
+
+.SH PINS
+.TP
+.B threadtest.\fIN\fB.count\fR u32 out \fR
+.SH LICENSE
+
+GPL

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 THIS_VERSION = "1.1"
 
@@ -8,8 +8,12 @@ import shutil
 import linuxcnc
 import re
 import datetime
-from tkinter import *
-import tkinter.messagebox
+if sys.version_info[0] == 3:
+    import tkinter
+    from tkinter import messagebox
+else:
+    import Tkinter as tkinter
+    import tkMessageBox as messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
@@ -37,7 +41,7 @@ filename = None
 for opt in sys.argv[1:]:
     if opt == '-d':
         dialogs = 1
-        r = Tk()
+        r = tkinter.Tk()
         r.option_add('*Dialog.msg.font', 'Times 12')
         r.option_add('*Dialog.msg.wrapLength', '6i')
 
@@ -56,13 +60,13 @@ describing the purpose of this script, and giving the user the option
 to change their minds\nIf the -f flag is used then no questions will be
 asked and the conversion will proceed blindly"""
     if dialogs:
-        tkinter.messagebox.showerror('invalid options', str(t))
+        messagebox.showerror('invalid options', str(t))
     elif not force:
         print(t)
     exit()
 
 if dialogs:
-    ret = tkinter.messagebox._show("Confirm automatic update",
+    ret = messagebox._show("Confirm automatic update",
                            "This version of LinuxCNC separates the concepts of Axes and "
                            "Joints which necessitates changes to the INI and HAL files. "
                            "The changes required are described here:\n"
@@ -76,7 +80,7 @@ if dialogs:
                            "files or 'Cancel' to exit LinuxCNC.\n"
                            "The process can not be automatically reversed, though a "
                            "backup version of your entire existing config will be created.",
-                           tkinter.messagebox.QUESTION, tkinter.messagebox.YESNOCANCEL)
+                           messagebox.QUESTION, messagebox.YESNOCANCEL)
     if ret == 'cancel': exit(42)
     elif ret == 'no': exit(0)
 
@@ -88,7 +92,7 @@ try:
 except:
     t =  "%s is not a valid ini file" % filename
     if dialogs:
-        tkinter.messagebox.showerror('invalid options', t)
+        messagebox.showerror('invalid options', t)
     elif not force:
         print(t)
     exit()
@@ -103,14 +107,14 @@ elif version >= THIS_VERSION:
     t =  """The supplied INI file is already at version %s and should not need
     updating""" % version
     if dialogs:
-        tkinter.messagebox.showerror('conversion not needed', t)
+        messagebox.showerror('conversion not needed', t)
     elif not force:
         print(t)
     exit()
 
 if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
     if dialogs:
-        if tkinter.messagebox.askquestion("Already Converted",
+        if messagebox.askquestion("Already Converted",
         "The supplied INI file already has a [KINS] section. this probably "
         "means that it was previously converted by hand. Continue conversion?"
         "(Change [EMC]VERSION to %s to suppress these messages) "
@@ -218,8 +222,9 @@ if version == "$Revision$" or version < "1.0":
     if section: section = section.group(1)
     newini.write("\n[RS274NGC]\n")
     if section != None:
-        features = int(ini.find('RS274NGC', 'FEATURES'))
+        features = ini.find('RS274NGC', 'FEATURES')
         if features != None:
+            features = int(features)
             section = re.sub("FEATURES.*?\n", "", section)
             section += ("RETAIN_G43 = %s\n"   % ("1" if features & 0x1 else "0"))
             section += ("INI_VARS = %s\n"     % ("1" if features & 0x4 else "0"))

@@ -306,23 +306,48 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
-#if PY_MAJOR_VERSION >=3    
-    if (abs_path){
-        wchar_t *program = Py_DecodeLocale(abs_path, NULL);
-        Py_SetProgramName(program);
-    }
+#if PY_MAJOR_VERSION >= 3
+  if (abs_path) {
+    wchar_t *program = Py_DecodeLocale(abs_path, NULL);
+    Py_SetProgramName(program);
+  }
+    if (inittab != NULL) {
+      if (!Py_IsInitialized()) {
+        if (PyImport_ExtendInittab(inittab) != 0) {
+          logPP(-1, "cannot extend inittab");
+          status = PLUGIN_INITTAB_FAILED;
+          return;
+        }
+      }
+      else {
+        PyObject *sys_modules = PyImport_GetModuleDict(); // borrowed
+
+        for (int i = 0; inittab[i].name != NULL; i++) {
+          struct _inittab tab = inittab[i];
+          PyObject *module = tab.initfunc();
+          if (module == NULL) {
+            logPP(-1, "failed to initialize built-in module '%s'", tab.name);
+            status = PLUGIN_INITTAB_FAILED;
+            return;
+          }
+
+          PyImport_AddModule(tab.name); // borrowed
+          PyDict_SetItemString(sys_modules, tab.name, module);
+          Py_DECREF(module);
+        }
+      }
+  }
+  Py_UnbufferedStdioFlag = 1;
 #else
     Py_SetProgramName((char *) abs_path);
-#endif
-
-    if ((inittab != NULL) &&
-	PyImport_ExtendInittab(inittab)) {
-	logPP(-1, "cant extend inittab");
-	status = PLUGIN_INITTAB_FAILED;
-	return;
+    if ((inittab != NULL) && PyImport_ExtendInittab(inittab)) {
+	    logPP(-1, "cant extend inittab");
+	    status = PLUGIN_INITTAB_FAILED;
+	    return;
     }
-    Py_Initialize();
-    initialize();
+#endif
+  Py_Initialize();
+  initialize();
 }
 
 

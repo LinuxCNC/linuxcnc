@@ -1,0 +1,55 @@
+.TH rtapi_print "3rtapi" "2006-10-12" "Documentación LinuxCNC" "RTAPI"
+.SH NOMBRE
+
+rtapi_print, rtapi_print_msg \- imprimir mensajes de diagnóstico
+
+.SH SINTAXIS
+.HP
+void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\fImsg\fR);
+.HP
+void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
+.HP
+rtapi_msg_handler_t \fBrtapi_get_msg_handler\fR(void);
+.SH ARGUMENTOS
+.IP \fIlevel\fR
+el nivel del mensaje: uno de \fBRTAPI_MSG_ERR\fR, \fBRTAPI_MSG_WARN\fR, \fBRTAPI_MSG_INFO\fR o \fBRTAPI_MSG_DBG\fR.
+
+.IP \fIhandler\fR
+Una función para llamar desde \fBrtapi_print\fR o \fBrtapi_print_msg\fR para
+dar salida al mensaje.
+
+.IP \fIfmt,\ ...\fR
+Otros argumentos son para \fIrtapi_vsnprintf(3rtapi)\fR.
+
+.SH DESCRIPCIÓN
+\fBrtapi_print\fR y \fBrtapi_print_msg\fR actuan como funciones printf de C estándar, excepto que son
+soportadas un conjunto reducido de operaciones de formateo . En particular, no se admite el formato de valores long long, y
+el formateo de valores de punto flotante tiene un comportamiento diferente al de printf estándar.
+
+Dependiendo del RTOS, el valor predeterminado puede ser imprimir el mensaje en stdout, stderr, un registro de kernel, etc. 
+En el código RTAPI, la acción puede ser cambiada por una llamada a \fBrtapi_set_msg_handler\fR. 
+Un argumento \fBNULL\fR para \fBrtapi_set_msg_handler\fR restaura el controlador predeterminado.
+\fBrtapi_msg_get_handler\fR devuelve el controlador actual. Cuando el mensaje vino de \fBrtapi_print\fR, \fIlevel\fR es RTAPI_MSG_ALL.
+
+\fBrtapi_print_msg\fR funciona como \fRrtapi_print\fR pero solo imprime si
+\fIlevel\fR es menor o igual que el nivel de mensaje actual.
+
+.SH CONSIDERACIONES EN TIEMPO REAL
+\fBrtapi_print\fR y \fBrtapi_print_msg\fR se pueden llamar desde código de usuario,
+init/cleanup y código en tiempo real. \fBrtapi_get_msg_handler\fR y
+\fBrtapi_set_msg_handler\fR se puede llamar desde init/cleanup en tiempo real. Un controlador de mensajes pasado 
+a \fBrtapi_set_msg_handler\fR solo puede llamar a funciones que se pueden llamar desde código en tiempo real.
+
+.SH VALOR DEVUELTO
+Ninguno.
+
+.SH VER TAMBIÉN
+\fBrtapi_set_msg_level(3rtapi)\fR, \fBrtapi_get_msg_level(3rtapi)\fR,
+\fBrtapi_vsnprintf(3rtapi)\fR
+

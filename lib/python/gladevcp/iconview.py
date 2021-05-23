@@ -62,7 +62,7 @@ class IconFileSelection(Gtk.HBox):
 
 # ToDo:
 # - make the button up and down work to move faster from top to bottom
-#   unfortuantely the selection of column is not availible in pyGtk before 2.22
+#   unfortunately the selection of column is not available in pygtk before 2.22
 
     __gtype_name__ = 'IconFileSelection'
     __gproperties__ = {
@@ -227,7 +227,7 @@ class IconFileSelection(Gtk.HBox):
         self.iconView.connect("item-activated", self._on_item_activated)
         # will be emitted, when a icon is activated and the ENTER key has been pressed
         self.iconView.connect("activate-cursor-item", self._on_activate_cursor_item)
-        # will be emmited if the selection has changed, this happens also if the user clicks ones on an icon
+        # will be emitted if the selection has changed, this happens also if the user clicks ones on an icon
         self.iconView.connect("selection-changed",  self._on_selection_changed)
         # will be emitted, when the widget is destroyed
         self.connect("destroy", Gtk.main_quit)      
@@ -244,7 +244,7 @@ class IconFileSelection(Gtk.HBox):
 #        self.realized = True
         
     def _init_button_state(self):    
-        # we need this to check for differnces in the button state
+        # we need this to check for differences in the button state
         self.button_state["btn_home"] = self.btn_home.get_sensitive()
         self.button_state["btn_dir_up"] = self.btn_dir_up.get_sensitive()
         self.button_state["btn_sel_prev"] = self.btn_sel_prev.get_sensitive()
@@ -379,9 +379,9 @@ class IconFileSelection(Gtk.HBox):
         self.state_changed()
         
     def state_changed(self):
-        # find the differnce
-        diff = set(self.button_state.items()) - set(self.old_button_state.items())
-        for key in list(self.button_state.keys()):
+        # find the difference
+        diff = set(self.button_state.iteritems()) - set(self.old_button_state.iteritems())
+        for key in self.button_state.keys():
             try:
                 if self.button_state[key] != self.old_button_state[key]:
                     self.emit("sensitive",key, self.button_state[key])

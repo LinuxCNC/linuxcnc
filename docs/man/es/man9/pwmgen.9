@@ -1,0 +1,79 @@
+.TH PWMGEN "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+pwmgen \- generación PWM/PDM por software 
+.SH SINOPSIS
+\fBloadrt pwmgen output_type=\fItype0\fR[,\fItype1\fR ...]
+
+.SH DESCRIPCIÓN
+\fBpwmgen\fR se utiliza para generar señales PWM (modulación de ancho de pulso) o PDM (modulación de densidad de pulso). La frecuencia máxima de PWM y la resolución es bastante limitada en comparación con los enfoques basados en hardware, pero en muchos casos el software PWM puede ser muy útil.
+Si se necesita un mejor rendimiento, un generador de PWM hardware es una mejor opción.
+.P
+\fBpwmgen\fR admite un máximo de ocho canales. El número de canales realmente cargados depende del número de valores \fItype\fR dados. El valor de cada \fItype\fR determina las salidas para ese canal.
+.P
+.TP
+tipo 0: salida única
+Un pin de salida único, \fBpwm\fR, cuyo ciclo de trabajo está determinado por el valor de entrada para entradas positivas, y que está apagado (o en \fBmin\-dc\fR) para entradas negativas. Adecuado para circuitos 
+“single ended”.
+.TP
+tipo 1: pwm/dirección
+Dos pines de salida, \fBpwm\fR y \fBdir\fR. El ciclo de trabajo en \fBpwm\fR varía en función del valor de entrada. \fBdir\fR es bajo para entradas positivas y alto para entradas negativas.
+.TP
+tipo 2: arriba/abajo
+Dos pines de salida, \fBup\fR y \fBdown\fR. Para entradas positivas, la forma de onda PWM/PDM aparece en \fBup\fR, mientras que \fBdown\fR es baja. Para entradas negativas, la forma de onda aparece en \fBdown\fR, mientras que \fBup\fR es baja. Adecuado para manejar los dos lados de un puente H para generar una salida bipolar.
+
+.SH FUNCIONES
+.TP
+\fBpwmgen.make\-pulses\fR (no de punto flotante)
+Genera las formas de onda PWM reales, utilizando información calculada por \fBupdate\fR. Debe llamarse con la mayor frecuencia posible, para maximizar la frecuencia y resolución PWM alcanzables y minimizar la fluctuación de fase.
+Funciona en todos los canales a la vez.
+.TP
+\fBpwmgen.update\fR (usa punto flotante)
+Acepta un valor de entrada, realiza comprobaciones de escalado y límite, y lo convierte en una forma utilizable por \fBmake\-pulses\fR para la generación PWM/PDM. Se puede (y se debe) llamar con menos frecuencia que \fBmake\-pulses\fR. Funciona en todos los canales a la vez.
+
+.SH PINES
+.TP
+\fBpwmgen.\fIN\fB.enable\fR bit in
+Habilita el generador PWM\fIN\fR: cuando es FALSE, todas los pines de salidas \fBpwmgen.\fIN\fR son bajos.
+.TP
+\fBpwmgen.\fIN\fB.value\fR float in
+Valor ordenado. Cuando \fBvalue\fR = 0.0, el ciclo de trabajo es 0%, y cuando \fBvalue\fR = \(+-\fBscale\fR, el ciclo de trabajo es \(+- 100%. (Sujeto a las limitaciones\fBmin\-dc\fR y \fBmax\-dc\fR.)
+.TP
+\fBpwmgen.\fIN\fB.pwm\fR bit out (solo tipos de salida 0 y 1)
+Forma de onda PWM/PDM.
+.TP
+\fBpwmgen.\fIN\fB.dir\fR bit out (solo salida tipo 1)
+Salida de dirección: baja para avance, alta para retroceso.
+.TP
+\fBpwmgen.\fIN\fB.up\fR bit out (solo salida tipo 2)
+Forma de onda PWM/PDM para valores de entrada positivos, bajo para entradas negativas.
+.TP
+\fBpwmgen.\fIN\fB.down\fR bit out (solo salida tipo 2)
+Forma de onda PWM/PDM para valores de entrada negativos, bajo para entradas positivas.
+.TP
+\fBpwmgen.\fIN\fB.curr\-dc\fR float out
+El ciclo de trabajo actual, después de que se hayan aplicado todos los escalados y límites.
+El rango es de\-1.0 a +1.0.
+.TP
+\fBpwmgen.\fIN\fB.max\-dc\fR float io
+El ciclo de trabajo máximo. Un valor de 1.0 corresponde al 100%. Esto puede ser útil cuando se utilizan controladores de transistores con fuentes de alimentación con bootstrapp, ya que el suministro requiere algun tiempo para recargarse.
+.TP
+\fBpwmgen.\fIN\fB.min\-dc\fR float io
+El ciclo de trabajo mínimo. Un valor de 1.0 corresponde al 100%. Tenga en cuenta que cuando el generador pwm está desactivado, las salidas son constantemente bajas, independientemente de la configuración de \fBmin\-dc\fR.
+.TP
+\fBpwmgen.\fIN\fB.scale\fR float io
+.TP
+\fBpwmgen.\fIN\fB.offset\fR float io
+Estos parámetros proporcionan una escala y un offset desde el pin \fBvalue\fR al ciclo de trabajo real. El ciclo de trabajo se calcula de acuerdo con \fIdc = (valor / escala) + offset\fR, donde 1.0 significa 100%.
+.TP
+\fBpwmgen.\fIN\fB.pwm\-freq\fR float io
+Frecuencia PWM en Hz. El límite superior es la mitad de la frecuencia a la que se invoca\fBmake\-pulses\fR, y los valores por encima de ese límite se bajaran al límite. Si \fBdither\-pwm\fR es FALSE, el valor se cambiará al submúltiplo entero más cercano de la frecuencia \fBmake\-pulses\fR. Un valor de cero produce modulación de densidad de pulso en lugar de modulación de ancho de pulso.
+.TP
+\fBpwmgen.\fIN\fB.dither\-pwm\fR bit io
+Debido a que el PWM generado por software utiliza una base de tiempo bastante lenta (de varios a muchos microsegundos), tiene una resolución limitada. Por ejemplo, si se llama \fBmake\-pulses\fR a una velocidad de 20KHz y \fBpwm\-freq\fR es de 2KHz, solo hay 10 ciclos de trabajo posibles. Si \fBdither\-pwm\fR es FALSE, el ciclo de trabajo ordenado se redondeará al más cercano de esos valores. Asumiendo que \fBvalue\fR permanece constante, la misma salida repetirá cada ciclo PWM. Si \fBdither\-pwm\fR es TRUE, el ciclo de trabajo de salida se dividirá entre los dos valores más cercanos, de modo que el promedio a largo plazo esté más cerca del nivel deseado. \fBdither\-pwm\fR no tiene efecto si \fBpwm\-freq\fR es cero (modo PDM), ya que PDM es un proceso inherentemente dithered.
+

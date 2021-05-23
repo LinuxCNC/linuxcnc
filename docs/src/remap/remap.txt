@@ -109,13 +109,13 @@ somewhat cumbersome RS274NGC language at all.
 
 Many people are familiar with 'extending' the Python interpreter by
 'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
-HAL and and Interpreter internals from Python scripts. 'Extending
+HAL and Interpreter internals from Python scripts. 'Extending
 Python' basically means: your Python script executes as 'it is in the
 driver seat', and may access non-Python code by importing and using
 extension modules written in 'C/C\+\+'. Examples for this are the LinuxCNC
 `hal`, `gcode` and `emc` modules.
 
-Embedded Python is a bit different and and less commonly known: The
+Embedded Python is a bit different and less commonly known: The
 main program is written in C/C++ and may use Python like a
 subroutine. This is powerful extension mechanism and the basis for the
 'scripting extensions' found in many successful software
@@ -132,6 +132,47 @@ Defining a code involves the following steps:
 - deciding how parameters are handled
 - decide if and how results are handled
 - decide about the execution sequencing.
+
+=== Builtin Remaps
+There are currently two complete python-only remaps that are available in stdglue.py. +
+
+* ignore_m6
+* index_lathe_tool_with_wear
+
+These are meant for use with lathe. +
+lathes don't use M6 to index the tools, they use the T command. +
+This remap also adds wear offsets to the tool offset. +
+ie. T201 would index to tool 2 (with tool 2's tool offset) and adds wear offset 1. +
+In the tool table, tools numbers above 10000 are wear offsets. +
+ie in the tool table, tool 10001 would be wear offset 1. +
+
+Here is what you need in the INI to use them:
+
+[source,{ini}]
+----
+[RS274NGC]
+REMAP=T python=index_lathe_tool_with_wear
+REMAP=M6 python=ignore_m6
+
+[PYTHON]
+# where to find the Python code:
+
+# code specific for this configuration  
+PATH_PREPEND=./
+
+# generic support code - make sure this actually points to python-stdglue
+PATH_APPEND=../../nc_files/remap_lib/python-stdglue/
+
+# import the following Python module
+TOPLEVEL=toplevel.py
+
+# the higher the more verbose tracing of the Python plugin
+LOG_LEVEL = 0
+----
+
+You must also add the required python file in your configuration folder. +
+
+<<remap:upgrading-an-existing,Upgrade an existing configuration>>
 
 === Picking a code
 
@@ -583,6 +624,8 @@ The examples described so far can be found in
 'configs/sim/axis/remap/getting-started' with complete working
 configurations.
 
+[[remap:upgrading-an-existing]]
+
 == Upgrading an existing configuration for remapping
 
 The minimal prerequisites for using `REMAP` statements are as follows:
@@ -695,7 +738,7 @@ and cause task to actually do anything. That will go into the
 Iocontrol provides two HAL interaction sequences we might or might not
 use:
 
-- when the NML message queued by a SELECT_POCKET() canon command is
+- when the NML message queued by a SELECT_TOOL() canon command is
 executed, this triggers the "raise tool-prepare and wait for
 tool-prepared to become high" HAL sequence in iocontrol, besides
 setting the XXXX pins
@@ -747,7 +790,7 @@ work'.
 So what our O-word procedure would do is to replace the steps
 <<remap:interpreter-action-on-m6,outlined here>>. Looking through
 these steps you'll find that NGC code can be used for most of them,
-but not all. So the stuff NGC cant handle will be done in Python prolog
+but not all. So the stuff NGC can't handle will be done in Python prolog
 and epilog functions.
 
 === Specifying the M6 replacement
@@ -777,8 +820,14 @@ So we need a prolog, and an epilog. Lets assume our ini file incantation of the 
 So the prolog covering steps 1 and 2 would look like so - we decide to
 pass a few variables to the remap procedure which can be inspected and
 changed there, or used in a message. Those are: `tool_in_spindle`,
-`selected_tool` (tool numbers) and their respective pockets
+`selected_tool` (tool numbers) and their respective tooldata indices
 `current_pocket` and `selected_pocket`:
+
+[NOTE]
+The legacy names *selected_pocket* and *current_pocket* actually reference
+a sequential tooldata index for tool items loaded from a tool
+table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+ 
 
 [source,python]
 ---------------------------------------------------------------------
@@ -850,7 +899,7 @@ except steps 3-5 need to be filled in with your NGC code.
 
 Again, most epilogs have a common scheme: first, determine whether
 things went right in the remap procedure, then do any commit and cleanup
-actions which cant be done in NGC code.
+actions which can't be done in NGC code.
 
 === Configuring iocontrol with a remapped M6
 
@@ -1010,7 +1059,7 @@ def prepare_epilog(self, **words):
         if self.return_value > 0:
             self.selected_tool = int(self.params["tool"])
             self.selected_pocket = int(self.params["pocket"])
-            emccanon.SELECT_POCKET(self.selected_pocket, self.selected_tool)
+            emccanon.SELECT_TOOL(self.selected_tool)
             return INTERP_OK
         else:
             return "T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value)
@@ -1671,7 +1720,7 @@ To add or redefine a named parameter:
 * add a `namedparams` module so it can be found by the interpreter
 * define new parameters by functions (see below). These functions
  receive `self` (the interpreter instance) as parameter and so can
- access aribtrary state. Arbitrary Python capabilities can be used to return a value.
+ access arbitrary state. Arbitrary Python capabilities can be used to return a value.
 * import that module from the `TOPLEVEL` script
 
 [source,python]
@@ -1698,7 +1747,7 @@ It is possible to redefine an existing predefined parameter by adding
 a Python function of the same name to the `namedparams` module. In
 this case, a warning is generated during startup.
 
-While the above example isnt terribly useful, note that pretty much
+While the above example isn't terribly useful, note that pretty much
 all of the interpreter internal state is accessible from Python, so
 arbitrary predicates may be defined this way. For a slightly more
 advanced example, see `tests/remap/predefined-named-params`.
@@ -1749,7 +1798,7 @@ tool table is ignored. This is currently a restriction.
   from the subroutine's parameter space. This means that the NGC
   procedure could change these values, and the epilog takes the
   changed values in account.
-- then, the Canon command `SELECT_POCKET(#<pocket>,#<tool>)` is executed.
+- then, the Canon command `SELECT_TOOL(#<tool>)` is executed.
 
 === M6: +change_prolog+ and +change_epilog+ 
 
@@ -1775,7 +1824,7 @@ Then, the following parameters are exported to the NGC procedure:
 
 - `#<tool_in_spindle>` : the tool number of the currently loaded tool
 - `#<selected_tool>` : the tool number selected 
-- `#<selected_pocket>` : the selected tool's pocket number
+- `#<selected_pocket>` : the selected tool's tooldata index
 
 .Actions of +change_epilog+
 
@@ -2478,13 +2527,14 @@ results.
 .Interpreter action on a Tx command
 
 All the interpreter does is evaluate the toolnumber parameter, looks up
-its corresponding pocket, remembers it in the `selected_pocket`
+its corresponding tooldata index, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
-(SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
+(SELECT_TOOL). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
-.Task action on SELECT_POCKET
 
-When task gets around to handle a SELECT_POCKET, it sends a
+.Task action on SELECT_TOOL
+
+When task gets around to handle a SELECT_TOOL, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
 tool-related actions in LinuxCNC.
 

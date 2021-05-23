@@ -1,0 +1,53 @@
+.TH MUX4 "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+mux4 \- Select from one of four input values
+.SH SYNOPSIS
+.HP
+.B loadrt mux4 [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBmux4.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B mux4.\fIN\fB.sel0\fR bit in \fR
+.TQ
+.B mux4.\fIN\fB.sel1\fR bit in \fR
+Together, these determine which \fBin\fIN\fR value is copied to \fBout\fR.
+
+.TP
+.B mux4.\fIN\fB.out\fR float out \fR
+Follows the value of one of the \fBin\fIN\fR values according to the two \fBsel\fR values
+.RS
+.TP
+\fBsel1=FALSE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin0\fR
+.TP
+\fBsel1=FALSE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin1\fR
+.TP
+\fBsel1=TRUE\fR, \fBsel0=FALSE\fR
+\fBout\fR follows \fBin2\fR
+.TP
+\fBsel1=TRUE\fR, \fBsel0=TRUE\fR
+\fBout\fR follows \fBin3\fR
+.RE
+
+.TP
+.B mux4.\fIN\fB.in0\fR float in \fR
+.TQ
+.B mux4.\fIN\fB.in1\fR float in \fR
+.TQ
+.B mux4.\fIN\fB.in2\fR float in \fR
+.TQ
+.B mux4.\fIN\fB.in3\fR float in \fR
+.SH LICENSE
+
+GPL

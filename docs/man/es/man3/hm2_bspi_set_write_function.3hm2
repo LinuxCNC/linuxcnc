@@ -1,0 +1,48 @@
+\# Author Andy Pugh
+\# Issued under the terms of the GPL v2 License or any later version
+
+.TH hm2_bspi_set_write_function "3hm2" "2011-05-31" "Documentación LinuxCNC" "Hostmot2"
+.SH NOMBRE
+
+hm2_bspi_set_write_function \- Registra una función para manejar la fase de escritura tram de un controlador SPI con búfer hostmot2.
+.SH SINTAXIS
+.nf
+.B #include <hostmot2-serial.h>
+.HP
+int hm2_bspi_set_write_function(char *name, void *func, void *subdata)
+
+.SH DESCRIPCIÓN
+\fBhm2_bspi_set_write_function\fR registra una función en un controlador externo
+para ser llamado cada vez que el controlador principal Hostmot2
+llama a las funciones genéricas "prepare_tram_write".
+Los nombres de los canales disponibles se imprimen con rtapi_print_msg durante el
+proceso de carga del controlador y toman la forma:
+.RS
+hm2_ <nombre de tarjeta>.<índice de tarjeta>.bspi.<índice>
+.RE
+Por ejemplo hm2_5i23.0.bspi.0.
+
+"func" debe ser un puntero a una función en el controlador secundario que debe ser
+llamado para procesar los pines en registros de escritura BSPI antes de la fase de escritura TRAM regular. 
+La función debe tomar un solo argumento, un puntero a un
+instancia individual del controlador interno. Si se define en comp, entonces la función \fBno\fP debe usar la macro de conveniencia FUNCTION() y el argumento
+a la función en la definición debe ser \fBsiempre\fP (struct state *inst).
+
+"subdata" es un puntero a los datos internos de la instancia del controlador. En el caso de un controlador escrito en comp esto siempre será "inst" en la llamada a la función.
+
+Si usa comp, la llamada a esta función debe estar en cualquier lugar del código EXTRA_SETUP.
+
+.SH CONSIDERACIONES EM TIEMPO REAL
+Llame solo desde el código de inicio de tiempo real, no desde el espacio de usuario o código en tiempo real.
+
+.SH VALOR DEVUELTO
+Devuelve 0 en caso de éxito y \-1 en caso de error.
+
+.SH VER TAMBIÉN
+\fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_write_chan(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
+src/hal/drivers mesa_7i65.comp en la distribución fuente LinuxCNC.
+

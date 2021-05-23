@@ -1,0 +1,78 @@
+.TH SIGGEN "9" "2007-01-16" "Documentación LinuxCNC" "Componente HAL"
+.de TQ
+.br
+.ns
+.TP \\ $ 1
+..
+
+.SH NOMBRE
+siggen \- generador de señales
+.SH SINOPSIS
+\fBloadrt siggen [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2 ...\fB]]
+
+
+
+.SH DESCRIPCIÓN
+\fBsiggen\fR es un generador de señal que se puede utilizar para pruebas y otras aplicaciones que necesitan formas de onda simples. Produce ondas senoidales, cosenoidales, triangulares, de diente de sierra y cuadradas de frecuencia, amplitud y offset variables, que pueden usarse como entradas para otros componentes HAL.
+
+.P
+\fBsiggen\fR admite un máximo de dieciséis canales. El número de canales realmente cargados se establece mediante el argumento \fBnum_chan\fR cuando se carga el módulo. Alternativamente, especifique \fBnames=\fR y nombres únicos separados por comas.
+.P
+Los especificadores \fBnum_chan=\fR y \fBnames =\fR son mutuamente excluyentes.
+Si no se especifica ni \fBnum_chan=\fR ni \fBnames =\fR, el valor predeterminado es uno.
+
+.SH NOMBRADO
+Los nombres de los pines, parámetros y funciones tienen el prefijo:
+  \fBsiggen.N.\fR para N = 0,1, ..., num\-1 cuando se usa \fBnum_chan=num\fR
+  \fBnameN.\fR para nameN=name1, name2, ... cuando se usa \fBnames=name1, name2, ...\fR
+
+El formato\fBsiggen.N.\fR se muestra en las siguientes descripciones.
+
+
+.SH FUNCIONES
+.TP
+\fBsiggen.\fIN\fB.update\fR (usa punto flotante)
+Actualiza los pines de salida para el generador de señal \fIN\fR. Cada vez que se llama calcula una nueva muestra. Debe llamarse muchas veces más rápido que la frecuencia de señal deseada, para evitar distorsiones y aliasing.
+
+.SH PINES
+
+.TP
+\fBsiggen.\fIN\fB.frequency\fR float in
+La frecuencia de salida para el generador de señal\fIN\fR, en hercios. El valor predeterminado es 1.0 Hertz.
+.TP
+\fBsiggen.\fIN\fB.amplitude\fR float in
+La amplitud de salida para el generador de señal \fIN\fR. Si \fBoffset\fR es cero, las salidas cambiarán de \-\fBamplitude\fR a +\fBamplitude\fR.
+El valor predeterminado es 1.00.
+.TP
+\fBsiggen.\fIN\fB.offset\fR float in
+El offset de salida para el generador de señal \fIN\fR. Este valor se agrega directamente a la señal de salida. El valor por defecto es cero.
+.TP
+\fBsiggen.\fIN\fB.reset\fR bit in
+Restablece los pines de salida a estados predeterminados:
+  seno 			0
+  diente de sierra 	0
+  cuadrado 			-1 * amplitud
+  coseno 			-1 * amplitud
+  triángulo 		-1 * amplitud
+.TP
+\fBsiggen.\fIN\fB.clock\fR bit out
+La salida de clocks. Salida de señal clock de tipo bit a la frecuencia ordenada.
+.TP
+\fBsiggen.\fIN\fB.square\fR float out
+La salida de onda cuadrada. Positivo mientras \fBtriangle\fR y \fBcosine\fR están aumentando hacia arriba, y mientras\fBsine\fR es negativo.
+.TP
+\fBsiggen.\fIN\fB.Bne\fR float out
+La salida senoidal. Desfasada con \fBcosine\fR en 90 grados.
+.TP
+\fBsiggen.\fIN\fB.cosine\fR float out
+La salida del coseno. Desfasada con \fBsine\fR en 90 grados.
+.TP
+\fBsiggen.\fIN\fB.triangle\fR float out
+La salida de onda triangular. Aumenta mientras \fBsquare\fR es positivo y disminuye mientras \fBsquare\fR es negativo. Alcanza sus picos positivos y negativos al mismo tiempo que \fBcosine\fR.
+.TP
+\fBsiggen.\fIN\fB.sawtooth\fR float out
+La salida de diente de sierra. Rampa hacia arriba a su pico positivo, luego cae instantáneamente a su pico negativo y comienza a subir nuevamente. La caída ocurre cuando \fBtriangle\fR y \fBcosine\fR están en sus picos positivos, y coincide con el borde descendente de \fBsquare\fR.
+
+.SH PARÁMETROS
+.P
+Ninguno

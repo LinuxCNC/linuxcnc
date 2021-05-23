@@ -1,0 +1,99 @@
+.TH ESTOP_LATCH "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+estop_latch \- Software ESTOP latch
+.SH SYNOPSIS
+.HP
+.B loadrt estop_latch [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+
+This component can be used as a part of a simple software ESTOP chain.
+
+It has two states: "OK" and "Faulted".
+
+The initial state is "Faulted".  When faulted, the
+.B out-ok
+output is false,
+the
+.B fault-out
+output is true, and the
+.B watchdog
+output is unchanging.
+
+The state changes from "Faulted" to "OK" when
+.B all
+these conditions are true:
+.RS
+.IP \(bu
+.B fault-in
+is false
+.IP \(bu
+.B ok-in
+is true
+.IP \(bu
+.B reset
+changes from false to true
+.RE
+
+When "OK", the
+.B out-ok
+output is true, the
+.B fault-out
+output is false, and the
+.B watchdog
+output is toggling.
+
+The state changes from "OK" to "Faulted" when
+.B any
+of the following are true:
+.RS
+.IP \(bu
+.B fault-in
+is true
+.IP \(bu
+.B ok-in
+is false
+.RE
+
+To facilitate using only a single fault source,
+.B ok-in
+and
+.B fault-en
+are both set to the non-fault-causing value when no signal is connected.
+For estop-latch to ever be able to signal a fault, at least one of these
+inputs must be connected.
+
+Typically, an external fault or estop input is connected to \fBfault-in\fR,
+\fBiocontrol.0.user-request-enable\fR is connected to \fBreset\fR,
+and \fBok-out\fR is connected to \fBiocontrol.0.emc-enable-in\fB.
+
+In more complex systems, it may be more appropriate to use classicladder to
+manage the software portion of the estop chain.
+
+.SH FUNCTIONS
+.TP
+\fBestop-latch.\fIN\fB\fR
+
+.SH PINS
+.TP
+.B estop-latch.\fIN\fB.ok-in\fR bit in \fR(default: \fItrue\fR)
+.TQ
+.B estop-latch.\fIN\fB.fault-in\fR bit in \fR(default: \fIfalse\fR)
+.TQ
+.B estop-latch.\fIN\fB.reset\fR bit in \fR
+.TQ
+.B estop-latch.\fIN\fB.ok-out\fR bit out \fR(default: \fIfalse\fR)
+.TQ
+.B estop-latch.\fIN\fB.fault-out\fR bit out \fR(default: \fItrue\fR)
+.TQ
+.B estop-latch.\fIN\fB.watchdog\fR bit out \fR
+.SH LICENSE
+
+GPL

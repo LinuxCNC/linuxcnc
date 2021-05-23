@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # qtvcp
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -36,6 +36,7 @@ class LED(QWidget, _HalWidgetBase):
         self._diamY = 0
         self._diameter = 15
         self._color = QColor("red")
+        self._off_color = QColor("black")
         self._alignment = Qt.AlignCenter
         self.state = False
         self.flash = False
@@ -52,7 +53,6 @@ class LED(QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if (self._halpin_option):
-            _HalWidgetBase._hal_init(self)
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
             # not sure we need a flash pin
@@ -97,7 +97,7 @@ class LED(QWidget, _HalWidgetBase):
         if self._state:
             gradient.setColorAt(1, self._color)
         else:
-            gradient.setColorAt(1, Qt.black)
+            gradient.setColorAt(1, self._off_color)
 
         painter.begin(self)
         brush = QBrush(gradient)
@@ -105,12 +105,6 @@ class LED(QWidget, _HalWidgetBase):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(brush)
         painter.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
-
-        if self._flashRate > 0 and self._flashing:
-            self._timer.start(self._flashRate)
-        else:
-            self._timer.stop()
-
         painter.end()
 
     def minimumSizeHint(self):
@@ -142,6 +136,14 @@ class LED(QWidget, _HalWidgetBase):
         self._color = value
         self.update()
 
+    def getOffColor(self):
+        return self._off_color
+
+    @pyqtSlot(QColor)
+    def setOffColor(self, value):
+        self._off_color = value
+        self.update()
+
     def getAlignment(self):
         return self._alignment
 
@@ -156,14 +158,14 @@ class LED(QWidget, _HalWidgetBase):
     @pyqtSlot(bool)
     @pyqtSlot(int)
     def setState(self, value):
-        self._state = value
+        self.state = self._state = value
         self.update()
 
     def getState(self):
-        return self._state
+        return self.state
 
     def resetState(self):
-        self._state = False
+        self.state = self._state = False
 
     @pyqtSlot()
     def toggleState(self):
@@ -176,10 +178,19 @@ class LED(QWidget, _HalWidgetBase):
     @pyqtSlot(bool)
     def setFlashing(self, value):
         self._flashing = value
+        if self._flashRate > 0 and value:
+            if self._timer.isActive():
+                return
+            self._timer.start(self._flashRate)
+        else:
+            self._timer.stop()
+            # make sure when flashing stops led ends up at state
+            self._state = self.state
         self.update()
 
+    # flash when state on
     def setFlashState(self, value):
-        self.flash = self._flashing = value
+        self.flash = value
         self.update()
 
     def getFlashState(self):
@@ -196,17 +207,28 @@ class LED(QWidget, _HalWidgetBase):
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     diameter = pyqtProperty(int, getDiameter, setDiameter)
     color = pyqtProperty(QColor, getColor, setColor)
+    off_color = pyqtProperty(QColor, getColor, setColor)
     alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment,resetAlignment)
-    state = pyqtProperty(bool, getState, setState, resetState)
+    currentstate = pyqtProperty(bool, getState, setState, resetState)
     flashing = pyqtProperty(bool, getFlashState, setFlashState)
     flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
 
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     led = LED()
     led.show()
-    led.setFlashing(True)
+
+    # Flash always when method called test
+    #led.setFlashing(True)
+    # this shouldn't matter
+    #led.setState(False)
+
+    # Flash only when state on test
+    led.setFlashState(True)
+    # only flash when this is true
+    led.change_state(False)
+
     sys.exit(app.exec_())

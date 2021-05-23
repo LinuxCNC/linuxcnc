@@ -68,7 +68,7 @@ the following in your .hal file, making sure you pick the
 pin that is connected to your control device.
 
 ----
-net spindle-enable spindle.N.on => parport.0.pin-14-out
+net spindle-enable spindle.0.on => parport.0.pin-14-out
 ----
 
 (((Spindle Direction Example)))
@@ -189,7 +189,7 @@ B quadrature input.]
 
 ----
 # add the encoder to HAL and attach it to threads.
-loadrt encoder num_chan=1
+loadrt encoder num_chan=4
 addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
 
@@ -202,7 +202,7 @@ setp encoder.3.counter-mode true
 # connect the HAL encoder outputs to LinuxCNC.
 net spindle-position encoder.3.position => spindle.0.revs
 net spindle-velocity encoder.3.velocity => spindle.0.speed-in
-net spindle-index-enable encoder.3.index-enable <=> spindle.N.index-enable
+net spindle-index-enable encoder.3.index-enable <=> spindle.0.index-enable
 
 # connect the HAL encoder inputs to the real encoder.
 net spindle-phase-a encoder.3.phase-A <= parport.0.pin-10-in

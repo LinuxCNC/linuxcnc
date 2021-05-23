@@ -6,4 +6,4 @@ Config file for a SCARA type robot.
 
 You need to specify what kinematics should get used (loadrt scarakins in your hal file)
 
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).
+If you change the HOME location in TRAJ, make sure you change the appropriate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).

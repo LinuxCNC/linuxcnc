@@ -1,0 +1,9 @@
+Ejemplo gladevcp radiobutton
+Tomado de http://old.nabble.com/glade-and-radio-buttons.-td28793060.html
+
+------------------------------------------
+Para correr independientemente:
+
+$ gladevcp -u radio.py radio.ui
+
+Michael Haberler 12/2010

@@ -1,5 +1,5 @@
 # halfile to connect a moveoff.comp for axis gui examples
-# This halfile modifies the conections made in core_sim.hal
+# This halfile modifies the connections made in core_sim.hal
 # to add a moveoff component and addfs its functions
 
 # This halfile must follow core_sim.hal

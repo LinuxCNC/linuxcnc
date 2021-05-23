@@ -27,7 +27,7 @@
 .TH vfs11_vfd "1" "September 19, 2009" "vfs11 VFD" "LinuxCNC Documentation"
 
 .SH NAME
-\fBvfs11_vfd\fR - HAL userspace component for Toshiba-Schneider VF-S11 Variable Frequency Drives
+\fBvfs11_vfd\fR \- HAL userspace component for Toshiba-Schneider VF-S11 Variable Frequency Drives
 
 .SH SYNOPSIS
 .B vfs11_vfd
@@ -67,7 +67,7 @@ report device propertiers on console at startup
 .SH PINS
 .B
 .IP <name>.acceleration\-pattern\ (bit,\ in)
-when true, set acceleration and deceleration times as defined in registers F500 and F501 respecitvely. Used in PID loops to choose shorter ramp times to avoid oscillation.
+when true, set acceleration and deceleration times as defined in registers F500 and F501 respectively. Used in PID loops to choose shorter ramp times to avoid oscillation.
 .B
 .IP <name>.alarm\-code\ (s32,\ out)
 non-zero if drive is in alarmed state. Bitmap describing alarm information (see register FC91 description). Use

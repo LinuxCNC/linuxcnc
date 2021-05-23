@@ -18,7 +18,7 @@ from gi.repository import GObject as gobject
 from gi.repository import Pangp as pango
 
 import hal                  # base hal class to react to hal signals
-import os                   # needed to get the paths and directorys
+import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
 import gtk.glade
 import sys                  # handle system calls
@@ -421,7 +421,7 @@ class ProbeScreenClass:
                 return -1
         return 0
 
-    def ocode(self,s, data = None):	
+    def ocode(self,s, data = None):
         self.command.mdi(s)
         self.stat.poll()
         while self.stat.exec_state == 7 or self.stat.exec_state == 3 :

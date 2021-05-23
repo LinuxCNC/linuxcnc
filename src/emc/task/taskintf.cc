@@ -172,7 +172,7 @@ int emcJointSetMinPositionLimit(int joint, double limit)
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+        rcs_print("%s(%d, %.4g) returned %d\n", __FUNCTION__, joint, limit, retval);
     }
     return retval;
 }
@@ -200,7 +200,7 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+        rcs_print("%s(%d, %.4g) returned %d\n", __FUNCTION__, joint, limit, retval);
     }
     return retval;
 }
@@ -415,7 +415,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, acc, retval);
+        rcs_print("%s(%d, %.4g) returned %d\n", __FUNCTION__, joint, acc, retval);
     }
     return retval;
 }
@@ -1095,7 +1095,7 @@ int emcTrajSetAcceleration(double acc)
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, acc, retval);
+        rcs_print("%s(%.4g) returned %d\n", __FUNCTION__, acc, retval);
     }
     return retval;
 }
@@ -1132,7 +1132,7 @@ int emcTrajSetMaxAcceleration(double acc)
     TrajConfig.MaxAccel = acc;
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%.4f)\n", __FUNCTION__, acc);
+        rcs_print("%s(%.4g)\n", __FUNCTION__, acc);
     }
     return 0;
 }
@@ -1840,10 +1840,12 @@ int emcSpindleAbort(int spindle)
 
 int emcSpindleSpeed(int spindle, double speed, double css_factor, double offset)
 {
-    if (emcmotStatus.spindle_status[spindle].speed == 0){
-        return 0;} //spindle stopped, not updating speed */
-
-    return emcSpindleOn(spindle, speed, css_factor, offset);
+    emcmotCommand.command = EMCMOT_SPINDLE_ON;
+    emcmotCommand.spindle = spindle;
+    emcmotCommand.vel = speed;
+    emcmotCommand.ini_maxvel = css_factor;
+    emcmotCommand.acc = offset;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcSpindleOrient(int spindle, double orientation, int mode)
@@ -1858,9 +1860,9 @@ int emcSpindleOrient(int spindle, double orientation, int mode)
 
 int emcSpindleOn(int spindle, double speed, double css_factor, double offset, int wait_for_at_speed)
 {
-
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
     emcmotCommand.spindle = spindle;
+    emcmotCommand.state = 1;
     emcmotCommand.vel = speed;
     emcmotCommand.ini_maxvel = css_factor;
     emcmotCommand.acc = offset;
@@ -1871,6 +1873,7 @@ int emcSpindleOn(int spindle, double speed, double css_factor, double offset, in
 int emcSpindleOff(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_OFF;
+    emcmotCommand.state = 0;
     emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

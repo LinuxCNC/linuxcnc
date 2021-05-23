@@ -73,6 +73,8 @@ using namespace boost::python;
 
 AS_IF([test "x$ac_cv_boost_python" = xyes],
 [
+  PYTHON_MAJOR=`$PYTHON -c 'import sys; print(sys.version_info.major)'`
+  PYTHON_MINOR=`$PYTHON -c 'import sys; print(sys.version_info.minor)'`
   BOOST_PYTHON_LIBS=
   ax_python_lib=boost_python
   AC_ARG_WITH([boost-python],
@@ -88,7 +90,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     ax_boost_python_lib=boost_python-$with_boost_python
   fi])
   AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python${PYTHON_MAJOR}${PYTHON_MINOR} boost_python${PYTHON_MAJOR} boost_python
   do
     # Note that this requires LIBPYTHON from configure.ac
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
@@ -240,6 +242,20 @@ AC_ARG_WITH(realtime,
         ])
 AC_SUBST([RTS])
 
+TOOL_NML=no
+AC_ARG_ENABLE(toolnml,
+    AS_HELP_STRING(
+        [--enable-toolnml],
+        [Use nml for tooldata, default is mmap]
+    ),
+    [
+        case "$enableval" in
+        N*|n*)
+            TOOL_NML=no ;;
+        Y*|y*)
+            TOOL_NML=yes ;;
+        esac
+    ])
 ##############################################################################
 # Subsection 2.2                                                             #
 # 1. If a RT has been specified by the user it needs to be checked for       #
@@ -694,13 +710,22 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
+    if test "$TOOL_NML" = "yes"; then
+       DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc_big.nml
+    else
+       DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
+    fi
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    if test "$TOOL_NML" = "yes"; then
+       DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc_big.nml
+    else
+       DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    fi
+    DEFAULT_TOOLTABLE=${prefix}/share/doc/linuxcnc/examples/sample-configs/common/tool.tbl
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -708,6 +733,7 @@ AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
+AC_SUBST([TOOL_NML])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml file])
 
@@ -830,12 +856,12 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK_VER=`pkg-config gtk+-2.0 --modversion`
+  AC_MSG_CHECKING([for GTK 3.22.4 or above])
+  if pkg-config gtk+-3.0 --atleast-version 3.22.4 >/dev/null 2>&1; then
+    GTK_VER=`pkg-config gtk+-3.0 --modversion`
     AC_MSG_RESULT(yes - $GTK_VER)
-    GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK_LIBS=`pkg-config gtk+-2.0 --libs`
+    GTK_CFLAGS=`pkg-config gtk+-3.0 --cflags`
+    GTK_LIBS=`pkg-config gtk+-3.0 --libs`
     AC_MSG_CHECKING(for libgnomeprintui-2.2)
     if pkg-config --exists libgnomeprintui-2.2; then
       AC_MSG_RESULT(yes)
@@ -848,7 +874,7 @@ if test "$BUILD_GTK" = "yes"; then
     fi
   else
     AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install it or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
+    AC_MSG_ERROR([GTK3 missing.  Install with "sudo apt install libgtk-3-dev" or specify --disable-gtk to skip the parts of LinuxCNC that depend on GTK])
   fi
 fi
 
@@ -902,22 +928,25 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
-then
-    AC_MSG_ERROR([insmod not found])
-fi
+if test "$RTS" != uspace; then
+    # Module utilities not needed for uspace
+    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+    if test $INSMOD = "none"
+    then
+        AC_MSG_ERROR([insmod not found])
+    fi
 
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
+    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+    if test $RMMOD = "none"
+    then
+        AC_MSG_ERROR([rmmod not found])
+    fi
 
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+        AC_MSG_ERROR([lsmod not found])
+    fi
 fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
@@ -1030,7 +1059,7 @@ AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     AS_HELP_STRING(
         [--enable-build-documentation[=FORMAT]],
-        [Build documentation.  FORMAT may be "pdf" or "html" if only one format is desired.]
+        [Build documentation.  FORMAT may be "Y" for both or "pdf" or "html" if only one format is desired.]
     ),
     [
         case "$enableval" in
@@ -1108,8 +1137,9 @@ EOF
     AC_MSG_CHECKING([dblatex version])
     set -- `dblatex --version`; DBLATEX_VER=$3
     set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+    micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
+    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
         AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
     fi
@@ -1135,11 +1165,6 @@ fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-    fi
-
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
@@ -1246,25 +1271,6 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
-
-AC_MSG_CHECKING([for sincos function])
-sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
-        1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
-AC_MSG_RESULT([$sincos_ok])
-
-AC_CHECK_FUNCS(__sincos)
-LIBS=$LIBS_hold
 
 AC_MSG_CHECKING([for optreset])
 AC_TRY_LINK(
@@ -1708,8 +1714,11 @@ AC_SUBST(PYTHON_LIBS)
 # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
 AX_BOOST_PYTHON_EMC
 
+saved_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
 AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-    [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+CPPFLAGS=$saved_CPPFLAGS
 
 AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
@@ -1737,6 +1746,10 @@ AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
+AC_SUBST([CFLAGS])
+AC_SUBST([CPPFLAGS])
+AC_SUBST([CXXFLAGS])
+AC_SUBST([LDFLAGS])
 
 ##############################################################################
 # files that get created by ./configure                                      #
@@ -1751,7 +1764,9 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
+AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
@@ -1759,7 +1774,9 @@ AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
-AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)
+AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-doc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 

@@ -1,0 +1,26 @@
+.TH CONSTANT "9" "2020-08-11" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+constant \- Use a parameter to set the value of a pin
+.SH SYNOPSIS
+.HP
+.B loadrt constant [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH FUNCTIONS
+.TP
+\fBconstant.\fIN\fB\fR (requires a floating-point thread)
+
+.SH PINS
+.TP
+.B constant.\fIN\fB.out\fR float out \fR
+.SH PARAMETERS
+.TP
+.B constant.\fIN\fB.value\fR float rw \fR
+.SH LICENSE
+
+GPL

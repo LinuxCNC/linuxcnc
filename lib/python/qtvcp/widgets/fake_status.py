@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2020 Chris Morley
@@ -17,7 +17,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# This program is used to fake the status of linuxcnc in python fot the graphics display
+# This program is used to fake the status of linuxcnc in python for the graphics display
 # in qtvcp. Now in designer it shows a fake display of an xyz machine.
 # you could probably extends this to update some attributes and fake tool movement on a demo display
 #
@@ -100,7 +100,7 @@ class fakeStatus():
         self.read_line = 0
         self.rotation_xy = 0.0
         self.settings = (0.0, 0.0, 0.0)
-        self.spindle = ({'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L}, {'direction': 0L, 'orient_state': 0L, 'enabled': 0L, 'override_enabled': False, 'brake': 0L, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0L})
+        self.spindle = ({'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0}, {'direction': 0, 'orient_state': 0, 'enabled': 0, 'override_enabled': False, 'brake': 0, 'homed': False, 'override': 0.0, 'speed': 0.0, 'orient_fault': 0})
         self.spindles = 0
         self.state = 0
         self.task_mode = 0

@@ -1,0 +1,120 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALMETER "1" "2006-03-13" "Documentacion de LinuxCNC" "Manual HAL del usuario"
+.SH NOMBRE
+halmeter \- observa los pines, se\[~n]ales y parametros de HAL
+.SH SINOPSIS
+.B halmeter
+[\fB\-s\fR] [\fBpin\fR|\fBsig\fR|\fBparam\fR \fIname\fR] [\fB\-g\fR \fIX-positon Y-position [Width] \fR]
+.SH DESCRIPCION
+\fBhalmeter\fR se utiliza para observar pines, se\[~n]ales, o parametros HAL (Capa de abstraccion de hardware).
+Sirve para el mismo proposito que un multimetro cuando se trabaja en sistemas fisicos.
+.SH OPCIONES
+.TP
+\fBpin\fR \fIname\fR
+mostrar el pin HAL \fIname\fR.
+.TP
+\fBsig\fR \fIname \fR
+mostrar la se\[~n]al HAL \fIname\fR.
+.TP
+\fBparam\fR \fIname\fR
+mostrar el parametro HAL \fIname\fR.
+Si no se especifica \fBpin\fR, \fBsig\fR o \fBparam \fR, la ventana comienza en blanco y el usuario debe seleccionar un elemento para observar.
+.TP
+\fB\-s\fR
+ventana peque\[~n]a, no interactiva, que debe utilizarse con \fBpin\fR, \fBsig\fR,
+o \fBparam\fR para seleccionar el elemento a mostrar. Se muestra el nombre del elemento
+en la barra de titulo en lugar de la ventana, y no hay botones "Seleccionar" o "Salir".
+Practico cuando se requieren muchas medidas en un espacio reducido.
+.TP
+\fB\-g\fR
+Posicion de la geometria. Permite especificar la posicion inicial
+y, opcionalmente, el ancho del multimetro. Referenciado desde la parte superior izquierda de la pantalla
+en unidades de pixel.
+Util cuando se requieren muchos multimetros en un script, sin solapar
+uno encima del otro.
+.SH USO
+A menos que se especifique \fB\-s\fR, hay dos botones, "Seleccionar" y "Salir".
+"Seleccionar" abre un cuadro de dialogo para seleccionar el elemento (pin, se\[~n]al o parametro)
+a ser observado. "Exit" termina el multimetro.
+
+El dialogo de seleccion tiene botones "Aceptar", "Aplicar" y "Cancelar". "Aceptar" muestra
+el elemento seleccionado y cierra el dialogo. "Aplicar" muestra el elemento seleccionado
+pero mantiene abierto el dialogo de seleccion. "Cancelar" cierra el dialogo
+sin cambiar el elemento mostrado.
+
+.SH EJEMPLOS
+
+.TP
+\fBhalmeter\fR
+Abre una ventana de medidor, sin mostrar nada inicialmente. Use el boton "Seleccionar"
+para elegir un elemento a observar. No termina hasta que se cierre la ventana.
+.TP
+\fBhalmeter &\fR
+Abre una ventana de medidor, sin mostrar nada inicialmente. Use el boton "Seleccionar"
+boton para elegir un elemento. Se ejecuta en segundo plano dejando el shell libre para otros comandos.
+.TP
+\fBhalmeter pin\fR \fIparport.0.pin\-03\-out\fR \fB&\fR
+Abre una ventana de multimetro, mostrando inicialmente el pin HAL \fIparport.0.pin\-03\-out\fR.
+El boton "Seleccionar" se puede utilizar para mostrar otros elementos. Se ejecuta en segundo plano.
+
+.TP
+\fBhalmeter \-s pin\fR \fIparport.0.pin\-03\-out\fR \fB&\fR
+Abre una peque\[~n]a ventana de multimetro, que muestra el pin HAL \fIparport.0.pin\-03\-out\fR.
+El elemento mostrado no se puede cambiar. Se ejecuta en segundo plano.
+
+.TP
+\fBhalmeter \-s pin\fR \fIparport.0.pin\-03\-out\fR \fB\-g\fR \fI100 500\fR \fB&\fR
+Abre una peque\[~n]a ventana que muestra el pin HAL \fIparport.0.pin\-03\-out\fR y
+la coloca 100 pixeles a la izquierda y 500 pixeles hacia abajo desde la parte superior de la pantalla.
+El elemento mostrado no se puede cambiar. Se ejecuta en segundo plano.
+
+.TP
+\fBhalmeter \-s pin\fR \fIparport.0.pin\-03\-out\fR \fB\-g\fR \fI100 500 400\fR \fB&\fR
+Abre una peque\[~n]a ventana que muestra el pin HAL \fIparport.0.pin\-03\-out\fR y
+la coloca 100 pixeles a la izquierda y 500 pixeles hacia abajo desde la parte superior de la pantalla.
+El ancho sera de 400 pixeles (270 es el valor predeterminado).
+El elemento mostrado no se puede cambiar. Se ejecuta en segundo plano.
+
+.SH "VER TAMBIEN"
+
+.SH HISTORIA
+
+.SH ERRORES
+
+.SH AUTOR
+Version original de John Kasunich, como parte del proyecto LinuxCNC.
+Mejoras de varios otros miembros de
+El equipo de desarrollo de LinuxCNC.
+.SH REPORTAR ERRORES
+Informar errores a jmkasunich AT usuarios DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+Este es un software libre; ver las fuentes para condiciones de copia. No hay
+garantia; ni siquiera para COMERCIABILIDAD o APTITUD PARA UN PROPoSITO PARTICULAR.
+
+

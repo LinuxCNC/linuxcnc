@@ -1,0 +1,323 @@
+:lang: es
+:toc:
+
+[[cha:lathe-user-information]]
+
+= Informacion para Usuarios de Torno
+
+== Modo Torno
+
+Si su máquina CNC es un torno, hay algunos cambios específicos que
+probablemente querrá hacer a su archivo ini para obtener
+los mejores resultados de LinuxCNC.
+
+Si está utilizando la gui AXIS,
+haga que Axis muestre sus herramientas de torno correctamente.
+Consulte la sección <<cha:ini-configuration,configuración INI>> para obtener más detalles.
+
+Para configurar AXIS para el modo torno:
+
+---------------------------------------
+[DISPLAY]
+
+# Informar a Axis que nuestra máquina es un torno.
+LATHE = TRUE
+---------------------------------------
+
+El modo torno en Axis no establece su plano predeterminado en G18 (XZ).
+Debe programarlo en el preámbulo de cada archivo gcode o
+(mejor) agrégar a su archivo ini lo siguiente:
+
+---------------------------------------
+[RS274NGC]
+
+# códigos g modales iniciales del intérprete
+RS274NGC_STARTUP_CODE = G18 G20 G90
+---------------------------------------
+
+Si está usando Gmoccapy entonces vea
+<<gmoccapy:lathe-section, la sección Torno de Gmoccapy>>.
+
+== Tabla de herramientas de torno[[sec:lathe-tool-table]]
+
+La "Tabla de herramientas" es un archivo de texto que contiene información sobre cada herramienta.
+El archivo se encuentra en el mismo directorio que su configuración y de forma predeterminada se denomina "tool.tbl".
+Las herramientas pueden estar en un cambiador de herramientas o ser cambiadas manualmente.
+El archivo puede editarse con un editor de texto o actualizarse con G10 L1, L10, L11.
+También hay un editor de tablas de herramientas incorporado en la gui Axis.
+El número máximo de entradas en la tabla de herramientas es 56.
+El número máximo de herramienta y de ranura es 99999.
+
+Las versiones anteriores de LinuxCNC tenían dos formatos de tablas de herramientas diferentes para fresadoras y tornos,
+pero desde la versión 2.4.x, se utiliza un formato de tabla de herramientas para todas las máquinas.
+Simplemente ignore las partes de la tabla de herramientas que no pertenecen a su máquina,o que no necesite usar.
+Para obtener más información sobre los detalles del formato de tabla de herramientas,
+vea la sección <<sec:tool-table,Tabla de Herramientas>>.
+
+== Orientacion de la herramienta de torno[[lathe-tool-orientation]]
+
+La siguiente figura muestra las orientaciones de la herramienta de torno
+con el ángulo de la línea central (l.c.) de cada orientación e información sobre FRONTANGLE y BACKANGLE.
+FRONTANGLE y BACKANGLE están en el sentido de las agujas del reloj comenzando en una línea paralela a Z+.
+
+.Orientaciones de la herramienta del torno
+
+image::images/tool-positions_es.svg[align="center", alt="Orientaciones herramienta torno"]
+
+En AXIS, la siguientes figura muestra cómo se ven las posiciones de las herramientas, tal como se ingresaron en la tabla de herramientas.
+
+.Posiciones 1, 2, 3 y 4
+
+image:images/tool-pos-1_es.svg[alt="Posicion 1"]
+image:images/tool-pos-2_es.svg[alt="Posicion 2"]
+image:images/tool-pos-3_es.svg[alt="Posicion 3"]
+image:images/tool-pos-4_es.svg[alt="Posicion 4"]
+
+.Posiciones 5, 6, 7 y 8
+
+image:images/tool-pos-5_es.svg[alt="Posicion 5"]
+image:images/tool-pos-6_es.svg[alt="Posicion 6"]
+image:images/tool-pos-7_es.svg[alt="Posicion 7"]
+image:images/tool-pos-8_es.svg[alt="Posicion 8"]
+
+
+== Tool Touch Off
+
+Cuando AXIS se ejecuta en modo de torno, puede configurar X y Z en la tabla de herramientas
+mediante la ventana Touch Off. Si tiene una torreta de herramientas normalmente
+tendra seleccionado 'Touch off to fixture' al configurar su torreta. Cuando
+configura Z cero del material tendra seleccionado 'Touch off to material'.
+Para obtener más información sobre los códigos G utilizados para las herramientas, consulte
+<<mcode:m6, M6>>, <<sec:select-tool,Tn>>, y <<gcode:g43, G43>>.
+Para obtener más información sobre las opciones touch off de la herramienta en Axis, consulte
+<<axis:tool-touch-off,Tool Touch Off>>.
+
+=== X Touch Off
+
+El offset del eje X para cada herramienta es normalmente un desplazamiento
+desde la línea central del husillo.
+
+Un método es tomar su herramienta de torneado normal y
+preparar algunas piezas a un diámetro conocido.
+Usando la ventana Touch Off, ingrese el diámetro medido
+(o radio si está en modo radio) para esa herramienta.
+Luego, use liquido de marcado o un rotulador para cubrir la pieza.
+Lleve cada herramienta hasta que toque solo el tinte y establezca su offset X con touch off en
+el diámetro de la pieza utilizada.
+Asegúrese de que las herramientas en los cuadrantes de las esquinas tengan el radio de la punta
+establecido correctamente en la tabla de herramientas para que el punto de control sea correcto.
+Tool touch off automaticamente agrega un G43
+por lo que la herramienta actual es el offset actual.
+
+Una sesión típica podría ser:
+
+ . homing de cada eje si no lo están.
+ . Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
+ . Seleccionar el eje X en la ventana de Control Manual.
+ . Mover la X a una posición conocida o realizar un corte de prueba y medir el diámetro.
+ . Seleccionar Touch Off y seleccionar Tabla de herramientas, luego ingrese la posición o el diámetro.
+ . Siga la misma secuencia para corregir el eje Z.
+
+Nota: si está en el modo Radio, debe ingresar el radio, no el diámetro.
+
+=== Z Touch Off
+
+Los offsets del eje Z pueden ser un poco confusos al principio
+porque hay dos elementos para el desplazamiento Z.
+Existe el desplazamiento de la tabla de herramientas y el desplazamiento de las coordenadas de la máquina.
+Primero veremos los offsets de la tabla de herramientas.
+Un método es usar un punto fijo en su torno y
+establecer el desplazamiento Z para todas las herramientas desde este punto.
+Algunos usan la nariz del husillo o la cara del mandril.
+Esto le da la posibilidad de cambiar a una nueva herramienta y
+establece su offset Z sin tener que reiniciar todas las herramientas.
+
+Una sesión típica podría ser:
+
+ . homing de cada eje si no lo están.
+ . Asegurar de que no haya offsets en vigor para el sistema de coordenadas actual.
+ . Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
+ . Seleccionar el eje Z en la ventana de Control manual.
+ . Acerque la herramienta a la superficie de control. Usando un cilindro mueva el
+   Z lejos de la superficie de control hasta que el cilindro pase justo entre
+   la herramienta y la superficie de control.
+ . Seleccione Touch Off y seleccione la Tabla de herramientas y establezca la posición en 0.0.
+ . Repita para cada herramienta usando el mismo cilindro.
+
+Ahora todas las herramientas están desplazadas a la misma distancia de una posición estándar.
+Si cambia una herramienta como una broca, repita lo anterior y
+ahora estara sincronizado con el resto de las herramientas para el desplazamiento Z.
+Algunas herramientas pueden requerir un poco mas para determinar
+el punto de control desde el punto touch off.
+Por ejemplo, si tiene una herramienta de tronzado de 0.125" de ancho y
+toca con el lado izquierdo, pero quiere que el derecho sea el Z0,
+ingrese 0.125" en la ventana touch off.
+
+=== El offset Z de la maquina
+
+Una vez que todas las herramientas tienen el offset Z ingresado en la tabla de herramientas,
+puede utilizar cualquier herramienta para configurar el offset de la máquina
+utilizando el sistema de coordenadas de máquina.
+
+Una sesión típica podría ser:
+
+ . homing de cada eje si no lo estan.
+ . Configurar la herramienta actual con "Tn M6", donde "n" es el número de la herramienta.
+ . Emitir un G43 de modo que el offset de la herramienta actual esté vigente.
+ . Lleve la herramienta a la pieza de trabajo y configure el offset Z de la máquina.
+
+Si olvida configurar el G43 para la herramienta actual al configurar el
+sistema de coordenadas de la máquina compensado, no obtendrá lo que espera,
+ya que el offset de la herramienta se agregará al offset actual cuando
+la herramienta se utilize en su programa.
+
+== Movimiento sincronizado del husillo
+
+El movimiento sincronizado del husillo requiere un codificador de cuadratura conectado
+al husillo con un pulso índice por revolución. Ver
+la página man de motion y el <<cha:spindle-control, Ejemplo de Control de Husillo>> para más
+información.
+
+.Roscado
+El ciclo de roscado G76 se utiliza para hilos internos y externos.
+Para obtener más información, consulte la sección <<gcode:g76, G76>>.
+
+.Velocidad constante de superficie
+CSS (Constant Surface Speed) ​​utiliza el origen de la máquina X modificado por el offset X de la herramienta
+para calcular la velocidad del husillo en RPM. CSS hará un seguimiento de los cambios en los offsets de herramienta.
+El <<sec.machine-coordinate-system,origen maquina>> X debe ser donde
+la herramienta de referencia (la que tiene cero desplazamiento) está en el centro de rotación.
+Para obtener más información, consulte la sección <<gcode:g96-g97, G96>>.
+
+.Alimentacion por revolución
+La alimentación por revolución moverá el eje Z en la cantidad de F por cada revolución.
+Esto no es para roscar; use G76 para para roscado.
+Para obtener más información, consulte la sección <<gcode:g93-g94-g95, G95 >>.
+
+== Arcos
+
+Calcular arcos puede ser desafiante si no se considera el
+modo de radio y diámetro en tornos y la orientacion del sistema de coordenadas de la máquina.
+Lo siguiente se aplica a los arcos de formato centro. En un torno,
+debe incluir G18 en su preámbulo ya que el valor predeterminado es G17, incluso si
+está en modo torno, en la interfaz de usuario Axis. Los arcos en el plano G18 XZ
+utilizan los desplazamientos I (eje X) y K (eje Z).
+
+=== Diseno de arcos en torno
+
+Un torno típico tiene el husillo a la izquierda del operador y la
+herramienta en el lado del operador desde línea central del husillo. Esto
+normalmente se configura con el eje Y imaginario (+) apuntando al suelo.
+
+Lo siguiente será cierto en este tipo de configuración:
+
+ - El eje Z(+) apunta hacia la derecha, alejandose del husillo.
+ - El eje X(+) apunta hacia el operador, y cuando está en el lado del operador,
+   los valores de X son positivos.
+
+Algunos tornos con herramientas en la parte posterior tienen el eje Y imaginario (+)
+apuntando hacia arriba.
+
+Las direcciones de arco G2/G3 se basan en el eje alrededor del cual giran. En el
+caso de los tornos, se trata del eje Y imaginario. Si el eje Y (+) señala
+hacia abajo, hay que mirar hacia arriba para que aparezca el arco que va en la
+dirección correcta. Así que mirando desde (no hacia) arriba, invierta G2/G3 para que
+el arco aparezca en la dirección correcta.
+
+=== Modo de radio y diametro
+
+Al calcular arcos en modo radio solo tiene que recordar la
+dirección de rotación que se aplica a su torno.
+
+Al calcular arcos en el modo de diámetro, X es el diámetro y el offset X
+(I) es el radio incluso si está en el modo de diámetro G7.
+
+== Ruta de la herramienta
+
+=== Punto de control
+
+El punto de control de la herramienta sigue el camino programado. El
+punto de control está en la intersección de las líneas paralelas a X y Z,
+tangentes al diámetro de la punta de la herramienta, tal como define
+los ejes X y Z  un touch off para esa herramienta. Al tornear o refrentar
+piezas con caras rectas, el camino de corte y el filo de la herramienta siguen el mismo recorrido.
+Al tornear radios y ángulos, el filo de la herramienta no seguirá
+la ruta programada a menos que esté activada la 'compensacion del cortador'. En la siguientes
+figuras se puede ver cómo el punto de control no sigue el filo de la herramienta, como se podría suponer.
+
+.Punto de control
+
+image::images/control-point_es.svg[align="center", alt="Punto de Control"]
+
+=== Corte de angulos sin Compensacion
+
+Ahora imagine que programamos una rampa sin compensacion. El camino programado
+se muestra en la siguiente figura. Como se puede ver, la
+ruta programada y la ruta de corte deseada son una y la misma, siempre
+que nos estemos moviendo en la dirección X o Z solamente.
+
+.Rampa de entrada
+
+image::images/ramp-entry_es.svg[align="center", alt="Entrada a Rampa"]
+
+Ahora, a medida que el punto de control avanza a lo largo del camino programado, el
+borde del cortador real no sigue ese camino como se muestra en la
+siguiente figura. Hay dos maneras de resolver esto; compensacion del cortador o
+ajustar la ruta programada para compensar el radio de la punta.
+
+.Rampa de ruta
+
+image::images/ramp-cut_es.svg[align="center", alt="Camino en Rampa"]
+
+El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada 
+moviendo la ruta programada hacia la izquierda del radio de la punta de la herramienta.
+
+
+=== Cortando un radio
+
+En este ejemplo examinaremos lo que sucede durante el corte de un radio.
+sin compensacion. En la siguiente figura se ve la herramienta torneando el diametro
+exterior de la pieza. El punto de control de la herramienta sigue el camino programado
+y la herramienta toca el diametro.
+
+.Torneado exterior
+
+image::images/radius-1_es.svg[align="center", alt="Torneado exterior"]
+
+En la siguiente figura puede ver que a medida que la herramienta se acerca al final de la
+pieza, el punto de control todavía sigue el camino pero la punta de la herramienta ha dejado
+la pieza y está al aire. También puede ver que aunque ha sido programado un radio,
+la pieza terminará con una esquina cuadrada.
+
+.Corte del radio
+
+image::images/radius-2_es.svg[align="center", alt="Corte del radio"]
+
+Ahora puede ver como el punto de control sigue el radio programado
+La punta de la herramienta ha dejado la pieza y ahora está al aire.
+
+.Corte del radio
+
+image::images/radius-3_es.svg[align="center", alt="Corte del radio"]
+
+En la figura final podemos ver que la punta de la herramienta terminará de cortar la
+cara pero deja una esquina cuadrada en lugar de un radio. Notese también
+que si se programa el corte para que finalice en el centro de la pieza, una pequeña
+cantidad de material no se cortara debido al radio de la herramienta. Para terminar
+una cara cortada en el centro de una parte, tiene que programar la herramienta para ir
+más allá del centro; como minimo, el radio de la punta de la herramienta.
+
+.Corte de la cara
+
+image::images/radius-4_es.svg[align="center", alt="Corte de la cara"]
+
+=== Usando Compensacion del Cortador
+
+Cuando utilice una herramienta de corte en un torno, piense en el radio de la punta de la herramienta como el
+radio de un cortador cilindrico (fresa). Cuando se usa una herramienta de corte, el camino debe ser
+suficiente grande para una herramienta cilindrica que no interfiriera en la línea siguiente. Cuando se
+cortan líneas rectas en el torno es posible que no desee utilizar compensacion del cortador.
+Por ejemplo, mandrinar un agujero con una barra demasiado ajustada puede que no le permita suficiente espacio 
+para realizar el movimiento de salida. El movimiento de entrada en un arco con compensacion es importante para obtener los resultados correctos.
+
+
