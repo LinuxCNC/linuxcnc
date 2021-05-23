@@ -76,8 +76,8 @@ EXTRA_FILES=
 EXTRA_BUILD=
 KERNEL_VERSION=$TARGET
 DRIVERS=drivers.files.in
-PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
+PYTHON_VERSION=$(python3 -c 'import sys; print (sys.version[:3])')
+PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV=libreadline-gplv2-dev
 
 BUILD_RTAI=false
