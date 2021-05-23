@@ -18,11 +18,11 @@ def reparent(window, parent):
     if not parent:
         return window
 
-    plug = Gtk.Plug(int(parent))
-    plug.show()
+    plug = Gtk.Plug.new(int(parent))
+    plug.show_all()
 
     d = display.Display()
-    w = drawable.Window(d.display, plug.get_property('window').get_xid(), 0)
+    w = drawable.Window(d.display, plug.get_window().get_xid(), 0)
     # Honor XEmbed spec
     atom = d.get_atom('_XEMBED_INFO')
     w.change_property(atom, atom, 32, [0, 1])

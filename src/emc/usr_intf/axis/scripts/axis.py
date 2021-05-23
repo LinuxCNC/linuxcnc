@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
@@ -3907,7 +3907,8 @@ def load_gladevcp_panel():
         from subprocess import Popen
         xid = gladevcp_frame.winfo_id()
         cmd = "halcmd loadusr -Wn {0} gladevcp -c {0}".format(gladename).split()
-        cmd += ['-x', str(xid)] + gladecmd
+        cmd += ['-d', '-x', str(xid)] + gladecmd
+        print(cmd)
         child = Popen(cmd)
         _dynamic_childs['{}'.format(gladename)] = (child, cmd, True)
 
