@@ -256,7 +256,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def deactivate(self):
         #yolo (actually @makecurrent the previous context should be cached + rebound and buffers maybe should be swapped, but yolo)
-        self.swapbuffers()
         return
         #TODO
         #gldrawable = Gtk.gtkgl.widget_get_gl_drawable(self)

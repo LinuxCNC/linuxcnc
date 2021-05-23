@@ -361,7 +361,7 @@ def with_context_swap(f):
         try:
             return f(self, *args, **kw)
         finally:
-            self.swapbuffers()
+            #self.swapbuffers()
             self.deactivate()
     return inner
 
@@ -613,6 +613,7 @@ class GlCanonDraw:
         glPushMatrix()
         try:
             self.redraw()
+            self.swapbuffers()
         finally:
             glFlush()                               # Tidy up
             glPopMatrix()                   # Restore the matrix
@@ -643,6 +644,7 @@ class GlCanonDraw:
         glPushMatrix()
         try:
             self.redraw()
+            self.swapbuffers()
         finally:
             glFlush()                               # Tidy up
             glPopMatrix()                   # Restore the matrix
