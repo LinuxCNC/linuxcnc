@@ -15,13 +15,12 @@ Recommends: linuxcnc-doc-en | linuxcnc-doc,
     @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
-    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
-    ${python:Depends}, ${misc:Depends},
+    ${python3:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
     python@PYTHON_VERSION@-numpy | python-numpy,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
-    libgtksourceview-3.0-dev
+    libgtksourceview-3.0-dev,
     python3-xlib, python3-configobj,
     tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt, udev

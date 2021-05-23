@@ -166,7 +166,7 @@ fi
 
 MODUTILS_DEPENDS=kmod
 PYTHON_PACKAGING_DEPENDS=dh-python
-PYTHON_PACKAGING=dh_python2
+PYTHON_PACKAGING=dh_python3
 PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING="python${PYTHON_VERSION}-imaging | python-imaging | python-pil"

@@ -54,7 +54,7 @@ def warn(*args):
 def dbg(level,*args):
     global debug
     if debug < level: return
-    print ''.join(args)
+    print(''.join(args))
 
 
 def set_debug(value):
@@ -116,7 +116,7 @@ def widget_defaults(widgets):
         try:
             v = get_value(w)
             wvalues[k] = v
-        except Exception,msg:
+        except Exception as msg:
             warn("widget_defaults:" + msg)
             continue
     return wvalues
@@ -245,7 +245,7 @@ class IniFile(object):
                     else:
                         raise Exception(error)
 
-            except (IOError, TypeError,UselessIniError),msg:
+            except (IOError, TypeError,UselessIniError) as msg:
                 warn("%s - creating default" % (msg))
                 self.create_default_ini()
                 continue
