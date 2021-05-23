@@ -175,6 +175,10 @@ YAPPS_RUNTIME="yapps2-runtime"
 STANDARDS_VERSION="3.9.3"
 
 case $DISTRIB_NAME in
+    Ubuntu-20.*|Debian-testing)
+        DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
+        YAPPS_RUNTIME="yapps2"
+        ;;
     Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
