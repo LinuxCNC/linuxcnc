@@ -1,3 +1,12 @@
+ver 3.1.3.7
+- bug in embedded tabs, setting box_tool_and_gcode_info"
+  as location did hide also the overrides, that was not correct.
+  as we do need to hide them i.e. for plasma, I introduced a new
+  feature. If you just enter hide as vommand in INI file, the
+  corresponding widget will be hidden, without replacing the content.
+
+  Thanks Jasen for reporting
+
 ver 3.1.3.6
 - get rid o some "ERROR" strings in translation file
   as the error type is displayed as ICON in self._show_error

@@ -83,7 +83,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.3.3.4.2"
+_RELEASE = " 3.1.3.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1724,12 +1724,16 @@ class gmoccapy(object):
                 nb = self.widgets[name]
                 xid = self._dynamic_tab(nb, t)
                 if not xid: continue
-                cmd = c.replace('{XID}', str(xid))
-                child = subprocess.Popen(cmd.split())
-                self._dynamic_childs[xid] = child
-                nb.show_all()
+                if c != "hide":
+                    cmd = c.replace('{XID}', str(xid))
+                    child = subprocess.Popen(cmd.split())
+                    self._dynamic_childs[xid] = child
+                    nb.show_all()
+                else:
+                    nb.hide()
         except:
             print(_("ERROR, trying to initialize the user tabs or panels, check for typos"))
+
         self.set_up_user_tab_widgets(tab_locations)
 
     # adds the embedded object to a notebook tab or box
@@ -1786,7 +1790,7 @@ class gmoccapy(object):
                     self.widgets[widget].hide()
 
             if "box_vel_info" in tab_locations:
-                widgetlist = ["frm_max_vel", "frm_feed_override"]
+                widgetlist = ["vbx_overrides", "frm_rapid_override", "frm_feed_override"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
 
@@ -1803,7 +1807,7 @@ class gmoccapy(object):
                 self.widgets.box_custom_4.show()
 
             if "box_tool_and_code_info" in tab_locations:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
+                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.btn_tool.set_sensitive( False )
