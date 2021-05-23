@@ -284,7 +284,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def _redraw(self):
         self.expose()
-        self.swapbuffers()
+        #self.swapbuffers()
 
     def clear_live_plotter(self):
         self.logger.clear()
