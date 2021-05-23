@@ -39,31 +39,26 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GdkX11
 from gi.repository import GObject
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
 
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 from OpenGL import GLX
 from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
 from ctypes import *
 
-import Xlib
-from Xlib.display import Display
-from gi.repository import Gtk, GdkX11, Gdk
-
-#import gtk
-#import gtk.gtkgl.widget
-#import gtk.gdkgl
-#import gtk.gdk
+try:
+    import Xlib
+    from Xlib.display import Display
+except ImportError:
+    print("missing xlib, run sudo apt install python3-xlib")
+    sys.exit(-1)
 
 import glnav
-#import gobject
-#import pango
 
 import rs274.glcanon
 import rs274.interpret
@@ -75,7 +70,6 @@ import re
 import tempfile
 import shutil
 import os
-import sys
 
 import _thread
 
