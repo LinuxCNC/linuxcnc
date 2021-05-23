@@ -44,6 +44,18 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+import sys
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL import GLX
+from OpenGL.raw.GLX._types import struct__XDisplay
+from OpenGL import GL
+from ctypes import *
+
+import Xlib
+from Xlib.display import Display
+from gi.repository import Gtk, GdkX11, Gdk
+
 #import gtk
 #import gtk.gtkgl.widget
 #import gtk.gdkgl
@@ -106,27 +118,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         attrs = self.attrs + [0, 0]
         return (c_int * len(attrs))(*attrs)
 
-    def configure(self, wid):
-        self.xwindow_id = GdkX11.X11Window.get_xid(wid)
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print('failed binding opengl context')
-        glViewport(0, 0, self.width, self.height)
-
-    def draw_start(self):
-        """make cairo context current for drawing"""
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print("failed binding opengl context")
-
-    def draw_finish(self):
-        """swap buffer when we have finished drawing"""
-        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
-
-
     def __init__(self, inifile):
     
-        xwindow_id = None
+        self.xwindow_id = None
 
-        self.set_has_depth_buffer(True)
         #self.set_has_alpha(True)
         #'set_has_stencil_buffer',
         glutInit()
@@ -244,7 +239,9 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
 
     def activate(self):
-        self.make_current()
+        """make cairo context current for drawing"""
+        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+            print("failed binding opengl context")
         #glcontext = gtk.gtkgl.widget_get_gl_context(self)
         #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
 
@@ -252,11 +249,13 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return True
 
     def swapbuffers(self):
+        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
         #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
         #gldrawable.swap_buffers()
         return
 
     def deactivate(self):
+        #yolo (actually @makecurrent the previous context should be cached + rebound and buffers maybe should be swapped, but yolo)
         return
         #TODO
         #gldrawable = Gtk.gtkgl.widget_get_gl_drawable(self)
@@ -271,6 +270,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def reshape(self, widget, event):
         self.width = event.width
         self.height = event.height
+        self.xwindow_id = GdkX11.X11Window.get_xid(widget.get_window())
+        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+            print('failed binding opengl context')
+        glViewport(0, 0, self.width, self.height)
 
     def expose(self, widget=None, event=None):
         if not self.initialised: return
@@ -308,7 +311,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     @rs274.glcanon.with_context
     def realize(self, widget):
-        self.make_current()
+        self.activate()
         self.set_current_view()
         s = self.stat
         try:
