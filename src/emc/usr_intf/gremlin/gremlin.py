@@ -176,7 +176,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.connect_after('realize', self.realize)
         self.connect('configure_event', self.reshape)
         self.connect('map_event', self.map)
-        #self.connect('draw', self.expose) # expose_event was deprecated
+        self.connect('draw', self.expose) # expose_event was deprecated
         self.connect('motion-notify-event', self.motion)
         self.connect('button-press-event', self.pressed)
         self.connect('button-release-event', self.select_fire)
@@ -256,6 +256,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def deactivate(self):
         #yolo (actually @makecurrent the previous context should be cached + rebound and buffers maybe should be swapped, but yolo)
+        self.swapbuffers()
         return
         #TODO
         #gldrawable = Gtk.gtkgl.widget_get_gl_drawable(self)
@@ -284,6 +285,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def _redraw(self):
         self.expose()
+        self.swapbuffers()
 
     def clear_live_plotter(self):
         self.logger.clear()
@@ -325,6 +327,8 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.font_linespace = linespace
         self.font_charwidth = width
         rs274.glcanon.GlCanonDraw.realize(self)
+
+        self.swapbuffers()
 
         if s.file: self.load()
 
