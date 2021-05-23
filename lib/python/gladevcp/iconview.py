@@ -380,7 +380,7 @@ class IconFileSelection(Gtk.HBox):
         
     def state_changed(self):
         # find the difference
-        diff = set(self.button_state.iteritems()) - set(self.old_button_state.iteritems())
+        diff = set(self.button_state.items()) - set(self.old_button_state.items())
         for key in self.button_state.keys():
             try:
                 if self.button_state[key] != self.old_button_state[key]:

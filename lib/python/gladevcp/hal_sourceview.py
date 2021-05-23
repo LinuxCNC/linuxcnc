@@ -39,7 +39,7 @@ from .hal_filechooser import _EMC_FileChooser
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
     __gsignals__ = {
-        'changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
     }
 
     __gproperties__ = {

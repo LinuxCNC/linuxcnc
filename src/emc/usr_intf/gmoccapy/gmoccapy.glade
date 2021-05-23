@@ -1359,9 +1359,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="show_tabs">False</property>
                                                             <property name="show_border">False</property>
-                                                            <property name="tab_border">0</property>
-                                                            <property name="tab_hborder">0</property>
-                                                            <property name="tab_vborder">0</property>
                                                             <child>
                                                             <object class="GtkTable" id="tbl_jog_btn_axes">
                                                             <property name="visible">True</property>
@@ -2657,7 +2654,6 @@
                                         <property name="auto_indent">True</property>
                                         <property name="highlight_current_line">True</property>
                                         <property name="indent_on_tab">False</property>
-                                        <signal name="changed" handler="on_gcode_view_changed" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>
