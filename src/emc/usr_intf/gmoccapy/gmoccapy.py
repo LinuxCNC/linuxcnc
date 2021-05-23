@@ -2353,14 +2353,17 @@ class gmoccapy(object):
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data=None):
+        print("mode Manual")
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
     def on_rbt_mdi_pressed(self, widget, data=None):
+        print("mode MDI")
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
     def on_rbt_auto_pressed(self, widget, data=None):
+        print("mode Auto")
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
 
