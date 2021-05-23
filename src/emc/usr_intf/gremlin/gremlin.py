@@ -89,16 +89,59 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
 
 
-class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
+class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
+    xlib = cdll.LoadLibrary('libX11.so')
+    xlib.XOpenDisplay.argtypes = [c_char_p]
+    xlib.XOpenDisplay.restype = POINTER(struct__XDisplay)
+    xdisplay = xlib.XOpenDisplay(bytes("", "ascii"))
+    display = Xlib.display.Display()
+    attrs = []
     rotation_vectors = [(1.,0.,0.), (0.,0.,1.)]
+    
+    def add_attribute(self, setting, value):
+        self.attrs.append(setting)
+        self.attrs.append(value)
+
+    def get_attributes(self):
+        attrs = self.attrs + [0, 0]
+        return (c_int * len(attrs))(*attrs)
+
+    def configure(self, wid):
+        self.xwindow_id = GdkX11.X11Window.get_xid(wid)
+        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+            print('failed binding opengl context')
+        glViewport(0, 0, self.width, self.height)
+
+    def draw_start(self):
+        """make cairo context current for drawing"""
+        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+            print("failed binding opengl context")
+
+    def draw_finish(self):
+        """swap buffer when we have finished drawing"""
+        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
+
 
     def __init__(self, inifile):
-        Gtk.GLArea.__init__(self)
+    
+        xwindow_id = None
+
         self.set_has_depth_buffer(True)
         #self.set_has_alpha(True)
         #'set_has_stencil_buffer',
         glutInit()
         glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH )
+
+
+        self.add_attribute(GLX.GLX_RGBA, True)
+        self.add_attribute(GLX.GLX_RED_SIZE, 1)
+        self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
+        self.add_attribute(GLX.GLX_BLUE_SIZE, 1)
+        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 0)
+
+        xvinfo = GLX.glXChooseVisual(self.xdisplay, self.display.get_default_screen(), self.get_attributes())
+        configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
+        self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
 
 
 #class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
@@ -237,7 +280,6 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return True
 
     def _redraw(self):
-        print("yolo")
         self.expose()
 
     def clear_live_plotter(self):
