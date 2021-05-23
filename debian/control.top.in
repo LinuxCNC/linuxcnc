@@ -35,7 +35,6 @@ Build-Depends: debhelper (>= 6),
     desktop-file-utils,
     yapps2,
     libtirpc-dev,
-    python3-yapps,
     libtirpc-dev,
     libepoxy-dev,
     python3-xlib
