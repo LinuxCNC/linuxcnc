@@ -132,7 +132,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.add_attribute(GLX.GLX_RED_SIZE, 1)
         self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
         self.add_attribute(GLX.GLX_BLUE_SIZE, 1)
-        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 0)
+        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 1)
 
         xvinfo = GLX.glXChooseVisual(self.xdisplay, self.display.get_default_screen(), self.get_attributes())
         configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
