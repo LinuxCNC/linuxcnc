@@ -184,6 +184,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.add_events(Gdk.EventMask.BUTTON_MOTION_MASK)
         self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+        self.add_events(Gdk.EventMask.SCROLL_MASK)
  
 
         self.fingerprint = ()
@@ -535,8 +536,8 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def scroll(self, widget, event):
         if not self.use_default_controls:return
-        if event.direction == Gdk.EventType.SCROLL_UP: self.zoomin()
-        elif event.direction == Gdk.EventType.SCROLL_DOWN: self.zoomout()
+        if event.direction == Gdk.ScrollDirection.UP: self.zoomin()
+        elif event.direction == Gdk.ScrollDirection.DOWN: self.zoomout()
 
     def report_gcode_error(self, result, seq, filename):
 
