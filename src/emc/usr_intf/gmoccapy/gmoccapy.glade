@@ -3088,7 +3088,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <child>
-                                      <object class="GtkSourceView" id="gcode_view">
+                                      <object class="EMC_SourceView" id="gcode_view">
                                         <property name="name">gcode_view</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -3101,6 +3101,7 @@
                                         <property name="auto_indent">True</property>
                                         <property name="highlight_current_line">True</property>
                                         <property name="indent_on_tab">False</property>
+                                        <signal name="changed" handler="on_gcode_view_changed" swapped="no"/>
                                       </object>
                                     </child>
                                   </object>

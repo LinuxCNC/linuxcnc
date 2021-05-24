@@ -27,8 +27,9 @@ gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
 gi.require_version("GtkSource","3.0")
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GObject
-from gi.repository import GtkSource as gtksourceview
+from gi.repository import GtkSource
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -36,7 +37,7 @@ from hal_glib import GStat
 from .hal_actions import _EMC_ActionBase, _EMC_Action
 from .hal_filechooser import _EMC_FileChooser
 
-class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
+class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
     __gsignals__ = {
         'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
@@ -47,18 +48,17 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     }
     def __init__(self, *a, **kw):
-        gtksourceview.View.__init__(self, *a, **kw)
+        GtkSource.View.__init__(self, *a, **kw)
         self.filename = None
         self.mark = None
         self.offset = 0
         self.program_length = 0
         self.idle_line_reset = True
-        self.buf = gtksourceview.Buffer()
+        self.buf = self.get_buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
-        self.set_buffer(self.buf)
-        self.lm = gtksourceview.LanguageManager()
-        self.sm = gtksourceview.StyleSchemeManager()
+        self.lm = GtkSource.LanguageManager()
+        self.sm = GtkSource.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
             path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
             self.lm.set_search_path(self.lm.get_search_path() + [path])
@@ -67,26 +67,22 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_show_line_numbers(True)
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
-        # This gets the 'selected text' color
-        # This is before the widget is realized so gives the system theme color
-        style = self.get_style()
-#        selected_color = style.base[Gtk.StateType.SELECTED].to_string() TODO: Broken
 
-#        self.set_mark_category_icon_from_icon_name('motion', 'Gtk-forward')
-#        self.set_mark_category_background('motion', gdk.Color(selected_color))
+        self.add_mark_category('error', '#ff7373')
+        self.add_mark_category('motion', '#c5c5c5')
+        self.add_mark_category('selected', '#96fef6')
 
-#        self.found_text_tag = self.buf.create_tag(background = selected_color)
-#        self.update_iter()
+        #TODO: how to set property background? but seems to work ok regardless.
+        self.found_text_tag = Gtk.TextTag()
+
         self.connect('button-release-event', self.button_pressed)
 
-    def change_style(self):
-        # This gets us the 'base selected' color after the theme is selected
-        # often looks like this in gkrc file:    base[SELECTED]    = "#FF0000"
-        style= self.get_style()
-#        selected_color = style.base[Gtk.StateType.SELECTED].to_string()
-        #print "- text",style.base[Gtk.StateType.SELECTED].to_string()
-#        self.set_mark_category_background('motion', gdk.Color(selected_color))
-#        self.found_text_tag.set_property('background',selected_color)
+    def add_mark_category(self, category, bg_color):
+        att = GtkSource.MarkAttributes()
+        color = Gdk.RGBA()
+        color.parse(bg_color)
+        att.set_background(color)
+        self.set_mark_attributes(category, att, 1)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -147,15 +143,10 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.update_iter()
         self.highlight_line(self.gstat, self.gstat.stat.motion_line)
         self.offset = self.gstat.stat.motion_line
-        f = file(fn, 'r')
+        f = open(fn, 'r')
         p = f.readlines()
         f.close()
         self.program_length = len(p)
-
-        # update highlight color of theme changed since last load
-        # since there seems to be no 'theme has changed' signal we
-        # can tap into, we just check each time we load.
-        self.change_style()
 
     # This moves the highlight line to a lower numbered line.
     # useful for run-at-line selection
@@ -227,15 +218,15 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     def text_search(self,direction=True,mixed_case=True,text="t"):
         CASEFLAG = 0
         if mixed_case:
-            CASEFLAG = gtksourceview.SEARCH_CASE_INSENSITIVE
+            CASEFLAG = Gtk.TextSearchFlags.CASE_INSENSITIVE
         if direction:
             if self.current_iter.is_end():
                 self.current_iter = self.start_iter.copy()
-            found = gtksourceview.iter_forward_search(self.current_iter,text,CASEFLAG, None)
+            found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
         else:
             if self.current_iter.is_start():
                 self.current_iter = self.end_iter.copy()
-            found = gtksourceview.iter_backward_search(self.current_iter,text,CASEFLAG, None)
+            found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
             # erase any existing highlighting tags
             try:
@@ -271,7 +262,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
                     self.buf.insert_at_cursor(re_text)
                 else:
                     self.buf.delete_interactive(self.match_start, self.match_end,True)
-                    self.buf.insert_interactive_at_cursor(re_text,True)
+                    self.buf.insert_interactive_at_cursor(re_text,-1,True)
             self.text_search(direction,mixed_case,text)
             if self.current_iter.is_start(): break
             if not replace_all: break
