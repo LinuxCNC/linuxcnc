@@ -429,13 +429,17 @@ class touchy:
                 if self.radiobutton_mask: return
                 self.prefs.putpref('invisible_cursor', 1)
                 self.invisible_cursor = 1
-                self.wTree.get_object("MainWindow").window.set_cursor(invisible)
+                win = self.wTree.get_object("MainWindow").get_window()
+                cursor = Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)
+                win.set_cursor(cursor)
 
         def pointer_show(self, b):
                 if self.radiobutton_mask: return
                 self.prefs.putpref('invisible_cursor', 0)
                 self.invisible_cursor = 0
-                self.wTree.get_object("MainWindow").window.set_cursor(None)
+                win = self.wTree.get_object("MainWindow").get_window()
+                cursor = Gdk.Cursor(Gdk.CursorType.ARROW)
+                win.set_cursor(cursor)
 
         def dro_commanded(self, b):
                 if self.radiobutton_mask: return
