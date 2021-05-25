@@ -2061,6 +2061,9 @@ msgstr "Drehmaschine Offsets"
 #~ msgid "Follow System Theme"
 #~ msgstr "Systemdesign übernehmen"
 
+#~ msgid "Follow System Theme"
+#~ msgstr "System Thema anwenden"
+
 #~ msgid "Home axis %s"
 #~ msgstr "Referenziere die %s Achse"
 
