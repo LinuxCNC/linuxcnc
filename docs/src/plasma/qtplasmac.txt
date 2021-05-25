@@ -452,7 +452,7 @@ setp plasmac.lowpass-frequency 100
 
 The above example would give a cutoff frequency of 100Hz.
 
-=== Contact Debounce
+=== Contact Bounce
 
 Contact bounce from mechanical relays, switches, or external interference may cause some inconsistent behavior of the following switches:
 
@@ -478,6 +478,51 @@ All four signals above have an individual debounce component so the debounce per
 The default delay for all four inputs is five servo thread periods. In most cases this value will work quite well. If any of the inputs do not use mechanical switches, it may be possible to either reduce or remove the delay for those inputs.
 
 If debounce is required for other equipment like home or limit switches etc then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
+
+More information on contact bounce can be seen on page IX of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
+
+[[qt-contact-load]]
+
+=== Contact Load
+
+Mechanical relays and switches usually require a minimum current passing through the contacts for reliable operation. This current varies with the material that the contacts in the device are made from.
+
+Depending on the specified minimum contact current and the current drawn by the input device there may be a need to provide a method to increase the current through the contacts.
+
+Most relays using gold contacts will not require any additional current for reliable operation.
+
+There are two different methods available to provide this minimum current if it is required:
+
+. A 0.1μF film capacitor placed across the contacts.
+
+. A 1200Ω 1W resistor across the load (see calculations below).
+
+Schematics are shown at <<qt_contact-load-schematics, contact load schematics>>.
+
+More information on contact switching load can be seen on page III of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
+
+[underline]*Calculations:*
+
+If using a Mesa card, the input resistance could be 5000Ω (7i96) or 10000Ω (7i76E), giving a contact current of 4.8mA or 2.4mA assuming a supply voltage of 24V (I = V/R).
+
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100mA @ 5VDC which will dissipate 0.5W (P = I * V). If using a 24VDC power supply this would then equate to a minimum current of 20.8mA. Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
+
+The resistance can be calculated using R = Vs / (Im - Ii) where:
+
+- R = calculated resistance
+- Vs = supply voltage
+- Im = minimum current required
+- Ii = input current
+
+Using a 7i76E with an input current of 2.4mA gives a calculated value of 1304Ω. (24 / (.0208 - .0024) This could then be rounded down to a commonly available 1200Ω resistor giving a small safety margin.
+
+The power dissipation can by calculated using P = Vs^2^ / Rs where:
+
+- P = power
+- Vs = supply voltage
+- Rs = selected resistance
+
+This gives a value of 0.48W. This could then be rounded up to 1W, giving a good safety margin. The final selection would be a 1200Ω 1W resistor. Note that this resistor could be used on either the 7i96 or the 7i76E.
 
 === Desktop Launcher
 
@@ -3380,6 +3425,14 @@ This assembly will now act as a relay that will switch on when current is flowin
 This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
 image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
+
+[[qt_contact-load-schematics]]
+
+=== Contact Load Schematics
+
+image::images/qtplasmac_relay_contact.png[width=600,align="center"]
+
+A full description is at <<qt-contact-load, Contact Load>>
 
 == Known Issues
 
