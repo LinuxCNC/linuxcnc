@@ -51,6 +51,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.video = None
         self.grabbed = None
         self.frame = None
+        self._camNum = 0
         self.diameter = 20
         self.rotation = 0
         self.scale = 1
@@ -166,7 +167,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def showEvent(self, event):
         if LIB_GOOD:
             try:
-                self.video = WebcamVideoStream(src=0).start()
+                self.video = WebcamVideoStream(src=self._camNum).start()
             except:
                 LOG.error('Video capture error: {}'.format(self.video))
 
