@@ -439,7 +439,7 @@ static void menuitem_response(gchar *string) {
     printf("%s\n", string);
 }
 
-static void about(int junk) {
+static void about(void) {
     gtk_show_about_dialog(GTK_WINDOW(ctrl_usr->main_win),
             "copyright", "Copyright (C) 2003 John Kasunich",
             "license", license,
@@ -562,7 +562,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));
     gtk_menu_shell_append(GTK_MENU_SHELL(helpmenu), helpabout);
     g_signal_connect_swapped(helpabout, "activate",
-            G_CALLBACK(about), 0);
+            G_CALLBACK(about), NULL);
     gtk_widget_show(helpabout);
 
     file_rootmenu = gtk_menu_item_new_with_mnemonic(_("_File"));
