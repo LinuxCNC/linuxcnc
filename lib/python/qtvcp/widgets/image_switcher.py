@@ -132,6 +132,8 @@ class StatusImageSwitcher(ImageSwitcher):
         self.all_homed = False
         self.axis_homed = False
         self.hard_limits = False
+        self.machine_state = False
+        self.command_state = False
         self._last_limit = []
         self.axis = 'X'
         for i in range(0,len(INFO.AVAILABLE_JOINTS)):
@@ -148,6 +150,17 @@ class StatusImageSwitcher(ImageSwitcher):
             STATUS.connect('homed', lambda w, data: self.switch_on_axis_homed(data))
         elif self.hard_limits:
             STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
+        elif self.machine_state:
+            STATUS.connect('state-estop', lambda w: self.switch_on_machine_state(0))
+            STATUS.connect('interp-run', lambda w: self.switch_on_machine_state(1))
+            STATUS.connect('interp-idle', lambda w: self.switch_on_machine_state(2))
+            STATUS.connect('interp-paused', lambda w: self.switch_on_machine_state(3))
+            STATUS.connect('interp-waiting', lambda w: self.switch_on_machine_state(4))
+            STATUS.connect('interp-reading', lambda w: self.switch_on_machine_state(5))
+        elif self.command_state:
+            STATUS.connect('command-running', lambda w: self.switch_on_command_state(0))
+            STATUS.connect('command-stopped', lambda w: self.switch_on_command_state(1))
+            STATUS.connect('command-error', lambda w: self.switch_on_command_state(2))
 
     def _designerInit(self):
         self.show_image_by_number(0)
@@ -192,6 +205,12 @@ class StatusImageSwitcher(ImageSwitcher):
             #print 'per joint and per end limits images'
         self._last_limit = group
 
+    def switch_on_machine_state(self, state):
+        self.set_image_number(state)
+
+    def switch_on_command_state(self, state):
+        self.set_image_number(state)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -201,7 +220,8 @@ class StatusImageSwitcher(ImageSwitcher):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('spindle','all_homed', 'axis_homed','hard_limits' )
+        data = ('spindle','all_homed', 'axis_homed','hard_limits',
+                'machine_state', 'command_state' )
 
         for i in data:
             if not i == picked:
@@ -253,6 +273,31 @@ class StatusImageSwitcher(ImageSwitcher):
     def reset_limits(self):
         self.hard_limits = False
     watch_hard_limits = pyqtProperty(bool, get_limits, set_limits, reset_limits)
+
+    # machine_state status
+    def set_machine_state(self, data):
+        self.machine_state = data
+        if data:
+            self._toggle_properties('machine_state')
+    def get_machine_state(self):
+        return self.machine_state
+    def reset_machine_state(self):
+        self.machine_state = False
+    watch_machine_state = pyqtProperty(bool, get_machine_state, set_machine_state,
+                                                      reset_machine_state)
+
+    # command_state status
+    def set_command_state(self, data):
+        self.command_state = data
+        if data:
+            self._toggle_properties('command_state')
+    def get_command_state(self):
+        return self.command_state
+    def reset_command_state(self):
+        self.command_state = False
+    watch_command_state = pyqtProperty(bool, get_command_state, set_command_state,
+                                                      reset_command_state)
+
 
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
