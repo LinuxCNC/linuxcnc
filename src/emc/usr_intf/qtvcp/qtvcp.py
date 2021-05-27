@@ -219,6 +219,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize the window
         window = qt_makegui.VCPWindow(self.hal, PATH)
  
+        # give reference to user command line options
         if opts.useropts:
             window.USEROPTIONS_ = opts.useropts
         else:

@@ -41,6 +41,13 @@ class HandlerClass:
     def initialized__(self):
         if self.w.PREFS_:
             print('Using preference file:',self.w.PREFS_.fn)
+        if self.w.USEROPTIONS_ is not None:
+            try:
+                num = int(self.w.USEROPTIONS_[0])
+            except:
+                print('Error with cam_align camera selection - not a number - using 0')
+                num = 0
+            self.w.camview._camNum = num
 
     ########################
     # callbacks from STATUS #
