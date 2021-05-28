@@ -233,6 +233,11 @@ class ToolBarActions():
             function = (self.actOnMessageRecall)
         elif action == 'message_close':
             function = (self.actOnMessageClose)
+        elif action == 'homeall':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
+            STATUS.connect('state-estop', lambda w: widget.setChecked(False))
+            function = (self.actOnHomeAll)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -471,6 +476,9 @@ class ToolBarActions():
 
     def actOnMessageRecall(self, widget, state=None):
         WIDGETS._NOTICE.show_last()
+
+    def actOnHomeAll(self, widget, state=None):
+        ACTION.SET_MACHINE_HOMING(-1)
 
     #########################################################
     # Sub menus
