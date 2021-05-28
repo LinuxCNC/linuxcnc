@@ -22,7 +22,7 @@ class HandlerClass:
         self.w.sensor_flt.pressed.connect(self.float_pressed)
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
         self.w.sensor_brk.pressed.connect(self.break_pressed)
-        self.w.arc_ok.pressed.connect(self.arc_ok_pressed)
+        self.w.arc_ok.clicked.connect(self.arc_ok_clicked)
         self.w.estop.pressed.connect(self.estop_pressed)
         self.fTimer = QtCore.QTimer()
         self.fTimer.setInterval(500)
@@ -97,11 +97,11 @@ class HandlerClass:
             '}}\n'.format(self.foreColor, self.backColor, self.backAlt, self.estopColor)
             )
 
-    def arc_ok_pressed(self):
+    def arc_ok_clicked(self):
         if self.w.arc_ok.isChecked():
-            self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
-        else:
             self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
+        else:
+            self.w.arc_ok.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def float_timer_done(self):
         if not self.w.sensor_flt.isDown():
@@ -198,12 +198,14 @@ class HandlerClass:
                 self.w.arc_voltage_out.setMaximum(110.0)
             if (hal.get_value('plasmac.mode') == 1 or hal.get_value('plasmac.mode') == 2) and not self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
+                self.w.arc_ok_clicked()
         else:
             self.w.arc_voltage_out.setMinimum(0.0)
             self.w.arc_voltage_out.setMaximum(300.0)
             self.w.arc_voltage_out.setValue(0.0)
             if self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
+                self.w.arc_ok_clicked()
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]

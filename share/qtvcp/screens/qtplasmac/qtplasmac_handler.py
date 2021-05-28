@@ -1,4 +1,4 @@
-VERSION = '1.0.34'
+VERSION = '1.0.35'
 
 import os, sys
 from shutil import copy as COPY
@@ -2011,21 +2011,21 @@ class HandlerClass:
             if 'm5' in line:
                 rflSpindle = ''
             if 'm62p3' in line:
-                d3 = 'm62p3'
+                d3 = 'm62p3 (Disable Torch)'
             elif 'm63p3' in line:
-                d3 = 'm63p3'
+                d3 = 'm63p3 (Enable Torch)'
             elif 'm64p3' in line:
-                d3 = 'm64p3'
+                d3 = 'm64p3 (Disable Torch)'
             elif 'm65p3' in line:
-                d3 = 'm65p3'
+                d3 = 'm65p3 (Enable Torch)'
             if 'm62p2' in line:
-                d2 = 'm62p2'
+                d2 = 'm62p2 (Disable THC)'
             elif 'm63p2' in line:
-                d2 = 'm63p2'
+                d2 = 'm63p2 (Enable THC)'
             elif 'm64p2' in line:
-                d2 = 'm64p2'
+                d2 = 'm64p2 (Disable THC)'
             elif 'm65p2' in line:
-                d2 = 'm65p2'
+                d2 = 'm65p2 (Enable THC)'
             if 'm67e3q' in line:
                 a3 = 'm67e3q'
                 tmp = line.split('m67e3q')[1]
@@ -2035,6 +2035,7 @@ class HandlerClass:
                         tmp = tmp[1:]
                     else:
                         break
+                a3 += ' (Velocity {}%)'.format(a3.split('m67e3q')[1])
             if 'm68e3q' in line:
                 a3 = 'm68e3q'
                 tmp = line.split('m68e3q')[1]
@@ -2045,6 +2046,7 @@ class HandlerClass:
                         tmp = tmp[1:]
                     else:
                         break
+                a3 += ' (Velocity {}%)'.format(a3.split('m68e3q')[1])
             if line.startswith('o'):
                 if 'end' in line:
                     oSub = False
