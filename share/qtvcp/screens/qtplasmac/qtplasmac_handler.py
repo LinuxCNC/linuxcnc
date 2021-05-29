@@ -1,4 +1,4 @@
-VERSION = '1.0.35'
+VERSION = '1.0.36'
 
 import os, sys
 from shutil import copy as COPY
@@ -3987,17 +3987,19 @@ class HandlerClass:
                     msg = 'The empty file: {}\n\ncannot be saved.'.format(os.path.basename(self.fNgc))
                     self.dialog_show_ok(QMessageBox.Warning, 'Save Error', msg)
                     return
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self.w,
-                                                  'Save',
-                                                  self.programPrefix,
-                                                  'G-Code Files (*.ngc *.nc *.tap);;All Files (*)',
-                                                  options=options)
-        if fileName:
-            COPY(self.fNgc, fileName)
-        self.w.conv_save.setEnabled(False)
-        self.conv_enable_tabs()
+        dlg = QFileDialog(self.w)
+        dlg.setOptions(QFileDialog.DontUseNativeDialog)
+        dlg.setAcceptMode(QFileDialog.AcceptSave)
+        dlg.setNameFilters(['G-Code Files (*.ngc *.nc *.tap)', 'All Files (*)'])
+        dlg.setDefaultSuffix('ngc')
+        dlg.setDirectory(self.programPrefix)
+        name = ''
+        if dlg.exec_():
+            name = dlg.selectedFiles()[0]
+        if name:
+            COPY(self.fNgc, name)
+            self.w.conv_save.setEnabled(False)
+            self.conv_enable_tabs()
 
     def conv_settings_pressed(self):
         self.color_button_image(self.oldConvButton, self.foreColor)
