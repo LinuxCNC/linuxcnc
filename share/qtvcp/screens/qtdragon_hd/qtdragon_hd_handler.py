@@ -502,7 +502,7 @@ class HandlerClass:
                 if os.path.isfile(self.last_loaded_program):
                     self.w.cmb_gcode_history.addItem(self.last_loaded_program)
                     self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
-                    self.w.cmb_gcode_history.setToolTip(fname)
+                    self.w.cmb_gcode_history.setToolTip(self.last_loaded_program)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
