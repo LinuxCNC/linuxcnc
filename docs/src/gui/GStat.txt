@@ -287,8 +287,9 @@ Sent when the current tool offsets change.
 *motion-mode-changed* :: '(returns integer)' -
 Sent when motion's mode has changed
 
-*spindle-control-changed* :: '(returns bool, integer)' -
-Sent when spindle direction or running status changes.
+*spindle-control-changed* :: '(returns integer, bool, integer, bool)' -
+(spindle num, spindle on state, requested spindle direction & rate, at-speed state) +
+Sent when spindle direction or running status changes or at-speed changes.
 
 *current-feed-rate* :: '(returns float)' -
 Sent when the current feed rate changes.
