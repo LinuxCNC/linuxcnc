@@ -134,6 +134,7 @@ class StatusImageSwitcher(ImageSwitcher):
         self.hard_limits = False
         self.machine_state = False
         self.command_state = False
+        self.feedmode_state = False
         self._last_limit = []
         self.axis = 'X'
         for i in range(0,len(INFO.AVAILABLE_JOINTS)):
@@ -141,7 +142,7 @@ class StatusImageSwitcher(ImageSwitcher):
 
     def _hal_init(self):
         if self.spindle:
-            STATUS.connect('spindle-control-changed', lambda w, b, d: self.switch_on_spindle(b,d))
+            STATUS.connect('spindle-control-changed', lambda w, a, b, c, d: self.switch_on_spindle(b,c,d))
         elif self.all_homed:
             STATUS.connect('not-all-homed', lambda w, data: self.switch_on_homed(0))
             STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
@@ -161,13 +162,28 @@ class StatusImageSwitcher(ImageSwitcher):
             STATUS.connect('command-running', lambda w: self.switch_on_command_state(0))
             STATUS.connect('command-stopped', lambda w: self.switch_on_command_state(1))
             STATUS.connect('command-error', lambda w: self.switch_on_command_state(2))
+        elif self.feedmode_state:
+            STATUS.connect('fpm-mode', lambda w, d: self.switch_on_feedmode_state(0, d))
+            STATUS.connect('fpr-mode', lambda w, d: self.switch_on_feedmode_state(1,d))
+            STATUS.connect('itime-mode', lambda w, d: self.switch_on_feedmode_state(2,d))
 
     def _designerInit(self):
         self.show_image_by_number(0)
 
-    def switch_on_spindle(self, b, data):
-        if data <0: data= 2
-        self.set_image_number(data)
+    # M5 disabled = image 0
+    # M3 at speed = image 1
+    # M4 at speed = image 2
+    # M3 accelerating = image 3
+    # M4 accelerating = image 4
+    def switch_on_spindle(self, on, speed, up):
+        if not on:
+            num = 0
+        elif not up:
+            if speed<0: num = 4
+            else: num = 3
+        elif speed <0: num = 2
+        else: num = 1
+        self.set_image_number(num)
 
     def switch_on_homed(self, data):
         if not data <0:
@@ -211,6 +227,10 @@ class StatusImageSwitcher(ImageSwitcher):
     def switch_on_command_state(self, state):
         self.set_image_number(state)
 
+    def switch_on_feedmode_state(self, mode, state):
+        if state:
+            self.set_image_number(mode)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -221,7 +241,7 @@ class StatusImageSwitcher(ImageSwitcher):
 
     def _toggle_properties(self, picked):
         data = ('spindle','all_homed', 'axis_homed','hard_limits',
-                'machine_state', 'command_state' )
+                'machine_state', 'command_state', 'feedmode_state' )
 
         for i in data:
             if not i == picked:
@@ -298,6 +318,17 @@ class StatusImageSwitcher(ImageSwitcher):
     watch_command_state = pyqtProperty(bool, get_command_state, set_command_state,
                                                       reset_command_state)
 
+    # feedmode_state status
+    def set_feedmode_state(self, data):
+        self.feedmode_state = data
+        if data:
+            self._toggle_properties('feedmode_state')
+    def get_feedmode_state(self):
+        return self.feedmode_state
+    def reset_feedmode_state(self):
+        self.feedmode_state = False
+    watch_feedmode_state = pyqtProperty(bool, get_feedmode_state, set_feedmode_state,
+                                                      reset_feedmode_state)
 
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
