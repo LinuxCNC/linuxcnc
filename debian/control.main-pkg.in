@@ -21,7 +21,8 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
     libgtksourceview-3.0-dev,
-    python3-xlib, python3-configobj,
+    python3-xlib,
+    python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
     tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt, udev
 Description: motion controller for CNC machines and robots
