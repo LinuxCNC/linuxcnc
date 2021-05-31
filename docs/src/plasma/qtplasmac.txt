@@ -1113,11 +1113,12 @@ To return any of the color changes to their default values, see the <<qt_default
 |Estop|This button allows the user to change the color of the GUI Estop.
 |Disabled|This button allows the user to change the color of the GUI's Disabled features.
 |Preview|This button allows the user to change the color of the GUI Preview Window Background.
-|Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard.
+|Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard. +
+               If the "onboard" virtual keyboard is installed then the <<custom_kb_layouts, custom layouts>> will be enabled .
 |KB Shortcuts|This radio button allows the user to enable or disable <<qt_keyboard-shortcuts, Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
-                In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
+              In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
 |View Material|This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab, MAIN>> and <<qt_conversational-tab, CONVERSATIONAL>> tabs. +
-                Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
+               Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
 |Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button will also allow jogging while jogging is inhibited due to a float or breakaway switch activation. This button can only be clicked when a limit switch is tripped or a jog is inhibited.
@@ -2130,6 +2131,24 @@ NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machi
 
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
+
+[[custom_kb_layouts]]
+
+=== Virtual Keyboard Custom Layouts
+
+Virtual keyboard support is available for only the "onboard" onscreen keyboard. If it is not already on the system it may be installed by typing the following in a terminal:
+
+----
+sudo apt install onboard
+----
+
+The following two custom layouts are used for soft key support:
+
+image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab", width=240,align="center"]
+
+image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for gcode editing and file management.",width=700,align="center"]
+
+If the virtual keyboad has been repositioned and on the next opening of a virtual keyboard it is not visible then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
 
 [[qt_keyboard-shortcuts]]
 
