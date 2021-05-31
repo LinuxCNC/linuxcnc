@@ -31,8 +31,8 @@ from gi.repository import Gtk
 from configobj import ConfigObj, flatten_errors
 from validate import Validator
 from hashlib import sha1
-from hal_widgets import _HalWidgetBase
-from hal_actions import _EMC_ActionBase
+from .hal_widgets import _HalWidgetBase
+from .hal_actions import _EMC_ActionBase
 from gladevcp.gladebuilder import widget_name
 
 class UselessIniError(Exception):
@@ -144,7 +144,7 @@ class IniFile(object):
             spec += '[' + section + ']\n'
             for varname in sorted(vdict[section].keys()):
                 typename = type(vdict[section][varname]).__name__
-                if co_map.has_key(typename):
+                if typename in co_map:
                     typename = co_map[typename]
                 spec += '\t' + varname + ' = ' + typename  + '\n'
         return spec
@@ -156,7 +156,7 @@ class IniFile(object):
         '''
         dbg(1, "restore_state() from %s" % (self.filename))
 
-        if not self.defaults.has_key(IniFile.ini):
+        if not IniFile.ini in self.defaults:
             raise BadDescriptorDictError("defaults dict lacks 'ini' section")
 
         if  self.defaults[IniFile.ini][IniFile.signature] != (
@@ -170,11 +170,11 @@ class IniFile(object):
         else:
             dbg(1,"signature verified OK for %s " % (self.filename))
 
-        if self.config.has_key(IniFile.vars):
+        if IniFile.vars in self.config:
             for k,v in self.defaults[IniFile.vars].items():
                 setattr(obj,k,self.config[IniFile.vars][k])
 
-        if self.config.has_key(IniFile.widgets):
+        if IniFile.widgets in self.config:
             for k,v in self.config[IniFile.widgets].items():
                 store_value(self.builder.get_object(k),v)
 
@@ -183,11 +183,11 @@ class IniFile(object):
         save obj attributes as listed in ini file 'IniFile.vars' section and
         widget state to 'widgets' section
         '''
-        if self.defaults.has_key(IniFile.vars):
+        if IniFile.vars in self.defaults:
             for k,v in self.defaults[IniFile.vars].items():
                 self.config[IniFile.vars][k] = getattr(obj,k,None)
 
-        if self.config.has_key(IniFile.widgets):
+        if IniFile.widgets in self.config:
             for k in self.defaults[IniFile.widgets].keys():
                 self.config[IniFile.widgets][k] = get_value(self.builder.get_object(k))
 
