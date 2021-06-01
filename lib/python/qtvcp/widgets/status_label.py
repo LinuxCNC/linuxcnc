@@ -337,11 +337,11 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _toggle_properties(self, picked):
         data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
                 'jograte_angular', 'jogincr', 'jogincr_angular', 'tool_number',
-                'current_feedrate', 'current_feedunit',
+                'current_feedrate', 'current_FPU',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
-                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset',
+                'machine_state', 'time_stamp', 'max_velocity_override', 'tool_offset',
                 'gcode_selected', 'fcode', 'blendcode')
 
         for i in data:
@@ -495,7 +495,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def set_current_feedunit(self, data):
         self.current_feedunit = data
         if data:
-            self._toggle_properties('current_feedunit')
+            self._toggle_properties('current_FPU')
     def get_current_feedunit(self):
         return self.current_feedunit
     def reset_current_feedunit(self):
