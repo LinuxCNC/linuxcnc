@@ -99,11 +99,13 @@ class touchy:
                                 'wheelu', 'wheelv', 'wheelw']:
                         self.wTree.get_object(w).get_child().set_property('width-chars', 6)
 
-                #TODO: Gtk3
-                #for widget in self.wTree.get_object_prefix(''):
-                #        widget.unset_flags(Gtk.CAN_FOCUS)
-                #self.wTree.get_object('MainWindow').set_flags(Gtk.CAN_FOCUS)
-                #self.wTree.get_object('MainWindow').grab_focus()
+                for widget in self.wTree.get_objects():
+                    try:
+                        widget.set_can_focus(False)
+                    except:
+                        pass
+                self.wTree.get_object('MainWindow').set_can_focus(True)
+                self.wTree.get_object('MainWindow').grab_focus()
 
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
@@ -137,15 +139,14 @@ class touchy:
 
                 # initial screen setup
                 if os.path.exists(themedir):
-                    #TODO: Gtk3
-                    #model = self.wTree.get_object("theme_choice").get_model()
-                    #model.clear()
-                    #model.append((_("Follow System Theme"),))
+                    model = self.wTree.get_object("theme_choice").get_model()
+                    model.clear()
+                    model.append((_("Follow System Theme"),))
                     temp = 0
                     names = os.listdir(themedir)
                     names.sort()
                     for search,dirs in enumerate(names):
-                        #model.append((dirs,))
+                        model.append((dirs,))
                         if dirs  == self.theme_name:
                             temp = search+1
                     self.wTree.get_object("theme_choice").set_active(temp)
@@ -157,12 +158,12 @@ class touchy:
                     if self.window_max:
                         self.wTree.get_object("MainWindow").window.maximize()
 
-                #TODO: Gtk3
-                #self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
-                #if self.invisible_cursor:
-                #        self.wTree.get_object("MainWindow").window.set_cursor(invisible)
-                #else:
-                #        self.wTree.get_object("MainWindow").window.set_cursor(None)
+                self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
+                if self.invisible_cursor:
+                    self.pointer_hide()
+                else:
+                    self.pointer_show()
+
                 self.wTree.get_object("controlfontbutton").set_font_name(self.control_font_name)
                 self.control_font = Pango.FontDescription(self.control_font_name)
 
@@ -175,11 +176,10 @@ class touchy:
                 self.wTree.get_object("listingfontbutton").set_font_name(self.listing_font_name)
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
 
-                #TODO: Gtk3
-                #settings = Gtk.settings_get_default()
-                #self.system_theme = settings.get_property("gtk-theme-name")
-                #if not self.theme_name == "Follow System Theme":
-                #    settings.set_string_property("gtk-theme-name", self.theme_name, "")
+                settings = Gtk.Settings.get_default()
+                self.system_theme = settings.get_property("gtk-theme-name")
+                if not self.theme_name == "Follow System Theme":
+                    settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
                 # interactive mdi command builder and issuer
                 mdi_labels = []
@@ -347,6 +347,7 @@ class touchy:
                         "on_listing_down_clicked" : self.listing.down,
                         "on_listing_previous_clicked" : self.listing.previous,
                         "on_listing_next_clicked" : self.listing.next,
+                        "on_listing_select" : self.listing.on_select,
                         "on_mist_on_clicked" : self.linuxcnc.mist_on,
                         "on_mist_off_clicked" : self.linuxcnc.mist_off,
                         "on_flood_on_clicked" : self.linuxcnc.flood_on,
@@ -384,10 +385,9 @@ class touchy:
                         }
                 self.wTree.connect_signals(dic)
 
-                #TODO: Gtk3
-                #for widget in self.wTree.get_object_prefix(''):
-                #        if isinstance(widget, Gtk.Button):
-                #                widget.connect_after('released',self.hack_leave)
+                for widget in self.wTree.get_objects():
+                    if isinstance(widget, Gtk.Button):
+                        widget.connect_after('released',self.hack_leave)
 
                 self._dynamic_childs = {}
                 atexit.register(self.kill_dynamic_childs)
@@ -425,7 +425,7 @@ class touchy:
                         if old_tab.get_id()==c:
                                 self.send_message(old_tab,w.xid,"Hidden\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
 
-        def pointer_hide(self, b):
+        def pointer_hide(self, b = None):
                 if self.radiobutton_mask: return
                 self.prefs.putpref('invisible_cursor', 1)
                 self.invisible_cursor = 1
@@ -433,7 +433,7 @@ class touchy:
                 cursor = Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)
                 win.set_cursor(cursor)
 
-        def pointer_show(self, b):
+        def pointer_show(self, b = None):
                 if self.radiobutton_mask: return
                 self.prefs.putpref('invisible_cursor', 0)
                 self.invisible_cursor = 0
@@ -578,7 +578,7 @@ class touchy:
                 self.hal.jogactive(active)
         
         def change_control_font(self, fontbutton):
-                self.control_font_name = fontbutton.get_font_name()
+                self.control_font_name = fontbutton.get_font()
                 self.prefs.putpref('control_font', self.control_font_name, str)
                 self.control_font = Pango.FontDescription(self.control_font_name)
                 self.setfont()
@@ -601,13 +601,16 @@ class touchy:
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
                 self.setfont()
 
-        def change_theme(self,b):
-            theme = self.wTree.get_object("theme_choice").get_active_text()
-            self.prefs.putpref('gtk_theme', theme, str)
-            if theme == "Follow System Theme":
-                theme = self.system_theme
-            settings = Gtk.settings_get_default()
-            settings.set_string_property("gtk-theme-name", theme, "")
+        def change_theme(self, b):
+            tree_iter = b.get_active_iter()
+            if tree_iter is not None:
+                model = b.get_model()
+                theme = model[tree_iter][0]
+                self.prefs.putpref('gtk_theme', theme, str)
+                if theme == "Follow System Theme":
+                    theme = self.system_theme
+                settings = Gtk.Settings.get_default()
+                settings.set_string_property("gtk-theme-name", theme, "")
 
         def setfont(self):
                 # buttons
@@ -629,29 +632,27 @@ class touchy:
                           "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show",
                           "toolset_workpiece", "toolset_fixture","change_theme"]:
                         w = self.wTree.get_object(i)
-                        #if w:
-                        #        w = w.child
-                        #        w.modify_font(self.control_font)
-                #TODO: Gtk3
-                #notebook = self.wTree.get_object('notebook1')
-                #for i in range(notebook.get_n_pages()):
-                #        w = notebook.get_nth_page(i)
-                #        notebook.get_tab_label(w).modify_font(self.control_font)
+                        if w:
+                                w.override_font(self.control_font)
+                notebook = self.wTree.get_object('notebook1')
+                for i in range(notebook.get_n_pages()):
+                        w = notebook.get_nth_page(i)
+                        notebook.get_tab_label(w).override_font(self.control_font)
 
                 # labels
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_object("mdi%d" % i)
-                        w.modify_font(self.control_font)
+                        w.override_font(self.control_font)
                 for i in range(self.num_filechooser_labels):
                         w = self.wTree.get_object("filechooser%d" % i)
-                        w.modify_font(self.control_font)
+                        w.override_font(self.control_font)
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_object("listing%d" % i)
-                        w.modify_font(self.listing_font)
+                        w.override_font(self.listing_font)
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                           "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2"]:
                         w = self.wTree.get_object(i)
-                        w.modify_font(self.control_font)
+                        w.override_font(self.control_font)
 
                 # dro
                 for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
@@ -659,7 +660,7 @@ class touchy:
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_object(i)
                         if w:
-                            w.modify_font(self.dro_font)
+                            w.override_font(self.dro_font)
                             if "r" in i and not self.rel_textcolor == "default":
                                 w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.rel_textcolor))
                             elif "a" in i and not self.abs_textcolor == "default":
@@ -670,7 +671,7 @@ class touchy:
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_object(i)
-                        w.modify_font(self.error_font)
+                        w.override_font(self.error_font)
                         if not self.err_textcolor == "default":
                             w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.err_textcolor))
 
@@ -752,9 +753,8 @@ class touchy:
                 set_active(self.wTree.get_object("mv"), self.wheel == "mv")
                 set_active(self.wTree.get_object("jogging"), self.wheel == "jogging")
                 set_active(self.wTree.get_object("scrolling"), self.wheel == "scrolling")
-                #TODO: Gtk3
-                ##set_active(self.wTree.get_object("pointer_show"), not self.invisible_cursor)
-                ##set_active(self.wTree.get_object("pointer_hide"), self.invisible_cursor)
+                set_active(self.wTree.get_object("pointer_show"), not self.invisible_cursor)
+                set_active(self.wTree.get_object("pointer_hide"), self.invisible_cursor)
                 set_active(self.wTree.get_object("toolset_workpiece"), not self.g10l11)
                 set_active(self.wTree.get_object("toolset_fixture"), self.g10l11)
                 self.radiobutton_mask = 0
@@ -774,10 +774,9 @@ class touchy:
                 else:
                         incs = ["0.01", "0.001", "0.0001"]
 
-                #TODO: Gtk3
-                ##set_label(self.wTree.get_object("wheelinc1").child, incs[0])
-                ##set_label(self.wTree.get_object("wheelinc2").child, incs[1])
-                ##set_label(self.wTree.get_object("wheelinc3").child, incs[2])
+                self.wTree.get_object("wheelinc1").set_label(incs[0])
+                self.wTree.get_object("wheelinc2").set_label(incs[1])
+                self.wTree.get_object("wheelinc3").set_label(incs[2])
 
                 self.hal.jogincrement(self.wheelinc, list(map(float,incs)))
 
@@ -805,21 +804,20 @@ class touchy:
                 if self.wheel == "scrolling":
                         d0 = d * 10 ** (2-self.wheelinc)
                         if d != 0: self.listing.next(None, d0)
-                
-                #TODO: Gtk3
-                ##set_label(self.wTree.get_object("fo").child, "FO: %d%%" % self.fo_val)
-                ##set_label(self.wTree.get_object("so").child, "SO: %d%%" % self.so_val)
-                ##set_label(self.wTree.get_object("mv").child, "MV: %d" % self.mv_val)
+
+                self.wTree.get_object("fo").set_label("FO: %d%%" % self.fo_val)
+                self.wTree.get_object("so").set_label("SO: %d%%" % self.so_val)
+                self.wTree.get_object("mv").set_label("MV: %d" % self.mv_val)
 
                         
                 return True
 
         def hack_leave(self,w):
                 if not self.invisible_cursor: return
-                w = self.wTree.get_object("MainWindow").window
+                w = self.wTree.get_object("MainWindow").get_window()
                 d = w.get_display()
                 s = w.get_screen()
-                x, y = w.get_origin()
+                _, x, y = Gdk.Window.get_origin(w)
                 d.warp_pointer(s, x, y)
 
         def _dynamic_tab(self, notebook, text):

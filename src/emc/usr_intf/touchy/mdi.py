@@ -24,6 +24,9 @@
 #                880, 890, 900, 901, 910, 911, 920, 921, 922, 923,
 #                930,940, 950, 960, 970, 980, 990)
 
+#we need this _soley_ to define colours.
+from gi.repository import Gdk
+
 class mdi:
     def __init__(self, emc):
         self.clear()
@@ -169,15 +172,13 @@ class mdi_control:
             
     def not_editing(self, n):
         e = self.eventboxes[n]
-        #TODO: gtk3
-        ##e.modify_bg(self.gtk.StateFlags.NORMAL, self.gdk.color_parse("#ccc"))
+        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#ccc"))
 
     def editing(self, n):
         self.not_editing(self.selected)
         self.selected = n
         e = self.eventboxes[n]
-        #TODO: gtk3
-        ##e.modify_bg(self.gtk.StateFlags.NORMAL, self.gdk.color_parse("#fff"))
+        e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#fff"))
 
     def get_text(self):
         w = self.labels[self.selected]
@@ -241,7 +242,7 @@ class mdi_control:
 
     def keypad(self, b):
         t = self.get_text()
-        num = b.get_name()
+        num = self.gtk.Buildable.get_name(b)
         self.set_text(t + num)
 
     def gp(self, b):
@@ -272,7 +273,7 @@ class mdi_control:
         self.next(b)
 
     def select(self, eventbox, event):
-        n = int(eventbox.get_name()[12:])
+        n = int(self.gtk.Buildable.get_name(eventbox)[12:])
         if self.selected == 0:
             self.fill_out()
         if n <= self.numwords:
