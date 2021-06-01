@@ -211,7 +211,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize HAL
         try:
             self.halcomp = hal.component(opts.component)
-            self.hal = QComponent(self.halcomp)
+            self.hal = QComponent(self.halcomp, hal)
         except:
             LOG.critical("Asking for a HAL component using a name that already exists?")
             raise Exception('"Asking for a HAL component using a name that already exists?')
