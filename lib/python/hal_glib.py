@@ -150,7 +150,8 @@ class _GStat(GObject.GObject):
         'current-tool-offset': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
         'motion-mode-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'spindle-control-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,GObject.TYPE_INT)),
+        'spindle-control-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
+             (GObject.TYPE_INT, GObject.TYPE_BOOLEAN, GObject.TYPE_INT, GObject.TYPE_BOOLEAN)),
         'current-feed-rate': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'current-x-rel-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'current-position': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
@@ -158,7 +159,6 @@ class _GStat(GObject.GObject):
         'current-z-rotation': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'requested-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'actual-spindle-speed-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-
         'spindle-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'feed-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'rapid-override-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
@@ -290,6 +290,10 @@ class _GStat(GObject.GObject):
             self.old['actual-spindle-speed'] = hal.get_value('spindle.0.speed-in') * 60
         except RuntimeError:
              self.old['actual-spindle-speed'] = 0
+        try:
+            self.old['spindle-at-speed'] = hal.get_value('spindle.0.at-speed')
+        except RuntimeError:
+            self.old['spindle-at-speed'] = False
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
         self.old['current-z-rotation'] = self.stat.rotation_xy
@@ -529,8 +533,12 @@ class _GStat(GObject.GObject):
         spindle_enabled_new = self.old['spindle-enabled']
         spindle_direction_old = old.get('spindle-direction', None)
         spindle_direction_new = self.old['spindle-direction']
-        if spindle_enabled_new != spindle_enabled_old or spindle_direction_new != spindle_direction_old:
-            self.emit('spindle-control-changed', spindle_enabled_new, spindle_direction_new)
+        up_to_speed_old = old.get('spindle-at-speed',None)
+        up_to_speed_new = self.old['spindle-at-speed']
+        if up_to_speed_new != up_to_speed_old or \
+            spindle_enabled_new != spindle_enabled_old or \
+            spindle_direction_new != spindle_direction_old:
+                self.emit('spindle-control-changed', 0, spindle_enabled_new, spindle_direction_new, up_to_speed_new)
         # requested spindle speed
         spindle_spd_old = old.get('spindle-speed', None)
         spindle_spd_new = self.old['spindle-speed']
@@ -791,7 +799,7 @@ class _GStat(GObject.GObject):
         self.emit('requested-spindle-speed-changed', spindle_spd_new)
         spindle_spd_new = self.old['actual-spindle-speed']
         self.emit('actual-spindle-speed-changed', spindle_spd_new)
-        self.emit('spindle-control-changed', False, 0)
+        self.emit('spindle-control-changed', 0, False, 0, False)
         self.emit('jograte-changed', self.current_jog_rate)
         self.emit('jograte-angular-changed', self.current_angular_jog_rate)
         self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)

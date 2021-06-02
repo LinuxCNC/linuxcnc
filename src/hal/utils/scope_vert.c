@@ -50,7 +50,6 @@
 #include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
 
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
@@ -63,6 +62,12 @@
 ************************************************************************/
 
 #define VERT_POS_RESOLUTION 100.0
+
+/* Columns in the TreeView */
+enum TREEVIEW_COLUMN {
+    LIST_ITEM,
+    NUM_COLS
+};
 
 /* The channel select buttons sometimes need to be toggled by
    the code rather than the user, without causing any action.
@@ -83,8 +88,8 @@ static void init_chan_info_window(void);
 static void init_vert_info_window(void);
 
 static gboolean dialog_select_source(int chan_num);
-static void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr);
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+        GtkTreeViewColumn *col, GtkWidget *dialog);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
 static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
@@ -97,6 +102,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
+static void style_with_css(GtkWidget *widget, int (*color_arr)[3]);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -512,53 +518,35 @@ void write_vert_config(FILE *fp)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-void set_color(GdkColor *color, unsigned char red,
-		unsigned char green, unsigned char blue) {
-    color->red = ((unsigned long) red) << 8;
-    color->green = ((unsigned long) green) << 8;
-    color->blue = ((unsigned long) blue) << 8;
-    color->pixel =
-	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
-	((unsigned long) blue);
-}
-
 extern int normal_colors[16][3], selected_colors[16][3];
 static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
     long n;
+    int j;
+    int color_array[2][3];
     gchar buf[5];
-    GdkColor c;
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
+        /* fill array with color values */
+        for (j = 0; j < 3; j++) {
+            color_array[0][j] = normal_colors[n][j];
+            color_array[1][j] = selected_colors[n][j];
+        }
 	snprintf(buf, 4, "%ld", n + 1);
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
 
-	/* set up colors of the label */
-	set_color(&c, normal_colors[n][0],
-			normal_colors[n][1], normal_colors[n][2]);
-	gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &c);
-	gtk_widget_modify_bg(button, GTK_STATE_SELECTED, &c);
-
-	set_color(&c, selected_colors[n][0],
-			selected_colors[n][1], selected_colors[n][2]);
-	gtk_widget_modify_bg(button, GTK_STATE_PRELIGHT, &c);
-
-	set_color(&c, 0, 0, 0);
-	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
-	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
-	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
-
+        style_with_css(button, color_array);
 	/* put it in the window */
 	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
 	    TRUE, 0);
 	gtk_widget_show(button);
 	/* hook a callback function to it */
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	    GTK_SIGNAL_FUNC(chan_sel_button), (gpointer) n + 1);
+	g_signal_connect(button, "clicked",
+	    G_CALLBACK(chan_sel_button), (gpointer) n + 1);
 	/* save the button pointer */
 	vert->chan_sel_buttons[n] = button;
     }
@@ -582,7 +570,7 @@ static void init_chan_info_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
 	vert->source_name_button, FALSE, FALSE, 3);
 
-    vert->source_name_label = (GTK_BIN(vert->source_name_button))->child;
+    vert->source_name_label = gtk_bin_get_child(GTK_BIN(vert->source_name_button));
     gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
 	GTK_JUSTIFY_LEFT);
     /* longest source name we ever need to display */
@@ -590,14 +578,13 @@ static void init_chan_info_window(void)
     dummyname[n] = '\0';
     gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label), dummyname);
     /* activate the source selection dialog if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(vert->source_name_button), "clicked",
-	GTK_SIGNAL_FUNC(change_source_button), NULL);
+    g_signal_connect(vert->source_name_button, "clicked",
+	G_CALLBACK(change_source_button), NULL);
     gtk_widget_show(vert->source_name_button);
 
 
     vert->readout_label = gtk_label_new_in_box("",
 		    ctrl_usr->chan_info_win, FALSE, FALSE, 0);
-    gtk_misc_set_alignment(GTK_MISC(vert->readout_label), 0, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
 		    "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
@@ -619,13 +606,14 @@ static void init_vert_info_window(void)
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
-    vert->scale_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->scale_adj));
+    vert->scale_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->scale_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->scale_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->scale_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical scale */
-    gtk_signal_connect(GTK_OBJECT(vert->scale_adj), "value_changed",
-	GTK_SIGNAL_FUNC(scale_changed), NULL);
+    g_signal_connect(vert->scale_adj, "value_changed",
+	G_CALLBACK(scale_changed), NULL);
     gtk_widget_show(vert->scale_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
@@ -633,13 +621,14 @@ static void init_vert_info_window(void)
     vert->pos_adj =
 	gtk_adjustment_new(VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1,
 	1, 0);
-    vert->pos_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->pos_adj));
+    vert->pos_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->pos_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical pos */
-    gtk_signal_connect(GTK_OBJECT(vert->pos_adj), "value_changed",
-	GTK_SIGNAL_FUNC(pos_changed), NULL);
+    g_signal_connect(vert->pos_adj, "value_changed",
+	G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(vert->pos_slider);
     /* Scale display */
     gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
@@ -649,30 +638,30 @@ static void init_vert_info_window(void)
 	0);
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
-    vert->offset_label = (GTK_BIN(vert->offset_button))->child;
+    vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(vert->offset_button), "clicked",
-	GTK_SIGNAL_FUNC(offset_button), NULL);
+    g_signal_connect(vert->offset_button, "clicked",
+	G_CALLBACK(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
     /* a button to turn off the channel */
     button = gtk_button_new_with_label(_("Chan Off"));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
 	0);
     /* turn off the channel if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(channel_off_button), NULL);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(channel_off_button), NULL);
     gtk_widget_show(button);
 }
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_vert_scale(adj->value);
+    set_vert_scale(gtk_adjustment_get_value(adj));
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_vert_pos(adj->value / VERT_POS_RESOLUTION);
+    set_vert_pos(gtk_adjustment_get_value(adj) / VERT_POS_RESOLUTION);
 }
 
 static void offset_button(GtkWidget * widget, gpointer gdata)
@@ -708,6 +697,7 @@ static gboolean dialog_set_offset(int chan_num)
     gchar *title, msg[BUFLEN], *cptr;
     struct offset_data data;
     GtkWidget *label, *button;
+    GtkWidget *content_area;
     double tmp;
 
     vert = &(ctrl_usr->vert);
@@ -719,60 +709,65 @@ static gboolean dialog_set_offset(int chan_num)
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
     dialog.app_data = &data;
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
     /* window should appear in center of screen */
     gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_widget_set_margin_top(label, 5);
+    gtk_widget_set_margin_bottom(label, 5);
+    gtk_widget_set_margin_start(label, 15);
+    gtk_widget_set_margin_end(label, 15);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 0);
+
     /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
+
     /* a checkbox: AC coupled */
     vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-        vert->offset_ac, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            vert->offset_ac, FALSE, TRUE, 0);
+
     /* react to changes to the checkbox */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_ac), "toggled",
-	GTK_SIGNAL_FUNC(offset_changed), &data);
+    g_signal_connect(vert->offset_ac, "toggled",
+	G_CALLBACK(offset_changed), &data);
     /* the entry */
     vert->offset_entry = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-	vert->offset_entry, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            vert->offset_entry, FALSE, TRUE, 0);
     snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
     /* point at first char */
-    gtk_entry_set_position(GTK_ENTRY(vert->offset_entry), 0);
+    gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
     /* select all chars, so if the user types the original value goes away */
-    gtk_entry_select_region(GTK_ENTRY(vert->offset_entry), 0, strlen(data.buf));
+    gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
-    gtk_widget_show(vert->offset_entry);
     /* capture entry data to the buffer whenever the user types */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
-	GTK_SIGNAL_FUNC(offset_changed), data.buf);
+    g_signal_connect(vert->offset_entry, "changed",
+	G_CALLBACK(offset_changed), data.buf);
     /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    g_signal_connect(dialog.window, "destroy",
+	G_CALLBACK(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
     button = gtk_button_new_with_label(_("OK"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button1), &dialog);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+            button, 1);
     /* hit the "OK" button if the user hits enter */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "activate",
-	GTK_SIGNAL_FUNC(offset_activated), button);
+    g_signal_connect(vert->offset_entry, "activate",
+	G_CALLBACK(offset_activated), button);
     button = gtk_button_new_with_label(_("Cancel"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
+    g_signal_connect(button, "clicked",
+	G_CALLBACK(dialog_generic_button2), &dialog);
+    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
+            button, 2);
     /* make window transient and modal */
     gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
 	GTK_WINDOW(ctrl_usr->main_win));
@@ -800,7 +795,7 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     /* maybe user hit "ac coupled" button" */
     data->ac_coupled =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
-    gtk_entry_set_editable(GTK_ENTRY(ctrl_usr->vert.offset_entry),
+    gtk_editable_set_editable(GTK_EDITABLE(ctrl_usr->vert.offset_entry),
                 !data->ac_coupled);
 
     /* maybe user typed something, save it in the buffer */
@@ -908,310 +903,203 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
     channel_changed();
 }
 
-static char search_target[HAL_NAME_LEN+1];
-static guint32 search_time = 0;
-static int search_row = -1;
-#define SEARCH_RESET_TIME 1000 /* ms */
-
-static void selection_made_common(GtkWidget *clist, gint row, dialog_generic_t *dptr) {
-    gint n, listnum;
-    gchar *name;
-    int rv, chan_num;
-
-    scope_vert_t *vert;
-    /* If we get here, it should be a valid selection */
-    vert = &(ctrl_usr->vert);
-    chan_num = *((int *)(dptr->app_data));
-    /* figure out which notebook tab it was */
-    listnum = -1;
-    for (n = 0; n < 3; n++) {
-	if (clist == vert->lists[n]) {
-	    listnum = n;
-	}
-    }
-    /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &name);
-    /* try to set up the new source */
-    rv = set_channel_source(chan_num, listnum, name);
-    if ( rv == 0 ) {
-	/* set return value of dialog to indicate success */
-	dptr->retval = 1;
-    } else {
-	/* new source invalid, return as if user hit cancel */
-	dptr->retval = 2;
-    }
-    /* destroy window to cause dialog_generic_destroyed() to be called */
-    gtk_widget_destroy(dptr->window);
-    return;
-}
-
-
-static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_generic_t *dptr)
+static void change_page(GtkNotebook *notebook, GtkWidget *page,
+                        guint page_num, gpointer user_data)
 {
-    GtkCList *clist = GTK_CLIST(widget);
-    int z, wrapped;
-
-    if(event->keyval == GDK_Return) {
-	selection_made_common(widget, clist->focus_row, dptr);
-    }
-
-    if(!isprint(event->string[0])) {
-	rtapi_strxcpy(search_target, "");
-	search_row = clist->focus_row;
-	return 0;
-    }
-
-    if(event->time - search_time > SEARCH_RESET_TIME) {
-	rtapi_strxcpy(search_target, "");
-	search_row = clist->focus_row;
-    }
-
-    search_time = event->time;
-    if(strcmp(event->string, " ") == 0) {
-	char *text;
-	search_row = search_row + 1;
-	if(!gtk_clist_get_text(clist, search_row, 0, &text))
-	    search_row = 0;
-	printf(_("next search: %d\n"), search_row);
-    } else {
-	rtapi_strxcat(search_target, event->string);
-    }
-    
-    for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
-	char *text;
-
-	printf(_("search: %d (wrapped=%d)\n"), z, wrapped);
-	if(!gtk_clist_get_text(clist, z, 0, &text)) {
-	    if(wrapped) break; // wrapped second time (why?)
-	    z = 0;
-	    wrapped = 1; 
-	}
-	
-	if(strstr(text, search_target)) {
-	    double pos = (z+.5) / (clist->rows-1);
-	    if(pos > 1) pos = 1;
-	    
-	    GTK_CLIST_GET_CLASS(clist)->scroll_vertical(clist, GTK_SCROLL_JUMP, pos);
-	    gtk_clist_select_row(clist, z, 0);
-	    search_row = z;
-	    return 1;
-	}
-    }
-    return 0;
-}
-
-static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
     scope_vert_t *vert;
 
     vert = &(ctrl_usr->vert);
-    if(page_num  < 3)
-	gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
-    return 0;
+    vert->listnum = page_num;
+    gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
 }
 
 static gboolean dialog_select_source(int chan_num)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    dialog_generic_t dialog;
-    gchar *title, msg[BUFLEN];
-    int next, n, initial_page, row, initial_row, max_row;
-    gchar *tab_label_text[3], *name;
-    GtkWidget *hbox, *label, *notebk, *button;
-    GtkAdjustment *adj;
+
+    GtkWidget *content_area;
+    GtkWidget *dialog;
+    GtkWidget *label;
+    GtkWidget *scrolled_window;
+
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_param_t *param;
 
+    char *tab_label_text[3];
+    char *name[HAL_NAME_LEN + 1];
+    char *title, msg[BUFLEN];
+    int next, n, tab, retval;
+    int row, match_tab, match_row;
+
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
+
+    /* TODO set chan_num in vert_t struct, this is a new variable. The
+     * intention is to drop the struct dialog_generic_t in the end */
+    vert->chan_num = chan_num;
+
     title = _("Select Channel Source");
     snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
 	"as the source for channel %d."), chan_num);
-    /* create dialog window, disable resizing */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    dialog.app_data = &chan_num;
-    /* set initial height of window */
-    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 300);
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    /* set title */
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+
+    /* create dialog window, disable resizing, set title, size and position */
+    dialog = gtk_dialog_new();
+    gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    gtk_window_set_title(GTK_WINDOW(dialog), title);
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, FALSE, 10);
 
-    /* a separator */
-    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    /*
+    * create a notebook to hold pin, signal, and parameter list,
+    * remember the notebook so we can change the pages later and
+    * add the notebook to the window
+    */
+    vert->notebook = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)), vert->notebook,
+            TRUE, TRUE, 0);
 
-    /* create a notebook to hold pin, signal, and parameter lists */
-    notebk = gtk_notebook_new();
-    /* add the notebook to the dialog */
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), notebk, TRUE,
-	TRUE, 0);
-    /* set overall notebook parameters */
-    gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
-    gtk_signal_connect(GTK_OBJECT(notebk), "switch-page", GTK_SIGNAL_FUNC(change_page), &dialog);
     /* text for tab labels */
     tab_label_text[0] = _("Pins");
     tab_label_text[1] = _("Signals");
     tab_label_text[2] = _("Parameters");
+
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
-	/* Create a scrolled window to display the list */
-	vert->windows[n] = gtk_scrolled_window_new(NULL, NULL);
-	vert->adjs[n] = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(vert->windows[n]));
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(vert->windows[n]),
-	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	gtk_widget_show(vert->windows[n]);
-	/* create a list to hold the data */
-	vert->lists[n] = gtk_clist_new(1);
-	/* set up a callback for when the user selects a line */
-	gtk_signal_connect(GTK_OBJECT(vert->lists[n]), "select_row",
-	    GTK_SIGNAL_FUNC(selection_made), &dialog);
-	gtk_signal_connect(GTK_OBJECT(vert->lists[n]), "key-press-event",
-	    GTK_SIGNAL_FUNC(search_for_entry), &dialog);
-	/* It isn't necessary to shadow the border, but it looks nice :) */
-	gtk_clist_set_shadow_type(GTK_CLIST(vert->lists[n]), GTK_SHADOW_OUT);
-	/* set list for single selection only */
-	gtk_clist_set_selection_mode(GTK_CLIST(vert->lists[n]),
-	    GTK_SELECTION_BROWSE);
-	/* put the list into the scrolled window */
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
-	    (vert->windows[n]), vert->lists[n]);
-	/* another way to do it - not sure which is better
-	gtk_container_add(GTK_CONTAINER(vert->windows[n]), vert->lists[n]); */
-	gtk_widget_show(vert->lists[n]);
-	/* create a box for the tab label */
-	hbox = gtk_hbox_new(TRUE, 0);
-	/* create a label for the page */
-	gtk_label_new_in_box(tab_label_text[n], hbox, TRUE, TRUE, 0);
-	gtk_widget_show(hbox);
-	/* add page to the notebook */
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), vert->windows[n], hbox);
-	/* set tab attributes */
-	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
-	    TRUE, TRUE, GTK_PACK_START);
+        /* Create a scrolled window to display the list */
+        scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+                GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+
+        /* create and set tabs in notebook */
+        label = gtk_label_new_with_mnemonic(tab_label_text[n]);
+        gtk_widget_set_size_request(label, 70, -1);
+        gtk_notebook_append_page(GTK_NOTEBOOK(vert->notebook), scrolled_window, label);
+
+        /* create a list to hold the data */
+        vert->lists[n] = gtk_tree_view_new();
+        gtk_tree_view_set_headers_visible(
+                GTK_TREE_VIEW(vert->lists[n]), FALSE);
+        init_list(vert->lists[n], &tab_label_text[n], NUM_COLS);
+        gtk_container_add(GTK_CONTAINER(scrolled_window), vert->lists[n]);
+
+        g_signal_connect(vert->lists[n], "row-activated",
+            G_CALLBACK(selection_made), dialog);
     }
-    /* determine initial page: pin, signal, or parameter */
-    if (( chan->data_source_type >= 0 ) && ( chan->data_source_type <= 2 )) {
-	initial_page = chan->data_source_type;
-	gtk_notebook_set_page(GTK_NOTEBOOK(notebk), initial_page);
-    } else {
-	initial_page = -1;
-	gtk_notebook_set_page(GTK_NOTEBOOK(notebk), 0);
-    }
-    gtk_widget_show(notebk);
+
+    gtk_dialog_add_button(GTK_DIALOG(dialog),
+            _("Cancel"), GTK_RESPONSE_CANCEL);
+
+    /* signals */
+    g_signal_connect(vert->notebook, "switch-page",
+            G_CALLBACK(change_page), vert);
 
     /* populate the pin, signal, and parameter lists */
-    gtk_clist_clear(GTK_CLIST(vert->lists[0]));
-    gtk_clist_clear(GTK_CLIST(vert->lists[1]));
-    gtk_clist_clear(GTK_CLIST(vert->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
-    initial_row = -1;
-    max_row = -1;
+    match_tab = -1;
+    match_row = 0;
+    row = 0;
+    tab = 0;
     while (next != 0) {
-	pin = SHMPTR(next);
-	name = pin->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[0]), &name);
-	if ( initial_page == 0 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = pin->next_ptr;
+        pin = SHMPTR(next);
+        *name = pin->name;
+
+        add_to_list(vert->lists[tab], name, NUM_COLS);
+        if (chan->name == *name) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = pin->next_ptr;
+        row++;
     }
+
     next = hal_data->sig_list_ptr;
+    row = 0;
+    tab = 1;
     while (next != 0) {
-	sig = SHMPTR(next);
-	name = sig->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[1]), &name);
-	if ( initial_page == 1 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = sig->next_ptr;
+        sig = SHMPTR(next);
+        *name = sig->name;
+
+        add_to_list(vert->lists[tab], name, NUM_COLS);
+        if (chan->name == *name) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = sig->next_ptr;
+        row++;
     }
+
     next = hal_data->param_list_ptr;
+    row = 0;
+    tab = 2;
     while (next != 0) {
-	param = SHMPTR(next);
-	name = param->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[2]), &name);
-	if ( initial_page == 2 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = param->next_ptr;
+        param = SHMPTR(next);
+        *name = param->name;
+
+        add_to_list(vert->lists[tab], name, NUM_COLS);
+        if (chan->name == *name) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = param->next_ptr;
+        row++;
     }
+
     rtapi_mutex_give(&(hal_data->mutex));
-    
-    if ( initial_row >= 0 ) {
-	/* highlight the currently selected name */
-	gtk_clist_select_row(GTK_CLIST(vert->lists[initial_page]), initial_row, -1);
-	/* set scrolling window to show the highlighted name */
-	/* FIXME - I can't seem to get this to work */
-	adj = vert->adjs[initial_page];
-	adj->value = adj->lower + (adj->upper - adj->lower)*((double)(initial_row)/(double)(max_row+1));
-	gtk_adjustment_value_changed(vert->adjs[initial_page]);
+
+    gtk_widget_show_all(dialog);
+
+    /* highlight the currently selected name */
+    /* set scrolling window to show the highlighted name */
+    if (match_tab != -1) {
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(vert->notebook), match_tab);
+        mark_selected_row(vert->lists[match_tab], match_row);
     }
-    /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
-    /* make Cancel button */
-    button = gtk_button_new_with_label(_("Cancel"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
-    /* we get here when the user makes a selection, hits Cancel, or closes
-       the window */
-    vert->lists[0] = NULL;
-    vert->lists[1] = NULL;
-    vert->lists[2] = NULL;
-    if ((dialog.retval == 0) || (dialog.retval == 2)) {
-	/* user either closed dialog, or hit cancel */
-	return FALSE;
+
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (retval == 0) {
+        /* user made a selection */
+        channel_changed();
+        return TRUE;
+    } else {
+        return FALSE;
     }
-    /* user made a selection */
-    channel_changed();
-    return TRUE;
 }
+
 /* If we come here, then the user has clicked a row in the list. */
-static void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr)
+static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
+        GtkTreeViewColumn *col, GtkWidget *dialog)
 {
-    GdkEventType type;
-    
-    if ((event == NULL) || (clist == NULL)) {
-	/* We get spurious events when the lists are populated I don't know
-	   why.  If either clist or event is null, it's a bad one! */
-	return;
+    scope_vert_t *vert;
+    vert = &(ctrl_usr->vert);
+
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+
+    char *name;
+    int retval;
+
+    retval = -6;
+    model = gtk_tree_view_get_model(treeview);
+    if (gtk_tree_model_get_iter(model, &iter, path)) {
+        gtk_tree_model_get(model, &iter, LIST_ITEM, &name, -1);
+
+        /* try to set up the new source */
+        /* return value "0" is success */
+        retval = set_channel_source(vert->chan_num, vert->listnum, name);
+        g_free(name);
     }
-    type = event->type;
-    if (type != 4) {
-	/* We also get bad callbacks if you drag the mouse across the list
-	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. */
-	return;
-    }
-    selection_made_common(clist, row, dptr);
+    gtk_dialog_response(GTK_DIALOG(dialog), retval);
 }
 
 void channel_changed(void)
@@ -1236,11 +1124,9 @@ void channel_changed(void)
 	chan->position * VERT_POS_RESOLUTION);
     /* set scale slider based on new channel */
     adj = GTK_ADJUSTMENT(vert->scale_adj);
-    adj->lower = chan->min_index;
-    adj->upper = chan->max_index;
-    adj->value = chan->scale_index;
-    gtk_adjustment_changed(adj);
-    gtk_adjustment_value_changed(adj);
+    gtk_adjustment_set_lower(adj, chan->min_index);
+    gtk_adjustment_set_upper(adj, chan->max_index);
+    gtk_adjustment_set_value(adj, chan->scale_index);
     /* update the channel number and name display */
     snprintf(buf1, BUFLEN, "%2d", vert->selected);
     name = chan->name;
@@ -1311,3 +1197,31 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
         fprintf(fp, "VOFF %e\n", chan->vert_offset);
     }
 }
+
+/*
+ * Inline css, set color to  channel select buttons.
+ */
+static void style_with_css(GtkWidget *widget, int (*color_arr)[3])
+{
+    GtkStyleContext *context;
+    GtkCssProvider *provider;
+
+    char buf[180];
+
+    snprintf(buf, sizeof(buf), "* {background: none;}\n"
+                               "*:checked {background: rgb(%d,%d,%d);}\n"
+                               "*:hover {background: rgb(%d,%d,%d);}\n"
+                               "*:active {background: rgb(%d,%d,%d);}",
+                               color_arr[0][0], color_arr[0][1], color_arr[0][2],
+                               color_arr[1][0], color_arr[1][1], color_arr[1][2],
+                               color_arr[0][0], color_arr[0][1], color_arr[0][2]);
+
+    provider = gtk_css_provider_new ();
+    context = gtk_widget_get_style_context(widget);
+    gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_css_provider_load_from_data(provider, buf, -1, NULL);
+
+    g_object_unref(provider);
+}
+

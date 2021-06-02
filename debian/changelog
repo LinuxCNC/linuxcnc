@@ -2,7 +2,7 @@ linuxcnc (1:2.9.0~pre0) stretch; urgency=medium
 
   * Master branch open for new features.
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 02 Jun 2019 16:52:46 -0600
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 29 Nov 2020 15:00:00 +0000
 
 linuxcnc (1:2.8.1) buster; urgency=low
 

@@ -475,13 +475,13 @@ class HandlerClass:
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
-                command = "M61 Q{}".format(self.reload_tool)
+                command = "M61 Q{} G43".format(self.reload_tool)
                 ACTION.CALL_MDI(command)
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
                     self.w.cmb_gcode_history.addItem(self.last_loaded_program)
                     self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
-                    self.w.cmb_gcode_history.setToolTip(fname)
+                    self.w.cmb_gcode_history.setToolTip(self.last_loaded_program)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
@@ -715,7 +715,7 @@ class HandlerClass:
             self.add_status("Select only 1 tool to load")
         elif checked:
             self.add_status("Loaded tool {}".format(checked[0]))
-            ACTION.CALL_MDI("M61 Q{}".format(checked[0]))
+            ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]))
         else:
             self.add_status("No tool selected")
 

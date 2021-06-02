@@ -304,7 +304,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('mode-mdi', lambda w: self._mode_changed(1))
             STATUS.connect('mode-auto', lambda w: self._mode_changed(2))
         elif self._is_spindle_stopped or self._is_spindle_fwd or self._is_spindle_rev:
-            STATUS.connect('spindle-control-changed',  lambda w, state, speed: self._spindle_changed(speed))
+            STATUS.connect('spindle-control-changed',  lambda w, num, state, speed, upto: self._spindle_changed(speed))
 
     def _flip_state(self, data, prop = None):
             if self._invert_status:

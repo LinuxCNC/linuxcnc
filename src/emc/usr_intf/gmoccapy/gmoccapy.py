@@ -73,7 +73,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.6"
+_RELEASE = " 3.1.3.8"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1705,6 +1705,10 @@ class gmoccapy(object):
         try:
             for t, c, name in zip(tab_names, tab_cmd, tab_locations):
                 nb = self.widgets[name]
+                if c == "hide":
+                    print("hide widget : ", name, type(self.widgets[name])) 
+                    nb.hide()
+                    continue
                 xid = self._dynamic_tab(nb, t)
                 if not xid: continue
                 cmd = c.replace('{XID}', str(xid))
@@ -1713,6 +1717,8 @@ class gmoccapy(object):
                 nb.show_all()
         except:
             print(_("ERROR, trying to initialize the user tabs or panels, check for typos"))
+            print(tab_locations)
+
         self.set_up_user_tab_widgets(tab_locations)
 
     # adds the embedded object to a notebook tab or box
@@ -1733,7 +1739,6 @@ class gmoccapy(object):
             child.terminate()
 
     def set_up_user_tab_widgets(self, tab_locations):
-        print(tab_locations)
         if tab_locations:
             # make sure the user tabs button is disabled
             # if no ntb_user_tabs in location is given
@@ -1747,7 +1752,7 @@ class gmoccapy(object):
 
             # This is normaly only used for the plasma screen layout
             if "box_coolant_and_spindle" in tab_locations:
-                widgetlist = ["box_spindle", "box_cooling"]
+                widgetlist = ["box_spindle", "box_cooling", "frm_spindle"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
 
@@ -1762,7 +1767,7 @@ class gmoccapy(object):
                     self.widgets[widget].hide()
 
             if "box_vel_info" in tab_locations:
-                widgetlist = ["frm_max_vel", "frm_feed_override"]
+                widgetlist = ["vbx_overrides", "frm_rapid_override", "frm_feed_override"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
 
@@ -1779,7 +1784,7 @@ class gmoccapy(object):
                 self.widgets.box_custom_4.show()
 
             if "box_tool_and_code_info" in tab_locations:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
+                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.btn_tool.set_sensitive( False )
