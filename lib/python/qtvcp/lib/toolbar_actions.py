@@ -47,6 +47,9 @@ class ToolBarActions():
         self.selected_line = 0
         self._viewActiongroup = QtWidgets.QActionGroup(None)
         self._touchoffActiongroup = QtWidgets.QActionGroup(None)
+        self._machineModeActiongroup = QtWidgets.QActionGroup(None)
+        self._homeSelectedActiongroup = QtWidgets.QActionGroup(None)
+        self._homeSelectedActiongroup.setExclusive(False)
         self.runfromLineWidget = None
 
     def configure_action(self, widget, action, extFunction=None):
@@ -238,6 +241,55 @@ class ToolBarActions():
             STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
             STATUS.connect('state-estop', lambda w: widget.setChecked(False))
             function = (self.actOnHomeAll)
+        elif action == 'unhomeall':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
+            STATUS.connect('state-estop', lambda w: widget.setChecked(False))
+            function = (self.actOnUnHomeAll)
+        elif action == 'homeselected':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
+            STATUS.connect('state-estop', lambda w: widget.setChecked(False))
+            function = (self.actOnHomeSelected)
+        elif action == 'unhomeselected':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
+            STATUS.connect('state-estop', lambda w: widget.setChecked(False))
+            function = (self.actOnUnHomeSelected)
+        elif action in ('selecthomex'):
+            widget.JOINT = 0
+            self._homeSelectedActiongroup.addAction(widget)
+        elif action in ('selecthomez'):
+            widget.JOINT = 2
+            self._homeSelectedActiongroup.addAction(widget)
+        elif action == 'manual':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-manual', lambda w: widget.setChecked(True))
+            #STATUS.connect('mode-mdi', lambda w: widget.setChecked(False))
+            self._machineModeActiongroup.addAction(widget)
+            self._machineModeActiongroup.setExclusive(True)
+            function = (self.actOnManualMode)
+        elif action == 'mdi':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-mdi', lambda w: widget.setChecked(True))
+            self._machineModeActiongroup.addAction(widget)
+            self._machineModeActiongroup.setExclusive(True)
+            function = (self.actOnMDIMode)
+        elif action == 'auto':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-auto', lambda w: widget.setChecked(True))
+            self._machineModeActiongroup.addAction(widget)
+            self._machineModeActiongroup.setExclusive(True)
+            function = (self.actOnAutoMode)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -407,7 +459,7 @@ class ToolBarActions():
             ACTION.SET_GRAPHICS_VIEW('overlay-offsets-off')
 
     def actOnQuit(self, widget, state=None):
-        STATUS.emit('shutdown')
+        WIDGETS.close()
 
     def actOnSystemShutdown(self, widget, state=None):
         if 'system_shutdown_request__' in dir(WIDGETS):
@@ -479,6 +531,46 @@ class ToolBarActions():
 
     def actOnHomeAll(self, widget, state=None):
         ACTION.SET_MACHINE_HOMING(-1)
+
+    def actOnUnHomeAll(self, widget, state=None):
+        ACTION.SET_MACHINE_UNHOMED(-1)
+
+        # assumed there are axis selection actions
+        # and one for every available axis
+    def actOnHomeSelected(self, widget, state=None):
+        l = self._homeSelectedActiongroup.actions()
+        temp = []
+        for i in l:
+            if i.isChecked():
+                temp.append(i)
+        if len(temp) == len(l):
+            ACTION.SET_MACHINE_HOMING(-1)
+        else:
+            for i in temp:
+                ACTION.SET_MACHINE_HOMING(i.JOINT)
+
+        # assumed there are axis selection actions
+        # and one for every available axis
+    def actOnUnHomeSelected(self, widget, state=None):
+        l = self._homeSelectedActiongroup.actions()
+        temp = []
+        for i in l:
+            if i.isChecked():
+                temp.append(i)
+        if len(temp) == len(l):
+            ACTION.SET_MACHINE_UNHOMED(-1)
+        else:
+            for i in temp:
+                ACTION.SET_MACHINE_UNHOMED(i.JOINT)
+
+    def actOnManualMode(self, widget, state=None):
+        ACTION.SET_MANUAL_MODE()
+
+    def actOnMDIMode(self, widget, state=None):
+        ACTION.SET_MDI_MODE()
+
+    def actOnAutoMode(self, widget, state=None):
+        ACTION.SET_AUTO_MODE()
 
     #########################################################
     # Sub menus
