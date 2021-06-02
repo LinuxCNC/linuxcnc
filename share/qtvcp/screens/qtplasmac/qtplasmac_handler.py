@@ -1,10 +1,11 @@
-VERSION = '1.0.34'
+VERSION = '1.0.37'
 
 import os, sys
 from shutil import copy as COPY
 from shutil import move as MOVE
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
+from subprocess import check_output as CHKOP
 import time
 import tarfile
 import math
@@ -217,6 +218,7 @@ class HandlerClass:
         self.gcodeProps = ''
         self.framing = False
         self.boundsError = {'loaded': False, 'framing': False}
+        self.obLayout = ''
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -336,6 +338,7 @@ class HandlerClass:
             else:
                 self.file_reload_clicked()
         self.w.preview_stack.setCurrentIndex(0)
+        self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
         ACTION.SET_MANUAL_MODE()
@@ -698,6 +701,8 @@ class HandlerClass:
     def closing_cleanup__(self):
         # disconnect powermax
         self.w.pmx485_enable.setChecked(False)
+        # close soft keyboard
+        self.vkb_hide()
         # save preferences
         if not self.w.PREFS_: return
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
@@ -1060,6 +1065,7 @@ class HandlerClass:
             self.lastLoadedProgram = filename
             if not self.cameraOn:
                 self.w.preview_stack.setCurrentIndex(0)
+                self.vkb_hide()
                 if self.w.chk_overlay.isChecked():
                     self.overlay.show()
             self.w.file_open.setText(os.path.basename(filename))
@@ -1272,6 +1278,7 @@ class HandlerClass:
 
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
+        self.vkb_hide()
         self.overlay.hide()
         if self.w.mdi_show.text() == 'MDI\nCLOSE':
             self.w.mdi_show.setText('MDI')
@@ -1284,6 +1291,7 @@ class HandlerClass:
             self.w.preview_stack.setCurrentIndex(2)
             self.overlay.hide()
             self.w.gcode_editor.editor.setFocus()
+            self.vkb_show()
 
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -1299,6 +1307,7 @@ class HandlerClass:
 
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
+        self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
         ACTION.SET_MANUAL_MODE()
@@ -1318,12 +1327,23 @@ class HandlerClass:
             else:
                 self.w.gcodegraphics.set_view('Z')
             self.w.gcodegraphics.set_current_view()
+            if self.w.preview_stack.currentIndex() == 2:
+                self.vkb_show()
+            else:
+                self.vkb_hide()
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
             self.conv_button_color('conv_line')
             self.oldConvButton = False
             self.conv_setup()
+            self.vkb_show(True)
+        elif tab == 2:
+            self.vkb_show(True)
+        elif tab == 3 and os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            self.vkb_show(True)
+        else:
+            self.vkb_hide()
 
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value * hal.get_value('plasmac.units-multiplier'))
@@ -1878,6 +1898,10 @@ class HandlerClass:
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
+            self.vkb_check()
+            if (self.w.main_tab_widget.currentIndex() == 2 and os.path.basename(self.PATHS.XML) != 'qtplasmac_4x3.ui') or \
+               (self.w.main_tab_widget.currentIndex() == 3 and os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui'):
+                self.vkb_show(True)
         else:
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
             inputType = 'ENTRY'
@@ -1885,6 +1909,7 @@ class HandlerClass:
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
+            self.vkb_hide()
         for axis in 'xyzab':
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = inputType
@@ -2011,21 +2036,21 @@ class HandlerClass:
             if 'm5' in line:
                 rflSpindle = ''
             if 'm62p3' in line:
-                d3 = 'm62p3'
+                d3 = 'm62p3 (Disable Torch)'
             elif 'm63p3' in line:
-                d3 = 'm63p3'
+                d3 = 'm63p3 (Enable Torch)'
             elif 'm64p3' in line:
-                d3 = 'm64p3'
+                d3 = 'm64p3 (Disable Torch)'
             elif 'm65p3' in line:
-                d3 = 'm65p3'
+                d3 = 'm65p3 (Enable Torch)'
             if 'm62p2' in line:
-                d2 = 'm62p2'
+                d2 = 'm62p2 (Disable THC)'
             elif 'm63p2' in line:
-                d2 = 'm63p2'
+                d2 = 'm63p2 (Enable THC)'
             elif 'm64p2' in line:
-                d2 = 'm64p2'
+                d2 = 'm64p2 (Disable THC)'
             elif 'm65p2' in line:
-                d2 = 'm65p2'
+                d2 = 'm65p2 (Enable THC)'
             if 'm67e3q' in line:
                 a3 = 'm67e3q'
                 tmp = line.split('m67e3q')[1]
@@ -2035,6 +2060,7 @@ class HandlerClass:
                         tmp = tmp[1:]
                     else:
                         break
+                a3 += ' (Velocity {}%)'.format(a3.split('m67e3q')[1])
             if 'm68e3q' in line:
                 a3 = 'm68e3q'
                 tmp = line.split('m68e3q')[1]
@@ -2045,6 +2071,7 @@ class HandlerClass:
                         tmp = tmp[1:]
                     else:
                         break
+                a3 += ' (Velocity {}%)'.format(a3.split('m68e3q')[1])
             if line.startswith('o'):
                 if 'end' in line:
                     oSub = False
@@ -2314,7 +2341,7 @@ class HandlerClass:
                             self.idleHomedList.append('button_{}'.format(str(bNum)))
                     elif command and command[0] == '%':
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
-                        reply = Popen("which {}".format(cmd),stdout=PIPE,stderr=PIPE, shell=True).communicate()[0]
+                        reply = Popen("which {}".format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             msg = 'Invalid code for user button #{}\n' \
                                   'External command "{}" does not exist\n'.format(bNum, cmd)
@@ -2467,7 +2494,7 @@ class HandlerClass:
                         self.file_reload_clicked()
                 elif command and command[0] == '%':
                     command = command.lstrip('%').lstrip() + '&'
-                    msg = Popen(command,stdout=PIPE,stderr=PIPE, shell=True)
+                    msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
                 else:
                     msg = 'Invalid code for user button #{}\n' \
                           '{}: "{}"\n'.format(bNum, self.w['button_{}'.format(str(bNum))].text().replace('\n',' '), command)
@@ -2669,6 +2696,69 @@ class HandlerClass:
                      QPushButton:pressed {{ color: {0}; background: {1} }} \
                      QPushButton:disabled {{ color: {2}}}' \
                      .format(self.foreColor, self.backColor, self.disabledColor))
+
+
+#########################################################################################################################
+# ONBOARD VIRTUAL KEYBOARD FUNCTIONS #
+#########################################################################################################################
+
+    def vkb_check(self):
+        if self.w.chk_soft_keyboard.isChecked() and not os.path.isfile('/usr/bin/onboard'):
+            msg  = 'onboard virtual keyboard is not installed.\n'
+            msg += 'some keyboard functions are not available.\n'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'VIRTUAL KB ERROR:\n{}'.format(msg))
+            return
+        try:
+            cmd = 'gsettings get org.onboard.window.landscape width'
+            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            cmd = 'gsettings get org.onboard.window.landscape height'
+            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            cmd = 'gsettings get org.onboard layout'
+            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            if '/numpad' in layout or '/keyboard' in layout:
+                self.obLayout = 'compact'
+            else:
+                self.obLayout = layout
+        except:
+            self.obWidth = '700'
+            self.obHeight = '300'
+            self.obLayout = 'compact'
+
+    def vkb_show(self, numpad=False):
+        if os.path.isfile('/usr/bin/onboard'):
+            if self.w.chk_soft_keyboard.isChecked():
+                lPath = os.path.join(self.PATHS.IMAGEDIR, self.PATHS.BASEPATH)
+                w = '240' if numpad else '740'
+                h = '240'
+                l = 'numpad' if numpad else 'keyboard'
+                self.vkb_hide(True)
+                self.vkb_setup(w, h, os.path.join(lPath, l))
+                cmd  = 'dbus-send'
+                cmd += ' --type=method_call'
+                cmd += ' --dest=org.onboard.Onboard'
+                cmd += ' /org/onboard/Onboard/Keyboard'
+                cmd += ' org.onboard.Onboard.Keyboard.Show'
+                Popen(cmd, stdout=PIPE, shell=True)
+
+    def vkb_hide(self, custom=False):
+        if os.path.isfile('/usr/bin/onboard') and self.obLayout:
+            cmd  = 'dbus-send'
+            cmd += ' --type=method_call'
+            cmd += ' --dest=org.onboard.Onboard'
+            cmd += ' /org/onboard/Onboard/Keyboard'
+            cmd += ' org.onboard.Onboard.Keyboard.Hide'
+            Popen(cmd, stdout=PIPE, shell=True)
+            if not custom:
+                self.vkb_setup(self.obWidth, self.obHeight, self.obLayout)
+
+    def vkb_setup(self, w, h, l):
+        if os.path.isfile('/usr/bin/onboard'):
+            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
+            time.sleep(0.2)
+            Popen('gsettings set org.onboard.window.landscape width {}'.format(w), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape height {}'.format(h), stdout=PIPE, shell=True)#            time.sleep(0.5)
 
 
 #########################################################################################################################
@@ -3235,6 +3325,7 @@ class HandlerClass:
             self.button_normal('camera')
             self.cameraOn = False
             ACTION.SET_MANUAL_MODE()
+            self.vkb_hide()
 
     def laser_pressed(self):
         if self.w.laser.text() == 'LASER':
@@ -3985,17 +4076,21 @@ class HandlerClass:
                     msg = 'The empty file: {}\n\ncannot be saved.'.format(os.path.basename(self.fNgc))
                     self.dialog_show_ok(QMessageBox.Warning, 'Save Error', msg)
                     return
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self.w,
-                                                  'Save',
-                                                  self.programPrefix,
-                                                  'G-Code Files (*.ngc *.nc *.tap);;All Files (*)',
-                                                  options=options)
-        if fileName:
-            COPY(self.fNgc, fileName)
-        self.w.conv_save.setEnabled(False)
-        self.conv_enable_tabs()
+        self.vkb_show()
+        dlg = QFileDialog(self.w)
+        dlg.setOptions(QFileDialog.DontUseNativeDialog)
+        dlg.setAcceptMode(QFileDialog.AcceptSave)
+        dlg.setNameFilters(['G-Code Files (*.ngc *.nc *.tap)', 'All Files (*)'])
+        dlg.setDefaultSuffix('ngc')
+        dlg.setDirectory(self.programPrefix)
+        name = ''
+        if dlg.exec_():
+            name = dlg.selectedFiles()[0]
+        if name:
+            COPY(self.fNgc, name)
+            self.w.conv_save.setEnabled(False)
+            self.conv_enable_tabs()
+        self.vkb_show(True)
 
     def conv_settings_pressed(self):
         self.color_button_image(self.oldConvButton, self.foreColor)
@@ -4016,6 +4111,7 @@ class HandlerClass:
         self.w.conv_send.setEnabled(False)
         self.conv_enable_tabs()
         self.w.main_tab_widget.setCurrentIndex(0)
+        self.vkb_hide()
 
     def conv_rotate_pressed(self):
         with open(self.fNgc) as inFile:

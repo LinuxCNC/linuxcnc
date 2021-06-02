@@ -1,3 +1,6 @@
+ver 3.1.3.8
+- changed the hide command to be able to hide any element of the GUI
+
 ver 3.1.3.7
 - bug in embedded tabs, setting box_tool_and_gcode_info"
   as location did hide also the overrides, that was not correct.

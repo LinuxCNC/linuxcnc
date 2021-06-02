@@ -452,7 +452,7 @@ setp plasmac.lowpass-frequency 100
 
 The above example would give a cutoff frequency of 100Hz.
 
-=== Contact Debounce
+=== Contact Bounce
 
 Contact bounce from mechanical relays, switches, or external interference may cause some inconsistent behavior of the following switches:
 
@@ -478,6 +478,51 @@ All four signals above have an individual debounce component so the debounce per
 The default delay for all four inputs is five servo thread periods. In most cases this value will work quite well. If any of the inputs do not use mechanical switches, it may be possible to either reduce or remove the delay for those inputs.
 
 If debounce is required for other equipment like home or limit switches etc then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
+
+More information on contact bounce can be seen on page IX of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
+
+[[qt-contact-load]]
+
+=== Contact Load
+
+Mechanical relays and switches usually require a minimum current passing through the contacts for reliable operation. This current varies with the material that the contacts in the device are made from.
+
+Depending on the specified minimum contact current and the current drawn by the input device there may be a need to provide a method to increase the current through the contacts.
+
+Most relays using gold contacts will not require any additional current for reliable operation.
+
+There are two different methods available to provide this minimum current if it is required:
+
+. A 0.1μF film capacitor placed across the contacts.
+
+. A 1200Ω 1W resistor across the load (see calculations below).
+
+Schematics are shown at <<qt_contact-load-schematics, contact load schematics>>.
+
+More information on contact switching load can be seen on page III of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
+
+[underline]*Calculations:*
+
+If using a Mesa card, the input resistance could be 5000Ω (7i96) or 10000Ω (7i76E), giving a contact current of 4.8mA or 2.4mA assuming a supply voltage of 24V (I = V/R).
+
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100mA @ 5VDC which will dissipate 0.5W (P = I * V). If using a 24VDC power supply this would then equate to a minimum current of 20.8mA. Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
+
+The resistance can be calculated using R = Vs / (Im - Ii) where:
+
+- R = calculated resistance
+- Vs = supply voltage
+- Im = minimum current required
+- Ii = input current
+
+Using a 7i76E with an input current of 2.4mA gives a calculated value of 1304Ω. (24 / (.0208 - .0024) This could then be rounded down to a commonly available 1200Ω resistor giving a small safety margin.
+
+The power dissipation can by calculated using P = Vs^2^ / Rs where:
+
+- P = power
+- Vs = supply voltage
+- Rs = selected resistance
+
+This gives a value of 0.48W. This could then be rounded up to 1W, giving a good safety margin. The final selection would be a 1200Ω 1W resistor. Note that this resistor could be used on either the 7i96 or the 7i76E.
 
 === Desktop Launcher
 
@@ -1068,11 +1113,12 @@ To return any of the color changes to their default values, see the <<qt_default
 |Estop|This button allows the user to change the color of the GUI Estop.
 |Disabled|This button allows the user to change the color of the GUI's Disabled features.
 |Preview|This button allows the user to change the color of the GUI Preview Window Background.
-|Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard.
+|Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard. +
+               If the "onboard" virtual keyboard is installed then the <<custom_kb_layouts, custom layouts>> will be enabled .
 |KB Shortcuts|This radio button allows the user to enable or disable <<qt_keyboard-shortcuts, Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
-                In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
+              In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
 |View Material|This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab, MAIN>> and <<qt_conversational-tab, CONVERSATIONAL>> tabs. +
-                Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
+               Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
 |Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button will also allow jogging while jogging is inhibited due to a float or breakaway switch activation. This button can only be clicked when a limit switch is tripped or a jog is inhibited.
@@ -2085,6 +2131,24 @@ NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machi
 
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
+
+[[custom_kb_layouts]]
+
+=== Virtual Keyboard Custom Layouts
+
+Virtual keyboard support is available for only the "onboard" onscreen keyboard. If it is not already on the system it may be installed by typing the following in a terminal:
+
+----
+sudo apt install onboard
+----
+
+The following two custom layouts are used for soft key support:
+
+image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab", width=240,align="center"]
+
+image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for gcode editing and file management.",width=700,align="center"]
+
+If the virtual keyboad has been repositioned and on the next opening of a virtual keyboard it is not visible then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
 
 [[qt_keyboard-shortcuts]]
 
@@ -3380,6 +3444,14 @@ This assembly will now act as a relay that will switch on when current is flowin
 This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
 image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
+
+[[qt_contact-load-schematics]]
+
+=== Contact Load Schematics
+
+image::images/qtplasmac_relay_contact.png[width=600,align="center"]
+
+A full description is at <<qt-contact-load, Contact Load>>
 
 == Known Issues
 

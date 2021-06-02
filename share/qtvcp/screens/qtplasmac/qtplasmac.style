@@ -66,6 +66,13 @@ QLineEdit {
     height: 24px }
 
 /****** DIALOGS ************/
+QFileDialog {
+    min-width: 686 }
+
+QFileDialog QListView {
+    border: 1px solid foregnd;
+    border-radius: 4px }
+
 QDialog {
     border: 1px solid foregnd;
     border-radius: 4px;

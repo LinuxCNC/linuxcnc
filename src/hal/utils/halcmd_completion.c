@@ -43,6 +43,8 @@
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include <rtapi_mutex.h>
+#include <string.h>
+#include <ctype.h>
 
 static int argno;
 

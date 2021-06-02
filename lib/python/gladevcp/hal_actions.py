@@ -85,7 +85,6 @@ class _EMC_ActionBase(_HalWidgetBase):
         for i,h in enumerate(self.stat.homed):
             #Don't worry about joint to axis mapping
             if h: homed_count +=1
-        print(self.stat.joints)
         if homed_count == self.stat.joints:
             return True
         return False

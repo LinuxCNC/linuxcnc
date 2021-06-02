@@ -83,7 +83,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.7"
+_RELEASE = " 3.1.3.8"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1722,17 +1722,19 @@ class gmoccapy(object):
         try:
             for t, c, name in zip(tab_names, tab_cmd, tab_locations):
                 nb = self.widgets[name]
+                if c == "hide":
+                    print("hide widget : ", name, type(self.widgets[name])) 
+                    nb.hide()
+                    continue
                 xid = self._dynamic_tab(nb, t)
                 if not xid: continue
-                if c != "hide":
-                    cmd = c.replace('{XID}', str(xid))
-                    child = subprocess.Popen(cmd.split())
-                    self._dynamic_childs[xid] = child
-                    nb.show_all()
-                else:
-                    nb.hide()
+                cmd = c.replace('{XID}', str(xid))
+                child = subprocess.Popen(cmd.split())
+                self._dynamic_childs[xid] = child
+                nb.show_all()
         except:
             print(_("ERROR, trying to initialize the user tabs or panels, check for typos"))
+            print(tab_locations)
 
         self.set_up_user_tab_widgets(tab_locations)
 
@@ -1761,7 +1763,6 @@ class gmoccapy(object):
                 child.terminate()
 
     def set_up_user_tab_widgets(self, tab_locations):
-        print(tab_locations)
         if tab_locations:
             # make sure the user tabs button is disabled
             # if no ntb_user_tabs in location is given
@@ -1775,7 +1776,7 @@ class gmoccapy(object):
 
             # This is normaly only used for the plasma screen layout
             if "box_coolant_and_spindle" in tab_locations:
-                widgetlist = ["box_spindle", "box_cooling"]
+                widgetlist = ["box_spindle", "box_cooling", "frm_spindle"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
 
