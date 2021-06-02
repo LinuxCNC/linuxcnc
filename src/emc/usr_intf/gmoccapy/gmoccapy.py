@@ -125,7 +125,7 @@ except:
 CONFIGPATH = os.environ['CONFIG_DIR']
 DATADIR = os.path.join(BASE, "share", "gmoccapy")
 IMAGEDIR = os.path.join(DATADIR, "images")
-XMLNAME = os.path.join(DATADIR, "gmoccapy.glade")
+XMLNAME = os.path.join(DATADIR, "gmoccapy3.glade")
 THEMEDIR = "/usr/share/themes"
 USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join(BASE, "share", "locale")
