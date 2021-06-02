@@ -21,6 +21,25 @@ from interpreter import *
 from emccanon import MESSAGE
 throw_exceptions = 1
 
+# used so screens can get info.
+# add this to toplevel to call it:
+
+# import remap
+# def __init__(self):
+#     if self.task:
+#         remap.build_hal(self)
+
+def build_hal(self):
+    import hal
+    try:
+        h=hal.component('remapStat')
+        h.newpin("tool", hal.HAL_S32, hal.HAL_OUT)
+        h.newpin("wear", hal.HAL_S32, hal.HAL_OUT)
+        h.ready()
+        self.hal_tool_comp = h
+    except Exception as e:
+        print e
+
 # REMAP=S   prolog=setspeed_prolog  ngc=setspeed epilog=setspeed_epilog
 # exposed parameter: #<speed>
 
@@ -432,7 +451,11 @@ def index_lathe_tool_with_wear(self,**words):
         self.params["tool"] = tool
         self.params["pocket"] = pocket
         self.params["wear"] =  wear
-
+        try:
+            self.hal_tool_comp['tool']= tool_raw
+            self.hal_tool_comp['wear']= wear
+        except:
+            pass
         # index tool immediately to tool number
         self.selected_tool = int(self.params["tool"])
         self.selected_pocket = int(self.params["pocket"])
@@ -465,13 +488,15 @@ def index_lathe_tool_with_wear(self,**words):
         # add tool offset
         self.execute("g43 h%d"% tool)
         # if the wear offset is specified, add it's offset
-        if wear>10000:
-            self.execute("g43.2 h%d"% wear)
-        return INTERP_OK
-
-    except Exception as e:
-        print(e)
-        self.set_errormsg("T%d index_lathe_tool_with_wear: %s" % (int(words['t']), e))
+        try:
+            if wear>10000:
+                self.execute("g43.2 h%d"% wear)
+            return INTERP_OK
+        except:
+            self.set_errormsg("Tool change aborted - No wear %d entry found in tool table" %wear)
+            return INTERP_ERROR
+    except:
+        self.set_errormsg("Tool change aborted (return code %.1f)" % (self.return_value))
         return INTERP_ERROR
 
 
@@ -637,9 +662,8 @@ def tool_probe_m6(self, **words):
             print (msg)
             yield INTERP_ERROR
 
-    except Exception as e:
-        print (e)
-        self.set_errormsg("tool_probe_m6 remap error: %s" % (e))
+    except:
+        self.set_errormsg("tool_probe_m6 remap error." )
         yield INTERP_ERROR
 
 
