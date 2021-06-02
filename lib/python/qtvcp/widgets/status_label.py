@@ -45,6 +45,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._tool_dia = 0
         self._tool_offset = 0
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
+        self._halpin_name = 'remapStat.tool'
 
         self.feed_override = True
         self.rapid_override = False
@@ -73,6 +74,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.time_stamp = False
         self.tool_offset = False
         self.gcode_selected = False
+        self.halpin = False
 
     def _hal_init(self):
         super(StatusLabel, self)._hal_init()
@@ -150,6 +152,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('metric-mode-changed', lambda w, data: self._switch_tool_offsets_units(data))
         elif self.gcode_selected:
             STATUS.connect('gcode-line-selected', lambda w, line: _f(int(line)+1))
+        elif self.halpin:
+            STATUS.connect('periodic', lambda w: self._set_halpin_text())
         else:
             LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -180,7 +184,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
         try:
-            data = (data/self._actual_RPM)
+            data = abs(data/self._actual_RPM)
             if self.display_units_mm:
                 self._set_alt_text(data)
             else:
@@ -287,7 +291,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._set_surface_speed()
     def _set_surface_speed(self):
         diam = self.conversion(self._diameter)
-        circ = 3.14 * self._actual_RPM * diam
+        circ = abs(3.14 * self._actual_RPM * diam)
         if self.display_units_mm:
             self._set_alt_text(circ/1000) # meters per minute
         else:
@@ -326,6 +330,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         else:
             self._set_text(rate)
 
+    def _set_halpin_text(self):
+        try:
+            rate = self.HAL_GCOMP_.hal.get_value(self._halpin_name)
+        except Exception as e:
+            return
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -342,7 +355,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
                 'machine_state', 'time_stamp', 'max_velocity_override', 'tool_offset',
-                'gcode_selected', 'fcode', 'blendcode')
+                'gcode_selected', 'fcode', 'blendcode', 'halpin')
 
         for i in data:
             if not i == picked:
@@ -668,6 +681,23 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_gcode_selected(self):
         self.gcode_selected = False
 
+    # gcode line selected
+    def set_halpin(self, data):
+        self.halpin = data
+        if data:
+            self._toggle_properties('halpin')
+    def get_halpin(self):
+        return self.halpin
+    def reset_halpin(self):
+        self.halpin = False
+
+    def set_halpin_name(self, data):
+        self._halpin_name = data
+    def get_halpin_name(self):
+        return self._halpin_name
+    def reset_halpin_name(self):
+        self._halpin_name = ''
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     index_number = QtCore.pyqtProperty(int, get_index, set_index, reset_index)
@@ -708,8 +738,9 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                                                       reset_machine_state)
     time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
                                                       reset_time_stamp)
+    halpin_status = QtCore.pyqtProperty(bool, get_halpin, set_halpin, reset_halpin)
     state_label_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
-
+    halpin_name = QtCore.pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
     # boilder code
     def __getitem__(self, item):
         return getattr(self, item)
