@@ -4523,8 +4523,9 @@ class Gscreen:
                 #    attr.insert(size)
                 #    weight = pango.AttrWeight(600, 0, -1)
                 ##    attr.insert(weight)
-                fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
-                attr.insert(fg_color)
+                #fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+                #attr.insert(fg_color)
+                #TODO: gtk3
                 self.widgets["%s_display_%d"%(i,j)].set_attributes(attr)
                 h = " "
                 if current == _ABS and self.data["%s_is_homed"% i]: h = "*"
@@ -4680,6 +4681,7 @@ class Gscreen:
 # calls a postgui file if there is one.
 # then starts Gscreen
 if __name__ == "__main__":
+    #app = Gscreen()
     try:
         app = Gscreen()
     except KeyboardInterrupt:

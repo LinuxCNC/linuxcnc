@@ -40,7 +40,7 @@ class preferences(cp):
             print (detail)
             try:
                 self.set(section, option, default)
-            except ConfigParser.NoSectionError:
+            except configparser.NoSectionError:
                 print ('Adding section %s'%section)
                 # Create non-existent section
                 self.add_section(section)
