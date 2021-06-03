@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # This script returns 0 when run on a platform supported by the current
 # branch of LinuxCNC, and 1 when run on an unsupported platform.  It is
@@ -26,8 +26,8 @@ import sys
 import subprocess
 import re
 
-if sys.hexversion < 0x2070000:
-    raise SystemExit, "System Python is too old"
+if sys.version_info.minor < 7:
+    raise SystemExit("System Python is too old")
 
 supported_oses = [ 'linux' ]
 supported_cpus = [ 'amd64', 'i386', 'arm' ]
@@ -42,7 +42,7 @@ def detect_kernel_flavor(uname):
     try:
         f = open("/boot/config-%s" % uname)
     except IOError:
-        print "no kernel configuration found for %s, assuming vanilla" % uname
+        print("no kernel configuration found for %s, assuming vanilla" % uname)
         return 'vanilla'
     l = f.read(-1)
     f.close()
@@ -64,9 +64,9 @@ def detect_kernel_flavor(uname):
 os = detect_os()
 
 if os == 'linux':
-    cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip()
-    distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip()
-    release = subprocess.check_output(['lsb_release', '--release', '--short']).strip()
+    cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip().decode()
+    distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip().decode()
+    release = subprocess.check_output(['lsb_release', '--release', '--short']).strip().decode()
     try:
         major, minor = re.split('\.', release)
     except ValueError as e:
@@ -75,44 +75,44 @@ if os == 'linux':
     release_major = int(major)
     release_minor = int(minor)
 
-    uname = subprocess.check_output(['uname', '-r']).strip()
+    uname = subprocess.check_output(['uname', '-r']).strip().decode()
     kernel_flavor = detect_kernel_flavor(uname)
 
 else:
-    print "unknown OS:", os
+    print("unknown OS:", os)
     sys.exit(1)
 
 
-print "os =", os
-print "cpu =", cpu
-print "distributor =", distributor
-print "release =", release
-print "    major =", release_major
-print "    minor =", release_minor
-print "uname = %s (%s)" % (uname, kernel_flavor)
+print("os =", os)
+print("cpu =", cpu)
+print("distributor =", distributor)
+print("release =", release)
+print("    major =", release_major)
+print("    minor =", release_minor)
+print("uname = %s (%s)" % (uname, kernel_flavor))
 
 if os not in supported_oses:
-    print "unsupported OS!"
+    print("unsupported OS!")
     sys.exit(1)
 
 if cpu not in supported_cpus:
-    print "unsupported CPU!"
+    print("unsupported CPU!")
     sys.exit(1)
 
 if distributor == 'Ubuntu':
-    if release_major < 18:
-        print "release is too old!"
+    if release_major < 20:
+        print("release is too old!")
         sys.exit(1)
 
 if distributor == 'Debian':
     if release_major < 10:
-        print "release is too old!"
+        print("release is too old!")
         sys.exit(1)
 
 if kernel_flavor not in supported_kernel_flavors:
-    print "unsupported kernel flavor"
+    print("unsupported kernel flavor")
     sys.exit(1)
 
-print "this platform is supported!"
+print("this platform is supported!")
 sys.exit(0)
 
