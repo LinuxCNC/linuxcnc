@@ -48,7 +48,7 @@ clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-
+	py3clean .
 	cd src && ./autogen.sh
 	cd src && ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
