@@ -32,7 +32,7 @@ complete LinuxCNC user interface could be built with GladeVCP and Python.
 
 GladeVCP uses the http://glade.gnome.org/[Glade] WYSIWYG user
 interface editor, which makes it easy to create visually pleasing
-panels. It relies on the http://www.pygtk.org/[PyGTK] bindings to the
+panels. It relies on the https://pygobject.readthedocs.io/en/latest/[PyGObject] bindings to the
 rich http://www.gtk.org/[GTK+] widget set, and in fact all of these
 may be used in a GladeVCP application - not just the specialized
 widgets for interacting with HAL and LinuxCNC, which are documented here.

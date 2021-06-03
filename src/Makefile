@@ -526,21 +526,19 @@ clean: depclean modclean
 	-rm -f hal/components/conv_*.comp
 
 pycheck-python-files:
-	@echo 'Checking *.py files for python2 and python3 compatibility...'
+	@echo 'Checking *.py files for python3 compatibility...'
 	@for d in ./hal; do \
 		filelist=$(shell mktemp) && \
 		find $$d -name '*.py' -type f > $$filelist && \
-		cat $$filelist | xargs /usr/bin/env python2 -m py_compile && \
 		cat $$filelist | xargs /usr/bin/env python3 -m py_compile && \
 		rm -f $$filelist; \
 	done
 
 pycheck-python-script:
-	@echo 'Checking "text/x-python" (by MIME type) files for python2 and python3 compatibility...'
+	@echo 'Checking "text/x-python" (by MIME type) files python3 compatibility...'
 	@for d in ../tests; do \
 		filelist=$(shell mktemp) && \
 		find $$d -type f -exec file -F ':' -i {} \; | grep 'text/x-python' | awk -F ':' '{print $$1}' > $$filelist && \
-		cat $$filelist | xargs /usr/bin/env python2 -m py_compile && \
 		cat $$filelist | xargs /usr/bin/env python3 -m py_compile && \
 		rm -f $$filelist; \
 	done

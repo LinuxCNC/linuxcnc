@@ -52,11 +52,6 @@ gi.require_version('PangoCairo', '1.0')
 from gi.repository import Gtk,Gdk,GObject,Pango,PangoCairo,cairo, Vte,GLib
 from gi.repository import Pango as pango
 
-#import pygtk
-#pygtk.require("2.0")
-#import gtk
-#import gtk.glade
-#import gobject
 import hal
 import errno
 import gladevcp.makepins
