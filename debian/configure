@@ -175,7 +175,7 @@ YAPPS_RUNTIME="yapps2-runtime"
 STANDARDS_VERSION="3.9.3"
 
 case $DISTRIB_NAME in
-    Ubuntu-21.*|Debian-11*)
+    Ubuntu-21.*|Debian-11*|Debian-testing)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         YAPPS_RUNTIME="yapps2"
         LIBREADLINE_DEV=libeditreadline-dev
