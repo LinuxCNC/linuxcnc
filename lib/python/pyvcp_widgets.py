@@ -169,8 +169,8 @@ class pyvcp_dial(Canvas):
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
                         text=text,font=('Arial',-self.txtroom))
         # the output
-        self.dro=self.create_text([self.mid,self.mid],
-                        text=str(self.out),font=('Arial',-self.txtroom))
+        self.dro=self.create_text([self.mid,self.mid],font=('Arial',-self.txtroom))
+        self.update_dro()
         # the scale
         self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
                         text='x '+ str(self.funit),font=('Arial',-self.txtroom))
@@ -313,7 +313,8 @@ class pyvcp_dial(Canvas):
                             self.mid+(self.r*1.1)*math.sin(self.alfa))  
 
     def update_dro(self):
-        valtext = str(self.out)
+        decimals = max(0,len(str(self.funit)) -2)
+        valtext = "{{:.{}f}}".format(decimals).format(self.out)
         self.itemconfig(self.dro,text=valtext)
 
     def update_scale(self):
