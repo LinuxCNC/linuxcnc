@@ -80,6 +80,7 @@ install: build
 
 	-(cd debian/@EXTRAS@ && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	py3clean .
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
 ifneq "$(enable_build_documentation)" ""
