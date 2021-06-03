@@ -89,7 +89,6 @@ bool pi500_run(modbus_t* ctx, bool runBit)
 
 bool pi500_getStatus(modbus_t* ctx, pi500_status* status)
 {
-	int rc;
 	uint16_t running;
 	uint16_t speed_setting;
 	uint16_t two_digits;
@@ -97,56 +96,28 @@ bool pi500_getStatus(modbus_t* ctx, pi500_status* status)
 	uint16_t error_msg;
 
 	// read current speed set (register 0xF001)
-	rc = modbus_read_registers(ctx, 0xF001, 1, &speed_setting);
-	if (rc < 0) 
-	{
+	if (modbus_read_registers(ctx, 0xF001, 1, &speed_setting) < 0) {
 		return false;
 	}
 	
-	rc = modbus_read_registers(ctx, 0xF002, 1, &two_digits);
-	if (rc < 0) 
-	{
+	if (modbus_read_registers(ctx, 0xF002, 1, &two_digits) < 0) {
 		return false;
 	}
 
 	// read run status (register 0x3000)
-	rc = modbus_read_registers(ctx, 0x3000, 1, &running);
-	if (rc < 0) 
-	{
+	if (modbus_read_registers(ctx, 0x3000, 1, &running) < 0) {
 		return false;
 	}
 
 	// read other status flags (register 0x1000 following)
-	rc = modbus_read_registers(ctx, 0x1000, 8, status_params);
-	if (rc < 0) 
-	{
+	if (modbus_read_registers(ctx, 0x1000, 8, status_params) < 0) {
 		return false;
 	}
 	
 	// read error status (register 0x8000)
-	rc = modbus_read_registers(ctx, 0x8000, 1, &error_msg);
-	if (rc < 0) 
-	{
+	if (modbus_read_registers(ctx, 0x8000, 1, &error_msg) < 0) {
 		return false;
 	}
-
-
-	fprintf(stderr, 
-		"Running: %d, speed setting: %d\n",
-		running, speed_setting);
-	fprintf(stderr, 
-		"Status params: %d, %d, %d, %d, %d, %d, %d, %d\n",
-		status_params[0],
-		status_params[1],
-		status_params[2],
-		status_params[3],
-		status_params[4],
-		status_params[5],
-		status_params[6],
-		status_params[7]);
-	fprintf(stderr, 
-		"Error message: %d\n",
-		error_msg);
 		
 	status->running = (running == 1 || running == 2);
 	status->ready = (running == 3);
@@ -253,7 +224,7 @@ void userinit(int argc, char **argv)
 
 
 			default:
-                                fprintf(stderr, "internal error: invalid option index!\n");
+                fprintf(stderr, "internal error: invalid option index!\n");
 				exit(1);
 		}
 
