@@ -67,7 +67,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 22
+#serial 23
 
 AU_ALIAS([AC_PYTHON_DEVEL], [AX_PYTHON_DEVEL])
 AC_DEFUN([AX_PYTHON_DEVEL],[
@@ -281,6 +281,23 @@ EOD`
 	fi
 	AC_MSG_RESULT([$PYTHON_SITE_PKG])
 	AC_SUBST([PYTHON_SITE_PKG])
+
+	#
+	# Check for platform-specific site packages
+	#
+	AC_MSG_CHECKING([for Python platform specific site-packages path])
+	if test -z "$PYTHON_SITE_PKG"; then
+		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
+			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_path('platlib'));"`
+		else
+			# distutils.sysconfig way
+			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_python_lib(1,0));"`
+		fi
+	fi
+	AC_MSG_RESULT([$PYTHON_PLATFORM_SITE_PKG])
+	AC_SUBST([PYTHON_PLATFORM_SITE_PKG])
 
 	#
 	# libraries which must be linked in when embedding
