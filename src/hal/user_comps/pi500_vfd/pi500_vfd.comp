@@ -246,13 +246,7 @@ void userinit(int argc, char **argv)
 		fprintf(stderr, "Check your commandline!\n");
 		exit(1);	
 	}
-	
-	if (modbus_set_response_timeout(ctx, 1, 0) > 0) {
-		fprintf(stderr, 
-			"ERROR: pi500_vfd unable to set timeout. - %s\n", 
-			modbus_strerror(errno));
-	}
-	
+		
 	if (modbus_connect(ctx)) {
 		fprintf(stderr, 
 			"ERROR: pi500_vfd unable to create libmodbus connection. - %s\n", 
