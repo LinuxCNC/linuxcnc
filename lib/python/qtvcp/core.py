@@ -122,10 +122,11 @@ class DummyPin(QObject):
 
 
 class QComponent:
-    def __init__(self, comp):
+    def __init__(self, comp, hal):
         if isinstance(comp, QComponent):
             comp = comp.comp
         self.comp = comp
+        self.hal = hal
 
     def newpin(self, *a, **kw):
         try:

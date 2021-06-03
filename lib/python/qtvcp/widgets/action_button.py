@@ -317,12 +317,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             if self.spindle_fwd or self.spindle_rev:
-                STATUS.connect('spindle-control-changed', lambda w, e, d: spindle_control_test(e,d))
+                STATUS.connect('spindle-control-changed', lambda w, num, e, d, upto: spindle_control_test(e,d))
         elif self.spindle_stop:
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('spindle-control-changed', lambda w, e, d: self.setEnabled(e and not STATUS.is_auto_mode()))
+            STATUS.connect('spindle-control-changed', lambda w,num, e, d, upto: self.setEnabled(e and not STATUS.is_auto_mode()))
         elif self.limits_override:
             self.setEnabled(False)
             #STATUS.connect('override-limits-changed', lambda w, data, group: limits_override_test(data))

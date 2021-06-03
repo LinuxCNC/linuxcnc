@@ -56,23 +56,26 @@ typedef struct {
     int zoom_setting;		/* setting of zoom slider (1-9) */
     double pos_setting;		/* setting of position slider (0.0-1.0) */
     long x0;
+    int width;			/* width in pixels */
+    int height;			/* height in pixels */
     /* widgets for main window */
     GtkWidget *disp_area;
-    GdkGC *disp_context;
+    cairo_t *disp_context;
+    cairo_surface_t *surface;
     GtkWidget *state_label;
     GtkWidget *record_button;
     GtkWidget *record_label;
     GtkWidget *zoom_slider;
-    GtkObject *zoom_adj;
+    GtkAdjustment *zoom_adj;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
     GtkWidget *scale_label;
     /* widgets for thread selection dialog */
     GtkWidget *thread_list;
     GtkWidget *thread_name_label;
     GtkWidget *sample_rate_label;
     GtkWidget *sample_period_label;
-    GtkObject *mult_adj;
+    GtkAdjustment *mult_adj;
     GtkWidget *mult_spinbutton;
 } scope_horiz_t;
 
@@ -103,6 +106,8 @@ typedef struct {
     int chan_enabled[16];	/* chans user wants to display */
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
+    int listnum;                /* 0 = pin, 1 = signal, 2 = parameter */
+    int chan_num;
     /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
     /* widgets for chan info window */
@@ -111,10 +116,10 @@ typedef struct {
     GtkWidget *source_name_button;
     /* widgets for vert info window */
     GtkWidget *scale_slider;
-    GtkObject *scale_adj;
+    GtkAdjustment *scale_adj;
     GtkWidget *scale_label;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
     GtkWidget *offset_button;
     GtkWidget *offset_label;
     GtkWidget *readout_label;
@@ -123,8 +128,7 @@ typedef struct {
     GtkWidget *offset_ac;
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
-    GtkWidget *windows[3];	/* scrolled windows for above lists */
-    GtkAdjustment *adjs[3];	/* scrollbars associated with above */
+    GtkWidget *notebook;        /* pointer to the notebook */
 } scope_vert_t;
 
 /* this struct holds control data related to triggering */
@@ -144,10 +148,10 @@ typedef struct {
     GtkWidget *edge_button;
     GtkWidget *edge_label;
     GtkWidget *level_slider;
-    GtkObject *level_adj;
+    GtkAdjustment *level_adj;
     GtkWidget *level_label;
     GtkWidget *pos_slider;
-    GtkObject *pos_adj;
+    GtkAdjustment *pos_adj;
 } scope_trig_t;
 
 
@@ -157,25 +161,24 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    int width;			/* height in pixels */
-    int height;			/* width in pixels */
+    int width;                  /* width in pixels */
+    int height;                 /* height in pixels */
     double pixels_per_sample;	/* horizontal scaling */
     double horiz_offset;		/* offset in pixels */
     int start_sample;		/* first displayable sample */
     int end_sample;		/* last displayable sample */
     /* widgets */
     GtkWidget *drawing;		/* drawing area for display */
-    GtkTooltips *tip;		/* drawing area for display */
+    GtkTooltip *tip;		/* drawing area for display */
     /* drawing objects (GDK) */
-    GdkDrawable *win;		/* the window */
-    GdkColormap *map;		/* the colormap for the window */
-    GdkColor color_bg;		/* background color */
-    GdkColor color_grid;	/* the grid color */
-    GdkColor color_normal[16];	/* the color for normal waveforms */
-    GdkColor color_selected[16];	/* the color for selected waveforms */
-    GdkColor color_baseline;    /* The baseline color */
+    GdkRGBA color_bg;           /* background color */
+    GdkRGBA color_grid;         /* the grid color */
+    GdkRGBA color_normal[16];   /* the color for normal waveforms */
+    GdkRGBA color_selected[16]; /* the color for selected waveforms */
+    GdkRGBA color_baseline;     /* The baseline color */
 
-    GdkGC *context;		/* graphics context for drawing */
+    cairo_surface_t *surface;
+    cairo_t *context;
     int selected_part;
 } scope_disp_t;
 
@@ -259,7 +262,7 @@ void refresh_trigger(void);
 void invalidate_channel(int chan);
 void invalidate_all_channels(void);
 void channel_changed(void);
-
+void redraw_window(void);
 
 void format_signal_value(char *buf, int buflen, double value);
 
@@ -295,5 +298,5 @@ int set_trigger_polarity(int setting);
 int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
-void log_popup(int);
-#endif /* HALSC_USR_H */
+void log_popup(GtkWindow *parent);
+#endif /* SCOPE_USR_H */
