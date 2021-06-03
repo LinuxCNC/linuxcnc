@@ -90,10 +90,12 @@ bool from_python(PyObject *o, double *d) {
 bool from_python(PyObject *o, uint32_t *u) {
     PyObject *tmp = 0;
     long long l;
+#if !IS_PY3
     if(PyInt_Check(o)) {
         l = PyInt_AsLong(o);
         goto got_value;
     }
+#endif
 
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -101,7 +103,9 @@ bool from_python(PyObject *o, uint32_t *u) {
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
 
+#if !IS_PY3
 got_value:
+#endif
     if(l < 0 || l != (uint32_t)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
@@ -118,10 +122,12 @@ fail:
 bool from_python(PyObject *o, int32_t *i) {
     PyObject *tmp = 0;
     long long l;
+#if !IS_PY3
     if(PyInt_Check(o)) {
         l = PyInt_AsLong(o);
         goto got_value;
     }
+#endif
 
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -129,7 +135,9 @@ bool from_python(PyObject *o, int32_t *i) {
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
 
+#if !IS_PY3
 got_value:
+#endif
     if(l != (int32_t)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
