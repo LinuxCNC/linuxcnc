@@ -5,6 +5,6 @@ sudo apt-get update -qq
 sudo apt-get install -y devscripts equivs build-essential --no-install-recommends
 sudo apt-get remove -f libreadline6-dev || true
 sudo apt-get remove -f libreadline-dev || true
-debian/configure uspace noauto
+debian/configure
 mk-build-deps -i -r -s sudo -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --no-install-suggests'
 sudo apt install -y lintian
