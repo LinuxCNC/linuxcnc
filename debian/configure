@@ -46,6 +46,7 @@ ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
 while test $# -ne 0; do
     case "$1" in
+    sim|uspace) echo "$1 is accepted for compatibility, but ignored";;
     no-docs) unset ENABLE_BUILD_DOCUMENTATION ;;
     *) echo 1>&2 "Unknown option: $1"; exit 99 ;;
     esac
