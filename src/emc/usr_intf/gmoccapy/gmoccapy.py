@@ -83,7 +83,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.1.3.9"
+_RELEASE = " 3.1.3.10"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1250,9 +1250,6 @@ class gmoccapy(object):
         btn.hide()
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
 
-        file = "keyboard.png"
-        filepath = os.path.join(IMAGEDIR, file)
-
         # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
         if num_macros < 9:
@@ -1262,6 +1259,9 @@ class gmoccapy(object):
                 lbl.set_text("")
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
+
+        file = "keyboard.png"
+        filepath = os.path.join(IMAGEDIR, file)
 
         name = "keyboard"
         btn = self._get_button_with_image(name, filepath, None)
@@ -1274,7 +1274,6 @@ class gmoccapy(object):
 
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
-            #print(child.name)
             self.macro_dic[child.get_property("name")] = child
 
         if num_macros >= 9:
@@ -2469,8 +2468,6 @@ class gmoccapy(object):
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
 
-        #TODO
-        self.onboard = False
         if self.onboard:
             self._change_kbd_image("keyboard")
         else:
