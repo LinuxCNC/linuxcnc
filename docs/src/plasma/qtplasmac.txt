@@ -440,7 +440,7 @@ NOTE: This method will result in a slightly different file structure in the conf
 
 === Lowpass Filter
 
-The PlasmaC component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
+The plasmac HAL component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
 The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
@@ -2934,7 +2934,7 @@ setp plasmac.max-offset 10
 
 === QtPlasmaC State Outputs
 
-The PlasmaC component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
+The plasmac HAL component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
 
 The different states QtPlasmaC could encounter are as follows:
 
@@ -2973,7 +2973,7 @@ The DEBUG state is for testing purposes only and will not normally be encountere
 
 === QtPlasmaC Debug Print
 
-The PlasmaC component has a HAL pin named *plasmac.debug-print* which if set to 1 (true) will print to terminal every state change as a debug aid.
+The plasmac HAL component has a HAL pin named *plasmac.debug-print* which if set to 1 (true) will print to terminal every state change as a debug aid.
 
 [[qt_pm_comms]]
 
@@ -3415,23 +3415,23 @@ Hypertherm RS485 Wiring Diagram (wire colors inside the Hypertherm in parenthese
 |*5* - GND (Green)|->GND
 |===
 
-image::images/plasmac_rs485_pmx.png[width=400,align="center"]
+image::images/qtplasmac_rs485_pmx.png[width=400,align="center"]
 
 RS485 interfaces that are known to work:
 
 DTECH DT-5019 USB to RS485 converter adapter:
 
-image::images/plasmac_rs485_dtech.png[width=400,align="center"]
+image::images/qtplasmac_rs485_dtech.png[width=400,align="center"]
 
 The following is necessary to convert a motherboard Serial connection or Serial card (RS232) to RS485:
 
 DTECH RS232 to RS485 converter:
 
-image::images/plasmac_rs485_converter.png[width=400,align="center"]
+image::images/qtplasmac_rs485_converter.png[width=400,align="center"]
 
 Serial card example (Sunnix SER5037A PCI Card shown with Breakout Board):
 
-image::images/plasmac_rs485_sunnix.png[width=400,align="center"]
+image::images/qtplasmac_rs485_sunnix.png[width=400,align="center"]
 
 [[qt_reed-arc-ok]]
 
@@ -3443,7 +3443,7 @@ This assembly will now act as a relay that will switch on when current is flowin
 
 This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
-image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
+image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
 [[qt_contact-load-schematics]]
 
