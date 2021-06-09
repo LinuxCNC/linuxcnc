@@ -148,10 +148,9 @@ DOC_SRCS_EN := \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
 	plasma/qtplasmac.txt \
-	tooldatabase/tooldatabase.txt \
-	plasma/plasmac-user-guide.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
+	tooldatabase/tooldatabase.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
 	user/user-foreword.txt \
@@ -319,7 +318,6 @@ DOC_SRCS_ES := \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \
 	motion/tweaking-steppers_es.txt \
-	plasma/plasmac-user-guide_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	remap/remap_es.txt \
 	user/starting-linuxcnc_es.txt \
