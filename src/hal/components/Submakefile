@@ -55,13 +55,6 @@ modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 # keep this make target in 2.6, remove in 2.7 (just use 'clean-manpages' in 2.7+)
 clean-comp-manpages: clean-manpages
 
-#TONSRCS := hal/components/t_on.c
-#USERSRCS += $(TONSRCS)
-#../bin/t_on: $(call TOOBJS, $(TONSRCS)) ../lib/liblinuxcnchal.so.0
-#	$(ECHO) Linking $(notdir $@)
-#	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-#TARGETS += ../bin/t_on
-
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
 
