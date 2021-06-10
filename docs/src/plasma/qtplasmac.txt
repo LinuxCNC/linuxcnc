@@ -339,42 +339,11 @@ There are two methods available to get from a working PlasmaC configuration to a
 
 If there are Qt dependency errors, the user should run the <<qt-dependency, QtVCP install script>>.
 
-=== Preferred Method
-
-The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration.
-
-This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
-
-After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
-
-Prior to running this conversion program, it is mandatory that the user have both an existing PlasmaC configuration and a new QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
-
-The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
-
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
-
-To run the cfg2prefs conversion program, use the following instructions:
-
-For a package installation (Buildbot) enter the following line in a terminal window:
-
-----
-qtplasmac-cfg2prefs
-----
-
-For a run in place installation enter the following lines in terminal window:
-
-----
-source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-cfg2prefs
-----
-
-image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
-
-Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
-
 === Quick Method
 
 A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
+
+This methods will keep the original PlasmaC config as a backup with _plasmac and a time stamp appended to the directory name.
 
 To run the plasmac2qt conversion program, use the following instructions:
 
@@ -400,8 +369,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 [width="100%",cols="4,10,6"]
 |===
 |*Field*|*Description*|*Examples*
-|INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file that was created by the configurator.|<machine_name>.ini
-|NAME OF NEW QTPLASMAC CONFIG|This is the name for the new QtPlasmaC machine|My_QtPlasmaC_Machine
+|INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file of the PlasmaC config that requires migrating.|<machine_name>.ini
 |MONITOR ASPECT RATIO|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP|Selects the required Estop type based on the following criteria: +
       0 - Estop is an indicator only. +
@@ -432,7 +400,40 @@ Leave these blank if they are not used/required.
 
 After filling in the appropriate entries, press *CONVERT*.
 
-NOTE: This method will result in a slightly different file structure in the configuration directory than what is shown in this documentation. This should not cause any issues in the operation of QtPlasmaC.
+NOTE: This method will not change any existing debounce components to the new dbounce component.
+
+=== New Base Config Method
+
+This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration. This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base ini and base hal files have not been edited.
+
+This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
+
+After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+
+Prior to running this conversion program, it is mandatory that the user have both an existing PlasmaC configuration and a new QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
+
+The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
+
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
+
+To run the cfg2prefs conversion program, use the following instructions:
+
+For a package installation (Buildbot) enter the following line in a terminal window:
+
+----
+qtplasmac-cfg2prefs
+----
+
+For a run in place installation enter the following lines in terminal window:
+
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-cfg2prefs
+----
+
+image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
+
+Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
 
 == Other QtPlasmaC Setup Considerations
 

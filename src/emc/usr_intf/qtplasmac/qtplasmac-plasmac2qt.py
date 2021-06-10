@@ -36,6 +36,16 @@ class Converter(QMainWindow, object):
     def __init__(self, parent=None):
         super(Converter, self).__init__(parent)
         self.appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        if len(sys.argv) > 1:
+            if os.path.isfile(sys.argv[1]):
+                self.mode = 'auto'
+                self.iniIn = sys.argv[1]
+            else:
+                print('{} is not a valid file.'.format(sys.argv[1]))
+                sys.exit(2)
+        else:
+            self.mode = ''
+            self.iniIn = ''
         if 'usr' in self.appPath:
             self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac'
             self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
@@ -43,7 +53,7 @@ class Converter(QMainWindow, object):
             self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac')
             self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
         self.setFixedWidth(600)
-        self.setFixedHeight(660)
+        self.setFixedHeight(600)
         wid = QWidget(self)
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -54,7 +64,11 @@ class Converter(QMainWindow, object):
         wid.setLayout(layout)
         self.setWindowTitle('PLASMAC2QT')
         vBox = QVBoxLayout()
-        heading  = 'Convert Existing PlasmaC Configuration To A New QtPlasmaC Configuration\n'
+        if self.mode == 'auto':
+            heading  = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
+        else:
+            heading = ''
+        heading += 'Convert Existing PlasmaC Configuration To A New QtPlasmaC Configuration\n'
         headerLabel = QLabel(heading)
         headerLabel.setAlignment(Qt.AlignCenter)
         vBox.addWidget(headerLabel)
@@ -64,21 +78,17 @@ class Converter(QMainWindow, object):
         fromLabel.setAlignment(Qt.AlignBottom)
         vBox.addWidget(fromLabel)
         fromFileHBox = QHBoxLayout()
-        fromFileButton = QPushButton('SELECT')
         self.fromFile = QLineEdit()
         self.fromFile.setEnabled(False)
-        fromFileHBox.addWidget(fromFileButton)
+        if self.mode:
+            self.fromFile.setText(self.iniIn)
+        else:
+            fromFileButton = QPushButton('SELECT')
+            fromFileHBox.addWidget(fromFileButton)
         fromFileHBox.addWidget(self.fromFile)
         vBox.addLayout(fromFileHBox)
         vSpace02 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vBox.addItem(vSpace02)
-        nameLabel = QLabel('NAME OF NEW QTPLASMAC CONFIG:')
-        nameLabel.setAlignment(Qt.AlignBottom)
-        vBox.addWidget(nameLabel)
-        self.newName = QLineEdit()
-        vBox.addWidget(self.newName)
-        vSpace03 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        vBox.addItem(vSpace03)
         aspectLabel = QLabel('MONITOR ASPECT RATIO:')
         vBox.addWidget(aspectLabel)
         aspectHBox = QHBoxLayout()
@@ -124,13 +134,13 @@ class Converter(QMainWindow, object):
         laserXLabel= QLabel('X OFFSET:')
         self.laserX = QLineEdit()
         self.laserX.setFixedWidth(120)
-        hSpace1 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hSpace01 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
         laserYLabel= QLabel('Y OFFSET:')
         self.laserY = QLineEdit()
         self.laserY.setFixedWidth(120)
         laserHBox.addWidget(laserXLabel)
         laserHBox.addWidget(self.laserX)
-        laserHBox.addItem(hSpace1)
+        laserHBox.addItem(hSpace01)
         laserHBox.addWidget(laserYLabel)
         laserHBox.addWidget(self.laserY)
         vBox.addLayout(laserHBox)
@@ -138,8 +148,8 @@ class Converter(QMainWindow, object):
         vBox.addWidget(laserOnLabel)
         self.laserOnPin = QLineEdit()
         vBox.addWidget(self.laserOnPin)
-        vSpace4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        vBox.addItem(vSpace4)
+        vSpace04 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        vBox.addItem(vSpace04)
         cameraLabel = QLabel('CAMERA ALIGNMENT:   (leave blank if not required)')
         cameraLabel.setAlignment(Qt.AlignBottom)
         vBox.addWidget(cameraLabel)
@@ -147,18 +157,18 @@ class Converter(QMainWindow, object):
         cameraXLabel= QLabel('X OFFSET:')
         self.cameraX = QLineEdit()
         self.cameraX.setFixedWidth(120)
-        hSpace2 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hSpace02 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
         cameraYLabel= QLabel('Y OFFSET:')
         self.cameraY = QLineEdit()
         self.cameraY.setFixedWidth(120)
         cameraHBox.addWidget(cameraXLabel)
         cameraHBox.addWidget(self.cameraX)
-        cameraHBox.addItem(hSpace2)
+        cameraHBox.addItem(hSpace02)
         cameraHBox.addWidget(cameraYLabel)
         cameraHBox.addWidget(self.cameraY)
         vBox.addLayout(cameraHBox)
-        vSpace5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        vBox.addItem(vSpace5)
+        vSpace05 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        vBox.addItem(vSpace05)
         buttonHBox = QHBoxLayout()
         convert = QPushButton('CONVERT')
         buttonHBox.addWidget(convert)
@@ -194,17 +204,14 @@ class Converter(QMainWindow, object):
             ')
         convert.pressed.connect(self.convert_pressed)
         cancel.pressed.connect(self.cancel_pressed)
-        fromFileButton.pressed.connect(self.from_pressed)
+        if not self.mode:
+            fromFileButton.pressed.connect(self.from_pressed)
         if os.path.exists('{}/linuxcnc/configs'.format(os.path.expanduser('~'))):
             self.DIR = '{}/linuxcnc/configs'.format(os.path.expanduser('~'))
         elif os.path.exists('{}/linuxcnc'.format(os.path.expanduser('~'))):
             self.DIR = '{}/linuxcnc'.format(os.path.expanduser('~'))
         else:
             self.DIR = '{}'.format(os.path.expanduser('~'))
-        self.fromFileName = None
-        self.fromFilePath = None
-        self.toFileName = None
-        self.toFilePath = None
         self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
         self.estop = 'ESTOP_TYPE              = 0\n'
         self.laserXOffset, self.laserYOffset = None, None
@@ -237,14 +244,11 @@ class Converter(QMainWindow, object):
                     directory=self.DIR,
                     options=options
                     )
-        if name:
+        if name and os.path.isfile(name):
             self.fromFile.setText(name)
-            self.fromFileName = name
-            self.fromFilePath = os.path.dirname(name)
         else:
             self.fromFile.setText('')
-            self.fromFileName = None
-            self.fromFilePath = None
+        self.iniIn = self.fromFile.text()
 
 # ASPECT CHANGED
     def aspect_group_clicked(self, button):
@@ -273,51 +277,60 @@ class Converter(QMainWindow, object):
 
 # CONVERT
     def convert_pressed(self):
-    # CHECK IF PLASMAC CONFIG SELECTED
-        simConfig = False
-        if not self.fromFilePath:
-            msg  = 'Missing path to PlasmaC configuration\n'
+    # CHECK IF INI FILE NAME EXISTS
+        if not self.iniIn:
+            return
+    # CHECK IF FULL PATH EXISTS
+        if not os.path.dirname(self.iniIn):
+            msg  = 'Missing path to a PlasmaC configuration\n'
             self.dialog_ok('PATH ERROR', msg)
             self.fromFile.setFocus()
             return
-        else:
-    # CHECK IF SIM CONFIG
-            with open(self.fromFileName, 'r') as inFile:
-                for line in inFile:
-                    if 'plasmac_test.py' in line and not line.startswith('#'):
-                        simConfig = True
-                        break
-    # CHECK IF NEW NAME ENTERED
-        if not self.newName.text():
-            msg  = 'Missing name for QtPlasmaC configuration\n'
-            self.dialog_ok('NAME ERROR', msg)
-            self.newName.setFocus()
-            return
-    # CREATE NAMES
-        newName = self.newName.text()
-        newDir = '{}/{}'.format(self.DIR, newName)
-        oldDir = os.path.dirname(self.fromFileName)
-        # check if directory already exists
-        if os.path.exists(newDir):
-            msg  = '{} already exists\n'.format(newDir)
-            self.dialog_ok('DUPLICATE ERROR', msg)
-            self.newName.setFocus()
-            return
     # CHECK IF VALID PLASMAC CONFIG
-        if not os.path.exists('{}/plasmac'.format(oldDir)):
-            msg  = '{}\n'.format(self.fromFileName)
+        if not os.path.exists('{}/plasmac'.format(os.path.dirname(self.iniIn))):
+            msg  = '{}\n'.format(self.iniIn)
             msg += '\n is not a PlasmaC configurtion\n'
             self.dialog_ok('CONFIG ERROR', msg)
             self.fromFile.setFocus()
             return
+    # CHECK IF SIM CONFIG
+        simConfig = False
+        with open(self.iniIn, 'r') as inFile:
+            for line in inFile:
+                if 'plasmac_test.py' in line and not line.startswith('#'):
+                    simConfig = True
+                    break
+    # SET FILENAMES AND PATHS
+        fName = os.path.basename(self.iniIn)
+        newDir = os.path.dirname(self.iniIn)
+        oldDir = '{}_{}_{}'.format(os.path.dirname(self.iniIn), 'plasmac', str(time.time()).split('.')[0])
+        newIniFile = os.path.join(newDir, fName)
+        oldIniFile = os.path.join(oldDir, fName)
     # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
         try:
+            os.rename(newDir, oldDir)
             os.makedirs('{}/backups'.format(newDir))
         except:
             msg  = 'Could not create directory\n'.format(newDir)
             self.dialog_ok('DIRECTORY ERROR', msg)
-            self.newName.setFocus()
             return
+    # GET THE MACHINE NAME
+        with open(oldIniFile) as inFile:
+            while(1):
+                line = inFile.readline()
+                if not line:
+                    print('cannot find [EMC] section in ini file')
+                    return
+                if line.startswith('[EMC]'):
+                    break
+            while(1):
+                line = inFile.readline()
+                if not line:
+                    print('cannot find MACHINE variable in ini file')
+                    return
+                if line.startswith('MACHINE'):
+                    machineName = line.split('=')[1].strip().lower()
+                    break
     # COPY ORIGINAL BASE MACHINE FILES IF EXISTING
         try:
             for filename in os.listdir('{}/backups'.format(oldDir)):
@@ -340,7 +353,7 @@ class Converter(QMainWindow, object):
         oldPostguiFile = None
         newPostguiFile = None
         newConnectionsFile = None
-        with open(self.fromFileName, 'r') as inFile:
+        with open(oldIniFile, 'r') as inFile:
             while(1):
                 line = inFile.readline()
                 if line.startswith('[HAL]'):
@@ -355,12 +368,12 @@ class Converter(QMainWindow, object):
                 line = inFile.readline()
                 if line.startswith('POSTGUI_HALFILE'):
                     oldPostguiFile = line.split('=')[1].strip()
-                    newPostguiFile = oldPostguiFile.replace('.hal', '.tcl')
+                    newPostguiFile = 'custom_postgui.hal'
                     halFiles.append(oldPostguiFile)
                     COPY('{}/{}'.format(oldDir, oldPostguiFile), '{}/{}'.format(newDir, newPostguiFile))
                 elif 'connections.hal' in line:
                     oldConnectionsFile = line.split('=')[1].strip()
-                    newConnectionsFile = '{}_connections.hal'.format(newName)
+                    newConnectionsFile = 'custom.hal'
                     halFiles.append(newConnectionsFile)
                     COPY('{}/{}'.format(oldDir, oldConnectionsFile), '{}/{}'.format(newDir, newConnectionsFile))
                     with open('{}/{}'.format(newDir, newConnectionsFile), 'w') as outConFile:
@@ -398,7 +411,7 @@ class Converter(QMainWindow, object):
             self.buttons[n] = None
         numButton = 1
         n0,n1,name,code = '','','',''
-        with open(self.fromFileName, 'r') as inFile:
+        with open(oldIniFile, 'r') as inFile:
             while(1):
                 line = inFile.readline()
                 if line.startswith('[PLASMAC]'):
@@ -419,8 +432,8 @@ class Converter(QMainWindow, object):
                     numButton += 1
     # MAKE NEW INI FILE
         section = ''
-        with open('{}/{}.ini'.format(newDir, newName), 'w') as outFile:
-            with open(self.fromFileName, 'r') as inFile:
+        with open(newIniFile, 'w') as outFile:
+            with open(oldIniFile, 'r') as inFile:
                 for line in inFile:
                 # SET SECTION NAMES
                     if line.startswith('['):
@@ -430,7 +443,6 @@ class Converter(QMainWindow, object):
                     if line.startswith('[PLASMAC]'):
                         section = 'PLASMAC'
                         line = '[QTPLASMAC]\n'
-                        xtraButtons = []
                     if line.startswith('[FILTER]'):
                         section = 'FILTER'
                     if line.startswith('[RS274NGC]'):
@@ -490,23 +502,10 @@ class Converter(QMainWindow, object):
                                                            .format(self.cameraXOffset, self.cameraYOffset))
                                 else:
                                     outFile.write('#CAMERA_TOUCHOFF         = X0.0 Y0.0\n')
-                                for n in range(1, 9):
+                                for n in range(1, 20):
                                     if self.buttons[n]:
                                         outFile.write('BUTTON_{}_NAME           = {}\n'.format(n, self.buttons[n][0]))
                                         outFile.write('BUTTON_{}_CODE           = {}\n'.format(n, self.buttons[n][1]))
-                                for n in range(9, 20):
-                                    if self.buttons[n]:
-                                        b = []
-                                        b.append(self.buttons[n][0])
-                                        b.append(self.buttons[n][1])
-                                        xtraButtons.append(b)
-                                if xtraButtons:
-                                    print('\n**********')
-                                    print('The maximum number of user buttons is eight')
-                                    print('The following have not been allocated to a user button:\n')
-                                    for b in xtraButtons:
-                                        print('NAME:{}   CODE:{}\n'.format(b[0], b[1]))
-                                    print('**********\n')
                             else:
                                 outFile.write(line)
                         continue
@@ -535,12 +534,16 @@ class Converter(QMainWindow, object):
                         if line.startswith('[HAL]'):
                             outFile.write('\n{}'.format(line))
                             outFile.write('TWOPASS                 = ON\n')
+                            outFile.write('HALUI                   = halui\n')
                             for file in halFiles:
-                                if 'postgui' in file:
-                                    outFile.write('POSTGUI_HALFILE         = {}\n'.format(file.replace('.hal', '.tcl')))
+                                if '_connections' in file:
+                                    outFile.write('HALFILE                 = custom.hal\n')
+                                elif 'postgui' in file:
+                                    outFile.write('POSTGUI_HALFILE         = custom_postgui.hal\n')
                                 else:
                                     outFile.write('HALFILE                 = {}\n'.format(file))
-                            outFile.write('HALUI                   = halui\n')
+                            if simConfig:
+                                outFile.write('POSTGUI_HALFILE         = sim_postgui.tcl\n')
                         continue
                     elif section == 'DISPLAY':
                         if line.startswith('DISPLAY'):
@@ -556,8 +559,6 @@ class Converter(QMainWindow, object):
                             outFile.write(line)
                         continue
                     elif section == 'EMC':
-                        if line.startswith('MACHINE'):
-                            line = 'MACHINE                 = {}\n'.format(newName)
                         if 'enable the axis_tweaks' in line:
                             continue
                         if line.startswith('['):
@@ -573,56 +574,42 @@ class Converter(QMainWindow, object):
                             if 'marry this config' in line or 'sim testing panel' in line:
                                 continue
                             outFile.write(line)
-    # GET THE ORIGINAL MACHINE NAME
-        with open(self.fromFileName) as inFile:
-            while(1):
-                line = inFile.readline()
-                if not line:
-                    print('cannot find [EMC] section in ini file')
-                    return
-                if line.startswith('[EMC]'):
-                    break
-            while(1):
-                line = inFile.readline()
-                if not line:
-                    print('cannot find MACHINE variable in ini file')
-                    return
-                if line.startswith('MACHINE'):
-                    self.fromMachine = line.split('=')[1].strip().lower()
-                    break
         self.prefParms = []
-        if os.path.isfile(os.path.join(self.fromFilePath, self.fromMachine + '_config.cfg')):
-            self.read_con_file(os.path.join(self.fromFilePath, self.fromMachine + '_config.cfg'))
+        if os.path.isfile(os.path.join(oldDir, machineName + '_config.cfg')):
+            self.read_con_file(os.path.join(oldDir, machineName + '_config.cfg'))
         else:
             print('file not found, config parameters can not be converted.')
-        if os.path.isfile(os.path.join(self.fromFilePath, self.fromMachine + '_run.cfg')):
-            self.read_run_file(os.path.join(self.fromFilePath, self.fromMachine + '_run.cfg'))
+        if os.path.isfile(os.path.join(oldDir, machineName + '_run.cfg')):
+            self.read_run_file(os.path.join(oldDir, machineName + '_run.cfg'))
         else:
             print('file not found, run parameters can not be converted.')
-        if os.path.isfile(os.path.join(self.fromFilePath, self.fromMachine + '_wizards.cfg')):
-            self.read_wiz_file(os.path.join(self.fromFilePath, self.fromMachine + '_wizards.cfg'))
+        if os.path.isfile(os.path.join(oldDir, machineName + '_wizards.cfg')):
+            self.read_wiz_file(os.path.join(oldDir, machineName + '_wizards.cfg'))
         else:
             print('file not found, wizard parameters can not be converted.')
-        if os.path.isfile(os.path.join(self.fromFilePath, 'plasmac_stats.var')):
-            self.read_sta_file(os.path.join(self.fromFilePath, 'plasmac_stats.var'))
+        if os.path.isfile(os.path.join(oldDir, 'plasmac_stats.var')):
+            self.read_sta_file(os.path.join(oldDir, 'plasmac_stats.var'))
         else:
             print('file not found, statistics can not be converted.')
-        if os.path.isfile(os.path.join(self.fromFilePath, self.fromMachine + '_material.cfg')):
-            self.read_mat_file(os.path.join(self.fromFilePath, self.fromMachine + '_material.cfg'), newDir, newName)
+        if os.path.isfile(os.path.join(oldDir, machineName + '_material.cfg')):
+            self.read_mat_file(os.path.join(oldDir, machineName + '_material.cfg'), newDir, machineName)
         else:
             print('file not found, materials can not be converted.')
-        self.write_prefs_file(newDir, newName)
-    # APPEND TO POSTGUI IF A SIM CONFIG
+        self.write_prefs_file(newDir, machineName)
+    # ADD A SIM POSTGUI IF A SIM CONFIG
         if simConfig:
-            if newPostguiFile:
-                with open('{}/{}'.format(newDir, newPostguiFile), 'a') as outFile:
-                    outFile.write(self.sim_postgui())
+            with open('{}/{}'.format(newDir, 'sim_postgui.tcl'), 'a') as outFile:
+                outFile.write(self.sim_postgui())
     # WE GOT THIS FAR SO IT MAY HAVE WORKED
         msg  = 'Conversion appears successful.\n'
-        msg += '\nStart LnixCNC using the following ini file:\n'
-        msg += '\n{}/{}.ini\n'.format(newDir, newName)
+        if self.mode == 'automatic':
+            msg += '\nRestart LinuxCNC using the following ini file:\n'
+        else:
+            msg += '\nStart LinuxCNC using the following ini file:\n'
+        msg += '\n{}/{}.ini\n'.format(newDir, machineName)
         self.dialog_ok('SUCCESS', msg)
-        sys.exit()
+        print(msg)
+        sys.exit(2)
 
 
 # READ THE ORIGINAL <MACHINE>_CONFIG.CFG FILE
@@ -842,10 +829,10 @@ class Converter(QMainWindow, object):
             self.prefParms.append('')
 
 # READ THE ORIGINAL <MACHINE>_MATERIAL.CFG FILE
-    def read_mat_file(self, matFile, newDir, newName):
-        newFile = '{}/{}_material.cfg'.format(newDir, newName)
+    def read_mat_file(self, matFile, newDir, machineName):
+        newFile = '{}/{}_material.cfg'.format(newDir, machineName)
         if os.path.isfile(newFile):
-            matCopy = '{}_{}_{}'.format(newFile, self.date, self.time)
+            matCopy = '{}_{}'.format(newFile, self.date, str(time.time()).split('.')[0])
             COPY(newFile, matCopy)
         with open(newFile, 'w') as outFile:
             with open(matFile) as inFile:
@@ -855,7 +842,7 @@ class Converter(QMainWindow, object):
                     outFile.write(line)
 
 # WRITE THE NEW QTPLASMAC.PREFS FILE
-    def write_prefs_file(self, newDir, newName):
+    def write_prefs_file(self, newDir, machineName):
         prefsFile = '{}/qtplasmac.prefs'.format(newDir)
         with open(prefsFile, 'w') as outFile:
             outFile.write(\
