@@ -1,8 +1,8 @@
 /********************************************************************
-* Description: t_on.c
+* Description: t_off.c
 *   IEC_61131-3 Time On timer for HAL bit signals.
 *
-*   This is a HAL component that can be used to delay on signals
+*   This is a HAL component that can be used to delay off signals
 *   for a certain amount of time.
 *
 *   It supports up to 255 timers.
@@ -30,7 +30,7 @@
 
 /* module information */
 MODULE_AUTHOR("Chad Woitas");
-MODULE_DESCRIPTION("IEC TON - On Delay Timer");
+MODULE_DESCRIPTION("IEC TOFF - Off Delay Timer");
 MODULE_LICENSE("GPL");
 
 #define MAX_TIMERS 255
@@ -48,9 +48,9 @@ typedef struct{
     hal_u32_t *pt;  // Pulse Timer
     hal_bit_t *q;   // Output
     hal_u32_t *et;  // Elapsed Time since on in High
-} t_on_t;
+} t_off_t;
 
-static t_on_t *timer_array;
+static t_off_t *timer_array;
 
 /* other globals */
 static int comp_id;		  /* component ID */
@@ -62,7 +62,7 @@ static int num_timers;	/* number of individual timers */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_timer(int num, t_on_t * addr);
+static int export_timer(int num, t_off_t * addr);
 static void update(void *arg, long period);
 
 
@@ -75,7 +75,7 @@ int rtapi_app_main(void){
   while ((num_timers < MAX_TIMERS) && (cfg[num_timers] != 0)) {
     if ((cfg[num_timers] < 1) || (cfg[num_timers] > MAX_TIMERS)) {
       rtapi_print_msg(RTAPI_MSG_ERR,
-                      "IEC_TON: ERROR: bad group size '%d'\n", cfg[num_timers]);
+                      "IEC_TOFF: ERROR: bad group size '%d'\n", cfg[num_timers]);
       return -1;
     }
     num_timers += cfg[num_timers];
@@ -84,23 +84,23 @@ int rtapi_app_main(void){
   /* OK, now we've counted everything */
   if (num_timers == 0) {
     rtapi_print_msg(RTAPI_MSG_ERR,
-                    "IEC_TON: ERROR: no channels configured\n");
+                    "IEC_TOFF: ERROR: no channels configured\n");
     return -1;
   }
 
   /* have good config info, connect to the HAL */
-  comp_id = hal_init("t_on");
+  comp_id = hal_init("t_off");
   if (comp_id < 0) {
     rtapi_print_msg(RTAPI_MSG_ERR,
-                    "IEC_TON: ERROR: hal_init() failed\n");
+                    "IEC_TOFF: ERROR: hal_init() failed\n");
     return -1;
   }
 
   /* allocate shared memory for timer group array */
-  timer_array = hal_malloc(num_timers * sizeof(t_on_t));
+  timer_array = hal_malloc(num_timers * sizeof(t_off_t));
   if (timer_array == 0) {
     rtapi_print_msg(RTAPI_MSG_ERR,
-                    "IEC_TON: ERROR: hal_malloc() failed\n");
+                    "IEC_TOFF: ERROR: hal_malloc() failed\n");
     hal_exit(comp_id);
     return -1;
   }
@@ -110,16 +110,16 @@ int rtapi_app_main(void){
     retval = export_timer(n, &(timer_array[n]));
     if (retval != 0) {
       rtapi_print_msg(RTAPI_MSG_ERR,
-                      "IEC_TON: ERROR: group %d export failed\n", n);
+                      "IEC_TOFF: ERROR: group %d export failed\n", n);
       hal_exit(comp_id);
       return -1;
     }
   }
 
-  retval = hal_export_funct("t_on.update", update, timer_array, 0, 0, comp_id);
+  retval = hal_export_funct("t_off.update", update, timer_array, 0, 0, comp_id);
 
   rtapi_print_msg(RTAPI_MSG_INFO,
-                  "IEC_TON: installed %d groups of IEC_TON timers, %d total\n",
+                  "IEC_TOFF: installed %d groups of IEC_TOFF timers, %d total\n",
                   num_timers, num_timers);
 
   hal_ready(comp_id);
@@ -131,24 +131,23 @@ void rtapi_app_exit(void){
 }
 
 static void update(void *arg, long period){
-  t_on_t *timer;
+  t_off_t *timer;
 
   timer = arg;
 
   // Check timers
   if(*(timer->in)){
+    *(timer->q) = 1;
+    *(timer->et) = 0;
+  }
+  else{
     // Update outputs
     if(*(timer->et) > *(timer->pt)){
-      *(timer->q) = 1;
+      *(timer->q) = 0;
     }
     else{
       *(timer->et) += period;
     }
-  }
-  else{
-    // Reset Variables
-    *(timer->et) = 0;
-    *(timer->q) = 0;
   }
 
 }
@@ -158,7 +157,7 @@ static void update(void *arg, long period){
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_timer(int num, t_on_t * addr)
+static int export_timer(int num, t_off_t * addr)
 {
   int retval, msg;
 
@@ -171,19 +170,19 @@ static int export_timer(int num, t_on_t * addr)
 
   /* Export Pins */
   retval = hal_pin_bit_newf(HAL_IN, &(addr->in), comp_id,
-                              "t_on.%d.in", num);
+                            "t_off.%d.in", num);
   if (retval != 0) { return retval; }
 
   retval = hal_pin_u32_newf(HAL_IN, &(addr->pt), comp_id,
-                            "t_on.%d.pt", num);
+                            "t_off.%d.pt", num);
   if (retval != 0) { return retval; }
 
   retval = hal_pin_bit_newf(HAL_OUT, &(addr->q), comp_id,
-                            "t_on.%d.q", num);
+                            "t_off.%d.q", num);
   if (retval != 0) { return retval; }
 
   retval = hal_pin_u32_newf(HAL_OUT, &(addr->et), comp_id,
-                            "t_on.%d.et", num);
+                            "t_off.%d.et", num);
   if (retval != 0) { return retval; }
 
 
