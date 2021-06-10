@@ -42,7 +42,7 @@ class Converter(QMainWindow, object):
                 self.iniIn = sys.argv[1]
             else:
                 print('{} is not a valid file.'.format(sys.argv[1]))
-                sys.exit(2)
+                sys.exit(0)
         else:
             self.mode = ''
             self.iniIn = ''
@@ -203,7 +203,7 @@ class Converter(QMainWindow, object):
              QRadioButton::indicator:checked {background: #ffee06} \
             ')
         convert.pressed.connect(self.convert_pressed)
-        cancel.pressed.connect(self.cancel_pressed)
+        cancel.pressed.connect(self.close_app)
         if not self.mode:
             fromFileButton.pressed.connect(self.from_pressed)
         if os.path.exists('{}/linuxcnc/configs'.format(os.path.expanduser('~'))):
@@ -216,6 +216,7 @@ class Converter(QMainWindow, object):
         self.estop = 'ESTOP_TYPE              = 0\n'
         self.laserXOffset, self.laserYOffset = None, None
         self.cameraXOffset, self.cameraYOffset = None, None
+
 # POPUP INFO DIALOG
     def dialog_ok(self, title, text):
         msgBox = QMessageBox()
@@ -272,8 +273,8 @@ class Converter(QMainWindow, object):
             self.estop = 'ESTOP_TYPE              = 2\n'
 
 # CLOSE PROGRAM
-    def cancel_pressed(self):
-        sys.exit()
+    def close_app(self):
+        sys.exit(2)
 
 # CONVERT
     def convert_pressed(self):
@@ -609,7 +610,7 @@ class Converter(QMainWindow, object):
         msg += '\n{}/{}.ini\n'.format(newDir, machineName)
         self.dialog_ok('SUCCESS', msg)
         print(msg)
-        sys.exit(2)
+        sys.exit(0)
 
 
 # READ THE ORIGINAL <MACHINE>_CONFIG.CFG FILE
@@ -880,6 +881,8 @@ class Converter(QMainWindow, object):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
     w = Converter()
+    app.lastWindowClosed.connect(w.close_app)
     w.show()
     sys.exit(app.exec_())
