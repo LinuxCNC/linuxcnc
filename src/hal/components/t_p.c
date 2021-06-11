@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: t_pelse.c
+* Description: t_pulse.c
 *   IEC_61131-3 Pulse Time timer for HAL bit signals.
 *
 *   This is a HAL component that can be used to send a pulse signals
@@ -13,10 +13,10 @@
 *
 * Author: Chad Woitas (aka satiowadahc)
 * License: GPL Version 2
-* Created on: 2020/06/10
+* Created on: 2021/06/10
 * System: Linux
 *
-* Copyright (c) 2020 All rights reserved.
+* Copyright (c) 2021 All rights reserved.
 *
 * Last change: Creation
 *
@@ -30,7 +30,7 @@
 
 /* module information */
 MODULE_AUTHOR("Chad Woitas");
-MODULE_DESCRIPTION("IEC TP - On Delay Timer");
+MODULE_DESCRIPTION("IEC TP - Pulse Timer");
 MODULE_LICENSE("GPL");
 
 #define MAX_TIMERS 255
