@@ -1,6 +1,13 @@
 import hal
-import glib
 import time
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import GLib
 
 from inspect import stack
 
@@ -66,7 +73,7 @@ class HandlerClass:
         # demonstrate a slow background timer - granularity is one second
         # for a faster timer, use this:
         # glib.timeout_add(5000,  self._on_timer_tick)
-        glib.timeout_add_seconds(1, self._on_timer_tick)
+        GLib.timeout_add_seconds(1, self._on_timer_tick)
 
 
 
