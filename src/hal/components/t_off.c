@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: t_off.c
-*   IEC_61131-3 Time On timer for HAL bit signals.
+*   IEC_61131-3 Time Off timer for HAL bit signals.
 *
 *   This is a HAL component that can be used to delay off signals
 *   for a certain amount of time.
