@@ -18,6 +18,7 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 import os
 import time
 import re, string
@@ -524,7 +525,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         self.set_sensitive(False)
         self.emit('mdi-command-start')
         self.on_activate(w)
-        GObject.timeout_add(100, self.wait_complete)
+        GLib.timeout_add(100, self.wait_complete)
 
     def wait_complete(self):
         if self.linuxcnc.wait_complete(0) in [-1, linuxcnc.RCS_EXEC]:

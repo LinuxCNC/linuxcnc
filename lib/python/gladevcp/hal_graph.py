@@ -18,6 +18,7 @@ gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GLib
 import cairo
 import math
 import time
@@ -106,7 +107,7 @@ class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
         self.tick_idx = 0
         self.hal_pin = 0
 
-        GObject.timeout_add(self.tick, self.tick_poll, self.tick_idx)
+        GLib.timeout_add(self.tick, self.tick_poll, self.tick_idx)
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
@@ -327,7 +328,7 @@ class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
 
         if name == 'tick':
             self.tick_idx += 1
-            GObject.timeout_add(value, self.tick_poll, self.tick_idx)
+            GLib.timeout_add(value, self.tick_poll, self.tick_idx)
         if name in ['bg_color', 'fg_color']:
             if not value:
                 return False

@@ -20,6 +20,7 @@
 import gi
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
+from gi.repository import GLib
 
 import sys
 import hal
@@ -54,7 +55,7 @@ class GladePanel():
                 widget.hal_init(self.hal, idname, self)
                 self.widgets[idname] = widget
 
-        self.timer = gobject.timeout_add(100, self.update)   
+        self.timer = GLib.timeout_add(100, self.update)   
                
     def get_handler_obj(self):
         return self.extension_obj

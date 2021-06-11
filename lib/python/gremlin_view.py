@@ -75,6 +75,7 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 import os
 import sys
 import gladevcp.hal_actions  # reqd for Builder
@@ -313,8 +314,8 @@ class GremlinView():
         self.ct = 0
         if self.parent is None: self.topwindow.deiconify()
         self._periodic('BEGIN')
-        GObject.timeout_add_seconds(g_periodic_secs,self._periodic,'Continue')
-        # or use GObject.timeout_add() interval units in mS
+        GLib.timeout_add_seconds(g_periodic_secs,self._periodic,'Continue')
+        # or use GLib.timeout_add() interval units in mS
 
     def _periodic(self,arg):
         # print "_periodic:",self.ct,arg

@@ -23,6 +23,7 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 import sys
 import os
 import gremlin_view
@@ -100,7 +101,7 @@ class HAL_GremlinPlus(Gtk.Frame, hal_actions._EMC_ActionBase):
                 or gtype == GObject.TYPE_FLOAT):
                 ty,lbl,tip,minv,maxv,dflt,other = self.__gproperties[name]
             self.property_dict[name] = dflt
-        GObject.timeout_add(1,self.go_gremlin_view) # defer
+        GLib.timeout_add(1,self.go_gremlin_view) # defer
 
     def do_get_property(self,property):
         name = property.name.replace('-', '_')
@@ -125,7 +126,7 @@ class HAL_GremlinPlus(Gtk.Frame, hal_actions._EMC_ActionBase):
             ,glade_file=self.property_dict['glade_file']
             ,gtk_theme_name= self.property_dict['gtk_theme_name']
             )
-        GObject.timeout_add(1,self.remove_unwanted_label)
+        GLib.timeout_add(1,self.remove_unwanted_label)
 
     def remove_unwanted_label(self):
         # coerce removal of unwanted label

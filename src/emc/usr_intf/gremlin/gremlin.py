@@ -41,6 +41,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkX11
 from gi.repository import GObject
+from gi.repository import GLib
 
 import sys
 from OpenGL.GL import *
@@ -285,7 +286,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.logger.clear()
 
     def map(self, *args):
-        GObject.timeout_add(50, self.poll)
+        GLib.timeout_add(50, self.poll)
 
     def poll(self):
         s = self.stat

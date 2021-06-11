@@ -6,12 +6,8 @@ import linuxcnc
 import os
 import math
 
-import sys
-if sys.version_info.major > 2:
-    from gi.repository import GObject
-else:
-    import gobject as GObject
-    GObject.Object = GObject.GObject
+from gi.repository import GObject
+from gi.repository import GLib
 
 # constants
 JOGJOINT  = 1
@@ -77,7 +73,7 @@ class GPin(GObject.Object, hal.Pin):
         if GPin.UPDATE:
             return
         GPin.UPDATE = True
-        GObject.timeout_add(timeout, self.update_all)
+        GLib.timeout_add(timeout, self.update_all)
 
     @classmethod
     def update_stop(self, timeout=100):
@@ -254,7 +250,7 @@ class _GStat(GObject.GObject):
     # we put this in a function so qtvcp
     # can override it to fix a seg fault
     def set_timer(self):
-        GObject.timeout_add(CYCLE_TIME, self.update)
+        GLib.timeout_add(CYCLE_TIME, self.update)
 
     def merge(self):
         self.old['command-state'] = self.stat.state

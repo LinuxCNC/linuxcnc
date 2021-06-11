@@ -30,6 +30,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import GtkSource
+from gi.repository import GLib
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -100,7 +101,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
 
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
-        self.gstat.connect('file-loaded', lambda w, f: GObject.timeout_add(1, self.load_file, f))
+        self.gstat.connect('file-loaded', lambda w, f: GLib.timeout_add(1, self.load_file, f))
         self.gstat.connect('line-changed', self.highlight_line)
         if self.idle_line_reset:
             self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))

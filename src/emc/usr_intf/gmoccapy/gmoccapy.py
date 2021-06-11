@@ -477,7 +477,7 @@ class gmoccapy(object):
 
         # since the main loop is needed to handle the UI and its events, blocking calls like sleep()
         # will block the UI as well, so everything goes through event handlers (aka callbacks)
-        # The GObject.timeout_add() function sets a function to be called at regular intervals
+        # The GLib.timeout_add() function sets a function to be called at regular intervals
         # the time between calls to the function, in milliseconds
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()

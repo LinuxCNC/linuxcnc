@@ -815,9 +815,9 @@ class Gscreen:
             temp = 100
         print(_("timeout %d" % int(temp)))
         if "timer_interrupt" in dir(self.handler_instance):
-            GObject.timeout_add(int(temp), self.handler_instance.timer_interrupt)
+            GLib.timeout_add(int(temp), self.handler_instance.timer_interrupt)
         else:
-            GObject.timeout_add(int(temp), self.timer_interrupt)
+            GLib.timeout_add(int(temp), self.timer_interrupt)
 
 
         # print out gscreen functions and docstrings so users know
@@ -1307,11 +1307,11 @@ class Gscreen:
         # add terminal window
         try:
             self.widgets._terminal = vte.Terminal ()
-            self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
+            self.widgets._terminal.connect ("child-exited", lambda term: Gtk.main_quit())
             self.widgets._terminal.fork_command()
             self.widgets._terminal.show()
             window = self.widgets.terminal_window.add(self.widgets._terminal)
-            self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+            self.widgets.terminal_window.connect('delete-event', lambda window, event: Gtk.main_quit())
             self.widgets.terminal_window.show()
         except:
             print (_("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?"))
@@ -1827,7 +1827,7 @@ class Gscreen:
         self.widgets.gcode_view.redo()
 
     def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
-        print (gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods)
+        print (Gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods)
         return True
 
     def on_key_event(self,widget, event,state):
@@ -1986,7 +1986,7 @@ class Gscreen:
                    destroy_with_parent = True)
 
         calc = gladevcp.Calculator()
-        self.data.preset_spindle_dialog.vbox.pack_start(label)
+        self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
         self.data.preset_spindle_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
@@ -2022,7 +2022,7 @@ class Gscreen:
                    destroy_with_parent = True)
         label = Gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.index_tool_dialog.vbox.pack_start(label)
+        self.data.index_tool_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         self.data.index_tool_dialog.vbox.add(calc)
         calc.set_value("")
@@ -2204,7 +2204,7 @@ class Gscreen:
                    destroy_with_parent = True)
         calc = gladevcp.Calculator()
         calc.set_editable(True)
-        self.data.entry_dialog.vbox.pack_start(label)
+        self.data.entry_dialog.vbox.pack_start(label, False, False, 0)
         self.data.entry_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
@@ -2222,7 +2222,7 @@ class Gscreen:
             Requires a status bar called 'statusbar1' to display the answer
         """
         data = calc.get_value()
-        if result == gtk.ResponseType.ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             print ("accept",data)
             if data == None:
                 data = 0
@@ -2367,7 +2367,7 @@ class Gscreen:
         self.emc.machine_off(1)
         self.emc.estop(1)
         time.sleep(2)
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def on_axis_selection_clicked(self,widget):
         """This is a callback to update the axis selection data.
@@ -3735,7 +3735,7 @@ class Gscreen:
                 Gtk.MessageType.INFO, Gtk.ButtonsType.OK,message,
                 destroy_with_parent = True)
         else:   
-            dialog = gtk.MessageDialog(self.widgets.window1,
+            dialog = Gtk.MessageDialog(self.widgets.window1,
                0,
                Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,message,
                destroy_with_parent = True)
@@ -3795,7 +3795,7 @@ class Gscreen:
                    destroy_with_parent = True)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.restart_dialog.vbox.pack_start(label)
+        self.data.restart_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         self.data.restart_dialog.vbox.add(calc)
         calc.set_value("%d"%self.data.last_line)

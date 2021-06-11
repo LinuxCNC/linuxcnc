@@ -25,6 +25,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
+from gi.repository import GLib
 
 # localization
 import locale
@@ -168,7 +169,7 @@ class ToolEdit(Gtk.VBox):
             pass
 
         # check linuxcnc status every second
-        GObject.timeout_add(1000, self.periodic_check)
+        GLib.timeout_add(1000, self.periodic_check)
 
     # used to split tool and wear data by the tool number
     # if the tool number is above 10000 then its a wear offset (as per fanuc)
@@ -581,7 +582,7 @@ class ToolEdit(Gtk.VBox):
                 renderer = columns[colnum].get_cell_renderers()
                 if type(focuschild) is Gtk.Entry:
                     self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
-            GObject.timeout_add(50,
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -613,7 +614,7 @@ class ToolEdit(Gtk.VBox):
             renderer = columns[colnum].get_cell_renderers()
             if type(focuschild) is Gtk.Entry:
                 self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
-            GObject.timeout_add(50,
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -624,13 +625,13 @@ class ToolEdit(Gtk.VBox):
             if path[0] + 1 == len(model):
                 path = (0, )
                 # treeview.set_cursor(path, columns[colnum], True)
-                GObject.timeout_add(50,
+                GLib.timeout_add(50,
                                  treeview.set_cursor,
                                  path, columns[colnum], True)
             else:
                 newpath = path[0] + 1
                 # treeview.set_cursor(path, columns[colnum], True)
-                GObject.timeout_add(50,
+                GLib.timeout_add(50,
                                  treeview.set_cursor,
                                  newpath, columns[colnum], True)
 
@@ -640,7 +641,7 @@ class ToolEdit(Gtk.VBox):
                 newpath = len(model)-1
             else:
                 newpath = path[0] - 1
-            GObject.timeout_add(50,
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              newpath, columns[colnum], True)
 

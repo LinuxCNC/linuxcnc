@@ -21,6 +21,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 
 # we put this in a try so there is no error in the glade editor
 # linuxcnc is probably not running then 
@@ -55,7 +56,7 @@ class HAL_Offset(Gtk.Label):
         self.machine_units_mm=0
         self.unit_convert=[1]*9
         # The update time: every 500 milliseconds
-        GObject.timeout_add(500, self.periodic)
+        GLib.timeout_add(500, self.periodic)
 
         # check the ini file if UNITS are set to mm
         # first check the global settings

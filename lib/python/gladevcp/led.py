@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
+from gi.repository import GLib
 import cairo
 import math
 
@@ -294,7 +295,7 @@ class HAL_LED(Gtk.DrawingArea, _HalSensitiveBase):
             if rate < 100:rate = 100
             self._blink_active = True
             self._blink_magic += 1
-            self._blink_timer = GObject.timeout_add(rate, self.blink, self._blink_magic)
+            self._blink_timer = GLib.timeout_add(rate, self.blink, self._blink_magic)
 
     def blink(self, magic=None):
         if not self._blink_active:

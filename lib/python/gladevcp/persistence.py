@@ -48,7 +48,7 @@ version_number = 1
 
 
 def warn(*args):
-    print >> sys.stderr,''.join(args)
+    print(''.join(args), file=sys.stderr)
 
 
 def dbg(level,*args):
@@ -171,11 +171,11 @@ class IniFile(object):
             dbg(1,"signature verified OK for %s " % (self.filename))
 
         if IniFile.vars in self.config:
-            for k,v in self.defaults[IniFile.vars].items():
+            for k,v in list(self.defaults[IniFile.vars].items()):
                 setattr(obj,k,self.config[IniFile.vars][k])
 
         if IniFile.widgets in self.config:
-            for k,v in self.config[IniFile.widgets].items():
+            for k,v in list(self.config[IniFile.widgets].items()):
                 store_value(self.builder.get_object(k),v)
 
     def save_state(self, obj):
@@ -184,11 +184,11 @@ class IniFile(object):
         widget state to 'widgets' section
         '''
         if IniFile.vars in self.defaults:
-            for k,v in self.defaults[IniFile.vars].items():
+            for k,v in list(self.defaults[IniFile.vars].items()):
                 self.config[IniFile.vars][k] = getattr(obj,k,None)
 
         if IniFile.widgets in self.config:
-            for k in self.defaults[IniFile.widgets].keys():
+            for k in list(self.defaults[IniFile.widgets].keys()):
                 self.config[IniFile.widgets][k] = get_value(self.builder.get_object(k))
 
         self.config.final_comment = ['last update  by %s.save_state() on %s ' %
