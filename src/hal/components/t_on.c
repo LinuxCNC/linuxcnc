@@ -33,6 +33,7 @@ MODULE_AUTHOR("Chad Woitas");
 MODULE_DESCRIPTION("IEC TON - On Delay Timer");
 MODULE_LICENSE("GPL");
 
+#define NS_SECONDS(X) ((float)X/1000000000)
 #define MAX_TIMERS 255
 
 static int cfg[MAX_TIMERS];
@@ -45,9 +46,9 @@ RTAPI_MP_ARRAY_INT(cfg, MAX_TIMERS, "Group size for up to 255 timers");
 
 typedef struct{
     hal_bit_t *in;  // Input
-    hal_u32_t *pt;  // Pulse Timer
+    hal_float_t *pt;  // Pulse Timer
     hal_bit_t *q;   // Output
-    hal_u32_t *et;  // Elapsed Time since on in High
+    hal_float_t *et;  // Elapsed Time since on in High
 } t_on_t;
 
 static t_on_t *timer_array;
@@ -135,6 +136,19 @@ static void update(void *arg, long period){
 
   timer = arg;
 
+  if(*(timer->pt) < 0) {
+    *(timer->pt) = 0;
+    rtapi_print_msg(RTAPI_MSG_WARN,
+                    "IEC_TP: Pulse time must be positive, resetting to 0");
+  }
+  if(*(timer->et) < 0) {
+    *(timer->et) = 0;
+    rtapi_print_msg(RTAPI_MSG_WARN,
+                    "IEC_TP: Elapsed time rolled over, resetting to 0");
+  }
+
+  float seconds = NS_SECONDS(period);
+
   // Check timers
   if(*(timer->in)){
     // Update outputs
@@ -142,7 +156,7 @@ static void update(void *arg, long period){
       *(timer->q) = 1;
     }
     else{
-      *(timer->et) += period;
+      *(timer->et) += seconds;
     }
   }
   else{
@@ -174,7 +188,7 @@ static int export_timer(int num, t_on_t * addr)
                               "t_on.%d.in", num);
   if (retval != 0) { return retval; }
 
-  retval = hal_pin_u32_newf(HAL_IN, &(addr->pt), comp_id,
+  retval = hal_pin_float_newf(HAL_IN, &(addr->pt), comp_id,
                             "t_on.%d.pt", num);
   if (retval != 0) { return retval; }
 
@@ -182,13 +196,13 @@ static int export_timer(int num, t_on_t * addr)
                             "t_on.%d.q", num);
   if (retval != 0) { return retval; }
 
-  retval = hal_pin_u32_newf(HAL_OUT, &(addr->et), comp_id,
+  retval = hal_pin_float_newf(HAL_OUT, &(addr->et), comp_id,
                             "t_on.%d.et", num);
   if (retval != 0) { return retval; }
 
 
   *(addr->in) = 0;
-  *(addr->pt) = 1000;
+  *(addr->pt) = 1;
 
 
   /* restore saved message level */
