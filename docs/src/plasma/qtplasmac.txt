@@ -1132,7 +1132,11 @@ To return any of the color changes to their default values, see the <<qt_default
 
 [[qt_backup]]
 
-The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, and <version_info> is the current QtPlasmaC version the user is on.
+The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version>_<date>_<time>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, <version> is the current QtPlasmaC version the user is on, <date> is the current date (YY-MM-DD), and <time> is the current time (HH-MM-SS).
+
+Prior to the backup being made, the machine log will be saved to a file in the configuration directory named machine_log_<date>_<time>.txt where <date> and <time> are as described above. This file will also be included in tha backup.
+
+These files are not required by QtPlasmaC and are safe to delete at any time.
 
 [[qt_statistics-tab]]
 
@@ -1146,9 +1150,11 @@ Previous job statistics are reset once the next program is run.
 
 The total values may be reset either individually by clicking the corresponding "RESET" button, or they may all be reset together by clicking "RESET ALL".
 
-image::images/qtplasmac_stats.png[width=800,align="center"]
+The *RS485 PMX STATISTICS* panel will be only be displayed if the user has Hypertherm PowerMax communications and a valid RS485 connection to the PowerMax is established. This panel will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
-If the user has Hypertherm PowerMax communications, when a valid RS485 connection to the PowerMax is established an additional panel titled *RS485 PMX STATISTICS* will be displayed which will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
+The *MACHINE LOG* is also displayed on the statistics tab, this log will display any errors and/or important information that occurs during the current LinuxCNC session. If the user makes a backup of the configuration from the <<qt_parameters-tab, PARAMETERS Tab>> then the machine log is also included in the backup.
+
+image::images/qtplasmac_stats.png[width=800,align="center"]
 
 == Using QtPlasmaC
 

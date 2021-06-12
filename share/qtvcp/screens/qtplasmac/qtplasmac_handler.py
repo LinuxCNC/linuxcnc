@@ -1,4 +1,4 @@
-VERSION = '1.0.38'
+VERSION = '1.0.39'
 
 import os, sys
 from shutil import copy as COPY
@@ -1207,21 +1207,22 @@ class HandlerClass:
         self.load_plasma_parameters()
 
     def backup_clicked(self):
-        bDate = '{}-{:02d}-{:02d}'.format(time.localtime(time.time())[0], \
-                                          time.localtime(time.time())[1], \
-                                          time.localtime(time.time())[2],)
-        bTime = '{:02d}-{:02d}-{:02d}'.format(time.localtime(time.time())[3], \
-                                              time.localtime(time.time())[4], \
-                                              time.localtime(time.time())[4],)
-        outPath = '{}'.format(os.path.expanduser('~'))
-        outName = '{}_V{}_{}_{}.tar.gz'.format(self.machineName, VERSION, bDate, bTime)
-        with tarfile.open('{}/{}'.format(outPath, outName), mode='w:gz', ) as archive:
+        text = self.w.machinelog.toPlainText()
+        logName = '{}/machine_log_{}.txt'.format(self.PATHS.CONFIGPATH, time.strftime('%y-%m-%d_%H-%M-%S'))
+        with open(logName, 'w') as f:
+            f.write(text)
+        bkpPath = '{}'.format(os.path.expanduser('~'))
+        bkpName = '{}_V{}_{}.tar.gz'.format(self.machineName, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
+        with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
-        msg = 'A compressed backup of the machine configuration\n' \
-              'has been saved in your home directory.\n\n' \
-              'The file name is: {}\n\n' \
-              'This file may be attached to a post on the\n' \
-              'LinuxCNC forum to aid in problem solving.\n\n'.format(outName)
+        msg  = 'A copy of the machine log has been saved in the\n' \
+               'configuration directory as:\n' \
+               '{}\n\n'.format(logName)
+        msg += 'A compressed backup of the machine configuration\n' \
+               'including the above machine log backup\n' \
+               'has been saved in your home directory as:\n' \
+               '{}\n\n'.format(bkpName)
+        msg += 'It is safe to delete these files at any time\n\n'
         self.dialog_show_ok(QMessageBox.Information, 'Backup Complete', msg)
 
     def feed_label_pressed(self):
@@ -2727,12 +2728,11 @@ class HandlerClass:
     def vkb_show(self, numpad=False):
         if os.path.isfile('/usr/bin/onboard'):
             if self.w.chk_soft_keyboard.isChecked():
-                lPath = os.path.join(self.PATHS.IMAGEDIR, self.PATHS.BASEPATH)
                 w = '240' if numpad else '740'
                 h = '240'
                 l = 'numpad' if numpad else 'keyboard'
                 self.vkb_hide(True)
-                self.vkb_setup(w, h, os.path.join(lPath, l))
+                self.vkb_setup(w, h, os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac', l))
                 cmd  = 'dbus-send'
                 cmd += ' --type=method_call'
                 cmd += ' --dest=org.onboard.Onboard'
@@ -2756,7 +2756,8 @@ class HandlerClass:
             Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
-            time.sleep(0.2)
+            time.sleep(0.25)
+            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape width {}'.format(w), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape height {}'.format(h), stdout=PIPE, shell=True)#            time.sleep(0.5)
 

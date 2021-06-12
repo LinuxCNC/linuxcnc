@@ -14761,11 +14761,8 @@ CONFIG</string>
           <attribute name="title">
            <string>STATISTICS</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_29">
+          <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="0,0,1">
            <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
             <number>4</number>
            </property>
            <property name="topMargin">
@@ -14938,7 +14935,7 @@ CONFIG</string>
                   <widget class="QLabel" name="label_25">
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
+                     <width>60</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -15051,7 +15048,7 @@ CONFIG</string>
                   <widget class="QLabel" name="label_23">
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
+                     <width>60</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -15100,7 +15097,7 @@ CONFIG</string>
                   <widget class="QLabel" name="label_22">
                    <property name="minimumSize">
                     <size>
-                     <width>180</width>
+                     <width>160</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -15307,7 +15304,7 @@ CONFIG</string>
                   <widget class="QLabel" name="label_38">
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
+                     <width>60</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -15359,17 +15356,102 @@ CONFIG</string>
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_17">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
+            <widget class="QFrame" name="machinelog_frame">
+             <property name="minimumSize">
               <size>
-               <width>10</width>
-               <height>20</height>
+               <width>100</width>
+               <height>0</height>
               </size>
              </property>
-            </spacer>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_55">
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="machinelog_label">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>MACHINE LOG</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_39">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>200</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Plain</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_56">
+                 <property name="spacing">
+                  <number>4</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>4</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>4</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>4</number>
+                 </property>
+                 <item>
+                  <widget class="MachineLog" name="machinelog">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -15455,6 +15537,11 @@ CONFIG</string>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>MachineLog</class>
+   <extends>QTextEdit</extends>
+   <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
    <class>CamView</class>
