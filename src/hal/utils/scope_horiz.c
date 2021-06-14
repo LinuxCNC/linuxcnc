@@ -455,31 +455,41 @@ int set_horiz_pos(double setting)
 
 static void dialog_realtime_not_loaded(void)
 {
-    const gchar *title, *msg;
-    gint retval;
+    int retval;
     static int first_time=1;
+    GtkWidget *dialog;
 
     if(first_time) {
         first_time = 0;
         if(system(EMC2_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
-	    sleep(1);
-	    return;
-	}
+            sleep(1);
+            return;
+        }
     }
-    title = _("Realtime component not loaded");
-    msg = _("HALSCOPE uses a realtime component called scope_rt'\n"
-	"to sample signals for display.  It is not currently loaded\n"
-        "and attempting to load it automatically failed.  More information\n"
-        "may be available in the terminal where halscope was started.\n\n"
-	"Please do one of the following:\n\n"
-	"Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE");
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
-	gtk_main_quit();
+    dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_NONE,
+                                    _("Realtime component not loaded"));
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("HALSCOPE uses a realtime component called scope_rt'\n"
+            "to sample signals for display.  It is not currently loaded\n"
+            "and attempting to load it automatically failed.  More information\n"
+            "may be available in the terminal where halscope was started.\n\n"
+            "Please do one of the following:\n\n"
+            "Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
+            "or\n" "Click 'Quit' to exit HALSCOPE"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("OK"), GTK_RESPONSE_OK,
+                           _("Quit"), GTK_RESPONSE_CLOSE,
+                           NULL);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (retval == GTK_RESPONSE_CLOSE) {
+        /* user pressed quit - end the program */
+        gtk_main_quit();
     }
 }
 
@@ -744,22 +754,32 @@ static void dialog_realtime_not_linked(void)
 
 static void dialog_realtime_not_running(void)
 {
-    const gchar *title, *msg;
-    gint retval;
+    int retval;
+    GtkWidget *dialog;
 
-    title = _("Realtime thread(s) not running");
-    msg = _("HALSCOPE uses code in a realtime HAL thread to sample\n"
-	"signals for display.  The HAL thread(s) are not running.\n"
-	"Threads are usually started by the application you are\n"
-	"attempting to run, or you can use the 'halcmd start' command.\n\n"
-	"Please do one of the following:\n\n"
-	"Start the threads, then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE");
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), _("Quit"),
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
+    dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_NONE,
+                                    _("Realtime thread(s) not running"));
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("HALSCOPE uses code in a realtime HAL thread to sample\n"
+            "signals for display.  The HAL thread(s) are not running.\n"
+            "Threads are usually started by the application you are\n"
+            "attempting to run, or you can use the 'halcmd start' command.\n\n"
+            "Please do one of the following:\n\n"
+            "Start the threads, then click 'OK'\n"
+            "or\n" "Click 'Quit' to exit HALSCOPE"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("OK"), GTK_RESPONSE_OK,
+                           _("Quit"), GTK_RESPONSE_CLOSE,
+                           NULL);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (retval == GTK_RESPONSE_CLOSE) {
+	/* user pressed quit - end the program */
 	gtk_main_quit();
     }
 }
@@ -926,7 +946,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
     int retval;
-    const char *title, *msg;
+    GtkWidget *dialog;
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
@@ -935,12 +955,18 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
     retval = set_rec_len((long)gdata);
     if (retval < 0) {
 	/* too many channels already enabled */
-	title = _("Not enough channels");
-	msg = _("This record length cannot handle the channels\n"
-	    "that are currently enabled.  Pick a shorter\n"
-	    "record length that supports more channels.");
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), NULL, NULL,
-	    NULL);
+        dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                        GTK_DIALOG_MODAL,
+                                        GTK_MESSAGE_INFO,
+                                        GTK_BUTTONS_OK,
+                                        _("Not enough channels"));
+        gtk_message_dialog_format_secondary_text(
+                GTK_MESSAGE_DIALOG(dialog),
+                _("This record length cannot handle the channels\n"
+                "that are currently enabled.  Pick a shorter\n"
+                "record length that supports more channels."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     }
 }
 

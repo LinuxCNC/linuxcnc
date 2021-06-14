@@ -816,7 +816,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     int n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
-    char *title, *msg;
+    GtkWidget *dialog;
 
     vert = &(ctrl_usr->vert);
     chan_num = (long) gdata;
@@ -843,12 +843,18 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	    /* force the button to pop back out */
 	    ignore_click = 1;
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-	    title = _("Too many channels");
-	    msg = _("You cannot add another channel.\n\n"
-		"Either turn off one or more channels, or shorten\n"
-		"the record length to allow for more channels");
-	    dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), NULL,
-		NULL, NULL);
+            dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                            GTK_DIALOG_MODAL,
+                                            GTK_MESSAGE_INFO,
+                                            GTK_BUTTONS_CLOSE,
+                                            _("Too many channels"));
+            gtk_message_dialog_format_secondary_text(
+                    GTK_MESSAGE_DIALOG(dialog),
+                    _("You cannot add another channel.\n\n"
+                    "Either turn off one or more channels, or shorten\n"
+                    "the record length to allow for more channels"));
+            gtk_dialog_run(GTK_DIALOG(dialog));
+            gtk_widget_destroy(dialog);
 	    return;
 	}
 	if (chan->name == NULL) {
@@ -857,8 +863,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 		/* user failed to assign a source */
 		/* force the button to pop back out */
 		ignore_click = 1;
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
-		    FALSE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
 		return;
 	    }
 	}
