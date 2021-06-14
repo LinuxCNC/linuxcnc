@@ -496,22 +496,22 @@ static void dialog_realtime_not_loaded(void)
 static void dialog_realtime_not_linked(void)
 {
     scope_horiz_t *horiz;
-    dialog_generic_t dialog;
 
     int next, sel_row, n;
+    int retval;
     double period;
     hal_thread_t *thread;
-    gchar *strs[2];
-    gchar buf[BUFLEN + 1];
+    char *strs[2];
+    char buf[BUFLEN + 1];
     GtkWidget *hbox, *label;
     GtkWidget *content_area;
-    GtkWidget *button;
+    GtkWidget *dialog;
     GtkWidget *buttons[5];
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
     char *titles[NUM_COLS];
-    const gchar *title, *msg;
+    const char *title, *msg;
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
@@ -528,20 +528,21 @@ static void dialog_realtime_not_linked(void)
 	    "or\n" "Click 'Quit' to exit HALSCOPE");
     }
     /* create dialog window, disable resizing and set title */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+    dialog = gtk_dialog_new_with_buttons(title,
+                                         GTK_WINDOW(ctrl_usr->main_win),
+                                         GTK_DIALOG_MODAL,
+                                         _("_OK"), GTK_RESPONSE_OK,
+                                         _("Quit"), GTK_RESPONSE_CLOSE,
+                                         NULL);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_widget_set_margin_top(label, 5);
-    gtk_widget_set_margin_bottom(label, 5);
     gtk_widget_set_margin_start(label, 15);
     gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, TRUE, 0);
+            label, FALSE, TRUE, 5);
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
@@ -716,26 +717,11 @@ static void dialog_realtime_not_linked(void)
 	/* yes, preselect appropriate line */
         mark_selected_row(horiz->thread_list, sel_row);
     }
-    /* set up a callback function when the window is destroyed */
-    g_signal_connect(dialog.window, "destroy",
-	G_CALLBACK(dialog_generic_destroyed), &dialog);
+    gtk_widget_show_all(dialog);
 
-    /* make OK and Quit buttons */
-    button = gtk_button_new_with_label(_("OK"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 1);
-    g_signal_connect(button, "clicked",
-            G_CALLBACK(dialog_generic_button1), &dialog);
-    button = gtk_button_new_with_label(_("Quit"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 2);
-    g_signal_connect(button, "clicked",
-            G_CALLBACK(dialog_generic_button2), &dialog);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
     /* these items no longer exist - NULL them */
     horiz->thread_list = NULL;
     horiz->thread_name_label = NULL;
@@ -743,13 +729,13 @@ static void dialog_realtime_not_linked(void)
     horiz->sample_period_label = NULL;
     horiz->mult_adj = NULL;
     horiz->mult_spinbutton = NULL;
-    /* we get here when the user hits OK or Cancel or closes the window */
-    if ((dialog.retval == 0) || (dialog.retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
+
+    /* we get here when the user hits OK or Quit */
+    if (retval == GTK_RESPONSE_CLOSE) {
+	/* user pressed quit - end the program */
 	gtk_main_quit();
-    } else {
-	activate_sample_thread();
     }
+    activate_sample_thread();
 }
 
 static void dialog_realtime_not_running(void)

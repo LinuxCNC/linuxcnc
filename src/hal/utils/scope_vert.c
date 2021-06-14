@@ -96,7 +96,7 @@ static void offset_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
 static void offset_changed(GtkEditable * editable, struct offset_data *);
-static void offset_activated(GtkEditable * editable, gchar * button);
+static void offset_activated(GtkEntry *entry, GtkWidget *dialog);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
@@ -693,52 +693,48 @@ static gboolean dialog_set_offset(int chan_num)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    dialog_generic_t dialog;
-    gchar *title, msg[BUFLEN], *cptr;
+    char msg[BUFLEN], *cptr;
     struct offset_data data;
-    GtkWidget *label, *button;
     GtkWidget *content_area;
+    GtkWidget *dialog;
+    GtkWidget *label;
     double tmp;
+    int retval;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    title = _("Set Offset");
     snprintf(msg, BUFLEN - 1, _("Set the vertical offset\n"
 	"for channel %d."), chan_num);
-    /* create dialog window, disable resizing */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    dialog.app_data = &data;
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
 
-    /* display message */
+    /* create dialog window, disable resizing and place it in center of screen */
+    dialog = gtk_dialog_new_with_buttons(_("Set Offset"),
+                                         NULL, GTK_DIALOG_MODAL,
+                                         _("_OK"), GTK_RESPONSE_OK,
+                                         _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                         NULL);
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+    /* add elements to dialog */
     label = gtk_label_new(msg);
-    gtk_widget_set_margin_top(label, 5);
-    gtk_widget_set_margin_bottom(label, 5);
     gtk_widget_set_margin_start(label, 15);
     gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, TRUE, 0);
+            label, FALSE, FALSE, 5);
 
-    /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
 
-    /* a checkbox: AC coupled */
     vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             vert->offset_ac, FALSE, TRUE, 0);
 
-    /* react to changes to the checkbox */
-    g_signal_connect(vert->offset_ac, "toggled",
-	G_CALLBACK(offset_changed), &data);
-    /* the entry */
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             vert->offset_entry, FALSE, TRUE, 0);
+
+    /* update elements */
     snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
@@ -748,44 +744,27 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
-    /* capture entry data to the buffer whenever the user types */
+
+    /* signals */
+    g_signal_connect(vert->offset_ac, "toggled",
+	G_CALLBACK(offset_changed), &data);
     g_signal_connect(vert->offset_entry, "changed",
-	G_CALLBACK(offset_changed), data.buf);
-    /* set up a callback function when the window is destroyed */
-    g_signal_connect(dialog.window, "destroy",
-	G_CALLBACK(dialog_generic_destroyed), &dialog);
-    /* make OK and Cancel buttons */
-    button = gtk_button_new_with_label(_("OK"));
-    g_signal_connect(button, "clicked",
-	G_CALLBACK(dialog_generic_button1), &dialog);
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
-            button, 1);
-    /* hit the "OK" button if the user hits enter */
+	G_CALLBACK(offset_changed), &data);
     g_signal_connect(vert->offset_entry, "activate",
-	G_CALLBACK(offset_activated), button);
-    button = gtk_button_new_with_label(_("Cancel"));
-    g_signal_connect(button, "clicked",
-	G_CALLBACK(dialog_generic_button2), &dialog);
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
-            button, 2);
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
-    /* we get here when the user makes a selection, hits Cancel, or closes
-       the window */
-    if ((dialog.retval == 0) || (dialog.retval == 2)) {
-	/* user either closed dialog, or hit cancel */
-	return FALSE;
+	G_CALLBACK(offset_activated), dialog);
+    gtk_widget_show_all(dialog);
+
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    if (retval == GTK_RESPONSE_OK) {
+        tmp = strtod(data.buf, &cptr);
+        if (cptr == data.buf) {
+            return FALSE;
+        }
+        set_vert_offset(tmp, data.ac_coupled);
+        return TRUE;
     }
-    tmp = strtod(data.buf, &cptr);
-    if (cptr == data.buf) {
-	return FALSE;
-    }
-    set_vert_offset(tmp, data.ac_coupled);
-    return TRUE;
+    return FALSE;
 }
 
 static void offset_changed(GtkEditable * editable, struct offset_data *data)
@@ -803,10 +782,13 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     strncpy(data->buf, text, BUFLEN);
 }
 
-static void offset_activated(GtkEditable * editable, gchar * button)
+/*
+ * emit GTK_REPSONSE_OK signal when 'enter' is pressed and
+ * the text entry widget is active
+ */
+static void offset_activated(GtkEntry *entry, GtkWidget *dialog)
 {
-    /* user hit enter, generate a "clicked" event for the OK button */
-    gtk_button_clicked(GTK_BUTTON(button));
+    gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 }
 
 
@@ -934,7 +916,7 @@ static gboolean dialog_select_source(int chan_num)
 
     char *tab_label_text[3];
     char *name[HAL_NAME_LEN + 1];
-    char *title, msg[BUFLEN];
+    char msg[BUFLEN];
     int next, n, tab, retval;
     int row, match_tab, match_row;
 
@@ -945,15 +927,16 @@ static gboolean dialog_select_source(int chan_num)
      * intention is to drop the struct dialog_generic_t in the end */
     vert->chan_num = chan_num;
 
-    title = _("Select Channel Source");
     snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
 	"as the source for channel %d."), chan_num);
 
     /* create dialog window, disable resizing, set title, size and position */
-    dialog = gtk_dialog_new();
+    dialog = gtk_dialog_new_with_buttons(_("Select Channel Source"),
+                                         NULL, GTK_DIALOG_MODAL,
+                                         _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                         NULL);
     gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-    gtk_window_set_title(GTK_WINDOW(dialog), title);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
@@ -998,9 +981,6 @@ static gboolean dialog_select_source(int chan_num)
         g_signal_connect(vert->lists[n], "row-activated",
             G_CALLBACK(selection_made), dialog);
     }
-
-    gtk_dialog_add_button(GTK_DIALOG(dialog),
-            _("Cancel"), GTK_RESPONSE_CANCEL);
 
     /* signals */
     g_signal_connect(vert->notebook, "switch-page",
@@ -1076,9 +1056,8 @@ static gboolean dialog_select_source(int chan_num)
         /* user made a selection */
         channel_changed();
         return TRUE;
-    } else {
-        return FALSE;
     }
+    return FALSE;
 }
 
 /* If we come here, then the user has clicked a row in the list. */
