@@ -923,8 +923,6 @@ static gboolean dialog_select_source(int chan_num)
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
-    /* TODO set chan_num in vert_t struct, this is a new variable. The
-     * intention is to drop the struct dialog_generic_t in the end */
     vert->chan_num = chan_num;
 
     snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"

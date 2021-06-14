@@ -45,19 +45,6 @@
 *                      FUNCTIONS PROVIDED BY MISCGTK.C                 *
 ************************************************************************/
 
-/** these provide similar functionality to the corresponding gtk2.0+ functions
-*/
-#if !GTK_CHECK_VERSION(2,0,0)
-void gtk_widget_set_double_buffered( GtkWidget *widget, gboolean double_buffered);
-void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
-void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
-GdkFont* gtk_style_get_font(GtkStyle *style);
-#endif
-#if !GTK_CHECK_VERSION(2,8,0)
-void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state );
-gboolean gtk_window_is_active( GtkWindow *window );
-#endif
-
 /** gtk_label_new_in_box() is used to create a label and pack it into
     a box.  It simply calls other GTK functions that do the real work.
     Normally it would take 4-5 lines of code to do the same thing.
@@ -107,37 +94,6 @@ void gtk_label_set_text_if(GtkWidget * label, const gchar * text);
     label to remain constant, even if it's contents change.
 */
 void gtk_label_size_to_fit(GtkLabel * label, const gchar * str);
-
-/* generic dialog typedef */
-typedef struct {
-    GtkWidget *window;
-    int retval;
-    void *app_data;
-} dialog_generic_t;
-
-/** dialog_generic_msg() generates a modal dialog box with a message
-    and up two four buttons.  It returns an integer indicating which
-    button the user pressed, or zero if the dialog was closed.
-    'parent' is the parent window - may be NULL if there is no parent.
-    'title' is the title for the dialog - if NULL, "Dialog" will be
-    used.
-    'msg' is the message text, if NULL, no message will be displayed.
-    'button1' thru 'button4' are the text for the buttons.  Only
-    buttons that are not NULL will be displayed - for a two button
-    dialog, supply two valid pointers and two NULLs.
-*/
-int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * msg,
-    const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4);
-
-/** the following functions are used by the generic dialog functions,
-    but may also be useful for custom dialogs, so they are made public
-    here.
-*/
-void dialog_generic_button1(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button2(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button3(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button4(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr);
 
 /* Initialize a TreeView. */
 void init_list(GtkWidget *list, char *titles[], const int num_cols);
