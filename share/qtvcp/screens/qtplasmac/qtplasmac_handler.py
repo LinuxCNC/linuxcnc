@@ -1,4 +1,4 @@
-VERSION = '1.0.39'
+VERSION = '1.0.40'
 
 import os, sys
 from shutil import copy as COPY
@@ -3159,19 +3159,25 @@ class HandlerClass:
                 if line.startswith('#'):
                     continue
                 elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                    newMaterial = True
-                    if not firstpass:
-                        self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                        for item in required:
-                            if item not in received:
-                                msg = '{} is missing from Material #{}\n'.format(item, t_number)
-                                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                    firstpass = False
-                    t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                    self.materialNumList.append(t_number)
-                    t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
-                    t_item += 1
-                    received = []
+                    if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
+                        newMaterial = True
+                        if not firstpass:
+                            self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+                            for item in required:
+                                if item not in received:
+                                    msg = '{} is missing from Material #{}\n'.format(item, t_number)
+                                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                        firstpass = False
+                        t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                        self.materialNumList.append(t_number)
+                        t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
+                        t_item += 1
+                        received = []
+                    else:
+                        msg  = 'Material number #{} is invalid\n'.format(int(line.rsplit('_', 1)[1].strip().strip(']')))
+                        msg += 'Material numbers need to be less than 1000000\n'
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                        continue
                 elif line.startswith('NAME'):
                     if line.split('=')[1].strip():
                         t_name = line.split('=')[1].strip()
