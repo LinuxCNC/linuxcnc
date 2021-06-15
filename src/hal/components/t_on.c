@@ -117,7 +117,8 @@ int rtapi_app_main(void){
     }
   }
 
-  retval = hal_export_funct("t_on.update", update, timer_array, 0, 0, comp_id);
+  uint8_t use_float=1;
+  retval = hal_export_funct("t_on.update", update, timer_array, use_float, 0, comp_id);
 
   rtapi_print_msg(RTAPI_MSG_INFO,
                   "IEC_TON: installed %d groups of IEC_TON timers, %d total\n",
