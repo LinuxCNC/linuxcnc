@@ -985,8 +985,10 @@ class ScaledLabel(QtWidgets.QLabel):
         fs = max(f.pixelSize(), 1)
         while True:
             f.setPixelSize(fs)
-            br =  QtGui.QFontMetrics(f).boundingRect(self.text())
-
+            #gives bigger text
+            br =  QtGui.QFontMetrics(f).tightBoundingRect(self.text())
+            # then this
+            #br = QtGui.QFontMetrics(f).boundingRect(self.text())
             if dw >= 0 and dh >= 0: # label is expanding
                 if br.height() <= cr.height() and br.width() <= cr.width():
                     fs += 1
@@ -1001,6 +1003,6 @@ class ScaledLabel(QtWidgets.QLabel):
                     break
 
             if fs < 1: break
-
+        #print br, cr
         #--- update font size ---
         self.setFont(f)
