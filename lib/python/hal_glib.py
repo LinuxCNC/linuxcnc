@@ -349,7 +349,10 @@ class _GStat(GObject.GObject):
         self.old['radius'] = radius
         self.old['diameter'] = diameter
         if css:
-            self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+            try:
+                self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+            except RuntimeError:
+                self.old['spindle-speed']= self.stat.spindle[0]['speed']
         else:
             self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
