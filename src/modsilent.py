@@ -14,6 +14,6 @@ for line in kbuild.stderr:
     m = duplicate_warning.match(line)
     if m and m.group(1) in permitted_duplicates: continue
 
-    sys.stderr.write(line)
+    sys.stderr.write(line.decode())
 
 raise SystemExit(kbuild.wait())
