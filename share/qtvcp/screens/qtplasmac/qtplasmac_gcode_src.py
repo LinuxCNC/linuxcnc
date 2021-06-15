@@ -163,7 +163,7 @@ def get_hole_radius(I, J, isHole):
             codeWarn = True
             print(';m67 e3 q0 (inactive due to g41)')
             dlg  = '\nCannot reduce velocity with cutter compensation active.\n'
-            dlg += '\nWarning for line #{}\n'.format(lineNum)
+            dlg += '\nWarning for line #{}.\n'.format(lineNum)
             dialog_box('WARNING', dlg)
         elif not holeActive:
             lineNum += 1
@@ -173,7 +173,7 @@ def get_hole_radius(I, J, isHole):
             codeWarn = True
             dlg = '\nThis cut appears to be a hole.\n'
             dlg += '\nDid you mean to cut clockwise?\n'
-            dlg += '\nWarning for line {}\n'.format(lineNum)
+            dlg += '\nWarning for line {}.\n'.format(lineNum)
             dialog_box('WARNING', dlg)
     # no velocity reduction required
     else:
@@ -197,7 +197,7 @@ def overburn(I, J, radius):
         codeWarn = True
         print(';m62 p3 (inactive due to g41)')
         dlg  = '\nCannot enable/disable torch with cutter compensation active.\n'
-        dlg += '\nWarning for line #{}\n'.format(lineNum)
+        dlg += '\nWarning for line #{}.\n'.format(lineNum)
         dialog_box('WARNING', dlg)
     else:
         print('m62 p3 (disable torch)')
@@ -285,9 +285,9 @@ def check_math(axis):
     tmp1 = line.split(axis)[1]
     if tmp1.startswith('[') or tmp1.startswith('#'):
         codeError = True
-        dlg  = '\nPlasmaC GCode parser requires explicit values.\n'
-        dlg += '\nError near line #{}\n'.format(lineNum)
-        dlg += '\nDisable hole sensing or edit GCode file to suit.\n'
+        dlg  = '\nPlasmaC G-Code parser requires explicit values.\n'
+        dlg += '\nError near line #{}.\n'.format(lineNum)
+        dlg += '\nDisable hole sensing or edit G-Code file to suit.\n'
         dialog_box('ERROR', dlg)
 
 # do material change
@@ -309,9 +309,13 @@ def do_material_change():
     material[1] = True
     if material[0] not in materialDict:
         codeError = True
-        dlg  = '\nMaterial #{} is missing from the material file\n'.format(material[0])
-        dlg += '\nError near line #{}\n'.format(lineNum)
-        dlg += '\nAdd a new material or edit GCode file to suit.\n'
+        if material[0] < 1000000:
+            dlg  = '\nMaterial #{} is missing from the material file.\n'.format(material[0])
+            dlg += '\nError near line #{}.\n'.format(lineNum)
+            dlg += '\nAdd a new material or edit the G-Code file to suit.\n'
+        else:
+            dlg  = '\nThe G-Code file contains a reference to a temporary material near line #{}.\n'.format(lineNum)
+            dlg += '\nEdit the G-Code file outside of QtPlasmaC to reference an existing material and then reload the G-Code file.\n'
         dialog_box('ERROR', dlg)
         print(line)
         quit()
@@ -382,8 +386,8 @@ def check_material_edit():
             if newMaterial[0] == 0:
                 write_temp_default_material(newMaterial)
             elif nu in materialDict and newMaterial[0] == 1:
-                dlg  = '\nCannot add new Material #{}\n'.format(nu)
-                dlg += '\nMaterial number is in use\n'
+                dlg  = '\nCannot add new Material #{}.\n'.format(nu)
+                dlg += '\nMaterial number is in use.\n'
                 dialog_box('ERROR', dlg)
             else:
                 rewrite_material_file(newMaterial)
@@ -392,7 +396,7 @@ def check_material_edit():
             dlg  = '\nCannot add or edit material from G-Code file.\n'
             dlg += '\nInvalid parameter or value in:'
             dlg += '{}\n'.format(line)
-            dlg += 'This material will not be processed\n'
+            dlg += 'This material will not be processed.\n'
             dialog_box('ERROR', dlg)
     # except:
     #     codeError = True
@@ -472,7 +476,7 @@ def rewrite_material_file(newMaterial):
         if time.time() > matDelay + 3:
             codeWarn = True
             dlg  = '\nMaterials were not reloaded in a timely manner:\n'
-            dlg += '\nTry a manual Reload or reload the G-Code file.\n'
+            dlg += '\nTry a manual reload or reload the G-Code file.\n'
             dialog_box('WARNING', dlg)
             break
         if not hal.get_value('qtplasmac.material_reload'):
@@ -546,14 +550,14 @@ def check_f_word(inFeed):
             cutFeed = materialDict[material[0]][0]
             dec = 0 if units == 'mm' else 1
             if not feedWarning:
-                dlg   = '\nGcode feed rate is F{:0.{}f} and material #{} feed rate is F{:0.{}f}\n'.format(codeFeed, dec, material[0], cutFeed, dec)
+                dlg   = '\nG-Code feed rate is F{:0.{}f} and material #{} feed rate is F{:0.{}f}\n'.format(codeFeed, dec, material[0], cutFeed, dec)
                 if cutFeed and cutFeed != codeFeed:
                     dlg  += '\nTHC calculations will use the material #{} feed rate which may cause issues.\n'.format(material[0])
                 else:
                     dlg  += '\nTHC calculations will use the motion.requested-vel HAL pin which is not recommended.\n'
-                dlg  += '\nThe recommended settings are to use\n'
+                dlg  += '\nThe recommended settings are to use:\n'
                 dlg  += 'F#<_hal[plasmac.cut-feed-rate]> in the G-Code file and a valid cut feed rate in the material cut parameters.\n'
-                dlg  += '\nFirst warning near line #{}\n'.format(lineNum)
+                dlg  += '\nFirst warning near line #{}.\n'.format(lineNum)
                 dlg  += '\nNo other feed rates have been checked.\n'.format(material[0])
                 dialog_box('WARNING', dlg)
                 feedWarning = True
@@ -653,8 +657,8 @@ with open(inCode, 'r') as fRead:
             if pierceOnly:
                 codeWarn = True
                 dlg  = '\nScribe is invalid for pierce only mode.\n'
-                dlg += '\nError near line #{}\n'.format(lineNum)
-                dlg += '\nEdit GCode file to suit.\n'
+                dlg += '\nError near line #{}.\n'.format(lineNum)
+                dlg += '\nEdit G-Code file to suit.\n'
                 dialog_box('WARNING', dlg)
                 scribing = False
             else:
@@ -694,8 +698,8 @@ with open(inCode, 'r') as fRead:
             if scribing:
                 codeWarn = True
                 dlg  = '\nPierce only mode is invalid while scribing.\n'
-                dlg += '\nError near line #{}\n'.format(lineNum)
-                dlg += '\nEdit GCode file to suit.\n'
+                dlg += '\nError near line #{}.\n'.format(lineNum)
+                dlg += '\nEdit G-Code file to suit.\n'
                 dialog_box('WARNING', dlg)
             else:
                 pierceOnly = True
@@ -731,7 +735,7 @@ with open(inCode, 'r') as fRead:
                 dlg = '\n#<i_diameter> is deprecated in favour of #<h_diameter>\n'
             if '#<m_d' in line or '#<i_d' in line:
                 codeWarn = True
-                dlg += '\nThe diameter {} in line {} will read as being in the current units of the GCode file.\n'.format(minDiameter, lineNum)
+                dlg += '\nThe diameter {} in line {} will read as being in the current units of the G-Code file.\n'.format(minDiameter, lineNum)
                 dialog_box('WARNING', dlg)
             continue
         # if hole velocity command
@@ -749,24 +753,24 @@ with open(inCode, 'r') as fRead:
             if offsetG41:
                 codeError = True
                 dlg  = '\nCannot validate a material change with cutter compensation acive\n'
-                dlg += '\nError near line #{}\n'.format(lineNum)
-                dlg += '\nEdit GCode file to suit.\n'
+                dlg += '\nError near line #{}.\n'.format(lineNum)
+                dlg += '\nEdit G-Code file to suit.\n'
                 dialog_box('ERROR', dlg)
             print(line)
             continue
         # check if unsupported distance mode
         if holeEnable and 'g91' in line and not 'g91.1' in line:
             codeError = True
-            dlg  = '\nPlasmaC GCode parser only supports Distance Mode G90\n'
-            dlg += '\nError near line #{}\n'.format(lineNum)
-            dlg += '\nEdit GCode file to suit.\n'
+            dlg  = '\nPlasmaC G-Code parser only supports Distance Mode G90\n'
+            dlg += '\nError near line #{}.\n'.format(lineNum)
+            dlg += '\nEdit G-Code file to suit.\n'
             dialog_box('ERROR', dlg)
         # check if unsupported arc distance mode
         elif holeEnable and 'g90.1' in line:
                 codeError = True
-                dlg  = '\nPlasmaC GCode parser only supports Arc Distance Mode G91.1\n'
-                dlg += '\nError near line #{}\n'.format(lineNum)
-                dlg += '\nEdit GCode file to suit.\n'
+                dlg  = '\nPlasmaC G-Code parser only supports Arc Distance Mode G91.1\n'
+                dlg += '\nError near line #{}.\n'.format(lineNum)
+                dlg += '\nEdit G-Code file to suit.\n'
                 dialog_box('ERROR', dlg)
         # check if we can read the values correctly
         if holeEnable and 'x' in line: check_math('x')
@@ -841,7 +845,7 @@ with open(inCode, 'r') as fRead:
                 hal.set_p('qtplasmac.material_change_number', '{}'.format(firstMaterial))
             print(line)
             if codeError:
-                dlg  = '\nThis GCode file has one or more errors that will affect the quality of the process.\n'
+                dlg  = '\nThis G-Code file has one or more errors that will affect the quality of the process.\n'
                 dlg += '\nIt is recommended that all errors are fixed before running this file.'
                 dialog_box('ERROR', dlg)
             continue
