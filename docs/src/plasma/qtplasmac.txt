@@ -1,7 +1,6 @@
 [[cha:qtplasmac]]
 
 = QtPlasmaC
-:toc:
 :toclevels: 5
 :figure-caption!:
 
@@ -3466,13 +3465,15 @@ A full description is at <<qt-contact-load, Contact Load>>
 
 There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the autorepeat feature of keys used for jogging. QtPlasmaC uses this disabling feature by default and applies the disable to the standard jog keys for the X, Y, Z, and A axes. All other keys have autorepeat enabled. When QtPlasmaC is shut down then the autorepeat feature will be enabled for the jog keys.
 
-If the user wishes to not disable the autorepeat feature for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
+If the user wishes to leave the autorepeat feature enabled for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
 
 ----
 AUTOREPEAT_ALL == ENABLE
 ----
 
 This issue does not affect any jogging using the GUI jog buttons.
+
+NOTE: Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging. The user must restart QtPlasmaC to disable the autorepeat feature again.
 
 == Support
 
