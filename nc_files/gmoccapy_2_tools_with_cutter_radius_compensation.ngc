@@ -1,5 +1,5 @@
 ; Gmoccapy_2_tools_with_compensation.ngc
-; testprogram to mill two circles with cutter radius compansation 
+; testprogram to mill two circles with cutter radius compensation 
 ; and two different tools
 
 ; set the basic settings, this should be  
@@ -32,7 +32,7 @@ G0 Z10
 F250
 G1 Z0
 
-; tool radius compansation
+; tool radius compensation
 ; go in circle with lower feed rate  
 G41
 G3 X70 Y50 Z-1 I10 J0

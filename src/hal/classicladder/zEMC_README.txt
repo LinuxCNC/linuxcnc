@@ -20,7 +20,7 @@ Calc.c:
 
 classicladder.c:
 --- changed extensively. Removed most of initialization code besides what was added for HAL.
---- A config file can be loaded from the comand line for modbus info *depreciated*
+--- A config file can be loaded from the command line for modbus info *depreciated*
 --- to use MODBUS master use --modmaster
 --- to use MODBUS slave use --modslave
 --- to set debug level for rtapi_print use --debug

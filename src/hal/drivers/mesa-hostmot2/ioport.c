@@ -504,7 +504,7 @@ void hm2_ioport_update(hostmot2_t *hm2) {
             } else {
                 hm2->ioport.open_drain_reg[port] &= ~(1 << port_pin);  // clear the bit in the open drain register
                 hm2->ioport.ddr_reg[port] &= ~(1 << port_pin);  // clear the bit in the ddr register
-                // it doesnt matter what the Invert Output register says
+                // it doesn't matter what the Invert Output register says
             }
         }
     }

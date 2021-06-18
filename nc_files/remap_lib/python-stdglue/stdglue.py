@@ -382,7 +382,7 @@ def cycle_prolog(self,**words):
         raise
         return "cycle_prolog failed: %s" % (e)
 
-# make sure the next line has the same motion code, unless overriden by a
+# make sure the next line has the same motion code, unless overridden by a
 # new G code
 def cycle_epilog(self,**words):
     try:
@@ -632,7 +632,7 @@ def tool_probe_m6(self, **words):
             # set back absolute state
             self.execute("G90")
 
-            # return to recorded tool change positon
+            # return to recorded tool change position
             self.execute("G53 G0 Z[#4997]")
             yield INTERP_EXECUTE_FINISH
             self.execute("G53 G0 X[#4999] Y[#4998]")

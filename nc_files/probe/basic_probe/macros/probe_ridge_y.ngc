@@ -82,7 +82,7 @@ o<probe_ridge_y> sub
 
   #<y_minus_probed> = #5062
 
-  (probed center calulation)
+  (probed center calculation)
   #<y_center_probed> = [[#<y_plus_probed> + #<y_minus_probed>] / 2]
 
   (calculate Y Width Probed)

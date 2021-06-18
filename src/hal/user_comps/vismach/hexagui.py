@@ -3,7 +3,7 @@
 # You may distribute this software under the GNU GPL v2 or later
 #
 # Hexapod visualization.
-# In HAL, you must link axis.* to cartesian coordinates from 
+# In HAL, you must link axis.* to cartesian coordinates from
 # halui, because I am too lazy to implement inverse kinematics.
 # This causes some mismatch between the struts and platform.
 # Hopefully this can be fixed with some twiddling.
@@ -77,7 +77,7 @@ angles = [5, 115, 125, 235, 245, 355]
 
 #provide some reference frames
 world_coords = Capture()
-#i shouldnt have to do this
+#i shouldn't have to do this
 foo = Collection([world_coords, Sphere(0,0,0,0)])
 foo = Translate([foo],0,0,0)
 

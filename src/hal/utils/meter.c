@@ -11,7 +11,7 @@
     initially display the pin/signal/parameter <name>, otherwise it
     will initially display nothing.
 */
-/* Added ability to specify initial window positon on command line 
+/* Added ability to specify initial window position on command line 
     -g Xposition Yposiion    Chris Morley June 2009 
 */
 

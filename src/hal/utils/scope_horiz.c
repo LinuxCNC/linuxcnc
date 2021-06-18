@@ -327,7 +327,7 @@ int set_sample_thread(char *name)
        order.  however, when the dialog is running, it calls
        the two separately, setting the sample_thread_name
        during the dialog, and sctivating it when the dialog
-       is closed.  This may not be neccessary, but that is
+       is closed.  This may not be necessary, but that is
        how it works right now. */
     rv = set_sample_thread_name(name);
     if ( rv < 0 ) {
@@ -382,7 +382,7 @@ int set_horiz_mult(int setting)
     }
     /* point to data */
     horiz = &(ctrl_usr->horiz);
-    /* get period, make sure is is valid */
+    /* get period, make sure it is valid */
     period_ns = horiz->thread_period_ns;
     if ( period_ns < 10 ) {
 	return -1;

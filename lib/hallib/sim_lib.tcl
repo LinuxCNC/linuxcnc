@@ -362,7 +362,7 @@ proc sim_spindle {} {
 
   setp rpm_rps.gain .0167
 
-  # this limit doesnt make any sense to me:
+  # this limit doesn't make any sense to me:
   do_setp limit_speed.maxv 5000.0 ;# rpm/second
 
   # encoder reset control

@@ -936,7 +936,7 @@ void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 				ScanForRule = 0;
 				do
 				{
-					/* Is is an element with a rule ? */
+					/* Is it an element with a rule ? */
 					if (pRungToCheck->Element[ScanX][ScanY].Type == RulesForSpecialElements[ScanForRule][TYPEELERULE])
 					{
 						/* Have we clicked in it ? */
