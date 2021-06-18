@@ -366,7 +366,7 @@ int hm2_7i90_reset(hm2_lowlevel_io_t *this) {
 static void hm2_7i90_cleanup(void) {
     int i;
 
-    // NOTE: hal_malloc() doesnt have a matching free
+    // NOTE: hal_malloc() doesn't have a matching free
 
     for (i = 0; i < num_boards; i ++) {
         hm2_lowlevel_io_t *this = &board[i].llio;

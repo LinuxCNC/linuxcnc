@@ -100,7 +100,7 @@ net spindle-on spindle.0.on => parport.0.pin-16-out
 
 net spindle-on thc.torch-on
 
-# starts the motion when the plasma arc has transfered to the work
+# starts the motion when the plasma arc has transferred to the work
 net start-motion-input thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in
 
 

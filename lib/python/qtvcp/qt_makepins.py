@@ -42,7 +42,7 @@ class QTPanel():
         self._geo_string = ''
 
         # see if a screenoptions widget is present
-        # if is is then initiate the preference file
+        # if it is then initiate the preference file
         # and pass a preference object to the window
         # it's then available to all HALified objects
         # also allow screenoptions to inject data into

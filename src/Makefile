@@ -494,7 +494,7 @@ clean: docclean pythonclean cscopeclean
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
-# accomodated here.
+# accommodated here.
 ifeq ($(BUILD_SYS),kbuild)
 
 modules:

@@ -1569,7 +1569,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="text">
         <string>Go to
-Origion Zero</string>
+Origin Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>

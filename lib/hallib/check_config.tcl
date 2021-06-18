@@ -151,7 +151,7 @@ proc check_extrajoints {} {
   }
   if [info exists ::num_extrajoints] {
      lappend ::wmsg [format "Extra joints specified=%d\n \
-\[KINS\]JOINTS=%d must accomodate kinematic joints *plus* extra joints " \
+\[KINS\]JOINTS=%d must accommodate kinematic joints *plus* extra joints " \
                      $::num_extrajoints $::KINS(JOINTS)]
   }
 } ;#check_extrajoints

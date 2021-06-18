@@ -151,7 +151,7 @@ o<aaa10>     if [#<pass> EQ 1]
                (print  angle=#<angle> elen=#<elen> k=#<k>)
 o<aaa20>       if [#<k> GE 1]
                  (debug, ihex: can't get in final corner k=#<k> - EXITING)
-                 (print, ihex: cant' get in final corner k=#<k> - EXITING)
+                 (print, ihex: can't get in final corner k=#<k> - EXITING)
                  (AXIS,notify, ihex: can't get in final corner - EXITING)
                  m2
 o<aaa20>       endif
@@ -190,9 +190,9 @@ o<bbb10>     if [#<pass> EQ 1]
                #<elen>  = [#<r> / ABS[TAN[#<angle>/2]]]
                #<k>     = [#<elen>/#<len65>]
 o<bbb20>       if [#<k> GE 1]
-                 (debug, ihex: cant get in corner k=#<k> - EXITING)
-                 (print, ihex: cant get in corner k=#<k> - EXITING)
-                 (AXIS,notify, ihex: cant get in corner - EXITING)
+                 (debug, ihex: can't get in corner k=#<k> - EXITING)
+                 (print, ihex: can't get in corner k=#<k> - EXITING)
+                 (AXIS,notify, ihex: can't get in corner - EXITING)
                  m2
 o<bbb20>       endif
                #<xfinal_b> = [#<x6> + 1.01* #<k> * #<len65> * #<cos65>]

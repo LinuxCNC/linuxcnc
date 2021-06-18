@@ -5,7 +5,7 @@
  *
  * Hardware register defines for Vital Systems MOTENC-100 board.
  * The board includes an 8 channel quadrature decoder, 8 analog inputs,
- * 8 analog outputs, 68 digital inputs, 32 digital outputs, programable
+ * 8 analog outputs, 68 digital inputs, 32 digital outputs, programmable
  * timer interrupts, a watch dog timer, and a hardware E-STOP circuit.
  *
  * This program is free software; you can redistribute it and/or

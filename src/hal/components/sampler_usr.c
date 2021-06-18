@@ -26,7 +26,7 @@
     The default is channel zero.
 
     'num_samples', if present, specifies the number of samples
-    to be printed, after which the program will exit.  If ommitted
+    to be printed, after which the program will exit.  If omitted
     it will print continuously until killed.
 
     '-t' tells sampler to print the sample number at the start

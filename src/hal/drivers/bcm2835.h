@@ -95,7 +95,7 @@
 /// default GPIO behaviour in order to support SPI. While SPI is in use, you will not be able
 /// to control the state of the SPI pins through the usual bcm2835_spi_gpio_write().
 /// When bcm2835_spi_end() is called, the SPI pins will all revert to inputs, and can then be
-/// configured and controled with the usual bcm2835_gpio_* calls.
+/// configured and controlled with the usual bcm2835_gpio_* calls.
 ///
 /// The Raspberry Pi GPIO pins used for SPI are:
 ///
@@ -291,7 +291,7 @@ typedef enum
 /// RPi version 2 has some slightly different pinouts, and these are values RPI_V2_*.
 /// At bootup, pins 8 and 10 are set to UART0_TXD, UART0_RXD (ie the alt0 function) respectively
 /// When SPI0 is in use (ie after bcm2835_spi_begin()), pins 19, 21, 23, 24, 26 are dedicated to SPI
-/// and cant be controlled independently
+/// and can't be controlled independently
 typedef enum
 {
     RPI_GPIO_P1_03        =  0,  ///< Version 1, Pin P1-03
