@@ -28,7 +28,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include "config.h"
@@ -75,7 +75,7 @@ static void init_trigger_mode_window(void);
 static void init_trigger_info_window(void);
 
 static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
-                                   dialog_generic_t *dptr);
+                                   GtkWidget *dialog);
 static void dialog_select_trigger_source(void);
 
 /* callback functions */
@@ -174,7 +174,7 @@ void refresh_trigger(void)
 void write_trig_config(FILE *fp)
 {
     scope_trig_t *trig;
-    
+
     trig = &(ctrl_usr->trig);
     if (ctrl_shm->trig_chan > 0) {
 	fprintf(fp, "TSOURCE %d\n", ctrl_shm->trig_chan);
@@ -297,34 +297,33 @@ static void init_trigger_info_window(void)
 
 static void dialog_select_trigger_source(void)
 {
-    dialog_generic_t dialog;
-    gchar *title, *msg;
+    char *msg;
     int n;
-    gchar *strs[2], *titles[NUM_COLS];
-    gchar buf[BUFLEN + 1];
-    GtkWidget *label, *button, *scrolled_window, *trig_list;
+    char *strs[2], *titles[NUM_COLS];
+    char buf[BUFLEN + 1];
+    GtkWidget *label, *scrolled_window, *trig_list;
     GtkWidget *content_area;
+    GtkWidget *dialog;
 
     /* is acquisition in progress? */
     if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
-    title = _("Trigger Source");
     msg = _("Select a channel to use for triggering.");
 
     /* create dialog window, disable resizing, set size and title */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    gtk_widget_set_size_request(GTK_WIDGET(dialog.window), -1, 400);
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+    dialog= gtk_dialog_new_with_buttons(_("Trigger Source"),
+                                        NULL, GTK_DIALOG_MODAL,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        NULL);
+    gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_widget_set_margin_top(label, 5);
-    gtk_widget_set_margin_bottom(label, 5);
     gtk_widget_set_margin_start(label, 15);
     gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, TRUE, 0);
+            label, FALSE, TRUE, 5);
 
     /* Create a scrolled window to display the list */
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -341,7 +340,7 @@ static void dialog_select_trigger_source(void)
     gtk_container_add(GTK_CONTAINER(scrolled_window), trig_list);
 
     g_signal_connect(trig_list, "button-press-event",
-            G_CALLBACK(trigger_selection_made), &dialog);
+            G_CALLBACK(trigger_selection_made), dialog);
 
     /* populate the trigger source list */
     for (n = 0; n < 16; n++) {
@@ -360,23 +359,12 @@ static void dialog_select_trigger_source(void)
 	/* yes, preselect appropriate line */
         mark_selected_row(trig_list, ctrl_shm->trig_chan - 1);
     }
-    /* set up a callback function when the window is destroyed */
-    g_signal_connect(dialog.window, "destroy",
-	G_CALLBACK(dialog_generic_destroyed), &dialog);
-    /* make Cancel button */
-    button = gtk_button_new_with_label(_("Cancel"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
-            button, 2);
-    g_signal_connect(button, "clicked",
-	G_CALLBACK(dialog_generic_button2), &dialog);
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
+    gtk_widget_show_all(dialog);
+
+    gtk_dialog_run(GTK_DIALOG(dialog));
     /* we get here when the user makes a selection, hits Cancel, or closes
        the window */
+    gtk_widget_destroy(dialog);
     trig_list = NULL;
 }
 
@@ -393,7 +381,7 @@ int set_trigger_source(int chan_num)
 
 /* If we come here, then the user has selected a row in the list. */
 static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
-                                   dialog_generic_t *dptr)
+                                   GtkWidget *dialog)
 {
     if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
         GtkTreePath *path;
@@ -406,8 +394,7 @@ static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
             set_trigger_source(row[0] + 1);
 
             /* set return value of dialog and close window */
-            dptr->retval = 1;
-            gtk_widget_destroy(dptr->window);
+            gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
         }
     }
 }
