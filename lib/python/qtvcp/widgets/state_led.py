@@ -97,7 +97,7 @@ class StateLED(LED):
             STATUS.connect('not-all-homed', lambda w, data: self.joints_unhomed(data))
         elif self.is_limits_overridden:
             STATUS.connect('override-limits-changed', self.check_override_limits)
-            STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: only_false(data))
         elif self.is_manual or self.is_mdi or self.is_auto:
             STATUS.connect('mode-manual', lambda w: self.mode_changed(0))
             STATUS.connect('mode-mdi', lambda w: self.mode_changed(1))
