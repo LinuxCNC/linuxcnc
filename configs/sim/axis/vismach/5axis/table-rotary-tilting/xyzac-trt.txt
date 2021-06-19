@@ -1,0 +1,32 @@
+xyzac-trt-kins (switchkins)
+
+Uses remapped user m codes for kins switch:
+
+  M429: Identity Kinematics
+  M428: XYZAC (TCP)
+  M430: userk Kinematics
+
+A hal net is required to connect the
+analog out pin N, Example (for N=3):
+
+  net :kinstype-select <= motion.analog-out-03
+  net :kinstype-select => motion.switchkins-type
+
+
+Hal Input pins:
+  xyzac-trt-kins.x-offset
+  xyzac-trt-kins.z-offset
+
+X and Z offsets are the offsets from the center
+of rotation of the C axis relative to the center
+of rotation of the A axis.
+
+Hal Input pins:
+  xyzac-trt-kins.x-rot-point
+  xyzac-trt-kins.y-rot-point
+  xyzac-trt-kins.z-rot-point
+
+X, Y and Z rot-point pins represent are the
+offsets of the center of rotation of the A axis
+relative to the machine absolute zero
+coordinates.

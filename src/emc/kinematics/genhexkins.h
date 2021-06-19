@@ -17,7 +17,13 @@
   Stewart Platform configuration.
 
   */
+#ifndef GENHEXKINS_H
+#define GENHEXKINS_H
 
+#include "kinematics.h"
+#include "hal.h"
+
+#define GENHEX_MAX_JOINTS 6
 #define NUM_STRUTS 6 // number of struts, only 6 supported for now
 
 /* Default position of base strut ends in base (world) coordinates */
@@ -121,3 +127,5 @@
 /* Default lead of strut actuator screw */
 
 #define DEFAULT_SCREW_LEAD 0.0
+
+#endif

@@ -3633,7 +3633,7 @@ for jnum in range(num_joints):
         ja_name = _("Joint")
         if not homing_order_defined:
             widgets.homebutton.configure(text=_("Home Joint"))
-        if joint_sequence[jnum] is '':
+        if joint_sequence[jnum] == '':
             ja_id = "%d"%jnum
         elif (int(joint_sequence[jnum]) < 0):
             ja_id = "%d (Sequence: %2s SYNC)"%(jnum,joint_sequence[jnum])

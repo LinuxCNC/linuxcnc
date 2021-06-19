@@ -1,0 +1,32 @@
+#!/usr/bin/tclsh
+# Restore axis limits to INI settings
+set kinstype       0     ;# 0: DEFAUlT kins type
+set switchkins_pin 3     ;# agree with inifile
+set coords "x y z a b c" ;# agree with inifile module coordinates=
+
+package require Linuxcnc ;# must be beore Hal
+emc_init -quick
+package require Hal
+parse_ini $::env(INI_FILE_NAME)
+
+# RESTORE INI axis limits
+foreach l $coords {
+  set L [string toupper $l]
+  catch {hal setp ini.$l.min_limit        [set ::AXIS_[set L](MIN_LIMIT)]}
+  catch {hal setp ini.$l.max_limit        [set ::AXIS_[set L](MAX_LIMIT)]}
+  catch {hal setp ini.$l.min_velocity     [set ::AXIS_[set L](MAX_VELOCITY)]}
+  catch {hal setp ini.$l.max_acceleration [set ::AXIS_[set L](MAX_ACCELERATION)]}
+}
+
+set script [info script]
+switch  -exact [emc_mode] {
+  mdi     { emc_mdi m68 e$switchkins_pin q$kinstype ;# switch
+            emc_mdi m66 e0l0                        ;# sync
+            puts "$script: MDI: Limits updated and kins switched to type$kinstype"
+          }
+  manual  {puts "$script: Must be in mdi mode"}
+  auto    {puts "$script: Limits updated in auto mode, sync required"}
+  default {puts "$script: Unknown mode"}
+}
+# gcode programs should follow this command
+# with M428 to switch kinematics and sync

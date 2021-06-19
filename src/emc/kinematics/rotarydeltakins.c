@@ -99,6 +99,7 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

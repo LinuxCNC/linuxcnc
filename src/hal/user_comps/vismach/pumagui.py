@@ -160,4 +160,4 @@ work = Capture()
 
 model = Collection([link0, floor, work])
 
-main(model, tooltip, work, 1500)
+main(model, tooltip, work, size=1500, lat=-45, lon=60)

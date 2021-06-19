@@ -1,4 +1,5 @@
 %
+M428 ;TCP:xyzbc
 (!!! Touch Off: Table = -8.3 == Z max neg extent !!!)
 (BOAT-5X)
 ( FC HERMLE 5 AXIS XYZBC MILLING )
@@ -1861,5 +1862,6 @@ Z10.0
 
 G53 G49 Z30 M09
 G53 Y0. B0 C0
+M429 ;Restore Trivkins
 M30
 %

@@ -19,3 +19,16 @@ Example demo:
 Note: W is for tool motion at b,c angles 
       Configure a joint for W (6 total) to
       allow display of W values
+
+The 5axis_xyzbcwy.ini illustrates how
+to use multiple (2) joints for the axis y
+coordinate.
+
+Configuration for XYZBCWY (7 joints total)
+J0: X
+J1: Y
+J2: Z
+J3: B
+J4: C
+J5: W
+J6: Y

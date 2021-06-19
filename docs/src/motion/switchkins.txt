@@ -1,0 +1,379 @@
+[[cha:switchable-kinematics]]
+
+= Switchable Kinematics (switchkins)
+
+== Introduction
+
+A number of kinematics modules support the switching of
+kinematics calculations.  These modules support a default
+kinematics method (type0), a second built-in method (type1), and
+(optionally) a user-provided kinematics method (type2).
+Identity kinematics are typically used for the type1 method.
+
+The switchkins functionality can be used for machines where
+post-homing joint control is needed during setup or to avoid
+movement near singularities from gcode.  Such machines use
+specific kinematics calculations for most operations but can be
+switched to identity kinematics for control of individual joints
+after homing.
+
+The kinematics type is selected by a motion module hal pin that
+can be updated from a gcode program or by interactive MDI
+commands.  The halui provisions for activating MDI commands can be
+used to allow buttons to select the kinematics type using
+hardware controls or a virtual panel (pyvcp,gladevcp, etc.).
+
+When a kinematics type is changed, the gcode must also issue
+commands to *force synchronization* of the interpreter and motion
+parts of LinuxCNC.  Typically, a hal pin 'read' command (M66 E0 L0) is
+used immediately after altering the controlling hal pin to force
+synchronization.
+
+== Switchable Kinematic Modules
+
+The following kinematics modules support switchable kinematics:
+
+. *xyzac-trt-kins* (type0:xyzac-trt-kins type1:identity
+. *xyzbc-trt-kins* (type0:xyzbc-trt-kins type1:identity
+. *genhexkins*     (type0:genhexkins     type1:identity)
+. *genserkins*     (type0:genserkins     type1:identity) (puma560 example)
+. *pumakins*       (type0:pumakins       type1:identity)
+. *scarakins*      (type0:scarakins      type1:identity)
+. *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
+
+
+The xyz[ab]c-trt-kins modules by default use type0==xyz[ab]c-trt-kins
+for backwards compatibility.  The provided sim configs alter the
+type0/type1 convention by forcing type0==identity kinematics using the
+module string parameter 'sparm' with an inifile setting like:
+
+----
+[KINS]
+KINEMATICS = xyzac-trt-kins sparm=identityfirst
+...
+----
+
+=== Identity letter assignments
+
+When using an *identity* kinematics type, the module parameter
+'coordinates' can be used to assign letters to joints in
+arbitrary order from the set of allowed coordinate letters.
+Examples:
+
+----
+[KINS]
+JOINTS = 6
+
+# conventional identity ordering: joint0==x, joint1==y, ...
+KINEMATICS = genhexkins coordinates=xyzabc
+
+# custom identity ordering: joint0==c, joint1==b, ...
+# KINEMATICS = genhexkins coordinates=cbazyx
+----
+
+[NOTE]
+If the coordinates= parameter is omitted, the default joint-letter
+identity assignments are joint0==x,joint1=y,...
+
+The joint assignments provided for *identity* kinematics
+when using the coordinates parameter are identical to those
+provided for the trivkins module.  However, duplication of
+axis letters to assign multiple joints for a coordinate
+letter is not generally applicable for serial or parallel
+kinematics (like genserkins, pumakins, genhexkins, etc.)
+where there is no simple relationship between joints and
+coordinates.
+
+Duplication of axis coordinate letters is supported in
+the kinematics modules xyzac-trt-kins, xyzbc-trt-kins,
+and 5axiskins (bridgemill).  Typical applications for duplicate
+coordinates are gantry machines where two motors (joints)
+are used for the transverse axis.
+
+=== Backwards compatibility
+
+Switchable kinematics initalize with motion.switchkins-type==0
+implementing their eponymous kinematics method.  If the the
+motion.switchkins-type pin is not connected -- as in legacy
+configurations -- only the default kinematics type is available.
+
+== Hal Pins
+
+Kinematics switching is controlled by the motion module input hal
+pin *motion.switchkins-type*.  The floating point pin value is
+truncated to integer and used to select one of the provided
+kinematics types.  The zero startup value selects the type0
+default kinematics type.
+
+[NOTE]
+The motion.switchkins-type input pin is floating point in order
+to facilitate connections to motion module output pins like
+motion.analog-out-0n that are controllable by standard Mcodes
+(typically M68EnL0).
+
+Output hal pins are provided to inform guis of the current
+kinematics type.  These pins can also be connected to digital
+inputs that are read by gcode programs to enable or disable
+program behavior in accordance with the active kinematics type.
+
+=== Hal Pin Summary
+
+. *motion.switchkins-type*  Input  (float)
+. *kinstype.is-0*           Output (bit)
+. *kinstype.is-1*           Output (bit)
+. *kinstype.is-2*           Output (bit)
+
+== Usage
+
+=== Hal Connections
+
+Switchkins functionality is enabled by the pin
+*motion.switchkins-type*.  Typically, this pin is sourced by an
+analog output pin like motion.analog-out-03 so that it can be
+set by M68 commands.  Example:
+
+----
+net :kinstype-select <= motion.analog-out-03
+net :kinstype-select => motion.switchkins-type
+----
+
+=== Gcode/Mcode commands
+
+Kinstype selection is managed using gcode sequences like:
+
+----
+...
+M68 E3 Q1 ;update analog-out-03 to select kinstype 1
+M66 E0 L0 ;sync interp-motion
+...
+...       ;user gcode
+...
+M68 E3 Q0 ;update analog-out-03 to select kinstype 0
+M66 E0 L0 ;sync interp-motion
+...
+----
+
+[NOTE]
+
+An M66 'wait-on-input' command updates the #5399 variable.  If the
+current value of this variable is needed for subsequent purposes, it
+should be copied to an additional variable before invoking M66.
+
+These gcode command sequences are typically implemented in gcode
+subroutines as remapped Mcodes or with conventional Mcode scripts.
+
+Suggested codes (as used in sim configs) are:
+
+Conventional User Mcodes:
+
+. M128 Select kinstype 0 (startup default kinematics)
+. M129 Select kinstype 1 (typically identity kinematics)
+. M130 Select kinstype 2 (user-provided kinematics)
+
+Remapped Mcodes:
+
+. M428 Select kinstype 0 (startup default kinematics)
+. M429 Select kinstype 1 (typically identity kinematics)
+. M430 Select kinstype 2 (user-provided kinematics)
+
+[NOTE]
+Conventional user Mcodes (in the range M100-M199) are in modal
+group 10.  Remapped Mcodes (in the range M200 to M999) can
+specify a modalgroup.  See the remap documentation for additional
+information.
+
+=== Inifile Limit settings
+
+LinuxCNC trajectory planning uses limits for position (min,max),
+velocity, and acceleration for each applicable coordinate letter
+specified in the configuration ini file.  Example for letter L
+(in the set 'XYZABCUVW'):
+
+----
+[AXIS_L]
+MIN_LIMIT =
+MAX_LIMIT =
+MAX_VELOCITY =
+MIN_ACCELERATION =
+----
+
+The inifile limits specified apply to the type 0 default
+kinematics type that is activated at startup.  These limits may
+*not* be applicable when switching to alternative kinematics.
+However, since an interpreter-motion synchronization is required
+when switching kinematics, ini-hal pins can be used to setup
+limits for a pending kinematics type.
+
+[NOTE]
+Ini-hal pins are typically not recognized during a gcode program
+unless a synchronization (queue-buster) command is issued.  See
+the milltask manpage for more information ($ man milltask)
+
+The relevant ini-hal pins for a joint number (N) are:
+
+----
+ini.N.min_limit
+ini.N.max_limit
+ini.N.max_acceleration
+ini.N.max_velocity
+----
+
+The relevant ini-hal pins for an axis coordinate (L) are:
+
+----
+ini.L.min_limit
+ini.L.max_limit
+ini.L.max_velocity
+ini.L.max_acceleration
+----
+
+[NOTE]
+In general, there are no fixed mappings between joint numbers and
+axis coordinate letters.  There may be specific mappings for some
+kinematics modules especially those that implement identity
+kinematics (trivkins).  See the kins man page for more
+information ($ man kins)
+
+A user-provided Mcode can alter any or all of the axis coordinate
+limits prior to changing the motion.switchkins-type pin and
+synchronizing the interpreter and motionparts of LinuxCNC.  As an
+example, a bash script invoking halcmd can be 'hardcoded' to set
+any number of hal pins:
+
+----
+#!/bin/bash
+halcmd -f <<EOF
+setp ini.x.min_limit -100
+setp ini.x.max_limit  100
+# ... repeat for other limit parameters
+EOF
+----
+
+Scripts like this can be invoked as a user Mcode and used *prior*
+to the kins switching Mcode that updates the
+motion.switchkins-type hal pin and forces an interp-motion sync.
+Typically, separate scripts would be used for each kinstype
+(0,1,2).
+
+When identity kinematics are provided as a means to control
+individual joints, it may be convenient to set or restore limits
+as specified in the system ini file.  For example, a robot starts
+with a complex (non-identity) kinematics (type0) after homing.
+The system is configured so that it can be switched to identity
+kinematics (type1) in order to manipulate individual joints using
+the conventional letters from the set 'XYZABCUVW'.  The ini file
+settings ([AXIS_L]) are *not* applicable when operating with
+identity (type1) kinematics.  To address this use case, the user
+Mcode scripts can be designed as follows:
+
+*M129* (Switch to identity type1)
+
+. read and parse ini file
+. hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
+according to the 'identity-referenced' joint number ini file
+setting ([JOINT_N])
+. hal: setp motion.switchkins-type 1
+. mdi: execute a synching gcode (M66E0L0)
+
+*M128* (restore robot default kinematics type 0)
+
+. read and parse ini file
+. hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
+according to the appropriate inifile setting ([AXIS_L])
+. hal: setp motion.switchkins-type 0
+. mdi: execute a synching gcode (M66E0L0)
+
+[NOTE]
+The vismach simulation configurations for a puma robot demonstrate
+Mcode scripts (M128,M129,M130) for this example use case.
+
+=== Offset considerations
+
+Like inifile limit settings, coordinate system offsets (G92,
+G10L2, G10L20, G43, etc) are generally applicable only for the
+type 0 default startup kinematics type.  When switching
+kinematics types, it may be *important* to either reset all offsets
+prior to switching or update offsets based on system-specific
+requirements.
+
+== Simulation configs
+
+Simulation configs (requiring no hardware) are provided with
+illustrative vismach displays in subdirectories of
+configs/sim/axis/vismach/
+
+. 5axis/table-rotary-tilting/xyzac-trt.ini (xyzac-trt-kins)
+. 5axis/table-rotary-tilting/xyzbc-trt.ini (xyzac-trt-kins)
+. 5axis/bridgemill/5axis.ini (5axiskins)
+. scara/scara.ini (scarakins)
+. puma/puma560.ini (genserkins)
+. puma/puma.ini (pumakins)
+. hexapod-sim/hexapod.ini (genhexkins)
+
+== User kinematics provisions
+
+Custom kinematics can be coded and tested on Run-In-Place ('RIP')
+builds.  A template file src/emc/kinematics/userkfuncs.c is provided
+in the distribution.  This file can be copied/renamed to a user
+directory and edited to supply custom kinematics with
+kinstype==2.
+
+The user custom kinematics file can be compiled from out-of-tree
+source locations for rt-preempt implementations or by replacing
+the in-tree template file (src/emc/kinematics/userkfuncs.c) for rtai
+systems.
+
+Preempt-rt make example:
+
+----
+$ userkfuncs=/home/myname/kins/mykins.c make && sudo make setuid
+----
+
+== Warnings
+
+Unexpected behavior can result if a gcode program is inadvertently
+started with an incompatible kinematics type.  Unwanted behavior
+can be circumvented in gcode programs by:
+
+. Connecting appropriate kinstype.is.N hal pins to digital input
+pins (like motion.digital-in-0m).
+
+. Reading the digital input pin (M66 E0 Pm) at the start of the
+gcode program
+
+. Aborting (M2) the gcode program with a message (DEBUG, problem_message)
+if the kinstype is not suitable.
+
+When using jogging facilities or MDI commands interactively,
+operator caution is required.  Guis should include indicators to
+display the current kinematics type.
+
+[NOTE]
+Switching kinematics can cause substantial operational changes
+requiring careful design, testing, and training for deployment.
+The management of coordinate offsets, tool compensation, and
+inifile limits may require complicated and non-standard operating
+protocols.
+
+== Code Notes
+
+Kinematic modules providing switchkins functionality are linked to
+the switchkins.o object (switchkins.c) that provides the module
+'main' program (rtapi_app_main()) and related functions.  This
+'main' program reads (optional) module command-line parameters
+(coordinates, sparm) and passes them to the module-provided
+function switchkinsSetup().
+
+The switchkinsSetup() function identifies kinstype-specific setup
+routines and the functions for forward an inverse calculation for
+each kinstype (0,1,2) and sets a number of configuration
+settings.
+
+After calling switchkinsSetup(), rtapi_app_main() checks the
+supplied parameters, creates a hal component, and then invokes
+the setup routine identified for each kinstype (0,1,2).
+
+Each kinstype (0,1,2) setup routine can (optionally) create hal
+pins and set them to default values.  When all setup routines
+finish, rtapi_app_main() issues hal_ready() for the component
+to complete creation of the module.

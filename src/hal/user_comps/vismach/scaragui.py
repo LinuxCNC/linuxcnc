@@ -182,4 +182,4 @@ table = Translate([table],0.5*reach,0.0,table_height)
 
 model = Collection([link0, floor, table])
 
-main(model, tooltip, work, size)
+main(model, tooltip, work, size, lat=-50, lon=-65)

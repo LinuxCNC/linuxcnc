@@ -1,6 +1,7 @@
 (  Impeller 5-axis  12/24/2011)
 (  This is preceded by cutting the external "conical" shape on a lathe)
 (  This is only a demo - roughing out in soft non-metal material)
+M428 ;TCP:xyzac
 G93
 S600 M3
 ( --- Operation   1 )
@@ -4505,4 +4506,5 @@ G0  X 0 Y 0 Z40
 ( Rmax    45.44 Zmin    -2.65 Zmax    39.77 )
 ( Amin -74.49 Amax   0.00 )
 ( Cmin -399.81 Cmax   0.00 )
+M429 ;Restore Trivkins
 M30
