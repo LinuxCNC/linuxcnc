@@ -334,4 +334,16 @@ When they are contained in a single source file, kinematics modules
 may be compiled and installed by 'halcompile'. See the 'halcompile(1)' manpage or
 the HAL manual for more information.
 
+=== Kinematics module using the userkins.comp template
 
+Another way to create a custom kinematics module is to adapt the
+hal component 'userkins'. This template component can be modified
+locally by a user and can be built using halcompile.
+
+See the userkins man pages for more information.
+
+Note that to create switchable kinematic modules the required
+modifications are somewhat more complicated.
+
+See 'millturn.comp' as an example of a switchable kinematic
+module that was created using the 'userkins.comp' template.

@@ -12,6 +12,7 @@ VISMACH_PY :=  \
 	hbmgui.py \
 	rotarydelta.py \
 	melfagui.py \
+	millturngui.py \
 	xyzac-trt-gui.py \
 	xyzbc-trt-gui.py
 
