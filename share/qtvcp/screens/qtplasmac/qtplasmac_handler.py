@@ -43,6 +43,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 from qtvcp.lib.qtplasmac import conv_scale as CONVSCAL
+
 # **** TEMP FOR CONVERSATIONAL TESTING ****
 #from importlib import reload
 
@@ -219,6 +220,7 @@ class HandlerClass:
         self.framing = False
         self.boundsError = {'loaded': False, 'framing': False}
         self.obLayout = ''
+        self.errorSeen = 0
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -248,6 +250,8 @@ class HandlerClass:
         self.DEBUG          = 25
 
     def initialized__(self):
+        # ensure we get all startup errors
+        STATUS.connect('update-machine-log', self.machine_log_update)
         self.make_hal_pins()
         self.init_preferences()
         self.init_widgets()
@@ -570,6 +574,7 @@ class HandlerClass:
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
+        self.set_basic_colors()
 
     def init_widgets(self):
         droPos = self.iniFile.find('QTPLASMAC', 'DRO_POSITION') or 'None'
@@ -1039,6 +1044,12 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
+        if self.errorSeen:
+            self.color_last_tab(self.backColor, self.estopColor)
+        elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
+            self.color_last_tab(self.backColor, self.foreColor)
+        else:
+            self.color_last_tab(self.foreColor, self.backColor)
         self.stats_update()
 
     def percent_loaded(self, object, percent):
@@ -1156,6 +1167,10 @@ class HandlerClass:
 
     def update_gcode_properties(self, props):
         self.gcodeProps = props
+
+    def machine_log_update(self, obj, msg, time):
+        if 'Tool 0' not in msg:
+            self.errorSeen = 1
 
 
 ###########################################################################################################################
@@ -1343,8 +1358,13 @@ class HandlerClass:
             self.vkb_show(True)
         elif tab == 3 and os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
             self.vkb_show(True)
-        else:
+        if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
+            self.errorSeen = 0
+            self.w.machinelog.moveCursor(QTextCursor.End)
+            self.w.machinelog.setCursorWidth(0)
+        else:
+            self.color_last_tab(self.foreColor, self.backColor)
 
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value * hal.get_value('plasmac.units-multiplier'))
@@ -1467,6 +1487,10 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+    def color_last_tab(self, fg, bg):
+        self.w.main_tab_widget.setStyleSheet( \
+                'QTabBar::tab:last {{ color: {}; background: {} }}'.format(fg, bg))
+
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))
@@ -4302,6 +4326,15 @@ class HandlerClass:
             button = widget.objectName()
             label = labels[buttons.index(button.split('_')[1])]
             self.w.PREFS_.putpref(label,  self.w[button].styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
+        self.set_basic_colors()
+
+    def set_basic_colors(self):
+        self.foreColor = self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
+        self.fore1Color = self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')
+        self.backColor = self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')
+        self.back1Color = self.w.PREFS_.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')
+        self.disabledColor = self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')
+        self.estopColor = self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')
 
     def set_color_styles(self):
         self.styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')
@@ -4376,12 +4409,6 @@ class HandlerClass:
             with open(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss'), 'r') as inFile:
                 with open(self.styleSheetFile, 'a') as outFile:
                     outFile.write(inFile.read())
-        # set basic colors from prefs file
-        self.foreColor = self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
-        self.fore1Color = self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')
-        self.backColor = self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')
-        self.back1Color = self.w.PREFS_.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')
-        self.disabledColor = self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')
 
     def custom_stylesheet(self):
         try:
