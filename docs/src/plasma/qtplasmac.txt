@@ -2702,6 +2702,7 @@ Buttons can run the following:
 . <<qt_button-cmds, External commands>>
 . <<qt_button-code, G-Code commands>>
 . <<qt_button-toggle, Toggle a HAL pin>>
+. <<qt_button-pulse, Pulse a HAL pin>>
 . <<qt_button-probe, Probe test>>
 . <<qt_button-ohmic, Ohmic Test>>
 . <<qt_button-cut, Cut Type>>
@@ -2760,13 +2761,35 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 
 [underline]*Toggle HAL Pin*
 
-The following code will allow the user to use a button to invert the current state of a HAL bit pin (this code is required to be used as a single command and may only control one HAL bit pin per button):
+The following code will allow the user to use a button to invert the current state of a HAL bit pin:
 
 ----
 BUTTON_n_CODE = toggle-halpin my-hal-pin-name
 ----
 
-After setting the code, upon clicking, the button will turn green, invert the pin state, and stay "latched" until it is clicked again. Clicking again will return the button to the original color and invert the pin state.
+This code is required to be used as a single command and may only control one HAL bit pin per button.
+ 
+The button colors will follow the state of the halpin.
+ 
+After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
+
+[[qt_button-pulse]]
+
+[underline]*Pulse HAL Pin*
+
+The following code will allow the user to use a button to pulse a HAL bit pin for a duration of 0.5 seconds:
+
+----
+BUTTON_n_CODE = pulse-halpin my-hal-pin-name 0.5
+----
+
+This code is required to be used as a single command and may only control one HAL bit pin per button.
+
+The delay is specified in seconds, if the delay is not specified then it will default to one second.
+ 
+The button colors will follow the state of the halpin.
+ 
+After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
 
 [[qt_button-probe]]
 
@@ -2778,6 +2801,8 @@ QtPlasmaC will begin a probe and when the material is detected, the Z axis will 
 BUTTON_n_CODE = probe-test 10
 ----
 
+NOTE: Enabling a user button as a Probe Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+
 [[qt_button-ohmic]]
 
 [underline]*Ohmic Test*
@@ -2787,6 +2812,8 @@ QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Prob
 ----
 BUTTON_n_CODE = ohmic-test
 ----
+
+NOTE: Enabling a user button as a Ohmic Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-cut]]
 
@@ -2818,6 +2845,8 @@ There are three methods to return to the previous coordinates:
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
 ----
 
+NOTE: Enabling a user button as a Change Consumables button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+
 [[qt_button-load]]
 
 [underline]*Load*
@@ -2843,6 +2872,8 @@ If the button is released before the countdown is complete then the torch will t
 ----
 BUTTON_n_CODE = torch-pulse 0.5
 ----
+
+NOTE: Enabling a user button as a Torch Pulse button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-single]]
 
@@ -2875,22 +2906,46 @@ The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_paramet
 
 NOTE: IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
 
-Framing can be started two different ways:
-
-1 - Via a user button by adding the following to an available user button in the <machine_name>.ini file.
 ----
 BUTTON_n_CODE = framing
 ----
 
-For this method *only* it is possible for the user to omit the initial Z movement and run the framing sequence at the current Z height by adding "usecurrentZheight" after "framing".
+It is possible for the user to omit the initial default Z movement and run the framing sequence at the current Z height by adding "usecurrentZheight" after "framing".
 
 ----
 BUTTON_n_CODE = framing usecurrentZheight
 ----
 
-2 - Framing may also be achieved with the use of the HAL pin qtplasmac.framing_start. Setting this pin to 1 (True) will begin a framing move if QtPlasmaC is in a valid state. *It is incumbent on the user to ensure this pin returns to 0 (False) otherwise subsequent framing moves will not be possible.* It is not possible to run framing without the initial Z movement via this method.
+Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
-There is no requirement that a user button be setup to use the HAL pin variant although it is possible to use both methods in the same config.
+[[qt_ext-hal-pin]]
+
+=== External HAL Pins
+
+QtPlasmaC creates some HAL pins that may be connected to from an momentary external button or pendant etc.
+
+The following HAL pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
+
+[width="50%",cols="1,1"]
+|===
+|*User Button Function*|*HAL Pin*
+|Run the loaded gcode program|qtplasmac.ext_run
+|Pause/Resume the loaded gcode program|qtplasmac.ext_pause
+|Abort the loaded gcode program|qtplasmac.ext_abort
+|Touchoff X & Y axes to zero|qtplasmac.ext_touchoff
+|===
+
+The following HAL pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
+
+[width="50%",cols="1,1"]
+|===
+|*User Button Function*|*HAL Pin*
+|Probe Test|qtplasmac.ext_probe
+|Torch Pulse|qtplasmac.ext_pulse
+|Ohmic Test|qtplasmac.ext_ohmic
+|Change Consumables|qtplasmac.ext_consumables
+|Framing|qtplasmac.ext_frame_job
+|===
 
 === Tuning Void Sensing
 
