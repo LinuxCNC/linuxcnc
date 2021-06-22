@@ -1,4 +1,4 @@
-VERSION = '1.0.41'
+VERSION = '1.0.42'
 
 import os, sys
 from shutil import copy as COPY
@@ -457,6 +457,7 @@ class HandlerClass:
         self.pierceCountPin = self.h.newpin('pierce_count', hal.HAL_S32, hal.HAL_IN)
         self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.torchOnPin = self.h.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
+        self.extPowerPin = self.h.newpin('ext_power', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPin = self.h.newpin('ext_run', hal.HAL_BIT, hal.HAL_IN)
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
@@ -1169,12 +1170,17 @@ class HandlerClass:
 # CALLBACKS FROM FORM #
 ###########################################################################################################################
 
+    def ext_power(self, state):
+        if self.w.power.isEnabled() and state:
+            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
+
     def ext_run(self, state):
         if self.w.run.isEnabled() and state:
             self.run_pressed()
 
     def ext_abort(self, state):
         if self.w.abort.isEnabled() and state:
+            ACTION.ABORT()
             self.abort_pressed()
 
     def ext_pause(self, state):
@@ -1792,6 +1798,7 @@ class HandlerClass:
         self.w.rapid_time_reset.pressed.connect(self.rapid_time_reset)
         self.w.probe_time_reset.pressed.connect(self.probe_time_reset)
         self.w.all_reset.pressed.connect(self.all_reset)
+        self.extPowerPin.value_changed.connect(lambda v:self.ext_power(v))
         self.extRunPin.value_changed.connect(lambda v:self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))

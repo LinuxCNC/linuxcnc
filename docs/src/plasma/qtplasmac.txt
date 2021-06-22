@@ -2929,6 +2929,7 @@ The following HAL pins are always created. The HAL pin has the identical behavio
 [width="50%",cols="1,1"]
 |===
 |*User Button Function*|*HAL Pin*
+|Toggle machine power|qtplasmac.ext_power
 |Run the loaded gcode program|qtplasmac.ext_run
 |Pause/Resume the loaded gcode program|qtplasmac.ext_pause
 |Abort the loaded gcode program|qtplasmac.ext_abort
