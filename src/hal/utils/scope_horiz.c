@@ -168,10 +168,10 @@ static void init_horiz_window(void)
     /* third column - scale display */
     horiz->scale_label = gtk_label_new_in_box("----", hbox, FALSE, FALSE, 5);
     gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label),
-	"99.9 mSec\nper div");
+	"99.9 ms\nper div");
     /* fourth column - record length and sample rate button */
     horiz->record_button =
-	gtk_button_new_with_label(_("----- Samples\nat ---- KHz"));
+	gtk_button_new_with_label(_("----- Samples\nat ---- kHz"));
     horiz->record_label = gtk_bin_get_child(GTK_BIN(horiz->record_button));
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
@@ -976,7 +976,7 @@ static void calc_horiz_scaling(void)
     horiz->sample_period = horiz->sample_period_ns / 1000000000.0;
     total_rec_time = ctrl_shm->rec_len * horiz->sample_period;
     if (total_rec_time < 0.000010) {
-	/* out of range, set to 1uS per div */
+	/* out of range, set to 1 us per div */
 	horiz->disp_scale = 0.000001;
 	return;
     }
@@ -1155,18 +1155,18 @@ static void format_time_value(char *buf, int buflen, double timeval)
 
     /* convert to nanoseconds */
     timeval *= 1000000000.0;
-    units = _("nSec");
+    units = _("ns");
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("uSec");
+	units = _("us");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("mSec");
+	units = _("ms");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("Sec");
+	units = _("s");
     }
     decimals = 2;
     if (timeval >= 10.0) {
@@ -1186,11 +1186,11 @@ static void format_freq_value(char *buf, int buflen, double freqval)
     units = _("Hz");
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = _("KHz");
+	units = _("kHz");
     }
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = _("Mhz");
+	units = _("MHz");
     }
     decimals = 2;
     if (freqval >= 10.0) {
