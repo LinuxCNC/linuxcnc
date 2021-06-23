@@ -831,12 +831,7 @@ else
             for pathdir in $INI_DIR ; do
               foundfile=$pathdir/$CFGFILE
               if [ -r $foundfile ] ; then
-                # use first file found in HALLIB_PATH
-                if [ "${pathdir:0:1}" = "." ] ; then
-                  foundmsg="Found file(REL): $foundfile"
-                else
-                  foundmsg="Found file(lib): $foundfile"
-                fi
+                  foundmsg="Found file(ini): $foundfile"
                 break
               fi
             done
