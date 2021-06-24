@@ -1,4 +1,4 @@
-VERSION = '1.0.42'
+VERSION = '1.0.43'
 
 import os, sys
 from shutil import copy as COPY
@@ -74,6 +74,7 @@ class ColorError(Exception):
     pass
 
 class HandlerClass:
+    # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
             self.size_changed(object)
@@ -254,6 +255,7 @@ class HandlerClass:
         STATUS.connect('update-machine-log', self.machine_log_update)
         self.make_hal_pins()
         self.init_preferences()
+        self.hide_widgets()
         self.init_widgets()
         self.w.button_frame.installEventFilter(self.w)
         self.link_hal_pins()
@@ -462,6 +464,7 @@ class HandlerClass:
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
+        self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -570,6 +573,14 @@ class HandlerClass:
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
         self.set_basic_colors()
+
+    def hide_widgets(self):
+        for b in ['RUN', 'PAUSE', 'ABORT']:
+            if int(self.iniFile.find('QTPLASMAC', 'HIDE_{}'.format(b)) or 0):
+                self.w[b.lower()].hide()
+                if self.landscape:
+                    self.w.machine_frame.setMaximumHeight(self.w.machine_frame.maximumHeight() - 44)
+                    self.w.machine_frame.setMinimumHeight(self.w.machine_frame.maximumHeight())
 
     def init_widgets(self):
         droPos = self.iniFile.find('QTPLASMAC', 'DRO_POSITION') or 'None'
@@ -1191,6 +1202,12 @@ class HandlerClass:
         if self.w.touch_xy.isEnabled() and state:
             self.touch_xy_clicked()
 
+    def ext_run_pause(self, state):
+        if self.w.run.isEnabled() and state:
+            self.run_pressed()
+        elif self.w.pause.isEnabled() and state:
+            ACTION.PAUSE()
+
     def run_pressed(self):
         if self.startLine and not self.rflActive:
             self.w.run.setEnabled(False)
@@ -1803,6 +1820,7 @@ class HandlerClass:
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
+        self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None

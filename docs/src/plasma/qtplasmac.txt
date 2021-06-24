@@ -588,6 +588,8 @@ QtPlasmaC has some specific <machine_name>.ini file variables as follows:
 
 *[QTPLASMAC]* Section
 
+These variables are optional.
+
 ----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
                         (use external arc voltage in for Arc OK)
@@ -595,29 +597,43 @@ MODE                = 0 (use external arc voltage in for Arc Voltage)
                         (use external Arc OK in for Arc OK)
                     = 2 (Use external Arc OK in for Arc OK)
                         (use external up/down for THC)
+                    (0 is the default if not specified)
 
 ESTOP_TYPE          = 0 (estop is a indicator only)
                     = 1 (estop is hidden)
                     = 2 (estop is a button)
+                    (0 is the default if not specified)
 
 LASER_TOUCHOFF      = X10.0000  Y0.0000
                       (X & Y offsets if a laser is installed for alignment)
+                    (the default is none if not specified)
 
 CAMERA_TOUCHOFF     = X-10.0000  Y0.0000
                       (X & Y offsets if a camera is installed for alignment)
+                    (the default is none if not specified)
 
 PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
+                    (the default is none if not specified)
 
 BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
 BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
+                    (the default is none if not specified)
 
 DRO_POSITION        = top (move the DRO to the top in the 16:9 and 4:3 formats)
+                    (the default is bottom if not specified)
+
+HIDE_RUN            = 1 (hide the cycle start button)
+HIDE_PAUSE          = 1 (hide the cycle pause button)
+HIDE_ABORT          = 1 (hide the cycle stop button)
+                    (the default is don't hide if not specified)
 
 ----
 
 NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
 
 *[FILTER]* Section
+
+These variables are mandatory.
 
 ----
 PROGRAM_EXTENSION   = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
@@ -630,6 +646,8 @@ tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 *[RS274NGC]* Section
 
+These variables are mandatory.
+
 ----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
 SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in this path)
@@ -640,8 +658,9 @@ IMPORTANT: SEE <<qt_path-tolerance, PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE I
 
 *[HAL]* Section
 
+These variables are mandatory.
+
 ----
-TWOPASS = on (needed for multiple .hal files)
 HALFILE = HALUI   = halui (required)
 HALFILE = <machine_name>.hal (the machine HAL file)
 HALFILE = plasmac.tcl (the standard QtPlasmaC HAL file )
@@ -656,6 +675,8 @@ NOTE: The user could place custom HAL commands in the custom.hal file as this fi
 
 *[DISPLAY]* Section
 
+This variable  is mandatory.
+
 ----
 DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
         = qtvcp qtplasmac_9x16 (use 9:16 resolution)
@@ -664,11 +685,14 @@ DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
 
 *[TRAJ]* Section
 
+This variable  is mandatory.
 ----
 SPINDLES = 3
 ----
 
 *[AXIS_X]* Section
+
+These variables are mandatory.
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -678,6 +702,8 @@ OFFSET_AV_RATIO  = 0.5
 
 *[AXIS_Y]* Section
 
+These variables are mandatory.
+
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
 MAX_ACCELERATION = double the value in the corresponding joint
@@ -685,6 +711,8 @@ OFFSET_AV_RATIO  = 0.5
 ----
 
 *[AXIS_Z]* Section
+
+These variables are mandatory.
 
 ----
 MIN_LIMIT        = the top of your slats or just below
@@ -2926,14 +2954,15 @@ QtPlasmaC creates some HAL pins that may be connected to from an momentary exter
 
 The following HAL pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
 
-[width="50%",cols="1,1"]
+[width="100%",cols="3,2,3"]
 |===
-|*User Button Function*|*HAL Pin*
-|Toggle machine power|qtplasmac.ext_power
-|Run the loaded gcode program|qtplasmac.ext_run
-|Pause/Resume the loaded gcode program|qtplasmac.ext_pause
-|Abort the loaded gcode program|qtplasmac.ext_abort
-|Touchoff X & Y axes to zero|qtplasmac.ext_touchoff
+|*User Button Function*|*HAL Pin*|*GUI Function
+|Toggle machine power|qtplasmac.ext_power|POWER
+|Run the loaded gcode program|qtplasmac.ext_run|CYCLE START
+|Pause/Resume the loaded gcode program|qtplasmac.ext_pause|CYCLE PAUSE
+|Abort the loaded gcode program|qtplasmac.ext_abort|CYCLE STOP
+|Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
+|Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |===
 
 The following HAL pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
@@ -2947,6 +2976,18 @@ The following HAL pins are only created if the function is specified in a <<qt_c
 |Change Consumables|qtplasmac.ext_consumables
 |Framing|qtplasmac.ext_frame_job
 |===
+
+=== Hide Program Buttons
+
+If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons with the following code in the <machine_name>.ini file:
+
+----
+HIDE_RUN       = 1
+HIDE_PAUSE     = 1
+HIDE_ABORT     = 1
+----
+
+For the 16:9 or 4:3 GUIs, the hiding of each of these GUI buttons will expose two more custom user buttons in the GUI.
 
 === Tuning Void Sensing
 
