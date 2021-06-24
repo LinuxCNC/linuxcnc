@@ -1254,6 +1254,13 @@ loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_ste
 The master branch is version-tagged with prerelease notation, typically
 2.9~pre*
 
+=== LinuxCNC startup
+
+The main script, *linuxcnc*, supports a new option (-H dirname) to
+specify an additional user-specified directory for Halfiles.  This
+directory is searched before the usual search of 1) theini directory
+and 2)the system halfile library directory.
+
 === G-code changes
 G43.2 (additional offsets) now accepts transient offsets to be added by
 axis words as well as from the tool table.
