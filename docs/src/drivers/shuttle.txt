@@ -58,9 +58,9 @@ rules files by running `udevadm control --reload-rules`.
 
 == Pins
 
-All HAL pin names are prefixed with the type of device followed by
-the index of the device (the order in which the driver found them),
-for example "shuttlexpress.0" or "shuttlepro.2".
+All HAL pin names are prefixed with `shuttle` followed by the index
+of the device (the order in which the driver found them), for example
+"shuttle.0" or "shuttle.2".
 
 '<Prefix>.button-<ButtonNumber>' (bit out)::
 
