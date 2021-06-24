@@ -40,6 +40,8 @@ SUBSYSTEM=="hidraw", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0240", MODE="04
 The LinuxCNC Debian package installs an appropriate udev file
 automatically, but if you are building LinuxCNC from source and are not
 using the Debian packaging, you'll need to install this file by hand.
+If you install the file by hand you'll need to tell udev to reload its
+rules files by running `udevadm control --reload-rules`.
 
 .SH A warning about the Jog Wheel
 The Shuttle devices have an internal 8-bit counter for the current
