@@ -293,8 +293,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
         LOG.debug('Button pressed is: {}'.format(i.text()))
         if self._nblock:
             self.hide()
-            btn = i.text().encode('utf-8')
-            if btn in ('&OK','&Yes'):
+            btn = self.standardButton(self.clickedButton())
+            if btn in (QMessageBox.Ok, QMessageBox.Yes):
                 self._message['RETURN'] = True
             else:
                 self._message['RETURN'] = False
@@ -354,6 +354,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
+        self.setDefaultButton(QMessageBox.Ok)
         self._useDesktopNotify = False
         self._frameless = False
         self._curLine = 0
@@ -489,10 +490,9 @@ class ToolDialog(LcncDialog, GeometryMixin):
     # decode button presses
     def msgbtn(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
-        btn = i.text().encode('utf-8')
-        if i == self._actionbutton:
+        if self.clickedButton() == self._actionbutton:
             self._processChange(-1)
-        elif btn in ('&OK','&Yes'):
+        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
             self._processChange(True)
         else:
             self._processChange(False)
