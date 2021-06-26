@@ -496,7 +496,7 @@ static bool chain_exists() {
     return result == EXIT_SUCCESS;
 }
 
-static int iptables_state = -1;
+static int iptables_state = 0;
 static bool use_iptables() {
     if(iptables_state == -1) {
         if(!chain_exists()) {
