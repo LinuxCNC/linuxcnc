@@ -1,4 +1,4 @@
-VERSION = '1.0.44'
+VERSION = '1.0.45'
 
 import os, sys
 from shutil import copy as COPY
@@ -221,7 +221,7 @@ class HandlerClass:
         self.framing = False
         self.boundsError = {'loaded': False, 'framing': False}
         self.obLayout = ''
-        self.errorSeen = 0
+        self.notifyError = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -292,6 +292,7 @@ class HandlerClass:
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
+        STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         self.overlay.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
@@ -1048,7 +1049,7 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
-        if self.errorSeen:
+        if self.notifyError:
             self.color_last_tab(self.backColor, self.estopColor)
         elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.color_last_tab(self.backColor, self.foreColor)
@@ -1174,7 +1175,7 @@ class HandlerClass:
 
     def machine_log_update(self, obj, msg, time):
         if 'Tool 0' not in msg:
-            self.errorSeen = 1
+            self.notifyError = True
 
 
 ###########################################################################################################################
@@ -1392,7 +1393,7 @@ class HandlerClass:
             self.vkb_show(True)
         if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
-            self.errorSeen = 0
+            self.notifyError = False
             self.w.machinelog.moveCursor(QTextCursor.End)
             self.w.machinelog.setCursorWidth(0)
         else:
@@ -1519,6 +1520,15 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+
+    def system_notify_button_pressed(self, object, button, state):
+        if button in ['clearAll', 'close', 'lastFive'] and state:
+            self.notifyError = False
+            if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
+                self.color_last_tab(self.backColor, self.foreColor)
+            else:
+                self.color_last_tab(self.foreColor, self.backColor)
+    
     def color_last_tab(self, fg, bg):
         self.w.main_tab_widget.setStyleSheet( \
                 'QTabBar::tab:last {{ color: {}; background: {} }}'.format(fg, bg))
@@ -2385,7 +2395,7 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
-        if self.errorSeen:
+        if self.notifyError:
             self.color_last_tab(self.backColor, self.estopColor)
         elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.color_last_tab(self.backColor, self.foreColor)
