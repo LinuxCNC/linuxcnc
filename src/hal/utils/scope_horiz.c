@@ -976,7 +976,7 @@ static void calc_horiz_scaling(void)
     horiz->sample_period = horiz->sample_period_ns / 1000000000.0;
     total_rec_time = ctrl_shm->rec_len * horiz->sample_period;
     if (total_rec_time < 0.000010) {
-	/* out of range, set to 1 us per div */
+	/* out of range, set to 1 µs per div */
 	horiz->disp_scale = 0.000001;
 	return;
     }
@@ -1158,7 +1158,7 @@ static void format_time_value(char *buf, int buflen, double timeval)
     units = _("ns");
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("us");
+	units = _("µs");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;

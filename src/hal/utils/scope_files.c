@@ -276,7 +276,7 @@ void write_log_file (char *filename)
 	log->order=INTERLACED;
 
     /* write data */
-    fprintf(fp, "Sampling period is %i nSec \n", sample_period_ns );
+    fprintf(fp, "Sampling period is %i ns \n", sample_period_ns );
 
 	/* point to the first sample in the display buffer */
 	start = ctrl_usr->disp_buf ;
