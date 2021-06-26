@@ -372,6 +372,9 @@ class _IStat(object):
         # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
         self.DISABLE_REPEAT_KEYS_LIST = self.INI.find("DISPLAY", "DISABLE_REPEAT_KEYS") or None
 
+        # maximum number of errors shown in on screen display
+        self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
+
     ###################
     # helper functions
     ###################

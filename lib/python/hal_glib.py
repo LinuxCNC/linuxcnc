@@ -202,6 +202,8 @@ class _GStat(GObject.GObject):
         'play-sound': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'virtual-keyboard': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'dro-reference-change-request': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'system_notify_button_pressed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE,
+                                        (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
         'error': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),

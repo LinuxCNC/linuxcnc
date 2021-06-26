@@ -79,6 +79,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
+        self.notify_max_msgs = 10
         self.close_event = True
         self.play_sounds = True
         self.mchnMsg_play_sound = True
@@ -195,6 +196,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.PREFS_:
             self.catch_errors = self.PREFS_.getpref('catch_errors', self.catch_errors, bool, 'SCREEN_OPTIONS')
             self.desktop_notify = self.PREFS_.getpref('desktop_notify', self.desktop_notify, bool, 'SCREEN_OPTIONS')
+            self.notify_max_msgs = self.PREFS_.getpref('notify_max_msgs', self.notify_max_msgs, int, 'SCREEN_OPTIONS')
             self.close_event = self.PREFS_.getpref('shutdown_check', self.close_event, bool, 'SCREEN_OPTIONS')
             self.play_sounds = self.PREFS_.getpref('sound_player_on', self.play_sounds, bool, 'SCREEN_OPTIONS')
             self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', self.mchnMsg_play_sound, bool, 'MCH_MSG_OPTIONS')
@@ -313,34 +315,35 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def process_error(self, w, kind, text):
             if 'on limit switch error' in text:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text)
+                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text, msgs=self.notify_max_msgs)
 
             elif kind == linuxcnc.NML_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.NML_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.NML_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text, msgs=self.notify_max_msgs)
 
             elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Operator Info:',
-                                     message=text,
+                                    message=text,
                                     status_timeout=0,
-                                    timeout=2)
+                                    timeout=2,
+                                    msgs=self.notify_max_msgs)
 
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
@@ -661,6 +664,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_notify(self):
         self.desktop_notify = True
 
+    def set_max_messages(self, data):
+        self.notify_max_msgs = data
+    def get_max_messages(self):
+        return self.notify_max_msgs
+    def reset_max_messages(self):
+        self.notify_max_msgs = 10
+
     def set_close(self, data):
         self.close_event = data
     def get_close(self):
@@ -715,6 +725,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
+    notify_max_messages = QtCore.pyqtProperty(int, get_max_messages, set_max_messages, reset_max_messages)
 
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
     close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
