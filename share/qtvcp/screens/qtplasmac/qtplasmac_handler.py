@@ -1,4 +1,4 @@
-VERSION = '1.0.45'
+VERSION = '1.0.46'
 
 import os, sys
 from shutil import copy as COPY
@@ -252,7 +252,8 @@ class HandlerClass:
 
     def initialized__(self):
         # ensure we get all startup errors
-        STATUS.connect('update-machine-log', self.machine_log_update)
+        STATUS.connect('error', self.error_update)
+        STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
@@ -1173,8 +1174,8 @@ class HandlerClass:
     def update_gcode_properties(self, props):
         self.gcodeProps = props
 
-    def machine_log_update(self, obj, msg, time):
-        if 'Tool 0' not in msg:
+    def error_update(self, obj, kind, error):
+        if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
             self.notifyError = True
 
 
