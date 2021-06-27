@@ -79,7 +79,7 @@ linuxcnc (1:2.8.1) buster; urgency=low
   * docs: plasmac user guide update
 
  -- andypugh <andy@bodgesoc.org>  Sun, 29 Nov 2020 14:43:33 +0000
- 
+
 linuxcnc (1:2.8.0) buster; urgency=low
 
   * Finally merge "Joints Axes". Joints and cartesian axes are no longer
@@ -197,7 +197,6 @@ linuxcnc (1:2.8.0) buster; urgency=low
   * add a sample config for the scorbot-er-3 robot arm
   * docs: document AXIS's foam mode
 
-
  -- andypugh <andy@bodgesoc.org>  Sun, 12 Jul 2020 20:29:54 +0100
 
 linuxcnc (1:2.8.0~pre1) rosa; urgency=low
@@ -210,7 +209,6 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * Back tool lathe support in axis and gmoccapy
   * Seperate joint and axis limits for non trivial kins machines
   * bldc_hall removed: use bldc
-
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
 
