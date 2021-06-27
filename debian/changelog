@@ -212,7 +212,7 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * bldc_hall removed: use bldc
 
 
--- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
 
 linuxcnc (1:2.7.15) unstable; urgency=medium
 
