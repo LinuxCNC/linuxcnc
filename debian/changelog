@@ -211,6 +211,9 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * Seperate joint and axis limits for non trivial kins machines
   * bldc_hall removed: use bldc
 
+
+-- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
+
 linuxcnc (1:2.7.15) unstable; urgency=medium
 
   * gaxis: use the theme that was made for it
@@ -307,7 +310,6 @@ linuxcnc (1:2.7.15) unstable; urgency=medium
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 02 Jan 2020 11:59:23 -0700
 
- -- John Thornton <jthornton@gnipsel.com>  Thu, 6 Jun 2019 14:50:43 -0500
 
 linuxcnc (1:2.7.14) unstable; urgency=medium
 
