@@ -71,9 +71,11 @@ int rtapi_parport_get(const char *mod_name, rtapi_parport_t *port, unsigned shor
     if(parports.empty()) map_parports();
     ParportMap::iterator pi = parports.find(base);
     if(pi == parports.end()) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Linux parallel port %c%d not found\n", base < 16 ? '#' : '@', base);
-        if(base < 16)
-            return -ENOENT;
+        if(base < 16){
+            rtapi_print_msg(RTAPI_MSG_ERR, "Linux parallel port %d not found\n", base);
+            return -ENOENT;}
+        rtapi_print_msg(RTAPI_MSG_ERR, "No parport registered at 0x%x. "
+                    "This is not always an error. Continuing.\n", base);
         port->base = base;
         port->base_hi = base_hi;
         return 0;

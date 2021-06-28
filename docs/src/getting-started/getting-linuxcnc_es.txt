@@ -401,12 +401,12 @@ sudo apt-get update
 . Instale el kernel RTAI
 +
 ----
-sudo apt-get install linux-image-4.14.174-rtai-amd64
+sudo apt-get install linux-image-4.19.195-rtai-amd64
 ----
 . Instale la capa de aplicación RTAI
 +
 ----
-sudo apt-get install rtai-modules-4.14.174
+sudo apt-get install rtai-modules-4.19.195
 ----
 . Instale linuxcnc (puede ser necesario reiniciar antes de instalar)
 +
