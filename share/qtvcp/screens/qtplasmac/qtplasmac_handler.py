@@ -1,4 +1,4 @@
-VERSION = '1.0.46'
+VERSION = '1.0.47'
 
 import os, sys
 from shutil import copy as COPY
@@ -30,8 +30,9 @@ from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
-from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
+from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
+from qtvcp.lib.qtplasmac import conv_ellipse as CONVELLI
 from qtvcp.lib.qtplasmac import conv_triangle as CONVTRIA
 from qtvcp.lib.qtplasmac import conv_rectangle as CONVRECT
 from qtvcp.lib.qtplasmac import conv_polygon as CONVPOLY
@@ -1776,6 +1777,7 @@ class HandlerClass:
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
         self.w.conv_line.pressed.connect(lambda:self.conv_shape_request('conv_line', CONVLINE, True))
         self.w.conv_circle.pressed.connect(lambda:self.conv_shape_request('conv_circle', CONVCIRC, True))
+        self.w.conv_ellipse.pressed.connect(lambda:self.conv_shape_request('conv_ellipse', CONVELLI, True))
         self.w.conv_triangle.pressed.connect(lambda:self.conv_shape_request('conv_triangle', CONVTRIA, True))
         self.w.conv_rectangle.pressed.connect(lambda:self.conv_shape_request('conv_rectangle', CONVRECT, True))
         self.w.conv_polygon.pressed.connect(lambda:self.conv_shape_request('conv_polygon', CONVPOLY, True))
@@ -4607,10 +4609,10 @@ class HandlerClass:
                    'jog_b_minus', 'jog_b_plus',
                    'cut_rec_n', 'cut_rec_ne', 'cut_rec_e', 'cut_rec_se',
                    'cut_rec_s', 'cut_rec_sw', 'cut_rec_w', 'cut_rec_nw',
-                   'conv_line', 'conv_circle', 'conv_triangle', 'conv_rectangle',
-                   'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star',
-                   'conv_gusset', 'conv_sector', 'conv_rotate', 'conv_array',
-                   'conv_scale']
+                   'conv_line', 'conv_circle', 'conv_ellipse', 'conv_triangle',
+                   'conv_rectangle', 'conv_polygon', 'conv_bolt', 'conv_slot',
+                   'conv_star', 'conv_gusset', 'conv_sector', 'conv_rotate',
+                   'conv_array', 'conv_scale']
         for button in buttons:
             self.color_button_image(button, self.foreColor)
             self.w[button].setStyleSheet(\
