@@ -462,7 +462,7 @@ class INI:
         minlim, maxlim = self.find_limits(letter)
         print("MIN_LIMIT = %s" % minlim, file=file)
         print("MAX_LIMIT = %s" % maxlim, file=file)
-        thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        thisaxishome = set(("all-limit-home", "all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         homes = False
         for i in thisaxishome:
