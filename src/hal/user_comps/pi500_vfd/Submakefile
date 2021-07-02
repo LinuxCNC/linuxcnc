@@ -13,7 +13,7 @@ USERSRCS += $(PI500_SRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(PI500_LIBS) 
 
 hal/user_comps/pi500_vfd/pi500_vfd.c: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
-	$(ECHO) "Preprocessing wj200_vfd.comp"
+	$(ECHO) "Preprocessing pi500_vfd.comp"
 	$(Q)../bin/halcompile -U --preprocess $<
 
 ../docs/man/man1/pi500_vfd.1: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
