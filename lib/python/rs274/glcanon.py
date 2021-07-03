@@ -471,7 +471,7 @@ class GlCanonDraw:
         g = self.get_geometry().upper()
         linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
 
-        geometry_chars = "XYZABCUVW-!"
+        geometry_chars = "XYZABCUVW-!;"
         dupchars = []; badchars = []
         for ch in g:
             if g.count(ch) >1: dupchars.append(ch)
