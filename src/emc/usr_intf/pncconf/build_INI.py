@@ -402,8 +402,9 @@ class INI:
         minlim, maxlim = self.find_limits(letter)
         print >>file, "MIN_LIMIT = %s" % minlim
         print >>file, "MAX_LIMIT = %s" % maxlim
-        thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
-        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        thisaxishome = set(("all-limit-home", "all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter, "all-limit-home"))
+        share = set(("all-limit-home", "all-home"))
         homes = False
         for i in thisaxishome:
             if self.a.findsignal(i): homes = True
@@ -434,6 +435,10 @@ class INI:
             for i in ignore:
                 if self.a.findsignal(i):
                     print >>file, "HOME_IGNORE_LIMITS = YES"
+                    break
+            for i in share:
+                if self.a.findsignal(i):
+                    print >>file, "HOME_IS_SHARED = 1"
                     break
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
