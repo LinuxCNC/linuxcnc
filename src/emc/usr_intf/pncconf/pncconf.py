@@ -4931,9 +4931,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             mesa0_3pwm = mesa1_3pwm = ''
             mesa0_ioaddr = mesa1_ioaddr = ''
             load_cmnds.append("loadrt hostmot2")
-            if '7i43' in board0:
+            if '7i43' in board0 or '7i90' in board0:
                 mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=0'% self.d.mesa0_parportaddrs
-            if '7i43' in board1:
+            if '7i43' in board1 or '7i90' in board1:
                 if mesa0_ioaddr:
                     mesa0_ioaddr = ' ioaddr=%s,%s ioaddr_hi=0,0 epp_wide=0,0'% (self.d.mesa0_parportaddrs, self.d.mesa1_parportaddrs)
                 else:
@@ -4942,7 +4942,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 firmstring0 =''
                 if self.d.mesa0_card_addrs:
                     board0_ip = ''' board_ip="%s"''' % self.d.mesa0_card_addrs
-            elif not "5i25" in board0:
+            elif not "5i25" in board0 and not '7i90' in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT " % (directory0, firm0)
             if 'eth' in driver1:
                 firmstring1 =''
@@ -4952,7 +4952,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         board1_ip = ' %s"'% self.d.mesa1_card_addrs
                     else:
                         board1_ip = ' board_ip="%s"' % self.d.mesa1_card_addrs
-            elif not "5i25" in board1:
+            elif not "5i25" in board1 and not '7i90' in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT " % (directory1, firm1)
 
             # TODO fix this hardcoded hack: only one serialport
