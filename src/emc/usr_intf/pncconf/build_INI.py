@@ -177,7 +177,12 @@ class INI:
             print("# **** This is for info only ****", file=file)
         print("CARD0=hm2_%s.0"% self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME], file=file)
         if self.d.number_mesa == 2:
-            print("CARD1=hm_%s.1"% self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME], file=file)
+            for boardnum in range(0,int(self.d.number_mesa)):
+                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
+                    halnum = 1
+                else:
+                    halnum = 0
+            print(file, "CARD1=hm2_%s.%d"% (self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME], halnum), file=file)
         if self.d._substitution_list:
             print("# These are to ease setting custom component's parameters in a custom HAL file", file=file)
             print(file=file)
@@ -462,8 +467,9 @@ class INI:
         minlim, maxlim = self.find_limits(letter)
         print("MIN_LIMIT = %s" % minlim, file=file)
         print("MAX_LIMIT = %s" % maxlim, file=file)
-        thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
-        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        thisaxishome = set(("all-limit-home", "all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter, "all-limit-home"))
+        share = set(("all-limit-home", "all-home"))
         homes = False
         for i in thisaxishome:
             if self.a.findsignal(i): homes = True
@@ -494,6 +500,10 @@ class INI:
             for i in ignore:
                 if self.a.findsignal(i):
                     print("HOME_IGNORE_LIMITS = YES", file=file)
+                    break
+            for i in share:
+                if self.a.findsignal(i):
+                    print >>file, "HOME_IS_SHARED = 1"
                     break
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
