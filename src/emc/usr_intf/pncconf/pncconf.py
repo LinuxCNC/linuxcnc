@@ -4064,7 +4064,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
-            thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
+            thisaxishome = set(("all-limit-home", "all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
             homes = False
             for i in thisaxishome:
                 test = self.findsignal(i)
@@ -4883,19 +4883,19 @@ Clicking 'existing custom program' will aviod this warning. "),False):
            return test
 
     def home_sig(self, axis):
-        thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
+        thisaxishome = set(("all-limit-home", "all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
         for i in thisaxishome:
             if self.findsignal(i): return i
         return None
 
     def min_lim_sig(self, axis):
-           thisaxishome = set(("all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
+           thisaxishome = set(("all-limit-home", "all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
                if self.findsignal(i): return i
            return None
 
     def max_lim_sig(self, axis):
-           thisaxishome = set(("all-limit", "max-" + axis, "max-home-" + axis, "both-" + axis, "both-home-" + axis))
+           thisaxishome = set(("all-limit-home", "all-limit", "max-" + axis, "max-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
                if self.findsignal(i): return i
            return None
