@@ -215,6 +215,7 @@ class App:
         window.show()
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
+        self.origname = ['','']
 
         # set preferences if they exist
         link = short = advanced = show_pages = False
@@ -349,14 +350,22 @@ class App:
         else:
             self.widgets.discovery_address_entry.set_sensitive(False)
 
-    def get_board_meta(self, name):
+    def get_board_meta(self, name, num):
         name = name.lower()
-        meta = _PD.MESA_BOARD_META.get(name)
+        # 7i80hd and 7i80db don't use the HD or DB in the Hal name
+        # store the original name here for getting the board meta
+        if name != '7i80':
+            self.origname[num] = name
+        # change the name in currentfirmwaredata to the Hal name
+        if name in ['7i80hd', '7i80db'] and self.d["mesa%d_currentfirmwaredata"% num]:
+            self.d["mesa%d_currentfirmwaredata"% num][_PD._BOARDNAME] = '7i80'
+
+        meta = _PD.MESA_BOARD_META.get(self.origname[num])
         if meta:
             return meta
         else:
             for key in _PD.MESA_BOARD_META:
-                if key in name:
+                if key in self.origname[num]:
                     return _PD.MESA_BOARD_META.get(key)
 
         print 'boardname %s not found in hardware metadata array'% name
@@ -917,7 +926,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self._p.MESA_FIRMWAREDATA.append(firmdata)
         self.window.hide()
 
-    def parse_xml(self, driver, boardtitle, firmname, xml_path):
+    def parse_xml(self, driver, boardtitle, firmname, xml_path, boardnum=0):
             def search(elementlist):
                 for i in elementlist:
                     temp = root.find(i)
@@ -961,7 +970,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             hifreq = int(text)/1000000
             modules = root.findall(".//modules")[0]
             if driver == None:
-                meta = self.get_board_meta(boardname)
+                meta = self.get_board_meta(boardname, boardnum)
                 driver = meta.get('DRIVER')
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
@@ -1487,7 +1496,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
         print driver, boardname, firmname, path 
         boardname = 'Discovered:%s'% boardname
-        firmdata = self.parse_xml( driver,boardname,firmname,path)
+        firmdata = self.parse_xml( driver,boardname,firmname,path,boardnum)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
@@ -2017,7 +2026,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets["mesa%dsserial0_%d"%(boardnum,i)].hide()
         if title == None: return
         if 'Discovery Option' not in title:
-            meta = self.get_board_meta(title)
+            meta = self.get_board_meta(title, boardnum)
             names = meta.get('TAB_NAMES')
             tnums = meta.get('TAB_NUMS')
             if names and tnums:
@@ -2450,7 +2459,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 pass
 
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        meta = self.get_board_meta(currentboard)
+        meta = self.get_board_meta(currentboard, boardnum)
         ppc = meta.get('PINS_PER_CONNECTOR')
 
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
@@ -5210,7 +5219,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-            meta = self.get_board_meta(boardname)
+            meta = self.get_board_meta(boardname, boardnum)
             num_of_pins = meta.get('PINS_PER_CONNECTOR')
 
             ptype = self.d[pin+"type"]
