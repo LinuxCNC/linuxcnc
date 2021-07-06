@@ -897,9 +897,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
-        if self.rflActive:
-            self.rflActive = False
-            ACTION.OPEN_PROGRAM(ACTION.prefilter_path)
         self.w.jog_stack.setCurrentIndex(0)
         self.w.abort.setEnabled(False)
         if self.ccButton:
@@ -1171,6 +1168,8 @@ class HandlerClass:
             self.startLine = line - 1
         elif not self.rflActive:
             self.startLine = 0
+        else:
+            self.runText = 'RUN FROM LINE'
 
     def update_gcode_properties(self, props):
         self.gcodeProps = props
@@ -1212,7 +1211,7 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def run_pressed(self):
-        if self.startLine and not self.rflActive:
+        if self.startLine and self.runText[:8] == 'SELECTED':
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
@@ -2296,7 +2295,7 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(rflFile)
         ACTION.prefilter_path = self.preRflFile
         self.set_run_button_state()
-        self.runText = 'RUN FROM {}'.format(self.startLine + 1)
+        self.runText = 'RUN FROM LINE'
         self.w.gcodegraphics.highlight_graphics(None)
 
     def get_rfl_pos(self, line, axisPos, axisLetter):
