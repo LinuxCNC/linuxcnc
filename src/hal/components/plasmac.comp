@@ -793,10 +793,16 @@ FUNCTION(_) {
                     state = PROBE_TEST;
                     break;
                 }
+                if(probe_testing && breakaway){
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    probe_test_error = TRUE;
+                    state = PROBE_TEST;
+                    break;
+                }
                 if((float_switch && !float_detected) || ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
-                    if(z_pierce > z_max){
+                    if(z_pierce > z_max && !probe_testing){
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         if(float_switch){
@@ -832,6 +838,12 @@ FUNCTION(_) {
                     state = PROBE_TEST;
                     break;
                 }
+                if(probe_testing && breakaway){
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    probe_test_error = TRUE;
+                    state = PROBE_TEST;
+                    break;
+                }
                 /* probe down to top of stock at probe speed, then push a little further for good contact */
                 if(target_sensed){
                     if(probe_force > 0){
@@ -850,7 +862,7 @@ FUNCTION(_) {
                     if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
                         z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                         z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
-                        if(z_pierce > z_max){
+                        if(z_pierce > z_max && !probe_testing){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
                                                           "while float switch probing\n");
                             stop_type = PAUSE;
@@ -871,7 +883,7 @@ FUNCTION(_) {
                 }else if(ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
-                    if(z_pierce > z_max){
+                    if(z_pierce > z_max && !probe_testing){
                         rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
                                                       "while ohmic probing\n");
                         stop_type = PAUSE;
@@ -953,14 +965,14 @@ FUNCTION(_) {
                         }else{
                             state = ZERO_HEIGHT;
                         }
-                    }else if(safe_min > offset_max){
+                    }else if(safe_min > offset_max && !probe_testing){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
                                                        "program is paused.\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
-                    }else if(safe_preferred >= offset_max){
+                    }else if(safe_preferred >= offset_max && !probe_testing){
                         if(!safe_height_is_limited){
                             rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
                         }
