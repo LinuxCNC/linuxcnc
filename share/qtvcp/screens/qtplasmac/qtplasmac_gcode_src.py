@@ -779,19 +779,26 @@ with open(inCode, 'r') as fRead:
         if holeEnable and 'y' in line: check_math('y')
         if holeEnable and 'i' in line: check_math('i')
         if holeEnable and 'j' in line: check_math('j')
-
+        # check for z axis command
         if not zBypass:
-            # if z axis in line but no other axes comment it
-            if 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and line.split('z')[1][0].isdigit():
-                print('({})'.format(line))
-                continue
-            # if z axis and other axes in line, comment out the Z axis
-            if 'z' in line and not '(z' in line and line.split('z')[1][0] in '0123456789.- ':
-                if holeEnable:
-                    lastX, lastY = set_last_position(lastX, lastY)
-                result = comment_out_z_commands()
-                print(result)
-                continue
+            # if z axis in line
+            if 'z' in line and line.split('z')[1][0] in '0123456789.- ':
+                # if no other axes comment it
+                if 1 not in [c in line for c in 'xybcuvw']:
+                    if '(' in line:
+                        print('({} {}'.format(line.split('(')[0], line.split('(')[1]))
+                    elif ';' in line:
+                        print('({} {}'.format(line.split(';')[0], line.split(';')[1]))
+                    else:
+                        print('({})'.format(line))
+                    continue
+                # other axes in line, comment out the Z axis
+                if not '(z' in line:
+                    if holeEnable:
+                        lastX, lastY = set_last_position(lastX, lastY)
+                    result = comment_out_z_commands()
+                    print(result)
+                    continue
         # if an arc command
         if (line.startswith('g2') or line.startswith('g3')) and line[2].isalpha():
             if holeEnable:
