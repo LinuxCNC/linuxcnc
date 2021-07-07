@@ -468,9 +468,9 @@ class HandlerClass:
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
-        self.out0Pin = self.h.newpin('gp_out_0', hal.HAL_BIT, hal.HAL_OUT)
-        self.out1Pin = self.h.newpin('gp_out_1', hal.HAL_BIT, hal.HAL_OUT)
-        self.out2Pin = self.h.newpin('gp_out_2', hal.HAL_BIT, hal.HAL_OUT)
+        self.out0Pin = self.h.newpin('ext_out_0', hal.HAL_BIT, hal.HAL_OUT)
+        self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
+        self.out2Pin = self.h.newpin('ext_out_2', hal.HAL_BIT, hal.HAL_OUT)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -2453,7 +2453,7 @@ class HandlerClass:
             self.w[self.frButton].setEnabled(True)
 
     def pin_pulser_timeout(self):
-        if 'qtplasmac.gp_out_' in self.pinPulsed:
+        if 'qtplasmac.ext_out_' in self.pinPulsed:
             pin = 'out{}Pin'.format(self.pinPulsed.split('out_')[1])
             self[pin].set(self.halPulsePins[self.pinPulsed][2])
         else:
@@ -2650,10 +2650,9 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].strip()
-#            try:
-            if 1:
+            try:
                 pinstate = hal.get_value(halpin)
-                if 'qtplasmac.gp_out_' in halpin:
+                if 'qtplasmac.ext_out_' in halpin:
                     pin = 'out{}Pin'.format(halpin.split('out_')[1])
                     print("PIN",pin)
                     self[pin].set(not pinstate)
@@ -2663,10 +2662,10 @@ class HandlerClass:
                     self.button_normal('button_{}'.format(str(bNum)))
                 else:
                     self.button_active('button_{}'.format(str(bNum)))
-#            except:
-#                msg = 'Invalid code for user button #{} code\n' \
-#                      'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
-#                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+            except:
+                msg = 'Invalid code for user button #{} code\n' \
+                      'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
         elif 'pulse-halpin' in commands.lower():
             try:
                 code, halpin, delay = commands.lower().strip().split()
@@ -2679,11 +2678,10 @@ class HandlerClass:
                           'Failed to puls HAL pin "{}"\n'.format(bNum, halpin)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                     return
-#            try:
-            if 1:
+            try:
                 print("HALPIN 0", halpin)
                 pinstate = hal.get_value(halpin)
-                if 'qtplasmac.gp_out_' in halpin:
+                if 'qtplasmac.ext_out_' in halpin:
                     pin = 'out{}Pin'.format(halpin.split('out_')[1])
                     print("HALPIN 1",pin)
                     self[pin].set(not pinstate)
@@ -2694,10 +2692,10 @@ class HandlerClass:
                 self.pinPulser.start(self.halPulsePins[halpin][1] * 1000)
                 self.pinPulsed = halpin
                 self.ppButton = 'button_{}'.format(str(bNum))
-#            except:
-#                msg = 'Invalid code for user button #{} code\n' \
-#                      'Failed to pulse HAL pin "{}"\n'.format(bNum, halpin)
-#                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+            except:
+                msg = 'Invalid code for user button #{} code\n' \
+                      'Failed to pulse HAL pin "{}"\n'.format(bNum, halpin)
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
 
         elif 'single-cut' in commands.lower():
             self.single_cut()

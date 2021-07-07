@@ -2803,7 +2803,7 @@ The button colors will follow the state of the halpin.
  
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
-There are three HAL bit output pins that are available to toggle as an output, the pin names are qtplasmac.gp_out_0, qtplasmac.gp_out_1, and qtplasmac.gp_out_2.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
 
 [[qt_button-pulse]]
 
@@ -2823,7 +2823,7 @@ The button colors will follow the state of the halpin.
  
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
 
-There are three HAL bit output pins that are available to pulse as an output, the pin names are qtplasmac.gp_out_0, qtplasmac.gp_out_1, and qtplasmac.gp_out_2.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
 
 [[qt_button-probe]]
 
@@ -2958,7 +2958,7 @@ Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external
 
 QtPlasmaC creates some HAL pins that may be connected to from an momentary external button or pendant etc.
 
-The following HAL pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
+The following HAL bit pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
 
 [width="100%",cols="3,2,3"]
 |===
@@ -2971,7 +2971,7 @@ The following HAL pins are always created. The HAL pin has the identical behavio
 |Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |===
 
-The following HAL pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
+The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
 
 [width="50%",cols="1,1"]
 |===
@@ -2981,6 +2981,16 @@ The following HAL pins are only created if the function is specified in a <<qt_c
 |Ohmic Test|qtplasmac.ext_ohmic
 |Change Consumables|qtplasmac.ext_consumables
 |Framing|qtplasmac.ext_frame_job
+|===
+
+The following HAL bit output pins are always created and can be used by either the <<qt_button-toggle, Toggle HAL Pin>> or <<qt_button-pulse, Pulse HAL Pin>> custom user buttons to change the state of an output.
+
+[width="50%"]
+|===
+|*HAL Pin*
+|qtplasmac.ext_out_0
+|qtplasmac.ext_out_1
+|qtplasmac.ext_out_2
 |===
 
 === Hide Program Buttons
