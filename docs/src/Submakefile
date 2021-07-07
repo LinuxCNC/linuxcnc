@@ -150,7 +150,6 @@ DOC_SRCS_EN := \
 	motion/switchkins.txt \
 	tooldatabase/tooldatabase.txt \
 	plasma/qtplasmac.txt \
-	plasma/plasmac-user-guide.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
 	tooldatabase/tooldatabase.txt \
