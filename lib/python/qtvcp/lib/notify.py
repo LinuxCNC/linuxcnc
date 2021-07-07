@@ -8,7 +8,7 @@ import sys
 # callback work around:
 # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
-from qtvcp.core import Status
+from qtvcp.core import Status, Info
 from qtvcp.lib import sys_notify
 
 # Set up logging
@@ -17,10 +17,18 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 STATUS = Status()
+INFO = Info()
 sys_notify.init('notify')
 
 
 class Notify:
+    YESNO = 'yesNo'
+    JOGPAUSED = 'jogPaused'
+    OKCANCEL = 'okCancel'
+    CLOSE = 'close'
+    LASTFIVE = 'lastFive'
+    CLEARALL = 'clearAll'
+
     def __init__(self):
         self.statusbar = None
         self.lastnum = 0
@@ -168,24 +176,30 @@ class Notify:
     ################################################
     def yesClicked(self, n, action, callback):
         callback(True)
+        STATUS.emit('system_notify_button_pressed', Notify.YESNO, True)
 
     def noClicked(self, n, action, callback):
         callback(False)
+        STATUS.emit('system_notify_button_pressed', Notify.YESNO, True)
 
     def okClicked(self, n, action, callback):
         callback(True)
+        STATUS.emit('system_notify_button_pressed', Notify.OKCANCEL, True)
 
     def cancelClicked(self, n, action, callback):
         callback(False)
+        STATUS.emit('system_notify_button_pressed', Notify.OKCANCEL, True)
 
     def jogPauseClicked(self, n, action, callback):
         callback(-1)
+        STATUS.emit('system_notify_button_pressed', Notify.JOGPAUSE, True)
 
     def handle_closed(self, n):
         pass
 
     def closeClicked(self, n, text):
         n.close()
+        STATUS.emit('system_notify_button_pressed', Notify.CLOSE, True)
 
     def OnClicked(self, n, signal_text):
         print('1: ' + str(n))
@@ -208,10 +222,12 @@ class Notify:
                                                        len(self.alarmpage),
                                                        self.alarmpage[num][1])
         n.show()
+        STATUS.emit('system_notify_button_pressed', Notify.LASTFIVE, True)
 
     def destroyClicked(self, n, signal_text):
         self.alarmpage = []
         n.body = ''
+        STATUS.emit('system_notify_button_pressed', Notify.CLEARALL, True)
 
     #####################################################
     # General work functions
@@ -219,19 +235,19 @@ class Notify:
     # update the critical message display
     # this adds the new message to the old
     # show a max of 10 messages on screen
-    def update(self, n, title='', message='', status_timeout=5, timeout=None):
+    def update(self, n, title='', message='', status_timeout=5, timeout=None, msgs=10):
         if title is not None:
-            n.title = title
+           n.title = title
         if self.alarmpage ==[]:
-            n.body = title + '\n' + message
-        elif len(self.alarmpage) <9:
+           n.body = title + '\n' + message
+        elif len(self.alarmpage) < (msgs - 1):
             n.body = ''
             for i in range(len(self.alarmpage)):
                 n.body = n.body + '\n' +  self.alarmpage[i][1]
             n.body = n.body + '\n' + title + '\n' + message
         else:
             n.body = ''
-            for i in range(len(self.alarmpage)-9,len(self.alarmpage)):
+            for i in range(len(self.alarmpage) - (msgs - 1), len(self.alarmpage)):
                 n.body = n.body + '\n' +  self.alarmpage[i][1]
             n.body = n.body + '\n' + title + '\n' + message
         if timeout is not None:

@@ -29,7 +29,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include <rtapi.h>		/* RTAPI realtime OS API */

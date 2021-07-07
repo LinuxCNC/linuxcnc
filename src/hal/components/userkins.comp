@@ -18,7 +18,7 @@ kinematics for an xyz machine employing 3 joints
      directory (\\fBmydir\\fR).
 
      Note: The userkins.comp file can be downloaded from:
-.URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp 
+.URL https://github.com/LinuxCNC/linuxcnc/raw/2.8/src/hal/components/userkins.comp
      where '2.8' is the branch name (use 'master' for
      the master branch)
 
@@ -54,6 +54,8 @@ pin out bit dummy=1; // halcompile requires at least one pin
 license "GPL";
 ;;
 
+#include "rtapi_math.h"
+#include "kinematics.h"
 
 static struct haldata {
   hal_u32_t *in;
@@ -87,7 +89,30 @@ error:
     return -1;
 }
 
-#include "kinematics.h"
+#if 1  // by default, not switchable:
+  KINS_NOT_SWITCHABLE
+#else
+  static hal_u32_t switchkins_type;
+  /* See switchkins documentation
+  **
+  ** Switchable kinematics requires:
+  **   1) the additional functions below
+  **   2) additional modifications in:
+  **        userkins_setup()
+  **        kinematicsForward() to honor switchkins_type var
+  **        kinematicsInverse() to honor switchkins_type var
+  */
+  EXPORT_SYMBOL(kinematicsSwitchable);
+  EXPORT_SYMBOL(kinematicsSwitch);
+  int kinematicsSwitchable()     {return 1;}
+  int kinematicsSwitch(int new_switchkins_type) {
+       switchkins_type = new_switchkins_type
+       rtapi_print("kinematicsSwitch(): type=%d\n",type);
+       // handle new type here:
+       // ...
+       return 0; // ok
+  }
+#endif
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
@@ -96,7 +121,10 @@ KINEMATICS_TYPE kinematicsType()
 {
 static bool is_setup=0;
     if (!is_setup) userkins_setup();
-    return KINEMATICS_IDENTITY;
+    return KINEMATICS_IDENTITY; // set as required
+           // Note: If kinematics are identity, using KINEMATICS_BOTH
+           //       may be used in order to allow a gui to display
+           //       joint values in preview prior to homing
 } // kinematicsType()
 
 static bool is_homed=0;

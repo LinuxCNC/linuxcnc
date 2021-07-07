@@ -1,0 +1,28 @@
+;M429 by remap: select identity kins
+o<429remap>sub
+  #<SWITCHKINS_PIN> = 3  ; set N as required: motion.analog-out-0N
+  #<kinstype> = 1        ; identity kins
+
+o1 if [exists [#<_hal[motion.switchkins-type]>]]
+o1 else
+     (debug,M429:Missing [RS274NGC]FEATURE==8)
+     (debug,STOP)
+     M2
+o1 endif
+
+   M66  E0 L0                           ; force synch
+   M68  E#<SWITCHKINS_PIN> Q#<kinstype> ; set kinstype value
+   G10 L2 P8 X0 Y-90 Z0 A0 B90 C0
+   G59.2
+   M66  E0 L0                           ; force synch
+;   (debug, M429:identity kins)
+
+o2 if [[#<_task> EQ 1] AND [#<_hal[motion.switchkins-type]> NE 1]]
+     (debug,M429:Wrong motion.switchkins-type)
+     (debug,or missing hal net to analog-out-0x)
+     (debug,STOP)
+     M2
+o2 else
+o2 endif
+
+o<429remap>endsub

@@ -244,7 +244,7 @@ int tooldata_db_init(char progname[],int random_toolchanger)
     child_argv[0] = progname;
     child_argv[1] = (char*)DB_VERSION;
     child_argv[2] = 0;
-    snprintf(db_childname,sizeof(db_childname),progname);
+    snprintf(db_childname,sizeof(db_childname),"%s",progname);
     is_random_toolchanger = random_toolchanger;
 
     if (access(progname,X_OK)) {

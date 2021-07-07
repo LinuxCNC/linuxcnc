@@ -1,0 +1,93 @@
+(Preamble)
+G90 G64 P0.1 Q1
+
+(Switch to Joint mode trivial kinematics)
+M429
+
+(When using "Joint" mode we need to make sure that)
+(the offsets are set correctly for the pose we used)
+(when we set up the Modified DH-Parameters for the )
+("genserkins" kinematic where we cannot define 'Theta')
+(-values.)
+("M429" sets offsets to "G59.2" and resets those)
+(to "G10 L2 P8 X0 Y-90 Z0 A0 B0 C0" so we match the DH-)
+(Parameter model used in the genserkins kinematics)
+(Note that this pose leaves Joint_3 and Joint_5 collinear)
+(and that will cause the inverse kinematics to fail so we)
+(need to make sure that the wrist does not start out at)
+(zero degrees.)
+(Note that we also change speed settings through HAL when)
+(we switch kinematics)
+
+(Set the start pose to make sure the kinematics can handle it)
+G01 X0 Y0 Z0 A0 B0 C0 F1000
+
+(Switch to Coordinated, i.e. cartesian, world mode)
+M428
+("M428" sets offsets to "G59.1" and resets those)
+(to "G10 L2 P7 X0 Y0 Z0 A0 B0 C0")
+(Origin is at bottom center of the robot base)
+(So to use other, nonzero, offsets we need to declare after)
+(each switch of the kinematics)
+
+
+
+G0 X450 Y200 Z350 B10 C45
+
+(Draw a cube of 150mm)
+G91
+G0 Y150
+X150
+Y-150
+X-150
+Z150
+Y150
+Z-150
+Z150
+X150
+Z-150
+Z150
+Y-150
+Z-150
+Z150
+X-150
+
+(Switch to Joint mode trivial kinematics)
+M429
+
+(Go different pose)
+G90
+G0 X90 Y0 Z0 A0
+
+(Switch to Coordinated, i.e. cartesian, world mode)
+M428
+
+(Draw a cube of 150mm)
+G91
+G0
+Z-150
+Y150
+X150
+Y-150
+X-150
+Z150
+Y150
+Z-150
+Z150
+X150
+Z-150
+Z150
+Y-150
+Z-150
+Z150
+X-150
+
+
+(Switch to Joint mode trivial kinematics)
+M429
+
+(Go to start pose)
+G90
+G0 X0 Y0 Z0 A0
+
+M2

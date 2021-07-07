@@ -1,7 +1,6 @@
 [[cha:qtplasmac]]
 
 = QtPlasmaC
-:toc:
 :toclevels: 5
 :figure-caption!:
 
@@ -339,42 +338,11 @@ There are two methods available to get from a working PlasmaC configuration to a
 
 If there are Qt dependency errors, the user should run the <<qt-dependency, QtVCP install script>>.
 
-=== Preferred Method
-
-The preferred method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration.
-
-This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
-
-After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
-
-Prior to running this conversion program, it is mandatory that the user have both an existing PlasmaC configuration and a new QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
-
-The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
-
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
-
-To run the cfg2prefs conversion program, use the following instructions:
-
-For a package installation (Buildbot) enter the following line in a terminal window:
-
-----
-qtplasmac-cfg2prefs
-----
-
-For a run in place installation enter the following lines in terminal window:
-
-----
-source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-cfg2prefs
-----
-
-image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
-
-Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
-
 === Quick Method
 
 A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
+
+This methods will keep the original PlasmaC config as a backup with _plasmac and a time stamp appended to the directory name.
 
 To run the plasmac2qt conversion program, use the following instructions:
 
@@ -400,8 +368,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 [width="100%",cols="4,10,6"]
 |===
 |*Field*|*Description*|*Examples*
-|INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file that was created by the configurator.|<machine_name>.ini
-|NAME OF NEW QTPLASMAC CONFIG|This is the name for the new QtPlasmaC machine|My_QtPlasmaC_Machine
+|INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file of the PlasmaC config that requires migrating.|<machine_name>.ini
 |MONITOR ASPECT RATIO|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP|Selects the required Estop type based on the following criteria: +
       0 - Estop is an indicator only. +
@@ -432,7 +399,40 @@ Leave these blank if they are not used/required.
 
 After filling in the appropriate entries, press *CONVERT*.
 
-NOTE: This method will result in a slightly different file structure in the configuration directory than what is shown in this documentation. This should not cause any issues in the operation of QtPlasmaC.
+NOTE: This method will not change any existing debounce components to the new dbounce component.
+
+=== New Base Config Method
+
+This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration. This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base ini and base hal files have not been edited.
+
+This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
+
+After using the wizard, the user can then run a conversion program (cfg2prefs) to convert the parameters, settings, and materials from the previous PlasmaC configuration to the new QtPlasmaC configuration. This tool should be used immediately after the user has created a new QtPlasmaC configuration.
+
+Prior to running this conversion program, it is mandatory that the user have both an existing PlasmaC configuration and a new QtPlasmaC configuration. This program WILL overwrite the existing QtPlasmaC preferences and materials files, and should be used with caution if it is not being run on a new QtPlasmaC configuration.
+
+The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
+
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
+
+To run the cfg2prefs conversion program, use the following instructions:
+
+For a package installation (Buildbot) enter the following line in a terminal window:
+
+----
+qtplasmac-cfg2prefs
+----
+
+For a run in place installation enter the following lines in terminal window:
+
+----
+source ~/linuxcnc-dev/scripts/rip-environment
+qtplasmac-cfg2prefs
+----
+
+image::images/qtplasmac_cfg2prefs.png[width=500,align="center"]
+
+Select the .ini file of the old PlasmaC configuration, select the .ini file of the new QtPlasmaC configuration, then press *CONVERT*.
 
 == Other QtPlasmaC Setup Considerations
 
@@ -440,7 +440,7 @@ NOTE: This method will result in a slightly different file structure in the conf
 
 === Lowpass Filter
 
-The PlasmaC component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
+The plasmac HAL component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
 The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
@@ -588,6 +588,8 @@ QtPlasmaC has some specific <machine_name>.ini file variables as follows:
 
 *[QTPLASMAC]* Section
 
+These variables are optional.
+
 ----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
                         (use external arc voltage in for Arc OK)
@@ -595,29 +597,43 @@ MODE                = 0 (use external arc voltage in for Arc Voltage)
                         (use external Arc OK in for Arc OK)
                     = 2 (Use external Arc OK in for Arc OK)
                         (use external up/down for THC)
+                    (0 is the default if not specified)
 
 ESTOP_TYPE          = 0 (estop is a indicator only)
                     = 1 (estop is hidden)
                     = 2 (estop is a button)
+                    (0 is the default if not specified)
 
 LASER_TOUCHOFF      = X10.0000  Y0.0000
                       (X & Y offsets if a laser is installed for alignment)
+                    (the default is none if not specified)
 
 CAMERA_TOUCHOFF     = X-10.0000  Y0.0000
                       (X & Y offsets if a camera is installed for alignment)
+                    (the default is none if not specified)
 
 PM_PORT             = (port name for RS485 e.g. /dev/ttyUSB0)
+                    (the default is none if not specified)
 
 BUTTON_n_NAME       = <NAME> (the name of a custom user button, n = 1~20)
 BUTTON_n_CODE       = <CODE> (the code run by a custom user button, n= 1~20)
+                    (the default is none if not specified)
 
 DRO_POSITION        = top (move the DRO to the top in the 16:9 and 4:3 formats)
+                    (the default is bottom if not specified)
+
+HIDE_RUN            = 1 (hide the cycle start button)
+HIDE_PAUSE          = 1 (hide the cycle pause button)
+HIDE_ABORT          = 1 (hide the cycle stop button)
+                    (the default is don't hide if not specified)
 
 ----
 
 NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
 
 *[FILTER]* Section
+
+These variables are mandatory.
 
 ----
 PROGRAM_EXTENSION   = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
@@ -630,6 +646,8 @@ tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 *[RS274NGC]* Section
 
+These variables are mandatory.
+
 ----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
 SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in this path)
@@ -640,8 +658,9 @@ IMPORTANT: SEE <<qt_path-tolerance, PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE I
 
 *[HAL]* Section
 
+These variables are mandatory.
+
 ----
-TWOPASS = on (needed for multiple .hal files)
 HALFILE = HALUI   = halui (required)
 HALFILE = <machine_name>.hal (the machine HAL file)
 HALFILE = plasmac.tcl (the standard QtPlasmaC HAL file )
@@ -656,6 +675,8 @@ NOTE: The user could place custom HAL commands in the custom.hal file as this fi
 
 *[DISPLAY]* Section
 
+This variable  is mandatory.
+
 ----
 DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
         = qtvcp qtplasmac_9x16 (use 9:16 resolution)
@@ -664,11 +685,14 @@ DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
 
 *[TRAJ]* Section
 
+This variable  is mandatory.
 ----
 SPINDLES = 3
 ----
 
 *[AXIS_X]* Section
+
+These variables are mandatory.
 
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -678,6 +702,8 @@ OFFSET_AV_RATIO  = 0.5
 
 *[AXIS_Y]* Section
 
+These variables are mandatory.
+
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
 MAX_ACCELERATION = double the value in the corresponding joint
@@ -685,6 +711,8 @@ OFFSET_AV_RATIO  = 0.5
 ----
 
 *[AXIS_Z]* Section
+
+These variables are mandatory.
 
 ----
 MIN_LIMIT        = the top of your slats or just below
@@ -1131,7 +1159,11 @@ To return any of the color changes to their default values, see the <<qt_default
 
 [[qt_backup]]
 
-The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version_info>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, and <version_info> is the current QtPlasmaC version the user is on.
+The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version>_<date>_<time>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, <version> is the current QtPlasmaC version the user is on, <date> is the current date (YY-MM-DD), and <time> is the current time (HH-MM-SS).
+
+Prior to the backup being made, the machine log will be saved to a file in the configuration directory named machine_log_<date>_<time>.txt where <date> and <time> are as described above. This file will also be included in tha backup.
+
+These files are not required by QtPlasmaC and are safe to delete at any time.
 
 [[qt_statistics-tab]]
 
@@ -1145,9 +1177,11 @@ Previous job statistics are reset once the next program is run.
 
 The total values may be reset either individually by clicking the corresponding "RESET" button, or they may all be reset together by clicking "RESET ALL".
 
-image::images/qtplasmac_stats.png[width=800,align="center"]
+The *RS485 PMX STATISTICS* panel will be only be displayed if the user has Hypertherm PowerMax communications and a valid RS485 connection to the PowerMax is established. This panel will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
-If the user has Hypertherm PowerMax communications, when a valid RS485 connection to the PowerMax is established an additional panel titled *RS485 PMX STATISTICS* will be displayed which will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
+The *MACHINE LOG* is also displayed on the statistics tab, this log will display any errors and/or important information that occurs during the current LinuxCNC session. If the user makes a backup of the configuration from the <<qt_parameters-tab, PARAMETERS Tab>> then the machine log is also included in the backup.
+
+image::images/qtplasmac_stats.png[width=800,align="center"]
 
 == Using QtPlasmaC
 
@@ -2002,6 +2036,8 @@ If the user has the Run From Line option enabled in the GUI SETTINGS section of 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-Code Window
 
+Note that the Run From Line function will run from the beginning of the selected line.
+
 It is important to note that G-Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
 Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED nn"* where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
@@ -2026,7 +2062,7 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
         Program will run from selected line with no leadin applied"
 |===
 
-After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking *RUN FROM nn* button. Click this button to start the program from the previously selected line.
+After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking *RUN FROM LINE* button. Click this button to start the program from the beginning of the selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 
@@ -2696,6 +2732,7 @@ Buttons can run the following:
 . <<qt_button-cmds, External commands>>
 . <<qt_button-code, G-Code commands>>
 . <<qt_button-toggle, Toggle a HAL pin>>
+. <<qt_button-pulse, Pulse a HAL pin>>
 . <<qt_button-probe, Probe test>>
 . <<qt_button-ohmic, Ohmic Test>>
 . <<qt_button-cut, Cut Type>>
@@ -2754,13 +2791,39 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 
 [underline]*Toggle HAL Pin*
 
-The following code will allow the user to use a button to invert the current state of a HAL bit pin (this code is required to be used as a single command and may only control one HAL bit pin per button):
+The following code will allow the user to use a button to invert the current state of a HAL bit pin:
 
 ----
 BUTTON_n_CODE = toggle-halpin my-hal-pin-name
 ----
 
-After setting the code, upon clicking, the button will turn green, invert the pin state, and stay "latched" until it is clicked again. Clicking again will return the button to the original color and invert the pin state.
+This code is required to be used as a single command and may only control one HAL bit pin per button.
+ 
+The button colors will follow the state of the halpin.
+ 
+After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
+
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
+
+[[qt_button-pulse]]
+
+[underline]*Pulse HAL Pin*
+
+The following code will allow the user to use a button to pulse a HAL bit pin for a duration of 0.5 seconds:
+
+----
+BUTTON_n_CODE = pulse-halpin my-hal-pin-name 0.5
+----
+
+This code is required to be used as a single command and may only control one HAL bit pin per button.
+
+The delay is specified in seconds, if the delay is not specified then it will default to one second.
+ 
+The button colors will follow the state of the halpin.
+ 
+After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
+
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
 
 [[qt_button-probe]]
 
@@ -2772,6 +2835,8 @@ QtPlasmaC will begin a probe and when the material is detected, the Z axis will 
 BUTTON_n_CODE = probe-test 10
 ----
 
+NOTE: Enabling a user button as a Probe Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+
 [[qt_button-ohmic]]
 
 [underline]*Ohmic Test*
@@ -2781,6 +2846,8 @@ QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Prob
 ----
 BUTTON_n_CODE = ohmic-test
 ----
+
+NOTE: Enabling a user button as a Ohmic Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-cut]]
 
@@ -2812,6 +2879,8 @@ There are three methods to return to the previous coordinates:
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
 ----
 
+NOTE: Enabling a user button as a Change Consumables button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+
 [[qt_button-load]]
 
 [underline]*Load*
@@ -2837,6 +2906,8 @@ If the button is released before the countdown is complete then the torch will t
 ----
 BUTTON_n_CODE = torch-pulse 0.5
 ----
+
+NOTE: Enabling a user button as a Torch Pulse button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-single]]
 
@@ -2869,22 +2940,70 @@ The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_paramet
 
 NOTE: IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
 
-Framing can be started two different ways:
-
-1 - Via a user button by adding the following to an available user button in the <machine_name>.ini file.
 ----
 BUTTON_n_CODE = framing
 ----
 
-For this method *only* it is possible for the user to omit the initial Z movement and run the framing sequence at the current Z height by adding "usecurrentZheight" after "framing".
+It is possible for the user to omit the initial default Z movement and run the framing sequence at the current Z height by adding "usecurrentZheight" after "framing".
 
 ----
 BUTTON_n_CODE = framing usecurrentZheight
 ----
 
-2 - Framing may also be achieved with the use of the HAL pin qtplasmac.framing_start. Setting this pin to 1 (True) will begin a framing move if QtPlasmaC is in a valid state. *It is incumbent on the user to ensure this pin returns to 0 (False) otherwise subsequent framing moves will not be possible.* It is not possible to run framing without the initial Z movement via this method.
+Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
-There is no requirement that a user button be setup to use the HAL pin variant although it is possible to use both methods in the same config.
+[[qt_ext-hal-pin]]
+
+=== External HAL Pins
+
+QtPlasmaC creates some HAL pins that may be connected to from an momentary external button or pendant etc.
+
+The following HAL bit pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
+
+[width="100%",cols="3,2,3"]
+|===
+|*User Button Function*|*HAL Pin*|*GUI Function
+|Toggle machine power|qtplasmac.ext_power|POWER
+|Run the loaded gcode program|qtplasmac.ext_run|CYCLE START
+|Pause/Resume the loaded gcode program|qtplasmac.ext_pause|CYCLE PAUSE
+|Abort the loaded gcode program|qtplasmac.ext_abort|CYCLE STOP
+|Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
+|Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|===
+
+The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
+
+[width="50%",cols="1,1"]
+|===
+|*User Button Function*|*HAL Pin*
+|Probe Test|qtplasmac.ext_probe
+|Torch Pulse|qtplasmac.ext_pulse
+|Ohmic Test|qtplasmac.ext_ohmic
+|Change Consumables|qtplasmac.ext_consumables
+|Framing|qtplasmac.ext_frame_job
+|===
+
+The following HAL bit output pins are always created and can be used by either the <<qt_button-toggle, Toggle HAL Pin>> or <<qt_button-pulse, Pulse HAL Pin>> custom user buttons to change the state of an output.
+
+[width="50%"]
+|===
+|*HAL Pin*
+|qtplasmac.ext_out_0
+|qtplasmac.ext_out_1
+|qtplasmac.ext_out_2
+|===
+
+=== Hide Program Buttons
+
+If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons with the following code in the <machine_name>.ini file:
+
+----
+HIDE_RUN       = 1
+HIDE_PAUSE     = 1
+HIDE_ABORT     = 1
+----
+
+For the 16:9 or 4:3 GUIs, the hiding of each of these GUI buttons will expose two more custom user buttons in the GUI.
 
 === Tuning Void Sensing
 
@@ -2934,7 +3053,7 @@ setp plasmac.max-offset 10
 
 === QtPlasmaC State Outputs
 
-The PlasmaC component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
+The plasmac HAL component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
 
 The different states QtPlasmaC could encounter are as follows:
 
@@ -2973,7 +3092,7 @@ The DEBUG state is for testing purposes only and will not normally be encountere
 
 === QtPlasmaC Debug Print
 
-The PlasmaC component has a HAL pin named *plasmac.debug-print* which if set to 1 (true) will print to terminal every state change as a debug aid.
+The plasmac HAL component has a HAL pin named *plasmac.debug-print* which if set to 1 (true) will print to terminal every state change as a debug aid.
 
 [[qt_pm_comms]]
 
@@ -3415,23 +3534,23 @@ Hypertherm RS485 Wiring Diagram (wire colors inside the Hypertherm in parenthese
 |*5* - GND (Green)|->GND
 |===
 
-image::images/plasmac_rs485_pmx.png[width=400,align="center"]
+image::images/qtplasmac_rs485_pmx.png[width=400,align="center"]
 
 RS485 interfaces that are known to work:
 
 DTECH DT-5019 USB to RS485 converter adapter:
 
-image::images/plasmac_rs485_dtech.png[width=400,align="center"]
+image::images/qtplasmac_rs485_dtech.png[width=400,align="center"]
 
 The following is necessary to convert a motherboard Serial connection or Serial card (RS232) to RS485:
 
 DTECH RS232 to RS485 converter:
 
-image::images/plasmac_rs485_converter.png[width=400,align="center"]
+image::images/qtplasmac_rs485_converter.png[width=400,align="center"]
 
 Serial card example (Sunnix SER5037A PCI Card shown with Breakout Board):
 
-image::images/plasmac_rs485_sunnix.png[width=400,align="center"]
+image::images/qtplasmac_rs485_sunnix.png[width=400,align="center"]
 
 [[qt_reed-arc-ok]]
 
@@ -3443,7 +3562,7 @@ This assembly will now act as a relay that will switch on when current is flowin
 
 This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
-image::images/plasmac_reed_arc_ok.png[width=600,align="center"]
+image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
 [[qt_contact-load-schematics]]
 
@@ -3459,13 +3578,15 @@ A full description is at <<qt-contact-load, Contact Load>>
 
 There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the autorepeat feature of keys used for jogging. QtPlasmaC uses this disabling feature by default and applies the disable to the standard jog keys for the X, Y, Z, and A axes. All other keys have autorepeat enabled. When QtPlasmaC is shut down then the autorepeat feature will be enabled for the jog keys.
 
-If the user wishes to not disable the autorepeat feature for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
+If the user wishes to leave the autorepeat feature enabled for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
 
 ----
 AUTOREPEAT_ALL == ENABLE
 ----
 
 This issue does not affect any jogging using the GUI jog buttons.
+
+NOTE: Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging. The user must restart QtPlasmaC to disable the autorepeat feature again.
 
 == Support
 

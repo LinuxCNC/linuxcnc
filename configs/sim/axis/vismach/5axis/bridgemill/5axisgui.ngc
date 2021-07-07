@@ -26,7 +26,7 @@ o100 while [#<bct> lt #<bctmax>]
        #<y> = 0
        #<z> = [-#<rnow>]
        g0 x#<x> y#<y>
-m66e0l0
+       m66e0l0 ; force sync
        g0 z#<z>
        g0b[-90+#<b>]
        #<cct> = 0

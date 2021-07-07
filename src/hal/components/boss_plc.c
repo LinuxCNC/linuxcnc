@@ -803,7 +803,7 @@ Plc_RefreshFeed(Plc *this, long period)
                             || (*this->pFeedHoldOut && !riseCycleStart);
     this->lastSpindleSpeed = *this->pSpindleSpeedIn;
 
-    // Limit rapid/feed to 1% when limits are being overriden.
+    // Limit rapid/feed to 1% when limits are being overridden.
     if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
         *this->pAdaptiveFeedOut = 0.01;
     else

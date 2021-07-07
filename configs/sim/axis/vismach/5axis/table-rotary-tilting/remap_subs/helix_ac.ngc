@@ -1,0 +1,22 @@
+; helix using switchkins (xyzac) a,c angles
+o<helix_ac>sub
+   #<zmax> = #1 (=10)
+   #<zmin> = #2 (= 5)
+      #<r> = #3 (=10)
+  #<frate> = #4 (=1000)
+      #<n> = #5 (=3)
+      #<a> = #6 (=45)
+      #<b> = #7 (=0 NA)
+      #<c> = #8 (=20)
+
+  M429                            ;Identity kinematics
+  g0 x[#<_x> - #<r>]              ;adjust for radius
+  g10l20p0 x0y0 z#<zmax> a0 c0    ;new g54
+  M428                            ;XYZAC
+  g0a#<a>c#<c>                    ;exercise a,c
+  f#<frate> g2i#<r>z#<zmin> p#<n> ;helix
+  M429                            ;Identity kinematics
+  g0 x0 y0 z#<zmax> a0 c0         ;return to start
+  g0 x[#<_x> + #<r>]              ;adjust restore
+  M428                            ;XYZAC
+o<helix_ac>endsub

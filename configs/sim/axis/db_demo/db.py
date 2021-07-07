@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Demonstrate LinuxCNC interface for a database of tools
 
@@ -135,7 +135,7 @@ if random_toolchanger:
 else:
     tooldb_callbacks(user_get_tool,user_put_tool_nonran_tc)
 
-toollist = range(toolno_min,toolno_max+1)
+toollist = list(range(toolno_min,toolno_max+1))
 if random_toolchanger: toollist.append(0) # T0 provision
 tooldb_tools(toollist)
 

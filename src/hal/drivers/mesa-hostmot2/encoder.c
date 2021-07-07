@@ -223,7 +223,7 @@ void hm2_encoder_write(hostmot2_t *hm2) {
         // We want the timestamp to count as quickly as possible, so we get the
         // best temporal resolution.
         // 
-        // But we want it to count slow enough that the 16-bit counter doesnt
+        // But we want it to count slow enough that the 16-bit counter doesn't
         // overrun between successive calls to the servo thread (easy), and
         // even slower so that we can do good low-speed velocity estimation
         // (long between roll-overs).
@@ -977,7 +977,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 double vel;
 
                 //
-                // we're moving, but so slow that we didnt get an event
+                // we're moving, but so slow that we didn't get an event
                 // since last time we checked
                 // 
 

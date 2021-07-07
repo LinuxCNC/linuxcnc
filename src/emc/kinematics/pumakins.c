@@ -4,33 +4,30 @@
 *   Set the params using HAL to fit your robot
 *
 *   Derived from a work by Fred Proctor
-* 
+*
 *   modified by rdp to add effect of D6 parameter (see pumagui)
 *
-* Author: 
+* Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
 *******************************************************************
 */
-
-#include "rtapi_math.h"
-#include "posemath.h"
 #include "pumakins.h"
-#include "kinematics.h"             /* decls for kinematicsForward, etc. */
-
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "posemath.h"
+#include "rtapi.h"
+#include "rtapi_math.h"
+#include "rtapi_string.h"
 #include "hal.h"
+#include "kinematics.h"
+#include "switchkins.h"
 
 struct haldata {
     hal_float_t *a2, *a3, *d3, *d4, *d6;
 } *haldata = 0;
-
 
 #define PUMA_A2 (*(haldata->a2))
 #define PUMA_A3 (*(haldata->a3))
@@ -38,13 +35,11 @@ struct haldata {
 #define PUMA_D4 (*(haldata->d4))
 #define PUMA_D6 (*(haldata->d6))
 
-
-int kinematicsForward(const double * joint,
-                      EmcPose * world,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+static int pumaKinematicsForward(const double * joint,
+                                 EmcPose * world,
+                                 const KINEMATICS_FORWARD_FLAGS * fflags,
+                                 KINEMATICS_INVERSE_FLAGS * iflags)
 {
-
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
    double s23;
@@ -113,7 +108,7 @@ int kinematicsForward(const double * joint,
    /* position vector.                               */
    t1 = PUMA_A2 * c2 + PUMA_A3 * c23 - PUMA_D4 * s23;
 
-   /* Define position vector */  
+   /* Define position vector */
    hom.tran.x = c1 * t1 - PUMA_D3 * s1;
    hom.tran.y = s1 * t1 + PUMA_D3 * c1;
    hom.tran.z = -PUMA_A3 * s23 - PUMA_A2 * s2 - PUMA_D4 * c23;
@@ -164,7 +159,7 @@ int kinematicsForward(const double * joint,
     hom.tran.x = hom.tran.x + hom.rot.z.x*PUMA_D6;
     hom.tran.y = hom.tran.y + hom.rot.z.y*PUMA_D6;
     hom.tran.z = hom.tran.z + hom.rot.z.z*PUMA_D6;
-    
+
    /* convert hom.rot to world->quat */
    pmHomPoseConvert(&hom, &worldPose);
    pmQuatRpyConvert(&worldPose.rot,&rpy);
@@ -173,15 +168,15 @@ int kinematicsForward(const double * joint,
    world->b = rpy.p * 180.0/PM_PI;
    world->c = rpy.y * 180.0/PM_PI;
 
-   
+
    /* return 0 and exit */
    return 0;
 }
 
-int kinematicsInverse(const EmcPose * world,
-                      double * joint,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int pumaKinematicsInverse(const EmcPose * world,
+                                 double * joint,
+                                 const KINEMATICS_INVERSE_FLAGS * iflags,
+                                 KINEMATICS_FORWARD_FLAGS * fflags)
 {
    PmHomogeneous hom;
    PmPose worldPose;
@@ -329,55 +324,59 @@ int kinematicsInverse(const EmcPose * world,
    return 0;
 }
 
-int kinematicsHome(EmcPose * world,
-                   double * joint,
-                   KINEMATICS_FORWARD_FLAGS * fflags,
-                   KINEMATICS_INVERSE_FLAGS * iflags)
+int pumaKinematicsSetup(const  int   comp_id,
+                        const  char* coordinates,
+                        kparms*      kp)
 {
-  /* use joints, set world */
-  return kinematicsForward(joint, world, fflags, iflags);
-}
-
-KINEMATICS_TYPE kinematicsType()
-{
-//  return KINEMATICS_FORWARD_ONLY;
-  return KINEMATICS_BOTH;
-}
-
-
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-MODULE_LICENSE("GPL");
-
-int comp_id;
-
-int rtapi_app_main(void) {
     int res=0;
-    
-    comp_id = hal_init("pumakins");
-    if (comp_id < 0) return comp_id;
-    
-    haldata = hal_malloc(sizeof(struct haldata));
+
+    haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
 
-    if((res = hal_pin_float_new("pumakins.A2", HAL_IO, &(haldata->a2), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("pumakins.A3", HAL_IO, &(haldata->a3), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("pumakins.D3", HAL_IO, &(haldata->d3), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("pumakins.D4", HAL_IO, &(haldata->d4), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("pumakins.D6", HAL_IO, &(haldata->d6), comp_id)) < 0) goto error;
+
+    res += hal_pin_float_newf(HAL_IN, &(haldata->a2), comp_id,"%s.A2",kp->halprefix);
+    res += hal_pin_float_newf(HAL_IN, &(haldata->a3), comp_id,"%s.A3",kp->halprefix);
+    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
+    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
+    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
+    if (res) { goto error; }
 
     PUMA_A2 = DEFAULT_PUMA560_A2;
     PUMA_A3 = DEFAULT_PUMA560_A3;
     PUMA_D3 = DEFAULT_PUMA560_D3;
     PUMA_D4 = DEFAULT_PUMA560_D4;
     PUMA_D6 = DEFAULT_PUMA560_D6;
-    hal_ready(comp_id);
-    return 0;
-    
-error:
-    hal_exit(comp_id);
-    return res;
-}
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+    return 0;
+
+error:
+    return -1;
+} // pumaKinematicsSetup()
+
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    kp->kinsname    = "pumakins"; // !!! must agree with filename
+    kp->halprefix   = "pumakins"; // hal pin names
+    kp->required_coordinates = "xyzabc";
+    kp->allow_duplicates     = 0;
+    kp->max_joints = strlen(kp->required_coordinates);
+
+    rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+    *kset0 = pumaKinematicsSetup;
+    *kfwd0 = pumaKinematicsForward;
+    *kinv0 = pumaKinematicsInverse;
+
+    *kset1 = identityKinematicsSetup;
+    *kfwd1 = identityKinematicsForward;
+    *kinv1 = identityKinematicsInverse;
+
+    *kset2 = userkKinematicsSetup;
+    *kfwd2 = userkKinematicsForward;
+    *kinv2 = userkKinematicsInverse;
+
+    return 0;
+} // switchkinsSetup()

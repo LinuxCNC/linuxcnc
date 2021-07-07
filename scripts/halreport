@@ -76,7 +76,7 @@ set ::HR(comps,userspace)    [list ini iocontrol halui hal_manualtoolchange \
                              ]
 
 
-# components marked deperecated/obsolete in docs
+# components marked deprecated/obsolete in docs
 set ::HR(comps,deprecated)   [list counter supply]
 
 #-----------------------------------------------------------------------

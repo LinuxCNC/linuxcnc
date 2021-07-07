@@ -1,0 +1,12 @@
+pin+motion.switchkins-type
+pin+kinstype.is-0
+pin+kinstype.is-1
+pin+kinstype.is-2
+pin+joint.0.pos-cmd
+pin+joint.1.pos-cmd
+pin+joint.2.pos-cmd
+pin+joint.3.pos-cmd
+pin+joint.4.pos-cmd
+pin+joint.5.pos-cmd
+pin+genserkins.last-iterations
+pin+genserkins.max-iterations

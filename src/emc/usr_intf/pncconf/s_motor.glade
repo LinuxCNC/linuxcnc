@@ -16,144 +16,6 @@
     <property name="upper">100</property>
     <property name="step_increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="saccl_adjust">
-    <property name="upper">100000</property>
-    <property name="value">100</property>
-    <property name="step_increment">0.5</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_max_adjust">
-    <property name="upper">100000</property>
-    <property name="value">10</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_max_adjust2">
-    <property name="upper">100000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_max_voltage_adjust">
-    <property name="lower">1</property>
-    <property name="upper">10</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_min_adjust2">
-    <property name="lower">-100000</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_scale_adjust">
-    <property name="upper">100000</property>
-    <property name="value">10</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sanalog_scale_adjust2">
-    <property name="upper">100000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sbias_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sd_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sdeadb_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sdirhold_adjust">
-    <property name="lower">100</property>
-    <property name="upper">10000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sdirsetup_adjust">
-    <property name="lower">100</property>
-    <property name="upper">10000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sencoder_adjust">
-    <property name="upper">5000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sfeed_adjust">
-    <property name="upper">10</property>
-    <property name="value">0.10000000000000001</property>
-    <property name="step_increment">0.001</property>
-  </object>
-  <object class="GtkAdjustment" id="sff0_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sff1_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sff2_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="sfilter_adjust">
-    <property name="lower">0.5</property>
-    <property name="upper">1.5</property>
-    <property name="value">1</property>
-    <property name="step_increment">0.01</property>
-  </object>
-  <object class="GtkAdjustment" id="si_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="smaxout_adjust">
-    <property name="upper">100000</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="snear_range_adjust">
-    <property name="lower">10</property>
-    <property name="upper">500</property>
-    <property name="value">200</property>
-    <property name="step_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="snear_scale_adjust">
-    <property name="lower">105</property>
-    <property name="upper">150</property>
-    <property name="value">105</property>
-    <property name="step_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="sp_adjust">
-    <property name="upper">10000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="srapid_adjust">
-    <property name="upper">10</property>
-    <property name="value">0.5</property>
-    <property name="step_increment">0.001</property>
-  </object>
-  <object class="GtkAdjustment" id="sstepper_adjust">
-    <property name="upper">5000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="sstepspace_adjust">
-    <property name="lower">100</property>
-    <property name="upper">10000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="ssteptime_adjust">
-    <property name="lower">100</property>
-    <property name="upper">10000</property>
-    <property name="value">5000</property>
-    <property name="step_increment">100</property>
-  </object>
-  <object class="GtkAdjustment" id="svelocity_adjust">
-    <property name="upper">1000000</property>
-    <property name="value">1</property>
-    <property name="step_increment">1</property>
-  </object>
   <object class="GtkVBox" id="s_motor">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -181,12 +43,6 @@
                     <property name="can_focus">False</property>
                     <property name="n_rows">10</property>
                     <property name="n_columns">2</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                     <child>
                       <object class="GtkSpinButton" id="smaxoutput">
                         <property name="visible">True</property>
@@ -507,6 +363,12 @@
                         <property name="y_options"/>
                       </packing>
                     </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -543,60 +405,6 @@
                     <property name="can_focus">False</property>
                     <property name="n_rows">10</property>
                     <property name="n_columns">3</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                     <child>
                       <object class="GtkLabel" id="s3pwmscalelabel">
                         <property name="visible">True</property>
@@ -746,6 +554,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -777,6 +586,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                         <signal name="toggled" handler="on_suseoutputrange2_toggled" swapped="no"/>
                       </object>
@@ -786,6 +596,60 @@
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"/>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -824,18 +688,6 @@
                     <property name="can_focus">False</property>
                     <property name="n_rows">8</property>
                     <property name="n_columns">2</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                     <child>
                       <object class="GtkLabel" id="label316">
                         <property name="visible">True</property>
@@ -1028,12 +880,6 @@
                     <child>
                       <placeholder/>
                     </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                   </object>
                 </child>
               </object>
@@ -1069,78 +915,6 @@
                     <property name="can_focus">False</property>
                     <property name="n_rows">10</property>
                     <property name="n_columns">3</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
                     <child>
                       <object class="GtkSpinButton" id="soutputscale1">
                         <property name="visible">True</property>
@@ -1204,6 +978,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -1212,69 +987,6 @@
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"/>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label3">
@@ -1292,6 +1004,78 @@
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -1358,6 +1142,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
@@ -1373,6 +1158,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1387,6 +1173,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1401,6 +1188,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1415,6 +1203,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1429,6 +1218,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1443,6 +1233,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1512,6 +1303,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1526,6 +1318,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1540,6 +1333,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1554,6 +1348,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1568,6 +1363,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
@@ -1583,6 +1379,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1750,6 +1547,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -1967,6 +1765,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_sbldc_toggled" swapped="no"/>
                 <child>
@@ -2019,59 +1818,12 @@
                 <property name="n_rows">7</property>
                 <property name="n_columns">3</property>
                 <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
                   <object class="GtkCheckButton" id="sinvertmotor">
                     <property name="label" translatable="yes">Invert Motor Direction</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -2087,6 +1839,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -2101,6 +1854,7 @@
                     <property name="label" translatable="yes">Single Input Encoder</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -2114,6 +1868,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                     <signal name="toggled" handler="on_suseatspeed_toggled" swapped="no"/>
                   </object>
@@ -2123,9 +1878,6 @@
                     <property name="x_options">GTK_FILL</property>
                     <property name="y_options"/>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -2193,12 +1945,6 @@
             <property name="can_focus">False</property>
             <property name="n_rows">7</property>
             <property name="n_columns">3</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <object class="GtkLabel" id="label318">
                 <property name="visible">True</property>
@@ -2456,14 +2202,12 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkRadioButton" id="snearrange_button">
                 <property name="label" translatable="yes">Use Near Range</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_suseatspeed_toggled" swapped="no"/>
@@ -2479,6 +2223,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
                 <property name="group">snearrange_button</property>
@@ -2488,6 +2233,15 @@
                 <property name="top_attach">6</property>
                 <property name="bottom_attach">7</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -2514,6 +2268,7 @@ Scale</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_scalculatescale_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -2529,6 +2284,7 @@ Scale</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_saxistest_clicked" swapped="no"/>
                     <child>
                       <object class="GtkHBox" id="hbox12">
@@ -2572,6 +2328,7 @@ Scale</property>
                   <object class="GtkButton" id="saxistune">
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_saxistune_clicked" swapped="no"/>
                     <child>
                       <object class="GtkAlignment" id="slignment29">
@@ -2642,5 +2399,143 @@ Scale</property>
     <child>
       <placeholder/>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="saccl_adjust">
+    <property name="upper">100000</property>
+    <property name="value">100</property>
+    <property name="step_increment">0.5</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_max_adjust">
+    <property name="upper">100000</property>
+    <property name="value">10</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_max_adjust2">
+    <property name="upper">100000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_max_voltage_adjust">
+    <property name="lower">1</property>
+    <property name="upper">10</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_min_adjust2">
+    <property name="lower">-100000</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_scale_adjust">
+    <property name="upper">100000</property>
+    <property name="value">10</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sanalog_scale_adjust2">
+    <property name="upper">100000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sbias_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sd_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sdeadb_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sdirhold_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sdirsetup_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sencoder_adjust">
+    <property name="upper">5000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sfeed_adjust">
+    <property name="upper">10</property>
+    <property name="value">0.10000000000000001</property>
+    <property name="step_increment">0.001</property>
+  </object>
+  <object class="GtkAdjustment" id="sff0_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sff1_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sff2_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sfilter_adjust">
+    <property name="lower">0.5</property>
+    <property name="upper">1.5</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="si_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="smaxout_adjust">
+    <property name="upper">100000</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="snear_range_adjust">
+    <property name="lower">10</property>
+    <property name="upper">500</property>
+    <property name="value">200</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="snear_scale_adjust">
+    <property name="lower">105</property>
+    <property name="upper">150</property>
+    <property name="value">105</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="sp_adjust">
+    <property name="upper">10000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="srapid_adjust">
+    <property name="upper">10</property>
+    <property name="value">0.5</property>
+    <property name="step_increment">0.001</property>
+  </object>
+  <object class="GtkAdjustment" id="sstepper_adjust">
+    <property name="upper">5000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="sstepspace_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="ssteptime_adjust">
+    <property name="lower">100</property>
+    <property name="upper">50000</property>
+    <property name="value">5000</property>
+    <property name="step_increment">100</property>
+  </object>
+  <object class="GtkAdjustment" id="svelocity_adjust">
+    <property name="upper">1000000</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
   </object>
 </interface>

@@ -131,7 +131,10 @@ class GeometryMixin(_HalWidgetBase):
                 temp = self._geometry_string.split(' ')
                 go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
-            LOG.error('Calculating geometry of {}. Will use natural placement.'.format(self.HAL_NAME_))
+            try:
+                LOG.error('Calculating geometry of {}. Will use natural placement.'.format(self.HAL_NAME_))
+            except AttributeError:
+                pass
             LOG.debug('Dialog geometry python error: {}'.format(e))
             x = self.geometry().x()
             y = self.geometry().y()
@@ -293,8 +296,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
         LOG.debug('Button pressed is: {}'.format(i.text()))
         if self._nblock:
             self.hide()
-            btn = i.text().encode('utf-8')
-            if btn in ('&OK','&Yes'):
+            btn = self.standardButton(self.clickedButton())
+            if btn in (QMessageBox.Ok, QMessageBox.Yes):
                 self._message['RETURN'] = True
             else:
                 self._message['RETURN'] = False
@@ -354,6 +357,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
+        self.setDefaultButton(QMessageBox.Ok)
         self._useDesktopNotify = False
         self._frameless = False
         self._curLine = 0
@@ -394,8 +398,11 @@ class ToolDialog(LcncDialog, GeometryMixin):
     # process callback from 'change' HAL pin
     def tool_change(self, change):
         if change:
-            STATUS.stat.poll()
-            self._curLine = STATUS.stat.motion_line
+            try:
+                STATUS.stat.poll()
+                self._curLine = STATUS.stat.motion_line
+            except:
+                self._curLine = 0
             # enable/disable pause at jog button
             if self._curLine > 0:
                 self._actionbutton.setEnabled(True)
@@ -405,9 +412,11 @@ class ToolDialog(LcncDialog, GeometryMixin):
                 jpause = False
 
             MORE = 'Please Insert Tool %d' % self.tool_number.get()
-            tool_table_line = TOOL.GET_TOOL_INFO(self.tool_number.get())
-
-            comment = str(tool_table_line[TOOL.COMMENTS])
+            try:
+                tool_table_line = TOOL.GET_TOOL_INFO(self.tool_number.get())
+                comment = str(tool_table_line[TOOL.COMMENTS])
+            except TypeError:
+                comment = ''
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info: %s'% comment
 
@@ -439,7 +448,6 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
     # This also is called from DesktopDialog
     def _processChange(self,answer):
-        self.hide()
         if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
@@ -489,10 +497,9 @@ class ToolDialog(LcncDialog, GeometryMixin):
     # decode button presses
     def msgbtn(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
-        btn = i.text().encode('utf-8')
-        if i == self._actionbutton:
+        if self.clickedButton() == self._actionbutton:
             self._processChange(-1)
-        elif btn in ('&OK','&Yes'):
+        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
             self._processChange(True)
         else:
             self._processChange(False)

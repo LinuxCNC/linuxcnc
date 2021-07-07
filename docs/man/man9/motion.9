@@ -208,6 +208,14 @@ not reflect the feed override or any other adjustments.
 The number of CPU clocks between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
 
 .TP
+\fBmotion.switchkins-type\fR IN float
+Kinematics modules that define the functions kinematicsSwitchable()
+and kinematicsSwitch() receive the \fBinteger\fR value of this pin to
+select the machine kinematics functions.  Extra gcode commands
+may be required to synchronize task and motion before and after changes
+to the pin value.
+
+.TP
 \fBmotion.teleop\-mode\fR OUT BIT
 Motion mode is teleop (axis coordinate jogging available).
 

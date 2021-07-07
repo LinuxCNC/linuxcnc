@@ -519,7 +519,7 @@ extern int hal_unlink(const char *pin_name);
     stored.  'data_addr' must point to memory allocated by hal_malloc().
     Typically the component allocates space for a data structure with
     hal_malloc(), and 'data_addr' is the address of a member of that
-    structure.  Creating the paremeter does not initialize or modify the
+    structure.  Creating the parameter does not initialize or modify the
     value at *data_addr - the component should load a reasonable default
     value.
     'comp_id' is the ID of the component that will 'own' the parameter.

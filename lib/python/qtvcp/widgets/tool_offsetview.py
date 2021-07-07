@@ -20,6 +20,7 @@ import locale
 import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -135,10 +136,11 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
         # set horizontal header properties
         hh = self.horizontalHeader()
-        hh.setMinimumSectionSize(75)
+        # auto adjust to contents
+        hh.setSectionResizeMode(3)
+        
         hh.setStretchLastSection(True)
         hh.setSortIndicator(1,Qt.AscendingOrder)
-
 
         vh = self.verticalHeader()
         vh.setVisible(False)
@@ -299,7 +301,11 @@ class MyTableModel(QAbstractTableModel):
         self.degree_text_template = '%10.1f'
         self.metric_display = False
         self.diameter_display = False
-        self.headerdata = ['Select','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
+        self._highlightcolor = '#00ffff'
+        self._selectedcolor = '#00ff00'
+        self.headerdata = ['','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orient','Comment']
+        if INFO.MACHINE_IS_LATHE:
+            self.headerdata[2] = 'Stn'
         self.vheaderdata = []
         self.arraydata = [[0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
@@ -354,6 +360,7 @@ class MyTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
+
         elif role == Qt.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             col = index.column()
@@ -382,9 +389,19 @@ class MyTableModel(QAbstractTableModel):
 
             if isinstance(value, str):
                 return '%s' % value
-
             # Default (anything not captured above: e.g. int)
             return value
+
+        elif role == Qt.BackgroundRole:
+            value = self.arraydata[index.row()][index.column()]
+            if (isinstance(value, int) or isinstance(value, float) or
+                  isinstance(value, str)):
+                if self.arraydata[index.row()][1] == self.parent().current_tool:
+                    return QColor(self._highlightcolor)
+                elif self.arraydata[index.row()][0].isChecked():
+                    return QColor(self._selectedcolor)
+                else:
+                    return QVariant()
             
         elif role == Qt.CheckStateRole:
             if index.column() == 0:
@@ -393,6 +410,7 @@ class MyTableModel(QAbstractTableModel):
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
+
         return QVariant()
 
 
@@ -429,6 +447,7 @@ class MyTableModel(QAbstractTableModel):
                 self.arraydata[index.row()][index.column()].setChecked(False)
                 #self.arraydata[index.row()][index.column()].setText("Un")
             # don't emit dataChanged - return right away
+            self.parent().reset()
             return True
 
         try:

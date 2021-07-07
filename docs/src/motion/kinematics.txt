@@ -282,7 +282,34 @@ Implements the inverse kinematics function.
 KINEMATICS_TYPE kinematicsType(void)
 ----
 
-Returns the kinematics type identifier, typically 'KINEMATICS_BOTH'.
+Returns the kinematics type identifier:
+
+. KINEMATICS_IDENTITY  (each joint number corresponds to an axis letter)
+. KINEMATICS_BOTH      (forward and inverse kinematics functions are provided)
+. KINEMATICS_FORWARD_ONLY
+. KINEMATICS_INVERSE_ONLY
+
+[NOTE]
+Guis may interpret KINEMATICS_IDENTITY to hide the distinctions
+between joint numbers and axis letters when in joint mode
+(typically prior to homing).
+
+----
+int kinematicsSwitchable(void)
+int kinematicsSwitch(int switchkins_type)
+KINS_NOT_SWITCHABLE
+----
+
+The function kinematicsSwitchable() returns 1 if multiple
+kinematics types are supported.  The function kinematicsSwitch()
+selects the kinematics type.
+See <<cha:switchable-kinematics,Switchable Kinematitcs>>.
+
+[NOTE]
+The majority of provided kinematics modules support a single
+kinematics type and use the directive "*KINS_NOT_SWITCHABLE*" to
+supply defaults for the required kinematicsSwitchable() and
+kinematicsSwitch() functions.
 
 ----
 int kinematicsHome(EmcPose *world, double *joint,
@@ -307,4 +334,16 @@ When they are contained in a single source file, kinematics modules
 may be compiled and installed by 'halcompile'. See the 'halcompile(1)' manpage or
 the HAL manual for more information.
 
+=== Kinematics module using the userkins.comp template
 
+Another way to create a custom kinematics module is to adapt the
+hal component 'userkins'. This template component can be modified
+locally by a user and can be built using halcompile.
+
+See the userkins man pages for more information.
+
+Note that to create switchable kinematic modules the required
+modifications are somewhat more complicated.
+
+See 'millturn.comp' as an example of a switchable kinematic
+module that was created using the 'userkins.comp' template.

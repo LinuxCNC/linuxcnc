@@ -691,9 +691,16 @@ Section.
     one 'HALFILE', and stepper systems typically have two such files, one which
     specifies the generic stepper configuration ('core_stepper.hal') and
     one which specifies the machine pin out ('xxx_pinout.hal').
+
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
+
+    If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
+    the specified dirname is prepended to the search described above so that
+    "dirname" is searched first.  The "-H dirname" option may be specifed more
+    than once, directories are prepended in order.
+
     A HALFILE may also be specified as an absolute path (when the name starts with
     a '/' character).  Absolute paths are not recommended as their use may limit
     relocation of configurations.

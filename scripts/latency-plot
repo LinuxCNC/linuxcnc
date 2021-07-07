@@ -412,7 +412,7 @@ proc finish_hal_timedelta {} {
   hal     delf base:time base
   hal     delf servo:time servo
   hal unloadrt timedelta
-  hal unloadrt threads ;# doesnt seem to work
+  hal unloadrt threads ;# doesn't seem to work
 
   #puts [hal show funct]  ;# gone
   #puts [hal show thread] ;# not gone

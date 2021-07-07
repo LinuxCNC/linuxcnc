@@ -11,6 +11,7 @@
 #include "rtapi_app.h"
 #include "rtapi_math.h"
 #include "rtapi_string.h"
+#include "kinematics.h"
 
 static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
@@ -64,6 +65,7 @@ int kinematicsHome(EmcPose *world
 
 KINEMATICS_TYPE kinematicsType() { return KINEMATICS_BOTH; }
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

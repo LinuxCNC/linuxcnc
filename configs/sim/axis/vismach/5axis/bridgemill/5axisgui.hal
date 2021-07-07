@@ -7,6 +7,8 @@ net :jy  joint.1.pos-fb 5axisgui.jy
 net :jz  joint.2.pos-fb 5axisgui.jz
 net :jb  joint.3.pos-fb 5axisgui.jb
 net :jc  joint.4.pos-fb 5axisgui.jc
+net :jw  joint.5.pos-fb
+net :jy2 joint.6.pos-fb
 
 # Note: no joint or motor connections are used
 # for the w coordinate

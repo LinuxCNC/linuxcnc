@@ -40,7 +40,7 @@ if [ $1 = list ] ; then
 fi
 #
 # The next two demos aren't really demos either - they simply
-# load or unload the rtapi enviroment
+# load or unload the rtapi environment
 #
 # here is the "load" command
 #
@@ -182,7 +182,7 @@ if [ $1 = parport1 ] ; then
     echo "(the meter updates approx. every 0.1 seconds - if you"
     echo " have access to the pins, change the input and halmeter"
     echo " will show the changes.)"
-    echo "(an interesting paremeter to observe is parport.thread.time"
+    echo "(an interesting parameter to observe is parport.thread.time"
     echo " which is the most recent execution time of the thread in"
     echo " nanoseconds.  you should be able to see it change a little"
     echo " due to jitter and other factors."
@@ -380,7 +380,7 @@ if [ $1 = scope ] ; then
     echo "remembered if you turn it back on again.  To change the"
     echo "signal captured by a channel, select the channel and click"
     echo "the 'Source' button.  An interesting item to look at is"
-    echo "the paremeter 'siggen.thread.time', which is the time"
+    echo "the parameter 'siggen.thread.time', which is the time"
     echo "needed by the thread, in nano-seconds.  It is updated"
     echo "every time the thread runs, and varies based on cache hits"
     echo "and other loading.  Its value will be in the thousands"

@@ -322,13 +322,13 @@ sudo apt-get update
 . 安装RTAI内核
 +
 ----
-sudo apt-get install linux-image-4.14.174-rtai-amd64
+sudo apt-get install linux-image-4.19.195-rtai-amd64
 ----
 
 . 安装RTAI应用层
 +
 ----
-sudo apt-get install rtai-modules-4.14.174
+sudo apt-get install rtai-modules-4.19.195
 ----
 
 . 安装linuxcnc（安装之前可能需要重新启动）

@@ -7,6 +7,15 @@
 .TH KINS "9" "2014-12-22" "LinuxCNC Documentation" "Kinematics Modules"
 .SH NAME
 kins \- kinematics definitions for LinuxCNC
+
+For additional information, see the Documents 'Advanced Topics'
+
+   \fBKinematics\fR
+
+   \fB5-Axis Kinematics\fR
+
+   \fBSwitchable Kinematics\fR
+
 .SH SYNOPSIS
 .B loadrt trivkins (use for most cartesian machines)
 .PP
@@ -164,6 +173,7 @@ If enabled by the number of [KINS]JOINTS= specified, JOINT_3,4,5,6,7,8 correspon
 Gives six degrees of freedom in position and orientation (XYZABC).  The
 location of base and platform joints is defined by hal parameters.  The
 forward kinematics iteration is controlled by hal pins.
+(See switchkins documentation for more info)
 .TP
 .B genhexkins.base.\fIN\fB.x
 .TQ
@@ -227,6 +237,7 @@ avoid joints jump change tool offset only when the platform is not tilted.
 .SS genserkins \- generalized serial kinematics
 Kinematics that can model a general serial-link manipulator with up to 6
 angular joints.
+(See switchkins documentation for more info)
 
 The kinematics use Denavit-Hartenberg definition for the joint and
 links. The DH definitions are the ones used by John J Craig in
@@ -308,6 +319,7 @@ Rotary delta robot (3 Joints)
 The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 
 .SS scarakins \- kinematics for SCARA-type robots
+(See switchkins documentation for more info)
 .TP
 .B scarakins.D1
 Vertical distance from the ground plane to the center of the inner arm.
@@ -347,19 +359,42 @@ locations (the motors), giving three degrees of freedom in position (XYZ)
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
 .SS xyzac\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
-Tilting table (A) and horizontal rotary mounted to the table (C)
-(5 Joints).  The default joint mapping is X:0,Y:1,Z:2,A:3,C:4.
-The joint mapping can be altered with the coordinates parameter
-in the same way as supported by trivkins.
+Tilting table (A) and horizontal rotary mounted to table (C axis)
+(5 Joints 0:x,1:y,2:z,3:a,4:c) with provisions to switch between
+xyzac and trivkins kinematic types.  The joint mapping can be
+altered with the coordinates parameter in the same way as supported
+by trivkins.
+(See switchkins documentation for more info)
 
 .SS xyzbc\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
-Tilting table (B) and horizontal rotary mounted to table (C axis)
-(5 Joints).  The default joint mapping is X:0,Y:1,Z:2,A:3,C:4.
-The joint mapping can be altered with the coordinates parameter
-in the same way as supported by trivkins.
+(5 Joints 0:x,1:y,2:z,3:b,4:c) with provisions to switch between
+xyzbc and trivkins kinematic types.  The joint mapping can be
+altered with the coordinates parameter in the same way as supported
+by trivkins.
+(See switchkins documentation for more info)
 
 .SS 5axiskins \- 5 Axis bridge mill
-XYZBC (5 Joints)
+
+XYZBCW -- the W coordinate values (typically used for
+tool motion) are incorporated into XYZ positioning.
+(Only 5 joints are needed by the kinematics module but
+an additional joint is needed to display W values).
+(See switchkins documentation for more info)
+
+By default, 5axiskins uses coordinates XYZBCW assigned
+consecutively to joints 0..5.  The module coordinates
+parameter may be used to assign multiple joints to an
+axis letter and/or to assign joints to additional
+coordinates A,U,V with a one-to-one correspondence to
+the assigned joints.  Example: XYZBCWYV (8 joints total
+numbered 0..7) uses two joints for Y (joints 1,6) and
+adds an additional coordinate V that has a one-to-one
+relation to joint 7.
+
+Note: These kinematics may be used with the vismach
+5axisgui providing that the joint-letter assignments
+agree with the default ordering expected by it (XYZBCW
+-> joints 0..5)
 
 .SH SEE ALSO
 \fIKinematics\fR section in the LinuxCNC documentation

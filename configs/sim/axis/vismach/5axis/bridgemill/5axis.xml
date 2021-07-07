@@ -2,6 +2,37 @@
 <pyvcp>
 
   <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"SWITCHKINS"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <multilabel>
+      <legends>[" 0:BRIDGE ", "1:IDENTITY", " 2:USERK  "]</legends>
+      <font>("DejaVu Sans Mono",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"type0-button"</halpin>
+      <text>"Brigemill"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type1-button"</halpin>
+      <text>"Identity  "</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type2-button"</halpin>
+      <text>"userk  "</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+
+  <vbox>
   <labelframe text="Joints values">
     <font>("Helvetica",14)</font>
     <hbox>
@@ -55,6 +86,28 @@
      </label>
      <number>
         <halpin>"joint4"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"5: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint5"</halpin>
+        <font>("Helvetica",14)</font>
+        <format>"4.4f"</format>
+       </number>
+    </hbox>
+    <hbox>
+     <label>
+        <text>"6: "</text>
+        <font>("Helvetica",14)</font>
+     </label>
+     <number>
+        <halpin>"joint6"</halpin>
         <font>("Helvetica",14)</font>
         <format>"4.4f"</format>
        </number>

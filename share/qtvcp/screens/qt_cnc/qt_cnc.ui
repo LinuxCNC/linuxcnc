@@ -1703,7 +1703,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="text">
         <string>Go to
-Origion Zero</string>
+Origin Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>

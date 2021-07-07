@@ -33,7 +33,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 /* import the shared declarations */
@@ -107,7 +107,7 @@ typedef struct {
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
     int listnum;                /* 0 = pin, 1 = signal, 2 = parameter */
-    int chan_num;
+    int chan_num;               /* channel number (1 - 16) */
     /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
     /* widgets for chan info window */
@@ -182,7 +182,7 @@ typedef struct {
     int selected_part;
 } scope_disp_t;
 
-/* this struct holds data relating to logging */ 
+/* this struct holds data relating to logging */
 
 typedef enum { INTERLACED, NOT_INTERLACED } log_order_t;
 typedef enum { OVERWRITE, APPEND } log_append_t;

@@ -28,7 +28,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include <math.h>
@@ -347,7 +347,7 @@ static void init_display_window(void)
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
             | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK 
+            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK
             | GDK_SCROLL_MASK );
     gtk_widget_show(disp->drawing);
 
@@ -485,7 +485,7 @@ static void change_zoom(int dir, int x) {
     /* calculate horizontal params that depend on width */
     pixels_per_div = disp->width * 0.1;
     pixels_per_sec = pixels_per_div / horiz->disp_scale;
-    disp->pixels_per_sample = new_pixels_per_sample = 
+    disp->pixels_per_sample = new_pixels_per_sample =
         pixels_per_sec * horiz->sample_period;
 
     // how many samples away from the center of the window is this
@@ -509,7 +509,7 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
     } else {
         int z = select_trace(event->x, event->y);
         int new_channel = z & 0xff;
-        int channel_part = z >> 8; 
+        int channel_part = z >> 8;
 
         disp->selected_part = channel_part;
 
@@ -610,9 +610,9 @@ void update_readout(void) {
     if(vert->selected != -1) {
         double t=0, p=0, v=0;
         int result = get_cursor_info(&t, &p, &v);
-        if(result > 0) { 
+        if(result > 0) {
             snprintf(tip, sizeof(tip), TIPFORMAT, t, v, (v - p)/horiz->sample_period);
-        } else { 
+        } else {
 	    rtapi_strxcpy(tip, "");
         }
     } else {

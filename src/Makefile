@@ -317,6 +317,7 @@ HEADERS := \
     emc/ini/inihal.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
+    emc/kinematics/switchkins.h \
     emc/kinematics/genhexkins.h \
     emc/kinematics/genserkins.h \
     emc/kinematics/pentakins.h \
@@ -494,7 +495,7 @@ clean: docclean pythonclean cscopeclean
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
-# accomodated here.
+# accommodated here.
 ifeq ($(BUILD_SYS),kbuild)
 
 modules:
@@ -906,6 +907,12 @@ obj-$(CONFIG_WATCHDOG) += watchdog.o
 watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
 obj-$(CONFIG_MODMATH) += modmath.o
 modmath-objs := hal/components/modmath.o $(MATHSTUB)
+obj-$(CONFIG_TON) += t_on.o
+t_on-objs := hal/components/t_on.o $(MATHSTUB)
+obj-$(CONFIG_TOFF) += t_off.o
+t_off-objs := hal/components/t_off.o $(MATHSTUB)
+obj-$(CONFIG_TP) += t_p.o
+t_p-objs := hal/components/t_p.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 obj-$(CONFIG_SAMPLER) += sampler.o
@@ -1037,9 +1044,6 @@ obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 trivkins-objs += emc/kinematics/kins_util.o
 
-obj-m += 5axiskins.o
-5axiskins-objs := emc/kinematics/5axiskins.o
-
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
 
@@ -1055,49 +1059,93 @@ corexykins-objs := emc/kinematics/corexykins.o
 obj-m += lineardeltakins.o
 lineardeltakins-objs := emc/kinematics/lineardeltakins.o
 
-obj-m += genhexkins.o
-genhexkins-objs := emc/kinematics/genhexkins.o
-genhexkins-objs += libnml/posemath/_posemath.o
-genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += genserkins.o
-genserkins-objs := emc/kinematics/genserkins.o
-genserkins-objs += libnml/posemath/gomath.o
-genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
 pentakins-objs += libnml/posemath/_posemath.o
 pentakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += pumakins.o
-pumakins-objs := emc/kinematics/pumakins.o
-pumakins-objs += libnml/posemath/_posemath.o
-pumakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += scarakins.o
-scarakins-objs := emc/kinematics/scarakins.o
-scarakins-objs += libnml/posemath/_posemath.o
-scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-m += rotarydeltakins.o
 rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
 rotarydeltakins-objs += libnml/posemath/_posemath.o
 rotarydeltakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
-obj-m += xyzac-trt-kins.o
-xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
-xyzac-trt-kins-objs += emc/kinematics/kins_util.o
-
-obj-m += xyzbc-trt-kins.o
-xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
-xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
-
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
 
 obj-m += scorbot-kins.o
 scorbot-kins-objs := emc/kinematics/scorbot-kins.o
+
+ifeq ($(origin userkfuncs), undefined)
+  # use template:
+  USERKFUNCS = emc/kinematics/userkfuncs.o
+else
+  # user specified file for userkfuncs
+  # works with rtpreempt only (not rtai)
+  ifeq ("$(wildcard $(userkfuncs))","")
+    $(error No such file: $(userkfuncs))
+  endif
+  $(shell touch $(userkfuncs))
+  USERKFUNCS = $(subst .c,.o,$(userkfuncs))
+  $(info !!!USERKFUNCS=$(USERKFUNCS))
+endif
+
+#----------------------------------------------------------------
+# SWITCHKINS
+obj-m += genhexkins.o
+genhexkins-objs := emc/kinematics/genhexkins.o
+genhexkins-objs += libnml/posemath/_posemath.o
+genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+genhexkins-objs += emc/kinematics/kins_util.o
+genhexkins-objs += emc/kinematics/switchkins.o
+genhexkins-objs += $(USERKFUNCS)
+
+obj-m += genserkins.o
+genserkins-objs := emc/kinematics/genserkins.o
+genserkins-objs += emc/kinematics/genserfuncs.o
+genserkins-objs += libnml/posemath/gomath.o
+genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+genserkins-objs += emc/kinematics/kins_util.o
+genserkins-objs += emc/kinematics/switchkins.o
+genserkins-objs += $(USERKFUNCS)
+
+obj-m += xyzac-trt-kins.o
+xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
+xyzac-trt-kins-objs += emc/kinematics/trtfuncs.o
+xyzac-trt-kins-objs += emc/kinematics/kins_util.o
+xyzac-trt-kins-objs += emc/kinematics/switchkins.o
+xyzac-trt-kins-objs += $(USERKFUNCS)
+
+obj-m += xyzbc-trt-kins.o
+xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
+xyzbc-trt-kins-objs += emc/kinematics/trtfuncs.o
+xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
+xyzbc-trt-kins-objs += emc/kinematics/switchkins.o
+xyzbc-trt-kins-objs += $(USERKFUNCS)
+
+obj-m += scarakins.o
+scarakins-objs := emc/kinematics/scarakins.o
+scarakins-objs += libnml/posemath/_posemath.o
+scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+scarakins-objs += emc/kinematics/kins_util.o
+scarakins-objs += emc/kinematics/switchkins.o
+scarakins-objs += $(USERKFUNCS)
+
+obj-m += pumakins.o
+pumakins-objs := emc/kinematics/pumakins.o
+pumakins-objs += libnml/posemath/_posemath.o
+pumakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+pumakins-objs += emc/kinematics/kins_util.o
+pumakins-objs += emc/kinematics/switchkins.o
+pumakins-objs += $(USERKFUNCS)
+
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
+5axiskins-objs += libnml/posemath/_posemath.o
+5axiskins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+5axiskins-objs += emc/kinematics/kins_util.o
+5axiskins-objs += emc/kinematics/switchkins.o
+5axiskins-objs += $(USERKFUNCS)
+#----------------------------------------------------------------
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
@@ -1122,7 +1170,6 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),uspace)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
-
 RTDEPS := $(sort $(RTOBJS:.o=.d))
 
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
@@ -1185,6 +1232,9 @@ endif
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
+../rtlib/t_on$(MODULE_EXT): $(addprefix objects/rt,$(t_on-objs))
+../rtlib/t_off$(MODULE_EXT): $(addprefix objects/rt,$(t_off-objs))
+../rtlib/t_p$(MODULE_EXT): $(addprefix objects/rt,$(t_p-objs))
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
@@ -1210,14 +1260,8 @@ endif
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/corexykins$(MODULE_EXT): $(addprefix objects/rt,$(corexykins-objs))
 ../rtlib/lineardeltakins$(MODULE_EXT): $(addprefix objects/rt,$(lineardeltakins-objs))
-../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
-../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pentakins$(MODULE_EXT): $(addprefix objects/rt,$(pentakins-objs))
-../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
-../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/rotarydeltakins$(MODULE_EXT): $(addprefix objects/rt,$(rotarydeltakins-objs))
-../rtlib/xyzac-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzac-trt-kins-objs))
-../rtlib/xyzbc-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzbc-trt-kins-objs))
 ../rtlib/rosekins$(MODULE_EXT): $(addprefix objects/rt,$(rosekins-objs))
 ../rtlib/scorbot-kins$(MODULE_EXT): $(addprefix objects/rt,$(scorbot-kins-objs))
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
@@ -1234,6 +1278,16 @@ endif
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 ../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
+
+#----------------------------------------------------------------
+# SWITCHKINS
+../rtlib/genhexkins$(MODULE_EXT):     $(addprefix objects/rt,$(genhexkins-objs))
+../rtlib/genserkins$(MODULE_EXT):     $(addprefix objects/rt,$(genserkins-objs))
+../rtlib/xyzac-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzac-trt-kins-objs))
+../rtlib/xyzbc-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzbc-trt-kins-objs))
+../rtlib/scarakins$(MODULE_EXT):      $(addprefix objects/rt,$(scarakins-objs))
+../rtlib/pumakins$(MODULE_EXT):       $(addprefix objects/rt,$(pumakins-objs))
+#----------------------------------------------------------------
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

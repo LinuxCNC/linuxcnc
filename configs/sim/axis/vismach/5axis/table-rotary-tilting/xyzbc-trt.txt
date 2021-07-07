@@ -1,0 +1,13 @@
+xyzbc-trt-kins (switchkins)
+
+Uses remapped user m codes for kins switch:
+
+  M429: Identity Kinematics
+  M428: XYZBC (TCP)
+  M430: userk Kinematics
+
+A hal net is required to connect the
+analog out pin N, Example (for N=3):
+
+  net :kinstype-select <= motion.analog-out-03
+  net :kinstype-select => motion.switchkins-type

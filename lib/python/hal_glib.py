@@ -198,6 +198,8 @@ class _GStat(GObject.GObject):
         'play-sound': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'virtual-keyboard': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'dro-reference-change-request': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'system_notify_button_pressed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE,
+                                        (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
@@ -345,7 +347,10 @@ class _GStat(GObject.GObject):
         self.old['radius'] = radius
         self.old['diameter'] = diameter
         if css:
-            self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+            try:
+                self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+            except RuntimeError:
+                self.old['spindle-speed']= self.stat.spindle[0]['speed']
         else:
             self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
