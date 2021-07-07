@@ -2036,6 +2036,8 @@ If the user has the Run From Line option enabled in the GUI SETTINGS section of 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-Code Window
 
+Note that the Run From Line function will run from the beginning of the selected line.
+
 It is important to note that G-Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
 Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED nn"* where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
@@ -2060,7 +2062,7 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
         Program will run from selected line with no leadin applied"
 |===
 
-After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking *RUN FROM nn* button. Click this button to start the program from the previously selected line.
+After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking *RUN FROM LINE* button. Click this button to start the program from the beginning of the selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 
@@ -2801,6 +2803,8 @@ The button colors will follow the state of the halpin.
  
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
+There are three HAL bit output pins that are available to toggle as an output, the pin names are qtplasmac.gp_out_0, qtplasmac.gp_out_1, and qtplasmac.gp_out_2.
+
 [[qt_button-pulse]]
 
 [underline]*Pulse HAL Pin*
@@ -2818,6 +2822,8 @@ The delay is specified in seconds, if the delay is not specified then it will de
 The button colors will follow the state of the halpin.
  
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
+
+There are three HAL bit output pins that are available to pulse as an output, the pin names are qtplasmac.gp_out_0, qtplasmac.gp_out_1, and qtplasmac.gp_out_2.
 
 [[qt_button-probe]]
 

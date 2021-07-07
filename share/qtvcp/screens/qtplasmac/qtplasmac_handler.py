@@ -1,4 +1,4 @@
-VERSION = '1.0.48'
+VERSION = '1.0.49'
 
 import os, sys
 from shutil import copy as COPY
@@ -468,7 +468,9 @@ class HandlerClass:
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
-        self.probeTestErrorPin = self.h.newpin('probe_test_error', hal.HAL_BIT, hal.HAL_IN)
+        self.out0Pin = self.h.newpin('gp_out_0', hal.HAL_BIT, hal.HAL_OUT)
+        self.out1Pin = self.h.newpin('gp_out_1', hal.HAL_BIT, hal.HAL_OUT)
+        self.out2Pin = self.h.newpin('gp_out_2', hal.HAL_BIT, hal.HAL_OUT)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -555,8 +557,6 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:pierce-count', 'plasmac.pierce-count', 'qtplasmac.pierce_count'])
         CALL(['halcmd', 'net', 'plasmac:motion-type', 'qtplasmac.motion_type'])
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.torch_on'])
-        # misc
-        CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
 
     def init_preferences(self):
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
@@ -864,8 +864,6 @@ class HandlerClass:
                 self.w[widget].setEnabled(False)
             for widget in self.idleHomedList:
                 self.w[widget].setEnabled(False)
-            if self.ptButton and hal.get_value('plasmac.probe-test'):
-                self.probe_test(False)
         self.set_run_button_state()
         self.set_jog_button_state()
 
@@ -1838,7 +1836,6 @@ class HandlerClass:
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
-        self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -2456,7 +2453,11 @@ class HandlerClass:
             self.w[self.frButton].setEnabled(True)
 
     def pin_pulser_timeout(self):
-        hal.set_p(self.pinPulsed, str(self.halPulsePins[self.pinPulsed][2]))
+        if 'qtplasmac.gp_out_' in self.pinPulsed:
+            pin = 'out{}Pin'.format(self.pinPulsed.split('out_')[1])
+            self[pin].set(self.halPulsePins[self.pinPulsed][2])
+        else:
+            hal.set_p(self.pinPulsed, str(self.halPulsePins[self.pinPulsed][2]))
         self.button_normal(self.ppButton)
 
 
@@ -2649,17 +2650,23 @@ class HandlerClass:
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].strip()
-            try:
+#            try:
+            if 1:
                 pinstate = hal.get_value(halpin)
-                hal.set_p(halpin, str(not pinstate))
+                if 'qtplasmac.gp_out_' in halpin:
+                    pin = 'out{}Pin'.format(halpin.split('out_')[1])
+                    print("PIN",pin)
+                    self[pin].set(not pinstate)
+                else:
+                    hal.set_p(halpin, str(not pinstate))
                 if pinstate:
                     self.button_normal('button_{}'.format(str(bNum)))
                 else:
                     self.button_active('button_{}'.format(str(bNum)))
-            except:
-                msg = 'Invalid code for user button #{} code\n' \
-                      'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+#            except:
+#                msg = 'Invalid code for user button #{} code\n' \
+#                      'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
+#                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
         elif 'pulse-halpin' in commands.lower():
             try:
                 code, halpin, delay = commands.lower().strip().split()
@@ -2672,18 +2679,25 @@ class HandlerClass:
                           'Failed to puls HAL pin "{}"\n'.format(bNum, halpin)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                     return
-            try:
+#            try:
+            if 1:
+                print("HALPIN 0", halpin)
                 pinstate = hal.get_value(halpin)
-                hal.set_p(halpin, str(not pinstate))
+                if 'qtplasmac.gp_out_' in halpin:
+                    pin = 'out{}Pin'.format(halpin.split('out_')[1])
+                    print("HALPIN 1",pin)
+                    self[pin].set(not pinstate)
+                else:
+                    hal.set_p(halpin, str(not pinstate))
                 self.halPulsePins[halpin][2] = pinstate
                 self.button_active('button_{}'.format(str(bNum)))
                 self.pinPulser.start(self.halPulsePins[halpin][1] * 1000)
                 self.pinPulsed = halpin
                 self.ppButton = 'button_{}'.format(str(bNum))
-            except:
-                msg = 'Invalid code for user button #{} code\n' \
-                      'Failed to pulse HAL pin "{}"\n'.format(bNum, halpin)
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+#            except:
+#                msg = 'Invalid code for user button #{} code\n' \
+#                      'Failed to pulse HAL pin "{}"\n'.format(bNum, halpin)
+#                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
 
         elif 'single-cut' in commands.lower():
             self.single_cut()
@@ -2822,20 +2836,11 @@ class HandlerClass:
                 self.button_active(self.ptButton)
                 self.w.run.setEnabled(False)
             else:
-                self.probe_test_stop()
-        else:
-            self.probe_test_stop()
-
-    def probe_test_stop(self):
-        self.probeTimer.stop()
-        self.probeTime = 0
-        hal.set_p('plasmac.probe-test','0')
-        self.w[self.ptButton].setText(self.probeText)
-        self.button_normal(self.ptButton)
-
-    def probe_test_error(self, state):
-        if state:
-            self.probe_test(False)
+                self.probeTimer.stop()
+                self.probeTime = 0
+                hal.set_p('plasmac.probe-test','0')
+                self.w[self.ptButton].setText(self.probeText)
+                self.button_normal(self.ptButton)
 
     def ext_torch_pulse(self, state):
         if self.tpButton and self.w[self.tpButton].isEnabled():
