@@ -65,7 +65,6 @@ class HAL:
                     size = "%dx%d"% (self.d.pyvcpwidth,self.d.pyvcpheight)
                 geo = " -g %s%s"%(size,pos)
             print("loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo), file=file)
-            print("source postgui_call_list.hal", file=file)
         if self.d.gladevcp and self.d.standalonegvcp:
             fmax = geo = pos = size =  ""
             if self.d.gladevcpposition or self.d.gladevcpsize:
@@ -894,29 +893,6 @@ class HAL:
                 print("-->", file=f1)
                 print("<pyvcp>", file=f1)
                 print("</pyvcp>", file=f1)
-
-        # the jump list allows multiple hal files to be loaded postgui
-        # this simplifies the problem of overwritting the users custom HAL code
-        # when they change pyvcp sample options
-        # if the user picked existing pyvcp option and the postgui_call_list is present
-        # don't overwrite it. otherwise write the file.
-        calllist_filename = os.path.join(base, "postgui_call_list.hal")
-        if (((self.d.pyvcpexist and not os.path.exists(calllist_filename)) or not self.d.pyvcpexist)) and not self.d.frontend == _PD._QTPLASMAC:
-            f1 = open(calllist_filename, "w")
-            print(_("# These files are loaded post GUI, in the order they appear"), file=f1)
-            print(file=f1)
-            if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
-                print("source pyvcp_options.hal", file=f1)
-            if self.d.serial_vfd:
-                if self.d.gs2_vfd:
-                    print("source gs2_vfd.hal", file=f1)
-                if self.d.mitsub_vfd:
-                    print("source mitsub_vfd.hal", file=f1)
-            if self.d.toolchangeprompt and self.d.frontend == _PD._QTDRAGON:
-                print("source qtvcp_postgui.hal", file=f1)
-            print("source custom_postgui.hal", file=f1)
-            f1.close()
-
 
         # If the user asked for pyvcp sample panel add the HAL commands too
         pyfilename = os.path.join(base, "pyvcp_options.hal")
