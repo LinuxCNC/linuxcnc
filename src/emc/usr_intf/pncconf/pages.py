@@ -1238,6 +1238,9 @@ class Pages:
 #************
 # THCAD (QtPlasmaC THCAD)
 #************
+    def thcad_init(self):
+        pass
+
     def thcad_prepare(self):
         self.d.help = "help-thcad.txt"
         self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))

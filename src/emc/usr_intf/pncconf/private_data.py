@@ -46,7 +46,7 @@ class Private_Data:
                                 ['mesa1',_('Mesa Card 1'),False,True],
                                 ['pport1',_('Parallel Port'),False,True],
                                 ['pport2',_('Parallel Port 2'),False,True],
-                                ['thcad',_('Mesa THCAD'),True,True],
+                                ['thcad',_('Mesa THCAD'),False,False],
                                 ['x_motor',_('X Motor'),True,True],
                                 ['x_axis',_('X Axis'),True,True],
                                 ['y_motor',_('Y Motor'),True,True],
