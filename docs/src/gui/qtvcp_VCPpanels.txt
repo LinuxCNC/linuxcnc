@@ -1,0 +1,139 @@
+[[cha:qtvcp-VCP-panels]]
+
+= Qtvcp Virtual Control Panels
+
+Qtvcp is an infrastructure to display a custom CNC screen or control panel in LinuxCNC. +
+It displays a UI file built with the QTDesigner screen editor or combines this +
+with python programming to create a VCP Panel. +
+Qtvcp is completely customizable - you can add different buttons and status LEDs etc. +
+or add python code for even finer grain customization. +
+
+== Builtin panels
+
+There are several builtin HAL panels available. +
+in a  terminal type 'qtvcp list' <return> to see a list. +
+
+=== copy_dialog
+
+used for copying qtvcp's builtin screen code to a folder so one can 
+customize it.
+
+In a terminal:
+[source,hal]
+----
+qtvcp copy_dialog
+----
+
+.copy Dialog - Copy Qtvcp's builtin Screen code
+image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
+
+=== test_panel
+
+- collect of useful widgets for testing HAL component. Including speech of LED state.
+[source,hal]
+----
+loadusr qtvcp test_panel
+----
+
+.test panel - Test Panel VCP
+image::images/test_panel.png["Test Panel",align="left"]
+
+=== cam_align
+
+ - a camera display widget for rotational alignment
+
+.Qtvcp cam align- Camera based alignment panel
+image::images/qtvcp-cam-align.png["Qt Camera Alignment",align="left"]
+
+=== sim_panel
+
+ - a small control panel to simulate MPG jogging controls etc. for simulated configurations
+
+[source,hal]
+----
+loadusr qtvcp sim_panel
+----
+
+.Qtvcp sim panel - Simulated controls for screen testing.
+image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
+
+=== vismach_mill_xyz
+
+ - 3d openGL view of a 3 axis milling machine
+
+[source,hal]
+----
+loadusr qtvcp vismach_mill_xyz
+----
+
+.Qtvcp vismach- 3 Axis Mill panel
+image::images/qtvismach.png["Qtvcp Vismach Mill",align="left"]
+
+
+=== tool_dialog
+
+ - manual toolchange dialog that gives tool description.
+
+[source,hal]
+----
+loadusr -Wn tool_dialog qtvcp -o speak_on -o audio_on tool_dialog
+----
+
+Options:
+
+* -o notify_on -use desktop notify dialogs instead of qtvcp native ones.
+* -o audio_on -play sound on tool change
+* -o speak_on -speak announcement of tool change
+
+.Qtvcp tool dialog - Manual Tool Change Dialog
+image::images/qtvcp_toolChange.png["Tool Change Dialog",align="left"]
+
+=== Custom Panels
+
+You can of course make your own panel and load it. +
+If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal' +
+You would then load this from a terminal with halrun -I -f my_panel.hal +
+
+[source,hal]
+----
+# load realtime components
+loadrt threads 
+loadrt classicladder_rt
+
+# load user space programs
+loadusr classicladder
+loadusr -Wn my_panel qtvcp my_panel.ui
+
+# add components to thread
+addf classicladder.0.refresh thread1
+
+
+# connect pins
+net bit-input1     test_panel.checkbox_1        classicladder.0.in-00
+net bit-hide       test_panel.checkbox_4        classicladder.0.hide_gui
+
+net bit-output1    test_panel.led_1             classicladder.0.out-00
+
+net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
+
+# start thread
+start
+----
+
+In this case we load qtvcp using -Wn; which waits for the panel to finish loading before +
+continuing to run the next HAL command. This is so the HAL pins from the panel are finished +
+in case the are used in the rest of the file.
+
+
+== More Information
+
+<<cha:qtvcp-widgets,QtVCP Widgets>>
+
+<<cha:qtvcp-libraries,QtVCP Libraries>>
+
+<<cha:qtvcp-code,QtVCP Handler File Code Snippets>>
+
+<<cha:qtvcp-development,QtVCP Development>>
+
+<<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets>>
+
