@@ -87,7 +87,7 @@ setup_menu_accel .menu.file end [_ "Edit _tool table..."]
 
 .menu.file add command \
 	-command reload_tool_table
-setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
+setup_menu_accel .menu.file end [_ "Reload tool table"]
 
 .menu.file add separator
 
