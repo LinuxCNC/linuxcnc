@@ -4063,7 +4063,8 @@ if lathe:
     widgets.view_x.pack_forget()
     widgets.view_p.pack_forget()
     widgets.rotate.pack_forget()
-    widgets.axis_y.grid_forget()
+    #patch for display Y used for some tailstock (with a W axis G33.1 G73 G81 G82 g83 does not work fine)
+    if "Y" not in geometry: widgets.axis_y.grid_forget()
     widgets.menu_view.delete(0, 5)
 else:
     widgets.view_y2.pack_forget()
