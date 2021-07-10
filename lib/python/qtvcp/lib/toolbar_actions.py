@@ -81,6 +81,8 @@ class ToolBarActions():
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
             STATUS.connect('state-estop', lambda w: widget.setChecked(False))
+            STATUS.connect('state-on', lambda w: widget.setChecked(True))
+            STATUS.connect('state-off', lambda w: widget.setChecked(False))
             function = (self.actOnPower)
         elif action == 'load':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
