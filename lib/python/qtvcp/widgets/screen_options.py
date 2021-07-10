@@ -369,7 +369,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 answer = True
             # system shutdown
-            if answer == -1:
+            if answer == QtWidgets.QMessageBox.DestructiveRole:
                 if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
                     self.QTVCP_INSTANCE_.system_shutdown_request__()
                 else:

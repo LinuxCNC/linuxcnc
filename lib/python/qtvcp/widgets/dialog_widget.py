@@ -281,7 +281,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         elif retval in(QMessageBox.Ok, QMessageBox.Yes):
             return True
         else:
-            return retval
+            return self.buttonRole(self.clickedButton())
 
     def showEvent(self, event):
         if self._nblock:
@@ -299,8 +299,10 @@ class LcncDialog(QMessageBox, GeometryMixin):
             btn = self.standardButton(self.clickedButton())
             if btn in (QMessageBox.Ok, QMessageBox.Yes):
                 self._message['RETURN'] = True
-            else:
+            elif btn in(QMessageBox.No, QMessageBox.Cancel):
                 self._message['RETURN'] = False
+            else:
+                self._message['RETURN'] = self.buttonRole(self.clickedButton())
             self.record_geometry()
             STATUS.emit('general', self._message)
             self._massage = None
