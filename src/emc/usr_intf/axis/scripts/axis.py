@@ -1869,7 +1869,8 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
-    if not all_homed() and lathe and not lathe_historical_config():
+    if not all_homed() and lathe and not lathe_historical_config() and "Y" not in geometry:
+    #patch for display Y inside lathe for some tailstock use (with a W axis G33.1 G73 G81 G82 g83 does not work fine)
         axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
