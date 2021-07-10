@@ -2995,7 +2995,7 @@ The following HAL bit output pins are always created and can be used by either t
 
 === Hide Program Buttons
 
-If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons with the following code in the <machine_name>.ini file:
+If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons by adding the following code to the [QTPLASMAC] section of the <machine_name>.ini file:
 
 ----
 HIDE_RUN       = 1
