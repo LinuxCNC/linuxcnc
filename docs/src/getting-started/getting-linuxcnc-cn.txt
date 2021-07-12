@@ -31,7 +31,7 @@ NOTE: LinuxCNC需要带额外实时功能的内核。
 
 通过单击此处下载Live/安装CD：
 
-http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
+http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 
 === 使用zsync下载
@@ -51,7 +51,7 @@ sudo apt-get install zsync
 . 然后运行以下命令将iso下载到您的电脑上
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso.zsync
+http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 ----
 
 .Windows中的zsync
@@ -68,13 +68,13 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . 下载后，请验证镜像的校验和以确保完整性。
 +
 ----
-md5sum linuxcnc-2.8.0-buster.iso
+md5sum linuxcnc-2.8.2-buster.iso
 ----
 +
 或
 +
 ----
-sha256sum linuxcnc-2.8.0-buster.iso
+sha256sum linuxcnc-2.8.2-buster.iso
 ----
 . 然后于以下校验和作比较
 +
@@ -101,7 +101,7 @@ LinuxCNC Live/安装镜像是一个混合ISO镜像，可以将其直接写入USB
 . 使用dd命令将镜像写入USB储存设备。例如，如果您的储存设备显示为/dev/sde，则使用以下命令：
 +
 -----
-dd if=linuxcnc-2.8.0-buster.iso of=/dev/sde
+dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
 -----
 
 .在Mac OS X中将镜像写入USB储存设备
