@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.208 - 2021 May 02
+0.209 - 2021 July 12
 
 .I SUMMARY:
 .br
@@ -794,7 +794,7 @@ FUNCTION(_) {
                     break;
                 }
                 if(probe_testing && breakaway){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected during probe test\n");
                     probe_test_error = TRUE;
                     state = PROBE_TEST;
                     break;
@@ -802,17 +802,29 @@ FUNCTION(_) {
                 if((float_switch && !float_detected) || ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
-                    if(z_pierce > z_max && !probe_testing){
-                        stop_type = PAUSE;
-                        program_pause = TRUE;
-                        if(float_switch){
+                    if(z_pierce > z_max){
+                        if(probe_testing){
+                          state = PROBE_TEST;
+                          probe_test_error = TRUE;
+                          if(float_switch){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
-                                                          "while float switch probing\n");
+                                                          "condition found while moving to probe height during float switch probe testing");
+                          }else{
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                          "condition found while moving to probe height during ohmic probe testing");
+                          }
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
-                                                          "while ohmic probing\n");
+                          stop_type = PAUSE;
+                          program_pause = TRUE;
+                          state = MAX_HEIGHT;
+                          if(float_switch){
+                              rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                            "condition found while moving to probe height during float switch probing\n");
+                          }else{
+                              rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                            "condition found while moving to probe height during ohmic probing\n");
+                          }
                         }
-                        state = MAX_HEIGHT;
                         break;
                     }
                     probe_retry = TRUE;
@@ -839,7 +851,7 @@ FUNCTION(_) {
                     break;
                 }
                 if(probe_testing && breakaway){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected during probe test\n");
                     probe_test_error = TRUE;
                     state = PROBE_TEST;
                     break;
@@ -864,7 +876,7 @@ FUNCTION(_) {
                         z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                         if(z_pierce > z_max && !probe_testing){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
-                                                          "while float switch probing\n");
+                                                          "condition found while float switch probing\n");
                             stop_type = PAUSE;
                             program_pause = TRUE;
                             state = MAX_HEIGHT;
@@ -884,8 +896,8 @@ FUNCTION(_) {
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(z_pierce > z_max && !probe_testing){
-                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
-                                                      "while ohmic probing\n");
+                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                                                      "condition found while ohmic probing\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
@@ -1600,7 +1612,7 @@ FUNCTION(_) {
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
-                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "breakaway, float, or ohmic activated during consumable change, motion paused.\n"
                                         "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;
@@ -1666,7 +1678,7 @@ FUNCTION(_) {
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
-                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "breakaway, float, or ohmic activated during consumable change, motion paused.\n"
                                         "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;

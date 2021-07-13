@@ -2498,13 +2498,15 @@ THC has caused the top limit to be reached while cutting:
 
 * *top limit reached while THC moving up program is paused*
 
-The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via float switch:
+These errors indicate move to pierce height would exceed the Z Axis MAX_LIMIT for the corresponding probe method: 
 
-* *pierce height would exceed Z axis maximum limit while float switch probing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during float switch probing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during ohmic probing*
 
-The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via ohmic sensing:
+These errors indicate the move to pierce height would exceed the Z axis maximum safe height for the corresponding probe method:
 
-* *pierce height would exceed Z axis maximum limit while ohmic probing*
+* *pierce height would exceed Z axis maximum safe height condition found while float switch probing*
+* *pierce height would exceed Z axis maximum safe height condition found while ohmic probing*
 
 === Warning Errors
 
@@ -2518,18 +2520,27 @@ These errors indicate the corresponding sensor was activated before a probe test
 
 This indicates that the corresponding sensor was activated during a consumable change:
 
-* *breakaway float or ohmic activated during consumable, change motion is paused* +
+* *breakaway, float, or ohmic activated during consumable change, motion is paused* +
 *WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
 
 WARNING: CONSUMABLE CHANGE MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THE CORRESPONDING SENSOR ACTIVATION.
+
+This indicates that the corresponding sensor was activated during probe testing:
+
+* *breakaway switch detected during probe test*
 
 This indicates that probe contact was lost before probing up to find the zero point:
 
 * *probe trip error while probing*
 
-This indicates the bottom limit was reached during a probe test:
+This indicates that the bottom limit was reached during a probe test:
 
 * *bottom limit reached while probe testing*
+
+This indicates that the move to pierce height would exceed the Z Axis MAX_LIMIT during the corresponding probe method:
+
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during float switch probe testing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during ohmic probe testing*
 
 This indicates that the safe height has been reduced due to THC raising the Z axis during cutting:
 
