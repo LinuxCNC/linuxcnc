@@ -1,4 +1,4 @@
-VERSION = '1.0.51'
+VERSION = '1.0.52'
 
 import os, sys
 from shutil import copy as COPY
@@ -1847,12 +1847,17 @@ class HandlerClass:
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
         kinstype = None
         self.coordinates = 'xyz'
-        if 'kinstype' in kinematics:
-            kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
+        if kinematics:
+            if 'kinstype' in kinematics:
+                kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
+                if 'coordinates' in kinematics:
+                    kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
             if 'coordinates' in kinematics:
-                kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
-        if 'coordinates' in kinematics:
-            self.coordinates = kinematics.split('coordinates')[1].lower()
+                self.coordinates = kinematics.split('coordinates')[1].lower()
+        else:
+            msg  = 'Error in [KINS]KINEMATICS in the ini file\n'
+            msg += 'reverting to default coordinates of xyz'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI ERROR:\n{}'.format(msg))
         # hide axis a if not being used
         if 'a' not in self.axisList:
             for i in self.axisAList:
