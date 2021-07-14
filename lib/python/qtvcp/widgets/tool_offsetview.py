@@ -244,6 +244,16 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def get_checked_list(self):
         return self.tablemodel.listCheckedTools()
 
+    # This function uses the color name (string); setProperty
+    # expects a QColor object
+    def highlight(self, color):
+        self.setProperty('styleColorHighlight', QColor(color))
+
+    # This function uses the color name (string); calling setProperty
+    # expects a QColor object
+    def selected(self, color):
+        self.setProperty('styleColorSelection', QColor(color))
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -282,6 +292,20 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def resetimperialtexttemplate(self):
         self.tablemodel.imperial_text_template =  '%9.4f'
     imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+
+    def getColorHighlight(self):
+        return QColor(self.tablemodel._highlightcolor)
+    def setColorHighlight(self, value):
+        self.tablemodel._highlightcolor = value.name()
+        #self.tablemodel.layoutChanged.emit()
+    styleColorHighlight = pyqtProperty(QColor, getColorHighlight, setColorHighlight)
+
+    def getColorSelection(self):
+        return QColor(self.tablemodel._selectedcolor)
+    def setColorSelection(self, value):
+        self.tablemodel._selectedcolor = value.name()
+        #self.tablemodel.layoutChanged.emit()
+    styleColorSelection = pyqtProperty(QColor, getColorSelection, setColorSelection)
 
 #########################################
 # custom model
@@ -498,5 +522,7 @@ if __name__ == "__main__":
     w = ToolOffsetView()
     w.setEnabled(True)
     w._hal_init()
+    w.highlight('lightblue')
+    #w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
     sys.exit(app.exec_())
