@@ -71,13 +71,15 @@ class keyboard():
         self.widgets = {}
         self.r_c = {}
         self.config = ConfigObj(self.filename)
-        self.cmd = commands.CNC_COMMANDS(self)
         self._zmq_output_enabled = False
 
         try:
             self.hal.setprefix(self.config['HAL_PREFIX']['NAME'])
         except:
             self.hal.setprefix('panelui')
+
+        # call after HAL prefix has been changed
+        self.cmd = commands.CNC_COMMANDS(self)
 
         # setup ZMQ output if enabled
         try:
