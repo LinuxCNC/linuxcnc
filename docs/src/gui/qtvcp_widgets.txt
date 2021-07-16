@@ -1133,9 +1133,50 @@ gcode programs. +
 
 ===  OriginOffsetView Widget
 
+.origin Offset View
+image::images/qtvcp_originoffsetview.png["QTvcp Origin Offset View"]
+
 This widget allows one to modify User System origin offsets directly +
-It will update the table for changes made internally by linuxcnc. +
-It is based on pyQT's
+It will update linuxcnc's Parameter file for changes made or found. +
+The settings can only be changed in linuxcnc after homing and +
+when the motion controller is idle. +
+The display and entry will change between metric and imperial based +
+on linuxcnc's current G20/G21 setting. +
+The current in-use user system will be highlighted +
+Extra actions can be integrated to manipulate settings. +
+These actions depend on extra code added either to a combined widget like +
+originoffsetview dialog or the screens handler code. +
+Typical actions might be 'Clear Current User offsets', 'Zero X' +
+Clicking on the columns and rows allows one to adjust the settings. +
+A dialog can be made to popup for data or text entry. +
+The comments section will be recorded in the preference file. +
+
+It is based on pyQT's QTableView, QAbstractTableModel, and ItemEditorFactory. +
+Properties, functions and styles of the pyQT base objects are always available. +
+
+==== Properties
+OriginOfsetView has properties that can be set in designer, in python handler code or +
+(if appropriate) in stylesheets.
+
+* dialog_code_string - sets which dialog will pop up with numerical entry.
+* test_dialog_code_string - sets which dialog will pop up with text entry.
+* metric_template - metric numerical data format.
+* imperial_template - imperial numerical data format.
+* styleCodeHighlight - current in-use user system highlight color.
+
+ie. In the handler file:
+[source,python]
+----
+self.w.originoffsetview.setProperty('dialog_code','CALCULATOR')
+self.w.originoffsetview.setProperty('metric_template','%10.3f')
+----
+
+ie. In style sheets:
+----
+OriginOffsetView{
+qproperty-styleColorHighlist: lightblue;
+}
+----
 
 === State Enable Gridlayout Widgets
 
@@ -1194,16 +1235,81 @@ It is based on pyQT's
 === RadioAxisSelector
 
 It is based on pyQT's
-  
+
+=== ToolOffsetView
+
+.Tool Offset View
+image::images/qtvcp_tooloffsetview.png["QTvcp Tool Offset View"]
+
+This widget will display and allows one to modify tool offsets +
+It will update linuxcnc's tool table for changes made or found. +
+The tool settings can only be changed in linuxcnc after homing and +
+when the motion controller is idle. +
+The display and entry will change between metric and imperial based +
+on linuxcnc's current G20/G21 setting. +
+The current in-use tool will be highlighted +
+The current selected tool will be highlighted in a different color. +
+The checkbox beside each tool can be used to select a tool(s) for an action. +
+This action depends on extra code added either to a combined widget like +
+tooloffsetview dialog or the screens handler code. +
+Typical actions are 'load selected tool', 'delete selected tools' +
+Clicking on the columns and rows allows one to adjust the settings. +
+A dialog can be made to popup for data or text entry. +
+The comments section will typically be displayed in the manual tool change dialog. +
+If using a lathe configuration, there can be columns for X and Z wear. +
+To use these columns to adjust the tool for wear, requires a remapped tool change +
+routine. +
+
+It is based on pyQT's QTableView, QAbstractTableModel, and ItemEditorFactory. +
+Properties, functions and styles of the pyQT base objects are always available. +
+
+==== Properties
+ToolOfsetView has properties that can be set in designer, in python handler code or +
+(if appropriate) in stylesheets.
+
+* dialog_code_string - sets which dialog will pop up with numerical entry.
+* test_dialog_code_string - sets which dialog will pop up with text entry.
+* metric_template - metric numerical data format.
+* imperial_template - imperial numerical data format.
+* styleCodeHighlight - current in-use highlight color.
+* styleCodeSelected - selected highlight color
+
+ie. In handler file:
+[source,python]
+----
+self.w.tooloffsetview.setProperty('dialog_code','CALCULATOR')
+self.w.tooloffsetview.setProperty('metric_template','%10.3f')
+----
+
+ie. In style sheets:
+----
+ToolOffsetView{
+qproperty-styleColorHighlist: lightblue;
+qproperty-styleColorSelected: #444;
+}
+----
+
+==== Functions
+ToolOffsetView has some function that are useful for screen builders to add actions. +
+
+* add_tool() - adds a blank dummy tool (99) that the user can edit to suit.
+* delete_tools() - deletes the currently checkbox selected tools
+* get_checked_list() - returns a list of tools selected by checkboxs.
+
+[source,python]
+----
+self.w.tooloffsetview.add_tool()
+self.w.tooloffsetview.delete_tools()
+toolList = self.w.tooloffsetview.get_checked_list()
+----
 
 === BasicProbe
 
 .BasicProbe
 image::images/qtvcp_basicProbe.png["QTvcp basicProbe widget",scale="25%"]
 
-Widget for probing on a mill.
+Widget for probing on a mill. Used by the QtDragon screen.
 
-requires extra analog motion pins for probe settings.
 
 
 == Dialog Widgets
