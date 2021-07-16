@@ -1414,7 +1414,6 @@ FUNCTION(_) {
                     if(!probe_test || probe_test_error){
                         if(z_offset_counts == safe_target){
                             if((int)(z_offset_current * offset_res) == (int)(safe_target * offset_scale * offset_res)){
-                                rtapi_print_msg(RTAPI_MSG_ERR, "Z_OFFSET:<<%f>>    SAFE_TARGET:<<%d>>\n", z_offset_current, safe_target);
                                 if(stop_type == WAIT){
                                     feed_hold = FALSE;
                                 }
