@@ -272,7 +272,7 @@ uname -v
 . 通过运行以下命令将LinuxCNC包签名密匙添加到APT密匙环
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . 添加APT储存库：
@@ -304,7 +304,7 @@ WARNING: 这个内核有已知的稳定性问题。 当LinuxCNC已加载它似�
 . 将LinuxCNC包签名密匙添加到APT密匙环（如果在更换LinuxCNC Live-CD镜像的实时模式则不需要）
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . 添加APT储存库：
@@ -345,7 +345,7 @@ sudo apt-get install linuxcnc
 . 将LinuxCNC包签名密匙添加到APT密匙环
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 . 添加 APT 储存库 ：
 +
@@ -388,7 +388,7 @@ sudo apt-get dist-upgrade
 . 通过运行以下命令将LinuxCNC包签名密匙添加到APT密匙环
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . 添加新的APT源
