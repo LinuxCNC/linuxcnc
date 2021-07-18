@@ -1,6 +1,7 @@
 import linuxcnc
 import hal
 import time
+from subprocess import call as CALL
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPalette, QColor
 
@@ -18,12 +19,24 @@ class HandlerClass:
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
-        self.w.torch_on.hal_pin_changed.connect(self.torch_changed)
+        self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
+        self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
+        self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
+        self.torchPin = self.hal.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
+        self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
+        self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
+        CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
+        CALL(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
+        self.torchPin.value_changed.connect(self.torch_changed)
+        self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))
         self.w.sensor_flt.pressed.connect(self.float_pressed)
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
         self.w.sensor_brk.pressed.connect(self.break_pressed)
         self.w.arc_ok.clicked.connect(self.arc_ok_clicked)
         self.w.estop.pressed.connect(self.estop_pressed)
+        self.w.auto_flt.pressed.connect(self.auto_float_pressed)
+        self.w.auto_flt.setChecked(True)
+        self.w.auto_ohm.pressed.connect(self.auto_ohmic_pressed)
         self.fTimer = QtCore.QTimer()
         self.fTimer.setInterval(500)
         self.fTimer.setSingleShot(True)
@@ -39,6 +52,8 @@ class HandlerClass:
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
         hal.set_p('estop_or.in0', '1')
+        zMin = hal.get_value('ini.z.min_limit')
+        self.zProbe = zMin + (10 * hal.get_value('halui.machine.units-per-mm'))
         self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.estopColor))
 
     def set_style(self):
@@ -93,8 +108,21 @@ class HandlerClass:
             '    border-radius: 4px }}\n'\
             '\nLine {{\n'\
             '    color: red;\n'\
-            '    background: red;\n'\
-            '}}\n'.format(self.foreColor, self.backColor, self.backAlt, self.estopColor)
+            '    background: red }}\n'\
+            '\nQCheckBox {{\n'\
+            '    spacing: 20px }}\n'\
+            '\nQCheckBox::indicator {{\n'\
+            '    border: 1px solid {0};\n'\
+            '    border-radius: 4px;\n'\
+            '    width: 20px;\n'\
+            '    height: 20px }}\n'\
+            '\nQCheckBox::indicator:pressed {{\n'\
+            '    background: {0} }}\n'\
+            '\nQCheckBox::indicator:checked {{\n'\
+            '    background: {0} }}\n'\
+            '\nQCheckBox::indicator:checked:pressed {{\n'\
+            '    background: {1} }}\n'\
+            .format(self.foreColor, self.backColor, self.backAlt, self.estopColor)
             )
 
     def arc_ok_clicked(self):
@@ -105,61 +133,69 @@ class HandlerClass:
 
     def float_timer_done(self):
         if not self.w.sensor_flt.isDown():
-            self.w.sensor_float.hal_pin.set(0)
+            self.floatPin.set(0)
             self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def ohmic_timer_done(self):
         if not self.w.sensor_ohm.isDown():
-            self.w.sensor_ohmic.hal_pin.set(0)
+            self.ohmicPin.set(0)
             self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def break_timer_done(self):
         if not self.w.sensor_brk.isDown():
-            self.w.sensor_breakaway.hal_pin.set(0)
+            self.breakPin.set(0)
             self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
 
     def float_pressed(self):
         if self.fTimer.isActive():
             self.fTimer.stop()   # stop timer so next click can start it again
-            self.w.sensor_float.hal_pin.set(1)
+            self.floatPin.set(1)
             self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
         else:
-            if self.w.sensor_float.hal_pin.get():
+            if self.floatPin.get():
                 self.fTimer.stop()
-                self.w.sensor_float.hal_pin.set(0)
+                self.floatPin.set(0)
                 self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
             else:
-                self.w.sensor_float.hal_pin.set(1)
+                self.floatPin.set(1)
                 self.w.sensor_flt.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
                 self.fTimer.start()
 
     def ohmic_pressed(self):
         if self.oTimer.isActive():
             self.oTimer.stop()   # stop timer so next click can start it again
-            self.w.sensor_ohmic.hal_pin.set(1)
+            self.ohmicPin.set(1)
             self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
         else:
-            if self.w.sensor_ohmic.hal_pin.get():
+            if self.ohmicPin.get():
                 self.oTimer.stop()
-                self.w.sensor_ohmic.hal_pin.set(0)
+                self.ohmicPin.set(0)
                 self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
             else:
-                self.w.sensor_ohmic.hal_pin.set(1)
+                self.ohmicPin.set(1)
                 self.w.sensor_ohm.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
                 self.oTimer.start()
+
+    def auto_float_pressed(self):
+        if self.w.auto_ohm.isChecked:
+            self.w.auto_ohm.setChecked(False)
+
+    def auto_ohmic_pressed(self):
+        if self.w.auto_flt.isChecked:
+            self.w.auto_flt.setChecked(False)
 
     def break_pressed(self):
         if self.bTimer.isActive():
             self.bTimer.stop()   # stop timer so next click can start it again
-            self.w.sensor_breakaway.hal_pin.set(1)
+            self.breakPin.set(1)
             self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
         else:
-            if self.w.sensor_breakaway.hal_pin.get():
+            if self.breakPin.get():
                 self.bTimer.stop()
-                self.w.sensor_breakaway.hal_pin.set(0)
+                self.breakPin.set(0)
                 self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.backColor))
             else:
-                self.w.sensor_breakaway.hal_pin.set(1)
+                self.breakPin.set(1)
                 self.w.sensor_brk.setStyleSheet('color: {}; background: {}'.format(self.backColor, self.foreColor))
                 self.bTimer.start()
 
@@ -206,6 +242,18 @@ class HandlerClass:
             if self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
                 self.w.arc_ok_clicked()
+
+    def z_position_changed(self, height):
+        if self.w.auto_flt.isChecked():
+            if height < self.zProbe and not self.floatPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
+                self.float_pressed()
+            elif (height > self.zProbe) and self.floatPin.get() and self.statePin.get() == 3:
+                self.float_pressed()
+        elif self.w.auto_ohm.isChecked():
+            if height < self.zProbe and not self.ohmicPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
+                self.ohmic_pressed()
+            elif (height > self.zProbe) and self.ohmicPin.get() and self.statePin.get() == 3:
+                self.ohmic_pressed()
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]

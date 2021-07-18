@@ -63,7 +63,7 @@
     <property name="verticalSpacing">
      <number>8</number>
     </property>
-    <item row="9" column="2">
+    <item row="8" column="2">
      <widget class="QPushButton" name="sensor_brk">
       <property name="minimumSize">
        <size>
@@ -110,7 +110,7 @@
       </property>
      </widget>
     </item>
-    <item row="15" column="0" colspan="3">
+    <item row="16" column="0" colspan="3">
      <widget class="QLabel" name="move_label">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -138,7 +138,7 @@
       </property>
      </widget>
     </item>
-    <item row="16" column="0">
+    <item row="17" column="0">
      <widget class="PushButton" name="move_up">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -163,7 +163,7 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="12" column="0">
      <widget class="Line" name="sensor_line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -188,7 +188,7 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
+    <item row="8" column="0">
      <widget class="QPushButton" name="sensor_flt">
       <property name="minimumSize">
        <size>
@@ -207,7 +207,7 @@
       </property>
      </widget>
     </item>
-    <item row="14" column="0" colspan="3">
+    <item row="15" column="0" colspan="3">
      <widget class="Line" name="arc_ok_line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -229,16 +229,6 @@
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="2">
-     <widget class="GeneralHALOutput" name="sensor_breakaway">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
       </property>
      </widget>
     </item>
@@ -301,7 +291,7 @@
       </property>
      </widget>
     </item>
-    <item row="12" column="0" colspan="2">
+    <item row="13" column="0" colspan="2">
      <widget class="QLabel" name="arc_ok_label">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -354,7 +344,7 @@
       </property>
      </widget>
     </item>
-    <item row="16" column="2">
+    <item row="17" column="2">
      <widget class="PushButton" name="move_down">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -379,7 +369,7 @@
       </property>
      </widget>
     </item>
-    <item row="19" column="0">
+    <item row="20" column="0">
      <widget class="QLabel" name="label">
       <property name="minimumSize">
        <size>
@@ -401,7 +391,7 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
+    <item row="8" column="1">
      <widget class="QPushButton" name="sensor_ohm">
       <property name="minimumSize">
        <size>
@@ -417,16 +407,6 @@
       </property>
       <property name="text">
        <string>OHMIC</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="1">
-     <widget class="GeneralHALOutput" name="sensor_ohmic">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
       </property>
      </widget>
     </item>
@@ -449,16 +429,6 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="0">
-     <widget class="GeneralHALOutput" name="sensor_float">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>4</height>
-       </size>
       </property>
      </widget>
     </item>
@@ -499,14 +469,7 @@
       </property>
      </widget>
     </item>
-    <item row="16" column="1">
-     <widget class="GeneralHALInput" name="torch_on">
-      <property name="pin_name" stdset="0">
-       <string>torch_on</string>
-      </property>
-     </widget>
-    </item>
-    <item row="18" column="0">
+    <item row="19" column="0">
      <widget class="Line" name="line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -556,7 +519,7 @@
       </property>
      </widget>
     </item>
-    <item row="13" column="0" colspan="3">
+    <item row="14" column="0" colspan="3">
      <widget class="PushButton" name="arc_ok">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -584,7 +547,7 @@
       </property>
      </widget>
     </item>
-    <item row="20" column="1">
+    <item row="21" column="1">
      <widget class="QPushButton" name="estop">
       <property name="minimumSize">
        <size>
@@ -605,6 +568,114 @@
        <bool>false</bool>
       </property>
      </widget>
+    </item>
+    <item row="9" column="2">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>AUTO</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="auto_ohm">
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="9" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="auto_flt">
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -664,18 +735,6 @@
    <class>HALLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.hal_label</header>
-  </customwidget>
-  <customwidget>
-   <class>GeneralHALInput</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_input</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GeneralHALOutput</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.general_hal_output</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
