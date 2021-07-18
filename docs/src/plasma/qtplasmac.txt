@@ -1958,16 +1958,20 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 . When the cut is complete stop the spindle. +
 . The torch will turn off and the Z axis will return to the starting position.
 
+[[qt_manual-single-cut]]
+
 [underline]*Manual Single Cut*
 
-Manual single cut requires that <<qt_keyboard-shortcuts, keyboard shortcuts>> are enable in the GUI SETTINGS section of the PARAMETERS Tab.
+Manual single cut requires that either <<qt_keyboard-shortcuts, keyboard shortcuts>> are enabled in the GUI SETTINGS section of the PARAMETERS Tab, or a custom user button is specified as a <<qt_button-mancut, manual cut>> button.
+
+If using a custom user button then sustitute *F9* with *User Button* in the following description.
 
 . Jog to the required X/Y start position. +
 . Set the required feed rate with the Jog Speed slider. +
 . Start the procedure by pressing *F9*. +
 . After probing the torch will fire. +
 . When the Arc OK is received the machine can be jogged along the cut line using the jog keys. +
-. When the cut is complete press *F9* or *Esc*. +
+. When the cut is complete press *F9* or *Esc* or the *CYCLE STOP* button. +
 . The torch will turn off and the Z axis will return to the starting position.
 
 NOTE: If the torch flames out during cutting, the user must still press *F9* or *Esc* to end the cut. This clears the Z offsets and returns the torch to the starting position.
@@ -2752,6 +2756,7 @@ Buttons can run the following:
 . <<qt_button-torch, Pulse the torch on>>
 . <<qt_button-single, Single unidirectional cut>>
 . <<qt_button-framing, Framing a job>>
+. <<qt_button-mancut, Begin/End a manual cut>>
 
 [[qt_button-cmds]]
 
@@ -2962,6 +2967,16 @@ BUTTON_n_CODE = framing usecurrentZheight
 ----
 
 Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+
+[[qt_button-mancut]]
+
+[underline]*Manual Cut*
+
+Manual Cut functions identically to the *F9* button to begin or end a <<qt_manual-single-cut, manual cut>>.
+
+----
+BUTTON_n_CODE = manual-cut
+----
 
 [[qt_ext-hal-pin]]
 
