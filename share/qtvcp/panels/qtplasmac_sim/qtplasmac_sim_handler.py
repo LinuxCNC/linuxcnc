@@ -4,6 +4,7 @@ import time
 from subprocess import call as CALL
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtWidgets import QMessageBox
 
 class HandlerClass:
 
@@ -49,6 +50,7 @@ class HandlerClass:
         self.bTimer.setInterval(500)
         self.bTimer.setSingleShot(True)
         self.bTimer.timeout.connect(self.break_timer_done)
+        self.w.help.pressed.connect(self.help_pressed)
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
         hal.set_p('estop_or.in0', '1')
@@ -254,6 +256,24 @@ class HandlerClass:
                 self.ohmic_pressed()
             elif (height > self.zProbe) and self.ohmicPin.get() and self.statePin.get() == 3:
                 self.ohmic_pressed()
+
+    def help_pressed(self):
+        msg = QMessageBox(self.w)
+        buttonY = msg.addButton(QMessageBox.Ok)
+        buttonY.setText('OK')
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle('Sim Panel Help')
+        message  = 'This panel provides buttons for simulating basic plasma signals.\n'
+        message += '\nThe operating mode of QtPlasmaC determines which widgets appear on the panel.\n'
+        message += '\nESTOP is required to be cleared before turning the main GUI on and homing the config.\n'
+        message += '\nIf a gcode program is loaded and the CYCLE START button pressed then the panel is fully automatic during the running of the program.\n'
+        message += '\nThe type of probing is selected by the checkbox below the appropriate button. When the "torch" decends to 10mm (0.39") above the bottom limit then the selected signal will be emitted and the program will continue.\n'
+        message += '\nThe ARC OK signal is automatic for all modes.\n'
+        message += '\nFor Modes 0 & 1 the ARC VOLTAGE can be adjusted during the "cut" and the "torch" will respond appropriately.\n'
+        message += '\nFor Mode 2 the UP and DOWN buttons can be pressed during the "cut" and the "torch" will respond appropriately.\n'
+        message += '\nOther buttons can be pressed at any stage of a program run to show the various effect that they have on a running program.\n'
+        msg.setText(message)
+        msg.exec_()
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
