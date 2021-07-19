@@ -435,6 +435,9 @@ class HandlerClass:
         self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
         self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.heightOverridePinPlus = self.h.newpin('height_override_plus', hal.HAL_BIT, hal.HAL_IN)
+        self.heightOverridePinMinus = self.h.newpin('height_override_minus', hal.HAL_BIT, hal.HAL_IN)
+        self.heightOverridePinReset = self.h.newpin('height_override_reset', hal.HAL_BIT, hal.HAL_IN)
         self.laserOnPin = self.h.newpin('laser_on', hal.HAL_BIT, hal.HAL_OUT)
         self.materialChangePin = self.h.newpin('material_change', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
@@ -1227,11 +1230,12 @@ class HandlerClass:
     def user_button_released(self, button):
         self.user_button_up(button)
 
-    def height_ovr_pressed(self, height):
-        if height:
-            self.heightOvr += height * self.w.thc_threshold.value()
-        else:
-            self.heightOvr = 0
+    def height_ovr_pressed(self, state, height):
+        if state:
+            if height:
+                self.heightOvr += height * self.w.thc_threshold.value()
+            else:
+                self.heightOvr = 0
         if self.heightOvr < -10 :self.heightOvr = -10
         if self.heightOvr > 10 :self.heightOvr = 10
         self.heightOverridePin.set(self.heightOvr)
@@ -1698,9 +1702,9 @@ class HandlerClass:
         self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
         self.materialReloadPin.value_changed.connect(lambda w:self.material_reload_pin_changed(w))
         self.materialTempPin.value_changed.connect(lambda w:self.material_temp_pin_changed(w))
-        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-1))
-        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1))
-        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(0))
+        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(1,-1))
+        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1,1))
+        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(1,0))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
         self.w.button_1.released.connect(lambda:self.user_button_released(1))
         self.w.button_2.pressed.connect(lambda:self.user_button_pressed(2))
@@ -1817,6 +1821,9 @@ class HandlerClass:
         self.w.laser.pressed.connect(self.laser_pressed)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
+        self.heightOverridePinPlus.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
+        self.heightOverridePinMinus.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
+        self.heightOverridePinReset.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
