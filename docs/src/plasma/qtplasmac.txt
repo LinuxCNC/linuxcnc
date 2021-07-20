@@ -2995,6 +2995,9 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Abort the loaded gcode program|qtplasmac.ext_abort|CYCLE STOP
 |Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
 |Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
+|Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
+|Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
 |===
 
 The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.

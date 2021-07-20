@@ -1,4 +1,4 @@
-VERSION = '1.0.53'
+VERSION = '1.0.54'
 
 import os, sys
 from shutil import copy as COPY
@@ -671,6 +671,7 @@ class HandlerClass:
         self.runButtonTimer.setSingleShot(True)
         self.runButtonTimer.timeout.connect(self.run_button_timeout)
         self.manualCut = False
+        self.probeTest = False
 
     def get_overlay_text(self, kerf):
         if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
@@ -1218,7 +1219,14 @@ class HandlerClass:
     def abort_pressed(self):
         if self.manualCut:
             ACTION.SET_SPINDLE_STOP(0)
+            if self.mcButton:
+                self.button_normal(self.mcButton)
+                self.w[self.mcButton].setEnabled(False)
             self.w.abort.setEnabled(False)
+            return
+        elif self.probeTest:
+            self.probe_test_stop()
+            return
         else:
             ACTION.ABORT()
         hal.set_p('plasmac.cut-recovery', '0')
@@ -2863,10 +2871,12 @@ class HandlerClass:
             if self.probeTimer.remainingTime() <= 0 and not self.offsetsActivePin.get():
                 self.probeTime = self.ptTime
                 self.probeTimer.start(1000)
+                self.probeTest = True
                 hal.set_p('plasmac.probe-test','1')
                 self.w[self.ptButton].setText('{}'.format(self.probeTime))
                 self.button_active(self.ptButton)
                 self.w.run.setEnabled(False)
+                self.w.abort.setEnabled(True)
                 self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
                 self.w[self.ptButton].setEnabled(True)
             else:
@@ -2877,9 +2887,12 @@ class HandlerClass:
     def probe_test_stop(self):
         self.probeTimer.stop()
         self.probeTime = 0
+        self.probeTest = False
+        self.w.abort.setEnabled(False)
         hal.set_p('plasmac.probe-test','0')
         self.w[self.ptButton].setText(self.probeText)
         self.button_normal(self.ptButton)
+        self.w[self.ptButton].setEnabled(False)
 
     def probe_test_error(self, state):
         if state:
@@ -3044,10 +3057,12 @@ class HandlerClass:
             self.w.abort.setEnabled(False)
             if self.mcButton:
                 self.w[self.mcButton].setEnabled(False)
+                self.button_normal(self.mcButton)
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
             ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
             self.manualCut = True
             self.w.abort.setEnabled(True)
+            self.button_active(self.mcButton)
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
             if self.mcButton:
                 self.w[self.mcButton].setEnabled(True)
@@ -4840,7 +4855,10 @@ class HandlerClass:
         if self.manualCut:
             self.w.abort.setEnabled(False)
             if self.mcButton:
+                self.button_normal(self.mcButton)
                 self.w[self.mcButton].setEnabled(False)
+        if self.probeTest:
+            self.probe_test_stop()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
         if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts():
