@@ -471,6 +471,9 @@ class HandlerClass:
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
+        self.extHeightOvrPlusPin = self.h.newpin('ext_height_ovr_plus', hal.HAL_BIT, hal.HAL_IN)
+        self.extHeightOvrMinusPin = self.h.newpin('ext_height_ovr_minus', hal.HAL_BIT, hal.HAL_IN)
+        self.extHeightOvrResetPin = self.h.newpin('ext_height_ovr_reset', hal.HAL_BIT, hal.HAL_IN)
         self.probeTestErrorPin = self.h.newpin('probe_test_error', hal.HAL_BIT, hal.HAL_IN)
         self.out0Pin = self.h.newpin('ext_out_0', hal.HAL_BIT, hal.HAL_OUT)
         self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
@@ -1227,11 +1230,12 @@ class HandlerClass:
     def user_button_released(self, button):
         self.user_button_up(button)
 
-    def height_ovr_pressed(self, height):
-        if height:
-            self.heightOvr += height * self.w.thc_threshold.value()
-        else:
-            self.heightOvr = 0
+    def height_ovr_pressed(self, state, height):
+        if state:
+            if height:
+                self.heightOvr += height * self.w.thc_threshold.value()
+            else:
+                self.heightOvr = 0
         if self.heightOvr < -10 :self.heightOvr = -10
         if self.heightOvr > 10 :self.heightOvr = 10
         self.heightOverridePin.set(self.heightOvr)
@@ -1698,9 +1702,9 @@ class HandlerClass:
         self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
         self.materialReloadPin.value_changed.connect(lambda w:self.material_reload_pin_changed(w))
         self.materialTempPin.value_changed.connect(lambda w:self.material_temp_pin_changed(w))
-        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(-1))
-        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1))
-        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(0))
+        self.w.height_lower.pressed.connect(lambda:self.height_ovr_pressed(1,-1))
+        self.w.height_raise.pressed.connect(lambda:self.height_ovr_pressed(1,1))
+        self.w.height_reset.pressed.connect(lambda:self.height_ovr_pressed(1,0))
         self.w.button_1.pressed.connect(lambda:self.user_button_pressed(1))
         self.w.button_1.released.connect(lambda:self.user_button_released(1))
         self.w.button_2.pressed.connect(lambda:self.user_button_pressed(2))
@@ -1845,6 +1849,9 @@ class HandlerClass:
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
+        self.extHeightOvrPlusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
+        self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
+        self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))        
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
 
     def set_axes_and_joints(self):
