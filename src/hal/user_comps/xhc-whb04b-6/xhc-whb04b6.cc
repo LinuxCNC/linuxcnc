@@ -512,6 +512,7 @@ void XhcWhb04b6Component::process()
                 linuxcncSimulate();
             }
             updateDisplay();
+	    mHal.monitorResetState();
         }
         updateDisplay();
 

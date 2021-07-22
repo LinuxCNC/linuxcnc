@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <fstream>
 
 // local library includes
 #include "./pendant.h"
@@ -749,11 +750,11 @@ void Hal::setStart(bool enabled)
     if (requestAutoMode(enabled))
     {
         if (enabled)
-    {
-        toggleStartResumeProgram();
+        {
+            toggleStartResumeProgram();
+        }
+        setPin(enabled, KeyCodes::Buttons.start.text);
     }
-    setPin(enabled, KeyCodes::Buttons.start.text);
-}
 
     if (!enabled)
     {
@@ -795,6 +796,23 @@ void Hal::clearStartResumeProgramStates()
     *memory->out.doRunProgram      = false;
     *memory->out.doResumeProgram   = false;
 }
+
+void Hal::checkState(bool state, hal_bit_t *pin) {
+	// 500 milliseconds timeout
+	unsigned int timeouts=500;
+	unsigned int timeoutMs=1;
+	do
+	{
+		if (state == *pin)
+		{
+			usleep(timeoutMs * 1000);
+		}
+		else
+		{
+			break;
+		}
+	} while ((state == *pin) && (--timeouts) > 0);
+}
 // ----------------------------------------------------------------------
 void Hal::toggleStartResumeProgram()
 {
@@ -803,17 +821,21 @@ void Hal::toggleStartResumeProgram()
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = true;
-    }
-    if (*memory->in.isProgramRunning)
+        checkState(true, memory->in.isProgramPaused);
+        *memory->out.doResumeProgram = false;
+    } else if (*memory->in.isProgramRunning)
     {
         *memory->out.doPauseProgram  = true;
+	checkState(false, memory->in.isProgramPaused);
+        *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
-    }
-    if (*memory->in.isProgramIdle)
+    } else if (*memory->in.isProgramIdle)
     {
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = true;
+	checkState(false, memory->in.isProgramRunning);
+        *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
     }
 }
@@ -1373,6 +1395,7 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
 {
     if (isRisingEdge)
     {
+	bool rv;
         if (true == *modeFeedbackPin)
         {
             // shortcut for mode request which is already active
@@ -1381,9 +1404,10 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
         // request mode
         *requestPin = true;
         usleep(mHalRequestProfile.mode.holdMs * 1000);
+	rv = waitForRequestedMode(modeFeedbackPin);
         *requestPin = false;
         usleep(mHalRequestProfile.mode.spaceMs * 1000);
-        return waitForRequestedMode(modeFeedbackPin);
+        return rv;
     }
     else
     {
@@ -1403,6 +1427,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     useconds_t   timeoutMs   = mHalRequestProfile.mode.modeCheckLoopTimeoutMs;
     unsigned int maxTimeouts = mHalRequestProfile.mode.modeCheckLoops;
     unsigned int timeouts    = maxTimeouts;
+
     do
     {
         if (false == *condition)
@@ -1427,29 +1452,45 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     return false;
 }
 // ----------------------------------------------------------------------
+void Hal::monitorResetState() {
+    if (*memory->out.spindleOverrideDoIncrease && expired(mToggleSpindleOverrideIncreaseStamp))
+            *memory->out.spindleOverrideDoIncrease=false;
+    if (*memory->out.spindleOverrideDoDecrease && expired(mToggleSpindleOverrideDecreaseStamp))
+            *memory->out.spindleOverrideDoDecrease=false;
+}
+
+bool Hal::expired(int64_t t) {
+        int64_t timestamp;
+        timestamp = now();
+        if (t<timestamp)
+                return true;
+        else
+                return false;
+}
+
+int64_t Hal::now() {
+        int64_t timestamp;
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        timestamp = (int64_t)(ts.tv_sec*1000)+ts.tv_nsec/1000000;
+        return timestamp;
+}
+
 void Hal::toggleSpindleOverrideIncrease()
 {
-    if (*memory->out.spindleOverrideDoIncrease)
-    {
-        *memory->out.spindleOverrideDoIncrease = false;
-    }
-    else
-    {
-        *memory->out.spindleOverrideScale = 0.01;
-        *memory->out.spindleOverrideDoIncrease = true;
+    if (!*memory->out.spindleOverrideDoIncrease) {
+            mToggleSpindleOverrideIncreaseStamp=now()+50;
+            *memory->out.spindleOverrideDoIncrease=true;
+	    *memory->out.spindleOverrideScale = 0.01;
     }
 }
 // ----------------------------------------------------------------------
 void Hal::toggleSpindleOverrideDecrease()
 {
-    if (*memory->out.spindleOverrideDoDecrease)
-    {
-        *memory->out.spindleOverrideDoDecrease = false;
-    }
-    else
-    {
-        *memory->out.spindleOverrideScale = 0.01;
-        *memory->out.spindleOverrideDoDecrease = true;
+    if (!*memory->out.spindleOverrideDoDecrease) {
+	    mToggleSpindleOverrideDecreaseStamp=now()+50;
+	    *memory->out.spindleOverrideDoDecrease=true;
+	    *memory->out.spindleOverrideScale = 0.01;
     }
 }
 // ----------------------------------------------------------------------

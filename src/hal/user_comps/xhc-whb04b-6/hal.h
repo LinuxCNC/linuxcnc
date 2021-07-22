@@ -549,6 +549,10 @@ public:
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);
+    //! waits until a given pin is set to a requested state 
+    //! \param state requested state
+    //! \param pin requested pin to compare with
+    void checkState(bool state, hal_bit_t *pin);
 
     //! Returns the axis position.
     //! \param absolute true absolute, false relative
@@ -565,7 +569,12 @@ public:
     //! \xrefitem getAxisXPosition(bool)
     hal_float_t getAxisCPosition(bool absolute) const;
 
-
+    //! monitors signals which have to be reset
+    void monitorResetState();
+    //! checks if the counter has expired
+    bool expired(int64_t t);
+    //! retrieves the current monotonic timestamp 
+    int64_t now();
 private:
     HalMemory* memory{nullptr};
     std::map <std::string, size_t> mButtonNameToIdx;
@@ -579,6 +588,8 @@ private:
     HandwheelStepmodes::Mode mStepMode;
     bool mIsSpindleDirectionForward{true};
     Profiles::HalRequestProfile mHalRequestProfile;
+    int64_t mToggleSpindleOverrideIncreaseStamp{0};
+    int64_t mToggleSpindleOverrideDecreaseStamp{0};
 
     //! //! Allocates new hal_bit_t pin according to \ref mIsSimulationMode. If \ref mIsSimulationMode then
     //! mallocs memory, hal_pin_bit_new allocation otherwise.
