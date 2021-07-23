@@ -3000,6 +3000,15 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
 |===
 
+The following HAL pins which allow the use of an MPG to control height override are always created.
+
+[width="100%",cols="2,3"]
+|===
+|*Function*|*HAL Pin*
+|Enable MPG height control|qtplasmac.ext_height_ovr_count_enable
+|MPG height change|qtplasmac.ext_height_ovr_counts
+|===
+
 The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
 
 [width="50%",cols="1,1"]
