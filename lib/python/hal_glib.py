@@ -166,6 +166,8 @@ class _GStat(GObject.GObject):
 
         'feed-hold-enabled-changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
+        'g90-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'g91-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'itime-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'fpm-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'fpr-mode': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
@@ -332,9 +334,11 @@ class _GStat(GObject.GObject):
         self.old['g-code'] = codes
         # extract specific G code modes
         itime = fpm = fpr = css = rpm = metric = False
-        radius = diameter = False
+        radius = diameter = adm = idm = False
         for num,i in enumerate(active_gcodes):
-            if i == 'G93': itime = True
+            if i == 'G90': adm = True
+            elif i == 'G91': idm = True
+            elif i == 'G93': itime = True
             elif i == 'G94': fpm = True
             elif i == 'G95': fpr = True
             elif i == 'G96': css = True
@@ -342,6 +346,8 @@ class _GStat(GObject.GObject):
             elif i == 'G21': metric = True
             elif i == 'G7': diameter  = True
             elif i == 'G8': radius = True
+        self.old['g90'] = adm
+        self.old['g91'] = idm
         self.old['itime'] = itime
         self.old['fpm'] = fpm
         self.old['fpr'] = fpr
@@ -617,6 +623,19 @@ class _GStat(GObject.GObject):
         g5x_index_new = self.old['g5x-index']
         if g5x_index_new != g5x_index_old:
             self.emit('user-system-changed',g5x_index_new)
+
+        # absolute mode g90
+        g90_old = old.get('g90', None)
+        g90_new = self.old['g90']
+        if g90_new != g90_old:
+            self.emit('g90-mode',g90_new)
+
+        # incremental mode g91
+        g91_old = old.get('g91', None)
+        g91_new = self.old['g91']
+        if g91_new != g91_old:
+            self.emit('g91-mode',g91_new)
+
         # inverse time mode g93
         itime_old = old.get('itime', None)
         itime_new = self.old['itime']
@@ -734,6 +753,12 @@ class _GStat(GObject.GObject):
         rpm_new = self.old['rpm']
         self.emit('rpm-mode',rpm_new)
 
+        # absolute mode g90
+        g90_new = self.old['g90']
+        self.emit('g90-mode',g90_new)
+        # incremental mode g91
+        g91_new = self.old['g91']
+        self.emit('g91-mode',g91_new)
         # feed mode:
         itime_new = self.old['itime']
         self.emit('itime-mode',itime_new)
