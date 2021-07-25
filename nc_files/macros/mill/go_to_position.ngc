@@ -1,6 +1,6 @@
 ; MACROCOMMAND=xinc,yinc,zinc
 ; MACRODEFAULTS=0,0,0
-; MACROIMAGE=
+; MACROIMAGE= go_to_position.png
 ; Testfile go to position
 ; will jog the machine to a given position
 
