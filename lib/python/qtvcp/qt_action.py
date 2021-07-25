@@ -125,6 +125,21 @@ class _Lcnc_Action(object):
     def SET_MANUAL_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
 
+    # sets up a python generator that goes through the MDI list of lists.
+    # if it's a command that we have to wait indefinately
+    # ie like a manual tool change.
+    # then we wait for STATUS to return 'command-stopped'
+    # and then continue where we left off.
+    # normal commands just call normal mdi
+    # when the generator ends it forces the return
+    # to the recorded mode.
+    def CALL_MDI_LIST(self, code):
+        self.RECORD_CURRENT_MODE()
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        gen = self.generate_list(code)
+        self.change_mode_after(gen)
+        next(gen)
+
     def CALL_MDI(self, code):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
@@ -712,6 +727,40 @@ class _Lcnc_Action(object):
             return
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
+
+
+    #-------MDI call list helpers----------
+    def change_mode_after(self, gen):
+        self._a = STATUS.connect('command-stopped', lambda w: self.command_stopped(gen))
+        print self._a
+    # when command stops - we try to continue the generator.
+    # if generator is done - return to recorded mode.
+    def command_stopped(self, gen):
+        print gen,'stopped'
+        try:
+            state = next(gen)
+            print gen,'returned:',state
+        except StopIteration:
+            STATUS.handler_disconnect(self._a)
+            self.RESTORE_RECORDED_MODE()
+    # python generator that goes through the MDI list.
+    # if it's a command that we have to wait indefinately
+    # ie like a manual tool change.
+    # then we wait for STATUS to return 'command-stopped'
+    # and then continue where we left off.
+    # normal commands just call normal mdi
+    # when the generator ends it forces the return
+    # to the recorded mode.
+    def generate_list(self,cmdList):
+        for calltype, cmd in cmdList:
+            print calltype, 'cmd', cmd
+            if calltype == 'commandStatusWait':
+                self.cmd.mdi('%s' % cmd)
+                yield cmd
+            else:
+                result = self.CALL_MDI_WAIT(cmd,mode_return=False)
+                if result == -1:
+                    print 'error'
 
     def __getitem__(self, item):
         return getattr(self, item)
