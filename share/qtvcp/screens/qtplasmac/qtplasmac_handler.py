@@ -1,4 +1,4 @@
-VERSION = '1.0.55'
+VERSION = '1.0.56'
 
 import os, sys
 from shutil import copy as COPY
@@ -171,7 +171,6 @@ class HandlerClass:
         self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
-        hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
         self.maxHeight = self.zMax - self.zMin
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
@@ -256,9 +255,13 @@ class HandlerClass:
         self.DEBUG          = 25
 
     def initialized__(self):
+        # only set hal pins after initialized__ has begun
+        # some locales won't set pins before this phase
+        hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
+
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
