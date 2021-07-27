@@ -1193,6 +1193,24 @@ QtPlasmaC will automatically add a line of G-Code to move the Z axis to the corr
 
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
 
+=== Preamble and Postamble Codes
+
+The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-Code file to be run by QtPlasmaC:
+
+Metric:
+----
+G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
+----
+
+Imperial:
+----
+G20 G40 G49 G64p0.004 G80 G90 G92.1 G94 G97
+----
+
+A detailed explanation of each G-Code can be found in the docs link:http://linuxcnc.org/docs/html/gcode/g-code.html[here].
+
+Note that throughout this user guide there are several additional recommendations for codes that are prudent to add to both the preamble and postamble depending on the features the user wishes to utilize.
+
 === Mandatory Codes
 
 Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-Code syntax for QtPlasmaC to run a G-Code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
@@ -1346,9 +1364,9 @@ Using this feature will cause all motion to pause at the end of the cut while th
 
 === Multiple Tools
 
-QtPlasmaC has the ability to allow the use of more than one type of tool when running a G-Code program.
+QtPlasmaC has the ability to allow the use of more than one type of plasma tool by utilizing LinuxCNC spindles as a plasma tool when running a G-Code program.
 
-Valid tools for use are:
+Valid plasma tools for use are:
 
 [width="100%",cols="3,2,10"]
 |===
@@ -1358,7 +1376,7 @@ Valid tools for use are:
 |Plasma Torch|2|Used for spotting (creating dimples to aid in drilling).
 |===
 
-A LinuxCNC tool number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct tool. Examples:
+A LinuxCNCspindle number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool. Examples:
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
 * *M3 $1 S1* will select and start the scribe.
@@ -2502,7 +2520,7 @@ THC has caused the top limit to be reached while cutting:
 
 * *top limit reached while THC moving up program is paused*
 
-These errors indicate move to pierce height would exceed the Z Axis MAX_LIMIT for the corresponding probe method: 
+These errors indicate move to pierce height would exceed the Z Axis MAX_LIMIT for the corresponding probe method:
 
 * *pierce height would exceed Z axis maximum limit condition found while moving to probe height during float switch probing*
 * *pierce height would exceed Z axis maximum limit condition found while moving to probe height during ohmic probing*
@@ -2592,7 +2610,7 @@ NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC and run 
 
 Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It cannot change the layout of the GUI.
 
-Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here]
+Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here].
 
 There are two methods available to apply custom styles:
 
@@ -2814,9 +2832,9 @@ BUTTON_n_CODE = toggle-halpin my-hal-pin-name
 ----
 
 This code is required to be used as a single command and may only control one HAL bit pin per button.
- 
+
 The button colors will follow the state of the halpin.
- 
+
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
 There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
@@ -2834,9 +2852,9 @@ BUTTON_n_CODE = pulse-halpin my-hal-pin-name 0.5
 This code is required to be used as a single command and may only control one HAL bit pin per button.
 
 The delay is specified in seconds, if the delay is not specified then it will default to one second.
- 
+
 The button colors will follow the state of the halpin.
- 
+
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
 
 There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
@@ -3298,7 +3316,7 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     n is the percentage to set +
     10 is the minimum, below this will be set to 100% +
     100 is the maximum, above this will be set to 100%
-    *It is recommended to have M68 E3 Q0 in preamble and postamble*
+    *It is recommended to have M68 E3 Q0 in both the preamble and postamble*
 |Cutter <<qt_cutter-compensation, compensation>> - left of path
    |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
 |Cutter <<qt_cutter-compensation, compensation>> - right of path
