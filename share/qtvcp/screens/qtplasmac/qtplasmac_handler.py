@@ -1,4 +1,4 @@
-VERSION = '1.0.56'
+VERSION = '1.0.57'
 
 import os, sys
 from shutil import copy as COPY
@@ -255,9 +255,6 @@ class HandlerClass:
         self.DEBUG          = 25
 
     def initialized__(self):
-        # only set hal pins after initialized__ has begun
-        # some locales won't set pins before this phase
-        hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
@@ -314,6 +311,9 @@ class HandlerClass:
         self.set_color_styles()
         if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
             ACTION.DISABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
+        # only set hal pins after initialized__ has begun
+        # some locales won't set pins before this phase
+        self.thcFeedRatePin.set(self.thcFeedRate)
         self.startupTimer.start(250)
         if self.firstRun is True:
             self.firstRun = False
@@ -480,12 +480,11 @@ class HandlerClass:
         self.extHeightOvrResetPin = self.h.newpin('ext_height_ovr_reset', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrCountsPin = self.h.newpin('ext_height_ovr_counts', hal.HAL_S32, hal.HAL_IN)
         self.extHeightOvrCountEnablePin = self.h.newpin('ext_height_ovr_count_enable', hal.HAL_BIT, hal.HAL_IN)
-        
-        
         self.probeTestErrorPin = self.h.newpin('probe_test_error', hal.HAL_BIT, hal.HAL_IN)
         self.out0Pin = self.h.newpin('ext_out_0', hal.HAL_BIT, hal.HAL_OUT)
         self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
         self.out2Pin = self.h.newpin('ext_out_2', hal.HAL_BIT, hal.HAL_OUT)
+        self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -502,6 +501,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:arc-ok-high', 'qtplasmac.arc_ok_high-f', 'plasmac.arc-ok-high'])
         CALL(['halcmd', 'net', 'plasmac:arc-ok-low', 'qtplasmac.arc_ok_low-f', 'plasmac.arc-ok-low'])
         #thc parameters
+        CALL(['halcmd', 'net', 'plasmac:thc-feed-rate', 'plasmac.thc-feed-rate', 'qtplasmac.thc_feed_rate'])
         CALL(['halcmd', 'net', 'plasmac:thc-delay', 'qtplasmac.thc_delay-f', 'plasmac.thc-delay'])
         CALL(['halcmd', 'net', 'plasmac:thc-threshold', 'qtplasmac.thc_threshold-f', 'plasmac.thc-threshold'])
         CALL(['halcmd', 'net', 'plasmac:pid-p-gain', 'qtplasmac.pid_p_gain-f', 'plasmac.pid-p-gain'])
@@ -1256,18 +1256,15 @@ class HandlerClass:
         if self.heightOvr > 10 :self.heightOvr = 10
         self.heightOverridePin.set(self.heightOvr)
         self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
-        
+
     def height_ovr_encoder(self,value):
-        if (value != self.old_ovr_counts and self.extHeightOvrCountEnablePin.get()): 
+        if (value != self.old_ovr_counts and self.extHeightOvrCountEnablePin.get()):
             self.heightOvr += (value-self.old_ovr_counts) * self.w.thc_threshold.value()
             if self.heightOvr < -10 :self.heightOvr = -10
             if self.heightOvr >  10 :self.heightOvr =  10
             self.heightOverridePin.set(self.heightOvr)
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         self.old_ovr_counts = value
-            
-		
-			
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -1573,7 +1570,7 @@ class HandlerClass:
                 self.color_last_tab(self.backColor, self.foreColor)
             else:
                 self.color_last_tab(self.foreColor, self.backColor)
-    
+
     def color_last_tab(self, fg, bg):
         self.w.main_tab_widget.setStyleSheet( \
                 'QTabBar::tab:last {{ color: {}; background: {} }}'.format(fg, bg))
@@ -1879,8 +1876,8 @@ class HandlerClass:
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
         self.extHeightOvrPlusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
-        self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0)) 
-        self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))    
+        self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
+        self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
 
     def set_axes_and_joints(self):
