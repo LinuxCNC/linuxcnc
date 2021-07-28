@@ -732,14 +732,11 @@ class _Lcnc_Action(object):
     #-------MDI call list helpers----------
     def change_mode_after(self, gen):
         self._a = STATUS.connect('command-stopped', lambda w: self.command_stopped(gen))
-        print self._a
     # when command stops - we try to continue the generator.
     # if generator is done - return to recorded mode.
     def command_stopped(self, gen):
-        print gen,'stopped'
         try:
             state = next(gen)
-            print gen,'returned:',state
         except StopIteration:
             STATUS.handler_disconnect(self._a)
             self.RESTORE_RECORDED_MODE()
@@ -753,14 +750,13 @@ class _Lcnc_Action(object):
     # to the recorded mode.
     def generate_list(self,cmdList):
         for calltype, cmd in cmdList:
-            print calltype, 'cmd', cmd
             if calltype == 'commandStatusWait':
                 self.cmd.mdi('%s' % cmd)
                 yield cmd
             else:
                 result = self.CALL_MDI_WAIT(cmd,mode_return=False)
                 if result == -1:
-                    print 'error'
+                    log.debug('MDI command {} failed.'.format(cmd))
 
     def __getitem__(self, item):
         return getattr(self, item)
