@@ -419,13 +419,13 @@ def index_lathe_tool_with_wear(self,**words):
     # only run this if we are really moving the machine
     # skip this if running task for the screen
     if not self.task:
-        return INTERP_OK
+        yield INTERP_OK
     try:
         # check there is a tool number from the Gcode
         cblock = self.blocks[self.remap_level]
         if not cblock.t_flag:
             self.set_errormsg("T requires a tool number")
-            return INTERP_ERROR
+            yield INTERP_ERROR
         tool_raw = int(cblock.t_number)
 
         # interpet the raw tool number into tool and wear number
@@ -443,7 +443,7 @@ def index_lathe_tool_with_wear(self,**words):
             (status, pocket) = self.find_tool_pocket(tool)
             if status != INTERP_OK:
                 self.set_errormsg("T%d: tool entry not found" % (tool))
-                return status
+                yield status
         else:
             tool = -1
             pocket = -1
@@ -462,10 +462,10 @@ def index_lathe_tool_with_wear(self,**words):
         emccanon.SELECT_TOOL(self.selected_tool)
         if self.selected_pocket < 0:
             self.set_errormsg("T0 not valid")
-            return INTERP_ERROR
+            yield INTERP_ERROR
         if self.cutter_comp_side:
             self.set_errormsg("Cannot change tools with cutter radius compensation on")
-            return INTERP_ERROR
+            yield INTERP_ERROR
         self.params["tool_in_spindle"] = self.current_tool
         self.params["selected_tool"] = self.selected_tool
         self.params["current_pocket"] = self.current_pocket
@@ -483,7 +483,7 @@ def index_lathe_tool_with_wear(self,**words):
             self.toolchange_flag = True
         except:
             self.set_errormsg("T change aborted (return code %.1f)" % (self.return_value))
-            return INTERP_ERROR
+            yield INTERP_ERROR
 
         # add tool offset
         self.execute("g43 h%d"% tool)
@@ -491,13 +491,13 @@ def index_lathe_tool_with_wear(self,**words):
         try:
             if wear>10000:
                 self.execute("g43.2 h%d"% wear)
-            return INTERP_OK
+            yield INTERP_OK
         except:
             self.set_errormsg("Tool change aborted - No wear %d entry found in tool table" %wear)
-            return INTERP_ERROR
+            yield INTERP_ERROR
     except:
         self.set_errormsg("Tool change aborted (return code %.1f)" % (self.return_value))
-        return INTERP_ERROR
+        yield INTERP_ERROR
 
 
 # REMAP=M6 modalgroup=10 python=tool_probe_m6
