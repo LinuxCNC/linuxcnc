@@ -51,9 +51,14 @@ class mitsubishi_serial:
             )
             self.ser.open()
             self.ser.isOpen()
-        except:
-            print("ERROR : mitsub_vfd - No serial interface found at %s"% port)
-            raise SystemExit
+        except Exception as e:
+            try:
+                self.ser.close()
+                self.ser.open()
+            except:
+                print("ERROR : mitsub_vfd - No serial interface found at %s\nError: %s"% (port,e))
+                pass
+            #raise SystemExit
         print("Mitsubishi VFD serial computer link has loaded")
         print("Port: %s,\nbaudrate: %d\n8 data bits, no parity, 2 stop bits\n"%(port,baudrate))
 
@@ -71,11 +76,15 @@ class mitsubishi_serial:
             c.newpin("motor-cmd", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("motor-fb", hal.HAL_FLOAT, hal.HAL_OUT)
             c.newpin("motor-amps", hal.HAL_FLOAT, hal.HAL_OUT)
+            c.newpin("motor-volts", hal.HAL_FLOAT, hal.HAL_OUT)
             c.newpin("motor-power", hal.HAL_FLOAT, hal.HAL_OUT)
+            c.newpin("motor-user", hal.HAL_FLOAT, hal.HAL_OUT)
             c.newpin("scale-cmd", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("scale-fb", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("scale-amps", hal.HAL_FLOAT, hal.HAL_IN)
+            c.newpin("scale-volts", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("scale-power", hal.HAL_FLOAT, hal.HAL_IN)
+            c.newpin("scale-user", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("estop", hal.HAL_BIT, hal.HAL_IN)
             c.newpin("stat-bit-0", hal.HAL_BIT, hal.HAL_OUT)
             c.newpin("stat-bit-1", hal.HAL_BIT, hal.HAL_OUT)
@@ -89,7 +98,9 @@ class mitsubishi_serial:
             c['scale-cmd'] = 1
             c['scale-fb'] = 1
             c['scale-amps'] = 1
+            c['scale-volts'] = 1
             c['scale-power'] = 1
+            c['scale-user'] = 1
             c['fwd'] = 1
             # flags for each device
             self['last_run%d'%index] = c['run']
@@ -100,9 +111,11 @@ class mitsubishi_serial:
             #add device to component reference variable
             self.h.append(c)
             print("Mitsubishi %s VFD: slave# %s added\n"%(name[0],name[1]))
+
         # only issue ready when all the components are ready
         for i in self.h:
             i.ready()
+        self.set_special_monitor()
 
     def loop(self):
         cmd = data = out = temp=''
@@ -165,7 +178,6 @@ class mitsubishi_serial:
                     out = temp = ''
                     self.ser.write(word)
                     time.sleep(.05)
-                    time.sleep(.05)
                     string,chr_list,chr_hex = self.poll_output()
                     if self.h[index]['debug']:
                         print('DEBUG: ',chr_list,chr_hex)
@@ -175,6 +187,35 @@ class mitsubishi_serial:
                         if self.h[index]['debug'] and 1==2:
                             print('monitor amps:',decimal,string,string[3:7], len(string))
 
+                # volts
+                    word = self.prepare_data("71",None)
+                    out = temp = ''
+                    self.ser.write(word)
+                    time.sleep(.05)
+                    string,chr_list,chr_hex = self.poll_output()
+                    if self.h[index]['debug']:
+                        print('DEBUG: ',chr_list,chr_hex)
+                    if chr_list != '':
+                        decimal = int(string[3:7],16)
+                        self.h[index]["motor-volts"] = decimal *.01 * self.h[index]["scale-volts"]
+                        if self.h[index]['debug'] and 1==2:
+                            print('monitor volts:',decimal,string,string[3:7], len(string))
+                # Power
+                    self.h[index]["motor-power"] = self.h[index]["motor-volts"] * self.h[index]["motor-amps"] * 2.7
+
+                # special user selected monitor
+                    word = self.prepare_data("72",None)
+                    out = temp = ''
+                    self.ser.write(word)
+                    time.sleep(.05)
+                    string,chr_list,chr_hex = self.poll_output()
+                    if self.h[index]['debug']:
+                        print('DEBUG: ',chr_list,chr_hex)
+                    if chr_list != '':
+                        decimal = int(string[3:7],16)
+                        self.h[index]["motor-user"] = decimal * self.h[index]["scale-user"]
+                        if self.h[index]['debug'] and 1==2:
+                            print('monitor user selectable:',decimal,string,string[3:7], len(string))
 
                 # STOP ON ESTOP
                 # if ESTOP is false it stops the output
@@ -188,6 +229,13 @@ class mitsubishi_serial:
                         self['last_estop%d'%index] = self.h[index]['estop']
                         print("**** Mitsubishi VFD: %s stopped due to Estop Signal"% ids[0])
                         continue
+                    else:
+                        # reset VFD after estop
+                        cmd = "FD";data = None
+                        word = self.prepare_data(cmd,data)
+                        self.ser.write(word)
+                        time.sleep(.05)
+                    
                     print("**** Mitsubishi VFD: Estop cleared - Must re-issue run command to start %s." % ids[0])
                     self['last_estop%d'%index] = self.h[index]['estop']
 
@@ -236,9 +284,19 @@ class mitsubishi_serial:
             except KeyboardInterrupt:
                     self.kill_output()
                     raise
-            except:
+            except Exception as e:
                     print("error",ids)
                     print(sys.exc_info()[0])
+                    print (e)
+
+    # defaults to power in kw
+    def set_special_monitor(self, option = '0E'):
+        cmd="F3"
+        for index,ids in enumerate(self.comp_names):
+            self.slave_num = ids[1]
+            word = self.prepare_data(cmd,option)
+            self.ser.write(word)
+            time.sleep(.05)
 
     def kill_output(self):
         cmd = "FA";data ="00"
@@ -258,12 +316,12 @@ class mitsubishi_serial:
             letter = combined[i]
             s=s+ord(letter.upper())
         converted_data = chr(0x5) + combined + hex(s)[-2:-1].upper() + hex(s)[-1:].upper()
-        return converted_data
+        return bytes(converted_data, 'utf-8')
 
     def poll_output(self):
         string = chr_list_out = hex_out = ''
         while self.ser.inWaiting() > 0:
-            raw = self.ser.read(1)
+            raw = self.ser.read(1).decode()
             chr_list_out += raw+','
             string += raw
             hex_out += hex(ord(raw))
