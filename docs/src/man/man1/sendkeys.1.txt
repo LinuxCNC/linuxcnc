@@ -33,7 +33,7 @@ which is not available by default. To give access:
 
 Create the uinput group and add the LinuxCNC user to it:
 
-    sudo groupdadd -f uinput
+    sudo groupadd -f uinput
     sudo gpasswd -a username uinput
 
 Create a new entry in .B/etc/udev/rules.d/99-input.rules
