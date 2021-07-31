@@ -39,8 +39,7 @@ build-stamp:
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
             $(enable_build_documentation) \
-	    --disable-check-runtime-deps \
-            --with-python=/usr/bin/python2.7
+	    --disable-check-runtime-deps
 	(cd src; $(MAKE) $(MAKEFLAGS))
 	$(if $(enable_build_documentation),(cd src; $(MAKE) $(MAKEFLAGS) docs))
 	touch build-stamp
@@ -49,7 +48,7 @@ clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-
+	py3clean .
 	cd src && ./autogen.sh
 	cd src && ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
@@ -81,6 +80,7 @@ install: build
 
 	-(cd debian/@EXTRAS@ && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	py3clean .
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
 ifneq "$(enable_build_documentation)" ""

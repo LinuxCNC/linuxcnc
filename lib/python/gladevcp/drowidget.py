@@ -14,15 +14,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os,pango
+import sys,os
 import math
 import linuxcnc
 
-try:
-    import gobject,gtk
-except:
-    print('GTK not available')
-    sys.exit(1)
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GLib
+
 # we put this in a try so there is no error in the glade editor
 # linuxcnc is probably not running then 
 try:
@@ -30,37 +31,37 @@ try:
 except:
     pass
 
-class HAL_DRO(gtk.Label):
+class HAL_DRO(Gtk.Label):
     __gtype_name__ = 'HAL_DRO'
     __gproperties__ = {
-        'display_units_mm' : ( gobject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'actual' : ( gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'diameter' : ( gobject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'mm_text_template' : ( gobject.TYPE_STRING, 'Text template for Metric Units',
+        'display_units_mm' : ( GObject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'actual' : ( GObject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'diameter' : ( GObject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'mm_text_template' : ( GObject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%10.3f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'imperial_text_template' : ( gobject.TYPE_STRING, 'Text template for Imperial Units',
+                "%10.3f", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'imperial_text_template' : ( GObject.TYPE_STRING, 'Text template for Imperial Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%9.4f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'joint_number' : ( gobject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
-                    0, 8, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'reference_type' : ( gobject.TYPE_INT, 'Reference Type', '0: Absolute  1:Relative  2:Distance-to-go',
-                    0, 2, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                "%9.4f", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'joint_number' : ( GObject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
+                    0, 8, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'reference_type' : ( GObject.TYPE_INT, 'Reference Type', '0: Absolute  1:Relative  2:Distance-to-go',
+                    0, 2, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     def __init__(self, *a, **kw):
-        gtk.Label.__init__(self, *a, **kw)
+        Gtk.Label.__init__(self, *a, **kw)
         self.emc = linuxcnc
         self.status = self.emc.stat()
         self.display_units_mm=0
         self.machine_units_mm=0
         self.unit_convert=[1]*9
 
-        gobject.timeout_add(100, self.periodic)
+        GLib.timeout_add(100, self.periodic)
 
         try:
             self.inifile = self.emc.ini(INIPATH)
@@ -189,18 +190,18 @@ class HAL_DRO(gtk.Label):
 
 # for testing without glade editor:
 def main():
-    window = gtk.Dialog("My dialog",
+    window = Gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     dro = HAL_DRO()
     window.vbox.add(dro)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == Gtk.ResponseType.ACCEPT:
        print("ok")
     else:
        print("cancel")

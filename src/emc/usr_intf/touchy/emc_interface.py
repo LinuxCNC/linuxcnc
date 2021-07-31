@@ -452,7 +452,11 @@ class emc_status:
                         
                 
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
-                set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
+
+                if lathe:
+                    set_text(self.status['tlo'], "X:%.4f Z:%.4f" % (self.emcstat.tool_offset[0], self.emcstat.tool_offset[2]))
+                else:
+                    set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
 
                 cs = self.emcstat.g5x_index
                 if cs<7:

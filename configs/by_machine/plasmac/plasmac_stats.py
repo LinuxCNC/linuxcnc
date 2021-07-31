@@ -23,10 +23,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
-import gtk
 import linuxcnc
-import gobject
 import hal
 import hal_glib
 import time

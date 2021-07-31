@@ -82,13 +82,13 @@ With the release of the Mesa THCAD voltage to frequency interface, LinuxCNC was 
 
 Jim Colt of Hypertherm is on record saying that the best THC controllers were fully integrated into the CNC controller itself. Of course he was referring to high end systems manufactured by Hypertherm, Esab, Thermal Dynamics and others such as Advanced Robotic Technology in Australia, little dreaming that open source could produce systems using this approach that rival high end systems.
 
-The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:plasmac-user-guide,PlasmaC>> configuration was incorporated into LinuxCNC 2.8. This has been an extremely ambitious project and many people around the globe have been involved in testing and improving the feature set. PlasmaC is unique in that its design goal was to support all THCs including the simple bit bang ones through to sophisticated torch voltage control if the voltage is made available to LinuxCNC via a THCAD or some other voltage sensor. What’s more, PlasmaC is designed to be a stand alone system that does not need any additional G-Code subroutines and allows the user to define their own cut charts that are stored in the system and accessible by a drop-down.
+The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:qtplasmac, QtPlasmaC>> configuration was incorporated into LinuxCNC 2.8. This has been an extremely ambitious project and many people around the globe have been involved in testing and improving the feature set. QtPlasmaC is unique in that its design goal was to support all THCs including the simple bit bang ones through to sophisticated torch voltage control if the voltage is made available to LinuxCNC via a THCAD or some other voltage sensor. What’s more, QtPlasmaC is designed to be a stand alone system that does not need any additional G-Code subroutines and allows the user to define their own cut charts that are stored in the system and accessible by a drop-down.
 
 == Arc OK Signal
 
 Plasma machines that have a CNC interface contain a set of dry contacts (eg a relay) that close when a valid arc is established and each side of these contacts are bought out onto pins on the CNC interface. A plasma table builder should connect one side of these pins to field power and the other to an input pin. This then allows the CNC controller to know when a valid arc is established and also when an arc is lost unexpectedly. There is a potential trap here when the input is a high impedance circuit such as a Mesa card. If the dry contacts are a simple relay, there is a high probability that the current passing through the relay is less than the minimum current specification. Under these conditions, the relay contacts can suffer from a buildup of oxide which over time can result in intermittent contact operation. To prevent this from happening, a pull down resistor should be installed on the controller input pin. Care should be taken to ensure that this resistor is selected to ensure the minimum current passes through the relay and is of sufficient wattage to handle the power in the circuit. Finally, the resistor should be mounted in such a way that the generated heat does not damage anything whilst in operation.
 
-If you have an ArcOK signal, it is recommended it is used over and above any synthesised signal to eliminate potential build issues. A synthesised signal available from an external THC or Plasmac’s Mode 0 can’t fully replace the ArcOK circuitry in a plasma inverter. Some build issues have been observed where misconfiguration or incompatibility with the plasma inverter has occurred from a synthesised ArcOK signal. By and large however, a correctly configured synthesised ArcOK signal is fine. 
+If you have an ArcOK signal, it is recommended it is used over and above any synthesised signal to eliminate potential build issues. A synthesised signal available from an external THC or QtPlasmaC’s Mode 0 can’t fully replace the ArcOK circuitry in a plasma inverter. Some build issues have been observed where misconfiguration or incompatibility with the plasma inverter has occurred from a synthesised ArcOK signal. By and large however, a correctly configured synthesised ArcOK signal is fine. 
 
 A simple and effective arcOK signal can be achieved with a simple reed relay. Wrap 3 turns of one of the plasma cutter’s thick cables (eg the material clamp cable) around it. Place the relay in an old pen tube for protection and  connect one side of the relay to field power and the other end to your ArcOK input pin.
 
@@ -114,7 +114,7 @@ Ohmic sensing relies on contact between the torch and the material acting as a s
 . Both sides of the circuit needs to be isolated by opto-isolated relays until probing is being undertaken
 . Blocking diodes be used to prevent arc voltage entering the ohmic sensing circuit.
 
-The following is an example circuit that has been proven to work and is compatible with the Linuxcnc PlasmaC configuration.
+The following is an example circuit that has been proven to work and is compatible with the Linuxcnc QtPlasmaC configuration.
 
 image::images/primer_ohmic-sensing.png[width=100%]
 
@@ -136,7 +136,7 @@ We used a 15W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24V DIN rail based iso
 
 .Example HAL Code for Hypersensing
 
-The following HAL code can be pasted into your plasmac_connections.hal to enable Ohmic sensing on Encoder 2 of a 7i76e. Install the correct bit file and connect the THCAD to IDX+ and IDX-. Be sure to change the calibration settings to agree with your THCAD-5.
+The following HAL code can be pasted into your QtPlasmaC's custom.hal to enable Ohmic sensing on Encoder 2 of a 7i76e. Install the correct bit file and connect the THCAD to IDX+ and IDX-. Be sure to change the calibration settings to agree with your THCAD-5.
 
 ----
 # --- Load the Component ---
@@ -157,7 +157,7 @@ setp ohmicsense.ohmic-threshold      22.0
 setp ohmicsense.ohmic-low            1.0
 net ohmic-vel ohmicsense.velocity-in <= hm2_7i76e.0.encoder.02.velocity
 
-# --- Replace Plasmac’s Ohmic sensing signal --- 
+# --- Replace QtPlasmaC’s Ohmic sensing signal --- 
 unlinkp debounce.0.2.in
 net ohmic-true ohmicsense.ohmic-on => debounce.0.2.in
 net plasmac:ohmic-enable    =>  ohmicsense.is-probing
@@ -222,7 +222,7 @@ This slow down can be achieved by manipulating the feed rate directly in your po
 From the preceding discussion it is evident that the plasma controller needs to know the feed rate set by the user. This poses a problem with LinuxCNC because the Feedrate is not saved by LinuxCNC after the G-Code is buffered and parsed. There are two approaches to work around this:
 
 . Remap the F command and save the commanded feedrate set in G-Code via an M67/M68 command
-. Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-Code program (as PlasmaC does)
+. Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-Code program (as QtPlasmaC does)
 
 One experimental Linuxcnc branch that would be useful for plasma cutting was the state tags branch. This adds a “tag” that is available to motion containing the current feed and speed rates for all active motion commands. It has been merged and will be in LinuxCNC v2.9
 
@@ -232,7 +232,7 @@ Plasma cutters require several additional pins. In LinuxCNC, there are no hard a
 
 Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint. The exception might be the Z axis lower limit. When a homing switch is triggered the joint decelerates fairly slowly for maximum accuracy. This means that if you wish to use homing velocities that are commensurate with table size, you can overshoot the initial trigger point by 50-100mm. If you use a shared home/limit switch, you have to move the sensor off the trigger point with the final HOME_OFFSET or you will trigger a limit switch fault as the machine comes out of homing. This means you could lose 50mm or more of axis travel with shared home/limit switches. This does not happen if separate home and limit switches are used.
 
-The following pins are usually required (note that suggested connections may not be appropriate for a PlasmaC configuration):
+The following pins are usually required (note that suggested connections may not be appropriate for a QtPlasmaC configuration):
 
 === Arc OK (input)
 
@@ -265,7 +265,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 
 * See the <<ohmic-sensing,ohmic sensing>> schematic.
 * Connect output pin to one side of the isolation relays and the other side to field power ground.
-* In a non-PlasmaC configuration, usually triggered by a 'motion.digital-out-<nn>' so it can be controlled in G-Code by M62/M63/M64/M65
+* In a non-QtPlasmaC configuration, usually triggered by a 'motion.digital-out-<nn>' so it can be controlled in G-Code by M62/M63/M64/M65
 
 
 === Ohmic Sensing (input)
@@ -286,9 +286,9 @@ As can be seen, plasma tables are pin intensive and we have already consumed abo
 
 == G-Code For Plasma Controllers
 
-Most plasma controllers offer a method to change settings from G-Code. Linuxcnc support this via M67/M68 for analog commands and M62-M65 for digital (on/off commands). How this is implemented is totally arbitrary. Lets look at how the LinuxCNC PlasmaC configuration does this:
+Most plasma controllers offer a method to change settings from G-Code. Linuxcnc support this via M67/M68 for analog commands and M62-M65 for digital (on/off commands). How this is implemented is totally arbitrary. Lets look at how the LinuxCNC QtPlasmaC configuration does this:
 
-=== Select Material Settings In PlasmaC And Use The Feedrate For That Material:
+=== Select Material Settings In QtPlasmaC And Use The Feedrate For That Material:
 
 ----
 M190 Pn
@@ -297,7 +297,7 @@ F#<_hal[plasmac.cut-feed-rate]>
 M3 S1
 ----
 
-NOTE: Users with a large number of entries in the PlasmaC Materials Table may need to increase the Q1 parameter (eg Q2)
+NOTE: Users with a very large number of entries in the QtPlasmaC Materials Table may need to increase the Q1 parameter (eg Q2)
 
 === Enable/Disable THC Operation:
 
@@ -477,17 +477,17 @@ In plasma cutting, speed and acceleration are king. The higher the acceleration,
 
 Stepper motors suffer from resonance and a direct drive pinion is likely to mean that the motor is operating under unfavourable conditions. Ideally, for plasma machines a distance of around 15-25mm per motor revolution is considered ideal but even around 30mm per revolutions is still acceptable. A 5mm pitch ball screw with a 3:1 or 5:1 reduction drive is ideal for the Z axis.
 
-== PlasmaC LinuxCNC Plasma Configuration
+== QtPlasmaC LinuxCNC Plasma Configuration
 
-The <<cha:plasmac-user-guide,PlasmaC configuration>> which is comprised of a HAL component (plasmac.hal) plus complete configurations for Axis and Gmoccapy has received considerable input from many in the LinuxCNC Open Source movement that have advanced the understanding of plasma controllers since about 2015. There has been much testing and development work in getting PlasmaC to its current working state. Everything from circuit design to G-Code control and configuration has been included. Additionally, PlasmaC supports external THC’s such as the Proma 150 but really comes into its own when paired with a Mesa controller as this allows the integrator to include the Mesa THCAD voltage to frequency converter which is purpose built to deal with the hostile plasma environment.
+The <<cha:qtplasmac, QtPlasmaC configuration>> which is comprised of a HAL component (plasmac.hal) plus a complete configurations for the QtPlasmaC GUI has received considerable input from many in the LinuxCNC Open Source movement that have advanced the understanding of plasma controllers since about 2015. There has been much testing and development work in getting QtPlasmaC to its current working state. Everything from circuit design to G-Code control and configuration has been included. Additionally, QtPlasmaC supports external THC’s such as the Proma 150 but really comes into its own when paired with a Mesa controller as this allows the integrator to include the Mesa THCAD voltage to frequency converter which is purpose built to deal with the hostile plasma environment.
 
-PlasmaC is designed to stand alone and includes the ability to include your cutting charts yet also includes features to be used with a post processor like SheetCam.
+QtPlasmaC is designed to stand alone and includes the ability to include your cutting charts yet also includes features to be used with a post processor like SheetCam.
 
-The PlasmaC system is now included in Version 2.8 and above of Linuxcnc. Its now quite mature and has been significantly enhanced since the first version of this guide was written. Plasmac will define LinuxCNC’s plasma support for many years to come as it includes all of the features a proprietary high end plasma control system at an open source price.
+The QtPlasmaC system is now included in Version 2.9 and above of Linuxcnc. Its now quite mature and has been significantly enhanced since the first version of this guide was written. QtPlasmaC will define LinuxCNC’s plasma support for many years to come as it includes all of the features a proprietary high end plasma control system at an open source price.
 
 == Hypertherm RS485 Control
 
-Some Hypertherm plasma cutters have a RS485 interface to allow the controller (eg. Linuxcnc) to set amps.pressure and mode. A number of people have used a userspace component written in Python to achieve this. More recently, Plasmac now supports this interface natively. Refer to the Plasmac documentation for how to use it.
+Some Hypertherm plasma cutters have a RS485 interface to allow the controller (eg. Linuxcnc) to set amps.pressure and mode. A number of people have used a userspace component written in Python to achieve this. More recently, QtPlasmaC now supports this interface natively. Refer to the QtPlasmaC documentation for how to use it.
 
 The combination of a slow baud rate used by Hypertherm and the userspace component, make this fairly slow to alter machine states so it generally not viable to change settings on the fly while cutting.
 
@@ -497,7 +497,7 @@ When selecting a RS485 interface to use at the PC end, users have reported that 
 
 CAM programs (Computer Aided Manufacture) are the bridge between CAD (Computer Aided Design) and the final CNC (Computer Numerical Control) operation. They often include a user configurable post processor to define the code that is generated for a specific machine or dialect of G-Code.
 
-Many Linuxcnc users are perfectly happy with using Inkscape to convert .SVG vector based files to G-Code. If you are using a plasma for hobby or home use, consider this option. However, if your needs are more complex, probably the best and most reasonably priced solution is SheetCam. SheetCam supports both Windows and Linux and post processors are available for it including the PlasmaC configuration. SheetCam allows you to nest parts over a full sheet of material and allows you to configure toolsets and code snippets to suit your needs. SheetCam post processors are text files written in the Lua programming language and are generally easy to modify to suit your exact requirements. For further information, consult the https://sheetcam.com[SheetCam web site] and their support forum.
+Many Linuxcnc users are perfectly happy with using Inkscape to convert .SVG vector based files to G-Code. If you are using a plasma for hobby or home use, consider this option. However, if your needs are more complex, probably the best and most reasonably priced solution is SheetCam. SheetCam supports both Windows and Linux and post processors are available for it including the QtPlasmaC configuration. SheetCam allows you to nest parts over a full sheet of material and allows you to configure toolsets and code snippets to suit your needs. SheetCam post processors are text files written in the Lua programming language and are generally easy to modify to suit your exact requirements. For further information, consult the https://sheetcam.com[SheetCam web site] and their support forum.
 
 Another popular post-processor is included with the popular Fusion360 package but the included post-processors will need some customisation.
 

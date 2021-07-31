@@ -32,7 +32,6 @@
 <doc name="gcode_mill_canned" title="Gcode Mill Canned Cycle Examples"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
 <doc name="plasma_qtplasmac" title="GUI: QtPlasmaC"/>
-<doc name="plasma_plasmac-user-guide" title="PlasmaC User Guide"/>
 <doc name="plasma_plasma-cnc-primer" title="Plasma CNC Primer"/>
 <doc name="gcode_rs274ngc" title="RS-274/NGC Gcode"/>
 <doc name="examples_gcode" title="Gcode Examples"/>

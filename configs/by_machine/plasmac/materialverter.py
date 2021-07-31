@@ -109,7 +109,7 @@ class materialConverter:
     def on_infile_button_press_event(self,button,event):
         self.outLabel.set_text('')
         dlg = gtk.FileChooserDialog("Open..", None, gtk.FILE_CHOOSER_ACTION_OPEN,
-          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.ResponseType.OK))
         if self.inSheetcam.get_active():
             filter = gtk.FileFilter()
             filter.set_name("SheetCam Tool File (*.tools)")
@@ -121,7 +121,7 @@ class materialConverter:
             filter.add_pattern("*.[Jj][Ss][Oo][Nn]")
             dlg.add_filter(filter)
         response = dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == gtk.ResponseType.OK:
             self.inFile.set_text(dlg.get_filename())
             self.inFileName = dlg.get_filename()
         else:
@@ -132,9 +132,9 @@ class materialConverter:
     def on_outfile_button_press_event(self,button,event):
         self.outLabel.set_text('')
         dlg = gtk.FileChooserDialog("Save..", None, gtk.FILE_CHOOSER_ACTION_SAVE,
-          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.ResponseType.OK))
         response = dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == gtk.ResponseType.OK:
             self.outFile.set_text(dlg.get_filename())
             self.outFileName = dlg.get_filename()
         else:
@@ -213,7 +213,7 @@ class materialConverter:
             self.fNUM = str(int(self.fNUM) + 1)
         if self.inManual.get_active():
             getParams = self.fusion_dialog()
-            if getParams == gtk.RESPONSE_REJECT:
+            if getParams == gtk.ResponseType.REJECT:
                 return
             self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
             self.materialName = 'NAME               = {}'.format(self.fNAM)
@@ -325,7 +325,7 @@ class materialConverter:
                 lCS = self.find_key(t, 'v_f')
                 lKW = t['geometry']['CW']
                 getParams = self.fusion_dialog()
-                if getParams == gtk.RESPONSE_REJECT:
+                if getParams == gtk.ResponseType.REJECT:
                     return
                 self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
                 self.materialName = 'NAME               = {}'.format(self.fNAM)
@@ -395,9 +395,9 @@ class materialConverter:
     def fusion_dialog(self):
         dialog = gtk.Dialog('CUT PARAMETERS',
                             self.W,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                            gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            (gtk.STOCK_OK, gtk.ResponseType.ACCEPT,
+                            gtk.STOCK_CANCEL, gtk.ResponseType.REJECT))
         topL = gtk.Label('Items with a *** are mandatory')
         infL = gtk.Label('For Material # {}\n{}'.format(self.fNUM,self.fNAM))
         dNUl = gtk.Label('Material Number ***')

@@ -17,26 +17,35 @@
 
 import os, time, string
 
-import gobject, gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import GObject
 
-from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from .hal_actions import _EMC_ActionBase, ensure_mode
+
+if __name__ == "__main__":
+    from hal_actions import _EMC_ActionBase, ensure_mode
+    from hal_widgets import _HalWidgetBase
+else:
+    from .hal_actions import _EMC_ActionBase, ensure_mode
+    from .hal_widgets import _HalWidgetBase
+
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 except:
     pass
 
-class MacroSelect(gtk.VBox, _EMC_ActionBase):
+class MacroSelect(Gtk.VBox, _EMC_ActionBase):
     __gtype_name__ = 'MacroSelect'
     __gsignals__ = {
-                    'macro-submitted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,gobject.TYPE_STRING,)),
+                    'macro-submitted': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,GObject.TYPE_STRING,)),
                     }
 
     def __init__(self, *a, **kw):
-        gtk.VBox.__init__(self, *a, **kw)
+        Gtk.VBox.__init__(self, *a, **kw)
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         try:
@@ -53,13 +62,13 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
         #path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.foldername = os.path.expanduser(sub_path)
 
-        self.model = gtk.ListStore(str)
+        self.model = Gtk.ListStore(str)
 
-        self.tv = gtk.TreeView()
+        self.tv = Gtk.TreeView()
         self.tv.set_model(self.model)
-        self.cell = gtk.CellRendererText()
+        self.cell = Gtk.CellRendererText()
 
-        self.col = gtk.TreeViewColumn("Macro Commands")
+        self.col = Gtk.TreeViewColumn("Macro Commands")
         self.col.pack_start(self.cell, True)
         self.col.add_attribute(self.cell, 'text', 0)
 
@@ -68,13 +77,13 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
         self.tv.set_reorderable(False)
         self.tv.set_headers_visible(True)
 
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow()
         scroll.add(self.tv)
-        scroll.props.hscrollbar_policy = gtk.POLICY_AUTOMATIC
-        scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
+        scroll.props.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
+        scroll.props.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
 
-        self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
+        self.entry = Gtk.Entry()
+        self.entry.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, 'Gtk-ok')
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -82,8 +91,8 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
         self.tv.connect('key_press_event', self.on_key_press_event)
         self.tv.connect('button_press_event', self.on_button_press_event)
 
-        self.pack_start(scroll, True)
-        self.pack_start(self.entry, False)
+        self.pack_start(scroll, True, True, 0)
+        self.pack_start(self.entry, False, False, 0)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or no_home_required ) ))
@@ -143,7 +152,7 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        if gtk.gdk.keyval_name(event.keyval) == 'Return':
+        if gdk.keyval_name(event.keyval) == 'Return':
             self.entry.set_text(self.model[idx][0])
             self.entry.grab_focus()
             return True
@@ -170,18 +179,18 @@ def main(filename = None):
     def macro_callback(widget,path,cmd):
         print(cmd,path)
 
-    window = gtk.Dialog("Macro Test dialog",
+    window = Gtk.Dialog("Macro Test dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     widget = MacroSelect()
     widget.connect("macro-submitted",macro_callback)
     window.vbox.add(widget)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == Gtk.ResponseType.ACCEPT:
        print("True")
     else:
        print("False")

@@ -13,65 +13,71 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 import cairo
 import math
 
 # This creates the custom LED widget
 
-from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+else:
+    from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 MAX_INT = 0x7fffffff
 
-def gdk_color_tuple(c):
+def Gdk_color_tuple(c):
     if not c:
         return 0, 0, 0
     return c.red_float, c.green_float, c.blue_float
 
-class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
+class HAL_Bar(Gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Bar'
     __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
-        'invert' : ( gobject.TYPE_BOOLEAN, 'Inverted', 'Invert min-max direction',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_limits' : ( gobject.TYPE_BOOLEAN, 'Show Limits', 'Display upper and lower limit text',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'min' : ( gobject.TYPE_FLOAT, 'Min', 'Minimum value',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'max'  : ( gobject.TYPE_FLOAT, 'Max', 'Maximum value',
-                    -MAX_INT, MAX_INT, 100, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'zero' : ( gobject.TYPE_FLOAT, 'Zero', 'Zero value',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'value' : ( gobject.TYPE_FLOAT, 'Value', 'Current bar value (for glade testing)',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'target_value' : ( gobject.TYPE_FLOAT, 'Target_Value', 'Target value (for glade testing)',
-                    -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'target_width' : ( gobject.TYPE_FLOAT, 'Target Width', 'Target pixel width',
-                    1, 5, 2, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'z0_color' : ( gtk.gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
-                        gobject.PARAM_READWRITE),
-        'z1_color' : ( gtk.gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
-                        gobject.PARAM_READWRITE),
-        'z2_color' : ( gtk.gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
-                        gobject.PARAM_READWRITE),
-        'target_color' : ( gtk.gdk.Color.__gtype__, 'Target color', "Set color for target indicator",
-                        gobject.PARAM_READWRITE),
-        'z0_border' : ( gobject.TYPE_FLOAT, 'Zone 0 up limit', 'Up limit (fraction) of zone 0',
-                    0, 1, 1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'z1_border' : ( gobject.TYPE_FLOAT, 'Zone 1 up limit', 'Up limit (fraction) of zone 1',
-                    0, 1, 1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'bg_color' : ( gtk.gdk.Color.__gtype__, 'Background', "Choose background color",
-                        gobject.PARAM_READWRITE),
-        'force_width' : ( gobject.TYPE_INT, 'Forced width', 'Force bar width not dependent on widget size. -1 to disable',
-                    -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'force_height' : ( gobject.TYPE_INT, 'Forced height', 'Force bar height not dependent on widget size. -1 to disable',
-                    -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'text_template' : ( gobject.TYPE_STRING, 'Text template',
+        'invert' : ( GObject.TYPE_BOOLEAN, 'Inverted', 'Invert min-max direction',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_limits' : ( GObject.TYPE_BOOLEAN, 'Show Limits', 'Display upper and lower limit text',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'min' : ( GObject.TYPE_FLOAT, 'Min', 'Minimum value',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'max'  : ( GObject.TYPE_FLOAT, 'Max', 'Maximum value',
+                    -MAX_INT, MAX_INT, 100, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'zero' : ( GObject.TYPE_FLOAT, 'Zero', 'Zero value',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'value' : ( GObject.TYPE_FLOAT, 'Value', 'Current bar value (for glade testing)',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'target_value' : ( GObject.TYPE_FLOAT, 'Target_Value', 'Target value (for glade testing)',
+                    -MAX_INT, MAX_INT, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'target_width' : ( GObject.TYPE_FLOAT, 'Target Width', 'Target pixel width',
+                    1, 5, 2, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'z0_color' : ( Gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
+                        GObject.ParamFlags.READWRITE),
+        'z1_color' : ( Gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
+                        GObject.ParamFlags.READWRITE),
+        'z2_color' : ( Gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
+                        GObject.ParamFlags.READWRITE),
+        'target_color' : ( Gdk.Color.__gtype__, 'Target color', "Set color for target indicator",
+                        GObject.ParamFlags.READWRITE),
+        'z0_border' : ( GObject.TYPE_FLOAT, 'Zone 0 up limit', 'Up limit (fraction) of zone 0',
+                    0, 1, 1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'z1_border' : ( GObject.TYPE_FLOAT, 'Zone 1 up limit', 'Up limit (fraction) of zone 1',
+                    0, 1, 1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'bg_color' : ( Gdk.Color.__gtype__, 'Background', "Choose background color",
+                        GObject.ParamFlags.READWRITE),
+        'force_width' : ( GObject.TYPE_INT, 'Forced width', 'Force bar width not dependent on widget size. -1 to disable',
+                    -1, MAX_INT, -1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'force_height' : ( GObject.TYPE_INT, 'Forced height', 'Force bar height not dependent on widget size. -1 to disable',
+                    -1, MAX_INT, -1, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'text_template' : ( GObject.TYPE_STRING, 'Text template',
                 'Text template to display. Python formatting may be used for one variable',
-                "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'shiny' : ( gobject.TYPE_BOOLEAN, 'Shiny', 'Makes the bar shiny',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                "%s", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'shiny' : ( GObject.TYPE_BOOLEAN, 'Shiny', 'Makes the bar shiny',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
     _size_request = (20, 20)
@@ -79,17 +85,17 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Bar, self).__init__()
 
-        self.bg_color = gtk.gdk.Color('gray')
-        self.z0_color = gtk.gdk.Color('green')
-        self.z1_color = gtk.gdk.Color('yellow')
-        self.z2_color = gtk.gdk.Color('red')
-        self.target_color = gtk.gdk.Color('purple')
+        self.bg_color = Gdk.Color.parse('gray')
+        self.z0_color = Gdk.Color.parse('green')
+        self.z1_color = Gdk.Color.parse('yellow')
+        self.z2_color = Gdk.Color.parse('red')
+        self.target_color = Gdk.Color.parse('purple')
         self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
         self.set_size_request(*self._size_request)
 
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
 
     def text_at(self, cr, text, x, y, xalign='center', yalign='center'):
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
@@ -106,13 +112,13 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         cr.show_text(text)
 
     def _expose_prepare(self, widget):
-        if self.flags() & gtk.PARENT_SENSITIVE:
+        if self.is_sensitive():
             alpha = 1
         else:
             alpha = 0.3
 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
         fw = self.force_width
         fh = self.force_height
@@ -125,12 +131,12 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         if fw != -1: w = fw
         if fh != -1: h = fh
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         def set_color(c):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        set_color(Gdk.Color.parse('black')[1])
 
         #print w, h, aw, ah, fw, fh
         cr.translate((aw - w) / 2, (ah - h) / 2)
@@ -149,9 +155,9 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         return cr, (w, h), set_color, alpha
 
     def _load_gradient(self, lg, alpha):
-        z0 = gdk_color_tuple(self.z0_color) + (alpha,)
-        z1 = gdk_color_tuple(self.z1_color) + (alpha,)
-        z2 = gdk_color_tuple(self.z2_color) + (alpha,)
+        z0 = Gdk_color_tuple(self.z0_color) + (alpha,)
+        z1 = Gdk_color_tuple(self.z1_color) + (alpha,)
+        z2 = Gdk_color_tuple(self.z2_color) + (alpha,)
         delta = 0.025
         z0b = self.z0_border
         z1b = max(z0b, self.z1_border)
@@ -227,7 +233,7 @@ class HAL_HBar(HAL_Bar):
         cr, (w, h), set_color, alpha = self._expose_prepare(widget)
 
         # make bar
-        set_color(gtk.gdk.Color('black'))
+        set_color(Gdk.Color.parse('black')[1])
         cr.save()
         zv = w * self.get_value_diff(self.zero)
         wv = w * self.get_value_diff(self.value)
@@ -277,7 +283,7 @@ class HAL_HBar(HAL_Bar):
             cr.stroke()
 
         # write text
-        set_color(gtk.gdk.Color('black'))
+        set_color(Gdk.Color.parse('black')[1])
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
@@ -299,7 +305,7 @@ class HAL_VBar(HAL_Bar):
 
         # make bar
         cr.save()
-        set_color(gtk.gdk.Color('black'))
+        set_color(Gdk.Color.parse('black')[1])
         zv = h * self.get_value_diff(self.zero)
         wv = h * self.get_value_diff(self.value)
         if not self.invert:
@@ -350,7 +356,7 @@ class HAL_VBar(HAL_Bar):
             cr.stroke()
 
         # make text
-        set_color(gtk.gdk.Color('black'))
+        set_color(Gdk.Color.parse('black')[1])
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:

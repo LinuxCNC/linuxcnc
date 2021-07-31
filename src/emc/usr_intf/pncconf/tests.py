@@ -723,7 +723,7 @@ But there is not one in the machine-named folder.."""),True)
         self.w['window1'].set_sensitive(0)
         result = w.tunedialog.run()
         w.tunedialog.hide()
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.ResponseType.OK:
             w[axis+"maxvel"].set_value( get_value(w.xtunevel))
             w[axis+"maxacc"].set_value( get_value(w.xtuneacc))
             w[axis+"P"].set_value( get_value(w.xtunecurrentP))
@@ -1049,7 +1049,7 @@ But there is not one in the machine-named folder.."""),True)
         widgets.openloopdialog.hide()
         time.sleep(.001)
         halrun.close()        
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.ResponseType.OK:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
@@ -1279,7 +1279,7 @@ class LED(gtk.DrawingArea):
         self._on_color = [0.3, 0.4, 0.6]
         self._off_color = [0.9, 0.1, 0.1]
         self.set_size_request(25, 25)
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
         
 
     # This method draws our widget
@@ -1288,16 +1288,16 @@ class LED(gtk.DrawingArea):
     # fills in that circle with on or off color.
     # the dim depends on self.diam
     def expose(self, widget, event):
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         cr.set_line_width(3)
         #cr.set_source_rgb(0, 0, 0.0)    
         self.set_size_request(25, 25)  
         #cr.set_source_rgb(0, 0, 0.0)    
         #self.set_size_request(self._dia*2+5, self._dia*2+5) 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
         cr.translate(w/2, h/2)
-        #cr = widget.window.cairo_create()
+        #cr = widget.get_property('window').cairo_create()
         lg2 = cairo.RadialGradient(0, 0, 0,  0, 0, self._dia)
         if self._state:
             r = self._on_color[0]

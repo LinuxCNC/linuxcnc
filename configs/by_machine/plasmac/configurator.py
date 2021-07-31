@@ -144,7 +144,7 @@ class configurator:
     def dialog_ok_cancel(self,title,text,name1,name2):
         dialog = gtk.Dialog(title,
                             self.S,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                             (name1, 1,
                             name2, 0)
                            )
@@ -158,8 +158,8 @@ class configurator:
     def dialog_ok(self,title,error):
         dialog = gtk.Dialog(title,
                     self.S,
-                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                    gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                    (gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
         label = gtk.Label(error)
         dialog.vbox.add(label)
         label.show()
@@ -219,7 +219,7 @@ class configurator:
 
     def on_inifile_press_event(self,button,event):
         self.dlg = gtk.FileChooserDialog('Open..', None, gtk.FILE_CHOOSER_ACTION_OPEN,
-          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.ResponseType.OK))
         filter = gtk.FileFilter()
         filter.set_name('LinuxCNC INI File (*.ini)')
         filter.add_pattern('*.[Ii][Nn][Ii]')
@@ -233,7 +233,7 @@ class configurator:
             if os.path.dirname(self.halFile.get_text()):
                 self.dlg.set_current_folder(os.path.dirname(self.halFile.get_text()))
         response = self.dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == gtk.ResponseType.OK:
             self.iniFile.set_text(self.dlg.get_filename())
             self.orgIniFile = self.dlg.get_filename()
         else:
@@ -267,7 +267,7 @@ class configurator:
 
     def on_halfile_press_event(self,button,event):
         self.dlg = gtk.FileChooserDialog('Save..', None, gtk.FILE_CHOOSER_ACTION_OPEN,
-          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.ResponseType.OK))
         filter = gtk.FileFilter()
         filter.set_name('LinuxCNC HAL File (*.hal *.tcl)')
         filter.add_pattern('*.[Hh][Aa][Ll]')
@@ -282,7 +282,7 @@ class configurator:
         else:
             self.dlg.set_current_folder(self.configPath)
         response = self.dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == gtk.ResponseType.OK:
             self.halFile.set_text(self.dlg.get_filename())
             self.orgHalFile = self.dlg.get_filename()
             self.halExt = os.path.splitext(self.orgHalFile)[1]

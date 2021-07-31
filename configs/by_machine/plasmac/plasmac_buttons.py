@@ -19,10 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
-import gtk
 import linuxcnc
-import gobject
 import hal
 import gladevcp
 from subprocess import Popen,PIPE
@@ -292,7 +293,7 @@ class HandlerClass:
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+            gtk.DialogFlags.DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
             gtk.BUTTONS_CLOSE, error)
         md.run()
         md.destroy()

@@ -73,7 +73,7 @@ feedWarning = False
 # error dialog
 def dialog_error(mode, title, error):
     md = gtk.MessageDialog(None,
-                           gtk.DIALOG_DESTROY_WITH_PARENT,
+                           gtk.DialogFlags.DESTROY_WITH_PARENT,
                            mode,
                            gtk.BUTTONS_CLOSE,
                            error)

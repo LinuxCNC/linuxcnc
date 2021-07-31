@@ -28,50 +28,52 @@
 #        it is caused because the height of the first message is not taken in care
 #        calculating the hight of the popup.
 
-import gtk
-import gobject
-import pango
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 
-class Notification(gtk.Window):
-    '''Notification(gtk.Window)
+class Notification(Gtk.Window):
+    '''Notification(Gtk.Window)
        will show popup windows with messages and icon
     '''
 
     __gtype_name__ = 'Notification'
     __gproperties__ = {
-           'icon_size' : (gobject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed button icon',
-                        1, 96, 16, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'message_width' : (gobject.TYPE_INT, 'Message Width', 'Sets the message width in pixel',
-                        0, 800, 300, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'x_pos' : (gobject.TYPE_INT, 'Frame X Position', 'Sets the frame X position in pixel',
-                        0, 1280, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'y_pos' : (gobject.TYPE_INT, 'Frame Y Position', 'Sets the frame Y position in pixel',
-                        0, 1024, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'font' : (gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-                      "sans 10", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'max_messages' : (gobject.TYPE_INT, 'Max Messages', 'Sets the maximum number of messages to show',
-                        2, 100, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'top_to_bottom' : (gobject.TYPE_BOOLEAN, 'Show from top to bottom', 'Show the second notification under the first one or on top?',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'use_frames' : (gobject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'icon_size' : (GObject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed button icon',
+                        1, 96, 16, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'message_width' : (GObject.TYPE_INT, 'Message Width', 'Sets the message width in pixel',
+                        0, 800, 300, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'x_pos' : (GObject.TYPE_INT, 'Frame X Position', 'Sets the frame X position in pixel',
+                        0, 1280, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'y_pos' : (GObject.TYPE_INT, 'Frame Y Position', 'Sets the frame Y position in pixel',
+                        0, 1024, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'font' : (GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                      "sans 10", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'max_messages' : (GObject.TYPE_INT, 'Max Messages', 'Sets the maximum number of messages to show',
+                        2, 100, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'top_to_bottom' : (GObject.TYPE_BOOLEAN, 'Show from top to bottom', 'Show the second notification under the first one or on top?',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'use_frames' : (GObject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                'message_deleted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+                'message_deleted': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
                }
 
 
     # build the main gui
     def __init__(self):
-        gtk.Window.__init__(self)
-        self.connect('destroy', lambda*w:gtk.main_quit())
+        Gtk.Window.__init__(self)
+        self.connect('destroy', lambda*w:Gtk.main_quit())
         self.messages = []
-        self.popup = gtk.Window(gtk.WINDOW_POPUP)
-        self.vbox = gtk.VBox()
+        self.popup = Gtk.Window(type = Gtk.WindowType.POPUP)
+        self.vbox = Gtk.VBox()
         self.popup.add(self.vbox)
-        self.icon_size = 16
+        self.icon_size = Gtk.IconSize.LARGE_TOOLBAR
         self.message_width = 200
         self.x_pos = 20
         self.y_pos = 20
@@ -88,53 +90,57 @@ class Notification(gtk.Window):
         if message[2]:
             icon_file_name = message[2]
         if self.use_frames:
-            frame = gtk.Frame()
+            frame = Gtk.Frame()
             frame.set_label("")
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         hbox.set_property('spacing', 5)
         if self.use_frames:
             frame.add(hbox)
-        labelnumber = gtk.Label(number)
-        hbox.pack_start(labelnumber)
-        icon = gtk.Image()
+        labelnumber = Gtk.Label(label = number)
+        hbox.pack_start(labelnumber, False, False, 0)
+        icon = Gtk.Image()
         if message[2]:
             icon.set_from_file(icon_file_name)
         else:
-            icon.set_from_stock(gtk.STOCK_DIALOG_ERROR, self.icon_size)
-        hbox.pack_start(icon)
-        label = gtk.Label()
+            icon.set_from_stock(Gtk.STOCK_DIALOG_ERROR, self.icon_size)
+        hbox.pack_start(icon, False, False, 0)
+        label = Gtk.Label()
         label.set_line_wrap(True)
-        label.set_line_wrap_mode(pango.WRAP_CHAR)
+        label.set_line_wrap_mode(Pango.WrapMode.CHAR)
         label.set_size_request(self.message_width, -1)
-        font_desc = pango.FontDescription(self.font)
-        label.modify_font(font_desc)
-        # As messages may contain non pango conform syntax like "vel <= 0" we will have to check that to avoid an error
-        pango_ok = True
+# ToDo:
+# Let the user change the font to display the messages
+        #font_desc = Pango.FontDescription(self.font)
+        # label.set_attributes(attr)
+        # As messages may contain non Pango conform syntax like "vel <= 0" we will have to check that to avoid an error
+        Pango_ok = True
         try:
             # The GError exception is raised if an error occurs while parsing the markup text.
-            pango.parse_markup(text)        
+            Pango.parse_markup(text)        
         except:
-            pango_ok = False
-        if pango_ok:
+            Pango_ok = False
+        if Pango_ok:
             label.set_markup(text)
         else:
             label.set_text(text)
-        hbox.pack_start(label)
-        btn_close = gtk.Button()
-        image = gtk.Image()
-        image.set_from_stock(gtk.STOCK_CANCEL, self.icon_size)
+        hbox.pack_start(label, False, False, 0)
+        btn_close = Gtk.Button()
+        image = Gtk.Image()
+        pixbuf = Gtk.IconTheme.get_default().load_icon("gtk-cancel", self.icon_size, 0)
+        image.set_from_pixbuf(pixbuf)
+        
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
-        hbox.pack_start(btn_close)
+        hbox.pack_start(btn_close, False, False, 0)
         if self.use_frames:
             widget = frame
         else:
             widget = hbox
         if self.top_to_bottom:
-            self.vbox.pack_end(widget)
+            self.vbox.pack_end(widget, False, False, 0)
         else:
-            self.vbox.pack_start(widget)
+            self.vbox.pack_start(widget, False, False, 0)
         if self.use_frames:
             frame.show()
         label.show()
@@ -142,7 +148,7 @@ class Notification(gtk.Window):
         hbox.show()
         icon.show()
 # we do not show the labelnumber, but we use it for the handling
-#        labelnumber.show()
+        #labelnumber.show()
         self.vbox.show()
 
     # add a message, the message is a string, it will be line wraped
@@ -221,7 +227,9 @@ class Notification(gtk.Window):
     def _refill_messages(self):
         # first we have to hide all messages, otherwise the popup window will mantain
         # all the old messages
-        self.popup.hide_all()
+        childs = self.popup.get_children()[0].get_children()
+        for child in childs:
+            child.hide()
         # then we rezise the popup window to a very small size, otherwise the dimensions
         # of the window will be mantained
         self.popup.resize(1, 1)
@@ -282,10 +290,10 @@ def main():
     notification.add_message('Halo World out there', '/usr/share/gmoccapy/images/applet-critical.png')
     notification.add_message('Hallo World ', '/usr/share/gmoccapy/images/std_info.gif')
     notification.show()
-    def debug(self, text):
-        print("debug", text)
-    notification.connect("message_deleted", debug)
-    gtk.main()
+    #def debug(self, text):
+    #    print("debug", text)
+    #notification.connect("message_deleted", debug)
+    Gtk.main()
 
 if __name__ == "__main__":
     main()

@@ -38,7 +38,7 @@ def build_hal(self):
         h.ready()
         self.hal_tool_comp = h
     except Exception as e:
-        print e
+        print(e)
 
 # REMAP=S   prolog=setspeed_prolog  ngc=setspeed epilog=setspeed_epilog
 # exposed parameter: #<speed>

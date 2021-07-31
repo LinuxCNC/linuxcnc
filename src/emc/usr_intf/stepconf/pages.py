@@ -36,9 +36,14 @@ from gi.repository import Gtk
 from gi.repository import GObject
 import sys
 
+
 if sys.version_info[0] == 2:
     reload(sys)
-    sys.setdefaultencoding('utf8')
+else:
+    import importlib
+    importlib.reload(sys)
+
+sys.setdefaultencoding('utf8')
 
 class Pages:
     def __init__(self, app):
@@ -928,19 +933,19 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
+            self.w[axis + "accunits"].set_text(_("deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
+            self.w[axis + "accunits"].set_text(_("mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_(u"in / s²"))
+            self.w[axis + "accunits"].set_text(_("in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 

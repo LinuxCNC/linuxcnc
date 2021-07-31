@@ -12,12 +12,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
 import cairo
-import pango
 import math
-import gtk.glade
 
 # This creates the custom lighted button widget
 # A lighted button has a HAL_OUT or HAL_IO pin for the button.  This pin indicates if the button is pressed or toggled or not.
@@ -39,51 +41,54 @@ import gtk.glade
 # button 'clicked' signal in code.  For this use you want to make sure 'button_halio_pin' is false or the button will remain 'active'
 # after the first click, and calls to get_active() will always return True.
 
-from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+else:
+    from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
-clicked_signal = ('clicked', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
+clicked_signal = ('clicked', (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_OBJECT,)))
 
-class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
+class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_LightButton'
     __gsignals__ = dict([clicked_signal])
     __gproperties__ = {
-        'has_hal_pins' : ( gobject.TYPE_BOOLEAN, 'Has HAL pins', 'Set false if this button will not be controlled using HAL',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'is_momentary' : ( gobject.TYPE_BOOLEAN, 'Is momentary',
+        'has_hal_pins' : ( GObject.TYPE_BOOLEAN, 'Has HAL pins', 'Set false if this button will not be controlled using HAL',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'is_momentary' : ( GObject.TYPE_BOOLEAN, 'Is momentary',
                         'Set True if this button will be momentary rather then toggle',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'button_halio_pin' : ( gobject.TYPE_BOOLEAN, 'Button pin is HAL_IO', 'If HAL_IO, pin is set true on button press; if HAL_OUT, pin state is toggled by button press',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'create_enable_pin' : ( gobject.TYPE_BOOLEAN, 'Create enable pin', 'Creates an enable pin which enables the button if True, and disables when False',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'dual_color' : ( gobject.TYPE_BOOLEAN, 'Dual Color Light', 'If true, light is on always, but changes color for OFF state',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        #'use_bitmaps' : ( gobject.TYPE_BOOLEAN, 'Use Bitmaps', 'If true, you must select bitmaps for each button state',
-        #            False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'light_is_on' : ( gobject.TYPE_BOOLEAN, 'Light is on', 'Turns light on - for testing in glade',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'light_on_color' : ( gtk.gdk.Color.__gtype__, 'Light ON color', "Set color for light ON state",
-                        gobject.PARAM_READWRITE),
-        'light_off_color' : ( gtk.gdk.Color.__gtype__, 'Light OFF color', "Set color for light OFF state",
-                        gobject.PARAM_READWRITE),
-        'border_width' : ( gobject.TYPE_INT, 'Border width', 'Number of pixels extra border around label',
-                    0, 50, 6, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'corner_radius' : ( gobject.TYPE_INT, 'Corner radius', 'Radius of the button corners',
-                    1, 20, 4, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'button_text' : ( gobject.TYPE_STRING, 'Button default/off text', 'Text shown when light is off, or all the time if \"Button ON text\" is blank',
-                    "Button", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'button_on_text' : ( gobject.TYPE_STRING, 'Button ON text', 'If not blank, this text will be shown on the button when light is on',
-                    "", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'font_on_color' : ( gtk.gdk.Color.__gtype__, 'Font ON color', "Set color for button text when light is ON",
-                        gobject.PARAM_READWRITE),
-        'font_off_color' : ( gtk.gdk.Color.__gtype__, 'Font OFF color', "Set color for button text when light is OFF",
-                        gobject.PARAM_READWRITE),
-        'font_face' : ( gobject.TYPE_STRING, 'Font name', 'Button text',
-                    "Sans", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'font_bold' : ( gobject.TYPE_BOOLEAN, 'Bold font', 'Set button font to bold',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'font_size' : ( gobject.TYPE_INT, 'Font size', 'Number of pixels extra border around label',
-                    0, 100, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'button_halio_pin' : ( GObject.TYPE_BOOLEAN, 'Button pin is HAL_IO', 'If HAL_IO, pin is set true on button press; if HAL_OUT, pin state is toggled by button press',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'create_enable_pin' : ( GObject.TYPE_BOOLEAN, 'Create enable pin', 'Creates an enable pin which enables the button if True, and disables when False',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'dual_color' : ( GObject.TYPE_BOOLEAN, 'Dual Color Light', 'If true, light is on always, but changes color for OFF state',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        #'use_bitmaps' : ( GObject.TYPE_BOOLEAN, 'Use Bitmaps', 'If true, you must select bitmaps for each button state',
+        #            False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'light_is_on' : ( GObject.TYPE_BOOLEAN, 'Light is on', 'Turns light on - for testing in glade',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'light_on_color' : ( Gdk.Color.__gtype__, 'Light ON color', "Set color for light ON state",
+                        GObject.ParamFlags.READWRITE),
+        'light_off_color' : ( Gdk.Color.__gtype__, 'Light OFF color', "Set color for light OFF state",
+                        GObject.ParamFlags.READWRITE),
+        'border_width' : ( GObject.TYPE_INT, 'Border width', 'Number of pixels extra border around label',
+                    0, 50, 6, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'corner_radius' : ( GObject.TYPE_INT, 'Corner radius', 'Radius of the button corners',
+                    1, 20, 4, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'button_text' : ( GObject.TYPE_STRING, 'Button default/off text', 'Text shown when light is off, or all the time if \"Button ON text\" is blank',
+                    "Button", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'button_on_text' : ( GObject.TYPE_STRING, 'Button ON text', 'If not blank, this text will be shown on the button when light is on',
+                    "", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'font_on_color' : ( Gdk.Color.__gtype__, 'Font ON color', "Set color for button text when light is ON",
+                        GObject.ParamFlags.READWRITE),
+        'font_off_color' : ( Gdk.Color.__gtype__, 'Font OFF color', "Set color for button text when light is OFF",
+                        GObject.ParamFlags.READWRITE),
+        'font_face' : ( GObject.TYPE_STRING, 'Font name', 'Button text',
+                    "Sans", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'font_bold' : ( GObject.TYPE_BOOLEAN, 'Bold font', 'Set button font to bold',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'font_size' : ( GObject.TYPE_INT, 'Font size', 'Number of pixels extra border around label',
+                    0, 100, 10, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
     _size_request = (35, 35)
@@ -101,8 +106,8 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
-        self.light_on_color = gtk.gdk.Color('green')
-        self.light_off_color = gtk.gdk.Color('gray')
+        self.light_on_color = Gdk.Color.parse('green')
+        self.light_off_color = Gdk.Color.parse('gray')
         self.border_width = 6
         self.corner_radius = 4
         self.button_text = 'Button'
@@ -110,27 +115,27 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.font_face = 'Sans'
         self.font_bold = False
         self.font_size = 10
-        self.font_on_color = gtk.gdk.Color('black')
-        self.font_off_color = gtk.gdk.Color('black')
+        self.font_on_color = Gdk.Color.parse('black')
+        self.font_off_color = Gdk.Color.parse('black')
         self.create_enable_pin = False
         
         self.active = False
         self.light_is_on = False
         self.mouseover = False
         
-        self.default_pangolayout = self.create_pango_layout(self.button_text)
-        self.on_pangolayout = self.create_pango_layout(self.button_on_text)
+        self.default_Pangolayout = self.create_Pango_layout(self.button_text)
+        self.on_Pangolayout = self.create_Pango_layout(self.button_on_text)
         
         self.set_size_request(*self._size_request)
-        self.set_events(gtk.gdk.EXPOSURE_MASK
-                       | gtk.gdk.ENTER_NOTIFY_MASK
-                       | gtk.gdk.LEAVE_NOTIFY_MASK
-                       | gtk.gdk.BUTTON_PRESS_MASK
-                       | gtk.gdk.BUTTON_RELEASE_MASK
-                       | gtk.gdk.POINTER_MOTION_MASK
-                       | gtk.gdk.POINTER_MOTION_HINT_MASK)
+        self.set_events(Gdk.EXPOSURE_MASK
+                       | Gdk.ENTER_NOTIFY_MASK
+                       | Gdk.LEAVE_NOTIFY_MASK
+                       | Gdk.EventMask.BUTTON_PRESS_MASK
+                       | Gdk.BUTTON_RELEASE_MASK
+                       | Gdk.POINTER_MOTION_MASK
+                       | Gdk.POINTER_MOTION_HINT_MASK)
  
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
         #self.connect('button-press-event', self.pressed)
         #self.connect('button-release-event', self.released)
         #self.connect('state-changed', self._on_state_changed)
@@ -190,15 +195,15 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
 
 
     def expose(self, widget, event):
-        if (self.flags() & gtk.PARENT_SENSITIVE) and (self.flags() & gtk.SENSITIVE):
+        if self.is_sensitive():
             alpha = 1
         else:
             alpha = 0.3
 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         def set_color(c):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
@@ -221,20 +226,20 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             if (self.light_is_on):
                 color = self.light_on_color
                 if self.mouseover:
-                    color = gtk.gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
-                color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color = Gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
+                color2 = Gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
+                linecolor = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
             else:
                 color = self.light_off_color
                 if self.mouseover:
-                    color = gtk.gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
+                    color = Gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
                 if (self.dual_color):
-                    color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                    linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color2 = Gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
+                    linecolor = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
                 else:
-                    color1 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
-                    color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
-                    linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
+                    color1 = Gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
+                    color2 = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
+                    linecolor = Gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
             
             cr.set_line_width(linewidth)
             set_color(linecolor)
@@ -268,11 +273,11 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             cr.restore()
 
         # write text
-        _layout = self.default_pangolayout
+        _layout = self.default_Pangolayout
         if (self.light_is_on):
             set_color(self.font_on_color)
             if (not self.button_on_text == ""):
-                _layout = self.on_pangolayout
+                _layout = self.on_Pangolayout
         else:
             set_color(self.font_off_color)
  
@@ -287,13 +292,13 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             fontweight = "bold"
         else:
             fontweight = ""
-        self.default_pangolayout.set_font_description(pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
-        self.on_pangolayout.set_font_description(pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
+        self.default_Pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
+        self.on_Pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
         self.update_widget_size()
     
     def update_widget_size(self):
-        w1, h1 = self.default_pangolayout.get_pixel_size()
-        w2, h2 = self.on_pangolayout.get_pixel_size()
+        w1, h1 = self.default_Pangolayout.get_pixel_size()
+        w2, h2 = self.on_Pangolayout.get_pixel_size()
         width = max(w1 + self.border_width*2, w2 + self.border_width*2)
         height = max(h1 + self.border_width*2, h2 + self.border_width*2)
         self.set_size_request(int(width), int(height))
@@ -316,12 +321,12 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         
     def set_text(self, text):
         self.button_text = text
-        self.default_pangolayout.set_text(text)
+        self.default_Pangolayout.set_text(text)
         self.update_widget_size()
         
     def set_on_text(self, text):
         self.button_on_text = text
-        self.on_pangolayout.set_text(text)
+        self.on_Pangolayout.set_text(text)
         self.update_widget_size()
 
     #**************************************************************
@@ -375,5 +380,5 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
     def light_pin_update(self, hal_pin, data=None):
         self.set_light_on(bool(self.light_pin.get()))
     
-gobject.type_register(HAL_LightButton)
+GObject.type_register(HAL_LightButton)
 

@@ -13,29 +13,35 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gobject
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import GObject
 
 import hal
-from .hal_widgets import _HalWidgetBase
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase
+else:
+    from .hal_widgets import _HalWidgetBase
+
 from hal_glib import GStat
 
 GSTAT = GStat()
 
-class Status_Label(gtk.Label, _HalWidgetBase):
+class Status_Label(Gtk.Label, _HalWidgetBase):
     __gtype_name__ = "Status_Label"
     __gproperties__ = {
-        'label_type'  : ( gobject.TYPE_INT, 'Label type',
+        'label_type'  : ( GObject.TYPE_INT, 'Label type',
                  '0:user system 1:loaded file path 2:feed override 3:rapid override 4:spindle override',
-                0, 4, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'text_template' : ( gobject.TYPE_STRING, 'text template',
+                0, 4, 0, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'text_template' : ( GObject.TYPE_STRING, 'text template',
                 'Text template to display. Python formatting may be used for one variable',
-                "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                "%s", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     def __init__(self, *a, **kw):
-        gobject.GObject.__init__(self)
+        GObject.GObject.__init__(self)
         self.label_type = 0
 
     def _hal_init(self):
@@ -77,19 +83,19 @@ class Status_Label(gtk.Label, _HalWidgetBase):
 
 # for testing without glade editor:
 def main():
-    window = gtk.Dialog("My dialog",
+    window = Gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     widget = Status_Label()
     widget._hal_init()
     window.vbox.add(widget)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == Gtk.ResponseType.ACCEPT:
        print("ok")
     else:
        print("cancel")

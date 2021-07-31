@@ -16,6 +16,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#define PY_SSIZE_T_CLEAN
 #define __STDC_FORMAT_MACROS
 #include <Python.h>
 #include "py3c/py3c.h"
@@ -40,14 +41,6 @@
 #include "tooldata.hh"
 
 #include <cmath>
-
-#ifndef T_BOOL
-// The C++ standard probably doesn't specify the amount of storage for a 'bool',
-// and on some systems it might be more than one byte.  However, on x86 and
-// x86-64, sizeof(bool) == 1.  When a counterexample is found, this must be
-// replaced with the result of a configure test.
-#define T_BOOL T_UBYTE
-#endif
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
@@ -972,7 +965,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
 static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_PLAN_EXECUTE m;
     char *cmd;
-    int len;
+    Py_ssize_t len;
     if(!PyArg_ParseTuple(o, "s#", &cmd, &len)) return NULL;
     if(unsigned(len) > sizeof(m.command) - 1) {
         PyErr_Format(PyExc_ValueError, "MDI commands limited to %zu characters", sizeof(m.command) - 1);
@@ -1197,7 +1190,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
 
     EMC_TASK_PLAN_OPEN m;
     char *file;
-    int len;
+    Py_ssize_t len;
 
     if(!PyArg_ParseTuple(o, "s#", &file, &len)) return NULL;
     if(unsigned(len) > sizeof(m.file) - 1) {
