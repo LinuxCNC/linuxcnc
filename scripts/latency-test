@@ -7,6 +7,11 @@ fi
 T=`mktemp -d`
 trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
 cd $T
+node=$(uname -n)
+machine=$(uname  -m)
+date=$(date +%d%b%Y)
+krelease=$(uname -r)
+kversion=$(uname -v)
 
 calc() { awk "BEGIN { print ($1); }" < /dev/null; }
 icalc() { awk "BEGIN { printf \"%.0f\n\", ($1); }" < /dev/null; }
@@ -84,25 +89,6 @@ waitusr lat
 loadusr -w bash latexit.sh
 EOF
 
-cat > lat.xml <<EOF
-<pyvcp>
-<title title="LinuxCNC / HAL Latency Test"/>
-<axisoptions/>
-<table>
-<tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
-<text>
-"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
-
-While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
-</text>
-</label>
-<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
-<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
-<tablerow/><button text="Reset Statistics" halpin="reset"/>
-</table>
-</pyvcp>
-EOF
-
 cat > latexit.sh <<EOF
 L=\$((halcmd gets sj
     if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
@@ -134,17 +120,33 @@ cat > lat.xml <<EOF
 <title title="LinuxCNC / HAL Latency Test"/>
 <axisoptions/>
 <table>
+
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
+"""
+$machine on host $node $date
+Kernel-release=$krelease
+Kernel-version=$kversion
+
+Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
 </label>
-<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
+
+<tablerow/>
+<label/>
+  <label text="Max Interval (ns)" font="Helvetica 12"/>
+  <label text="Max Jitter (ns)" font="Helvetica 12 bold"/>
+  <label text="Last interval (ns)" font="Helvetica 12"/>
+
 <tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+
 <tablerow/><label text="Base thread ($BASE_HUMAN):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
-<tablerow/><button text="Reset Statistics" halpin="reset"/>
+
+<tablerow/>
+  <button text="Reset Statistics" halpin="reset" />
+
 </table>
 </pyvcp>
 EOF

@@ -208,6 +208,11 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         if code and (name or name2) and num is not None:
             self.tablemodel.setData(item, num, None)
 
+    # This function uses the color name (string); setProperty
+    # expects a QColor object
+    def highlight(self, color):
+        self.setProperty('styleColorHighlight', QColor(color))
+
     #############################################################
 
     # Reload the offsets into display
@@ -402,6 +407,13 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.imperial_text_template =  '%9.4f'
     imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
+    def getColorHighlight(self):
+        return QColor(self.tablemodel._highlightcolor)
+    def setColorHighlight(self, value):
+        self.tablemodel._highlightcolor = value.name()
+        #self.tablemodel.layoutChanged.emit()
+    styleColorHighlight = pyqtProperty(QColor, getColorHighlight, setColorHighlight)
+
 #########################################
 # custom model
 #########################################
@@ -498,5 +510,6 @@ if __name__ == "__main__":
     w = OriginOffsetView()
     w.PREFS_ = None
     w._hal_init()
+    w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
     sys.exit(app.exec_())

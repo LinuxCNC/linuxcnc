@@ -274,9 +274,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         # install remote control
         if self.add_send_zmq:
-            self.init_zmg_subscribe()
-        if self.add_receive_zmq:
             self.init_zmq_publish()
+        if self.add_receive_zmq:
+            self.init_zmg_subscribe()
+            
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to the widgets
@@ -369,7 +370,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 answer = True
             # system shutdown
-            if answer == -1:
+            if answer == QtWidgets.QMessageBox.DestructiveRole:
                 if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
                     self.QTVCP_INSTANCE_.system_shutdown_request__()
                 else:
@@ -594,14 +595,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmg_subscribe(self):
         if import_ZMQ():
-            self._zmq_sub_context = zmq.Context()
-            self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
-            self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
-            self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
+            try:
+                self._zmq_sub_context = zmq.Context()
+                self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
+                self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
+                self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
 
-            self.read_noti = QtCore.QSocketNotifier(self._zmq_sub_sock.getsockopt(zmq.FD),
-                                                 QtCore.QSocketNotifier.Read, None)
-            self.read_noti.activated.connect(self.on_read_msg)
+                self.read_noti = QtCore.QSocketNotifier(
+                                    self._zmq_sub_sock.getsockopt(zmq.FD),
+                                    QtCore.QSocketNotifier.Read, None)
+                self.read_noti.activated.connect(self.on_read_msg)
+            except Exception as e:
+                LOG.error('zmq subscribe to message setup error: {}'.format(e))
 
     def on_read_msg(self):
         self.read_noti.setEnabled(False)
@@ -619,9 +624,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
                 # call handler function with arguments
                 try:
-                     self.QTVCP_INSTANCE_[function](*arguments)
+                     self.QTVCP_INSTANCE_[function](arguments)
                 except Exception as e:
                     LOG.error('zmq message parcing error: {}'.format(e))
+                    LOG.error('{} {}'.format(function, arguments))
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLOUT:
             print("[Socket] zmq.POLLOUT")
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLERR:
@@ -630,9 +636,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmq_publish(self):
         if import_ZMQ():
-            self._zmq_pub_context = zmq.Context()
-            self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
-            self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            try:
+                self._zmq_pub_context = zmq.Context()
+                self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
+                self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            except Exception as e:
+                LOG.error('zmq publish message setup error: {}'.format(e))
 
     def zmq_write_message(self, args,topic = 'QtVCP'):
         if self.add_send_zmq:

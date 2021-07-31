@@ -1,5 +1,6 @@
 import hal
 import linuxcnc
+import json
 
 DBG_state = 0
 DBG_supress = True
@@ -9,7 +10,8 @@ def DBG(str):
 
 """ Set of base classes """
 class _WidgetBase:
-    def hal_init(self, comp, name,metadata,command,widgets,dbg):
+    def hal_init(self, master, comp, name,metadata,command,widgets,dbg):
+        self.master = master
         self.hal, self.hal_name = comp, name
         self.metadata = metadata
         self.widgets = widgets
@@ -47,6 +49,10 @@ class _WidgetBase:
             self.pintype='COMMAND'
             self.true_command = (self.metadata['TRUE_COMMAND'])
             self.false_command = (self.metadata['FALSE_COMMAND'])
+        elif self.metadata['OUTPUT'] == 'ZMQ':
+            self.pintype='ZMQ'
+            self.true_function = (self.metadata['TRUE_FUNCTION'])
+            self.false_function = (self.metadata['FALSE_FUNCTION'])
         else:
             self.pintype = None
 
@@ -97,7 +103,7 @@ class _ToggleBase(_WidgetBase):
         except:
             pass
         # If not a command output requested make the pins
-        if pintype not in(None,'COMMAND'):
+        if pintype not in(None,'COMMAND','ZMQ'):
             self.hal_pin = self.hal.newpin(self.hal_name, pintype, hal.HAL_OUT)
             self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", pintype, hal.HAL_OUT)
         # If there is a status requested make there pins
@@ -105,7 +111,7 @@ class _ToggleBase(_WidgetBase):
             self.hal_status_pin = self.hal.newpin(self.hal_name+ "-state", hal.HAL_BIT, hal.HAL_OUT)
             self.hal_status_pin_not = self.hal.newpin(self.hal_name+ "-state-not", hal.HAL_BIT, hal.HAL_OUT)
         # Update the pin to the proper state, but don't print debug for this
-        if not pintype == 'COMMAND':
+        if pintype not in ('COMMAND','ZMQ'):
             DBG_supress = True
             self.hal_update()
             DBG_supress = False
@@ -137,7 +143,7 @@ class _ToggleBase(_WidgetBase):
         # If not a command output:
         # figure out what the state should be and set the
         # HAL pin to it. This uses strange looking code for compactness
-        if self.pintype not in(None,'COMMAND'):
+        if self.pintype not in(None,'COMMAND','ZMQ'):
             output = self.true_state if self.state else self.false_state
             output_not = self.false_state if self.state else self.true_state
             self.hal_pin.set(output)
@@ -166,6 +172,24 @@ class _ToggleBase(_WidgetBase):
                     DBG( '  Button: %s\n Command: %s\n State: %s\n'%(self.hal_name,output,self.state))
                 else:
                     print('Unknown Command',output,self.state)
+        elif self.pintype == 'ZMQ':
+            if self.master._zmq_output_enabled:
+                output = self.true_function if self.state else self.false_function
+                #print ('output',output)
+                if isinstance(output,list):
+                    args = output[1]
+                    funct = output[0]
+                else:
+                    arg1 = [None]
+                if funct != 'NONE':
+                    x = {"FUNCTION": funct,
+                          "ARGS": args
+                        }
+                    # convert to json object and send
+                    m1 = json.dumps(x)
+                    self.master._socket.send_multipart([self.master._topic, bytes((m1).encode('utf-8'))])
+            else:
+                print('ZMQ output not enabled:',funct)
 
         # If there are status pins set them based on state
         if self.status_pin:

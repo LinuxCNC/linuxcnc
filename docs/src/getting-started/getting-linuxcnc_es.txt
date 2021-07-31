@@ -40,7 +40,7 @@ Esta sección describe algunos métodos para descargar una imagen Live/Install.
 
 Descargue el CD Live/Install desde esta dirección:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
+http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 Para la Raspberry Pi, una imagen completa de la tarjeta SD está disponible aquí:
 
@@ -77,13 +77,13 @@ sudo apt-get install zsync
 . Luego, ejecute este comando para descargar el iso a su ordenador
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso.zsync
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso.zsync
 ----
 +
 o
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip.zsync
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
 ----
 +
 .zsync en Windows
@@ -100,13 +100,13 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . Después de la descarga, verifique la suma de comprobación de la imagen para garantizar su integridad.
 +
 ----
-md5sum linuxcnc-2.8.0-buster.iso
+md5sum linuxcnc-2.8.2-buster.iso
 ----
 +
 o
 +
 ----
-sha256sum linuxcnc-2.8.0-buster.iso
+sha256sum linuxcnc-2.8.2-buster.iso
 ----
 . Luego, compare con la suma de comprobación segun su caso
 +
@@ -139,7 +139,7 @@ un ordenador. La imagen es demasiado grande para caber en un CD.
   use este comando:
 +
 -----
-dd if=linuxcnc-2.8.0-buster.iso of=/dev/sde
+dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
 -----
 
 .Escribir la imagen en un dispositivo de almacenamiento USB en Mac OSX
@@ -350,7 +350,7 @@ uname -v
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring ejecutando
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Añada el repositorio apt:
@@ -384,7 +384,7 @@ en el apagado del sistema.
   necesario si se cambia el modo tiempo real de una imagen de Live-CD de LinuxCNC)
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Agregue el repositorio apt:
@@ -422,7 +422,7 @@ sudo apt-get install linuxcnc
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 . Agregue el repositorio de apt
 +
@@ -464,7 +464,7 @@ sudo apt-get dist-upgrade
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring ejecutando
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Agregue una nueva fuente apt

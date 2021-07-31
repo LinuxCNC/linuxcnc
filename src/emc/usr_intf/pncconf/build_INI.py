@@ -197,10 +197,17 @@ class INI:
         print("HALUI = halui", file=file)          
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
         print("HALFILE = custom.hal", file=file)
-        if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY, _PD._QTDRAGON):
-            print("POSTGUI_HALFILE = postgui_call_list.hal", file=file)
-        elif self.d.frontend == _PD._QTPLASMAC:
-            print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
+
+        if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
+           print("POSTGUI_HALFILE = pyvcp_options.hal", file=file)
+        if self.d.serial_vfd:
+            if self.d.gs2_vfd:
+                print("POSTGUI_HALFILE = gs2_vfd.hal", file=file)
+            if self.d.mitsub_vfd:
+                print("POSTGUI_HALFILE = mitsub_vfd.hal", file=file)
+        if self.d.toolchangeprompt and self.d.frontend == _PD._QTDRAGON:
+            print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
+        print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
         print("[HALUI]", file=file)          

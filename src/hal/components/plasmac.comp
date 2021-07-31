@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.208 - 2021 May 02
+0.210 - 2021 July 16
 
 .I SUMMARY:
 .br
@@ -198,6 +198,7 @@ variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
 variable int    offset_max;                 /* maximum allowed offset */
 variable int    offset_min;                 /* minimum allowed offset */
+variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    old_resolution;             /* previous resolution value */
@@ -358,6 +359,11 @@ FUNCTION(_) {
         res = 1;
     }else{
         res = resolution;
+    }
+    if(units_per_mm == 1){
+        offset_res = res;
+    }else{
+        offset_res = res * 10;
     }
     offset_scale = units_per_mm * fperiod / res;
     velocity_scale = res / units_per_mm / 60;
@@ -794,7 +800,7 @@ FUNCTION(_) {
                     break;
                 }
                 if(probe_testing && breakaway){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected during probe test\n");
                     probe_test_error = TRUE;
                     state = PROBE_TEST;
                     break;
@@ -802,17 +808,29 @@ FUNCTION(_) {
                 if((float_switch && !float_detected) || ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
-                    if(z_pierce > z_max && !probe_testing){
-                        stop_type = PAUSE;
-                        program_pause = TRUE;
-                        if(float_switch){
+                    if(z_pierce > z_max){
+                        if(probe_testing){
+                          state = PROBE_TEST;
+                          probe_test_error = TRUE;
+                          if(float_switch){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
-                                                          "while float switch probing\n");
+                                                          "condition found while moving to probe height during float switch probe testing");
+                          }else{
+                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                          "condition found while moving to probe height during ohmic probe testing");
+                          }
                         }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
-                                                          "while ohmic probing\n");
+                          stop_type = PAUSE;
+                          program_pause = TRUE;
+                          state = MAX_HEIGHT;
+                          if(float_switch){
+                              rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                            "condition found while moving to probe height during float switch probing\n");
+                          }else{
+                              rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum limit\n"
+                                                            "condition found while moving to probe height during ohmic probing\n");
+                          }
                         }
-                        state = MAX_HEIGHT;
                         break;
                     }
                     probe_retry = TRUE;
@@ -839,7 +857,7 @@ FUNCTION(_) {
                     break;
                 }
                 if(probe_testing && breakaway){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway detected while probing.\n");
+                    rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected during probe test\n");
                     probe_test_error = TRUE;
                     state = PROBE_TEST;
                     break;
@@ -864,7 +882,7 @@ FUNCTION(_) {
                         z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                         if(z_pierce > z_max && !probe_testing){
                             rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
-                                                          "while float switch probing\n");
+                                                          "condition found while float switch probing\n");
                             stop_type = PAUSE;
                             program_pause = TRUE;
                             state = MAX_HEIGHT;
@@ -884,8 +902,8 @@ FUNCTION(_) {
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(z_pierce > z_max && !probe_testing){
-                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height.\n"
-                                                      "while ohmic probing\n");
+                        rtapi_print_msg(RTAPI_MSG_ERR,"pierce height would exceed Z axis maximum safe height\n"
+                                                      "condition found while ohmic probing\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
@@ -1022,7 +1040,7 @@ FUNCTION(_) {
                 if(pierce_height && cut_height && (use_auto_volts || (!use_auto_volts && cut_volts))){
                     feed_hold = TRUE;
                     if(z_offset_counts == pierce_target){
-                        if((int)(z_offset_current * 10 * res) == (int)(pierce_target * offset_scale * 10 * res)){
+                        if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res)){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
@@ -1133,7 +1151,7 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 feed_hold = FALSE;
                 if(z_offset_counts == puddle_jump_target){
-                    if((int)(z_offset_current * 10 * res) == (int)(puddle_jump_target * offset_scale * 10 * res)){
+                    if((int)(z_offset_current * offset_res) == (int)(puddle_jump_target * offset_scale * offset_res)){
                         count = 0;
                         if(puddle_jump_timer > 0){
                             puddle_jump_timer -= fperiod;
@@ -1154,7 +1172,7 @@ FUNCTION(_) {
                     feed_hold = FALSE;
                 }
                 if(z_offset_counts == cut_target){
-                    if((int)(z_offset_current * 10 * res) == (int)(cut_target * offset_scale * 10 * res)){
+                    if((int)(z_offset_current * offset_res) == (int)(cut_target * offset_scale * offset_res)){
                         count = 0;
                         /* set feed rate for this cut */
                         if(cut_feed_rate > 0){
@@ -1395,7 +1413,7 @@ FUNCTION(_) {
                     cornerlock_is_locked = FALSE;
                     if(!probe_test || probe_test_error){
                         if(z_offset_counts == safe_target){
-                            if((int)(z_offset_current * 10 * res) == (int)(safe_target * offset_scale * 10 * res)){
+                            if((int)(z_offset_current * offset_res) == (int)(safe_target * offset_scale * offset_res)){
                                 if(stop_type == WAIT){
                                     feed_hold = FALSE;
                                 }
@@ -1418,7 +1436,7 @@ FUNCTION(_) {
                 cornerlock_is_locked = FALSE;
                 if(!probe_test || probe_test_error){
                     if(z_offset_counts == 0){
-                        if((int)(z_offset_current * 10 * res) == 0){
+                        if((int)(z_offset_current * offset_res) == 0){
                             if(stop_type == WAIT){
                                 feed_hold = FALSE;
                             }
@@ -1600,7 +1618,7 @@ FUNCTION(_) {
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
-                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "breakaway, float, or ohmic activated during consumable change, motion paused.\n"
                                         "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;
@@ -1622,8 +1640,8 @@ FUNCTION(_) {
                     }
                     consumable_changing = TRUE;
                 }else{
-                    if(((int)(x_offset_current * 10 * res) == (int)(x_offset * offset_scale * 10 * res) &&
-                      (int)(y_offset_current * 10 * res) == (int)(y_offset * offset_scale * 10 * res)) ||
+                    if(((int)(x_offset_current * offset_res) == (int)(x_offset * offset_scale * offset_res) &&
+                      (int)(y_offset_current * offset_res) == (int)(y_offset * offset_scale * offset_res)) ||
                       !consumable_change){
                         state = IDLE;
                     }else if(consumable_change){
@@ -1666,14 +1684,14 @@ FUNCTION(_) {
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
-                                        "breakaway float or ohmic activated during consumable change, motion paused.\n"
+                                        "breakaway, float, or ohmic activated during consumable change, motion paused.\n"
                                         "WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!\n");
                     }
                     break;
                 }
                 error_message = FALSE;
                 if(x_offset_counts == 0 && y_offset_counts == 0){
-                    if((int)(x_offset_current * 10 * res) == 0 && (int)(y_offset_current * 10 * res) == 0){
+                    if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
                         consumable_changing = FALSE;
                         cons_change_clear = FALSE;
                         feed_hold = FALSE;
@@ -1747,7 +1765,7 @@ FUNCTION(_) {
                     y_velocity = fabs(recovery_velocity * sin(angle_x_y));
                 }
                 if(x_offset_counts == 0 && y_offset_counts == 0){
-                    if((int)(x_offset_current * 10 * res) == 0 && (int)(y_offset_current * 10 * res) == 0){
+                    if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
                         cut_recovering = FALSE;
                         if(cut_recovery){
                             feed_hold = FALSE;

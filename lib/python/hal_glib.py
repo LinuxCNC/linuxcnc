@@ -152,48 +152,50 @@ class _GStat(GObject.GObject):
         'current-x-rel-position': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'current-position': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
                             GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
-        'current-z-rotation': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'requested-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'actual-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'spindle-override-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'feed-override-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'rapid-override-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'max-velocity-override-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-z-rotation': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'requested-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'actual-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'spindle-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'feed-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'rapid-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'feed-hold-enabled-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'feed-hold-enabled-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'itime-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpm-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'fpr-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'css-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'rpm-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'radius-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'diameter-mode': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'flood-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'mist-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'g90-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'g91-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'itime-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpr-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'css-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'rpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'radius-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'diameter-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'flood-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'mist-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'm-code-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'g-code-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'f-code-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
-        'blend-code-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
+        'm-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'g-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'f-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'blend-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
-        'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'user-system-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'user-system-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'mdi-line-selected': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'gcode-line-selected': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-line-selected': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
-        'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-        'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
-        'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
-        'machine-log-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
-        'update-machine-log': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
-        'move-text-lineup': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
-        'move-text-linedown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
-        'dialog-request': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
-        'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
+        'mdi-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'gcode-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
+        'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'update-machine-log': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'move-text-lineup': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'move-text-linedown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'dialog-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
                             GObject.TYPE_PYOBJECT)),
         'play-sound': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'virtual-keyboard': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -328,9 +330,11 @@ class _GStat(GObject.GObject):
         self.old['g-code'] = codes
         # extract specific G code modes
         itime = fpm = fpr = css = rpm = metric = False
-        radius = diameter = False
+        radius = diameter = adm = idm = False
         for num,i in enumerate(active_gcodes):
-            if i == 'G93': itime = True
+            if i == 'G90': adm = True
+            elif i == 'G91': idm = True
+            elif i == 'G93': itime = True
             elif i == 'G94': fpm = True
             elif i == 'G95': fpr = True
             elif i == 'G96': css = True
@@ -338,6 +342,8 @@ class _GStat(GObject.GObject):
             elif i == 'G21': metric = True
             elif i == 'G7': diameter  = True
             elif i == 'G8': radius = True
+        self.old['g90'] = adm
+        self.old['g91'] = idm
         self.old['itime'] = itime
         self.old['fpm'] = fpm
         self.old['fpr'] = fpr
@@ -613,6 +619,19 @@ class _GStat(GObject.GObject):
         g5x_index_new = self.old['g5x-index']
         if g5x_index_new != g5x_index_old:
             self.emit('user-system-changed',g5x_index_new)
+
+        # absolute mode g90
+        g90_old = old.get('g90', None)
+        g90_new = self.old['g90']
+        if g90_new != g90_old:
+            self.emit('g90-mode',g90_new)
+
+        # incremental mode g91
+        g91_old = old.get('g91', None)
+        g91_new = self.old['g91']
+        if g91_new != g91_old:
+            self.emit('g91-mode',g91_new)
+
         # inverse time mode g93
         itime_old = old.get('itime', None)
         itime_new = self.old['itime']
@@ -730,6 +749,12 @@ class _GStat(GObject.GObject):
         rpm_new = self.old['rpm']
         self.emit('rpm-mode',rpm_new)
 
+        # absolute mode g90
+        g90_new = self.old['g90']
+        self.emit('g90-mode',g90_new)
+        # incremental mode g91
+        g91_new = self.old['g91']
+        self.emit('g91-mode',g91_new)
         # feed mode:
         itime_new = self.old['itime']
         self.emit('itime-mode',itime_new)

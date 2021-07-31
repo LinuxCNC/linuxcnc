@@ -1193,6 +1193,24 @@ QtPlasmaC will automatically add a line of G-Code to move the Z axis to the corr
 
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
 
+=== Preamble and Postamble Codes
+
+The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-Code file to be run by QtPlasmaC:
+
+Metric:
+----
+G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
+----
+
+Imperial:
+----
+G20 G40 G49 G64p0.004 G80 G90 G92.1 G94 G97
+----
+
+A detailed explanation of each G-Code can be found in the docs link:http://linuxcnc.org/docs/html/gcode/g-code.html[here].
+
+Note that throughout this user guide there are several additional recommendations for codes that are prudent to add to both the preamble and postamble depending on the features the user wishes to utilize.
+
 === Mandatory Codes
 
 Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-Code syntax for QtPlasmaC to run a G-Code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
@@ -1346,9 +1364,9 @@ Using this feature will cause all motion to pause at the end of the cut while th
 
 === Multiple Tools
 
-QtPlasmaC has the ability to allow the use of more than one type of tool when running a G-Code program.
+QtPlasmaC has the ability to allow the use of more than one type of plasma tool by utilizing LinuxCNC spindles as a plasma tool when running a G-Code program.
 
-Valid tools for use are:
+Valid plasma tools for use are:
 
 [width="100%",cols="3,2,10"]
 |===
@@ -1358,7 +1376,7 @@ Valid tools for use are:
 |Plasma Torch|2|Used for spotting (creating dimples to aid in drilling).
 |===
 
-A LinuxCNC tool number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct tool. Examples:
+A LinuxCNCspindle number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool. Examples:
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
 * *M3 $1 S1* will select and start the scribe.
@@ -1958,16 +1976,20 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 . When the cut is complete stop the spindle. +
 . The torch will turn off and the Z axis will return to the starting position.
 
+[[qt_manual-single-cut]]
+
 [underline]*Manual Single Cut*
 
-Manual single cut requires that <<qt_keyboard-shortcuts, keyboard shortcuts>> are enable in the GUI SETTINGS section of the PARAMETERS Tab.
+Manual single cut requires that either <<qt_keyboard-shortcuts, keyboard shortcuts>> are enabled in the GUI SETTINGS section of the PARAMETERS Tab, or a custom user button is specified as a <<qt_button-mancut, manual cut>> button.
+
+If using a custom user button then sustitute *F9* with *User Button* in the following description.
 
 . Jog to the required X/Y start position. +
 . Set the required feed rate with the Jog Speed slider. +
 . Start the procedure by pressing *F9*. +
 . After probing the torch will fire. +
 . When the Arc OK is received the machine can be jogged along the cut line using the jog keys. +
-. When the cut is complete press *F9* or *Esc*. +
+. When the cut is complete press *F9* or *Esc* or the *CYCLE STOP* button. +
 . The torch will turn off and the Z axis will return to the starting position.
 
 NOTE: If the torch flames out during cutting, the user must still press *F9* or *Esc* to end the cut. This clears the Z offsets and returns the torch to the starting position.
@@ -2498,13 +2520,15 @@ THC has caused the top limit to be reached while cutting:
 
 * *top limit reached while THC moving up program is paused*
 
-The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via float switch:
+These errors indicate move to pierce height would exceed the Z Axis MAX_LIMIT for the corresponding probe method:
 
-* *pierce height would exceed Z axis maximum limit while float switch probing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during float switch probing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during ohmic probing*
 
-The move to pierce height would exceed the Z Axis MAX_LIMIT. This was determined after the material height was detected via ohmic sensing:
+These errors indicate the move to pierce height would exceed the Z axis maximum safe height for the corresponding probe method:
 
-* *pierce height would exceed Z axis maximum limit while ohmic probing*
+* *pierce height would exceed Z axis maximum safe height condition found while float switch probing*
+* *pierce height would exceed Z axis maximum safe height condition found while ohmic probing*
 
 === Warning Errors
 
@@ -2518,18 +2542,27 @@ These errors indicate the corresponding sensor was activated before a probe test
 
 This indicates that the corresponding sensor was activated during a consumable change:
 
-* *breakaway float or ohmic activated during consumable, change motion is paused* +
+* *breakaway, float, or ohmic activated during consumable change, motion is paused* +
 *WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
 
 WARNING: CONSUMABLE CHANGE MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THE CORRESPONDING SENSOR ACTIVATION.
+
+This indicates that the corresponding sensor was activated during probe testing:
+
+* *breakaway switch detected during probe test*
 
 This indicates that probe contact was lost before probing up to find the zero point:
 
 * *probe trip error while probing*
 
-This indicates the bottom limit was reached during a probe test:
+This indicates that the bottom limit was reached during a probe test:
 
 * *bottom limit reached while probe testing*
+
+This indicates that the move to pierce height would exceed the Z Axis MAX_LIMIT during the corresponding probe method:
+
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during float switch probe testing*
+* *pierce height would exceed Z axis maximum limit condition found while moving to probe height during ohmic probe testing*
 
 This indicates that the safe height has been reduced due to THC raising the Z axis during cutting:
 
@@ -2577,7 +2610,7 @@ NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC and run 
 
 Styling of the QtPlasmaC GUI is done with Qt stylesheets and some customization may be achieved by the use of a custom stylesheet. This allows the user to change some GUI items such as color, border, size, etc. It cannot change the layout of the GUI.
 
-Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here]
+Information on Qt stylesheets is available link:https://doc.qt.io/archives/qt-5.11/stylesheet.html[here].
 
 There are two methods available to apply custom styles:
 
@@ -2741,6 +2774,7 @@ Buttons can run the following:
 . <<qt_button-torch, Pulse the torch on>>
 . <<qt_button-single, Single unidirectional cut>>
 . <<qt_button-framing, Framing a job>>
+. <<qt_button-mancut, Begin/End a manual cut>>
 
 [[qt_button-cmds]]
 
@@ -2798,9 +2832,9 @@ BUTTON_n_CODE = toggle-halpin my-hal-pin-name
 ----
 
 This code is required to be used as a single command and may only control one HAL bit pin per button.
- 
+
 The button colors will follow the state of the halpin.
- 
+
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
 There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
@@ -2818,9 +2852,9 @@ BUTTON_n_CODE = pulse-halpin my-hal-pin-name 0.5
 This code is required to be used as a single command and may only control one HAL bit pin per button.
 
 The delay is specified in seconds, if the delay is not specified then it will default to one second.
- 
+
 The button colors will follow the state of the halpin.
- 
+
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
 
 There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
@@ -2952,6 +2986,16 @@ BUTTON_n_CODE = framing usecurrentZheight
 
 Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
+[[qt_button-mancut]]
+
+[underline]*Manual Cut*
+
+Manual Cut functions identically to the *F9* button to begin or end a <<qt_manual-single-cut, manual cut>>.
+
+----
+BUTTON_n_CODE = manual-cut
+----
+
 [[qt_ext-hal-pin]]
 
 === External HAL Pins
@@ -2969,6 +3013,18 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Abort the loaded gcode program|qtplasmac.ext_abort|CYCLE STOP
 |Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
 |Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
+|Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
+|Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
+|===
+
+The following HAL pins which allow the use of an MPG to control height override are always created.
+
+[width="100%",cols="2,3"]
+|===
+|*Function*|*HAL Pin*
+|Enable MPG height control|qtplasmac.ext_height_ovr_count_enable
+|MPG height change|qtplasmac.ext_height_ovr_counts
 |===
 
 The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons, custom user button>>. The HAL pin has the identical behaviour of the related custom user button.
@@ -2995,7 +3051,7 @@ The following HAL bit output pins are always created and can be used by either t
 
 === Hide Program Buttons
 
-If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons with the following code in the <machine_name>.ini file:
+If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons by adding the following code to the [QTPLASMAC] section of the <machine_name>.ini file:
 
 ----
 HIDE_RUN       = 1
@@ -3260,7 +3316,7 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     n is the percentage to set +
     10 is the minimum, below this will be set to 100% +
     100 is the maximum, above this will be set to 100%
-    *It is recommended to have M68 E3 Q0 in preamble and postamble*
+    *It is recommended to have M68 E3 Q0 in both the preamble and postamble*
 |Cutter <<qt_cutter-compensation, compensation>> - left of path
    |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
 |Cutter <<qt_cutter-compensation, compensation>> - right of path

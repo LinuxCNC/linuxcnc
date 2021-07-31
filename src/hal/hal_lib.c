@@ -2885,6 +2885,7 @@ static int init_hal_data(void)
 	if (hal_data->version == HAL_VER) {
 	    return 0;
 	} else {
+	    rtapi_print("HAL: version:%d expected:%d\n",hal_data->version,HAL_VER);
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: version code mismatch\n");
 	    return -1;

@@ -70,15 +70,17 @@ addf sampler.0          servo-thread
 .*Key words*
 * KEY= This is used to designate the key that the button responds to. It can be NONE or
 ROW number and column number eg R1C2. A row and column can only be used once.
-* OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND
+* OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND, ZMQ.
 * DEFAULT= This sets the starting output of the group or button.
 * GROUP= In radiobuttons, designates the group the button interacts with.
 * GROUP_OUTPUT= sets the output the group pin will be, if this button is active.
 * STATUS_PIN= If TRUE, a HAL pin will be added that reflects the current state of button.
-* TRUE_STATE= sets the output the HAL pin will be, if button is TRUE
-* FALSE_STATE= sets the OUTPUT the HAL pin will be, if the button is FALSE
-* TRUE_COMMAND= sets the command and arguments to be called when the button is TRUE
+* TRUE_STATE= sets the output the HAL pin will be, if button is TRUE.
+* FALSE_STATE= sets the OUTPUT the HAL pin will be, if the button is FALSE.
+* TRUE_COMMAND= sets the command and arguments to be called when the button is TRUE.
 * FALSE_COMMAND= sets the command and arguments to be called when the button is FALSE.
+* TRUE_FUNCTION= sets the ZMQ message function and arguments to be called when the button is TRUE.
+* FALSE_FUNCTION= sets the ZMQ message function and arguments to be called when the button is FALSE.
 
 .*HAL Prefix*
 [source,{ini}]
@@ -87,6 +89,17 @@ ROW number and column number eg R1C2. A row and column can only be used once.
     NAME= Yourname 
 ----
 This allows one to change the prefix of the HAL pins from 'panelui' to an arbitrary name.
+
+.*ZMQ Messaging Setup*
+[source,{ini}]
+----
+[ZMQ_SETUP]
+    TOPIC = 'QTVCP'
+    SOCKET = 'tcp://127.0.0.1:5690'
+    ENABLE = True
+----
+This sets up and enables ZMQ based messaging. +
+TOPIC and SOCKET must match the listening program. +
 
 .*Radio Buttons*
 Radiobutons allow only one button in the group to be active at a time. +
@@ -315,6 +328,48 @@ the spindle is running in.
 .*mdi*
 * required argument: Gcode command(s)
 * Description: sets mode to MDI, calls commands.
+
+== ZMQ Messages
+panelui can send ZMQ based messages on button presses. +
+In this way panelui can interact will other programs such as qtvcp screens. +
+
+[source,{ini}]
+----
+[TOGGLE_BUTTONS]
+
+    [[zmq_test]]
+        KEY = R2C3
+        OUTPUT = ZMQ
+        TRUE_FUNCTION = ZMQ_BUTTON, 200
+        FALSE_FUNCTION = ZMQ_BUTTON, 0
+        STATUS_PIN = False
+        DEFAULT = FALSE
+        TRUE_STATE = 1
+        FALSE_STATE = 0
+----
+
+Here is a sample program that will receive the message and print it to the terminal. +
+
+[source,python]
+----
+import zmq
+import json
+
+# ZeroMQ Context
+context = zmq.Context()
+
+# Define the socket using the "Context"
+sock = context.socket(zmq.SUB)
+
+# Define subscription and messages with topic to accept.
+topic = "" # all topics
+sock.setsockopt(zmq.SUBSCRIBE, topic)
+sock.connect("tcp://127.0.0.1:5690")
+
+while True:
+    topic, message = sock.recv_multipart()
+    print '{} sent message:{}'.format(topic,json.loads(message))
+----
 
 == Handler File Extension
 A special file can be used to add custom python code that will be available as commands.

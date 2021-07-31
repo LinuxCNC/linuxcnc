@@ -276,7 +276,6 @@ class HandlerClass:
                 self.w['ras_label_%s'%i].show()
                 self.w['ras_%s'%i].show()
                 self.w['ras_label_%s'%i].setText('J%d'%i)
-                print 'joint',i,j
                 self.w['ras_%s'%i].setProperty('axis_selection',j)
                 self.w['ras_%s'%i].setProperty('joint_selection',i)
                 try:
