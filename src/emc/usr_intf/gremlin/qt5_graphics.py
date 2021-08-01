@@ -28,14 +28,10 @@ except ImportError:
     LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
     LIB_GOOD = False
 
-if sys.version_info.major > 2:
-    import gi
-    gi.require_version('Pango', '1.0')
-    from gi.repository import Pango
-    import _thread
-else:
-    import pango
-    import thread as _thread
+import gi
+gi.require_version('Pango', '1.0')
+from gi.repository import Pango
+import _thread
     
 import glnav
 from rs274 import glcanon

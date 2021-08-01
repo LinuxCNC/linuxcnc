@@ -36,14 +36,9 @@ import gettext;
 import array, time, atexit, tempfile, shutil, errno, select, re, getopt
 import traceback
 
-if sys.version_info[0] == 3:
-    import tkinter as Tkinter
-    import _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
-else:
-    import Tkinter
-    import thread as _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
+import tkinter as Tkinter
+import _thread
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 # Print Tk errors to stdout. python.org/sf/639266
 OldTk = Tkinter.Tk
@@ -85,10 +80,8 @@ else:
 if hal_present == 1 :
     import hal
 
-if sys.version_info[0] == 3:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
+
 cp = configparser.ConfigParser
 class AxisPreferences(cp):
     types = {
@@ -2946,11 +2939,7 @@ class TclCommands(nf.TclCommands):
 
     def inifindall(section, item):
         # used by TKPKG=Ngcgui
-        if sys.version_info[0] == 3:
-            return inifile.findall(section,item) # list
-        else:
-            items = tuple(inifile.findall(section, item))
-            return root_window.tk.merge(*items)  # str
+        return inifile.findall(section,item) # list
 
     def clear_recent_files():
         ap.putpref('recentfiles', [], repr)

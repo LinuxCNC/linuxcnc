@@ -24,10 +24,7 @@ run-in-place.
 
 import linuxcnc
 import sys
-if sys.version_info[0] == 3:
-    import tkinter
-else:
-    import Tkinter as tkinter
+import tkinter
 
 linenumber = 1;
 

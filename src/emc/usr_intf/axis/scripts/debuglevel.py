@@ -2,16 +2,10 @@
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-if sys.version_info[0] == 3:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
-else:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 import linuxcnc
-if sys.version_info[0] == 3:
-    import tkinter
-else:
-    import Tkinter as tkinter
+import tkinter
 import time
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':

@@ -22,12 +22,9 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 import gettext
-if sys.version_info[0] == 3:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
-    def cmp(a, b):
-        return (a > b) - (a < b) 
-else:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 try:
     from PIL import Image
@@ -761,12 +758,8 @@ def main():
     if len(sys.argv) > 1:
         im_name = sys.argv[1]
     else:
-        if sys.version_info[0] == 3:
-            import tkinter
-            import tkinter.filedialog as tkFileDialog
-        else:
-            import Tkinter as tkinter
-            import tkFileDialog
+        import tkinter
+        import tkinter.filedialog as tkFileDialog
 
         im_name = tkFileDialog.askopenfilename(defaultextension=".png",
             filetypes = (

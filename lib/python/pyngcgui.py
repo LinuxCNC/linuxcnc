@@ -69,7 +69,6 @@ import hashlib
 import glob
 import shutil
 import popupkeyboard
-if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
@@ -91,10 +90,7 @@ g_alive = not g_is_glade
 
 import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-if sys.version_info[0] == 3:
-    gettext.install("linuxcnc", localedir=LOCALEDIR)
-else:
-    gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gettext.install("linuxcnc", localedir=LOCALEDIR)
 
 #try:
 #    import pygtk

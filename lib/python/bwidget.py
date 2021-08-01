@@ -31,10 +31,7 @@ __all__ = """
 """.split()
 
 import sys, types
-if sys.version_info[0] == 3:
-    import tkinter
-else:
-    import Tkinter as tkinter
+import tkinter
 
 def returnswidget(f):
     def w(self, *args, **kw):

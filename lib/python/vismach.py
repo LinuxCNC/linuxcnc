@@ -15,10 +15,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import sys, rs274.OpenGLTk, signal, hal
-if sys.version_info[0] == 3:
-    import tkinter
-else:
-    import Tkinter as tkinter
+import tkinter
 
 from minigl import *
 from math import *

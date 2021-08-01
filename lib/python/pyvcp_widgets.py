@@ -48,11 +48,8 @@
 
 from __future__ import print_function
 import sys
-if sys.version_info[0] == 3:
-    import tkinter as Tkinter
-    from tkinter import *
-else:
-    from Tkinter import *
+import tkinter as Tkinter
+from tkinter import *
 from hal import *
 import math
 import bwidget

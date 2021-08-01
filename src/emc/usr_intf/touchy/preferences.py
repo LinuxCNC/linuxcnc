@@ -15,13 +15,8 @@
 import os
 import sys
 
-if sys.version_info[0] == 3:
-    import configparser
-    cp = configparser.RawConfigParser
-
-else:
-    import ConfigParser as configparser
-    cp = configparser.ConfigParser
+import configparser
+cp = configparser.RawConfigParser
 
 class preferences(cp):
     types = {

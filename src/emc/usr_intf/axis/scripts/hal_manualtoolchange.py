@@ -3,10 +3,7 @@ import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 
-if sys.version_info[0] == 3:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
-else:
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 import linuxcnc, hal
 
@@ -63,10 +60,7 @@ h.ready()
 
 import nf, rs274.options
 
-if sys.version_info[0] == 3:
-    import tkinter
-else:
-    import Tkinter as tkinter
+import tkinter
 
 app = tkinter.Tk(className="AxisToolChanger")
 app.wm_geometry("-60-60")
