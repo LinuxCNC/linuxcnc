@@ -54,9 +54,9 @@ These ini file items are compatible with ngcgui.tcl:
 """
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
-from gi.repository import GObject as gobject
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 from   types import * # IntType etc
 import os
 import sys
@@ -92,12 +92,6 @@ import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
 gettext.install("linuxcnc", localedir=LOCALEDIR)
 
-#try:
-#    import pygtk
-#    pygtk.require('2.0')
-#except ImportError as msg:
-#    print('import pygtk failed: %s',msg)
-#    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
@@ -137,39 +131,39 @@ g_gcmc_exe = None
 g_gcmc_funcname = 'tmpgcmc'
 g_gcmc_id = 0
 
-black_color   = gdk.color_parse('black')
-white_color   = gdk.color_parse('white')
-error_color   = gdk.color_parse('red')
-green_color   = gdk.color_parse('green')
-blue_color    = gdk.color_parse('blue')
-yellow_color  = gdk.color_parse('yellow')
-purple_color  = gdk.color_parse('purple')
-feature_color = gdk.color_parse('lightslategray')
+black_color   = Gdk.color_parse('black')
+white_color   = Gdk.color_parse('white')
+error_color   = Gdk.color_parse('red')
+green_color   = Gdk.color_parse('green')
+blue_color    = Gdk.color_parse('blue')
+yellow_color  = Gdk.color_parse('yellow')
+purple_color  = Gdk.color_parse('purple')
+feature_color = Gdk.color_parse('lightslategray')
 
-label_normal_color = gdk.color_parse('lightsteelblue2')
-label_active_color = gdk.color_parse('ivory2')
-base_entry_color   = gdk.color_parse('azure1')
-fg_created_color   = gdk.color_parse('palegreen')
-fg_multiple_color  = gdk.color_parse('cyan')
+label_normal_color = Gdk.color_parse('lightsteelblue2')
+label_active_color = Gdk.color_parse('ivory2')
+base_entry_color   = Gdk.color_parse('azure1')
+fg_created_color   = Gdk.color_parse('palegreen')
+fg_multiple_color  = Gdk.color_parse('cyan')
 fg_normal_color    = black_color
 
-bg_dvalue_color = gdk.color_parse('darkseagreen2')
+bg_dvalue_color = Gdk.color_parse('darkseagreen2')
 #------------------------------------------------------------------------------
 
 def exception_show(ename,detail,src=''):
     print('\n%s:' % src )
     print('Exception: %s' % ename )
     print('   detail: %s' % detail )
-    if type(detail) == exceptions.ValueError:
+    if type(detail) == ValueError:
         for x in detail:
-            if type(x) in (StringType, UnicodeType):
+            if isinstance(x,str):
                 print('detail(s):',x)
             else:
                 for y in x:
                     print('detail(d):',y,)
-    elif type(detail) == StringType:
+    elif isinstance(detail,str):
         print('detail(s):',detail)
-    elif type(detail) == ListType:
+    elif isinstance(detail,list):
         for x in detail:
             print('detail(l):',x)
     else:
@@ -206,6 +200,8 @@ def get_linuxcnc_ini_file():
         print(_('get_linuxcnc_ini_file: stderr= %s') % e)
         return None
 
+    if p is not None: p = p.decode()
+    if e is not None: e = e.decode()
     ans = p.split()[p.split().index('-ini')+1]
     return ans
 
@@ -217,7 +213,7 @@ def default_send(filename):
     try:
         s = linuxcnc.stat().poll()
     except:
-        user_message(mtype=gtk.MESSAGE_ERROR
+        user_message(mtype=Gtk.MessageType.ERROR
             ,title=_('linuxcnc not running')
             ,msg = _('cannot send, linuxcnc not running'))
         return False
@@ -247,17 +243,17 @@ def send_to_axis(filename): # return True for success
 def file_save(fname,title_message='Save File'):
     start_dir = os.path.dirname(fname)
     if start_dir == '': start_dir = os.path.curdir
-    fc = gtk.FileChooserDialog(title=title_message
+    fc = Gtk.FileChooserDialog(title=title_message
        ,parent=None
-       ,action=gtk.FILE_CHOOSER_ACTION_SAVE
-       ,buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
-                ,gtk.STOCK_OK,     gtk.ResponseType.OK
+       ,action=Gtk.FILE_CHOOSER_ACTION_SAVE
+       ,buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL
+                ,Gtk.STOCK_OK,     Gtk.ResponseType.OK
                 )
        ,backend=None
        )
     fc.set_current_folder(start_dir)
     fc.set_do_overwrite_confirmation(True)
-    filter = gtk.FileFilter()
+    filter = Gtk.FileFilter()
     filter.set_name('NGC files')
     filter.add_pattern('*.ngc')
     filter.add_pattern('*.NGC')
@@ -269,11 +265,11 @@ def file_save(fname,title_message='Save File'):
     fc.set_current_name(os.path.basename(fname)) # suggest name (for save)
     fname = None
     ans = fc.run()
-    if ans == gtk.ResponseType.OK:
+    if ans == Gtk.ResponseType.OK:
         fname = fc.get_filename()
-    elif ans == gtk.RESPONSE_CANCEL:
+    elif ans == Gtk.ResponseType.CANCEL:
         print(_('file_save:canceled'))
-    elif ans == gtk.RESPONSE_DELETE_EVENT: # window close
+    elif ans == Gtk.ResponseType.DELETE_EVENT: # window close
         print(_('file_save:window closed'))
     else:
         raise IOError(_('file_save:unexpected'))
@@ -289,7 +285,7 @@ def is_comment(s):
 
 def get_info_item(line):
     # expect line as unaltered line with whitespace
-    l = line.translate(None,' \t').lower()
+    l = line.translate(' \t').lower()
     r = re.search(r'^\(info:(.*)\)',l)
     if r:
         r = re.search(r'.*info:(.*)\)',line)
@@ -297,7 +293,7 @@ def get_info_item(line):
     return None
 
 def check_sub_start(s):
-    r = re.search(r'^o<(.*)>sub.*',s)
+    r = re.search(r'^o<(.*)> *sub.*',s.strip())
     if r:
         #print('check_sub_start:g0:',r.group(0))
         #print('check_sub_start:g1:',r.group(1))
@@ -305,7 +301,7 @@ def check_sub_start(s):
     return None
 
 def check_sub_end(s):
-    r = re.search(r'^o<(.*)>endsub.*',s)
+    r = re.search(r'^o<(.*)> *endsub.*',s)
     if r:
         #print('check_sub_end:g0:',r.group(0))
         #print('check_sub_end:g1:',r.group(1))
@@ -404,20 +400,20 @@ def find_positional_parms(s):
     return name,pnum,dvalue,comment
 
 def user_message(title=""
-                ,mtype=gtk.MessageType.INFO
-                ,flags=gtk.DialogFlags.MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
+                ,mtype=Gtk.MessageType.INFO
+                ,flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT
                 ,msg=None):
     if msg is None: return(None)
-    if type(msg) == ListType:
+    if isinstance(msg,list):
         txt = "".join(msg)
     else:
         txt = msg
 
     vprint('USER_MESSAGE:\n%s' % txt)
-    popup = gtk.MessageDialog(parent = None
+    popup = Gtk.MessageDialog(parent = None
           ,flags=flags
           ,type=mtype
-          ,buttons = gtk.ButtonsType.OK
+          ,buttons = Gtk.ButtonsType.OK
           ,message_format = txt
           )
     popup.set_title(title)
@@ -430,7 +426,7 @@ def dt():
 
 def md5sum(fname):
     if not fname: return None
-    return(hashlib.md5(open(fname, 'r').read()).hexdigest())
+    return(hashlib.md5(open(fname, 'r').read().encode()).hexdigest())
 
 def find_image(fname):
     found = False
@@ -447,7 +443,7 @@ def find_image(fname):
 def sized_image(ifile):
     twidth  = g_image_width
     theight = g_image_height
-    img = gtk.Image()
+    img = Gtk.Image()
     img.set_from_file(ifile)
 
     pixbuf  = img.get_pixbuf()
@@ -458,8 +454,9 @@ def sized_image(ifile):
     #      iwidth,iheight,twidth,theight,scale))
     new_width  = int(scale*iwidth)
     new_height = int(scale*iheight)
+    from gi.repository.GdkPixbuf import Pixbuf, InterpType
     pixbuf = pixbuf.scale_simple(new_width,new_height
-                                ,gdk.INTERP_BILINEAR)
+                                ,InterpType.BILINEAR)
     img.set_from_pixbuf(pixbuf)
     return(img)
 
@@ -471,7 +468,7 @@ def show_dir(x,tag=''):
         ty = type(item)
         if ty == MethodType:
             l.append('%-8s %s()' % ('0 Meth',name))
-        elif ty == ListType:
+        elif isinstance(ty,list):
             i = 0
             for v in item:
                 try:
@@ -489,7 +486,7 @@ def show_dir(x,tag=''):
             l.append('%-8s %s = %s' % ('5 Int',name,str(item)))
         elif ty == FloatType:
             l.append('%-8s %s = %s' % ('6 Float',name,str(item)))
-        elif ty == StringType:
+        elif isinstance(ty,str):
             l.append('%-8s %s = %s' % ('7 Str',name,item))
         else:
             s = str(item).split(' ')[0] + '>'
@@ -576,7 +573,7 @@ def spath_from_files(pre_file,sub_files,pst_file):
     l = []
 
     slist = []
-    if type(sub_files) == StringType and sub_files:
+    if isinstance(sub_files,str) and sub_files:
         slist.append(sub_files)
     else:
         slist = sub_files
@@ -670,12 +667,12 @@ def coord_value(char):
 
 def make_g_styles():
 
-    dummylabel = gtk.Label()
+    dummylabel = Gtk.Label()
 
     global g_lbl_style_default
     g_lbl_style_default   = dummylabel.get_style().copy()
-    #g_lbl_style_default.bg[gtk.StateType.NORMAL] = label_normal_color TODO:
-    #g_lbl_style_default.bg[gtk.STATE_ACTIVE] = label_active_color
+    #g_lbl_style_default.bg[Gtk.StateType.NORMAL] = label_normal_color TODO:
+    #g_lbl_style_default.bg[Gtk.StateType.ACTIVE] = label_active_color
 
     global g_lbl_style_created
     g_lbl_style_created  = dummylabel.get_style().copy()
@@ -683,16 +680,16 @@ def make_g_styles():
     global g_lbl_style_multiple
     g_lbl_style_multiple = dummylabel.get_style().copy()
 
-    #g_lbl_style_multiple.bg[gtk.STATE_NORMAL] = feature_color
-    #g_lbl_style_multiple.bg[gtk.STATE_ACTIVE] = feature_color
+    #g_lbl_style_multiple.bg[Gtk.StateType.NORMAL] = feature_color
+    #g_lbl_style_multiple.bg[Gtk.StateType.ACTIVE] = feature_color
 
-    #g_lbl_style_created.bg[gtk.STATE_NORMAL] = feature_color
-    #g_lbl_style_created.bg[gtk.STATE_ACTIVE] = feature_color
+    #g_lbl_style_created.bg[Gtk.StateType.NORMAL] = feature_color
+    #g_lbl_style_created.bg[Gtk.StateType.ACTIVE] = feature_color
 
     del dummylabel
 
 
-    dummyentry = gtk.Entry()
+    dummyentry = Gtk.Entry()
 
     global g_ent_style_normal
     g_ent_style_normal  = dummyentry.get_style().copy()
@@ -703,16 +700,18 @@ def make_g_styles():
     global g_ent_style_error
     g_ent_style_error   = dummyentry.get_style().copy()
 
-    #g_ent_style_normal.base[gtk.STATE_NORMAL]  = base_entry_color
+    #g_ent_style_normal.base[Gtk.StateType.NORMAL]  = base_entry_color
 
-    #g_ent_style_default.base[gtk.STATE_NORMAL] = bg_dvalue_color
+    #g_ent_style_default.base[Gtk.StateType.NORMAL] = bg_dvalue_color
 
-    #g_ent_style_error.text[gtk.STATE_NORMAL]   = error_color
-    #g_ent_style_error.base[gtk.STATE_NORMAL]   = base_entry_color
+    #g_ent_style_error.text[Gtk.StateType.NORMAL]   = error_color
+    #g_ent_style_error.base[Gtk.StateType.NORMAL]   = base_entry_color
 
     del dummyentry
 
 def mod_font_by_category(obj,mode='control'):
+    #dbg; crippled at gtk3
+    return
     # currently mode = control (only)
     # touchy has 4 font categories: control,dro,error,listing
     if mode == 'control':
@@ -722,15 +721,15 @@ def mod_font_by_category(obj,mode='control'):
         return
 
     targetobj = None
-    if type(obj) == type(gtk.Label()):
+    if type(obj) == type(Gtk.Label()):
         targetobj = obj
-    elif type(obj) == type(gtk.Entry()):
+    elif type(obj) == type(Gtk.Entry()):
         targetobj = obj
-    elif type(obj) == type(gtk.Button()):
-        #gtk.Alignment object
-        if isinstance(obj.child, gtk.Label):
+    elif type(obj) == type(Gtk.Button()):
+        #Gtk.Alignment object
+        if isinstance(obj.child, Gtk.Label):
             targetobj = obj.child
-        elif isinstance(obj.child, gtk.Alignment):
+        elif isinstance(obj.child, Gtk.Alignment):
             pass
         elif hasattr(obj,'modify_font'):
             targetobj = obj
@@ -781,7 +780,7 @@ def find_gcmc():
                 g_gcmc_exe = exe
                 return True # success
     g_gcmc_exe = "NOTFOUND"
-    user_message(mtype=gtk.MESSAGE_ERROR
+    user_message(mtype=Gtk.MessageType.ERROR
                 ,title=_('Error for:')
                 ,msg = _('gcmc executable not available:'
                 + '\nCheck path and permissions'))
@@ -799,22 +798,22 @@ class CandidateDialog():
         lname = long_name(self.ftype)
         title = "Choose %s file" % lname
 
-        btns=(gtk.STOCK_CANCEL, gtk.ResponseType.REJECT
-             ,gtk.STOCK_OK,     gtk.ResponseType.ACCEPT)
+        btns=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT
+             ,Gtk.STOCK_OK,     Gtk.ResponseType.ACCEPT)
         if ( (self.ftype == 'pre') or (self.ftype == 'pst') ):
-            # RESPONSE_NO used to allow 'nofile' for 'pre','pst'
-            btns = btns + ('No %s File' % lname, gtk.RESPONSE_NO)
+            # NO used to allow 'nofile' for 'pre','pst'
+            btns = btns + ('No %s File' % lname, Gtk.ResponseType.NO)
 
-        self.fdialog = gtk.Dialog(title=title
+        self.fdialog = Gtk.Dialog(title=title
                      ,parent=None
-                     ,flags=gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
+                     ,flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT
                      ,buttons=btns
                      )
         self.fdialog.set_size_request(600,600)
 
-        scrollw = gtk.ScrolledWindow()
+        scrollw = Gtk.ScrolledWindow()
         scrollw.set_border_width(5)
-        scrollw.set_policy(gtk.PolicyType.AUTOMATIC, gtk.POLICY_ALWAYS)
+        scrollw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.ALWAYS)
         scrollw.show()
 
         box = self.fdialog.get_content_area()
@@ -825,25 +824,25 @@ class CandidateDialog():
         self.canfiles.refresh()
         self.treestore = g_candidate_files.treestore
 
-        self.treeview = gtk.TreeView(self.treestore)
+        self.treeview = Gtk.TreeView(self.treestore)
         if g_alive: self.treeview.connect('row-activated',self.row_activated)
 
 
-        column0 = gtk.TreeViewColumn('Subroutine Directories')
+        column0 = Gtk.TreeViewColumn('Subroutine Directories')
         self.treeview.append_column(column0)
-        cell0 = gtk.CellRendererText()
+        cell0 = Gtk.CellRendererText()
         column0.pack_start(cell0, True)
         column0.add_attribute(cell0, 'text', 0)
 
-        column1 = gtk.TreeViewColumn('Hint')
+        column1 = Gtk.TreeViewColumn('Hint')
         self.treeview.append_column(column1)
-        cell1 = gtk.CellRendererText()
+        cell1 = Gtk.CellRendererText()
         column1.pack_start(cell1, True)
         column1.add_attribute(cell1, 'text', 1)
 
-        column2 = gtk.TreeViewColumn('mtime')
+        column2 = Gtk.TreeViewColumn('mtime')
         self.treeview.append_column(column2)
-        cell2 = gtk.CellRendererText()
+        cell2 = Gtk.CellRendererText()
         column2.pack_start(cell2, True)
         column2.add_attribute(cell2, 'text', 2)
 
@@ -882,7 +881,7 @@ class CandidateDialog():
         return('TRYAGAIN',emsg)
 
     def row_activated(self,tview,iter,column):
-        self.fdialog.response(gtk.ResponseType.ACCEPT)
+        self.fdialog.response(Gtk.ResponseType.ACCEPT)
         pass
 
     def run(self):
@@ -896,7 +895,7 @@ class CandidateFiles():
     """CandidateFiles treestore for candidate files"""
     def __init__(self,dirlist):
         self.dirlist=dirlist
-        self.treestore = gtk.TreeStore(str,str,str)
+        self.treestore = Gtk.TreeStore(str,str,str)
         self.tdict = {}
         self.make_tree()
 
@@ -1046,7 +1045,7 @@ class LinuxcncInterface():
                 spath    = l_spath
                 msg = msg + _('Ignoring cmd line ini file (different paths)')
 
-            user_message(mtype=gtk.MESSAGE_WARNING
+            user_message(mtype=Gtk.MessageType.WARNING
                         ,title=_('Warning')
                         ,msg=msg
                         )
@@ -1067,7 +1066,7 @@ class LinuxcncInterface():
 
 
     def addto_spath(self,pathtoadd):
-        if type(pathtoadd) != ListType:
+        if not isinstance(pathtoadd,list):
             raise ValueError(
                 'addto_spath: List required not: %s %s'
                 % (pathtoadd,type(pathtoadd)))
@@ -1172,6 +1171,7 @@ class PreFile():
 
     def read(self):
         #print('PreFile read')
+
         self.md5 = None
         self.mtime = None
         self.inputlines = []
@@ -1185,7 +1185,6 @@ class PreFile():
                 self.inputlines.append(l)
         f.close()
         self.md5 = md5sum(self.pre_file)
-
 
 class PstFile():
     """PstFile: postamble file data"""
@@ -1240,7 +1239,7 @@ class SubFile():
         elif os.path.splitext(self.sub_file)[-1] in ['.gcmc','.GCMC']:
             self.read_gcmc()
         else:
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                     ,title=_('Unknown file suffix')
                     ,msg = _('Unknown suffix for: %s:')
                              % os.path.basename(self.sub_file)
@@ -1288,7 +1287,7 @@ class SubFile():
         for line in self.inputlines:
             # rs274: no whitespace, simplify with lowercase
             info = get_info_item(line) # check on unaltered line
-            l = line.translate(None,' \t').lower()
+            l = line.translate(' \t').lower()
             lineiscomment = is_comment(l)
             if info is not None: self.pdict['info'] = info
             sname = check_sub_start(l)
@@ -1331,7 +1330,7 @@ class SubFile():
 
                 pparm,min,max= check_positional_parm_range(l
                                ,self.min_num,self.max_num)
-                if pparm > g_max_parm:
+                if pparm is not None and pparm > g_max_parm:
                     self.flagerror(
                       _('parm #%s exceeds config limit on no. of parms= %d\n')
                         % (pparm,g_max_parm))
@@ -1369,7 +1368,7 @@ class SubFile():
         if self.pdict['info'] == '':
             self.pdict['info'] = 'sub: '+str(subname)
         if self.errlist:
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                         ,title=_('Error for: %s ')
                                  % os.path.basename(self.sub_file)
                         ,msg = self.errlist)
@@ -1451,11 +1450,11 @@ class OneParmEntry():
     """OneParmEntry: one parameter labels and entry box"""
     def __init__(self,ltxt='ltxt' ,etxt='etxt' ,rtxt='rtxt'):
 
-        self.box = gtk.HBox()
+        self.box = Gtk.HBox()
 
-        self.ll  = gtk.Label()
-        self.en  = gtk.Entry()
-        self.lr  = gtk.Label()
+        self.ll  = Gtk.Label()
+        self.en  = Gtk.Entry()
+        self.lr  = Gtk.Label()
 
         self.dv  = None
 
@@ -1464,7 +1463,7 @@ class OneParmEntry():
 
         self.ll.set_label(ltxt)
         self.ll.set_width_chars(2)
-        self.ll.set_justify(gtk.JUSTIFY_RIGHT)
+        self.ll.set_justify(Gtk.Justification.RIGHT)
         self.ll.set_alignment(xalign=.90,yalign=0.5) # right aligned
         self.ll.set_size_request(ww,hh)
 
@@ -1482,13 +1481,13 @@ class OneParmEntry():
 
         self.lr.set_label(rtxt)
         self.lr.set_width_chars(0) # allow any width for compat with ngcgui
-        self.lr.set_justify(gtk.JUSTIFY_LEFT)
+        self.lr.set_justify(Gtk.Justification.LEFT)
         self.lr.set_alignment(xalign=0.2,yalign=0.5) # left aligned
         self.lr.set_size_request(ww,hh)
         self.lr.hide()
         mod_font_by_category(self.lr,'control')
 
-        self.tbtns = gtk.HBox(homogeneous=0,spacing=2)
+        self.tbtns = Gtk.HBox(homogeneous=0,spacing=2)
         self.tbtns.set_border_width(0)
 
         self.box.pack_start(self.tbtns, expand=0, fill=0, padding=0)
@@ -1605,24 +1604,24 @@ class EntryFields():
             raise ValueError(_(
                   'EntryFields:nparms=%d g_max_parm=%d')
                   % (nparms,g_max_parm))
-        self.ebox = gtk.Frame()
-        self.ebox.set_shadow_type(gtk.ShadowType.ETCHED_IN)
+        self.ebox = Gtk.Frame()
+        self.ebox.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         self.ebox.set_border_width(2)
 
-        efbox = gtk.VBox()
-        evb = gtk.VBox(homogeneous=0,spacing=2)
-        xpositionalp = gtk.Label('Positional Parameters')
+        efbox = Gtk.VBox()
+        evb = Gtk.VBox(homogeneous=0,spacing=2)
+        xpositionalp = Gtk.Label('Positional Parameters')
         xpositionalp.set_alignment(xalign=0.0,yalign=0.5) # left aligned
-        epositionalp = gtk.EventBox()
+        epositionalp = Gtk.EventBox()
         epositionalp.add(xpositionalp)
-        epositionalp.modify_bg(gtk.STATE_NORMAL,label_normal_color)
-        lpositionalp = gtk.Frame()
-        lpositionalp.set_shadow_type(gtk.SHADOW_IN)
+        epositionalp.modify_bg(Gtk.StateType.NORMAL,label_normal_color)
+        lpositionalp = Gtk.Frame()
+        lpositionalp.set_shadow_type(Gtk.ShadowType.IN)
         lpositionalp.set_border_width(0)
         lpositionalp.add(epositionalp)
 
 
-        self.boxofcolumns = gtk.HBox(homogeneous=0,spacing=2)
+        self.boxofcolumns = Gtk.HBox(homogeneous=0,spacing=2)
 
         evb.pack_start(lpositionalp,expand=0,fill=1,padding=0)
         evb.pack_start(self.boxofcolumns,   expand=1,fill=1,padding=4)
@@ -1646,9 +1645,9 @@ class EntryFields():
                  del(c)
         except AttributeError:
             # first-time: create initial VBox for entries
-            self.columnbox = gtk.VBox(homogeneous=0,spacing=2)
+            self.columnbox = Gtk.VBox(homogeneous=0,spacing=2)
 
-        self.boxofcolumns.pack_start(self.columnbox)
+        self.boxofcolumns.pack_start(self.columnbox,expand=0,fill=0,padding=0)
 
         # try to use minimum height if less than 3 columns
         if nparms > 20:
@@ -1663,8 +1662,9 @@ class EntryFields():
             if row >= rowmax:
                 row = 0
                 # make a new VBox for next column of entries
-                self.columnbox = gtk.VBox(homogeneous=0,spacing=2)
-                self.boxofcolumns.pack_start(self.columnbox)
+                self.columnbox = Gtk.VBox(homogeneous=0,spacing=2)
+                self.boxofcolumns.pack_start(self.columnbox
+                                             ,expand=0,fill=0,padding=0)
             self.pentries[idx] = OneParmEntry('','','')
             self.columnbox.pack_start(self.pentries[idx].box
                                      ,expand=0,fill=0,padding=0)
@@ -1708,9 +1708,9 @@ class EntryFields():
 class TestButtons():
     """TestButtons: debugging buttons"""
     def __init__(self,mypg):
-        self.box  = gtk.HBox()
+        self.box  = Gtk.HBox()
         self.mypg = mypg
-        lbl       = gtk.Label('Debug:')
+        lbl       = Gtk.Label('Debug:')
         lbl.set_alignment(xalign=0.9,yalign=0.5) # rt aligned
         self.box.pack_start(lbl,expand=0,fill=0,padding=2)
         for item in ('info'
@@ -1731,11 +1731,11 @@ class TestButtons():
                     ,'loc'
                     ,'tst'
                     ):
-            button = gtk.Button(item)
+            button = Gtk.Button(item)
             if g_alive: button.connect("clicked", self.btest, item)
             button.show_all()
             self.box.pack_start(button,expand=0,fill=0,padding=2)
-        bclose = gtk.Button('Close')
+        bclose = Gtk.Button('Close')
         if g_alive: bclose.connect("clicked", lambda x: self.delete())
         self.box.pack_start(bclose,expand=0,fill=0,padding=2)
 
@@ -1811,7 +1811,7 @@ class TestButtons():
         else: print('btest unknown:',v)
 
     def delete(self):
-        gtk.main_quit()
+        Gtk.main_quit()
         return False
 
 
@@ -1825,37 +1825,37 @@ class ControlPanel():
                 ):
         self.mypg = mypg
  
-        frame = gtk.Frame()
-        frame.set_shadow_type(gtk.ShadowType.ETCHED_IN)
+        frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
         frame.set_border_width(2)
         self.box = frame
         
-        cpbox  = gtk.VBox()
+        cpbox  = Gtk.VBox()
         # fixed width so it doesn't change when switching tabs
         # fixed height to allow room for buttons below image
         #cpbox.set_size_request(g_image_width,g_image_height)
 
         bw = 1
-        bpre = gtk.Button(_('Preamble'))
+        bpre = Gtk.Button(_('Preamble'))
         bpre.set_border_width(bw)
         mod_font_by_category(bpre)
 
-        bsub = gtk.Button(_('Subfile'))
+        bsub = Gtk.Button(_('Subfile'))
         bsub.set_border_width(bw)
         mod_font_by_category(bsub)
 
-        bpst = gtk.Button(_('Postamble'))
+        bpst = Gtk.Button(_('Postamble'))
         bpst.set_border_width(bw)
         mod_font_by_category(bpst)
 
-        self.pre_entry = gtk.Entry()
-        self.pre_entry.set_state(gtk.STATE_INSENSITIVE)
+        self.pre_entry = Gtk.Entry()
+        self.pre_entry.set_state(Gtk.StateType.INSENSITIVE)
 
-        self.sub_entry = gtk.Entry()
-        self.sub_entry.set_state(gtk.STATE_INSENSITIVE)
+        self.sub_entry = Gtk.Entry()
+        self.sub_entry.set_state(Gtk.StateType.INSENSITIVE)
 
-        self.pst_entry = gtk.Entry()
-        self.pst_entry.set_state(gtk.STATE_INSENSITIVE)
+        self.pst_entry = Gtk.Entry()
+        self.pst_entry.set_state(Gtk.StateType.INSENSITIVE)
 
         chars=10
 
@@ -1874,19 +1874,19 @@ class ControlPanel():
         self.pst_entry.set_text(os.path.basename(pst_file))
         if g_alive: self.pst_entry.connect("activate", self.file_choose, 'pst')
 
-        xcontrol = gtk.Label('Controls')
+        xcontrol = Gtk.Label('Controls')
         xcontrol.set_alignment(xalign=0.0,yalign=0.5) # left aligned
-        econtrol = gtk.EventBox()
+        econtrol = Gtk.EventBox()
         econtrol.add(xcontrol)
-        econtrol.modify_bg(gtk.STATE_NORMAL,label_normal_color)
-        lcontrol= gtk.Frame()
-        lcontrol.set_shadow_type(gtk.SHADOW_IN)
-        lcontrol.set_border_width(0)
+        econtrol.modify_bg(Gtk.StateType.NORMAL,label_normal_color)
+        lcontrol= Gtk.Frame()
+        lcontrol.set_shadow_type(Gtk.ShadowType.IN)
+        lcontrol.set_border_width(1)
         lcontrol.add(econtrol)
 
-        tfiles = gtk.Table(rows=3, columns=2, homogeneous=0)
+        tfiles = Gtk.Table(rows=3, columns=2, homogeneous=0)
 
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = 0
 
         tfiles.attach(bpre,0,1,0,1,xoptions=bx,yoptions=by)
         tfiles.attach(bsub,0,1,1,2,xoptions=bx,yoptions=by)
@@ -1900,17 +1900,17 @@ class ControlPanel():
         if g_alive: bsub.connect("clicked", self.file_choose, 'sub')
         if g_alive: bpst.connect("clicked", self.file_choose, 'pst')
 
-        #bretain   = gtk.CheckButton('Retain values on Subfile read')
-        self.bexpand   = gtk.CheckButton('Expand Subroutine')
+        #bretain   = Gtk.CheckButton('Retain values on Subfile read')
+        self.bexpand   = Gtk.CheckButton('Expand Subroutine')
         self.bexpand.set_active(self.mypg.expandsub)
         if g_alive: self.bexpand.connect("toggled", self.toggle_expandsub)
 
-        self.bautosend = gtk.CheckButton('Autosend')
+        self.bautosend = Gtk.CheckButton('Autosend')
         self.bautosend.set_active(self.mypg.autosend)
         if g_alive: self.bautosend.connect("toggled", self.toggle_autosend)
 
-        tchkbs = gtk.Table(rows=3, columns=1, homogeneous=0)
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+        tchkbs = Gtk.Table(rows=3, columns=1, homogeneous=0)
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
         #tchkbs.attach(bretain,  0,1,0,1,xoptions=bx,yoptions=by)
         tchkbs.attach(self.bexpand,  0,1,1,2,xoptions=bx,yoptions=by)
 
@@ -1920,48 +1920,48 @@ class ControlPanel():
 
         bw = 1
 
-        bcreate   = gtk.Button(_('Create Feature'))
+        bcreate   = Gtk.Button(_('Create Feature'))
         bcreate.set_border_width(bw)
         if g_alive: bcreate.connect("clicked", lambda x: self.create_feature())
         mod_font_by_category(bcreate)
 
-        bfinalize = gtk.Button(_('Finalize'))
+        bfinalize = Gtk.Button(_('Finalize'))
         bfinalize.set_border_width(bw)
         if g_alive: bfinalize.connect("clicked"
                                      ,lambda x: self.finalize_features())
         mod_font_by_category(bfinalize)
 
-        self.lfct = gtk.Label(str(mypg.feature_ct))
+        self.lfct = Gtk.Label(str(mypg.feature_ct))
         self.lfct.set_alignment(xalign=0.9,yalign=0.5) # right aligned
         mod_font_by_category(self.lfct)
 
-        lfctf = gtk.Frame()
-        lfctf.set_shadow_type(gtk.SHADOW_IN)
+        lfctf = Gtk.Frame()
+        lfctf.set_shadow_type(Gtk.ShadowType.IN)
         lfctf.set_border_width(2)
         lfctf.add(self.lfct)
 
-        self.breread   = gtk.Button(_('Reread'))
+        self.breread   = Gtk.Button(_('Reread'))
         self.breread.set_border_width(bw)
         if g_alive: self.breread.connect("clicked"
                                         ,lambda x: self.reread_files())
         mod_font_by_category(self.breread)
 
-        brestart  = gtk.Button(_('Restart'))
+        brestart  = Gtk.Button(_('Restart'))
         brestart.set_border_width(bw)
         if g_alive: brestart.connect("clicked"
                                     ,lambda x: self.restart_features())
         mod_font_by_category(brestart)
 
-        self.lmsg = gtk.Label(_('Ctrl-k for key shortcuts'))
+        self.lmsg = Gtk.Label(_('Ctrl-k for key shortcuts'))
         self.lmsg.set_alignment(xalign=0.05,yalign=0.5) # left aligned
 
-        lmsgf = gtk.Frame()
-        lmsgf.set_shadow_type(gtk.SHADOW_IN)
+        lmsgf = Gtk.Frame()
+        lmsgf.set_shadow_type(Gtk.ShadowType.IN)
         lmsgf.set_border_width(2)
         lmsgf.add(self.lmsg)
 
-        tactions = gtk.Table(rows=3, columns=3, homogeneous=1)
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+        tactions = Gtk.Table(rows=3, columns=3, homogeneous=1)
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
         tactions.attach(bcreate,  0,2,0,1,xoptions=bx,yoptions=by)
         tactions.attach(bfinalize,2,3,0,1,xoptions=bx,yoptions=by)
 
@@ -1969,7 +1969,7 @@ class ControlPanel():
         # tactions.attach(self.breread ,0,1,1,2,xoptions=bx,yoptions=by)
         tactions.attach(brestart,   2,3,1,2,xoptions=bx,yoptions=by)
 
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = 0
         #tactions.attach(self.lmsg,0,3,2,3,xoptions=bx,yoptions=by)
         tactions.attach(lmsgf,0,3,2,3,xoptions=bx,yoptions=by)
 
@@ -1982,7 +1982,7 @@ class ControlPanel():
              or mypg.imageoffpage
            ):
             # show all controls
-            bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+            bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
             tactions.attach(self.breread, 0,1,1,2,xoptions=bx,yoptions=by)
             tactions.attach(lfctf,        1,2,1,2,xoptions=bx,yoptions=by)
             cpbox.pack_start(lcontrol,expand=0,fill=0,padding=0)
@@ -1992,7 +1992,7 @@ class ControlPanel():
                 self.separate_image(img,sub_file,show=False)
                 mypg.imageoffpage = True
         else:
-            bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+            bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
             tactions.attach(lfctf,  0,2,1,2,xoptions=bx,yoptions=by)
             # show image instead of controls
             if image_file:
@@ -2003,7 +2003,7 @@ class ControlPanel():
         frame.add(cpbox)
 
     def separate_image(self,img,fname='',show=True):
-        self.mypg.imgw = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.mypg.imgw = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         w = self.mypg.imgw
         w.hide()
         w.iconify()
@@ -2119,7 +2119,7 @@ class ControlPanel():
 
         if stat == 'NOTFOUND':
             force_expand = True
-            user_message(mtype=gtk.MESSAGE_INFO
+            user_message(mtype=Gtk.MessageType.INFO
                 ,title=_('Expand Subroutine')
                 ,msg=_('The selected file') + ':\n\n'
                 + '%s\n\n'
@@ -2195,7 +2195,7 @@ class ControlPanel():
             try:
                 fvalue = str(float(m.efields.pentries[k].getentry()))
             except ValueError:
-                user_message(mtype=gtk.MESSAGE_ERROR
+                user_message(mtype=Gtk.MessageType.ERROR
                     ,title='gcmc input ERROR'
                     ,msg=_('<%s> must be a number' % m.efields.pentries[k].getentry())
                     )
@@ -2236,22 +2236,22 @@ class ControlPanel():
                     compile_txt += line
 
         if m_txt != "":
-            user_message(mtype=gtk.MESSAGE_INFO
+            user_message(mtype=Gtk.MessageType.INFO
                 ,title='gcmc INFO'
                 ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,m_txt)
                 )
         if w_txt != "":
-            user_message(mtype=gtk.MESSAGE_WARNING
+            user_message(mtype=Gtk.MessageType.WARNING
                 ,title='gcmc WARNING'
                 ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,w_txt)
                 )
         if e_txt != "":
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                 ,title='gcmc ERROR'
                 ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,e_txt)
                 )
         if compile_txt != "":
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                 ,title='gcmc Compile ERROR'
                 ,msg="gcmc File:%s"%(compile_txt)
                 )
@@ -2275,7 +2275,7 @@ class ControlPanel():
         if mypg.feature_ct <= 0:
             msg = _('No features specified on this page')
             self.set_message(msg)
-            user_message(mtype=gtk.MESSAGE_WARNING
+            user_message(mtype=Gtk.MessageType.WARNING
                     ,title='No Features'
                     ,msg=msg)
             return
@@ -2312,28 +2312,28 @@ class ControlPanel():
                      'You can Cancel and change the order with the\n'
                      'Forward and Back buttons\n'
                   )
-            popup = gtk.Dialog(title='Page Selection'
+            popup = Gtk.Dialog(title='Page Selection'
                   ,parent=None
-                  ,flags=gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT
-                  ,buttons=(gtk.STOCK_NO,     gtk.RESPONSE_NO
-                           ,gtk.STOCK_YES,    gtk.RESPONSE_YES
-                           ,gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
+                  ,flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT
+                  ,buttons=(Gtk.STOCK_NO,     Gtk.ResponseType.NO
+                           ,Gtk.STOCK_YES,    Gtk.ResponseType.YES
+                           ,Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL
                            )
                   )
             finbox = popup.get_content_area()
-            l = gtk.Label(msg)
-            finbox.pack_start(l)
+            l = Gtk.Label(msg)
+            finbox.pack_start(l,expand=0,fill=0,padding=0)
             popup.show_all()
             ans = popup.run()
             popup.destroy()
-            if   ans == gtk.RESPONSE_YES:
+            if   ans == Gtk.ResponseType.YES:
                 pass # use plist for all pages
-            elif ans == gtk.RESPONSE_NO:
+            elif ans == Gtk.ResponseType.NO:
                 pno = self.mypg.mynb.get_current_page()
                 npage = nb.get_nth_page(pno)
                 plist = [nset.pg_for_npage[npage]]
-            elif (   ans == gtk.RESPONSE_CANCEL
-                  or ans == gtk.REXPONSE_DELETE_EVENT): # window close
+            elif (   ans == Gtk.ResponseType.CANCEL
+                  or ans == Gtk.ResponseType.DELETE_EVENT): # window close
                 return # do nothing
             else:
                 raise ValueError('finalize_features:unknown ans<%d>'%ans)
@@ -2436,16 +2436,16 @@ class ControlPanel():
         while True:
             response   = mydiag.run()
             fname,errmsg = mydiag.get_file_result()
-            if   response == gtk.ResponseType.ACCEPT:
+            if   response == Gtk.ResponseType.ACCEPT:
                 vprint('file_choose: ACCEPT')
                 self.mypg.cpanel.set_message(_('file_choose ACCEPT'))
                 pass
-            elif response == gtk.ResponseType.REJECT:
+            elif response == Gtk.ResponseType.REJECT:
                 self.mypg.cpanel.set_message(_('file_choose REJECT'))
                 vprint('file_choose: REJECT')
                 mydiag.destroy()
                 return None
-            elif response == gtk.RESPONSE_NO:
+            elif response == Gtk.ResponseType.NO:
                 self.mypg.cpanel.set_message(_('No File'))
                 fname = 'nofile' # allow pre,pst nofile
                 vprint('file_choose: No File')
@@ -2456,7 +2456,7 @@ class ControlPanel():
                 return None
 
             if fname == 'TRYAGAIN':
-                user_message(mtype=gtk.MESSAGE_INFO
+                user_message(mtype=Gtk.MessageType.INFO
                             ,title=_('Try Again')
                             ,msg=errmsg
                             )
@@ -2539,28 +2539,28 @@ class OnePg():
 
         bw = 1
 
-        #bremove = gtk.Button(_('Remove'))
-        bremove = gtk.Button(stock=gtk.STOCK_DELETE)
+        #bremove = Gtk.Button(_('Remove'))
+        bremove = Gtk.Button(stock=Gtk.STOCK_DELETE)
         bremove.set_border_width(bw)
         if g_alive: bremove.connect("clicked", lambda x: self.remove_page())
 
-        #bclone = gtk.Button(_('Clone'))
-        bclone = gtk.Button(stock=gtk.STOCK_ADD)
+        #bclone = Gtk.Button(_('Clone'))
+        bclone = Gtk.Button(stock=Gtk.STOCK_ADD)
         bclone.set_border_width(bw)
         if g_alive: bclone.connect("clicked", lambda x: self.clone_page())
 
-        #bnew = gtk.Button(_('New'))
-        bnew = gtk.Button(stock=gtk.STOCK_NEW)
+        #bnew = Gtk.Button(_('New'))
+        bnew = Gtk.Button(stock=Gtk.STOCK_NEW)
         bnew.set_border_width(bw)
         if g_alive: bnew.connect("clicked", lambda x: self.new_empty_page())
 
-        #bmoveleft = gtk.Button(_('<==Move'))
-        bmoveleft = gtk.Button(stock=gtk.STOCK_GO_BACK,label='')
+        #bmoveleft = Gtk.Button(_('<==Move'))
+        bmoveleft = Gtk.Button(stock=Gtk.STOCK_GO_BACK,label='')
         bmoveleft.set_border_width(bw)
         if g_alive: bmoveleft.connect("clicked", lambda x: self.move_left())
 
-        #bmoveright = gtk.Button(_('Move==>'))
-        bmoveright = gtk.Button(stock=gtk.STOCK_GO_FORWARD,label='')
+        #bmoveright = Gtk.Button(_('Move==>'))
+        bmoveright = Gtk.Button(stock=Gtk.STOCK_GO_FORWARD,label='')
         bmoveright.set_border_width(bw)
         if g_alive: bmoveright.connect("clicked", lambda x: self.move_right())
 
@@ -2571,10 +2571,10 @@ class OnePg():
         #mod_font_by_category(bmoveleft)
         #mod_font_by_category(bmoveright)
 
-        tabarrange_buttons = gtk.HBox()        # main buttons
+        tabarrange_buttons = Gtk.HBox()        # main buttons
 
-        self.mtable = gtk.Table(rows=1, columns=2, homogeneous=0)
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND; by = 0
+        self.mtable = Gtk.Table(rows=1, columns=2, homogeneous=0)
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND; by = 0
         no_of_parms = g_max_parm
 
 
@@ -2585,11 +2585,11 @@ class OnePg():
 
         self.fill_entrypage(emode='initial')
 
-        bx = 0; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+        bx = 0; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
         self.mtable.attach(self.cpanel.box, 0,1,0,1,xoptions=bx,yoptions=by)
 
-        bx = gtk.AttachOptions.FILL; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
-        bx = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND ; by = gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND
+        bx = Gtk.AttachOptions.FILL; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
+        bx = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND ; by = Gtk.AttachOptions.FILL|Gtk.AttachOptions.EXPAND
         entrystuff = self.efields.get_box()
         self.mtable.attach(entrystuff, 1,2,0,1,xoptions=bx,yoptions=by)
 
@@ -2598,16 +2598,16 @@ class OnePg():
         nopts = nset.intfc.get_ngcgui_options()
 
         if (nopts is None) or ('noremove' not in nopts):
-            tabarrange_buttons.pack_start(bremove)
+            tabarrange_buttons.pack_start(bremove,expand=0,fill=0,padding=0)
 
         if (nopts is None) or ('nonew' not in nopts):
-            tabarrange_buttons.pack_start(bclone)
-            tabarrange_buttons.pack_start(bnew)
+            tabarrange_buttons.pack_start(bclone,expand=0,fill=0,padding=0)
+            tabarrange_buttons.pack_start(bnew,expand=0,fill=0,padding=0)
 
-        tabarrange_buttons.pack_start(bmoveleft)
-        tabarrange_buttons.pack_start(bmoveright)
+        tabarrange_buttons.pack_start(bmoveleft,expand=0,fill=0,padding=0)
+        tabarrange_buttons.pack_start(bmoveright,expand=0,fill=0,padding=0)
 
-        op_box = gtk.VBox()
+        op_box = Gtk.VBox()
 
         if g_tab_controls_loc == 'top':
             op_box.pack_start(tabarrange_buttons,expand=0,fill=0,padding=0)
@@ -2620,25 +2620,28 @@ class OnePg():
         op_box.pack_start(self.linfof, expand=0,fill=0,padding=0)
         op_box.pack_start(self.mtable, expand=1,fill=1,padding=0)
 
+        ct=0
         if g_debug:
             op_box.pack_end(tbtns.box,  expand=0,fill=0,padding=5)
         op_box.show_all()
 
-        self.pgbox = gtk.EventBox()
+        self.pgbox = Gtk.EventBox()
         self.pgbox.add(op_box)
         self.pgbox.show_all()
 
         if g_alive: self.pgbox.connect('event',self.any_event)
 
         # establish size with max no of entries
-        ww,hh = self.mtable.size_request()
+
+        #wip: gtk3 notworking:
+        #     "cannot unpack non-iterable Requisition object
+        #ww,hh = self.mtable.size_request()
         #print('size for mtable:',ww,hh)
         #self.mtable.set_size_request(ww,hh)
 
         lastpidx = self.fset.sub_data.pdict['lastparm']
 
-        gobject.timeout_add_seconds(g_check_interval,self.periodic_check)
-
+        GObject.timeout_add_seconds(g_check_interval,self.periodic_check)
 
     def periodic_check(self):
         try:
@@ -2662,7 +2665,7 @@ class OnePg():
                     o_entry.modify_text(state,purple_color)
                 else:
                     #print(i,'SAME md5',o_file,o_md5)
-                    o_entry.modify_text(gtk.STATE_NORMAL,black_color)
+                    o_entry.modify_text(Gtk.StateType.NORMAL,black_color)
         except OSError as detail:
             print((_('%s:periodic_check:OSError:%s') % detail))
             pass # continue without checks after showing message
@@ -2674,37 +2677,37 @@ class OnePg():
         return True      # True to repeat
 
     def any_event(self,widget,event):
-        if   event.type == gdk.ENTER_NOTIFY:
+        if   event.type == Gdk.EventType.ENTER_NOTIFY:
             #widget.set_can_focus(True)
             self.key_enable = True
             #print('ENTER enable')
             return
-        elif event.type == gdk.LEAVE_NOTIFY:
+        elif event.type == Gdk.EventType.LEAVE_NOTIFY:
             #print "LEAVE can, is",widget.is_focus(),widget.get_can_focus(),'\n'
             if widget.get_can_focus():
                 #widget.set_can_focus(False)
                 self.key_enable = False
                 #print('LEAVE disable')
             return
-        elif event.type == gdk.EXPOSE:
+        elif event.type == Gdk.EventType.EXPOSE:
             widget.grab_focus()
             return
-        elif event.type == gdk.KEY_PRESS:
+        elif event.type == Gdk.EventType.KEY_PRESS:
             if not self.key_enable:
                 #print('IGNORE')
                 return
-            keyname = gdk.keyval_name(event.keyval)
+            keyname = Gdk.keyval_name(event.keyval)
             kl = keyname.lower()
             # ignore special keys (until they modify)
             if kl in ['alt_r','alt_l']         : return
             if kl in ['control_r','control_l'] : return
             if kl in ['shift_r','shift_l']     : return
             pre = ''
-            if  event.state & gdk.ModifierType.CONTROL_MASK:
+            if  event.state & Gdk.ModifierType.CONTROL_MASK:
                 pre = "Control-"
-            elif event.state & gdk.ModifierType.MOD1_MASK:
+            elif event.state & Gdk.ModifierType.MOD1_MASK:
                 pre = "Alt-"
-            elif event.state & gdk.ModifierType.SHIFT_MASK:
+            elif event.state & Gdk.ModifierType.SHIFT_MASK:
                 pre = "Shift-"
             k = pre + keyname
             #print("%10s (%03d=%#2X)" % (k, event.keyval,event.keyval))
@@ -2738,7 +2741,7 @@ class OnePg():
 
     def edit_any_file(self,fname,ftype=''):
         if not fname:
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                         ,title=_('No file')
                         ,msg=_('No %s file specified') % ftype
                         )
@@ -2760,7 +2763,7 @@ class OnePg():
         msg.append('Control-r  ' + _('Reread files') + '\n')
         msg.append('Control-u  ' + _('Edit sub file') + '\n')
         msg.append('Control-U  ' + _('Edit preamble file') + '\n')
-        user_message(mtype=gtk.MESSAGE_INFO
+        user_message(mtype=Gtk.MessageType.INFO
                     ,title=_('Special Keys')
                     ,flags=0 #still MODAL ??
                     ,msg=msg)
@@ -2787,8 +2790,8 @@ class OnePg():
             newcolor = fg_normal_color
 
         self.eb_lbl.set_style(newstyle)
-        self.the_lbl.modify_fg(gtk.STATE_NORMAL, newcolor)
-        self.the_lbl.modify_fg(gtk.STATE_ACTIVE, newcolor)
+        self.the_lbl.modify_fg(Gtk.StateType.NORMAL, newcolor)
+        self.the_lbl.modify_fg(Gtk.StateType.ACTIVE, newcolor)
 
     def make_fileset(self):
         try:
@@ -2806,9 +2809,9 @@ class OnePg():
         try:
             type(self.info_label) # test for existence
         except AttributeError:
-            self.info_label = gtk.Label()
-            self.linfof = gtk.Frame()
-            self.linfof.set_shadow_type(gtk.SHADOW_IN)
+            self.info_label = Gtk.Label()
+            self.linfof = Gtk.Frame()
+            self.linfof.set_shadow_type(Gtk.ShadowType.IN)
             self.linfof.set_border_width(2)
             self.linfof.add(self.info_label)
 
@@ -2911,7 +2914,7 @@ class OnePg():
     def remove_page(self):
         page_ct = self.mynb.get_n_pages()
         if page_ct - self.nset.startpage_idx == 1:
-            user_message(mtype=gtk.MESSAGE_INFO
+            user_message(mtype=Gtk.MessageType.INFO
                 ,title=_('Remove not allowed')
                 ,msg=_('One tabpage must remain')
                 )
@@ -2944,7 +2947,6 @@ class NgcGui():
                 ,pst_file=''
                 ,tab_controls_loc='top'  # option for touchy
                 ,control_font=None       # option for touchy
-                ,gtk_theme_name=None     # option for touchy
                 ,max_parm=None           # for small display, reject some subs
                 ,image_width=None        # for small display
                 ):
@@ -3012,20 +3014,20 @@ class NgcGui():
         self.pg_for_npage = {}
         if w is None:
             # standalone operation
-            self.nb = gtk.Notebook()
-            w = gtk.Window(gtk.WINDOW_TOPLEVEL)
-            if g_alive: w.connect("destroy", gtk.main_quit)
+            self.nb = Gtk.Notebook()
+            w = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+            if g_alive: w.connect("destroy", Gtk.main_quit)
             w.set_title(sys.argv[0])
             w.add(self.nb)
             self.nb.show()
             w.show()
-        elif type(w) == gtk.Frame:
+        elif type(w) == Gtk.Frame:
             # demo -- embed as a notebook in a provider's frame
-            self.nb = gtk.Notebook()
+            self.nb = Gtk.Notebook()
             w.add(self.nb)
             self.nb.show()
             w.show()
-        elif type(w) == gtk.Notebook:
+        elif type(w) == Gtk.Notebook:
             # demo -- embed as additional pages in a provider's notebook
             self.nb = w
             self.startpage_idx = self.nb.get_n_pages()
@@ -3033,7 +3035,6 @@ class NgcGui():
             raise ValueError('NgcGui:bogus w= %s' % type(w))
 
         self.nb.set_scrollable(True)
-        self.set_theme(w,tname=gtk_theme_name)
 
         self.intfc = LinuxcncInterface(ini_file)
 
@@ -3041,7 +3042,7 @@ class NgcGui():
             self.intfc.addto_spath(
                        spath_from_files(pre_file,sub_files,pst_file))
             if len(self.intfc.subroutine_path) != 0:
-                user_message(mtype=gtk.MESSAGE_WARNING
+                user_message(mtype=Gtk.MessageType.WARNING
                     ,title=_('Simulated subroutine path')
                     ,msg=_('No subroutine path available.\n'
                       'Simulating subroutine path:\n\n')
@@ -3052,7 +3053,7 @@ class NgcGui():
         if len(self.intfc.subroutine_path) == 0:
             if g_alive:
                 # no message if glade designer is running:
-                user_message(mtype=gtk.MESSAGE_ERROR
+                user_message(mtype=Gtk.MessageType.ERROR
                     ,title=_('No Subroutine Paths')
                     ,msg='\n' +
                         _('No paths available!\n'
@@ -3072,7 +3073,7 @@ class NgcGui():
 
         # multiple pages can be specified with __init__()
         initsublist= []
-        if type(sub_files) == StringType and sub_files:
+        if isinstance(sub_files,str) and sub_files:
             initsublist.append(sub_files)
         else:
             initsublist = sub_files
@@ -3086,7 +3087,7 @@ class NgcGui():
             else:
                 nogo_l.append(sub_file)
         if nogo_l:
-            user_message(mtype=gtk.MESSAGE_INFO
+            user_message(mtype=Gtk.MessageType.INFO
                     ,title=_('Cannot use files not in subroutine path')
                     ,msg=_('Files not in subroutine path:\n')
                          + str(nogo_l) +
@@ -3115,7 +3116,7 @@ class NgcGui():
             except ValueError:
                 # it's called autofile in --help
                 pass
-                #user_message(mtype=gtk.MESSAGE_WARNING
+                #user_message(mtype=Gtk.MessageType.WARNING
                 #        ,title=_('Warning: autofile not in path')
                 #        ,msg=_('autofile==%s is not in linuxcnc\n'
                 #               'subroutine search path:\n'
@@ -3172,13 +3173,6 @@ class NgcGui():
     def update_fonts(self,fontname):
         update_fonts(fontname)
 
-    def set_theme(self,w,tname=None):
-        screen   = w.get_screen()
-        settings = gtk.settings_get_for_screen(screen)
-        if (tname is None) or (tname == "") or (tname == "Follow System Theme"):
-            tname = settings.get_property("gtk-theme-name")
-        settings.set_string_property('gtk-theme-name',tname,"")
-
     def page_switched(self,notebook,npage,pno):
         if self.current_page:
             curpage = self.current_page
@@ -3216,14 +3210,15 @@ class NgcGui():
             ltxt = opage.fset.sub_data.pdict['subname']
         ltxt = self.make_unique_tab_name(ltxt)
 
-        eb_lbl = gtk.EventBox()
-        mylbl  = gtk.Label(ltxt)
+        eb_lbl = Gtk.EventBox()
+        mylbl  = Gtk.Label(ltxt)
         if g_popkbd is not None:
              mylbl.set_size_request(-1,g_big_height)
         eb_lbl.add(mylbl)
         mylbl.show()
         eb_lbl.set_style(g_lbl_style_default)
 
+        opage.pgbox.set_border_width(2)
         pno  = self.nb.append_page(opage.pgbox,eb_lbl)
         if g_control_font is not None:
             mod_font_by_category(mylbl)
@@ -3313,7 +3308,7 @@ class SaveSection():
             tmpsdata.append("(%11s = %12s = %12s)\n" % (
                               '#'+str(idx),name,value))
         if emsg:
-            user_message(mtype=gtk.MESSAGE_ERROR
+            user_message(mtype=Gtk.MessageType.ERROR
                         ,title=_('SaveSection Error')
                         ,msg=emsg)
             mypg.cpanel.set_message(_('Failed to create feature'))
@@ -3412,26 +3407,26 @@ Notes:
 
 def standalone_pyngcgui():
     # make widgets for test cases:
-    top = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    top = Gtk.Window(Gtk.WindowType.TOPLEVEL)
     top.set_title('top')
-    hbox  = gtk.HBox()
+    hbox  = Gtk.HBox()
     top.add(hbox)
-    l1 = gtk.Label('LABEL')
-    hbox.pack_start(l1,expand=0,fill=0)
-    e1 = gtk.Entry()
-    hbox.pack_start(e1,expand=0,fill=0)
+    l1 = Gtk.Label('LABEL')
+    hbox.pack_start(l1,expand=0,fill=0,padding=0)
+    e1 = Gtk.Entry()
+    hbox.pack_start(e1,expand=0,fill=0,padding=0)
     e1.set_width_chars(4)
-    f1 = gtk.Frame()
-    hbox.pack_start(f1,expand=0,fill=0)
-    f2 = gtk.Frame()
-    hbox.pack_start(f2,expand=0,fill=0)
+    f1 = Gtk.Frame()
+    hbox.pack_start(f1,expand=0,fill=0,padding=0)
+    f2 = Gtk.Frame()
+    hbox.pack_start(f2,expand=0,fill=0,padding=0)
 
-    n = gtk.Notebook()
+    n = Gtk.Notebook()
     n.set_scrollable(True)
-    b1 = gtk.Button('b1-filler')
-    b2 = gtk.Button('b2-filler')
-    n.append_page(b1,gtk.Label('Mb1-filler'))
-    n.append_page(b2,gtk.Label('Mb2-filler'))
+    b1 = Gtk.Button('b1-filler')
+    b2 = Gtk.Button('b2-filler')
+    n.append_page(b1,Gtk.Label('Mb1-filler'))
+    n.append_page(b2,Gtk.Label('Mb2-filler'))
     f1.add(n)
     top.show_all()
 
@@ -3562,7 +3557,7 @@ def standalone_pyngcgui():
         sys.exit(11)
 
     try:
-        gtk.main()
+        Gtk.main()
     except KeyboardInterrupt:
         sys.exit(0)
 

@@ -64,12 +64,6 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
                            ,''
                            ,GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT
                            ),
-     'gtk_theme_name':     (GObject.TYPE_STRING
-                           ,'Gtk+ Theme Name'
-                           ,'default | name_of_Gtk+_theme'
-                           ,'Follow System Theme'
-                           ,GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT
-                           ),
      'control_font_name':  (GObject.TYPE_STRING
                            ,'Control Font'
                            ,'example: Sans 10'
@@ -122,7 +116,6 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
             ,send_function_name  = self.property_dict['send_function_name']
             ,send_to_dir         = self.property_dict['send_to_dir']
             ,control_font_name   = self.property_dict['control_font_name']
-            ,gtk_theme_name      = self.property_dict['gtk_theme_name']
             )
         GObject.timeout_add(1,self.remove_unwanted_label)
 
@@ -138,7 +131,6 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
                     ,send_function_name=''
                     ,send_to_dir=''
                     ,control_font_name=None
-                    ,gtk_theme_name="Follow System Theme"
                     ):
 
         thenotebook = Gtk.Notebook()
@@ -180,5 +172,4 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
                             ,send_function=send_function # prototype: (fname)
                             ,auto_file=auto_file # None for default behavior
                             ,control_font=control_font
-                            ,gtk_theme_name=gtk_theme_name
                             )
