@@ -119,6 +119,8 @@ def get_linuxcnc_ini_file():
                              stdout=subprocess.PIPE
                            )
     p,e = ps.communicate()
+    if p is not None: p=p.decode()
+    if e is not None: e=e.decode()
 
     if ps.returncode:
         print(_('get_linuxcnc_ini_file: stdout= %s') % p)
@@ -145,8 +147,14 @@ class GremlinView():
         if ini_check():
             linuxcnc_running = True
 
+        if not linuxcnc_running:
+            print("gremlin_view: LinuxCNC must be running")
+            sys.exit(1)
+
         if (glade_file == None):
             glade_file = os.path.join(g_ui_dir,'gremlin_view.ui')
+
+        print("gremlin_view glade_file=",glade_file)
 
         bldr = Gtk.Builder()
         try:
@@ -168,23 +176,13 @@ class GremlinView():
 
         # radiobuttons for selecting view: (expect at least one)
         select_view_letters = ['p','x','y','z','z2']
-        found_view = None
         for vletter in select_view_letters:
             try:
                 obj = bldr.get_object('select_' + vletter + '_view')
+                self.my_view = vletter # first letter found is inital view
+                break
             except:
                 continue
-            if obj is not None:
-                setattr(self,vletter + '_view',obj)
-                if found_view is None:
-                    found_view = obj
-                    self.my_view = vletter
-                    obj.set_group(None)
-                    obj.set_active(True)
-                else:
-                    obj.set_group(found_view)
-        if found_view is None:
-            print('%s:Expected to find "select_*_view"' % __file__)
 
         check_button_objects = ['enable_dro'
                                ,'show_machine_speed'
@@ -293,13 +291,14 @@ class GremlinView():
             # print "REPARENT:",gtk_theme_name
             screen   = self.halg.get_screen()
 
-        settings = Gtk.settings_get_for_screen(screen)
-        systname = settings.get_property("gtk-theme-name")
-        if (   (gtk_theme_name is None)
-            or (gtk_theme_name == "")
-            or (gtk_theme_name == "Follow System Theme")):
-            gtk_theme_name = systname
-        settings.set_string_property('gtk-theme-name',gtk_theme_name,"")
+        # not valid for Gtk3:
+        # settings = Gtk.settings_get_for_screen(screen)
+        # systname = settings.get_property("gtk-theme-name")
+        # if (   (gtk_theme_name is None)
+        #     or (gtk_theme_name == "")
+        #     or (gtk_theme_name == "Follow System Theme")):
+        #     gtk_theme_name = systname
+        # settings.set_string_property('gtk-theme-name',gtk_theme_name,"")
 
         self.topwindow.connect('destroy',self._topwindowquit)
         self.topwindow.show_all()
@@ -391,44 +390,44 @@ class GremlinView():
         self.halg.expose()
 
     def on_zoomin_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.halg.zoomin()
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_zoomout_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.halg.zoomout()
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_pan_x_minus_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.x -= g_delta_pixels
             self.halg.translate(self.x,self.y)
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_pan_x_plus_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.x += g_delta_pixels
             self.halg.translate(self.x,self.y)
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_pan_y_minus_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.y += g_delta_pixels
             self.halg.translate(self.x,self.y)
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_pan_y_plus_pressed(self,w):
-        while w.get_state() == Gtk.STATE_ACTIVE:
+        while w.get_state() == Gtk.StateType.ACTIVE:
             self.y -= g_delta_pixels
             self.halg.translate(self.x,self.y)
             time.sleep(g_move_delay_secs)
-            Gtk.main_iteration_do()
+            Gtk.main_iteration_do(blocking=0)
 
     def on_clear_live_plotter_clicked(self,w):
         self.halg.clear_live_plotter()
@@ -498,11 +497,8 @@ class GremlinView():
         self.set_view_per_w(w,'z2')
 
     def set_view_per_w(self,w,vletter):
-        if not w.get_active(): return
-        self.halg.hide()
-        getattr(self.halg,'set_view_%s' % vletter)()
         self.my_view = vletter
-        self.halg.show()
+        getattr(self.halg,'set_view_%s' % vletter)()
 
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:

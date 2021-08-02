@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.20"/>
+  <!-- <requires lib="gtk+" version="2.20"/> -->
   <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="gremlin_view_window">
@@ -182,6 +182,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
+                    <property name="group">select_p_view</property>
                     <signal name="clicked" handler="on_select_z_view_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -210,6 +211,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
+                    <property name="group">select_p_view</property>
                     <signal name="clicked" handler="on_select_x_view_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -227,6 +229,7 @@
                     <property name="use_action_appearance">False</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
+                    <property name="group">select_p_view</property>
                     <signal name="clicked" handler="on_select_y_view_clicked" swapped="no"/>
                   </object>
                   <packing>
