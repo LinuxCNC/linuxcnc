@@ -74,6 +74,7 @@ class OverlayMaterial(QLabel):
 class ColorError(Exception):
     pass
 
+# the main handler
 class HandlerClass:
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
@@ -196,6 +197,7 @@ class HandlerClass:
         self.pmx485CommsError = False
         self.pmx485FaultCode = 0.0
         self.pmx485ArcTime = 0.0
+        self.pmx485LabelState = None
         self.camCurrentX = self.camCurrentY = 0
         self.degreeSymbol = u"\u00b0"
         self.cameraOn = False
@@ -258,7 +260,6 @@ class HandlerClass:
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
-
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
@@ -581,6 +582,7 @@ class HandlerClass:
         self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -592,12 +594,15 @@ class HandlerClass:
         self.w.color_estop.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
         self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
         self.w.color_preview.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
+        self.tool_tips_changed()
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
         self.set_basic_colors()
 
     def hide_widgets(self):
+        if not os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            self.w.main_tab_widget.removeTab(3)
         for b in ['RUN', 'PAUSE', 'ABORT']:
             if int(self.iniFile.find('QTPLASMAC', 'HIDE_{}'.format(b)) or 0):
                 self.w[b.lower()].hide()
@@ -666,7 +671,7 @@ class HandlerClass:
             self.w.estop.hide()
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
-        self.w.camview.font = QFont("arial,helvetica", 16)
+        self.w.camview.font = QFont('arial,helvetica', 16)
         self.overlay = OverlayMaterial(self.w.gcodegraphics)
         self.overlayConv = OverlayMaterial(self.w.conv_preview)
         self.flasher = QTimer()
@@ -747,6 +752,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
@@ -1003,64 +1009,6 @@ class HandlerClass:
     def jog_rate_changed(self, object, value):
         self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
 
-    def flasher_timeout(self):
-        if STATUS.is_auto_paused():
-            if self.w.pause.text() == '':
-                self.w.pause.setText('CYCLE RESUME')
-            else:
-                self.w.pause.setText('')
-        else:
-            self.w.pause.setText('CYCLE PAUSE')
-        if self.w.feed_slider.value() != 100 and \
-           self.w.feed_label.text() == 'FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100):
-                self.w.feed_label.setText(' \n ')
-        else:
-            self.w.feed_label.setText('FEED\n{:.0f}%'.format(STATUS.stat.feedrate * 100))
-        if self.w.rapid_slider.value() != 100 and \
-           self.w.rapid_label.text() == 'RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100):
-                self.w.rapid_label.setText(' \n ')
-        else:
-            self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
-        if self.heightOvr > 0.01 or self.heightOvr < -0.01:
-            if self.w.height_ovr_label.text() == '':
-                self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
-            else:
-                self.w.height_ovr_label.setText('')
-        else:
-            self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
-        if self.startLine > 0:
-            if self.w.run.text() == (''):
-                self.w.run.setText(self.runText)
-            else:
-                self.w.run.setText('')
-        else:
-            self.w.run.setText('CYCLE START')
-        if not self.w.pmx485_enable.isChecked():
-            self.w.pmx485_label.setText('')
-            self.w.pmx_stats_frame.hide()
-        elif self.pmx485CommsError:
-            if self.w.pmx485_label.text() == '':
-                self.w.pmx485_label.setText('COMMS ERROR')
-            else:
-                self.w.pmx485_label.setText('')
-        elif not self.w.pmx485_label.text().startswith('CONN'):
-            if self.w.pmx485_label.text() == '':
-                self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
-            else:
-                self.w.pmx485_label.setText('')
-        if self.framing and STATUS.is_interp_idle():
-            self.framing = False
-            ACTION.SET_MANUAL_MODE()
-            self.laserOnPin.set(0)
-            self.w.gcodegraphics.logger.clear()
-        if self.notifyError:
-            self.color_last_tab(self.backColor, self.estopColor)
-        elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
-            self.color_last_tab(self.backColor, self.foreColor)
-        else:
-            self.color_last_tab(self.foreColor, self.backColor)
-        self.stats_update()
-
     def percent_loaded(self, object, percent):
         if percent < 1:
             self.w.gcode_progress.setValue(0)
@@ -1078,7 +1026,7 @@ class HandlerClass:
 
     def file_loaded(self, obj, filename):
         if os.path.basename(filename).count('.') > 1:
-            self.lastLoadedProgram = ""
+            self.lastLoadedProgram = ''
             return
         if filename is not None:
             self.w.gcode_progress.setValue(0)
@@ -1107,7 +1055,6 @@ class HandlerClass:
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
-                    print (self.oldFile)
                     ACTION.OPEN_PROGRAM(self.oldFile)
                     self.set_run_button_state()
                 self.w[self.scButton].setEnabled(True)
@@ -1125,9 +1072,9 @@ class HandlerClass:
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
         self.w['dro_{}'.format(dro)].setProperty('homed', True)
-        self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
+        self.w['dro_{}'.format(dro)].setStyle(self.w['dro_{}'.format(dro)].style())
         self.w['dro_label_{}'.format(dro)].setProperty('homed', True)
-        self.w["dro_label_{}".format(dro)].setStyle(self.w["dro_label_{}".format(dro)].style())
+        self.w['dro_label_{}'.format(dro)].setStyle(self.w['dro_label_{}'.format(dro)].style())
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
         self.w.gcodegraphics.logger.clear()
@@ -1136,9 +1083,9 @@ class HandlerClass:
         for joint in joints:
             dro = self.coordinates[int(joint)]
             self.w['dro_{}'.format(dro)].setProperty('homed', False)
-            self.w["dro_{}".format(dro)].setStyle(self.w["dro_{}".format(dro)].style())
+            self.w['dro_{}'.format(dro)].setStyle(self.w['dro_{}'.format(dro)].style())
             self.w['dro_label_{}'.format(dro)].setProperty('homed', False)
-            self.w["dro_label_{}".format(dro)].setStyle(self.w["dro_label_{}".format(dro)].style())
+            self.w['dro_label_{}'.format(dro)].setStyle(self.w['dro_label_{}'.format(dro)].style())
         if len(joints) < len(self.coordinates):
             self.w.home_all.setEnabled(True)
         self.w.update
@@ -1314,7 +1261,7 @@ class HandlerClass:
         if STATUS.is_joint_mode():
             self.kb_jog(state, self.coordinates.index(joint), direction, shift)
         else:
-            self.kb_jog(state, ["x","y","z","a","b"].index(joint), direction, shift)
+            self.kb_jog(state, ['x','y','z','a','b'].index(joint), direction, shift)
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -1692,6 +1639,7 @@ class HandlerClass:
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
+        self.w.chk_tool_tips.stateChanged.connect(self.tool_tips_changed)
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
@@ -2039,7 +1987,7 @@ class HandlerClass:
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = inputType
 
-    def overlay_changed(self):
+    def overlay_changed(self, state):
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
             self.overlayConv.show()
@@ -2486,8 +2434,6 @@ class HandlerClass:
         if self.torchTime <= 0:
             self.torchTimer.stop()
             self.torchTime = 0
-#            if not self.w[self.tpButton].isDown() and not self.extPulsePin.get():
-            print("BUTTON:{}   PIN:{}".format(self.w[self.tpButton].isDown(), self.extPulsePin.get()))
             if not self.w[self.tpButton].isDown() and not self.extPulsePin.get():
                 hal.set_p('plasmac.torch-pulse-time', '0')
                 self.w[self.tpButton].setText(self.tpText)
@@ -2661,7 +2607,7 @@ class HandlerClass:
                             self.idleHomedList.append('button_{}'.format(str(bNum)))
                     elif command and command[0] == '%':
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
-                        reply = Popen("which {}".format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
+                        reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             msg = 'Invalid code for user button #{}\n' \
                                   'External command "{}" does not exist\n'.format(bNum, cmd)
@@ -2767,7 +2713,7 @@ class HandlerClass:
                             if char == '{':
                                 subCommand = ':'
                             elif char == '}':
-                                f1, f2 = subCommand.replace(':',"").split()
+                                f1, f2 = subCommand.replace(':','').split()
                                 newCommand += self.iniFile.find(f1,f2)
                                 subCommand = ''
                             elif subCommand.startswith(':'):
@@ -4515,8 +4461,8 @@ class HandlerClass:
         CONVSET.show(self, self.w)
 
     def conv_send_pressed(self):
-        COPY(self.fNgcBkp, self.fNgc.replace("shape","sent_shape"))
-        ACTION.OPEN_PROGRAM(self.fNgc.replace("shape","sent_shape"))
+        COPY(self.fNgcBkp, self.fNgc.replace('shape','sent_shape'))
+        ACTION.OPEN_PROGRAM(self.fNgc.replace('shape','sent_shape'))
         self.w.conv_send.setEnabled(False)
         self.conv_enable_tabs()
         self.w.main_tab_widget.setCurrentIndex(0)
@@ -4638,7 +4584,7 @@ class HandlerClass:
                     out += t
             widget.setText(out)
             if widget.text() in '-.' or widget.text() == '-.':
-                return "operator"
+                return 'operator'
             try:
                 a = float(widget.text())
             except:
@@ -4916,70 +4862,70 @@ class HandlerClass:
     def on_keycall_XPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("x"), 1, shift)
+                self.kb_jog(state, self.coordinates.index('x'), 1, shift)
             else:
                 self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("x"), -1, shift)
+                self.kb_jog(state, self.coordinates.index('x'), -1, shift)
             else:
                 self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("y"), 1, shift)
+                self.kb_jog(state, self.coordinates.index('y'), 1, shift)
             else:
                 self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("y"), -1, shift)
+                self.kb_jog(state, self.coordinates.index('y'), -1, shift)
             else:
                 self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("z"), 1, shift)
+                self.kb_jog(state, self.coordinates.index('z'), 1, shift)
             else:
                 self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("z"), -1, shift)
+                self.kb_jog(state, self.coordinates.index('z'), -1, shift)
             else:
                 self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("a"), 1, shift)
+                self.kb_jog(state, self.coordinates.index('a'), 1, shift)
             else:
                 self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("a"), -1, shift)
+                self.kb_jog(state, self.coordinates.index('a'), -1, shift)
             else:
                 self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_BPOS(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("b"), 1, shift)
+                self.kb_jog(state, self.coordinates.index('b'), 1, shift)
             else:
                 self.kb_jog(state, 4, 1, shift)
 
     def on_keycall_BNEG(self, event, state, shift, cntrl):
         if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
             if STATUS.is_joint_mode():
-                self.kb_jog(state, self.coordinates.index("b"), -1, shift)
+                self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
                 self.kb_jog(state, 4, -1, shift)
 
@@ -5024,6 +4970,117 @@ class HandlerClass:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
+
+
+#########################################################################################################################
+# TOOL TIP FUNCTIONS #
+#########################################################################################################################
+    def tool_tips_changed(self):
+        if self.w.chk_tool_tips.isChecked():
+            self.set_tool_tips()
+        else:
+            widgets = [
+            'abort','arc_voltage','cornerlock_enable','cut_amps','cut_rec_cancel',
+            'cut_rec_fwd','cut_rec_move_label','cut_rec_rev','cut_rec_speed','cut_rec_e',
+            'cut_rec_n','cut_rec_ne','cut_rec_nw','cut_rec_se','cut_rec_sw','cut_rec_w',
+            'dro_a','dro_x','dro_y','dro_z','estop','feed_slider','file_cancel',
+            'file_next','file_open','file_prev','file_reload','file_select','height_lower',
+            'height_raise','home_a','home_all','home_b','home_x','home_y','home_z',
+            'ignore_arc_ok','jog_a_minus','jog_a_plus','jog_slider','jog_slow',
+            'jog_b_minus','jog_b_plus','jog_x_minus','jog_x_plus','jog_y_minus',
+            'jog_y_plus','jog_z_minus','jog_z_plus','jogincrements','kerfcross_enable',
+            'led_arc_ok','led_breakaway_switch','led_corner_lock','led_float_switch',
+            'led_kerf_lock','led_ohmic_probe','led_torch_on','mesh_enable','ohmic_probe_enable',
+            'pause','pmx485_enable','pmx485_label','power','rapid_slider','run',
+            'led_thc_active','led_thc_down','led_thc_up','torch_enable','touch_a',
+            'touch_b','touch_x','touch_xy','touch_y','touch_z','use_auto_volts',
+            'wcs_button',
+            ]
+            for widget in widgets:
+                self.w[widget].setToolTip('')
+
+    def set_tool_tips(self):
+        self.w.abort.setToolTip('Stop the currently running G-Code program')
+        self.w.arc_voltage.setToolTip('Current arc voltage')
+        self.w.cornerlock_enable.setToolTip('Enable velocity anti dive')
+        self.w.cut_amps.setToolTip('cutting current in amps, indicator only, not used by PlasmaC')
+        self.w.cut_rec_cancel.setToolTip('Cancel cut recovery')
+        self.w.cut_rec_fwd.setToolTip('Forward move along current motion segment')
+        self.w.cut_rec_move_label.setToolTip('Distance the torch will move')
+        self.w.cut_rec_rev.setToolTip('Reverse move along current motion segment')
+        self.w.cut_rec_speed.setToolTip('Paused motion feed rate override percentage')
+        self.w.cut_rec_e.setToolTip('Move torch in the X+ direction')
+        self.w.cut_rec_n.setToolTip('Move torch in the Y+ direction')
+        self.w.cut_rec_ne.setToolTip('Move torch in the X+ Y+ direction')
+        self.w.cut_rec_nw.setToolTip('Move torch in the X- Y+ direction')
+        self.w.cut_rec_s.setToolTip('Move torch in the Y- direction')
+        self.w.cut_rec_se.setToolTip('Move torch in the X+ Y- direction')
+        self.w.cut_rec_sw.setToolTip('Move torch in the X- Y- direction')
+        self.w.cut_rec_w.setToolTip('Move torch in the X- direction')
+        self.w.dro_a.setToolTip('Current A axis position')
+        self.w.dro_b.setToolTip('Current B axis position')
+        self.w.dro_x.setToolTip('Current X axis position')
+        self.w.dro_y.setToolTip('Current Y axis position')
+        self.w.dro_z.setToolTip('Current Z axis position')
+        self.w.estop.setToolTip('Estop status')
+        self.w.feed_slider.setToolTip('Set the feed override percentage')
+        self.w.file_cancel.setToolTip('Close the file selector')
+        self.w.file_next.setToolTip('Move down')
+        self.w.file_open.setToolTip('Open the file selector')
+        self.w.file_prev.setToolTip('Move up')
+        self.w.file_reload.setToolTip('Reload the current G-Code file')
+        self.w.file_select.setToolTip('Open the selected G-Code file')
+        self.w.height_lower.setToolTip('Override THC height down')
+        self.w.height_raise.setToolTip('Override THC height up')
+        self.w.home_a.setToolTip('Home the A axis')
+        self.w.home_all.setToolTip('Home all axes')
+        self.w.home_b.setToolTip('Home the B axis')
+        self.w.home_x.setToolTip('Home the X axis')
+        self.w.home_y.setToolTip('Home the Y axis')
+        self.w.home_z.setToolTip('Home the Z axis')
+        self.w.ignore_arc_ok.setToolTip('Ignore Arc OK signal')
+        self.w.jog_a_minus.setToolTip('Jog the A axis counter clockwise')
+        self.w.jog_a_plus.setToolTip('Jog the A axis clockwise')
+        self.w.jog_slider.setToolTip('Set the jog feed rate')
+        self.w.jog_slow.setToolTip('Toggle jog feed rate by a factor of 10')
+        self.w.jog_b_minus.setToolTip('Jog the B axis counter clockwise')
+        self.w.jog_b_plus.setToolTip('Jog the B axis clockwise')
+        self.w.jog_x_minus.setToolTip('Jog the X axis left')
+        self.w.jog_x_plus.setToolTip('Jog the X axis right')
+        self.w.jog_y_minus.setToolTip('Jog the Y axis forward')
+        self.w.jog_y_plus.setToolTip('Jog the Y axis back')
+        self.w.jog_z_minus.setToolTip('Jog the Z axis down')
+        self.w.jog_z_plus.setToolTip('Jog the Z axis up')
+        self.w.jogincrements.setToolTip('Set the jog increment')
+        self.w.kerfcross_enable.setToolTip('Enable void anti dive')
+        self.w.led_arc_ok.setToolTip('Arc OK signal')
+        self.w.led_breakaway_switch.setToolTip('Breakaway switch status')
+        self.w.led_corner_lock.setToolTip('Velocity anti dive is active')
+        self.w.led_float_switch.setToolTip('Float switch status')
+        self.w.led_kerf_lock.setToolTip('Void anti dive is active')
+        self.w.led_ohmic_probe.setToolTip('Ohmic probe status')
+        self.w.led_torch_on.setToolTip('Torch on status')
+        self.w.mesh_enable.setToolTip('Enable mesh mode cutting')
+        self.w.ohmic_probe_enable.setToolTip('Enable ohmic probing')
+        self.w.pause.setToolTip('Pause or resume the currently running G-Code program')
+        self.w.pmx485_enable.setToolTip('Enable Powermax communications')
+        self.w.pmx485_label.setToolTip('Status of pmx485 communications')
+        self.w.power.setToolTip('Switch the GUI on or off')
+        self.w.rapid_slider.setToolTip('Set the rapid override percentage')
+        self.w.run.setToolTip('Run the currently loaded G-Code program')
+        self.w.led_thc_active.setToolTip('THC is currently active')
+        self.w.led_thc_down.setToolTip('THC is moving the Z axis down')
+        self.w.led_thc_enabled.setToolTip('THC is enabled')
+        self.w.led_thc_up.setToolTip('THC is moving the Z axis up')
+        self.w.torch_enable.setToolTip('Enable the torch')
+        self.w.touch_a.setToolTip('Touch off the A axis')
+        self.w.touch_b.setToolTip('Touch off the B axis')
+        self.w.touch_x.setToolTip('Touch off the X axis')
+        self.w.touch_xy.setToolTip('Touch off the X and Y axes to zero')
+        self.w.touch_y.setToolTip('Touch off the Y axis')
+        self.w.touch_z.setToolTip('Touch off the Z axis')
+        self.w.use_auto_volts.setToolTip('Use automatic voltage for THC')
+        self.w.wcs_button.setToolTip('Select work coordinate system')
 
 
 ##################################################################################################################################

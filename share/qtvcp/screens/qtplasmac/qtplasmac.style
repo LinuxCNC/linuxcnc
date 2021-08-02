@@ -44,11 +44,12 @@
 
 /****** TOOLTIPS ************/
 QToolTip {
-    color: backgnd;
+    color: foregnd;
     background: backgnd;
-    border: none;
-    font: 1px;
-    opacity: 0 }
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    font: 13px;
+    padding: 8 }
 
 /****** VELOCITY LABELS ************/
 #velocity_label{
