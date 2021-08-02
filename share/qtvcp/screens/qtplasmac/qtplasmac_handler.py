@@ -1,4 +1,4 @@
-VERSION = '1.0.57'
+VERSION = '1.0.58'
 
 import os, sys
 from shutil import copy as COPY
@@ -481,6 +481,7 @@ class HandlerClass:
         self.extHeightOvrResetPin = self.h.newpin('ext_height_ovr_reset', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrCountsPin = self.h.newpin('ext_height_ovr_counts', hal.HAL_S32, hal.HAL_IN)
         self.extHeightOvrCountEnablePin = self.h.newpin('ext_height_ovr_count_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extJogSlowPin = self.h.newpin('ext_jog_slow', hal.HAL_BIT, hal.HAL_IN)
         self.probeTestErrorPin = self.h.newpin('probe_test_error', hal.HAL_BIT, hal.HAL_IN)
         self.out0Pin = self.h.newpin('ext_out_0', hal.HAL_BIT, hal.HAL_OUT)
         self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
@@ -1460,12 +1461,12 @@ class HandlerClass:
         current = slider.value()
         max = slider.maximum()
         if state:
-            self.w.sender().setText('SLOW')
+            self.w.jog_slow.setText('SLOW')
             slider.setMaximum(max / self.slowJogFactor)
             slider.setValue(current / self.slowJogFactor)
             slider.setPageStep(10)
-        else:
-            self.w.sender().setText('FAST')
+        elif self.w.jog_slow.text()== 'SLOW':
+            self.w.jog_slow.setText('FAST')
             slider.setMaximum(max * self.slowJogFactor)
             slider.setValue(current * self.slowJogFactor)
             slider.setPageStep(100)
@@ -1826,6 +1827,7 @@ class HandlerClass:
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
         self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
+        self.extJogSlowPin.value_changed.connect(lambda v:self.jog_slow_clicked(v))
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
 
     def set_axes_and_joints(self):

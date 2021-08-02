@@ -5144,13 +5144,13 @@ EDGE</string>
                            <bool>true</bool>
                           </property>
                           <property name="checked_state_text_option" stdset="0">
-                           <bool>true</bool>
+                           <bool>false</bool>
                           </property>
                           <property name="true_state_string" stdset="0">
-                           <string>SLOW</string>
+                           <string/>
                           </property>
                           <property name="false_state_string" stdset="0">
-                           <string>FAST</string>
+                           <string/>
                           </property>
                           <property name="true_python_cmd_string" stdset="0">
                            <string notr="true">print&quot;true command&quot;</string>
@@ -12393,13 +12393,13 @@ HOME ALL</string>
                     <number>0</number>
                    </property>
                    <property name="minimum">
-                    <double>15.000000000000000</double>
+                    <double>10.000000000000000</double>
                    </property>
                    <property name="maximum">
                     <double>999.000000000000000</double>
                    </property>
                    <property name="value">
-                    <double>15.000000000000000</double>
+                    <double>10.000000000000000</double>
                    </property>
                   </widget>
                  </item>
