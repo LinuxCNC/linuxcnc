@@ -39,7 +39,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         self.linear = True
         self._block_signal = False
 
-    # Default to continuous jogging
+    # Default to continuous jogging (selection 0)
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):
@@ -55,8 +55,10 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         self.currentIndexChanged.connect(self.selectionchange)
         self.selectionchange(0)
 
+    # if units switch - current jog rate in invalid
     def _switch_units(self, w, data):
-        self.selectionchange(-1)
+        if self.currentIndex() > 0:
+            self.selectionchange(-1)
 
     # search the combo box for the value STATUS sent us
     # If there is a match, change the combobox to it
@@ -66,7 +68,12 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def _checkincrements(self,value, text):
         for count in range(self.count()):
             label = self.itemText(count)
-            if 'cont' in label.lower():
+            try:
+                number = float(label.rstrip(" inchmuil").lower())
+            except:
+                number = None
+            # assume continuous jogging (selection 0)
+            if number is None:
                 machn_incr = 0
             else:
                 if self.linear:
@@ -86,7 +93,8 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         text = str(self.currentText())
         if i == -1 and text == '': return
         try:
-            if 'cont' in text.lower():
+            # continuous jog (selection 0)
+            if i == 0:
                 inc = 0
             else:
                 if self.linear:
@@ -98,7 +106,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
             LOG.debug('Exception parsing increment - setting increment to None', exc_info=e)
             inc = None
         if inc is None:
-            LOG.warning("parceed: text not recognized : {} Increment: {}".format(text, inc))
+            LOG.warning("parsed: text not recognized : {} Increment: {}".format(text, inc))
             return
         if self.linear:
             LOG.debug("Linear Current index: {} Increment: {} , selection changed {}".format(i, inc, text))
@@ -138,7 +146,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
                 incr = float(incr)
         except:
             return None
-        LOG.debug("parced: text: {} Increment: {} scaled: {}".format(jogincr, incr, (incr * scale)))
+        LOG.debug("parsed: text: {} Increment: {} scaled: {}".format(jogincr, incr, (incr * scale)))
         return incr * scale
 
     # This does the conversion
