@@ -259,6 +259,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setmetrictemplate(self, data):
         self.metric_text_template = data
+        self.update_units()
     def getmetrictemplate(self):
         return self.metric_text_template
     def resetmetrictemplate(self):
@@ -267,6 +268,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setimperialtexttemplate(self, data):
         self.imperial_text_template = data
+        self.update_units()
     def getimperialtexttemplate(self):
         return self.imperial_text_template
     def resetimperialtexttemplate(self):
@@ -275,6 +277,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setangulartexttemplate(self, data):
         self.angular_text_template = data
+        self.update_units()
     def getangulartexttemplate(self):
         return self.angular_text_template
     def resetangulartexttemplate(self):
