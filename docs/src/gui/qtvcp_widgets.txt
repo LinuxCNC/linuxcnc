@@ -586,7 +586,7 @@ This will display the current position of an axis. +
 * Qjoint_number - joint number of offset to display (10 will specify rotational offset)
 * Qreference_type - actual, relative or distance to go (0,1,2)
 * metric_template - format of display ie '%10.3f'
-* imperial_template - format of display ie '%9.af'
+* imperial_template - format of display ie '%9.4f'
 * angular_template  - format of display ie '%Rotational: 10.1f'
 
 The DRO_Label widget holds a property 'isHomed' that can be used with a stylesheet +
@@ -594,11 +594,15 @@ to change the color of the DRO_Label based on home state of the joint number in 
 
 Here is a sample stylesheet entry. +
 It sets the font of all DRO_Label widgets. +
+It sets the text template (to set resolution) of the DRO +
 Then sets the text color based on the Qt 'isHomed' Property. +
 
 ----
 DROLabel {
     font: 25pt "Lato Heavy";
+qproperty-imperial_template: '%9.4f';
+qproperty-metric_template: '%10.3f';
+qproperty-angular_template: '%11.2f';
 }
 
 DROLabel[isHomed=false] {
