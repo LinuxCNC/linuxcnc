@@ -200,7 +200,7 @@ class _PStat(object):
 
         # translation path
         lang = QtCore.QLocale.system().name().split('_')[0]
-        qm_fn = "{}_{}.qm".format(self.BASEPATH,lang)
+        qm_fn = "languages/{}_{}.qm".format(self.BASEPATH,lang)
         defaultqm = os.path.join(self.SCREENDIR, self.BASEPATH, qm_fn)
         localqm = os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn)
         LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
