@@ -1,4 +1,4 @@
-VERSION = '1.0.58'
+VERSION = '1.0.59'
 
 import os, sys
 from shutil import copy as COPY
@@ -503,7 +503,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:arc-ok-high', 'qtplasmac.arc_ok_high-f', 'plasmac.arc-ok-high'])
         CALL(['halcmd', 'net', 'plasmac:arc-ok-low', 'qtplasmac.arc_ok_low-f', 'plasmac.arc-ok-low'])
         #thc parameters
-        CALL(['halcmd', 'net', 'plasmac:thc-feed-rate', 'plasmac.thc-feed-rate', 'qtplasmac.thc_feed_rate'])
+        CALL(['halcmd', 'net', 'plasmac:thc-feed-rate', 'qtplasmac.thc_feed_rate', 'plasmac.thc-feed-rate'])
         CALL(['halcmd', 'net', 'plasmac:thc-delay', 'qtplasmac.thc_delay-f', 'plasmac.thc-delay'])
         CALL(['halcmd', 'net', 'plasmac:thc-threshold', 'qtplasmac.thc_threshold-f', 'plasmac.thc-threshold'])
         CALL(['halcmd', 'net', 'plasmac:pid-p-gain', 'qtplasmac.pid_p_gain-f', 'plasmac.pid-p-gain'])

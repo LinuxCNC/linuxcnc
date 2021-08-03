@@ -1376,7 +1376,7 @@ Valid plasma tools for use are:
 |Plasma Torch|2|Used for spotting (creating dimples to aid in drilling).
 |===
 
-A LinuxCNCspindle number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool. Examples:
+A LinuxCNC spindle number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool. Examples:
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
 * *M3 $1 S1* will select and start the scribe.
@@ -3016,6 +3016,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
 |Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
+|Toggle jogging speed between fast and slow|qtplasmac.ext_jog_slow|JOGGING FAST/SLOW
 |===
 
 The following HAL pins which allow the use of an MPG to control height override are always created.
