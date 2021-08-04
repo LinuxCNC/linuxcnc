@@ -1,4 +1,4 @@
-VERSION = '1.0.59'
+VERSION = '1.0.60'
 
 import os, sys
 from shutil import copy as COPY
@@ -2562,6 +2562,7 @@ class HandlerClass:
                           'HAL pin "{}" must be toggled\n' \
                           'using standard button code\n'.format(bNum, halpin)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                    continue
                 else:
                     try:
                         pinstate = hal.get_value(halpin)
@@ -2570,6 +2571,7 @@ class HandlerClass:
                         msg = 'Invalid code for user button #{}\n' \
                               'HAL pin "{}" does not exist\n'.format(bNum, halpin)
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                        continue
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum))]
             elif 'pulse-halpin' in bCode:
                 try:
