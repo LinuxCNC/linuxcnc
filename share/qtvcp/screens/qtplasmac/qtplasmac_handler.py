@@ -430,7 +430,7 @@ class HandlerClass:
             except:
                 pass
             STATUS.emit('mdi-history-changed')
-
+        ACTION.SET_MANUAL_MODE()
 
 #################################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
@@ -2849,8 +2849,6 @@ class HandlerClass:
                 self.w[self.ptButton].setEnabled(True)
             else:
                 self.probe_test_stop()
-        else:
-            self.probe_test_stop()
 
     def probe_test_stop(self):
         self.probeTimer.stop()
