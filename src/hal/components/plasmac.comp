@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.210 - 2021 July 16
+0.211 - 2021 Aug 04
 
 .I SUMMARY:
 .br
@@ -74,9 +74,12 @@ pin in  bit     move_down                   "external thc down switch [mode 2])"
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  bit     multi_tool = 1              "allows the use of multiple tools";
 pin in  bit     offsets_active              "offsets are active, connect to motion.eoffsets-active";
+pin in  s32     ohmic_sense_on_delay = 3    "debounce cycles for ohmic sense on";
+pin in  s32     ohmic_sense_off_delay = 3   "debounce cycles for ohmic sense off";
+pin in  bit     ohmic_sense_in              "ohmic sense relay input";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
-pin in  bit     ohmic_probe                 "ohmic probe input";
-pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
+pin in  bit     ohmic_probe                 "ohmic probe input, from ohmic-sense-out or external component/pin";
+pin in  bit     ohmic_probe_enable          "enable ohmic probe";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
 pin in  bit     ohmic_test                  "test for shorted torch";
 pin in  float   pause_at_end                "time to pause at end of cut";
@@ -143,6 +146,7 @@ pin out bit     led_down                    "thc move down indicator";
 pin out bit     led_up                      "thc move up indicator";
 pin out float   offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
+pin out bit     ohmic_sense_out             "ohmic sense output state";
 pin out s32     pierce_count                "number of pierce attempts";
 pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
@@ -201,6 +205,7 @@ variable int    offset_min;                 /* minimum allowed offset */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
+variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
 variable int    old_resolution;             /* previous resolution value */
 variable float  pause_at_end_timer;         /* pause at end of cut timer */
 variable bool   paused_motion;              /* paused motion flag */
@@ -211,8 +216,6 @@ variable float  pid_output;                 /* calculated pid output value */
 variable int    pierce_target;              /* pierce height target offset */
 variable float  pierce_timer;               /* pierce delay timer */
 variable float  probe_at_bottom;            /* probe is at bottom limit */
-variable int    probe_force;                /* extra movement of probe after first contact */
-variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable int    probe_offset;               /* offset for active probe */
 variable bool   probe_required = 1;         /* a probe sequence is required */
@@ -238,7 +241,6 @@ variable bool   spotting;                   /* spotting flag */
 variable float  spotting_timer;             /* spotting timer */
 variable int    state_old = -1;             /* old state*/
 //variable int    target_samples = 6;         /* number of samples for setting target_volts */
-variable bool   target_sensed;              /* sensed top of stock */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
 //variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable float  thc_delay_timer;            /* thc delay timer */
@@ -367,7 +369,6 @@ FUNCTION(_) {
     }
     offset_scale = units_per_mm * fperiod / res;
     velocity_scale = res / units_per_mm / 60;
-    probe_force_val = 5 * res;
     recovery_velocity = 3 * res;
 
     /* set the active tool */
@@ -590,7 +591,29 @@ FUNCTION(_) {
         state = MAX_HEIGHT;
     }
 
-
+    /* ohmic sensing */
+    if(ohmic_enable){
+        if(ohmic_sense_in){
+            if(ohmic_sense_counts < ohmic_sense_on_delay){
+                ohmic_sense_counts += 1;
+            }else{
+                ohmic_sense_out = TRUE;
+                ohmic_sense_counts = 0;
+            }
+        }else if(!ohmic_sense_in && ohmic_sense_out){
+            if(ohmic_sense_counts < ohmic_sense_off_delay){
+                ohmic_sense_counts += 1;
+            }else{
+                ohmic_sense_out = FALSE;
+                ohmic_sense_counts = 0;
+            }
+        }else{
+            ohmic_sense_counts = 0;
+        }
+    }else{
+        ohmic_sense_out = FALSE;
+        ohmic_sense_counts = 0;
+    }
 
     /* set arc ok from either arc ok input of from actual arc voltage
      * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
@@ -710,9 +733,7 @@ FUNCTION(_) {
                             cut_offset = 0;
                             state = PIERCE_HEIGHT;
                         }else{
-                            ohmic_enable = TRUE;
                             if(ohmic_detected && !probe_inhibit){
-                                ohmic_enable = FALSE;
                                 probe_inhibit = TRUE;
                                 if(probe_testing){
                                     rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.\n"
@@ -778,7 +799,7 @@ FUNCTION(_) {
                         feed_hold = TRUE;
                         state = TORCHPULSE;
                     /* if ohmic probe shorted test requested */
-                    }else if(ohmic_test){
+                    }else if(ohmic_test && ohmic_probe_enable){
                         feed_hold = TRUE;
                         ohmic_enable = TRUE;
                         state = OHMIC_TEST;
@@ -795,6 +816,9 @@ FUNCTION(_) {
             case PROBE_HEIGHT:
                 z_offset_enable = TRUE;
                 stop_type = NONE;
+                if(ohmic_probe_enable){
+                    ohmic_enable = TRUE;
+                }
                 if(probe_testing && !probe_test){
                     state = PROBE_TEST;
                     break;
@@ -852,6 +876,9 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 stop_type = NONE;
                 feed_hold = TRUE;
+                if(ohmic_probe_enable){
+                    ohmic_enable = TRUE;
+                }
                 if(probe_testing && !probe_test){
                     state = PROBE_TEST;
                     break;
@@ -862,21 +889,7 @@ FUNCTION(_) {
                     state = PROBE_TEST;
                     break;
                 }
-                /* probe down to top of stock at probe speed, then push a little further for good contact */
-                if(target_sensed){
-                    if(probe_force > 0){
-                        probe_force -= 1 * res;
-                        z_offset_counts -= 1 * res;
-                    }else{
-                        target_sensed = FALSE;
-                        if(float_switch || ohmic_detected){
-                            state = PROBE_UP;
-                        }else{
-                            rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.\n");
-                            state = IDLE;
-                        }
-                    }
-                }else if(float_switch && !float_detected){
+                if(float_switch && !float_detected){
                     if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
                         z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
                         z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
@@ -889,14 +902,13 @@ FUNCTION(_) {
                             break;
                         }
                         probe_type = FLOAT;
-                        target_sensed = TRUE;
-                        probe_force = probe_force_val;
                         ohmic_attempts = 0;
                         float_detected = FALSE;
+                        state = PROBE_UP;
                     }else{
-                        state = PROBE_HEIGHT;
                         ohmic_attempts += 1;
                         float_detected = TRUE;
+                        state = PROBE_HEIGHT;
                     }
                 }else if(ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height / units_multiplier + (1 * units_per_mm))/ offset_scale);
@@ -910,9 +922,8 @@ FUNCTION(_) {
                         break;
                     }
                     probe_type = OHMIC;
-                    target_sensed = TRUE;
-                    probe_force = probe_force_val;
                     ohmic_attempts = 0;
+                    state = PROBE_UP;
                 }else if(!float_switch && !ohmic_detected){
                     if(axis_z_position - (probe_velocity * offset_scale) <= axis_z_min_limit + (0.25 * units_per_mm )){
                         if(probe_at_bottom - z_offset_current < 0.0001){
@@ -962,6 +973,7 @@ FUNCTION(_) {
                         state = PROBE_DOWN;
                         break;
                     }
+                    ohmic_enable = FALSE;
                     if(probe_type == OHMIC){
                         probe_offset = ohmic_probe_offset / offset_scale;
                     }else{
@@ -977,12 +989,7 @@ FUNCTION(_) {
                     offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
                     if(safe_height == 0){
                         safe_target = offset_max;
-                        ohmic_enable = FALSE;
-                        if(ohmic_probe_offset < 0 && probe_type == OHMIC){
                             state = PIERCE_HEIGHT;
-                        }else{
-                            state = ZERO_HEIGHT;
-                        }
                     }else if(safe_min > offset_max && !probe_testing){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
@@ -996,39 +1003,16 @@ FUNCTION(_) {
                         }
                         safe_target = offset_max;
                         safe_height_is_limited = TRUE;
-                        ohmic_enable = FALSE;
-                        if(ohmic_probe_offset < 0 && probe_type == OHMIC){
                             state = PIERCE_HEIGHT;
-                        }else{
-                            state = ZERO_HEIGHT;
-                        }
                     }else{
                         safe_target = safe_preferred;
-                        ohmic_enable = FALSE;
-                        if(ohmic_probe_offset < 0 && probe_type == OHMIC){
                             state = PIERCE_HEIGHT;
-                        }else{
-                            state = ZERO_HEIGHT;
-                        }
                     }
                 }
                 break;
             case ZERO_HEIGHT:
-                z_offset_enable = TRUE;
-                stop_type = NONE;
-                probe_required = FALSE;
-                if(probe_testing && !probe_test){
-                    state = PROBE_TEST;
-                    break;
-                }
-                if(z_offset_counts == zero_target){
-                    axis_x_start = axis_x_position;
-                    axis_y_start = axis_y_position;
-                    state = PIERCE_HEIGHT;
-                /* move to zero height at setup velocity*/
-                }else{
-                    z_offset_counts = offset_move(z_offset_counts, setup_velocity, zero_target);
-                }
+                /* this case is not used at present */
+                rtapi_print_msg(RTAPI_MSG_ERR, "ZERO_HEIGHT is not a valid state.\n");
                 break;
             case PIERCE_HEIGHT:
                 z_offset_enable = TRUE;
