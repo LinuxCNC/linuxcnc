@@ -277,7 +277,7 @@ If any Qt dependency errors are encountered while attempting to run the QtPlasma
 For a package installation (Buildbot) enter the following command in a terminal window:
 
 ----
-/usr/lib/python2.7/dist-packages/qtvcp/designer/install_script
+/usr/lib/python3/dist-packages/qtvcp/designer/install_script
 ----
 
 For a run in place installation enter the following command in a terminal window:
