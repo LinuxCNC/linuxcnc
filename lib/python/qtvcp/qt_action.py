@@ -888,7 +888,7 @@ class FilterProgram:
                 'MORE': more,
                 'DETAILS': stderr,
                 'ICON': 'CRITICAL',
-                'FOCUS_TEXT': _('Filter program Error'),
+                'FOCUS_TEXT': 'Filter program Error',
                 'TITLE': 'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format(stderr))
