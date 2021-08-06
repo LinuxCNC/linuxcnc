@@ -880,7 +880,7 @@ class FilterProgram:
         message = '''The filter program '{}' that was filtering '{}' 
                         exited with an error'''.format(self.program_filter, self.filtered_program)
         if stderr != '':
-            more = _("The error messages it produced are shown below:")
+            more = "The error messages it produced are shown below:"
         else:
             more = None
         mess = {'NAME': 'MESSAGE', 'ID': 'ACTION_ERROR__',
