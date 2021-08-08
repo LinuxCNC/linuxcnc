@@ -60,7 +60,7 @@ if [ $response -eq 2 ]; then
 elif [ $response -eq 3 ]; then
     # check for valid plugin file
     if [ -f /usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_plugin.py ]; then
-        pifile=/usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py
+        pifile=/usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_plugin.py
     else
 #        clear
         echo -e '\n'$pifile 'not found in /usr/lib/python3/dist-packages/qtvcp/plugins/'
