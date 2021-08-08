@@ -21,18 +21,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-#import pygtk
-#pygtk.require("2.0")
 
-#import gtk
-#import gtk.glade
-from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-#import gobject
-from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import Gdk
 
 import signal
@@ -72,12 +65,15 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = Gtk.MessageDialog(w,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                _("Stepconf encountered an error.  The following "
-                "information may be useful in troubleshooting:\n\n")
-                + "".join(lines))
+    msg=_("Stepconf encountered an error.  The following "
+           "information may be useful in troubleshooting:\n\n")
+    m = Gtk.MessageDialog(
+        parent=w,
+        modal=True,
+        destroy_with_parent=True,
+        message_type=Gtk.MessageType.ERROR,
+        buttons=Gtk.ButtonsType.OK,
+        text=msg + "".join(lines))
     m.show()
     m.run()
     m.destroy()
@@ -652,10 +648,13 @@ class Data:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
             if app:
-                dialog = Gtk.MessageDialog(app.w.window1,
-                    Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                    Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,
-                         "\n".join(warnings))
+                dialog = Gtk.MessageDialog(
+                    parent=app.w.window1,
+                    modal=True,
+                    destroy_with_parent=True,
+                    message_type=Gtk.MessageType.WARNING,
+                    buttons=Gtk.ButtonsType.OK,
+                    text=warnings)
                 dialog.show_all()
                 dialog.run()
                 dialog.destroy()
@@ -806,7 +805,8 @@ class StepconfApp:
             dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
             self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
             page = self.builder.get_object(x)
-            notebook1.append_page(page, Gtk.Label(x))
+            label = Gtk.Label(label=x)
+            notebook1.append_page(child=page, tab_label=label)
         notebook1.set_show_tabs(False)
 
         self.w = Widgets(self.builder)
@@ -838,7 +838,9 @@ class StepconfApp:
         window.show()
         #self.w.xencoderscale.realize()
         window.set_position(Gtk.WindowPosition.CENTER)
-        window.reshow_with_initial_size()
+        window.hide()
+        window.unrealize()
+        window.show()
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -927,17 +929,25 @@ class StepconfApp:
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = Gtk.MessageDialog(app.w.window1,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
+           dialog = Gtk.MessageDialog(
+                parent=app.w.window1,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.OK,
+                text=message)
            dialog.show_all()
            result = dialog.run()
            dialog.destroy()
            return True
         else:   
-            dialog = Gtk.MessageDialog(self.w.window1,
-               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO, message)
+            dialog = Gtk.MessageDialog(
+                parent=app.w.window1,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.QUESTION,
+                buttons=Gtk.ButtonsType.YES_NO,
+                text=message)
             dialog.show_all()
             result = dialog.run()
             dialog.destroy()
@@ -1326,7 +1336,7 @@ class StepconfApp:
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        GObject.timeout_add(15, self.latency_running_callback)
+        GLib.timeout_add(15, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
