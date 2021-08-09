@@ -1,4 +1,4 @@
-VERSION = '1.0.60'
+VERSION = '1.0.61'
 
 import os, sys
 from shutil import copy as COPY
@@ -2952,7 +2952,7 @@ class HandlerClass:
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 self.laserOnPin.set(1)
                 ACTION.CALL_MDI('G64 P{:0.3}'.format(0.25 * self.unitsPerMm))
-                if not self.defaultZ:
+                if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{}'.format(zHeight))
                 ACTION.CALL_MDI('G53 G0 X{} Y{} F{}'.format(xMin, yMin, feed))
                 ACTION.CALL_MDI('G53 G1 Y{} F{}'.format(yMax, feed))
