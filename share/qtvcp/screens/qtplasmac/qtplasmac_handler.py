@@ -1,4 +1,4 @@
-VERSION = '1.0.61'
+VERSION = '1.0.62'
 
 import os, sys
 from shutil import copy as COPY
@@ -3028,10 +3028,10 @@ class HandlerClass:
             ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
             self.manualCut = True
             self.w.abort.setEnabled(True)
-            self.button_active(self.mcButton)
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
             if self.mcButton:
                 self.w[self.mcButton].setEnabled(True)
+                self.button_active(self.mcButton)
         self.set_run_button_state()
 
     def button_active(self, button):
