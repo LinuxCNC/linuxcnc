@@ -1008,9 +1008,9 @@ echo A
 ##############################################################################
 
 AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
-echo B
-AX_PYTHON(,,AC_MSG_ERROR([python not found]))
-AX_PYTHON_DEVEL(,,AC_MSG_ERROR([python-dev not found]))
+AX_PYTHON
+AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
+AX_PYTHON_DEVEL([>='3.7'],,AC_MSG_ERROR([python-dev not found]))
 AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
 
 AC_MSG_CHECKING([whether to build documentation])
@@ -1379,9 +1379,7 @@ AC_ARG_ENABLE(check-runtime-deps,
 AC_MSG_CHECKING([whether to check for runtime dependencies])
 AC_MSG_RESULT($RUNTIME_CHECK)
 
-echo A
 if test "$RUNTIME_CHECK" = "yes"; then
-echo Y
     AC_MSG_CHECKING([for BWidget using $TCLSH])
     if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
         AC_MSG_RESULT([found])

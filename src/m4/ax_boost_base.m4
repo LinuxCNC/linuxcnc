@@ -35,7 +35,6 @@
 
 #serial 45
 
-echo A
 # example boost program (need to pass version)
 m4_define([_AX_BOOST_BASE_PROGRAM],
           [AC_LANG_PROGRAM([[
@@ -46,7 +45,6 @@ m4_define([_AX_BOOST_BASE_PROGRAM],
 
 AC_DEFUN([AX_BOOST_BASE],
 [
-echo X
 AC_ARG_WITH([boost],
   [AS_HELP_STRING([--with-boost@<:@=ARG@:>@],
     [use Boost library from a standard location (ARG=yes),
