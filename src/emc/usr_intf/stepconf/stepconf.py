@@ -41,7 +41,7 @@ import textwrap
 import hal
 import shutil
 import time
-from multifilebuilder_gtk3 import MultiFileBuilder
+from multifilebuilder import MultiFileBuilder
 
 try:
     from defusedexpat import pyexpat as expat
