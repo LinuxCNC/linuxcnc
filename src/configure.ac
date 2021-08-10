@@ -1625,6 +1625,10 @@ if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
 fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
+AC_MSG_CHECKING(for site-package location)
+SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+AC_MSG_RESULT($SITEPY)
+
 AC_MSG_CHECKING(for working GLU quadrics)
 AC_TRY_COMPILE([
 #include <GL/gl.h>
