@@ -71,7 +71,6 @@ EXTRA_CFLAGS += -msse
 endif
 endif
 EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
-USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
 ifeq ($(RUN_IN_PLACE),yes)

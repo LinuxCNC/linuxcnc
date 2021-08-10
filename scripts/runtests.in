@@ -25,7 +25,6 @@ if test @RUN_IN_PLACE@ = yes; then
     . $TOPDIR/scripts/rip-environment >&/dev/null
     export HEADERS=@EMC2_HOME@/include
     export LIBDIR=${TOPDIR}/lib
-    export INCLUDEPY=@INCLUDEPY@
     export REALTIME=realtime
 else
     # Set $EMC2_HOME to $prefix for tests that depend on it
@@ -33,7 +32,6 @@ else
     export EMC2_HOME=@EMC2_HOME@
     export HEADERS=@includedir@/linuxcnc
     export LIBDIR=@EMC2_HOME@/lib
-    export INCLUDEPY=@INCLUDEPY@
     export LINUXCNC_EMCSH=@WISH@
     export REALTIME=/etc/init.d/realtime
     export SUDO=sudo
@@ -43,7 +41,6 @@ export PYTHON_EXTRA_LIBS="@PYTHON_EXTRA_LIBS@"
 export PYTHON_EXTRA_LDFLAGS="@PYTHON_EXTRA_LDFLAGS@"
 export PYTHON_LIBS="@PYTHON_EXTRA_LIBS@"
 
-export INCLUDEPY=@INCLUDEPY@
 export RUNTESTS="$(readlink -f $0)"
 
 NUM=0
