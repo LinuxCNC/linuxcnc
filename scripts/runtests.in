@@ -38,6 +38,11 @@ else
     export REALTIME=/etc/init.d/realtime
     export SUDO=sudo
 fi
+export PYTHON_CPPFLAGS="@PYTHON_CPPFLAGS@"
+export PYTHON_EXTRA_LIBS="@PYTHON_EXTRA_LIBS@"
+export PYTHON_EXTRA_LDFLAGS="@PYTHON_EXTRA_LDFLAGS@"
+export PYTHON_LIBS="@PYTHON_EXTRA_LIBS@"
+
 export INCLUDEPY=@INCLUDEPY@
 export RUNTESTS="$(readlink -f $0)"
 

@@ -216,7 +216,7 @@ endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
-INCLUDE += -I$(INCLUDEPY)
+INCLUDE += $(PYTHON_CPPFLAGS)
 INCLUDE += $(LIBTIRPC_CFLAGS)
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)

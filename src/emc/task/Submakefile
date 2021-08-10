@@ -34,5 +34,5 @@ USERSRCS += $(MILLTASKSRCS)
 
 
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 TARGETS += ../bin/milltask
