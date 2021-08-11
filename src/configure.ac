@@ -1389,7 +1389,7 @@ if test "$RUNTIME_CHECK" = "yes"; then
     fi
 
     AC_MSG_CHECKING([for BLT using $TCLSH])
-    if (unset DISPLAY; (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | $TCLSH); then
+    if (unset DISPLAY; echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | $TCLSH); then
         AC_MSG_RESULT([found])
     else
         AC_MSG_RESULT([not found])
