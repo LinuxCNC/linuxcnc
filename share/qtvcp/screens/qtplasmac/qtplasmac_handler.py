@@ -1,4 +1,4 @@
-VERSION = '1.0.63'
+VERSION = '1.0.64'
 
 import os, sys
 from shutil import copy as COPY
@@ -209,6 +209,7 @@ class HandlerClass:
         self.dialogError = False
         self.cutTypeText = ''
         self.heightOvr = 0.0
+        self.heightOvrScale = 0.1
         self.old_ovr_counts = 0
         self.startLine = 0
         self.preRflFile = ''
@@ -480,6 +481,7 @@ class HandlerClass:
         self.extHeightOvrMinusPin = self.h.newpin('ext_height_ovr_minus', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrResetPin = self.h.newpin('ext_height_ovr_reset', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrCountsPin = self.h.newpin('ext_height_ovr_counts', hal.HAL_S32, hal.HAL_IN)
+        self.extHeightOvrScalePin = self.h.newpin('ext_height_ovr_scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.extHeightOvrCountEnablePin = self.h.newpin('ext_height_ovr_count_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extJogSlowPin = self.h.newpin('ext_jog_slow', hal.HAL_BIT, hal.HAL_IN)
         self.probeTestErrorPin = self.h.newpin('probe_test_error', hal.HAL_BIT, hal.HAL_IN)
@@ -1207,12 +1209,15 @@ class HandlerClass:
 
     def height_ovr_encoder(self,value):
         if (value != self.old_ovr_counts and self.extHeightOvrCountEnablePin.get()):
-            self.heightOvr += (value-self.old_ovr_counts) * self.w.thc_threshold.value()
+            self.heightOvr += (value-self.old_ovr_counts) * self.w.thc_threshold.value() * self.heightOvrScale
             if self.heightOvr < -10 :self.heightOvr = -10
             if self.heightOvr >  10 :self.heightOvr =  10
             self.heightOverridePin.set(self.heightOvr)
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         self.old_ovr_counts = value
+        
+    def height_ovr_scale_change (self,value):
+        if value:self.heightOvrScale = value
 
     def touch_xy_clicked(self):
         self.touch_off_xy(0, 0)
@@ -1827,6 +1832,7 @@ class HandlerClass:
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
         self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
+        self.extHeightOvrScalePin.value_changed.connect(lambda v:self.height_ovr_scale_change(v))
         self.extJogSlowPin.value_changed.connect(lambda v:self.jog_slow_clicked(v))
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
 
