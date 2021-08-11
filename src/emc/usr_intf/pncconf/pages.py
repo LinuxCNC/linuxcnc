@@ -29,14 +29,12 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to pncconf.py
 
-from __future__ import print_function
-
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
-from gi.repository import GObject
+from gi.repository import GLib
 
 import os
 
@@ -71,7 +69,13 @@ class Pages:
         self.a.save()
 
     def on_window1_destroy(self, *args):
-        if self.a.warning_dialog (self._p.MESS_ABORT,False):
+        if self.savable_flag:
+            if self.a.quit_dialog():
+                Gtk.main_quit()
+                return True
+            else:
+                return True
+        if self.a.warning_dialog (self._p.MESS_QUIT,False):
             Gtk.main_quit()
             return True
         else:
@@ -204,9 +208,10 @@ class Pages:
         # get the original background color, must realize the widget first to get the true color.
         # we use this later to high light missing axis info
         self.w.xencoderscale.realize()
-        #TODO:
-        #self.a.origbg = self.w.xencoderscale.style.bg[Gtk.STATE_NORMAL]
-        #self.w.window1.set_geometry_hints(min_width=750)
+        self.a.origbg = self.w.xencoderscale.get_style_context().get_property("background-color", Gtk.StateFlags.NORMAL)
+# TODO TODO cannot set size correctly, try in pncconf.py L289
+#        self.w.window1.set_geometry_hints(min_width=750)
+        self.w.button_save.set_visible(False)
 
 #************
 # INTRO PAGE
@@ -390,7 +395,7 @@ class Pages:
     def on_latency_test_clicked(self, w):
         self.latency_pid = os.spawnvp(os.P_NOWAIT,"latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        GObject.timeout_add(1, self.latency_running_callback)
+        GLib.timeout_add(1, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -780,11 +785,13 @@ class Pages:
         self.w.gs2_vfd_deaccel.set_value(self.d.gs2_vfd_deaccel)
         self.search_for_serial_device_name()
         self.w.gs2_vfd_device_name.set_active(0)
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_device_name.get_model()
         for num,i in enumerate(model):
             if i[0] == self.d.gs2_vfd_port:
                 self.w.gs2_vfd_device_name.set_active(num)
         self.w.gs2_vfd_baud.set_active(0)
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_baud.get_model()
         for num,i in enumerate(model):
             if i[1] == self.d.gs2_vfd_baud:
@@ -835,6 +842,7 @@ class Pages:
         self.d.gs2_vfd_accel = self.w.gs2_vfd_accel.get_value()
         self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
         self.d.gs2_vfd_port = self.w.gs2_vfd_device_name.get_active_text()
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_baud.get_model()
         index = self.w.gs2_vfd_baud.get_active()
         self.d.gs2_vfd_baud = model[index][1]
@@ -932,6 +940,7 @@ class Pages:
 
     def search_for_serial_device_name(self):
         match = os.popen("""ls /sys/class/tty/*/device/driver | grep 'driver' | cut -d "/" -f 5""").read().split()
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_device_name.get_model()
         model.clear()
         for item in match:
@@ -960,6 +969,7 @@ class Pages:
         name_vector = lookup(self.d.mesa0_boardtitle)
         if name_vector == -1:
             self._p.MESA_BOARDNAMES.append(self.d.mesa0_boardtitle)
+#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.w.mesa0_boardtitle.get_model()
             model.append((self.d.mesa0_boardtitle,))
             name_vector = lookup(self.d.mesa0_boardtitle)
@@ -972,6 +982,7 @@ class Pages:
         self.w.mesa0_card_addrs.set_text(self.d.mesa0_card_addrs)
 
     def mesa0_finish(self):
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.mesa0_boardtitle.get_model()
         active = self.w.mesa0_boardtitle.get_active()
         if active < 0:
@@ -1024,6 +1035,7 @@ class Pages:
         self.w.mesa1_card_addrs.set_text(self.d.mesa1_card_addrs)
 
     def mesa1_finish(self):
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.mesa1_boardtitle.get_model()
         active = self.w.mesa1_boardtitle.get_active()
         if active < 0:
@@ -1262,7 +1274,6 @@ class Pages:
 # X_MOTOR PAGE
 #************
     def x_motor_prepare(self):
-        #self.w.xencoderscale.modify_bg(Gtk.STATE_NORMAL, self.w.xencoderscale.get_colormap().alloc_color("red"))
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('x')
         state = True

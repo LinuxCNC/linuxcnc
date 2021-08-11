@@ -825,11 +825,11 @@ class StepconfApp:
         except expat.ExpatError as ee:
             message = _("Loading configuration error:\n\n{}").format(str(ee))
             dialog = Gtk.MessageDialog(
-                         parent=window,
-                         modal=True,
-                         message_type=Gtk.MessageType.WARNING,
-                         buttons=Gtk.ButtonsType.OK,
-                         text=message)
+                parent=window,
+                modal=True,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.OK,
+                text=message)
             dialog.show_all()
             dialog.run()
             dialog.destroy()

@@ -26,6 +26,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
+from gi.repository import GLib
 
 import sys
 import os
@@ -46,8 +47,6 @@ import locale
 import copy
 import fnmatch
 import subprocess
-import gobject
-
 import xml.dom.minidom
 import xml.etree.ElementTree
 import xml.etree.ElementPath
@@ -96,12 +95,16 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = Gtk.MessageDialog(w,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                _("PNCconf encountered an error.  The following "
-                "information may be useful in troubleshooting:\n\n")
-                + "LinuxCNC Version:  %s\n\n"% LINUXCNCVERSION + ''.join(lines))
+    msg = _("PNCconf encountered an error.  The following "
+            "information may be useful in troubleshooting:\n\n"
+            "LinuxCNC Version:  %s\n\n"% LINUXCNCVERSION)
+    m = Gtk.MessageDialog(
+        parent=w,
+        modal=True,
+        destroy_with_parent=True,
+        message_type=Gtk.MessageType.ERROR,
+        buttons=Gtk.ButtonsType.OK,
+        text=msg + "".join(lines))
     m.show()
     m.run()
     m.destroy()
@@ -221,7 +224,6 @@ class App:
         #self.widgets.openloopdialog.hide()
 
         self.p.initialize()
-        window.show()
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
         self.origname = ['','']
@@ -238,39 +240,43 @@ class App:
             except:
                 pass
             version = 0.0
-            d = xml.dom.minidom.parse(open(filename, "r"))
-            for n in d.getElementsByTagName("property"):
-                name = n.getAttribute("name")
-                text = n.getAttribute('value')
-                if name == "version":
-                    version = eval(text)
-                elif name == "always_shortcut":
-                    short = eval(text)
-                elif name == "always_link":
-                    link = eval(text)
-                elif name == "use_ini_substitution":
-                    self.widgets.useinisubstitution.set_active(eval(text))
-                elif name == "show_advanced_pages":
-                    show_pages = eval(text)
-                elif name == "machinename":
-                    self.d._lastconfigname = text
-                elif name == "chooselastconfig":
-                    self.d._chooselastconfig = eval(text)
-                elif name == "MESABLACKLIST":
-                    if version == self.d._preference_version:
-                        self._p.MESABLACKLIST = eval(text)
-                elif name == "EXTRA_MESA_FIRMWAREDATA":
-                    self.d._customfirmwarefilename = text
-                    rcfile = os.path.expanduser(self.d._customfirmwarefilename)
-                    print(rcfile)
-                    if os.path.exists(rcfile):
-                        try:
-                            exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
-                        except:
-                            print(_("**** PNCCONF ERROR:    custom firmware loading error"))
-                            self._p.EXTRA_MESA_FIRMWAREDATA = []
-                    if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
-                        print(_("**** PNCCONF INFO:    Found extra firmware in file"))
+            try:
+                d = xml.dom.minidom.parse(open(filename, "r"))
+                for n in d.getElementsByTagName("property"):
+                    name = n.getAttribute("name")
+                    text = n.getAttribute('value')
+                    if name == "version":
+                        version = eval(text)
+                    elif name == "always_shortcut":
+                        short = eval(text)
+                    elif name == "always_link":
+                        link = eval(text)
+                    elif name == "use_ini_substitution":
+                        self.widgets.useinisubstitution.set_active(eval(text))
+                    elif name == "show_advanced_pages":
+                        show_pages = eval(text)
+                    elif name == "machinename":
+                        self.d._lastconfigname = text
+                    elif name == "chooselastconfig":
+                        self.d._chooselastconfig = eval(text)
+                    elif name == "MESABLACKLIST":
+                        if version == self.d._preference_version:
+                            self._p.MESABLACKLIST = eval(text)
+                    elif name == "EXTRA_MESA_FIRMWAREDATA":
+                        self.d._customfirmwarefilename = text
+                        rcfile = os.path.expanduser(self.d._customfirmwarefilename)
+                        print(rcfile)
+                        if os.path.exists(rcfile):
+                            try:
+                                exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
+                            except:
+                                print(_("**** PNCCONF ERROR:    custom firmware loading error"))
+                                self._p.EXTRA_MESA_FIRMWAREDATA = []
+                        if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
+                            print(_("**** PNCCONF INFO:    Found extra firmware in file"))
+            except:
+                # corrupt or empty .pncconf-preferences
+                print("\n.pncconf-preferences is empty or corrupt\n")
         # these are set from the hidden preference file
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
@@ -279,6 +285,27 @@ class App:
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
+
+#TODO TODO size originally set in pages.py L212
+        # window.show()
+        # screen = Gdk.Screen.get_default()
+        # geometry = Gdk.Geometry()
+        # geometry.max_width = geometry.base_width = geometry.min_width = 800
+        # geometry.max_height = geometry.base_height = geometry.min_height = 600
+        # geometry.width_inc = geometry.height_inc = geometry.min_aspect = geometry.max_aspect = 1
+        # hints = Gdk.WindowHints(Gdk.WindowHints.ASPECT |
+        #                         Gdk.WindowHints.BASE_SIZE |
+        #                         Gdk.WindowHints.MAX_SIZE |
+        #                         Gdk.WindowHints.MIN_SIZE)
+        # window.set_geometry_hints(None, geometry, hints)
+        # window.set_position(Gtk.WindowPosition.CENTER)
+        # window.hide()
+        # window.unrealize()
+        window.show()
+
+        print("WIDGET: <<{}>>".format(self.widgets.combo_screentype))
+        print(" STORE: <<{}>>".format(self.widgets.combo_screentype.get_model()))
+#        print(" STORE: <<{}>>".format(self.widgets.screen_names))
 
     def add_placeholder_page(self,name):
                 string = '''
@@ -429,12 +456,13 @@ class App:
             return meta
 
     def splash_screen(self):
-        self.window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+#TODO TODO this doesn't seem to do anything
+        self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.window.set_type_hint(Gdk.WindowTypeHint.SPLASHSCREEN)     
         self.window.set_title(_("Pncconf setup"))
         self.window.set_border_width(10)
 
-        vbox = Gtk.VBox(False, 5)
+        vbox = Gtk.VBox(homogeneous=False, spacing=5)
         vbox.set_border_width(10)
         self.window.add(vbox)
         vbox.show()
@@ -466,10 +494,13 @@ class App:
         label = Gtk.Label(message)
         #label.modify_font(pango.FontDescription("sans 20"))
         entry = Gtk.Entry()
-        dialog = Gtk.MessageDialog(self.widgets.window1,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK_CANCEL, title)
-
+        dialog = Gtk.MessageDialog(
+            parent=self.widgets.window1,
+            modal=True,
+            destroy_with_parent=True,
+            message_type=Gtk.MessageType.WARNING,
+            buttons=Gtk.ButtonsType.OK_CANCEL,
+            text=title)
         dialog.vbox.pack_start(label)
         dialog.vbox.add(entry)
         #allow the user to press enter to do ok
@@ -484,19 +515,27 @@ class App:
         else:
             return None
 
-    def warning_dialog(self,message,is_ok_type):
+    def warning_dialog(self,msg,is_ok_type):
         if is_ok_type:
-           dialog = Gtk.MessageDialog(self.widgets.window1,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
-           dialog.show_all()
-           result = dialog.run()
-           dialog.destroy()
-           return True
-        else:   
-            dialog = Gtk.MessageDialog(self.widgets.window1,
-               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,message)
+            dialog = Gtk.MessageDialog(
+                parent=self.widgets.window1,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.OK,
+                text=msg)
+            dialog.show_all()
+            result = dialog.run()
+            dialog.destroy()
+            return True
+        else:
+            dialog = Gtk.MessageDialog(
+                parent=self.widgets.window1,
+                modal=True,
+                destroy_with_parent=True,
+                message_type=Gtk.MessageType.QUESTION,
+                buttons=Gtk.ButtonsType.YES_NO,
+                text=msg)
             dialog.show_all()
             result = dialog.run()
             dialog.destroy()
@@ -510,9 +549,9 @@ class App:
         dialog.show_all()
         result = dialog.run()
         dialog.hide()
-        if result == gtk.RESPONSE_YES:
+        if result == Gtk.ResponseType.YES:
             return True
-        elif result == gtk.RESPONSE_CANCEL:
+        elif result == Gtk.ResponseType.CANCEL:
             return False
         # save data then quit
         else:
@@ -544,7 +583,6 @@ class App:
         gdkcr.paint ()
 
     def print_image(self,image_name):
-        print('print image')
         print_dialog = Gtk.PrintOperation()
         print_dialog.set_n_pages(1)
         settings = Gtk.PrintSettings()
@@ -599,6 +637,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 d = self._p.EXTRA_MESA_FIRMWAREDATA[search]
                 if not d[_PD._BOARDTITLE] in self._p.MESA_BOARDNAMES:
                     self._p.MESA_BOARDNAMES.append(d[_PD._BOARDTITLE])
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets.mesa_boardname_store
         model.clear()
         for search,item in enumerate(self._p.MESA_BOARDNAMES):
@@ -902,10 +941,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         filter = Gtk.FileFilter()
         filter.add_pattern("*.pncconf")
         filter.set_name(_("LinuxCNC 'PNCconf' configuration files"))
-        dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
-            self.widgets.window1, Gtk.FILE_CHOOSER_ACTION_OPEN,
-            (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL,
-             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        dialog = Gtk.FileChooserDialog(
+            title=_("Modify Existing Configuration"),
+            parent=self.widgets.window1,
+            action=Gtk.FileChooserAction.OPEN)
+        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         dialog.set_default_response(Gtk.ResponseType.OK)
         dialog.add_filter(filter) 
         if not self.d._lastconfigname == "" and self.d._chooselastconfig:
@@ -921,14 +962,15 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self.d._mesa0_configured = False
             self.d._mesa1_configured = False
             try:
-                # check that the firmware is current enough by checking the length of a sub element and that the other is an integer.
+                # check that the firmware (if saved) is current enough by checking the length of a sub element and that the other is an integer.
                 for boardnum in(0,1):
-                    i=j=None
-                    i = len(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS])
-                    j = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._HIFREQ]+100 # throws an error if not an integer.
-                    if not i > 1:
-                        print(i,j,boardnum)
-                        raise UserWarning
+                    if self.d["mesa%d_currentfirmwaredata"% boardnum] != "None":
+                        i=j=None
+                        i = len(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS])
+                        j = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._HIFREQ]+100 # throws an error if not an integer.
+                        if not i > 1:
+                            print(i,j,boardnum)
+                            raise UserWarning
             except :
                 print(i,j,boardnum)
                 self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
@@ -1542,6 +1584,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
         # add firmname to combo box if it's not there
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%s_firmware"%bdnum].get_model()
         flag = True
         for search,item in enumerate(model):
@@ -1557,6 +1600,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     self.widgets["mesa%s_firmware"%bdnum].set_active(search)
                     break
         # add boardtitle
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
         flag2 = True
         for search,item in enumerate(model):
@@ -1729,6 +1773,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             data1 = self.d.gladevcptheme
             data2 = prefs.getpref('gtk_theme', 'Follow System Theme', str)
             data3 = self.d.gmcpytheme
+#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.widgets.themestore
             model.clear()
             model.append((_("Follow System Theme"),))
@@ -1835,6 +1880,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
                 SIG.ALL_LIMIT, SIG.ALL_HOME),
         }
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets[pinname].get_model()
         piter = self.widgets[pinname].get_active_iter()
         try:
@@ -1865,6 +1911,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             break
                             break
                             break
+#TODO TODO do we need to change this to suit comboboxtext ???
                         model = self.widgets[p].get_model()
                         piter = self.widgets[p].get_active_iter()
                         dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1888,6 +1935,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     except:
                         break
                         break
+#TODO TODO do we need to change this to suit comboboxtext ???
                     model = self.widgets[p].get_model()
                     piter = self.widgets[p].get_active_iter()
                     dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1908,6 +1956,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 except:
                     self.recursive_block = False
                     return
+#TODO TODO do we need to change this to suit comboboxtext ???
                 model = self.widgets[p].get_model()
                 piter = self.widgets[p].get_active_iter()
                 dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1927,6 +1976,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 except:
                     self.recursive_block = False
                     return
+#TODO TODO do we need to change this to suit comboboxtext ???
                 model = self.widgets[p].get_model()
                 piter = self.widgets[p].get_active_iter()
                 dummy, index,v2,sig_group = model.get(piter, 0,1,2,3)
@@ -1965,7 +2015,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.d[i] = int(self.widgets[cb].connect("changed",
                     self.on_general_pin_changed,"mesa",boardnum,connector,None,pin,False))
                 i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
-                self.d[i] = int(self.widgets[cb].child.connect("activate",
+                self.d[i] = int(self.widgets[cb].connect("move_active",
                     self.on_general_pin_changed,"mesa",boardnum,connector,None,pin,True))
                 self.widgets[cb].connect('changed', self.do_exclusive_inputs,boardnum,cb)
                 cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
@@ -1980,7 +2030,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.d[i] = int(self.widgets[cb].connect("changed",
                     self.on_general_pin_changed,"sserial",boardnum,port,channel,pin,False))
                 i = "_mesa%dactivatehandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
-                self.d[i] = int(self.widgets[cb].child.connect("activate",
+                self.d[i] = int(self.widgets[cb].connect("move_active",
                     self.on_general_pin_changed,"sserial",boardnum,port,channel,pin,True))
                 self.widgets[cb].connect('changed', self.do_exclusive_inputs,boardnum,cb)
                 cb = "mesa%dsserial%i_%ipin%itype"% (boardnum,port,channel,pin)
@@ -2007,6 +2057,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             dbg('Looking for firmware data %s'%self.d["mesa%d_firmware"% boardnum])
             found = False
             search = 0
+#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.widgets["mesa%d_firmware"% boardnum].get_model()
             for search,item in enumerate(model):
                 dbg('%d,%s'%(search,model[search][0]))
@@ -2053,6 +2104,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
  
     def on_mesa_boardname_changed(self, widget,boardnum):
         #print "**** INFO boardname %d changed"% boardnum
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         if title:
@@ -2087,6 +2139,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.d['_mesa%d_arrayloaded'%boardnum] = True
         for i in self._p.MESA_INTERNAL_FIRMWAREDATA:
             self._p.MESA_FIRMWAREDATA.append(i)
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%d_firmware"% boardnum].get_model()
         model.clear()
         temp=[]
@@ -2108,6 +2161,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.firmware_block:
             return
         print("**** INFO firmware %d changed"% boardnum)
+#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
         if active < 0:
@@ -2522,7 +2576,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
                 self.widgets[p].handler_block(self.d[blocksignal]) 
-                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
+#TODO TODO has no handler with id
+#                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
 
@@ -2546,7 +2601,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.d[blocksignal]) 
-                self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
+#TODO TODO has no handler with id
+#                self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         self.mesa_mainboard_data_to_widgets(boardnum)
         self.window.hide()
         self.p.set_buttons_sensitive(1,1)
@@ -2582,7 +2638,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # kill all widget signals:
             self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
             self.widgets[p].handler_block(self.d[blocksignal])
-            self.widgets[p].get_child().handler_block(self.d[actblocksignal])
+#TODO TODO has no handler with id
+#            self.widgets[p].get_child().handler_block(self.d[actblocksignal])
             ppc = 0
             concount = 0
             numofencoders = 10
@@ -2604,7 +2661,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # unblock all widget signals:
             self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
             self.widgets[p].handler_unblock(self.d[blocksignal]) 
-            self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
+#TODO TODO has no handler with id
+#            self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
         for pin in range (0,self._p._SSCOMBOLEN):
             firmptype,compnum = self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBSTARTOFDATA+pin]       
@@ -2698,6 +2756,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
+#TODO TODO do we need to change this to suit comboboxtext ???
                         pmodel = self.widgets[p].set_model(self.d._muxencodersignaltree)
                         ptmodel = self.widgets[ptype].set_model(self.d._muxencoderliststore)
                         self.widgets[ptype].set_active(_PD.pintype_muxencoder.index(firmptype))
@@ -3154,6 +3213,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # signalname array vrs model row
                 elif widgetptype == _PD.ENCA or widgetptype in(_PD.MXE0,_PD.MXE1):
                     #print "ENC ->dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
+#TODO TODO do we need to change this to suit comboboxtext ???
                     pinmodel = self.widgets[p].get_model()
                     itr = self.find_sig_name_iter(pinmodel, datap)
                     self.widgets[p].set_active_iter(itr)
@@ -3372,6 +3432,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         if debug: print("**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p))
                         signalindex = 0
                     
+#TODO TODO do we need to change this to suit comboboxtext ???
                     pinmodel = self.widgets[p].get_model()
                     for row,parent in enumerate(pinmodel):
                             #print row,parent[0],parent[2],parent[3],parent[4]
@@ -3717,7 +3778,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         blocksignal1 = "_%s_%s%dsignalhandler" % (data[1], data[2], data[4])
                         blocksignal2 = "_%s_%s%dactivatehandler"  % (data[1], data[2], data[4])
                     self.widgets[data[0]].handler_block(self.d[blocksignal1])
-                    self.widgets[data[0]].get_child().handler_block(self.d[blocksignal2])
+#TODO TODO has no handler with id
+#                    self.widgets[data[0]].get_child().handler_block(self.d[blocksignal2])
                     if custom:
                         if basetree == signaltree:
                             temp = newiter
@@ -3727,7 +3789,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         self.widgets[data[0]].set_active_iter(piter)
 
-                    self.widgets[data[0]].get_child().handler_unblock(self.d[blocksignal2])
+#TODO TODO has no handler with id
+#                    self.widgets[data[0]].get_child().handler_unblock(self.d[blocksignal2])
                     self.widgets[data[0]].handler_unblock(self.d[blocksignal1])
                 #self.debug_iter(0,p,"pin changed")
                 #if boardtype == "mesa": self.debug_iter(0,ptype,"pin changed")
@@ -3888,7 +3951,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         d = self.d
         w = self.widgets
         def set_text_from_text(n): w[axis + n].set_text("%s" % d[axis + n])
-        def set_text(n): w[axis + n].set_text(locale.format("%.4f", (d[axis + n])))
+        def set_text(n): w[axis + n].set_text(locale.format_string("%.4f", (d[axis + n])))
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
@@ -3907,11 +3970,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.findsignal(axis+"-tppwm-a"): pwmgen = tppwm = True
         if self.findsignal(axis+"-pot-output"): spindlepot = sserial_scaling = True
 
-        model = w[axis+"drivertype"].get_model()
-        model.clear()
+        driverlist = w[axis+"drivertype"]
+        driverlist.remove_all()
         for i in _PD.alldrivertypes:
-            model.append((i[1],))
-        model.append((_("Custom"),))   
+            driverlist.append_text((i[1]))
+        driverlist.append_text((_("Custom")))   
         w["steprev"].set_text("%s" % d[axis+"steprev"])
         w["microstep"].set_text("%s" % d[axis +"microstep"])
         # P setting needs to default to different values based on
@@ -4022,7 +4085,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis + "stepspace"].set_value(d[axis + "stepspace"])
             w[axis + "dirhold"].set_value(d[axis + "dirhold"])
             w[axis + "dirsetup"].set_value(d[axis + "dirsetup"])
-        gobject.idle_add(lambda: self.motor_encoder_sanity_check(None,axis))
+        GLib.idle_add(lambda: self.motor_encoder_sanity_check(None,axis))
 
         if axis == "s":
             unit = "rev"
@@ -4585,7 +4648,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 motor_steps = get("steprev")
                 motor_scale = (motor_steps * microstepfactor * motor_pulley_ratio * motor_worm_ratio * motor_pitch) / rotary_scale
-                w["calcmotor_scale"].set_text(locale.format("%.4f", (motor_scale)))
+                w["calcmotor_scale"].set_text(locale.format_string("%.4f", (motor_scale)))
             else:
                 w["calcmotor_scale"].set_sensitive(False)
                 w["stepscaleframe"].set_sensitive(False)
@@ -4668,21 +4731,21 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.findsignal(axis+"-pot-outpot"): pot = True
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].modify_bg(Gtk.STATE_NORMAL, self.widgets[axis+"encoderscale"].get_colormap().alloc_color("red"))
+                self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].modify_bg(Gtk.STATE_NORMAL, self.widgets[axis+"stepscale"].get_colormap().alloc_color("red"))
+                self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
                 dbg('step scale bad')
                 bad = True
         if not (encoder or resolver) and not stepdrive and not axis == "s":
             dbg('encoder %s resolver %s stepper %s axis %s'%(encoder,resolver,stepdrive,axis))
             bad = True
-        if self.widgets[axis+"maxvel"] < 1:
+        if self.widgets[axis+"maxvel"].get_value() < 1:
             dbg('max vel low')
             bad = True
-        if self.widgets[axis+"maxacc"] < 1:
+        if self.widgets[axis+"maxacc"].get_value() < 1:
             dbg('max accl low')
             bad = True
         if bad:
@@ -4692,8 +4755,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].modify_bg(Gtk.STATE_NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].modify_bg(Gtk.STATE_NORMAL, self.origbg)
+#css = '#self.widgets[axis+"encoderscale"] { background-color: #f00; }'
+            self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
+            self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)

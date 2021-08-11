@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.24"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="voltsencnumber">
     <columns>
       <!-- column-name voltsencnum -->
@@ -116,8 +116,8 @@
                           <object class="GtkLabel" id="voltslbl4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">Full Scale Frequency (kHz)</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -130,8 +130,8 @@
                           <object class="GtkLabel" id="voltslbl2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">F Jumper</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -142,8 +142,8 @@
                           <object class="GtkLabel" id="voltslbl5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">Divider Ratio or Series Resistance</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="right_attach">3</property>
@@ -155,8 +155,8 @@
                           <object class="GtkLabel" id="voltslbl3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">0V Frequency (kHz)</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="top_attach">1</property>
@@ -167,15 +167,19 @@
                           <object class="GtkLabel" id="voltslbl1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">Model</property>
+                            <property name="xalign">1</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="voltsmodel">
+                          <object class="GtkComboBoxText" id="voltsmodel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="model">voltsmodelname</property>
+                            <items>
+                              <item id="1" translatable="yes">5</item>
+                              <item id="2" translatable="yes">10</item>
+                              <item id="3" translatable="yes">300</item>
+                            </items>
                             <child>
                               <object class="GtkCellRendererText" id="voltsmodelrender"/>
                               <attributes>
@@ -189,10 +193,15 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="voltsfjumper">
+                          <object class="GtkComboBoxText" id="voltsfjumper">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="model">voltsfjumpervalue</property>
+                            <items>
+                              <item id="1" translatable="yes">1</item>
+                              <item id="2" translatable="yes">32</item>
+                              <item id="3" translatable="yes">64</item>
+                              <item id="4" translatable="yes">128</item>
+                            </items>
                             <child>
                               <object class="GtkCellRendererText" id="thcfjumperrender"/>
                               <attributes>
@@ -212,8 +221,6 @@
                             <property name="invisible_char">•</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">voltszerofadj</property>
                             <property name="climb_rate">1</property>
                             <property name="digits">1</property>
@@ -232,8 +239,6 @@
                             <property name="invisible_char">•</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">voltsfullfadj</property>
                             <property name="climb_rate">1</property>
                             <property name="digits">1</property>
@@ -252,8 +257,6 @@
                             <property name="invisible_char">•</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">voltsrdivadj</property>
                             <property name="climb_rate">10</property>
                           </object>
@@ -268,8 +271,8 @@
                           <object class="GtkLabel" id="voltslbl6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">Encoder</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">2</property>
@@ -279,10 +282,14 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="voltsenc">
+                          <object class="GtkComboBoxText" id="voltsenc">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="model">voltsencnumber</property>
+                            <items>
+                              <item id="1" translatable="yes">ENCA</item>
+                              <item id="2" translatable="yes">ENCB</item>
+                              <item id="3" translatable="yes">IDX</item>
+                            </items>
                             <child>
                               <object class="GtkCellRendererText" id="voltsencrender"/>
                               <attributes>
