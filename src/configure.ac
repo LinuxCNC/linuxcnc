@@ -999,7 +999,6 @@ install with "sudo apt-get install yapps2"])
 fi
 AC_SUBST(YAPPS)
 
-echo A
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
@@ -1389,8 +1388,8 @@ if test "$RUNTIME_CHECK" = "yes"; then
     install with "sudo apt-get install bwidget"])
     fi
 
-    AC_MSG_CHECKING([for BLT using tclsh8.5])
-    if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
+    AC_MSG_CHECKING([for BLT using $TCLSH])
+    if (unset DISPLAY; (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | $TCLSH); then
         AC_MSG_RESULT([found])
     else
         AC_MSG_RESULT([not found])
