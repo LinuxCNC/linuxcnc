@@ -1,4 +1,4 @@
-VERSION = '1.0.64'
+VERSION = '1.0.65'
 
 import os, sys
 from shutil import copy as COPY
@@ -1119,12 +1119,17 @@ class HandlerClass:
             if self.w.sender().objectName() == 'gcode_editor_display':
                 return
         if self.w.chk_run_from_line.isChecked() and line > 1:
-            self.runText = 'SELECTED {}'.format(line)
-            self.startLine = line - 1
+            if not 'rfl.ngc' in self.lastLoadedProgram:
+                self.runText = 'SELECTED {}'.format(line)
+                self.startLine = line - 1
+            else:
+                msg = 'Cannot select line while\n' \
+                      'run from line is active\n'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'RUN FROM LINE ERROR:\n{}'.format(msg))
         elif not self.rflActive:
             self.startLine = 0
         else:
-            self.runText = 'RUN FROM LINE'
+            self.runText = 'RUN FROM LINE\nCYCLE START'
 
     def update_gcode_properties(self, props):
         self.gcodeProps = props
@@ -1215,7 +1220,7 @@ class HandlerClass:
             self.heightOverridePin.set(self.heightOvr)
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         self.old_ovr_counts = value
-        
+
     def height_ovr_scale_change (self,value):
         if value:self.heightOvrScale = value
 
@@ -2165,7 +2170,7 @@ class HandlerClass:
             elif oSub:
                 msg = 'Cannot do run from line\n' \
                       'inside a subroutine\n'
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCODE ERROR:\n{}'.format(msg))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'GCODE ERROR:\n{}'.format(msg))
             self.rflActive = False
             self.set_run_button_state()
             self.startLine = 0
@@ -2302,7 +2307,7 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(rflFile)
         ACTION.prefilter_path = self.preRflFile
         self.set_run_button_state()
-        self.runText = 'RUN FROM LINE'
+        self.runText = 'RUN FROM LINE\nCYCLE START'
         self.w.gcodegraphics.highlight_graphics(None)
 
     def get_rfl_pos(self, line, axisPos, axisLetter):
@@ -2380,10 +2385,11 @@ class HandlerClass:
         else:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         if self.startLine > 0:
-            if self.w.run.text() == (''):
-                self.w.run.setText(self.runText)
-            else:
-                self.w.run.setText('')
+            if not self.w.run.text().startswith('RUN'):
+                if self.w.run.text() == (''):
+                    self.w.run.setText(self.runText)
+                else:
+                    self.w.run.setText('')
         else:
             self.w.run.setText('CYCLE START')
         if not self.w.pmx485_enable.isChecked():
@@ -2455,6 +2461,8 @@ class HandlerClass:
             self.torchTimer.start(100)
 
     def run_button_timeout(self):
+        if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
+            self.w.materials_box.setCurrentIndex(0)
         if self.w.gcode_display.lines() > 1:
             self.w.run.setEnabled(True)
             if self.frButton:

@@ -3016,6 +3016,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
 |Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
+|Torch height override scale|qtplasmac.ext_height_ovr_scale|N/A
 |Toggle jogging speed between fast and slow|qtplasmac.ext_jog_slow|JOGGING FAST/SLOW
 |===
 
