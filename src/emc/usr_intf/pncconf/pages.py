@@ -511,9 +511,10 @@ class Pages:
 
         self.d.frontend = self.w.combo_screentype.get_active() +1
 
-        self.d.touchytheme = self.w.touchytheme.get_active_text()
+        self.d.touchytheme = self.w.touchytheme.get_child().get_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
         self.d.axisforcemax = self.w.axisforcemax.get_active()
+
         # set the qtplasmac variables
         self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
         self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
@@ -1083,7 +1084,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
                 self.w[cb].connect('changed', self.a.do_exclusive_inputs,1,cb)
             # initialize parport output / inv pins
             for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
@@ -1091,7 +1093,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
         self.w.pp1_direction.connect('changed', self.on_pp1_direction_changed)
         self.w.pp1_address_search.connect('clicked', self.on_address_search_clicked)
         self.w.pp1_testbutton.connect('clicked', self.on_pport_panel_clicked)
@@ -1178,7 +1181,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
+#TODO TODO ???
+#               self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
                 self.w[cb].connect('changed', self.a.do_exclusive_inputs,2,cb)
             # initialize parport output / inv pins
             for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
@@ -1186,7 +1190,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
         self.w.pp2_direction.connect('changed', self.on_pp2_direction_changed)
         self.w.pp2_address_search.connect('clicked', self.on_address_search_clicked)
         self.w.pp2_testbutton.connect('clicked', self.on_pport_panel_clicked)

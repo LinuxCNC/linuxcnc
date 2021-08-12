@@ -2140,8 +2140,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for i in self._p.MESA_INTERNAL_FIRMWAREDATA:
             self._p.MESA_FIRMWAREDATA.append(i)
 #TODO TODO do we need to change this to suit comboboxtext ???
-        model = self.widgets["mesa%d_firmware"% boardnum].get_model()
-        model.clear()
+#        model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+#        model.clear()
+        model = self.widgets["mesa%d_firmware"% boardnum]
+        model.remove_all()
         temp=[]
         for search, item in enumerate(self._p.MESA_FIRMWAREDATA):
             d = self._p.MESA_FIRMWAREDATA[search]
@@ -2150,7 +2152,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         temp.sort()
         for i in temp:
             #print i
-            model.append((i,))
+#            model.append((i,))
+            model.append_text(i)
         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
         self.firmware_block = False
         self.on_mesa_firmware_changed(None,boardnum)
@@ -3463,7 +3466,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     #print p
                     if "I" in p: widgetptype = _PD.GPIOI
                     else: widgetptype = _PD.GPIOO
-                pinchanged =  self.widgets[p].get_active_text()
+                pinchanged =  self.widgets[p].get_child().get_text()
                 piter = self.widgets[p].get_active_iter()
                 signaltree = self.widgets[p].get_model()
                 try:
@@ -3800,17 +3803,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def pport_push_data(self,port,direction,pin,pinv,signaltree,signaltocheck):
             p = '%s_%s%d' % (port, direction, pin)
             piter = self.widgets[p].get_active_iter()
-            selection = self.widgets[p].get_active_text()
+            selection = self.widgets[p].get_child().get_text()
             # **Start widget to data Convertion**                    
             if piter == None:# means new custom signal name and user never pushed enter
                     #print "callin pin changed !!!"
                     self.on_general_pin_changed( None,"parport", port, direction, None, pin, True)
-                    selection = self.widgets[p].get_active_text()
+                    selection = self.widgets[p].get_child().get_text()
                     piter = self.widgets[p].get_active_iter()
                     #print "found signame -> ",selection," "
             # ok we have a piter with a signal type now- lets convert it to a signalname
             #print "**** INFO parport-data-transfer piter:",piter
             #self.debug_iter(piter,p,"signal")
+            print("SEL:{}  PITER:{}".format(selection, piter))
             dummy, index = signaltree.get(piter,0,1)
             #print "signaltree: ",dummy
             return p, signaltocheck[index], self.widgets[pinv].get_active()
@@ -3834,6 +3838,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
             itr = self.find_sig_name_iter(tree, datap)
             self.widgets[pinname].set_active_iter(itr)
+#??? return already ???
             return
             try:
                 signalindex = signal.index(datap)
