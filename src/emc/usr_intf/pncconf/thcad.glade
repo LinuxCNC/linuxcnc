@@ -180,12 +180,6 @@
                               <item id="2" translatable="yes">10</item>
                               <item id="3" translatable="yes">300</item>
                             </items>
-                            <child>
-                              <object class="GtkCellRendererText" id="voltsmodelrender"/>
-                              <attributes>
-                                <attribute name="text">0</attribute>
-                              </attributes>
-                            </child>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -202,12 +196,6 @@
                               <item id="3" translatable="yes">64</item>
                               <item id="4" translatable="yes">128</item>
                             </items>
-                            <child>
-                              <object class="GtkCellRendererText" id="thcfjumperrender"/>
-                              <attributes>
-                                <attribute name="text">0</attribute>
-                              </attributes>
-                            </child>
                           </object>
                           <packing>
                             <property name="left_attach">3</property>
@@ -290,12 +278,6 @@
                               <item id="2" translatable="yes">ENCB</item>
                               <item id="3" translatable="yes">IDX</item>
                             </items>
-                            <child>
-                              <object class="GtkCellRendererText" id="voltsencrender"/>
-                              <attributes>
-                                <attribute name="text">0</attribute>
-                              </attributes>
-                            </child>
                           </object>
                           <packing>
                             <property name="left_attach">3</property>

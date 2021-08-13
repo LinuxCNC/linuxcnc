@@ -204,7 +204,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="model">screen_names</property>
-                            <property name="has_entry">True</property>
                             <property name="entry_text_column">0</property>
                             <signal name="changed" handler="on_combo_screentype_changed" swapped="no"/>
                             <child>
@@ -212,11 +211,6 @@
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
-                            </child>
-                            <child internal-child="entry">
-                              <object class="GtkEntry">
-                                <property name="can_focus">False</property>
-                              </object>
                             </child>
                           </object>
                           <packing>
@@ -588,18 +582,12 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_offset_store</property>
-                                    <property name="has_entry">True</property>
                                     <property name="entry_text_column">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext3"/>
                                       <attributes>
                                         <attribute name="text">0</attribute>
                                       </attributes>
-                                    </child>
-                                    <child internal-child="entry">
-                                      <object class="GtkEntry">
-                                        <property name="can_focus">False</property>
-                                      </object>
                                     </child>
                                   </object>
                                   <packing>
@@ -612,18 +600,12 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_feedback_store</property>
-                                    <property name="has_entry">True</property>
                                     <property name="entry_text_column">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext4"/>
                                       <attributes>
                                         <attribute name="text">0</attribute>
                                       </attributes>
-                                    </child>
-                                    <child internal-child="entry">
-                                      <object class="GtkEntry">
-                                        <property name="can_focus">False</property>
-                                      </object>
                                     </child>
                                   </object>
                                   <packing>
@@ -1386,6 +1368,36 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkTable" id="table7">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -1575,6 +1587,9 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkLabel" id="label948">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -1600,6 +1615,9 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkVSeparator" id="vseparator23">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -1610,6 +1628,9 @@
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">5</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -1683,6 +1704,9 @@
                                     <property name="top_attach">4</property>
                                     <property name="bottom_attach">5</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -2239,6 +2263,87 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkTable" id="table2">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -2428,6 +2533,9 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -2439,6 +2547,9 @@
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -2591,22 +2702,25 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkComboBox" id="gmcpy_theme">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">themestore</property>
-                                    <property name="has_entry">True</property>
                                     <property name="entry_text_column">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext5"/>
                                       <attributes>
                                         <attribute name="text">0</attribute>
                                       </attributes>
-                                    </child>
-                                    <child internal-child="entry">
-                                      <object class="GtkEntry">
-                                        <property name="can_focus">False</property>
-                                      </object>
                                     </child>
                                   </object>
                                   <packing>

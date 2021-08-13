@@ -737,12 +737,6 @@ panel</property>
                                                       <object class="GtkComboBoxText" id="gladevcptheme">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <child>
-                                                          <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                                                          <attributes>
-                                                            <attribute name="text">0</attribute>
-                                                          </attributes>
-                                                        </child>
                                                       </object>
                                                       <packing>
                                                         <property name="left_attach">1</property>
