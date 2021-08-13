@@ -1,4 +1,4 @@
-VERSION = '1.0.65'
+VERSION = '1.0.66'
 
 import os, sys
 from shutil import copy as COPY
@@ -431,7 +431,6 @@ class HandlerClass:
             except:
                 pass
             STATUS.emit('mdi-history-changed')
-        ACTION.SET_MANUAL_MODE()
 
 #################################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
@@ -723,7 +722,6 @@ class HandlerClass:
                 self.w.camera.hide()
                 msg = 'Invalid entry for camera offset\n'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'INI FILE ERROR:\n{}'.format(msg))
-
         lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         if lCode == '0':
             self.w.laser.hide()
@@ -3870,6 +3868,8 @@ class HandlerClass:
             self.rapid_time += (time.time() - self.rapidStart)
             self.display_time('rapid_time_t', self.RAPID_TIME)
             self.rapidOn = False
+        elif value == 0 and STATUS.is_mdi_mode():
+            ACTION.SET_MANUAL_MODE()
         self.oldMotionType = value
 
     def stats_state_changed(self, state):
