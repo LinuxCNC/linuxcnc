@@ -285,27 +285,17 @@ class App:
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
-
-#TODO TODO size originally set in pages.py L212
-        # window.show()
-        # screen = Gdk.Screen.get_default()
-        # geometry = Gdk.Geometry()
-        # geometry.max_width = geometry.base_width = geometry.min_width = 800
-        # geometry.max_height = geometry.base_height = geometry.min_height = 600
-        # geometry.width_inc = geometry.height_inc = geometry.min_aspect = geometry.max_aspect = 1
-        # hints = Gdk.WindowHints(Gdk.WindowHints.ASPECT |
-        #                         Gdk.WindowHints.BASE_SIZE |
-        #                         Gdk.WindowHints.MAX_SIZE |
-        #                         Gdk.WindowHints.MIN_SIZE)
-        # window.set_geometry_hints(None, geometry, hints)
-        # window.set_position(Gtk.WindowPosition.CENTER)
-        # window.hide()
-        # window.unrealize()
+        geometry = Gdk.Geometry()
+        geometry.max_width = geometry.base_width = geometry.min_width = 800
+        geometry.max_height = geometry.base_height = geometry.min_height = 600
+        geometry.width_inc = geometry.height_inc = geometry.min_aspect = geometry.max_aspect = 1
+        hints = Gdk.WindowHints(Gdk.WindowHints.ASPECT |
+                                Gdk.WindowHints.BASE_SIZE |
+                                Gdk.WindowHints.MAX_SIZE |
+                                Gdk.WindowHints.MIN_SIZE)
+        window.set_geometry_hints(None, geometry, hints)
+        window.set_position(Gtk.WindowPosition.CENTER)
         window.show()
-
-        print("WIDGET: <<{}>>".format(self.widgets.combo_screentype))
-        print(" STORE: <<{}>>".format(self.widgets.combo_screentype.get_model()))
-#        print(" STORE: <<{}>>".format(self.widgets.screen_names))
 
     def add_placeholder_page(self,name):
                 string = '''
@@ -456,7 +446,7 @@ class App:
             return meta
 
     def splash_screen(self):
-#TODO TODO this doesn't seem to do anything
+#TODO TODO this splash_screen doesn't seem to do anything
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.window.set_type_hint(Gdk.WindowTypeHint.SPLASHSCREEN)     
         self.window.set_title(_("Pncconf setup"))
@@ -637,7 +627,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 d = self._p.EXTRA_MESA_FIRMWAREDATA[search]
                 if not d[_PD._BOARDTITLE] in self._p.MESA_BOARDNAMES:
                     self._p.MESA_BOARDNAMES.append(d[_PD._BOARDTITLE])
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets.mesa_boardname_store
         model.clear()
         for search,item in enumerate(self._p.MESA_BOARDNAMES):
@@ -1584,7 +1573,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
         # add firmname to combo box if it's not there
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%s_firmware"%bdnum].get_model()
         flag = True
         for search,item in enumerate(model):
@@ -1600,7 +1588,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     self.widgets["mesa%s_firmware"%bdnum].set_active(search)
                     break
         # add boardtitle
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
         flag2 = True
         for search,item in enumerate(model):
@@ -1773,7 +1760,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             data1 = self.d.gladevcptheme
             data2 = prefs.getpref('gtk_theme', 'Follow System Theme', str)
             data3 = self.d.gmcpytheme
-#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.widgets.themestore
             model.clear()
             model.append((_("Follow System Theme"),))
@@ -1880,7 +1866,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
                 SIG.ALL_LIMIT, SIG.ALL_HOME),
         }
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets[pinname].get_model()
         piter = self.widgets[pinname].get_active_iter()
         try:
@@ -1911,7 +1896,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             break
                             break
                             break
-#TODO TODO do we need to change this to suit comboboxtext ???
                         model = self.widgets[p].get_model()
                         piter = self.widgets[p].get_active_iter()
                         dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1935,7 +1919,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     except:
                         break
                         break
-#TODO TODO do we need to change this to suit comboboxtext ???
                     model = self.widgets[p].get_model()
                     piter = self.widgets[p].get_active_iter()
                     dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1956,7 +1939,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 except:
                     self.recursive_block = False
                     return
-#TODO TODO do we need to change this to suit comboboxtext ???
                 model = self.widgets[p].get_model()
                 piter = self.widgets[p].get_active_iter()
                 dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
@@ -1976,7 +1958,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 except:
                     self.recursive_block = False
                     return
-#TODO TODO do we need to change this to suit comboboxtext ???
                 model = self.widgets[p].get_model()
                 piter = self.widgets[p].get_active_iter()
                 dummy, index,v2,sig_group = model.get(piter, 0,1,2,3)
@@ -2057,7 +2038,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             dbg('Looking for firmware data %s'%self.d["mesa%d_firmware"% boardnum])
             found = False
             search = 0
-#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.widgets["mesa%d_firmware"% boardnum].get_model()
             for search,item in enumerate(model):
                 dbg('%d,%s'%(search,model[search][0]))
@@ -2104,7 +2084,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
  
     def on_mesa_boardname_changed(self, widget,boardnum):
         #print "**** INFO boardname %d changed"% boardnum
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         if title:
@@ -2139,9 +2118,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.d['_mesa%d_arrayloaded'%boardnum] = True
         for i in self._p.MESA_INTERNAL_FIRMWAREDATA:
             self._p.MESA_FIRMWAREDATA.append(i)
-#TODO TODO do we need to change this to suit comboboxtext ???
-#        model = self.widgets["mesa%d_firmware"% boardnum].get_model()
-#        model.clear()
         model = self.widgets["mesa%d_firmware"% boardnum]
         model.remove_all()
         temp=[]
@@ -2152,7 +2128,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         temp.sort()
         for i in temp:
             #print i
-#            model.append((i,))
             model.append_text(i)
         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
         self.firmware_block = False
@@ -2164,7 +2139,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.firmware_block:
             return
         print("**** INFO firmware %d changed"% boardnum)
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
         if active < 0:
@@ -2579,7 +2553,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
                 self.widgets[p].handler_block(self.d[blocksignal]) 
-#TODO TODO has no handler with id
+#TODO TODO ???
 #                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
@@ -2604,7 +2578,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.d[blocksignal]) 
-#TODO TODO has no handler with id
+#TODO TODO ???
 #                self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         self.mesa_mainboard_data_to_widgets(boardnum)
         self.window.hide()
@@ -2641,7 +2615,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # kill all widget signals:
             self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
             self.widgets[p].handler_block(self.d[blocksignal])
-#TODO TODO has no handler with id
+#TODO TODO ???
 #            self.widgets[p].get_child().handler_block(self.d[actblocksignal])
             ppc = 0
             concount = 0
@@ -2664,7 +2638,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # unblock all widget signals:
             self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
             self.widgets[p].handler_unblock(self.d[blocksignal]) 
-#TODO TODO has no handler with id
+#TODO TODO ???
 #            self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
         for pin in range (0,self._p._SSCOMBOLEN):
@@ -2759,7 +2733,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
-#TODO TODO do we need to change this to suit comboboxtext ???
                         pmodel = self.widgets[p].set_model(self.d._muxencodersignaltree)
                         ptmodel = self.widgets[ptype].set_model(self.d._muxencoderliststore)
                         self.widgets[ptype].set_active(_PD.pintype_muxencoder.index(firmptype))
@@ -3216,7 +3189,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # signalname array vrs model row
                 elif widgetptype == _PD.ENCA or widgetptype in(_PD.MXE0,_PD.MXE1):
                     #print "ENC ->dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-#TODO TODO do we need to change this to suit comboboxtext ???
                     pinmodel = self.widgets[p].get_model()
                     itr = self.find_sig_name_iter(pinmodel, datap)
                     self.widgets[p].set_active_iter(itr)
@@ -3435,7 +3407,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         if debug: print("**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p))
                         signalindex = 0
                     
-#TODO TODO do we need to change this to suit comboboxtext ???
                     pinmodel = self.widgets[p].get_model()
                     for row,parent in enumerate(pinmodel):
                             #print row,parent[0],parent[2],parent[3],parent[4]
@@ -3781,7 +3752,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         blocksignal1 = "_%s_%s%dsignalhandler" % (data[1], data[2], data[4])
                         blocksignal2 = "_%s_%s%dactivatehandler"  % (data[1], data[2], data[4])
                     self.widgets[data[0]].handler_block(self.d[blocksignal1])
-#TODO TODO has no handler with id
+#TODO TODO ???
 #                    self.widgets[data[0]].get_child().handler_block(self.d[blocksignal2])
                     if custom:
                         if basetree == signaltree:
@@ -3792,7 +3763,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         self.widgets[data[0]].set_active_iter(piter)
 
-#TODO TODO has no handler with id
+#TODO TODO ???
 #                    self.widgets[data[0]].get_child().handler_unblock(self.d[blocksignal2])
                     self.widgets[data[0]].handler_unblock(self.d[blocksignal1])
                 #self.debug_iter(0,p,"pin changed")

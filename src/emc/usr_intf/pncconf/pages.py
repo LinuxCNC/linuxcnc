@@ -786,13 +786,11 @@ class Pages:
         self.w.gs2_vfd_deaccel.set_value(self.d.gs2_vfd_deaccel)
         self.search_for_serial_device_name()
         self.w.gs2_vfd_device_name.set_active(0)
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_device_name.get_model()
         for num,i in enumerate(model):
             if i[0] == self.d.gs2_vfd_port:
                 self.w.gs2_vfd_device_name.set_active(num)
         self.w.gs2_vfd_baud.set_active(0)
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_baud.get_model()
         for num,i in enumerate(model):
             if i[1] == self.d.gs2_vfd_baud:
@@ -843,7 +841,6 @@ class Pages:
         self.d.gs2_vfd_accel = self.w.gs2_vfd_accel.get_value()
         self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
         self.d.gs2_vfd_port = self.w.gs2_vfd_device_name.get_active_text()
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_baud.get_model()
         index = self.w.gs2_vfd_baud.get_active()
         self.d.gs2_vfd_baud = model[index][1]
@@ -941,7 +938,6 @@ class Pages:
 
     def search_for_serial_device_name(self):
         match = os.popen("""ls /sys/class/tty/*/device/driver | grep 'driver' | cut -d "/" -f 5""").read().split()
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.gs2_vfd_device_name.get_model()
         model.clear()
         for item in match:
@@ -970,7 +966,6 @@ class Pages:
         name_vector = lookup(self.d.mesa0_boardtitle)
         if name_vector == -1:
             self._p.MESA_BOARDNAMES.append(self.d.mesa0_boardtitle)
-#TODO TODO do we need to change this to suit comboboxtext ???
             model = self.w.mesa0_boardtitle.get_model()
             model.append((self.d.mesa0_boardtitle,))
             name_vector = lookup(self.d.mesa0_boardtitle)
@@ -983,7 +978,6 @@ class Pages:
         self.w.mesa0_card_addrs.set_text(self.d.mesa0_card_addrs)
 
     def mesa0_finish(self):
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.mesa0_boardtitle.get_model()
         active = self.w.mesa0_boardtitle.get_active()
         if active < 0:
@@ -1036,7 +1030,6 @@ class Pages:
         self.w.mesa1_card_addrs.set_text(self.d.mesa1_card_addrs)
 
     def mesa1_finish(self):
-#TODO TODO do we need to change this to suit comboboxtext ???
         model = self.w.mesa1_boardtitle.get_model()
         active = self.w.mesa1_boardtitle.get_active()
         if active < 0:
