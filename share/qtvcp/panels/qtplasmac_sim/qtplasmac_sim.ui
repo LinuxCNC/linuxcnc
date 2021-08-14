@@ -63,25 +63,6 @@
     <property name="verticalSpacing">
      <number>8</number>
     </property>
-    <item row="8" column="2">
-     <widget class="QPushButton" name="sensor_brk">
-      <property name="minimumSize">
-       <size>
-        <width>54</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>54</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>BREAK</string>
-      </property>
-     </widget>
-    </item>
     <item row="7" column="0" colspan="2">
      <widget class="QLabel" name="sensor_label">
       <property name="sizePolicy">
@@ -104,34 +85,6 @@
       </property>
       <property name="text">
        <string>SENSORS</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="16" column="0" colspan="3">
-     <widget class="QLabel" name="move_label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>17</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>MOVE Z AXIS</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -163,8 +116,27 @@
       </property>
      </widget>
     </item>
-    <item row="12" column="0">
-     <widget class="Line" name="sensor_line">
+    <item row="8" column="2">
+     <widget class="QPushButton" name="sensor_brk">
+      <property name="minimumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>54</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>BREAK</string>
+      </property>
+     </widget>
+    </item>
+    <item row="16" column="0" colspan="3">
+     <widget class="QLabel" name="move_label">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -174,17 +146,20 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>17</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>17</height>
        </size>
       </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+      <property name="text">
+       <string>MOVE Z AXIS</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -204,31 +179,6 @@
       </property>
       <property name="text">
        <string>FLOAT</string>
-      </property>
-     </widget>
-    </item>
-    <item row="15" column="0" colspan="3">
-     <widget class="Line" name="arc_ok_line">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>2</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -260,6 +210,56 @@
       </property>
      </widget>
     </item>
+    <item row="12" column="0">
+     <widget class="Line" name="sensor_line">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="3">
+     <widget class="Line" name="arc_voltage_line">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>2</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
     <item row="4" column="1">
      <widget class="HALLabel" name="arc_voltage_in">
       <property name="minimumSize">
@@ -287,7 +287,7 @@
        <bool>true</bool>
       </property>
       <property name="textTemplate" stdset="0">
-       <string>%0.0f</string>
+       <string>%0.1f</string>
       </property>
      </widget>
     </item>
@@ -319,8 +319,8 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0" colspan="3">
-     <widget class="Line" name="arc_voltage_line">
+    <item row="15" column="0" colspan="3">
+     <widget class="Line" name="arc_ok_line">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -429,43 +429,6 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="3">
-     <widget class="Slider" name="arc_voltage_out">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>170</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>170</width>
-        <height>23</height>
-       </size>
-      </property>
-      <property name="minimum">
-       <number>0</number>
-      </property>
-      <property name="maximum">
-       <number>300</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="tickPosition">
-       <enum>QSlider::TicksAbove</enum>
-      </property>
-      <property name="tickInterval">
-       <number>50</number>
       </property>
      </widget>
     </item>
@@ -722,6 +685,34 @@
       </item>
      </layout>
     </item>
+    <item row="5" column="0">
+     <widget class="QSlider" name="arc_voltage_out">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>170</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>170</width>
+        <height>23</height>
+       </size>
+      </property>
+      <property name="maximum">
+       <number>300</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <action name="actionSetD1_50_50">
@@ -766,11 +757,6 @@
   </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>Slider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
