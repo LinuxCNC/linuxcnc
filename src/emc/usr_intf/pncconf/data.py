@@ -952,8 +952,8 @@ If you have a REALLY large config that you wish to convert to this newer version
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+
+        d.writexml(open(filename, "wt"), addindent="  ", newl="\n")
         print("%s" % base)
 
         # write pncconf hidden preference file
@@ -1017,7 +1017,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         n2.setAttribute('name', "customfirmwarefilename")
         n2.setAttribute('value', str("%s"% self._customfirmwarefilename))
 
-        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        d2.writexml(open(filename, "wt"), addindent="  ", newl="\n")
 
         # write to Touchy preference file directly
         if self.frontend == _PD._TOUCHY:

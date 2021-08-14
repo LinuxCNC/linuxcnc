@@ -510,7 +510,7 @@ class INI:
                     break
             for i in share:
                 if self.a.findsignal(i):
-                    print >>file, "HOME_IS_SHARED = 1"
+                    print("HOME_IS_SHARED = 1", file=file)
                     break
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)

@@ -29,10 +29,13 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to pncconf.py
 
-from __future__ import print_function
 import gi
-from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import GLib
+
 import os
 
 class Pages:
@@ -68,12 +71,12 @@ class Pages:
     def on_window1_destroy(self, *args):
         if self.savable_flag:
             if self.a.quit_dialog():
-                gtk.main_quit()
+                Gtk.main_quit()
                 return True
             else:
                 return True
-        elif self.a.warning_dialog(self._p.MESS_QUIT,False):
-            gtk.main_quit()
+        if self.a.warning_dialog (self._p.MESS_QUIT,False):
+            Gtk.main_quit()
             return True
         else:
             return True
@@ -160,8 +163,8 @@ class Pages:
     def set_buttons_sensitive(self,bstate,fstate):
         self.w.button_fwd.set_sensitive(fstate)
         self.w.button_back.set_sensitive(bstate)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     # Sets the visual state of a list of page(s)
     # The page names must be the one used in self._p.available_page
@@ -205,8 +208,9 @@ class Pages:
         # get the original background color, must realize the widget first to get the true color.
         # we use this later to high light missing axis info
         self.w.xencoderscale.realize()
-        self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
-        self.w.window1.set_geometry_hints(min_width=750)
+        self.a.origbg = self.w.xencoderscale.get_style_context().get_property("background-color", Gtk.StateFlags.NORMAL)
+# TODO TODO cannot set size correctly, try in pncconf.py L289
+#        self.w.window1.set_geometry_hints(min_width=750)
         self.w.button_save.set_visible(False)
 
 #************
@@ -391,7 +395,7 @@ class Pages:
     def on_latency_test_clicked(self, w):
         self.latency_pid = os.spawnvp(os.P_NOWAIT,"latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        gobject.timeout_add(1, self.latency_running_callback)
+        GLib.timeout_add(1, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -507,9 +511,10 @@ class Pages:
 
         self.d.frontend = self.w.combo_screentype.get_active() +1
 
-        self.d.touchytheme = self.w.touchytheme.get_active_text()
+        self.d.touchytheme = self.w.touchytheme.get_child().get_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
         self.d.axisforcemax = self.w.axisforcemax.get_active()
+
         # set the qtplasmac variables
         self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
         self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
@@ -1072,7 +1077,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
                 self.w[cb].connect('changed', self.a.do_exclusive_inputs,1,cb)
             # initialize parport output / inv pins
             for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
@@ -1080,7 +1086,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
         self.w.pp1_direction.connect('changed', self.on_pp1_direction_changed)
         self.w.pp1_address_search.connect('clicked', self.on_address_search_clicked)
         self.w.pp1_testbutton.connect('clicked', self.on_pport_panel_clicked)
@@ -1167,7 +1174,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
+#TODO TODO ???
+#               self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
                 self.w[cb].connect('changed', self.a.do_exclusive_inputs,2,cb)
             # initialize parport output / inv pins
             for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
@@ -1175,7 +1183,8 @@ class Pages:
                 i = "_%ssignalhandler"% cb
                 self.d[i] = int(self.w[cb].connect("changed", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
+#TODO TODO ???
+#                self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
         self.w.pp2_direction.connect('changed', self.on_pp2_direction_changed)
         self.w.pp2_address_search.connect('clicked', self.on_address_search_clicked)
         self.w.pp2_testbutton.connect('clicked', self.on_pport_panel_clicked)
@@ -1263,7 +1272,6 @@ class Pages:
 # X_MOTOR PAGE
 #************
     def x_motor_prepare(self):
-        #self.w.xencoderscale.modify_bg(gtk.STATE_NORMAL, self.w.xencoderscale.get_colormap().alloc_color("red"))
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('x')
         state = True

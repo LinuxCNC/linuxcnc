@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="pp1_input_list">
     <columns>
       <!-- column-name gchararray1 -->
@@ -96,8 +96,8 @@
           <object class="GtkLabel" id="label168">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Inputs (Mill to PC):</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">4</property>
@@ -110,8 +110,8 @@
           <object class="GtkLabel" id="label176">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Invert</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">6</property>
@@ -131,9 +131,9 @@
                   <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 2:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -142,19 +142,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin2">
+                  <object class="GtkComboBox" id="pp1_Ipin2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry2">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -192,9 +189,9 @@
                   <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 3:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -203,19 +200,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin3">
+                  <object class="GtkComboBox" id="pp1_Ipin3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry4">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -253,9 +247,9 @@
                   <object class="GtkLabel" id="label3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 4:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -264,19 +258,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin4">
+                  <object class="GtkComboBox" id="pp1_Ipin4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry6">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -314,9 +305,9 @@
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 5:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -325,19 +316,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin5">
+                  <object class="GtkComboBox" id="pp1_Ipin5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry8">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -375,9 +363,9 @@
                   <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 6:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -386,19 +374,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin6">
+                  <object class="GtkComboBox" id="pp1_Ipin6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry10">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -436,9 +421,9 @@
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 7:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -447,19 +432,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin7">
+                  <object class="GtkComboBox" id="pp1_Ipin7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry12">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -497,9 +479,9 @@
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 8:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -508,19 +490,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin8">
+                  <object class="GtkComboBox" id="pp1_Ipin8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry14">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -558,9 +537,9 @@
                   <object class="GtkLabel" id="label8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin 9:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -569,19 +548,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Ipin9">
+                  <object class="GtkComboBox" id="pp1_Ipin9">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_input_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry16">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -624,9 +600,9 @@
                       <object class="GtkLabel" id="label163">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Pin 1_0:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -635,19 +611,16 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxEntry" id="pp1_Ipin10">
+                      <object class="GtkComboBox" id="pp1_Ipin10">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">pp1_input_list</property>
-                        <property name="text_column">0</property>
+                        <property name="has_entry">True</property>
+                        <property name="entry_text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                         <child internal-child="entry">
-                          <object class="GtkEntry" id="comboboxentry-entry18">
+                          <object class="GtkEntry">
                             <property name="can_focus">False</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                         </child>
                       </object>
@@ -686,9 +659,9 @@
                       <object class="GtkLabel" id="label164">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Pin 1_1:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -697,19 +670,16 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxEntry" id="pp1_Ipin11">
+                      <object class="GtkComboBox" id="pp1_Ipin11">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">pp1_input_list</property>
-                        <property name="text_column">0</property>
+                        <property name="has_entry">True</property>
+                        <property name="entry_text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                         <child internal-child="entry">
-                          <object class="GtkEntry" id="comboboxentry-entry20">
+                          <object class="GtkEntry">
                             <property name="can_focus">False</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                         </child>
                       </object>
@@ -748,9 +718,9 @@
                       <object class="GtkLabel" id="label165">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Pin 1_2:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -759,19 +729,16 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxEntry" id="pp1_Ipin12">
+                      <object class="GtkComboBox" id="pp1_Ipin12">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">pp1_input_list</property>
-                        <property name="text_column">0</property>
+                        <property name="has_entry">True</property>
+                        <property name="entry_text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                         <child internal-child="entry">
-                          <object class="GtkEntry" id="comboboxentry-entry22">
+                          <object class="GtkEntry">
                             <property name="can_focus">False</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                         </child>
                       </object>
@@ -810,9 +777,9 @@
                       <object class="GtkLabel" id="label166">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Pin 1_3:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -821,19 +788,16 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxEntry" id="pp1_Ipin13">
+                      <object class="GtkComboBox" id="pp1_Ipin13">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">pp1_input_list</property>
-                        <property name="text_column">0</property>
+                        <property name="has_entry">True</property>
+                        <property name="entry_text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                         <child internal-child="entry">
-                          <object class="GtkEntry" id="comboboxentry-entry24">
+                          <object class="GtkEntry">
                             <property name="can_focus">False</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                         </child>
                       </object>
@@ -872,9 +836,9 @@
                       <object class="GtkLabel" id="label167">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Pin 1_5:</property>
                         <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -883,19 +847,16 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxEntry" id="pp1_Ipin15">
+                      <object class="GtkComboBox" id="pp1_Ipin15">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="model">pp1_input_list</property>
-                        <property name="text_column">0</property>
+                        <property name="has_entry">True</property>
+                        <property name="entry_text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
                         <child internal-child="entry">
-                          <object class="GtkEntry" id="comboboxentry-entry26">
+                          <object class="GtkEntry">
                             <property name="can_focus">False</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                           </object>
                         </child>
                       </object>
@@ -965,8 +926,8 @@
                   <object class="GtkLabel" id="label162">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Outputs (PC to Mill):</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -978,8 +939,8 @@
                   <object class="GtkLabel" id="label175">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
                     <property name="label" translatable="yes">Invert</property>
+                    <property name="xalign">1</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1002,9 +963,9 @@
                   <object class="GtkLabel" id="label13">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _1: </property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1013,18 +974,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin1">
+                  <object class="GtkComboBox" id="pp1_Opin1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry28">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1062,9 +1020,9 @@
                   <object class="GtkLabel" id="label14">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _2:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1073,18 +1031,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin2">
+                  <object class="GtkComboBox" id="pp1_Opin2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry30">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1122,9 +1077,9 @@
                   <object class="GtkLabel" id="label15">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _3:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1133,18 +1088,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin3">
+                  <object class="GtkComboBox" id="pp1_Opin3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry32">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1182,9 +1134,9 @@
                   <object class="GtkLabel" id="label16">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _4:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1193,18 +1145,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin4">
+                  <object class="GtkComboBox" id="pp1_Opin4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry34">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1242,9 +1191,9 @@
                   <object class="GtkLabel" id="label17">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _5:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1253,18 +1202,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin5">
+                  <object class="GtkComboBox" id="pp1_Opin5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry36">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1302,9 +1248,9 @@
                   <object class="GtkLabel" id="label18">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _6:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1313,18 +1259,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin6">
+                  <object class="GtkComboBox" id="pp1_Opin6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry38">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1362,9 +1305,9 @@
                   <object class="GtkLabel" id="label19">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _7:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1373,18 +1316,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin7">
+                  <object class="GtkComboBox" id="pp1_Opin7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry40">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1422,9 +1362,9 @@
                   <object class="GtkLabel" id="label20">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _8:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1433,18 +1373,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin8">
+                  <object class="GtkComboBox" id="pp1_Opin8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry42">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1482,9 +1419,9 @@
                   <object class="GtkLabel" id="label21">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pin _9:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1493,18 +1430,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin9">
+                  <object class="GtkComboBox" id="pp1_Opin9">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry44">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1543,9 +1477,9 @@
                   <object class="GtkLabel" id="label22">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">_Pin 14:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1554,18 +1488,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin14">
+                  <object class="GtkComboBox" id="pp1_Opin14">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry46">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1604,9 +1535,9 @@
                   <object class="GtkLabel" id="label23">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">P_in 16:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1615,18 +1546,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin16">
+                  <object class="GtkComboBox" id="pp1_Opin16">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry48">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1665,9 +1593,9 @@
                   <object class="GtkLabel" id="label24">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Pi_n 17:</property>
                     <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1676,18 +1604,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxEntry" id="pp1_Opin17">
+                  <object class="GtkComboBox" id="pp1_Opin17">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">pp1_output_list</property>
-                    <property name="text_column">0</property>
+                    <property name="has_entry">True</property>
+                    <property name="entry_text_column">0</property>
                     <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry50">
+                      <object class="GtkEntry">
                         <property name="can_focus">False</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>
@@ -1747,35 +1672,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkComboBoxEntry" id="pp1_direction">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="model">pport_dir_list</property>
-            <property name="active">0</property>
-            <property name="text_column">0</property>
-            <child>
-              <object class="GtkCellRendererText" id="cellrenderertext26"/>
-            </child>
-            <child internal-child="entry">
-              <object class="GtkEntry" id="comboboxentry-entry52">
-                <property name="can_focus">False</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">3</property>
-            <property name="right_attach">4</property>
-            <property name="top_attach">12</property>
-            <property name="bottom_attach">13</property>
-            <property name="x_options"/>
-            <property name="y_options"/>
-          </packing>
-        </child>
-        <child>
           <object class="GtkEntry" id="ioaddr1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
@@ -1783,8 +1679,6 @@
             <property name="width_chars">7</property>
             <property name="primary_icon_activatable">False</property>
             <property name="secondary_icon_activatable">False</property>
-            <property name="primary_icon_sensitive">True</property>
-            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">3</property>
@@ -1826,6 +1720,32 @@
             <property name="top_attach">6</property>
             <property name="bottom_attach">8</property>
             <property name="x_options">GTK_FILL</property>
+            <property name="y_options"/>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBox" id="pp1_direction">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="model">pport_dir_list</property>
+            <property name="active">0</property>
+            <property name="has_entry">True</property>
+            <property name="entry_text_column">0</property>
+            <child>
+              <object class="GtkCellRendererText" id="cellrenderertext26"/>
+            </child>
+            <child internal-child="entry">
+              <object class="GtkEntry">
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">3</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+            <property name="x_options"/>
             <property name="y_options"/>
           </packing>
         </child>

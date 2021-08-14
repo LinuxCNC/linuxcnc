@@ -228,10 +228,12 @@ class Pages:
             filter = Gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, Gtk.FileChooserAction.OPEN,
-                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog = Gtk.FileChooserDialog(
+                title=_("Modify Existing Configuration"),
+                parent=self.w.window1,
+                action=Gtk.FileChooserAction.OPEN)
+            dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+            dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
             dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
