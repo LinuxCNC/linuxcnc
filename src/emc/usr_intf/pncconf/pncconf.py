@@ -165,13 +165,7 @@ class App:
         # Private data holds the array of pages to load, signals, and messages
         _PD = self._p = private_data.Private_Data(self,BIN,BASE)
         self.d = data.Data(self, _PD, BASE, LINUXCNCVERSION)
-
-        self.splash_screen()
-        #self.pbar.set_fraction(.2)
-        #while Gtk.events_pending():
-        #    Gtk.main_iteration()
-
-        bar_size = 0
+        self.progress_window ()
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.set_translation_domain(domain)
@@ -180,6 +174,8 @@ class App:
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'help.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")
+        self.pbar.set_text(_("PnCconf is setting up"))
+        self.window.show()
         for name,y,z,a in (self._p.available_page):
             if name == 'intro': continue
             dbg("loading glade page REFERENCE:%s TITLE:%s INIT STATE: %s STATE:%s"% (name,y,z,a),mtype="glade")
@@ -191,10 +187,10 @@ class App:
             self.builder.add_from_file(os.path.join(self._p.DATADIR, '%s.glade'%name))
             page = self.builder.get_object(name)
             notebook1.append_page(page)
-            self.pbar.set_fraction(bar_size)
+            self.pbar.set_fraction(self.pbar.get_fraction() + 0.06)
             while Gtk.events_pending():
                 Gtk.main_iteration()
-            bar_size += .0555
+
         if not 'dev' in dbgstate:
             notebook1.set_show_tabs(False)
 
@@ -445,30 +441,23 @@ class App:
         if meta:
             return meta
 
-    def splash_screen(self):
-#TODO TODO this splash_screen doesn't seem to do anything
+    def progress_window(self):
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        self.window.set_type_hint(Gdk.WindowTypeHint.SPLASHSCREEN)     
-        self.window.set_title(_("Pncconf setup"))
+        self.window.set_type_hint(Gdk.WindowTypeHint.DIALOG)     
+        self.window.set_title(_("PnCconf setup"))
         self.window.set_border_width(10)
-
-        vbox = Gtk.VBox(homogeneous=False, spacing=5)
-        vbox.set_border_width(10)
+        vbox = Gtk.Grid()
         self.window.add(vbox)
         vbox.show()
         align = Gtk.Alignment()
-        vbox.pack_start(align, False, False, 5)
+        vbox.add(align)
         align.show()
-
         self.pbar = Gtk.ProgressBar()
-        self.pbar.set_text(_("Pncconf is setting up"))
-        self.pbar.set_fraction(.1)
-
+        self.pbar.set_show_text(True)
+        self.pbar.set_size_request(500, 20)
+        self.pbar.set_fraction(0)
         align.add(self.pbar)
         self.pbar.show()
-        self.window.show()
-        while Gtk.events_pending():
-            Gtk.main_iteration()
 
     def dbg(self,message,mtype='all'):
         for hint in _DEBUGSTRING:
@@ -971,11 +960,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def mesa_firmware_search(self,boardtitle,*args):
         #TODO if no firm packages set up for internal data?
         #TODO don't do this if the firmware is already loaded
-        self.pbar.set_text("Loading external firmware")
-        self.pbar.set_fraction(0)
-        self.window.show()
-        while Gtk.events_pending():
-            Gtk.main_iteration()
         firmlist = []
         for root, dirs, files in os.walk(self._p.FIRMDIR):
             folder = root.lstrip(self._p.FIRMDIR)
@@ -989,6 +973,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     temp = name.rstrip(".xml")
                     firmlist.append(temp)
         dbg("\nXML list:%s"%firmlist,mtype="firmname")
+        self.pbar.set_text("Loading external firmware")
+        self.window.show()
         for n,currentfirm in enumerate(firmlist):
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while Gtk.events_pending():
@@ -2485,11 +2471,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
         _PD.prepare_block = True
         self.p.set_buttons_sensitive(0,0)
-        self.pbar.set_text("Setting up Mesa tabs")
-        self.pbar.set_fraction(0)
-        self.window.show()
-        while Gtk.events_pending():
-            Gtk.main_iteration()
         for search, item in enumerate(self._p.MESA_FIRMWAREDATA):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[_PD._BOARDTITLE] == title:continue
@@ -2534,6 +2515,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         meta = self.get_board_meta(currentboard, boardnum)
         ppc = meta.get('PINS_PER_CONNECTOR')
 
+        self.pbar.set_text("Setting up Mesa tabs")
+        self.window.show()
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
@@ -2571,6 +2554,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # unblock all the widget signals again
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
+                self.pbar.set_fraction((pin+1)/24.0)
+                while Gtk.events_pending():
+                    Gtk.main_iteration()
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
@@ -2590,15 +2576,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         numofsserialchannels = self.d["mesa%d_numof_sserialchannels"% boardnum]
         subboardname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
         if subboardname == "none":return
-        self.pbar.set_text("Setting up Mesa Smart Serial tabs")
-        self.pbar.set_fraction(0)
-        self.window.show()
-        while Gtk.events_pending():
-            Gtk.main_iteration()
         for subnum,temp in enumerate(self._p.MESA_DAUGHTERDATA):
             #print self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME],subboardname
             if self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME] == subboardname: break
         #print "found subboard name:",self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME],subboardname,subnum,"channel:",channel
+        self.pbar.set_text("Setting up Mesa Smart Serial tabs")
+        self.window.show()
         for pin in range (0,self._p._SSCOMBOLEN):
             self.pbar.set_fraction((pin+1)/60.0)
             while Gtk.events_pending():
@@ -2627,6 +2610,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,self._p._SSCOMBOLEN):
+            self.pbar.set_fraction((pin+1)/60.0)
+            while Gtk.events_pending():
+                Gtk.main_iteration()      
             firmptype,compnum = self._p.MESA_DAUGHTERDATA[0][self._p._SUBSTARTOFDATA+pin]       
             p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
             ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
@@ -2642,6 +2628,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 #            self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
         for pin in range (0,self._p._SSCOMBOLEN):
+            self.pbar.set_fraction((pin+1)/60.0)
+            while Gtk.events_pending():
+                Gtk.main_iteration()      
             firmptype,compnum = self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBSTARTOFDATA+pin]       
             p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
             #print "INFO: data to widget smartserial- ",p, firmptype
