@@ -136,9 +136,11 @@ class _Lcnc_Action(object):
     def CALL_MDI_LIST(self, code):
         self.RECORD_CURRENT_MODE()
         self.ensure_mode(linuxcnc.MODE_MDI)
-        gen = self.generate_list(code)
-        self.change_mode_after(gen)
-        next(gen)
+        self._gen = self.generate_list(code)
+        try:
+            state = next(self._gen)
+        except StopIteration:
+            pass
 
     def CALL_MDI(self, code):
         self.ensure_mode(linuxcnc.MODE_MDI)
@@ -739,7 +741,7 @@ class _Lcnc_Action(object):
             state = next(gen)
         except StopIteration:
             STATUS.handler_disconnect(self._a)
-            self.RESTORE_RECORDED_MODE()
+
     # python generator that goes through the MDI list.
     # if it's a command that we have to wait indefinately
     # ie like a manual tool change.
@@ -751,12 +753,14 @@ class _Lcnc_Action(object):
     def generate_list(self,cmdList):
         for calltype, cmd in cmdList:
             if calltype == 'commandStatusWait':
+                self.change_mode_after(self._gen)
                 self.cmd.mdi('%s' % cmd)
                 yield cmd
             else:
                 result = self.CALL_MDI_WAIT(cmd,mode_return=False)
                 if result == -1:
                     log.debug('MDI command {} failed.'.format(cmd))
+        self.RESTORE_RECORDED_MODE()
 
     def __getitem__(self, item):
         return getattr(self, item)
