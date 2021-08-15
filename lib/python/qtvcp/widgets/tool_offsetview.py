@@ -244,6 +244,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def get_checked_list(self):
         return self.tablemodel.listCheckedTools()
 
+    def set_all_unchecked(self):
+        self.tablemodel.uncheckAllTools()
+
     # This function uses the color name (string); setProperty
     # expects a QColor object
     def highlight(self, color):
@@ -350,6 +353,11 @@ class MyTableModel(QAbstractTableModel):
             if row[0].isChecked():
                 checkedlist.append(row[1])
         return checkedlist
+
+    def uncheckAllTools(self):
+        for row in self.arraydata:
+            if row[0].isChecked():
+                row[0].setChecked(False)
 
     # update the internal array from STATUS's toolfile read array
     # we make sure the first array is switched to a QCheckbox widget
