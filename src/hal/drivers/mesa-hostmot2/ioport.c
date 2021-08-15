@@ -516,11 +516,12 @@ void hm2_ioport_force_write(hostmot2_t *hm2) {
 
     hm2_ioport_update(hm2);
 
-    hm2_ioport_force_write_ddr(hm2);
     hm2_ioport_force_write_output_invert(hm2);
     hm2_ioport_force_write_open_drain(hm2);
-
     hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr,    hm2->ioport.alt_source_reg,    size);
+// write the DDR last to avoid startup glitches.
+    hm2_ioport_force_write_ddr(hm2);
+
 }
 
 
@@ -528,13 +529,6 @@ void hm2_ioport_write(hostmot2_t *hm2) {
     int port;
 
     hm2_ioport_update(hm2);
-
-    for (port = 0; port < hm2->ioport.num_instances; port ++) {
-        if (hm2->ioport.written_ddr[port] != hm2->ioport.ddr_reg[port]) {
-            hm2_ioport_force_write_ddr(hm2);
-            break;
-        }
-    }
 
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
         if (hm2->ioport.written_open_drain[port] != hm2->ioport.open_drain_reg[port]) {
@@ -546,6 +540,13 @@ void hm2_ioport_write(hostmot2_t *hm2) {
     for (port = 0; port < hm2->ioport.num_instances; port ++) {
         if (hm2->ioport.written_output_invert[port] != hm2->ioport.output_invert_reg[port]) {
             hm2_ioport_force_write_output_invert(hm2);
+            break;
+        }
+    }
+// write the DDR last to avoid startup glitches.
+    for (port = 0; port < hm2->ioport.num_instances; port ++) {
+        if (hm2->ioport.written_ddr[port] != hm2->ioport.ddr_reg[port]) {
+            hm2_ioport_force_write_ddr(hm2);
             break;
         }
     }
