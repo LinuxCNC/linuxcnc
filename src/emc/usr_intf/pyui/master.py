@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import hal,time,os,sys
 import traceback
 from configobj import ConfigObj
@@ -95,7 +95,7 @@ class keyboard():
                     self._socket = zmq.Context().socket(zmq.PUB)
                     self._socket.bind(self.config['ZMQ_SETUP']['SOCKET'])
                 except Exception as e:
-                    LOG.warning('Problem importing zmq - Is python-zmg installed?')
+                    print('Problem importing zmq - Is python3-zmg installed?')
                     print(e)
                     self._socket = None
         except Exception as e:

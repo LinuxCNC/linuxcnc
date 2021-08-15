@@ -186,8 +186,13 @@ class _ToggleBase(_WidgetBase):
                           "ARGS": args
                         }
                     # convert to json object and send
-                    m1 = json.dumps(x)
-                    self.master._socket.send_multipart([self.master._topic, bytes((m1).encode('utf-8'))])
+                    try:
+                        m1 = json.dumps(x)
+                        self.master._socket.send_multipart(
+                                    [bytes(self.master._topic.encode('utf-8')),
+                                     bytes((m1).encode('utf-8'))])
+                    except Exception as e:
+                        print('Problem with ZMQ message:',e)
             else:
                 print('ZMQ output not enabled:',funct)
 
