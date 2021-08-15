@@ -371,7 +371,7 @@ out:
     if ( comp_id >= 0 ) {
         hal_exit(comp_id);
     }
-    PyRun_SimpleString("print '''Exiting panelui's python module '''");
+    PyRun_SimpleString("print ('''Exiting panelui's python module ''')");
     pValue = PyObject_CallObject(pExit, NULL);
     if (PyErr_Occurred()) {
         PyErr_Print();
