@@ -1766,7 +1766,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     temp3 = search+1
             self.widgets.gladevcptheme.set_active(temp1)
             self.widgets.touchytheme.set_active(temp2)
-            self.widgets.gmcpy_theme.set_active(temp3)
+            self.widgets.gmcpytheme.set_active(temp3)
 
     def gladevcp_sanity_check(self):
                 if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/gvcp-panel.ui" % self.d.machinename)):
@@ -3774,7 +3774,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # ok we have a piter with a signal type now- lets convert it to a signalname
             #print "**** INFO parport-data-transfer piter:",piter
             #self.debug_iter(piter,p,"signal")
-            print("SEL:{}  PITER:{}".format(selection, piter))
             dummy, index = signaltree.get(piter,0,1)
             #print "signaltree: ",dummy
             return p, signaltocheck[index], self.widgets[pinv].get_active()

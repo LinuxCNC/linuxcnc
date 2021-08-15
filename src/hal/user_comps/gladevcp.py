@@ -286,7 +286,7 @@ def main():
 
     if opts.theme:
         dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
-        settings = Gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
 
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.

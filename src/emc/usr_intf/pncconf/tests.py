@@ -173,8 +173,11 @@ But there is not one in the machine-named folder.."""),True)
             width = self.w.gladevcpwidth.get_value()
             height = self.w.gladevcpheight.get_value()
             size = "%dx%d"% (width,height)
-        if not self.w.gladevcptheme.get_active_text() == "Follow System Theme":
-            options ="-t %s"% (self.w.gladevcptheme.get_active_text())
+        model = self.w.gladevcptheme.get_model()
+        active = self.w.gladevcptheme.get_active()
+        vcptheme = model[active][0]
+        if vcptheme != "Follow System Theme":
+            options = "-t %s"% (vcptheme)
             print(options)
         halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
         if debug:
@@ -1552,6 +1555,7 @@ class PyApp(Gtk.Window):
                     firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
+                    print("WOOHOO")
                     pintype = self.w[ptype].get_active_text()
                     pininv = self.w[pinv].get_active()
                     truepinnum = (concount*24) + pin

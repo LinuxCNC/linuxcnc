@@ -734,9 +734,17 @@ panel</property>
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkComboBoxText" id="gladevcptheme">
+                                                      <object class="GtkComboBox" id="gladevcptheme">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
+                                                        <property name="model">glade_themestore</property>
+                                                        <property name="entry_text_column">0</property>
+                                                        <child>
+                                                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                                          <attributes>
+                                                            <attribute name="text">0</attribute>
+                                                          </attributes>
+                                                        </child>
                                                       </object>
                                                       <packing>
                                                         <property name="left_attach">1</property>

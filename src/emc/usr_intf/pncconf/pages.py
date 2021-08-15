@@ -511,7 +511,14 @@ class Pages:
 
         self.d.frontend = self.w.combo_screentype.get_active() +1
 
-        self.d.touchytheme = self.w.touchytheme.get_child().get_text()
+        model = self.w.touchytheme.get_model()
+        active = self.w.touchytheme.get_active()
+        self.d.touchytheme = model[active][0]
+
+        model = self.w.gmcpytheme.get_model()
+        active = self.w.gmcpytheme.get_active()
+        self.d.gmcpytheme = model[active][0]
+
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
         self.d.axisforcemax = self.w.axisforcemax.get_active()
 
@@ -718,7 +725,9 @@ class Pages:
         for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
                     "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
             self.d[i] = self.w[i].get_value()
-        self.d.gladevcptheme = self.w.gladevcptheme.get_active_text()
+        model = self.w.gladevcptheme.get_model()
+        active = self.w.gladevcptheme.get_active()
+        self.d.gladevcptheme = model[active][0]
         # make sure there is a copy of the choosen gladevcp panel in /tmp/
         # We will copy it later into our config folder
         self.t.gladevcptestpanel(self)
@@ -840,7 +849,9 @@ class Pages:
         self.d.gs2_vfd_slave = self.w.gs2_vfd_slave.get_value()
         self.d.gs2_vfd_accel = self.w.gs2_vfd_accel.get_value()
         self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
-        self.d.gs2_vfd_port = self.w.gs2_vfd_device_name.get_active_text()
+        model = self.w.gs2_vfd_device_name.get_model()
+        active = self.w.gs2_vfd_device_name.get_active()
+        self.d.gs2_vfd_port = model[active][0]
         model = self.w.gs2_vfd_baud.get_model()
         index = self.w.gs2_vfd_baud.get_active()
         self.d.gs2_vfd_baud = model[index][1]
@@ -1506,25 +1517,25 @@ different program to copy to your configuration file.\nThe edited program will b
         textbuffer = self.w.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        test = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer,False)
         i = test.split('\n')
         self.d.loadcompservo = i
         textbuffer = self.w.addcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        test = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer,False)
         i = test.split('\n')
         self.d.addcompservo = i
         textbuffer = self.w.loadcompbase.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        test = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer,False)
         i = test.split('\n')
         self.d.loadcompbase = i
         textbuffer = self.w.addcompbase.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        test = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer,False)
         i = test.split('\n')
         self.d.addcompbase = i
 #*************
