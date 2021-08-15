@@ -138,7 +138,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
-        self._zmq_sub_subscribe_name = ""
+        self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
 
@@ -649,7 +649,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 message = json.dumps(args)
                 LOG.debug('Sending ZMQ Message:{} {}'.format(topic,message))
                 self._zmq_pub_socket.send_multipart(
-                    [topic, bytes((message).encode('utf-8'))])
+                    [bytes(topic.encode('utf-8')),
+                        bytes((message).encode('utf-8'))])
             except Exception as e:
                 LOG.error('zmq message sending error: {}'.format(e))
         else:
