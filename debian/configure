@@ -33,7 +33,6 @@ fi
 
 EXTRA_FILES=
 EXTRA_BUILD=
-PYTHON_VERSION=$(python3 -c 'import sys; print (sys.version[:3])')
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV=libreadline-gplv2-dev
 
@@ -138,7 +137,6 @@ sed \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
     -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
-    -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
     -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
