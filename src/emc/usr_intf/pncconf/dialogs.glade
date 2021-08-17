@@ -876,17 +876,21 @@ or discard changes and quit?</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="jogplus">
+                  <object class="GtkButton" id="jogminus">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="pressed" handler="on_oloop_jogplus_pressed" swapped="no"/>
-                    <signal name="released" handler="on_oloop_jogplus_released" swapped="no"/>
+                    <signal name="pressed" handler="on_oloop_jogminus_pressed" swapped="no"/>
+                    <signal name="released" handler="on_oloop_jogminus_released" swapped="no"/>
                     <child>
-                      <object class="GtkImage" id="image4">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="stock">gtk-add</property>
+                        <property name="label" translatable="yes">-</property>
+                        <attributes>
+                          <attribute name="weight" value="ultraheavy"/>
+                          <attribute name="scale" value="2"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -898,18 +902,14 @@ or discard changes and quit?</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="jogminus">
+                  <object class="GtkButton" id="jogplus">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="pressed" handler="on_oloop_jogminus_pressed" swapped="no"/>
-                    <signal name="released" handler="on_oloop_jogminus_released" swapped="no"/>
+                    <signal name="pressed" handler="on_oloop_jogplus_pressed" swapped="no"/>
+                    <signal name="released" handler="on_oloop_jogplus_released" swapped="no"/>
                     <child>
-                      <object class="GtkImage" id="image10">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-remove</property>
-                      </object>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -3092,6 +3092,9 @@ or discard changes and quit?</property>
                           <placeholder/>
                         </child>
                         <child>
+                          <placeholder/>
+                        </child>
+                        <child>
                           <object class="GtkLabel" id="maxrpm">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
@@ -3107,6 +3110,9 @@ or discard changes and quit?</property>
                             <property name="y_options"/>
                             <property name="x_padding">4</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                         <child>
                           <placeholder/>
@@ -3408,10 +3414,15 @@ or discard changes and quit?</property>
                         <signal name="pressed" handler="on_tune_jogminus_pressed" swapped="no"/>
                         <signal name="released" handler="on_tune_jogminus_released" swapped="no"/>
                         <child>
-                          <object class="GtkImage" id="image6">
+                          <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="stock">gtk-remove</property>
+                            <property name="margin_bottom">2</property>
+                            <property name="label" translatable="yes">-</property>
+                            <attributes>
+                              <attribute name="weight" value="ultraheavy"/>
+                              <attribute name="scale" value="2"/>
+                            </attributes>
                           </object>
                         </child>
                       </object>
@@ -3431,10 +3442,14 @@ or discard changes and quit?</property>
                         <signal name="pressed" handler="on_tune_jogplus_pressed" swapped="no"/>
                         <signal name="released" handler="on_tune_jogplus_released" swapped="no"/>
                         <child>
-                          <object class="GtkImage" id="image7">
+                          <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="stock">gtk-add</property>
+                            <property name="label" translatable="yes">+</property>
+                            <attributes>
+                              <attribute name="weight" value="ultraheavy"/>
+                              <attribute name="scale" value="2"/>
+                            </attributes>
                           </object>
                         </child>
                       </object>
@@ -4268,6 +4283,30 @@ or discard changes and quit?</property>
                     <property name="can_focus">False</property>
                     <property name="n_rows">9</property>
                     <property name="n_columns">4</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>

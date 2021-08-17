@@ -210,7 +210,7 @@ But there is not one in the machine-named folder.."""),True)
         print(("""<?xml version="1.0"?>
 <interface>
   <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
+  <requires lib="gtk+" version="3.0"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="width_request">100</property>
@@ -730,7 +730,7 @@ But there is not one in the machine-named folder.."""),True)
         self.w['window1'].set_sensitive(0)
         result = w.tunedialog.run()
         w.tunedialog.hide()
-        if result == Gtk.RESPONSE_OK:
+        if result == Gtk.ResponseType.OK:
             w[axis+"maxvel"].set_value( get_value(w.xtunevel))
             w[axis+"maxacc"].set_value( get_value(w.xtuneacc))
             w[axis+"P"].set_value( get_value(w.xtunecurrentP))
@@ -836,7 +836,6 @@ But there is not one in the machine-named folder.."""),True)
                 setp pid.0.FF2    %(ff2)f
                 setp pid.0.bias   %(bias)f
                 setp pid.0.deadband  %(deadband)f
-
                 setp axistest.0.jog-minus %(jogminus)s
                 setp axistest.0.jog-plus %(jogplus)s
                 setp axistest.0.run %(run)s
@@ -871,9 +870,9 @@ But there is not one in the machine-named folder.."""),True)
             if self.encoder:
                 halrun.write("""
                     setp %(encoder)s.scale %(enc_scale)d
-            """ % {
+                """ % {
                     'encoder':self.enc_signalname,
-                '   enc_scale':self.enc_scale,
+                    'enc_scale':self.enc_scale,
                 })
         halrun.flush()
 
@@ -1056,7 +1055,7 @@ But there is not one in the machine-named folder.."""),True)
         widgets.openloopdialog.hide()
         time.sleep(.001)
         halrun.close()        
-        if result == Gtk.RESPONSE_OK:
+        if result == Gtk.ResponseType.OK:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
@@ -1525,19 +1524,19 @@ class PyApp(Gtk.Window):
         #print "done HAL init"
         self.set_title("Mesa Test Panel")
         self.set_size_request(450, 450)        
-        self.set_position(Gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WindowPosition.CENTER)
         self.connect_after("destroy", self.quit)
         self.timer = gobject.timeout_add(100, self.update)
         #print "added timer"
         brdnotebook = Gtk.Notebook()
-        brdnotebook.set_tab_pos(Gtk.POS_TOP)
+        brdnotebook.set_tab_pos(Gtk.Gtk.PositionType.TOP)
         brdnotebook.show()
         self.add(brdnotebook)             
         
         for boardnum in range(0,int(self.d.number_mesa)):
             board = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._BOARDNAME]+".%d"% boardnum
             self.data2["notebook%d"%boardnum] = Gtk.Notebook()
-            self.data2["notebook%d"%boardnum].set_tab_pos(Gtk.POS_TOP)
+            self.data2["notebook%d"%boardnum].set_tab_pos(Gtk.PositionType.TOP)
             self.data2["notebook%d"%boardnum].show()
             label = Gtk.Label("Mesa Board Number %d"% (boardnum))      
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
