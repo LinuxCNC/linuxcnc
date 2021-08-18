@@ -20,14 +20,17 @@ size_shift = 16
 def SZ(a,b): return a | (b<<size_shift)
 
 def get_name(f):
-    return fcntl.ioctl(f, SZ(EVIOCGNAME, 1024), '\0' * 1024)
+    r = fcntl.ioctl(f, SZ(EVIOCGNAME, 1024), '\0' * 1024)
+    return r.decode('utf-8', errors='replace').rstrip('\0')
 
 def get_phys(f):
-    return fcntl.ioctl(f, SZ(EVIOCGPHYS, 1024), '\0' * 1024)
+    r = fcntl.ioctl(f, SZ(EVIOCGPHYS, 1024), '\0' * 1024)
+    return r.decode('utf-8', errors='replace').rstrip('\0')
 
 # get_uniq seems to return -ENOENT on all my devices
 def get_uniq(f):
-    return fcntl.ioctl(f, SZ(EVIOCGUNIQ, 1024), '\0' * 1024)
+    r = fcntl.ioctl(f, SZ(EVIOCGUNIQ, 1024), '\0' * 1024)
+    return r.decode('utf-8', errors='replace').rstrip('\0')
 
 def get_bits(f, o=0):
     o = EV_invert.get(o, o)
@@ -39,10 +42,9 @@ def get_bits(f, o=0):
     else: raise ValueError("get_bits: unexpected map %s" % o)
 
     sz = max(fmap) + 1
-    a = fcntl.ioctl(f, SZ(EVIOCGBIT+EV[o], sz), '\0' * ((sz+7)/8))
+    a = fcntl.ioctl(f, SZ(EVIOCGBIT+EV[o], sz), '\0' * ((sz+7)//8))
     ret = set()
     for j, ch in enumerate(a):
-        ch = ord(ch)
         for i in range(8):
             b = 1<<i
             if ch & b:
@@ -771,13 +773,15 @@ def humanize(s):
     return list(map(maybe_int, s))
 
 def find(pattern):
+    if os.path.exists(pattern):
+        return os.open(pattern, os.O_RDWR)
+    if os.path.exists("/dev/input/event%s" % pattern):
+        return os.open("/dev/input/event%s" % pattern, os.O_RDWR)
     if ":" in pattern:
         pattern, idx = pattern.rsplit(":", 1)
         idx = int(idx)
     else:
         idx = 0
-    if os.path.exists("/dev/input/event%s" % pattern):
-        return os.open("/dev/input/event%s" % pattern, os.O_RDWR)
 
     candidates = glob.glob("/dev/input/event*")
     candidates.sort(key=humanize)
@@ -790,6 +794,7 @@ def find(pattern):
         successful_opens += 1
 
         name = get_name(f)
+        print(f"note: name is {repr(name)}")
         if name.find(pattern) != -1 or fnmatch.fnmatch(name, pattern):
             if idx == 0:
                 return f
