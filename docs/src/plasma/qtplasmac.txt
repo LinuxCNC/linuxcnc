@@ -2084,12 +2084,14 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
         Program will run from selected line with no leadin applied"
 |===
 
-After pressing *LOAD*, the blinking "SELECTED nn" button will change to a blinking *RUN FROM LINE* button. Click this button to start the program from the beginning of the selected line.
+After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FROM LINE CYCLE START* button. Click this button to start the program from the beginning of the selected line.
 
 *Run From Line selections may be canceled in the following ways:*
 
 . Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
 . Clicking *RELOAD* in the G-Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-Code window header. This will return the user to the originally loaded file.
+
+NOTE: It is not possible to select a new line once Run From Line is active.  To select a different line, the user must press *RELOAD* and start over.
 
 [[qt_scribe]]
 
