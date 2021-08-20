@@ -216,7 +216,7 @@ endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
-INCLUDE += -I$(INCLUDEPY)
+INCLUDE += $(PYTHON_CPPFLAGS)
 INCLUDE += $(LIBTIRPC_CFLAGS)
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
@@ -845,10 +845,6 @@ EXTRA_CFLAGS += -g
 endif
 endif
 EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
-
-ifeq "$(USE_STUBS)" "1"
-MATHSTUB := rtapi/mathstubs.o
-endif
 
 ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT

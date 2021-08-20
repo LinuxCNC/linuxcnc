@@ -31,6 +31,7 @@ if test "$srcdir" != "."; then
 fi
 
 AC_PROG_CXX
+AC_PROG_INSTALL
 
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADER([boost/lockfree/queue.hpp],
@@ -39,77 +40,12 @@ AC_LANG_POP([C++])
 AC_SUBST([RTAPI_APP_CFLAGS])
 
 m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+m4_include([m4/ax_python.m4])
+m4_include([m4/ax_python_devel.m4])
+m4_include([m4/ax_boost_base.m4])
+m4_include([m4/ax_boost_python.m4])
 # make this optional - it will likely only result in warnings
 AX_CXX_COMPILE_STDCXX_11(noext,optional)
-
-## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
-##
-m4_define([_PYTHON_SYSCONFIG],
-[dnl
-py_val=`$PYTHON -c "dnl
-[import sys; from distutils import sysconfig; sys.stdout.write]dnl
-([sysconfig.]$1 or '')" 2>&AS_MESSAGE_LOG_FD`
-AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
-])
-
-# adapted from AX_BOOST_PYTHON_MURRAYC
-# http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
-m4_define([AX_BOOST_PYTHON_EMC],
-[
-AC_LANG_PUSH([C++])
-saved_CPPFLAGS=$CPPFLAGS
-saved_LIBS=$LIBS
-# Note that this requires PYTHON_CPPFLAGS
-# Note that this expects boost/ to be at some top-level such as /usr/include/
-# We couldn't check for anything else anyway because there's no pkg-config file to tell us where it is
-CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
-AC_CACHE_CHECK([whether the Boost::Python headers are available],
-               [ac_cv_boost_python],
-               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <boost/python/object_fwd.hpp>
-using namespace boost::python;
-]], [])],
-    [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
-
-AS_IF([test "x$ac_cv_boost_python" = xyes],
-[
-  PYTHON_MAJOR=`$PYTHON -c 'import sys; print(sys.version_info.major)'`
-  PYTHON_MINOR=`$PYTHON -c 'import sys; print(sys.version_info.minor)'`
-  BOOST_PYTHON_LIBS=
-  ax_python_lib=boost_python
-  AC_ARG_WITH([boost-python],
-    AS_HELP_STRING(
-        [--with-boost-python],
-        [Specify the boost python shared library to use. For
-        instance, --with-boost-python=boost_python-py25. Defaults to
-        boost-python. If you use this then you should probably set PYTHON
-        too, to avoid using multiple python versions.]
-    ),
-  [if test "x$with_boost_python" != xno; then
-    ax_python_lib=$with_boost_python
-    ax_boost_python_lib=boost_python-$with_boost_python
-  fi])
-  AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python${PYTHON_MAJOR}${PYTHON_MINOR} boost_python${PYTHON_MAJOR} boost_python
-  do
-    # Note that this requires LIBPYTHON from configure.ac
-    LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
-    AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([[#include <boost/python/object_fwd.hpp>]], [[boost::python::object *test_object;]])],
-      [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
-  done
-  AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])
-  AC_MSG_RESULT([$ax_result])
-])
-CPPFLAGS=$saved_CPPFLAGS
-LIBS=$saved_LIBS
-AC_LANG_POP([C++])
-AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
-      [AC_DEFINE([HAVE_BOOST_PYTHON], [1],
-                 [define if the Boost::Python headers and library are available])],
-      [AC_MSG_ERROR([[boost::python is required to build $PACKAGE_NAME]])])
-AC_SUBST([BOOST_PYTHON_LIBS])
-])
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -798,7 +734,6 @@ AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files]
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
 AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl translation files])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
-AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 
@@ -1071,21 +1006,11 @@ AC_SUBST(YAPPS)
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
-AC_ARG_WITH(python,
-    AS_HELP_STRING(
-        [--with-python=PATH],
-        [Specify the Python interpreter.]
-    ),
-    [
-        PYTHON=$withval
-    ],[
-        PYTHON=python3
-    ])
-AC_PATH_PROG(PYTHON,$PYTHON,"none")
-if test $PYTHON = "none"
-then
-    AC_MSG_ERROR([python not found])
-fi
+AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
+AX_PYTHON
+AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
+AX_PYTHON_DEVEL([>='3.7'],,AC_MSG_ERROR([python-dev not found]))
+AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1126,10 +1051,6 @@ AC_ARG_ENABLE(build-documentation,
 
 # Programs required for building all documentation
 if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-        AC_MSG_ERROR([no python, documentation cannot be built])
-    fi
-
     AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
     if ( test "none" = "$ASCIIDOC" ) ; then
 	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
@@ -1458,61 +1379,48 @@ AC_MSG_CHECKING([whether to check for runtime dependencies])
 AC_MSG_RESULT($RUNTIME_CHECK)
 
 if test "$RUNTIME_CHECK" = "yes"; then
-AC_MSG_CHECKING([for BWidget using $TCLSH])
-if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
-    AC_MSG_RESULT([found])
-else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([BWidget not found!
-install with "sudo apt-get install bwidget"])
-fi
+    AC_MSG_CHECKING([for BWidget using $TCLSH])
+    if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
+        AC_MSG_RESULT([found])
+    else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([BWidget not found!
+    install with "sudo apt-get install bwidget"])
+    fi
 
-AC_MSG_CHECKING([for BLT using tclsh8.5])
-if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
-    AC_MSG_RESULT([found])
-else
-    AC_MSG_RESULT([not found])
-fi
+    AC_MSG_CHECKING([for BLT using $TCLSH])
+    if (unset DISPLAY; echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | $TCLSH); then
+        AC_MSG_RESULT([found])
+    else
+        AC_MSG_RESULT([not found])
+    fi
 
-AC_MSG_CHECKING([for img::png using $TCLSH])
-if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
-    AC_MSG_RESULT([found])
-    HAVE_WORKING_BLT=yes
-else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Tk img::png not found!
-install with "sudo apt-get install libtk-img"])
-fi
+    AC_MSG_CHECKING([for img::png using $TCLSH])
+    if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
+        AC_MSG_RESULT([found])
+        HAVE_WORKING_BLT=yes
+    else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Tk img::png not found!
+    install with "sudo apt-get install libtk-img"])
+    fi
 
-AC_MSG_CHECKING([for tclX using $TCLSH])
-if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
-    AC_MSG_RESULT([found])
-else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Tclx not found!
-install with "sudo apt-get install tclx"])
-fi
+    AC_MSG_CHECKING([for tclX using $TCLSH])
+    if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
+        AC_MSG_RESULT([found])
+    else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Tclx not found!
+    install with "sudo apt-get install tclx"])
+    fi
 
-AC_MSG_CHECKING([for python pango and cairo modules])
-if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
-then
-
-	if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
-	    AC_MSG_RESULT([found])
-	else
-	    AC_MSG_RESULT(no)
-	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
-	fi
-
-else
-
-	if $PYTHON -c 'import pango,cairo'; then
-	    AC_MSG_RESULT([found])
-	else
-	    AC_MSG_RESULT(no)
-	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python-gtk2"])
-	fi
-	fi
+    AC_MSG_CHECKING([for python pango and cairo modules])
+    if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
+        AC_MSG_RESULT([found])
+    else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
+    fi
 fi
 
 AC_SUBST([TCL_DBGX])
@@ -1688,10 +1596,6 @@ then
 fi
 AC_MSG_RESULT(OK)
 
-AC_MSG_CHECKING([version of python libraries])
-LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print("python" + (distutils.sysconfig.get_config_vars().get("LDVERSION") or distutils.sysconfig.get_config_vars().get("VERSION")))'`
-AC_MSG_RESULT($LIBPYTHON)
-
 AC_MSG_CHECKING([match between tk and Tkinter versions])
 if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
 then
@@ -1717,48 +1621,9 @@ if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
 fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
-############################
-
-AC_MSG_CHECKING(location of Python header files)
-INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_vars().get("INCLUDEPY"))'`
-AC_MSG_RESULT($INCLUDEPY)
-
-AC_MSG_CHECKING([for Python headers])
-AS_IF([test "x$PYTHON_CPPFLAGS" = x],
-[
-    _PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
-    _PYTHON_SYSCONFIG([[get_python_inc(True)]],
-    [test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
-])
-AC_MSG_RESULT([$PYTHON_CPPFLAGS])
-AC_SUBST(PYTHON_CPPFLAGS)
-
-AC_MSG_CHECKING([for Python libraries])
-AS_IF([test "x$PYTHON_LIBS" = x],
-[
-    _PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
-])
-AC_MSG_RESULT([$PYTHON_LIBS])
-AC_SUBST(PYTHON_LIBS)
-
-# Get the CFLAGS and LIBS for boost::python.
-# This does an AC_SUBST() of BOOST_PYTHON_LIBS
-# For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
-AX_BOOST_PYTHON_EMC
-
-saved_CPPFLAGS=$CPPFLAGS
-CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
-AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
-CPPFLAGS=$saved_CPPFLAGS
-
 AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
 AC_MSG_RESULT($SITEPY)
-
-AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
-
-AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
 AC_MSG_CHECKING(for working GLU quadrics)
 AC_TRY_COMPILE([
@@ -1775,7 +1640,6 @@ AC_MSG_CHECKING(for Xmu headers)
 AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
 AC_SUBST([LIBPYTHON])
-AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
 AC_SUBST([CFLAGS])

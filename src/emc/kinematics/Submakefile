@@ -12,7 +12,7 @@ $(call TOOBJS, $(DELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-stat
 DELTAMODULE := ../lib/python/lineardeltakins.so
 $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(DELTAMODULE)
 
 #ifdef ULAPI
@@ -32,7 +32,7 @@ $(call TOOBJS, $(RDELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-sta
 RDELTAMODULE := ../lib/python/rotarydeltakins.so
 $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
 
 $(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.h)): ../include/%.h: ./emc/kinematics/%.h
